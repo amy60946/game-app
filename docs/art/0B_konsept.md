@@ -1,6 +1,6 @@
 # Aşama 0B — Konsept (12 pet)
 
-Durum: **onay bekliyor.** Bu görseller betikli Blender blockout'larıdır: oran, silüet, renk ve ayırt edici özelliği gösterirler, nihai kalite değildir (bkz. §5).
+Durum: **onay bekliyor.** Telefondan inceleme sayfası: https://claude.ai/artifact/9DqKTtEM6TBj1G8uNtJPQo (güncellemek için aynı URL'ye yayınla). Bu görseller betikli Blender blockout'larıdır: oran, silüet, renk ve ayırt edici özelliği gösterirler, nihai kalite değildir (bkz. §5).
 
 ## 1. 12 pet yan yana
 ![Dizilim](lineup.jpg)
