@@ -4,7 +4,6 @@ using Pofi.Logic.App;
 using Pofi.Logic.Data;
 using Pofi.Logic.Pet;
 using Pofi.Logic.Progression;
-using Pofi.Logic.Safety;
 using Pofi.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,25 +27,20 @@ namespace Pofi.Screens
         private Text _coins, _title, _feedCount, _washCount;
         private SpeechBubble _bubble;
         private float _tick, _idle;
-        private RectTransform _gate;
         private bool _night;
 
         protected override void Build()
         {
             var def = App.Data.Pet(App.State.PetId);
             App.Stage.AllowDrag = true;
-            App.Stage.SetCamera(new Vector3(0f, 1.14f, -6.23f), 0f);
-            App.Stage.ShowPet(def, App.Growth);
+            App.Stage.SetCamera(new Vector3(0f, 1.09f, -6.88f), 0f);
+            App.Stage.ShowPet(def, App.Growth, App.State.Inventory.Equipped.Values);
 
             // Üst bilgi kartı: isim, seviye/evre, coin ve göstergeler
             var top = Ui.Rect(Root, "Top", new Vector2(0.5f, 0.835f), new Vector2(1010f, 420f));
             Ui.Panel(top, Th.Panel, Th.Radius);
             _title = Ui.Label(top, "", Th.Font(54), Th.Text, new Vector2(0.4f, 0.85f), new Vector2(740f, 80f), FontStyle.Bold, TextAnchor.MiddleLeft);
-            var coin = Ui.Rect(top, "Coins", new Vector2(0.84f, 0.85f), new Vector2(230f, 84f));
-            Ui.Panel(coin, Theme.Hex("#FFD23F"), 42f);
-            var coinDot = Ui.Rect(coin, "Icon", new Vector2(0.2f, 0.5f), new Vector2(54f, 54f));
-            Ui.Panel(coinDot, Theme.Hex("#F5A300"), 27f);
-            _coins = Ui.Label(coin, "0", Th.Font(46), Theme.Hex("#5A3B00"), new Vector2(0.62f, 0.5f), new Vector2(150f, 80f), FontStyle.Bold);
+            _coins = CoinPill(top, new Vector2(0.84f, 0.85f));
 
             for (var i = 0; i < 4; i++)
             {
@@ -58,12 +52,15 @@ namespace Pofi.Screens
             }
 
             // Ayarlar / çıkış (ebeveyn kapısı)
-            Ui.Button(Root, Th, T("settings.sign_out"), new Vector2(0.87f, 0.972f), new Vector2(210f, 76f), OpenGate, false, default, 34);
+            Ui.Button(Root, Th, T("settings.sign_out"), new Vector2(0.87f, 0.972f), new Vector2(210f, 76f),
+                () => ParentGate(App.SignOut, msg => _bubble.Say(msg)), false, default, 34);
 
             _bubble = Bubble(new Vector2(0.5f, 0.675f));
 
             // Bakım düğmeleri
-            var bar = Ui.Rect(Root, "Actions", new Vector2(0.5f, 0.095f), new Vector2(1010f, 230f));
+            var bar = Ui.Rect(Root, "Actions", new Vector2(0.5f, 0f), new Vector2(1010f, 230f));
+            bar.pivot = new Vector2(0.5f, 0f);
+            bar.anchoredPosition = new Vector2(0f, NavHeight + 16f);
             Ui.Panel(bar, Th.Panel, Th.Radius);
             var labels = new[] { "home.feed", "home.wash", "home.play", "home.tidy" };
             var actions = new[] { CareAction.Feed, CareAction.Wash, CareAction.Play, CareAction.Tidy };
@@ -80,7 +77,8 @@ namespace Pofi.Screens
                 }
                 else Destroy(badge.gameObject);
             }
-            Footer();
+            NavBar(AppPage.Home);
+            App.Synced += OnSynced;
 
             Refresh();
             _bubble.Say(T("pet.welcome", App.State.PetName), 4f);
@@ -154,38 +152,11 @@ namespace Pofi.Screens
             Refresh();
         }
 
-        // ---- ebeveyn kapısı ----
-        private void OpenGate()
-        {
-            if (_gate != null) return;
-            App.Stage.AllowDrag = false;
-            var ch = ParentGate.Create(App.Session.AgeBand, new System.Random());
-            _gate = Ui.Fill(Root, "Gate");
-            _gate.gameObject.AddComponent<Image>().color = new Color(0f, 0.08f, 0.2f, 0.55f);
-            var box = Ui.Rect(_gate, "Box", new Vector2(0.5f, 0.5f), new Vector2(960f, 900f));
-            Ui.Panel(box, Color.white, Th.Radius);
-            Ui.Label(box, T("gate.title"), Th.Font(56), Th.Text, new Vector2(0.5f, 0.9f), new Vector2(880f, 80f), FontStyle.Bold);
-            Ui.Label(box, T("gate.hint"), Th.Font(34), Th.SubtleText, new Vector2(0.5f, 0.82f), new Vector2(880f, 60f));
-            Ui.Label(box, ch.Prompt, Th.Font(48), Th.Text, new Vector2(0.5f, 0.69f), new Vector2(880f, 140f), FontStyle.Bold);
-            for (var i = 0; i < ch.Options.Count; i++)
-            {
-                var v = ch.Options[i];
-                var anchor = new Vector2(i % 2 == 0 ? 0.28f : 0.72f, i < 2 ? 0.47f : 0.29f);
-                Ui.Button(box, Th, v.ToString(), anchor, new Vector2(360f, 130f), () =>
-                {
-                    CloseGate();
-                    if (v == ch.Answer) App.SignOut();
-                    else _bubble.Say(T("gate.wrong"));
-                }, false, default, 56);
-            }
-            Ui.Button(box, Th, "X", new Vector2(0.5f, 0.09f), new Vector2(160f, 100f), CloseGate, false, default, 48);
-        }
+        private void OnSynced(Logic.State.SyncReport r) => Refresh();
 
-        private void CloseGate()
+        private void OnDestroy()
         {
-            if (_gate != null) Destroy(_gate.gameObject);
-            _gate = null;
-            App.Stage.AllowDrag = true;
+            if (App != null) App.Synced -= OnSynced;
         }
     }
 }

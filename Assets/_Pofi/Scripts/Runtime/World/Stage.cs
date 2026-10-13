@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Pofi.Logic.Data;
 using Pofi.Logic.Progression;
 using UnityEngine;
@@ -15,8 +18,12 @@ namespace Pofi.World
         public Transform Pet { get; private set; }
         public bool AllowDrag = true;
 
+        /// <summary>Eşya kimliği → tanım (giyilenleri çizmek için). Uygulama kökü atar.</summary>
+        public Func<string, ItemDef> ItemLookup;
+        private PetSpeciesDef _petDef;
+
         /// <summary>Hızlı yatay kaydırma (karusel için): −1 sola, +1 sağa.</summary>
-        public System.Action<int> Swiped;
+        public Action<int> Swiped;
 
         private Transform _holder;
         private float _yaw, _yawVelocity, _hop, _breath, _baseScale = 1f, _appear = 1f;
@@ -94,14 +101,26 @@ namespace Pofi.World
 
         public void SetSky(Color sky) => Camera.backgroundColor = sky;
 
-        public void ShowPet(PetSpeciesDef def, GrowthStage stage, bool resetYaw = true)
+        public void ShowPet(PetSpeciesDef def, GrowthStage stage, IEnumerable<string> equipped = null, bool resetYaw = true)
         {
             ClearPet();
+            _petDef = def;
             Pet = PetModels.Build(def, _holder);
+            SetCosmetics(equipped);
             _baseScale = PetModels.StageScale(stage);
             _appear = 0f;
             if (resetYaw) { _yaw = -18f; _yawVelocity = 0f; }
         }
+
+        /// <summary>Giyilenleri yeniler (pet yeniden kurulmaz, dönüş korunur).</summary>
+        public void SetCosmetics(IEnumerable<string> equipped)
+        {
+            if (Pet == null || _petDef == null) return;
+            var items = equipped == null || ItemLookup == null ? null : equipped.Select(ItemLookup).Where(i => i != null).ToList();
+            CosmeticModels.Apply(Pet, _petDef, items);
+        }
+
+        public void SetPetVisible(bool visible) => _holder.gameObject.SetActive(visible);
 
         public void ClearPet()
         {
@@ -118,7 +137,7 @@ namespace Pofi.World
         public Vector2 PetHeadScreenPoint()
         {
             var top = _holder.position + Vector3.up * (1.75f * _baseScale);
-            return Camera.WorldToScreenPoint(top);
+            return (Vector2)Camera.WorldToScreenPoint(top);
         }
 
         private void Update()

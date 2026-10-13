@@ -185,6 +185,77 @@ namespace Pofi.UI
             fill.enabled = v > 0.001f;
         }
 
+        /// <summary>
+        /// Dikey kaydırılabilir liste. İçerik kutusu (Content) döner; öğeler yukarıdan aşağı <see cref="VerticalLayoutGroup"/> ile dizilir.
+        /// </summary>
+        public static RectTransform ScrollList(Transform parent, Vector2 anchorMin, Vector2 anchorMax, float spacing, int columns = 1, Vector2 cell = default)
+        {
+            var view = Rect(parent, "Scroll", Vector2.zero, Vector2.zero);
+            view.anchorMin = anchorMin; view.anchorMax = anchorMax;
+            view.offsetMin = view.offsetMax = Vector2.zero;
+            var bg = view.gameObject.AddComponent<Image>();
+            bg.color = new Color(1f, 1f, 1f, 0.001f);   // sürükleme için tıklanabilir alan
+            view.gameObject.AddComponent<RectMask2D>();
+            var scroll = view.gameObject.AddComponent<ScrollRect>();
+            scroll.horizontal = false;
+            scroll.movementType = ScrollRect.MovementType.Elastic;
+            scroll.scrollSensitivity = 30f;
+
+            var content = new GameObject("Content", typeof(RectTransform)).GetComponent<RectTransform>();
+            content.SetParent(view, false);
+            content.anchorMin = new Vector2(0f, 1f); content.anchorMax = new Vector2(1f, 1f);
+            content.pivot = new Vector2(0.5f, 1f);
+            content.offsetMin = content.offsetMax = Vector2.zero;
+            if (columns <= 1)
+            {
+                var v = content.gameObject.AddComponent<VerticalLayoutGroup>();
+                v.spacing = spacing;
+                v.padding = new RectOffset(24, 24, 16, 40);
+                v.childAlignment = TextAnchor.UpperCenter;
+                v.childControlWidth = true; v.childForceExpandWidth = true;
+                v.childControlHeight = false; v.childForceExpandHeight = false;
+            }
+            else
+            {
+                var g = content.gameObject.AddComponent<GridLayoutGroup>();
+                g.cellSize = cell;
+                g.spacing = new Vector2(spacing, spacing);
+                g.padding = new RectOffset(24, 24, 16, 40);
+                g.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+                g.constraintCount = columns;
+                g.childAlignment = TextAnchor.UpperCenter;
+            }
+            content.gameObject.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            scroll.content = content;
+            scroll.viewport = view;
+            return content;
+        }
+
+        /// <summary>Listeye sabit yükseklikli satır ekler (genişlik listeye uyar).</summary>
+        public static RectTransform Row(Transform content, string name, float height)
+        {
+            var rt = new GameObject(name, typeof(RectTransform)).GetComponent<RectTransform>();
+            rt.SetParent(content, false);
+            rt.sizeDelta = new Vector2(0f, height);
+            var le = rt.gameObject.AddComponent<LayoutElement>();
+            le.preferredHeight = height;
+            le.minHeight = height;
+            return rt;
+        }
+
+        /// <summary>Bir dikdörtgeni ebeveyninin göreli bölgesine yerleştirir (0–1 köşeler).</summary>
+        public static RectTransform Area(Transform parent, string name, Vector2 min, Vector2 max)
+        {
+            var rt = Fill(parent, name);
+            rt.anchorMin = min; rt.anchorMax = max;
+            return rt;
+        }
+
+        public static void Clear(Transform t)
+        {
+            for (var i = t.childCount - 1; i >= 0; i--) UnityEngine.Object.Destroy(t.GetChild(i).gameObject);
+        }
+
         public static void Stretch(RectTransform rt)
         {
             rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Pofi.Logic.App;
 using Pofi.Logic.Core;
 using Pofi.Logic.Data;
@@ -36,12 +37,23 @@ namespace Pofi.Core
         public Theme Theme { get; private set; } = Theme.Default;
         public Stage Stage { get; private set; }
         public Canvas Canvas { get; private set; }
+        public Canvas Overlay { get; private set; }
         public string BuildLabel { get; private set; }
 
+        /// <summary>Sahte sunucu (M4'te Supabase servisleriyle değişecek). Ebeveyn rolü: <see cref="DemoParent"/>.</summary>
+        public MockBackend Backend { get; private set; }
+        public SyncCoordinator Sync { get; private set; }
+        public AppPage Page { get; private set; } = AppPage.Home;
+
+        /// <summary>Her senkrondan sonra (görev olayları, kazanılan coin).</summary>
+        public event Action<SyncReport> Synced;
+
         private ScreenBase _screen;
-        private float _autosave;
+        private float _autosave, _autosync;
+        private bool _syncing;
 
         private static string SaveKey(string childId) => "pofi.save." + childId;
+        private static string ServerKey(string childId) => "pofi.mockserver." + childId;
 
         private async void Awake()
         {
@@ -59,8 +71,10 @@ namespace Pofi.Core
             BuildLabel = GameVersion.Display(build != null ? build.text.Trim() : null);
 
             Stage = Stage.Create(Theme.Sky);
+            Stage.ItemLookup = Data.Item;
             Ui.EnsureEventSystem();
             Canvas = Ui.CreateCanvas("Canvas", 0);
+            Overlay = Ui.CreateCanvas("Overlay", 10);
 
             var restored = await Auth.RestoreAsync();
             if (restored != null) OnSignedIn(restored, route: false);
@@ -90,7 +104,39 @@ namespace Pofi.Core
             State = AppFlow.BelongsTo(saved, session) ? saved : GameState.NewFor(session.ChildId, UtcNow);
             State.Stats ??= PetStats.New(UtcNow);
             State.Stats.Tick(UtcNow, Decay);
+
+            Backend = new MockBackend(Data);
+            Backend.Import(Store.Get(ServerKey(session.ChildId)));
+            DemoParent.EnsureToday(Backend, LocalNow);
+            Sync = new SyncCoordinator(Backend, Backend, Backend, Data);
+            Page = AppPage.Home;
+            _ = SyncNow();
             if (route) Route();
+        }
+
+        /// <summary>Görevleri, harcamaları ve bakiyeyi sunucuyla eşitler. Aynı anda tek senkron.</summary>
+        public async Task<SyncReport> SyncNow()
+        {
+            if (Sync == null || State == null || _syncing) return null;
+            _syncing = true;
+            SyncReport report;
+            try { report = await Sync.SyncAsync(State, LocalNow, UtcNow); }
+            catch (Exception e) { Debug.LogException(e); report = null; }
+            finally { _syncing = false; }
+            _autosync = 0f;
+            if (report == null || State == null) return report;
+            if (Session != null) Store.Set(ServerKey(Session.ChildId), Backend.Export());
+            Save();
+            if (report.CoinsEarned > 0) CoinBurst.Play(Overlay.transform, Theme, Loc.Get("tasks.earned", report.CoinsEarned));
+            Synced?.Invoke(report);
+            return report;
+        }
+
+        /// <summary>Alt menüden sayfa aç (yalnızca pet hazırsa).</summary>
+        public void Open(AppPage page)
+        {
+            Page = page;
+            Route();
         }
 
         public async void SignOut()
@@ -99,6 +145,8 @@ namespace Pofi.Core
             await Auth.SignOutAsync();
             Session = null;
             State = null;
+            Backend = null;
+            Sync = null;
             Theme = Theme.Default;
             Stage.SetSky(Theme.Sky);
             Route();
@@ -114,14 +162,28 @@ namespace Pofi.Core
         public void Route()
         {
             var next = AppFlow.Decide(Session, State);
-            if (_screen != null) Destroy(_screen.gameObject);
+            if (_screen != null)
+            {
+                _screen.gameObject.SetActive(false);   // Destroy kare sonunda olur; eski ekran bir kare bile görünmesin
+                Destroy(_screen.gameObject);
+            }
+            Stage.SetPetVisible(true);
+            Stage.Swiped = null;
             var root = Ui.Fill(Canvas.transform, "Screen " + next);
             switch (next)
             {
                 case AppScreen.Login: _screen = root.gameObject.AddComponent<LoginScreen>(); break;
                 case AppScreen.PetSelect: _screen = root.gameObject.AddComponent<PetSelectScreen>(); break;
                 case AppScreen.PetName: _screen = root.gameObject.AddComponent<PetNameScreen>(); break;
-                default: _screen = root.gameObject.AddComponent<HomeScreen>(); break;
+                default:
+                    switch (Page)
+                    {
+                        case AppPage.Tasks: _screen = root.gameObject.AddComponent<TasksScreen>(); break;
+                        case AppPage.Shop: _screen = root.gameObject.AddComponent<ShopScreen>(); break;
+                        case AppPage.Wardrobe: _screen = root.gameObject.AddComponent<WardrobeScreen>(); break;
+                        default: _screen = root.gameObject.AddComponent<HomeScreen>(); break;
+                    }
+                    break;
             }
             _screen.Init(this);
         }
@@ -130,6 +192,11 @@ namespace Pofi.Core
         {
             _autosave += Time.unscaledDeltaTime;
             if (_autosave > 30f) Save();
+            if (State != null && State.HasPet)
+            {
+                _autosync += Time.unscaledDeltaTime;
+                if (_autosync > 20f) _ = SyncNow();
+            }
         }
 
         private void OnApplicationPause(bool paused) { if (paused) Save(); }

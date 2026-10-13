@@ -6,6 +6,9 @@ namespace Pofi.Logic.App
     /// <summary>Oyunun ana ekranları (M1–M2 dikey dilim).</summary>
     public enum AppScreen { Login, PetSelect, PetName, Home }
 
+    /// <summary>Pet hazır olduktan sonra alt menüden açılan sayfalar.</summary>
+    public enum AppPage { Home, Tasks, Shop, Wardrobe }
+
     /// <summary>
     /// Hangi ekranın gösterileceğine karar verir. Unity katmanı yalnızca sonucu çizer;
     /// kural burada ve birim testlidir.

@@ -116,6 +116,40 @@ namespace Pofi.Logic.Services.Mock
             return Task.FromResult(ServiceError.None);
         }
 
+        // ---------- kalıcılık (önizleme: sahte sunucu sayfa yenilenince kaybolmasın) ----------
+
+        private sealed class Snapshot
+        {
+            public int Coins;
+            public List<ChildTask> Tasks = new List<ChildTask>();
+            public Dictionary<string, int> Tx = new Dictionary<string, int>();
+            public string Remote;
+        }
+
+        public string Export() => Newtonsoft.Json.JsonConvert.SerializeObject(new Snapshot
+        {
+            Coins = Coins, Tasks = _tasks.Select(Clone).ToList(), Tx = new Dictionary<string, int>(_processedTx), Remote = _remoteSave,
+        });
+
+        /// <summary>Önceki <see cref="Export"/> çıktısını yükler. Bozuk veri yok sayılır (boş sunucu).</summary>
+        public void Import(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return;
+            Snapshot snap;
+            try { snap = Newtonsoft.Json.JsonConvert.DeserializeObject<Snapshot>(json); }
+            catch (Newtonsoft.Json.JsonException) { return; }
+            if (snap == null) return;
+            Coins = snap.Coins;
+            _tasks.Clear();
+            if (snap.Tasks != null) _tasks.AddRange(snap.Tasks);
+            _processedTx.Clear();
+            if (snap.Tx != null) foreach (var kv in snap.Tx) _processedTx[kv.Key] = kv.Value;
+            _remoteSave = snap.Remote;
+        }
+
+        /// <summary>Sunucudaki görevlerin (ebeveyn gözünden) listesi: deneme ebeveyn paneli için.</summary>
+        public IReadOnlyList<ChildTask> AllTasks => _tasks;
+
         private static ChildTask Clone(ChildTask t) => new ChildTask
         {
             TaskId = t.TaskId, Date = t.Date, Title = t.Title, Description = t.Description, RewardCoins = t.RewardCoins,
