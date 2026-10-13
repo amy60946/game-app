@@ -11,9 +11,9 @@
     { "id": "region_ski_hill",       "name": "Kayak Tepesi",      "pos": [-2.4, 2.7],  "target": "minigame:ski",       "color": "#F4F8FF", "shape": "hill" },
     { "id": "region_garden",         "name": "Bahçe",             "pos": [1.0, 0.6],   "target": "page:garden",               "color": "#7BD66B", "shape": "garden" },
     { "id": "region_pier",           "name": "İskele",            "pos": [4.2, -1.9],  "target": "minigame:fishing",               "color": "#8C5A3C", "shape": "pier" },
-    { "id": "region_cave",           "name": "Mağara",            "pos": [-4.1, -1.9], "target": "soon",               "color": "#5D6380", "shape": "hill" },
-    { "id": "region_festival",       "name": "Festival Alanı",    "pos": [0.4, 2.6],   "target": "soon",               "color": "#FFD23F", "shape": "tent" },
-    { "id": "region_mountain",       "name": "Dağ",               "pos": [-0.6, 4.0],  "target": "soon",               "color": "#9AA5B8", "shape": "hill" },
-    { "id": "region_lighthouse",     "name": "Fener",             "pos": [3.6, 3.7],   "target": "soon",               "color": "#E8453C", "shape": "tower" }
+    { "id": "region_cave",           "name": "Mağara",            "pos": [-4.1, -1.9], "target": "minigame:cave",               "color": "#5D6380", "shape": "hill" },
+    { "id": "region_festival",       "name": "Festival Alanı",    "pos": [0.4, 2.6],   "target": "page:festival",               "color": "#FFD23F", "shape": "tent" },
+    { "id": "region_mountain",       "name": "Dağ",               "pos": [-0.6, 4.0],  "target": "minigame:hike",               "color": "#9AA5B8", "shape": "hill" },
+    { "id": "region_lighthouse",     "name": "Fener",             "pos": [3.6, 3.7],   "target": "page:lighthouse",               "color": "#E8453C", "shape": "tower" }
   ]
 }

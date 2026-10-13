@@ -152,7 +152,8 @@ namespace Pofi.Core
             {
                 case RegionTargetKind.Page:
                     Open(arg == "shop" ? AppPage.Shop : arg == "tasks" ? AppPage.Tasks : arg == "wardrobe" ? AppPage.Wardrobe
-                        : arg == "garden" ? AppPage.Garden : arg == "album" ? AppPage.Album : AppPage.Home);
+                        : arg == "garden" ? AppPage.Garden : arg == "album" ? AppPage.Album
+                        : arg == "festival" ? AppPage.Festival : arg == "lighthouse" ? AppPage.Lighthouse : AppPage.Home);
                     break;
                 case RegionTargetKind.MiniGame:
                     if (MiniGameScreen.Supports(arg)) { MiniGameId = arg; Open(AppPage.MiniGame); }
@@ -254,6 +255,8 @@ namespace Pofi.Core
                         case AppPage.Album: _screen = root.gameObject.AddComponent<AlbumScreen>(); break;
                         case AppPage.Settings: _screen = root.gameObject.AddComponent<SettingsScreen>(); break;
                         case AppPage.Decorate: _screen = root.gameObject.AddComponent<DecorateScreen>(); break;
+                        case AppPage.Festival:
+                        case AppPage.Lighthouse: _screen = root.gameObject.AddComponent<EventScreen>(); break;
                         default: _screen = root.gameObject.AddComponent<HomeScreen>(); break;
                     }
                     break;

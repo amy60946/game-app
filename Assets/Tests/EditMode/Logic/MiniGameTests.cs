@@ -65,3 +65,67 @@ namespace Pofi.Tests.Logic
         }
     }
 }
+
+namespace Pofi.Tests.Logic
+{
+    public class ExpeditionTests
+    {
+        [Test]
+        public void Magara_her_zaman_cozulebilir_ve_feneri_tuketir()
+        {
+            foreach (Pofi.Logic.Profile.AgeBand band in Enum.GetValues(typeof(Pofi.Logic.Profile.AgeBand)))
+                for (var seed = 0; seed < 50; seed++)
+                {
+                    var g = new Pofi.Logic.MiniGames.CaveExplore(band, seed);
+                    Assert.LessOrEqual(g.Gems.Count, g.Lights);
+                    // her mücevherin tam üstüne bakan oyuncu hepsini bulur
+                    foreach (var i in g.Gems.ToList()) g.Look(i % g.Width, i / g.Width);
+                    Assert.AreEqual(g.Gems.Count, g.Found.Count);
+                    Assert.IsTrue(g.Done);
+                    Assert.Greater(g.Finish().Score, 0);
+                }
+            var c = new Pofi.Logic.MiniGames.CaveExplore(Pofi.Logic.Profile.AgeBand.B, 3);
+            var lights = c.Lights;
+            c.Look(-1, 0);
+            Assert.AreEqual(lights, c.Lights);   // dışarıya bakmak hak yemez
+        }
+
+        [Test]
+        public void Dag_rotasi_kurallari_ve_en_iyi_rota()
+        {
+            var h = new Pofi.Logic.MiniGames.HikeRoute(Pofi.Logic.Profile.AgeBand.B, 7);
+            Assert.IsFalse(h.CanStep(3));
+            Assert.IsTrue(h.Step(0));
+            Assert.IsFalse(h.CanStep(2));        // tek adımda iki sütun atlanmaz
+            while (!h.AtSummit) h.Step(h.Column);
+            Assert.LessOrEqual(h.Collected, h.Best());
+            var r = h.Finish();
+            Assert.That(r.SuggestedXp, Is.InRange(10, 40));
+
+            // açgözlü rota en iyiyi aşamaz; en iyi rota 40'a yakın XP verir
+            for (var seed = 0; seed < 30; seed++)
+            {
+                var g = new Pofi.Logic.MiniGames.HikeRoute(Pofi.Logic.Profile.AgeBand.C, seed);
+                while (!g.AtSummit)
+                {
+                    var bestCol = g.Column;
+                    for (var d = -1; d <= 1; d++)
+                        if (g.CanStep(g.Column + d) && g.Value[g.Layer + 1, g.Column + d] > g.Value[g.Layer + 1, bestCol]) bestCol = g.Column + d;
+                    g.Step(bestCol);
+                }
+                Assert.LessOrEqual(g.Collected, g.Best());
+            }
+        }
+
+        [Test]
+        public void Festival_gunde_bir_final_bir_kez()
+        {
+            var s = new Pofi.Logic.Island.EventState();
+            Assert.IsTrue(Pofi.Logic.Island.IslandEvents.ClaimFestival(s, 100));
+            Assert.IsFalse(Pofi.Logic.Island.IslandEvents.ClaimFestival(s, 100));
+            Assert.IsTrue(Pofi.Logic.Island.IslandEvents.ClaimFestival(s, 101));
+            Assert.IsTrue(Pofi.Logic.Island.IslandEvents.ClaimFinal(s));
+            Assert.IsFalse(Pofi.Logic.Island.IslandEvents.ClaimFinal(s));
+        }
+    }
+}

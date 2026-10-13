@@ -19,7 +19,7 @@ namespace Pofi.Screens
     public sealed class MiniGameScreen : ScreenBase
     {
         public static bool Supports(string id) =>
-            id == "coconut" || id == "help_pet" || id == "swim" || id == "surf" || id == "ski" || id == "fishing";
+            id == "coconut" || id == "help_pet" || id == "swim" || id == "surf" || id == "ski" || id == "fishing" || id == "cave" || id == "hike";
 
         private string _id;
         private RectTransform _area, _hud;
@@ -47,7 +47,7 @@ namespace Pofi.Screens
             Ui.Clear(Root);
             var root = Modal(760f, out var box);
             Ui.Label(box, Title, Th.Font(80), Th.Text, new Vector2(0.5f, 0.84f), new Vector2(880f, 120f), FontStyle.Bold);
-            var howKey = _id == "coconut" || _id == "help_pet" || _id == "fishing" ? "mg." + _id + ".howto" : "mg.lane.howto";
+            var howKey = _id == "swim" || _id == "surf" || _id == "ski" ? "mg.lane.howto" : "mg." + _id + ".howto";
             Ui.Label(box, T(howKey, App.State.PetName), Th.Font(42), Th.SubtleText, new Vector2(0.5f, 0.56f), new Vector2(840f, 260f));
             Ui.Button(box, Th, T("mg.start"), new Vector2(0.5f, 0.24f), new Vector2(560f, 140f), () => { Destroy(root.gameObject); Play(); });
             Ui.Button(box, Th, T("mg.exit"), new Vector2(0.5f, 0.07f), new Vector2(400f, 90f), () => App.Open(AppPage.Map), false, default, 36);
@@ -70,6 +70,8 @@ namespace Pofi.Screens
                 case "coconut": StartCoconut(seed); break;
                 case "help_pet": StartHelpPet(seed); break;
                 case "fishing": StartFishing(seed); break;
+                case "cave": StartCave(seed); break;
+                case "hike": StartHike(seed); break;
                 default: StartLanes(seed); break;
             }
             _playing = true;
@@ -301,6 +303,125 @@ namespace Pofi.Screens
                 player.SetAsLastSibling();
                 _hud.SetAsLastSibling();
             };
+        }
+
+        // ------------------------------------------------------------ Mağara keşfi
+
+        private void StartCave(int seed)
+        {
+            var game = new CaveExplore(App.Session.AgeBand, seed);
+            var bg = _area.gameObject.AddComponent<Image>();
+            bg.color = Theme.Hex("#1B1830");
+            bg.raycastTarget = false;
+            var cell = Mathf.Min(1000f / game.Width, 1300f / game.Height);
+            var cells = new Image[game.Width * game.Height];
+            _timer.text = T("mg.cave.lights", game.Lights);
+            var finishing = false;
+            for (var i = 0; i < cells.Length; i++)
+            {
+                var idx = i;
+                var x = i % game.Width;
+                var y = i / game.Width;
+                var pos = new Vector2((x - (game.Width - 1) / 2f) * cell, ((game.Height - 1) / 2f - y) * cell - 60f);
+                var rt = Ui.Rect(_area, "c" + i, new Vector2(0.5f, 0.5f), new Vector2(cell - 8f, cell - 8f), pos);
+                cells[i] = Ui.Panel(rt, Theme.Hex("#2C2850"), 16f);
+                var b = rt.gameObject.AddComponent<Button>();
+                b.targetGraphic = cells[i];
+                b.onClick.AddListener(() =>
+                {
+                    if (game.Done || finishing) return;
+                    var found = game.Look(idx % game.Width, idx / game.Width);
+                    foreach (var r in game.Revealed)
+                        cells[r].color = game.Found.Contains(r) ? Theme.Hex("#3DE1FF") : Theme.Hex("#7A6A9A");
+                    _bubble.Say(found > 0 ? T("mg.cave.found") : T("mg.cave.nothing"), 1.5f);
+                    if (found > 0) Audio.Sfx.Play(Audio.SfxKind.Coin);
+                    _score.text = T("mg.score", game.Found.Count * 3);
+                    _timer.text = T("mg.cave.lights", game.Lights);
+                    if (game.Done) { finishing = true; Invoke(nameof(FinishCave), 1.2f); _pendingCave = game; }
+                });
+            }
+            _tick = _ => { };
+        }
+
+        private CaveExplore _pendingCave;
+
+        private void FinishCave()
+        {
+            if (_pendingCave != null) Finish(_pendingCave.Finish(), null, 0);
+            _pendingCave = null;
+        }
+
+        // ------------------------------------------------------------ Dağ yürüyüşü
+
+        private void StartHike(int seed)
+        {
+            var game = new HikeRoute(App.Session.AgeBand, seed);
+            var bg = _area.gameObject.AddComponent<Image>();
+            bg.color = Theme.Hex("#A8D8A0");
+            bg.raycastTarget = false;
+            var layerH = 1500f / game.Layers;
+            var buttons = new Button[game.Layers, HikeRoute.Columns];
+            RectTransform walker = null;
+            Vector2 Pos(int l, int c) => new Vector2((c - 1) * 300f, -760f + l * layerH);
+            void Refresh()
+            {
+                for (var l = 0; l < game.Layers; l++)
+                for (var c = 0; c < HikeRoute.Columns; c++)
+                {
+                    var b = buttons[l, c];
+                    if (b == null) continue;
+                    var can = l == game.Layer + 1 && game.CanStep(c);
+                    b.interactable = can;
+                    var visited = l <= game.Layer && game.Path.Count > l && game.Path[l] == c;
+                    b.targetGraphic.color = visited ? Th.Primary : can ? Color.white : new Color(1f, 1f, 1f, 0.45f);
+                }
+                walker.anchoredPosition = Pos(game.Layer, game.Column) + new Vector2(0f, 70f);
+                walker.SetAsLastSibling();
+                _score.text = T("mg.score", game.Collected);
+            }
+            for (var l = 0; l < game.Layers; l++)
+            for (var c = 0; c < HikeRoute.Columns; c++)
+            {
+                if (l == 0 && c != 1) continue;
+                var lc = l; var cc = c;
+                var rt = Ui.Rect(_area, $"n{l}_{c}", new Vector2(0.5f, 0.5f), new Vector2(170f, Mathf.Min(120f, layerH - 16f)), Pos(l, c));
+                var img = Ui.Panel(rt, Color.white, 40f);
+                var v = game.Value[l, c];
+                if (l == game.Layers - 1) Ui.Label(rt, "^", Th.Font(60), Th.Text, new Vector2(0.5f, 0.5f), rt.sizeDelta, FontStyle.Bold);
+                for (var k = 0; k < v; k++)
+                {
+                    var berry = Ui.Rect(rt, "b" + k, new Vector2(0.5f, 0.5f), new Vector2(34f, 34f), new Vector2((k - (v - 1) / 2f) * 40f, 0f));
+                    Ui.Panel(berry, k % 2 == 0 ? Theme.Hex("#E8453C") : Theme.Hex("#FF8AD8"), 17f).raycastTarget = false;
+                }
+                var b = rt.gameObject.AddComponent<Button>();
+                b.targetGraphic = img;
+                buttons[l, c] = b;
+                b.onClick.AddListener(() =>
+                {
+                    if (lc != game.Layer + 1 || !game.Step(cc)) return;
+                    if (game.Value[lc, cc] > 0) Audio.Sfx.Play(Audio.SfxKind.Coin);
+                    Refresh();
+                    if (game.AtSummit)
+                    {
+                        _bubble.Say(T("mg.hike.summit"));
+                        _pendingHike = game;
+                        Invoke(nameof(FinishHike), 1.2f);
+                    }
+                });
+            }
+            walker = Dot(_area, new Vector2(0.5f, 0.5f), 90f, PetColor);
+            walker.anchorMin = walker.anchorMax = new Vector2(0.5f, 0.5f);
+            _timer.text = "";
+            Refresh();
+            _tick = _ => { };
+        }
+
+        private HikeRoute _pendingHike;
+
+        private void FinishHike()
+        {
+            if (_pendingHike != null) Finish(_pendingHike.Finish(), null, 0);
+            _pendingHike = null;
         }
 
         // ------------------------------------------------------------ Balık tutma
