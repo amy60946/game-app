@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Pofi.Logic.App;
 using Pofi.Logic.Economy;
+using Pofi.Logic.Fishing;
 using Pofi.Logic.MiniGames;
 using Pofi.Logic.Profile;
 using Pofi.UI;
@@ -18,7 +19,7 @@ namespace Pofi.Screens
     public sealed class MiniGameScreen : ScreenBase
     {
         public static bool Supports(string id) =>
-            id == "coconut" || id == "help_pet" || id == "swim" || id == "surf" || id == "ski";
+            id == "coconut" || id == "help_pet" || id == "swim" || id == "surf" || id == "ski" || id == "fishing";
 
         private string _id;
         private RectTransform _area, _hud;
@@ -46,7 +47,7 @@ namespace Pofi.Screens
             Ui.Clear(Root);
             var root = Modal(760f, out var box);
             Ui.Label(box, Title, Th.Font(80), Th.Text, new Vector2(0.5f, 0.84f), new Vector2(880f, 120f), FontStyle.Bold);
-            var howKey = _id == "coconut" ? "mg.coconut.howto" : _id == "help_pet" ? "mg.help_pet.howto" : "mg.lane.howto";
+            var howKey = _id == "coconut" || _id == "help_pet" || _id == "fishing" ? "mg." + _id + ".howto" : "mg.lane.howto";
             Ui.Label(box, T(howKey, App.State.PetName), Th.Font(42), Th.SubtleText, new Vector2(0.5f, 0.56f), new Vector2(840f, 260f));
             Ui.Button(box, Th, T("mg.start"), new Vector2(0.5f, 0.24f), new Vector2(560f, 140f), () => { Destroy(root.gameObject); Play(); });
             Ui.Button(box, Th, T("mg.exit"), new Vector2(0.5f, 0.07f), new Vector2(400f, 90f), () => App.Open(AppPage.Map), false, default, 36);
@@ -68,6 +69,7 @@ namespace Pofi.Screens
             {
                 case "coconut": StartCoconut(seed); break;
                 case "help_pet": StartHelpPet(seed); break;
+                case "fishing": StartFishing(seed); break;
                 default: StartLanes(seed); break;
             }
             _playing = true;
@@ -298,6 +300,78 @@ namespace Pofi.Screens
                     }
                 player.SetAsLastSibling();
                 _hud.SetAsLastSibling();
+            };
+        }
+
+        // ------------------------------------------------------------ Balık tutma
+
+        private void StartFishing(int seed)
+        {
+            const int Rounds = 3;
+            var rng = new System.Random(seed);
+            var bg = _area.gameObject.AddComponent<Image>();
+            bg.color = Theme.Hex("#2E9BD6");
+            bg.raycastTarget = false;
+            var bobber = Dot(_area, new Vector2(0.5f, 0.55f), 90f, Theme.Hex("#E8453C"));
+            var top = Dot(bobber, new Vector2(0.5f, 0.75f), 50f, Color.white);
+            top.name = "Top";
+            var round = 0;
+            var caught = 0;
+            var xp = 0;
+            var score = 0;
+            FishingRound fr = null;
+            var t = 0f;
+            Button action = null;
+            void NextRound()
+            {
+                if (round >= Rounds)
+                {
+                    var res = new MiniGameResult { GameId = "minigame_fishing", Score = score, SuggestedXp = Math.Max(5, xp) };
+                    Finish(res, "fish_caught", caught);
+                    return;
+                }
+                round++;
+                fr = null;
+                _timer.text = T("mg.fishing.round", round, Rounds);
+                Ui.SetText(action, T("mg.fishing.cast"));
+            }
+            action = Ui.Button(_area, Th, T("mg.fishing.cast"), new Vector2(0.5f, 0.16f), new Vector2(640f, 170f), () =>
+            {
+                if (fr == null)
+                {
+                    fr = new FishingRound(rng, App.Session.AgeBand, App.Level, Logic.Pet.PetCare.IsNight(App.LocalNow), App.Data.Collection);
+                    t = 0f;
+                    Ui.SetText(action, T("mg.fishing.pull"));
+                    _bubble.Say(T("mg.fishing.wait"), 1.2f);
+                    return;
+                }
+                var r = fr.Resolve((int)(t * 1000f));
+                if (r == CatchResult.Caught && fr.Fish != null)
+                {
+                    caught++;
+                    var isNew = Logic.Meta.CollectionBook.Discover(App.State.Collection, fr.Fish, App.State.Counters);
+                    xp += FishingRound.Xp(fr.Fish, isNew);
+                    score += fr.Fish.Rarity;
+                    _score.text = T("mg.score", score);
+                    _bubble.Say(isNew ? T("map.sparkle_new", fr.Fish.Name) : T("mg.fishing.caught", fr.Fish.Name), 2.5f);
+                    App.Save();
+                }
+                else _bubble.Say(r == CatchResult.TooEarly ? T("mg.fishing.early") : T("mg.fishing.late"), 2f);
+                NextRound();
+            }, true, default, 60);
+            NextRound();
+            _tick = dt =>
+            {
+                if (fr == null) { bobber.anchoredPosition = new Vector2(0f, Mathf.Sin(Time.time * 2f) * 8f); return; }
+                t += dt;
+                var ms = (int)(t * 1000f);
+                var biting = ms >= fr.BiteAtMs && ms <= fr.BiteAtMs + fr.WindowMs;
+                bobber.anchoredPosition = biting ? new Vector2(Mathf.Sin(Time.time * 40f) * 10f, -50f) : new Vector2(0f, Mathf.Sin(Time.time * 3f) * 10f);
+                if (ms > fr.BiteAtMs + fr.WindowMs + 600)
+                {
+                    _bubble.Say(T("mg.fishing.late"), 2f);
+                    NextRound();
+                }
             };
         }
 

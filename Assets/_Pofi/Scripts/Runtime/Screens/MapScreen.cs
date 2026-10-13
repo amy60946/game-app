@@ -23,6 +23,8 @@ namespace Pofi.Screens
         private bool _down, _moved;
         private SpeechBubble _toast;
         private RectTransform _labelLayer;
+        private List<Sparkle> _sparkles = new List<Sparkle>();
+        private int Day => Logic.Economy.XpSystem.DayNumber(App.LocalNow);
 
         private static readonly Vector2 PanMin = new Vector2(-2.6f, -1.2f), PanMax = new Vector2(2.6f, 3.0f);
 
@@ -34,6 +36,13 @@ namespace Pofi.Screens
             _world = MapWorld.Create(_views);
             _pan = new Vector2(0f, 0.4f);
             PlaceCamera();
+
+            if (App.Map != null && App.Levels.IsUnlocked(Sparkles.UnlockId, App.Level))
+            {
+                _sparkles = Sparkles.Open(App.State.Sparkles, Day, Sparkles.ForDay(Day, App.State.ChildId, App.Level,
+                    Logic.Pet.PetCare.IsNight(App.LocalNow), App.Data.Collection, App.Map.Regions));
+                foreach (var sp in _sparkles) _world.AddSparkle(sp.Index, sp.X, sp.Z);
+            }
 
             _labelLayer = Ui.Fill(Root, "Labels");
             foreach (var v in _views) _labels[v.Region.Id] = Label(v);
@@ -129,6 +138,11 @@ namespace Pofi.Screens
             var ray = App.Stage.Camera.ScreenPointToRay(screen);
             if (!Physics.Raycast(ray, out var hit, 100f)) return;
             var id = hit.collider.gameObject.name;
+            if (id.StartsWith("sparkle_"))
+            {
+                Collect(hit.collider.gameObject, id);
+                return;
+            }
             var v = _views.FirstOrDefault(x => x.Region.Id == id);
             if (v == null) return;
             if (!v.Unlocked)
@@ -139,6 +153,21 @@ namespace Pofi.Screens
             App.State.VisitedRegions.Add(id);
             App.Save();
             App.Enter(v.Region, msg => _toast.Say(msg));
+        }
+
+        private void Collect(GameObject go, string id)
+        {
+            var idx = int.Parse(id.Substring("sparkle_".Length));
+            var sp = _sparkles.FirstOrDefault(s => s.Index == idx);
+            if (sp == null) return;
+            Sparkles.Take(App.State.Sparkles, Day, sp);
+            Destroy(go);
+            var entry = App.Data.Collection.FirstOrDefault(e => e.Id == sp.EntryId);
+            if (entry == null) return;
+            var isNew = Logic.Meta.CollectionBook.Discover(App.State.Collection, entry, App.State.Counters);
+            _toast.Say(isNew ? T("map.sparkle_new", entry.Name) : T("map.sparkle_again", entry.Name));
+            App.Save();
+            App.GrantXp(isNew ? 10 : 3, Logic.Economy.XpSource.Achievement);
         }
 
         private void OnDestroy()

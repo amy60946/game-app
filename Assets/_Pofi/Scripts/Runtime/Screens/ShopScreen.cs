@@ -17,7 +17,7 @@ namespace Pofi.Screens
     /// </summary>
     public sealed class ShopScreen : ScreenBase
     {
-        private static readonly string[] Tabs = { ItemCategory.Food, ItemCategory.Cleaning, ItemCategory.Clothes, ItemCategory.Accessory };
+        private static readonly string[] Tabs = { ItemCategory.Food, ItemCategory.Cleaning, ItemCategory.Clothes, ItemCategory.Accessory, ItemCategory.Seed };
         private static string _tab = ItemCategory.Food;   // sayfalar arası hatırlanır
 
         private RectTransform _grid;
@@ -36,8 +36,8 @@ namespace Pofi.Screens
             for (var i = 0; i < Tabs.Length; i++)
             {
                 var cat = Tabs[i];
-                _tabButtons[i] = Ui.Button(tabs, Th, T("shop.tab." + cat), new Vector2(0.125f + i * 0.25f, 0.5f), new Vector2(240f, 96f),
-                    () => { _tab = cat; Fill(); }, cat == _tab, default, 36, false);
+                _tabButtons[i] = Ui.Button(tabs, Th, T("shop.tab." + cat), new Vector2(0.1f + i * 0.2f, 0.5f), new Vector2(196f, 96f),
+                    () => { _tab = cat; Fill(); }, cat == _tab, default, 32, false);
             }
 
             var area = Ui.Area(Root, "GridArea", Vector2.zero, Vector2.one);
@@ -120,6 +120,7 @@ namespace Pofi.Screens
             {
                 case ItemCategory.Food: return Theme.Hex("#FF9F43");
                 case ItemCategory.Cleaning: return Theme.Hex("#3DC9FF");
+                case ItemCategory.Seed: return Theme.Hex("#8C5A3C");
                 default: return Theme.Hex("#9B7BFF");
             }
         }

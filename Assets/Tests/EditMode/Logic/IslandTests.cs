@@ -148,3 +148,32 @@ namespace Pofi.Tests.Logic
         }
     }
 }
+
+namespace Pofi.Tests.Logic
+{
+    public class SparkleTests
+    {
+        [Test]
+        public void Gunluk_parilti_deterministik_uygun_ve_alininca_kaybolur()
+        {
+            var data = TestData.Load();
+            var map = new IslandMap(TestData.ReadText("regions.json"), new LevelTable(data.Levels));
+            var a = Sparkles.ForDay(20000, "child_a", 8, false, data.Collection, map.Regions);
+            var b = Sparkles.ForDay(20000, "child_a", 8, false, data.Collection, map.Regions);
+            Assert.AreEqual(Sparkles.PerDay, a.Count);
+            CollectionAssert.AreEqual(a.Select(s => s.EntryId), b.Select(s => s.EntryId));
+            foreach (var s in a)
+            {
+                var e = data.Collection.First(x => x.Id == s.EntryId);
+                Assert.AreNotEqual("fish", e.Category);
+                Assert.AreNotEqual("night", e.Time);
+                Assert.LessOrEqual(e.Level, 8);
+            }
+            var st = new SparkleState();
+            Assert.AreEqual(3, Sparkles.Open(st, 20000, a).Count);
+            Sparkles.Take(st, 20000, a[1]);
+            Assert.AreEqual(2, Sparkles.Open(st, 20000, a).Count);
+            Assert.AreEqual(3, Sparkles.Open(st, 20001, a).Count);   // ertesi gün yenilenir
+        }
+    }
+}

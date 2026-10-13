@@ -148,7 +148,8 @@ namespace Pofi.Core
             switch (IslandMap.KindOf(region.Target, out var arg))
             {
                 case RegionTargetKind.Page:
-                    Open(arg == "shop" ? AppPage.Shop : arg == "tasks" ? AppPage.Tasks : arg == "wardrobe" ? AppPage.Wardrobe : AppPage.Home);
+                    Open(arg == "shop" ? AppPage.Shop : arg == "tasks" ? AppPage.Tasks : arg == "wardrobe" ? AppPage.Wardrobe
+                        : arg == "garden" ? AppPage.Garden : arg == "album" ? AppPage.Album : AppPage.Home);
                     break;
                 case RegionTargetKind.MiniGame:
                     if (MiniGameScreen.Supports(arg)) { MiniGameId = arg; Open(AppPage.MiniGame); }
@@ -245,6 +246,8 @@ namespace Pofi.Core
                         case AppPage.Map: _screen = root.gameObject.AddComponent<MapScreen>(); break;
                         case AppPage.MiniGame: _screen = root.gameObject.AddComponent<MiniGameScreen>(); break;
                         case AppPage.Cards: _screen = root.gameObject.AddComponent<CardsScreen>(); break;
+                        case AppPage.Garden: _screen = root.gameObject.AddComponent<GardenScreen>(); break;
+                        case AppPage.Album: _screen = root.gameObject.AddComponent<AlbumScreen>(); break;
                         default: _screen = root.gameObject.AddComponent<HomeScreen>(); break;
                     }
                     break;

@@ -8,6 +8,18 @@ namespace Pofi.World
     /// 3B ada haritası (M5): kum ada, çimen, deniz ve her bölge için yer tutucu yapı. Ana sahneden uzakta
     /// (x = 200) kurulur; harita ekranı kamerayı buraya taşır. Yapılar dokunma için Collider taşır.
     /// </summary>
+    /// <summary>Yavaş dönen ve hafifçe süzülen nesne.</summary>
+    public sealed class Spin : MonoBehaviour
+    {
+        private Vector3 _base;
+        private void Start() => _base = transform.localPosition;
+        private void Update()
+        {
+            transform.Rotate(0f, 90f * Time.deltaTime, 0f, Space.World);
+            transform.localPosition = _base + Vector3.up * (Mathf.Sin(Time.time * 2.5f) * 0.06f);
+        }
+    }
+
     public sealed class MapWorld : MonoBehaviour
     {
         public static readonly Vector3 Origin = new Vector3(200f, 0f, 0f);
@@ -114,6 +126,21 @@ namespace Pofi.World
                     Prim(PrimitiveType.Cube, t, new Vector3(0f, 0.3f, 0f), new Vector3(0.6f, 0.6f, 0.6f), m, true);
                     break;
             }
+        }
+
+        /// <summary>Günlük keşif parıltısı: dönen küçük yıldız; dokunma için "sparkle_N" adlı collider.</summary>
+        public Transform AddSparkle(int index, float x, float z)
+        {
+            var root = new GameObject("sparkle_" + index).transform;
+            root.SetParent(transform, false);
+            root.localPosition = new Vector3(x, 0.35f, z);
+            var gold = M(new Color(1f, 0.85f, 0.2f), 0.9f);
+            Prim(PrimitiveType.Cube, root, Vector3.zero, new Vector3(0.22f, 0.22f, 0.22f), gold, true).transform.localRotation = Quaternion.Euler(45f, 0f, 45f);
+            Prim(PrimitiveType.Sphere, root, Vector3.zero, Vector3.one * 0.16f, M(Color.white, 0.9f), false);
+            var col = root.gameObject.AddComponent<SphereCollider>();
+            col.radius = 0.5f;
+            root.gameObject.AddComponent<Spin>();
+            return root;
         }
 
         private static GameObject Prim(PrimitiveType type, Transform parent, Vector3 pos, Vector3 scale, Material m, bool shadows)
