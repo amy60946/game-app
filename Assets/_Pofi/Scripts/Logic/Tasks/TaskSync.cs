@@ -8,7 +8,7 @@ namespace Pofi.Logic.Tasks
     public sealed class OutboxChange
     {
         public string Key;
-        public TaskStatus To;
+        public ChildTaskStatus To;
         public long ClientUtcTicks;
     }
 
@@ -34,7 +34,7 @@ namespace Pofi.Logic.Tasks
         public ChildTask Find(string key) => Tasks.FirstOrDefault(t => t.Key == key);
 
         /// <summary>Çocuk "Yaptım" / "Yapamam" / "Geri al" dedi.</summary>
-        public ChangeResult Mark(string key, TaskStatus to, DateTime local, DateTime nowUtc)
+        public ChangeResult Mark(string key, ChildTaskStatus to, DateTime local, DateTime nowUtc)
         {
             var t = Find(key);
             if (t == null) return ChangeResult.NotAllowed;
@@ -67,7 +67,7 @@ namespace Pofi.Logic.Tasks
                 {
                     if (pending != null) Outbox.Remove(pending);
                     if (local == null || local.Status != s.Status)
-                        events.Add(new TaskEvent { Kind = s.Status == TaskStatus.Approved ? TaskEventKind.Approved : TaskEventKind.Rejected, Task = s });
+                        events.Add(new TaskEvent { Kind = s.Status == ChildTaskStatus.Approved ? TaskEventKind.Approved : TaskEventKind.Rejected, Task = s });
                 }
                 else if (pending != null)
                 {
@@ -87,7 +87,7 @@ namespace Pofi.Logic.Tasks
 
         /// <summary>Panoda gösterim sırası: yapılacaklar, bekleyenler, sonuçlananlar.</summary>
         public IEnumerable<ChildTask> ForDisplay(DateTime local) =>
-            Tasks.OrderBy(t => t.IsMissed(local) ? 3 : t.Status == TaskStatus.Assigned ? 0 : t.Status == TaskStatus.ChildDone ? 1 : 2)
+            Tasks.OrderBy(t => t.IsMissed(local) ? 3 : t.Status == ChildTaskStatus.Assigned ? 0 : t.Status == ChildTaskStatus.ChildDone ? 1 : 2)
                  .ThenBy(t => t.DueLocalTicks);
     }
 }
