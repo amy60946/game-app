@@ -32,7 +32,10 @@ const fs = require('fs');
     for (const page of ['Home', 'Map', 'Cards', 'Garden', 'Album', 'Settings', 'Decorate', 'Festival', 'Lighthouse'])
     { await cmd('open ' + page, 3000); await shot(page.toLowerCase()); }
     for (const g of ['coconut', 'help_pet', 'swim', 'fishing', 'cave', 'hike'])
-    { await cmd('minigame ' + g, 2500); await shot('mg_' + g); }
+    { await cmd('minigame ' + g, 2000); await cmd('tap Başla', 3500); await shot('mg_' + g); }
+    for (const game of ['Renk Eşle', 'Domino', 'Kule'])
+    { await cmd('open Cards', 2000); await cmd('tap ' + game, 3500); await shot('cards_' + game.replace(' ', '_')); }
+    await cmd('open Settings', 2000); await cmd('tap Çıkış', 3000);
   }
   fs.writeFileSync(`${out}/log.txt`, logs.join('\n'));
   console.log(logs.filter(l => !l.includes('[PofiDebug] ok')).slice(-30).join('\n') || 'hata yok');

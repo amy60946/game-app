@@ -10,7 +10,7 @@ namespace Pofi.Core
     /// <summary>
     /// Otomatik test kancası (yalnızca sahte arka uçla): tarayıcıdan
     /// <c>unityInstance.SendMessage("Bootstrap", "PofiDebug", "login A1A1A1")</c> ile çağrılır. Gerçek sunucuda kapalıdır.
-    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · state
+    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss
     /// </summary>
     public static class DebugCommands
     {
@@ -45,6 +45,14 @@ namespace Pofi.Core
                         break;
                     case "xp":
                         app.GrantXp(int.Parse(arg), XpSource.Achievement);
+                        break;
+                    case "tap":
+                        // Etiketi verilen metne eşit olan ilk etkin düğmeye bas (ör. "tap Başla")
+                        foreach (var b in Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsSortMode.None))
+                        {
+                            var t = b.GetComponentInChildren<UnityEngine.UI.Text>();
+                            if (b.isActiveAndEnabled && b.interactable && t != null && t.text == arg) { b.onClick.Invoke(); break; }
+                        }
                         break;
                     case "dismiss":
                         for (var i = app.Overlay.transform.childCount - 1; i >= 0; i--)
