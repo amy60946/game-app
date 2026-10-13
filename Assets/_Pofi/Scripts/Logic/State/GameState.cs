@@ -55,6 +55,7 @@ namespace Pofi.Logic.State
         public HashSet<string> Collection = new HashSet<string>();
         public HashSet<string> Badges = new HashSet<string>();
         public HashSet<string> SeenUnlocks = new HashSet<string>();   // kutlaması gösterilmiş açılışlar
+        public HashSet<string> VisitedRegions = new HashSet<string>(); // haritada ziyaret edilen bölgeler ("yeni" işareti için)
         public Counters Counters = new Counters();
         public DailyQuestState DailyQuests = new DailyQuestState();
         public GardenState Garden = new GardenState();

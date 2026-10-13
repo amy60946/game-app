@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Pofi.Logic.App;
 using Pofi.Logic.Data;
+using Pofi.Logic.Meta;
 using Pofi.Logic.Pet;
 using Pofi.Logic.Progression;
 using Pofi.UI;
@@ -25,6 +26,7 @@ namespace Pofi.Screens
 
         private readonly Image[] _bars = new Image[4];
         private Text _coins, _title, _feedCount, _washCount;
+        private Image _xpBar;
         private SpeechBubble _bubble;
         private float _tick, _idle;
         private bool _night;
@@ -41,12 +43,13 @@ namespace Pofi.Screens
             Ui.Panel(top, Th.Panel, Th.Radius);
             _title = Ui.Label(top, "", Th.Font(54), Th.Text, new Vector2(0.4f, 0.85f), new Vector2(740f, 80f), FontStyle.Bold, TextAnchor.MiddleLeft);
             _coins = CoinPill(top, new Vector2(0.84f, 0.85f));
+            _xpBar = Ui.Bar(top, new Vector2(0.5f, 0.71f), new Vector2(940f, 18f), new Color(0f, 0f, 0f, 0.08f), Theme.Hex("#FFC400"), 9f);
 
             for (var i = 0; i < 4; i++)
             {
                 var col = i % 2;
                 var row = i / 2;
-                var anchor = new Vector2(col == 0 ? 0.27f : 0.73f, row == 0 ? 0.56f : 0.24f);
+                var anchor = new Vector2(col == 0 ? 0.27f : 0.73f, row == 0 ? 0.5f : 0.2f);
                 Ui.Label(top, T(StatKeys[i]), Th.Font(34), Th.SubtleText, anchor, new Vector2(440f, 50f), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 34f));
                 _bars[i] = Ui.Bar(top, anchor, new Vector2(440f, 40f), new Color(0f, 0f, 0f, 0.08f), StatColors[i], 20f, new Vector2(0f, -14f));
             }
@@ -54,6 +57,8 @@ namespace Pofi.Screens
             // Ayarlar / çıkış (ebeveyn kapısı)
             Ui.Button(Root, Th, T("settings.sign_out"), new Vector2(0.87f, 0.972f), new Vector2(210f, 76f),
                 () => ParentGate(App.SignOut, msg => _bubble.Say(msg)), false, default, 34);
+
+            Ui.Button(Root, Th, T("home.daily"), new Vector2(0.2f, 0.972f), new Vector2(330f, 76f), DailyPanel, false, default, 34);
 
             _bubble = Bubble(new Vector2(0.5f, 0.675f));
 
@@ -67,7 +72,7 @@ namespace Pofi.Screens
             for (var i = 0; i < 4; i++)
             {
                 var a = actions[i];
-                var b = Ui.Button(bar, Th, T(labels[i]), new Vector2(0.125f + i * 0.25f, 0.5f), new Vector2(220f, 170f), () => Care(a), i == 2, default, 42);
+                var b = Ui.Button(bar, Th, T(labels[i]), new Vector2(0.125f + i * 0.25f, 0.5f), new Vector2(220f, 170f), () => Care(a), i == 2, default, 42, false);
                 var badge = Ui.Rect(b.transform, "Count", new Vector2(0.88f, 0.9f), new Vector2(64f, 64f));
                 if (a == CareAction.Feed || a == CareAction.Wash)
                 {
@@ -117,6 +122,7 @@ namespace Pofi.Screens
             for (var i = 0; i < 4; i++) Ui.SetBar(_bars[i], st.Stats[Kinds[i]] / 100f);
             _coins.text = st.Wallet.Available.ToString();
             _title.text = $"{st.PetName} · {T("home.level", App.Level)}";
+            Ui.SetBar(_xpBar, App.Levels.ProgressInLevel(st.Xp.TotalXp));
             _feedCount.text = Count(ItemCategory.Food).ToString();
             _washCount.text = Count(ItemCategory.Cleaning).ToString();
         }
@@ -146,10 +152,37 @@ namespace Pofi.Screens
                 case CareAction.Play: r = PetCare.Play(st.Stats, local); break;
                 default: r = PetCare.Tidy(st.Stats); break;
             }
-            if (r == CareResult.Ok) { App.Stage.Hop(); App.Save(); }
+            if (r == CareResult.Ok)
+            {
+                App.Stage.Hop();
+                App.Save();
+                App.RecordActivity(a == CareAction.Feed ? "pet_fed" : a == CareAction.Wash ? "pet_washed" : a == CareAction.Play ? "pet_played" : "home_tidied");
+            }
             _idle = 0f;
             _bubble.Say(CareFeedback.Message(App.Loc, a, r, st.PetName));
             Refresh();
+        }
+
+        private void DailyPanel()
+        {
+            Activity.EnsureQuests(App.State, App.Data, App.Levels, App.LocalNow);
+            var root = Modal(760f, out var box);
+            Ui.Label(box, T("home.daily"), Th.Font(60), Th.Text, new Vector2(0.5f, 0.88f), new Vector2(880f, 90f), FontStyle.Bold);
+            var i = 0;
+            foreach (var id in App.State.DailyQuests.Ids)
+            {
+                var q = App.Data.DailyQuests.FirstOrDefault(x => x.Id == id);
+                if (q == null) continue;
+                var y = 0.7f - i * 0.17f;
+                var done = App.State.DailyQuests.Claimed.Contains(id);
+                var prog = DailyQuests.Progress(q, App.State.Counters);
+                Ui.Label(box, q.Text, Th.Font(40), done ? Theme.Hex("#2E9E4F") : Th.Text, new Vector2(0.42f, y), new Vector2(700f, 70f), FontStyle.Bold, TextAnchor.MiddleLeft);
+                Ui.Label(box, done ? T("home.daily_done") : prog + "/" + q.Target, Th.Font(38), Th.SubtleText, new Vector2(0.86f, y), new Vector2(200f, 70f), FontStyle.Bold);
+                var bar = Ui.Bar(box, new Vector2(0.5f, y - 0.055f), new Vector2(860f, 16f), new Color(0f, 0f, 0f, 0.08f), Th.Primary, 8f);
+                Ui.SetBar(bar, (float)prog / q.Target);
+                i++;
+            }
+            Ui.Button(box, Th, T("common.ok"), new Vector2(0.5f, 0.1f), new Vector2(360f, 110f), () => Destroy(root.gameObject), false, default, 44);
         }
 
         private void OnSynced(Logic.State.SyncReport r) => Refresh();

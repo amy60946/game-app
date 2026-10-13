@@ -37,7 +37,7 @@ namespace Pofi.Screens
             {
                 var cat = Tabs[i];
                 _tabButtons[i] = Ui.Button(tabs, Th, T("shop.tab." + cat), new Vector2(0.125f + i * 0.25f, 0.5f), new Vector2(240f, 96f),
-                    () => { _tab = cat; Fill(); }, cat == _tab, default, 36);
+                    () => { _tab = cat; Fill(); }, cat == _tab, default, 36, false);
             }
 
             var area = Ui.Area(Root, "GridArea", Vector2.zero, Vector2.one);
@@ -149,8 +149,8 @@ namespace Pofi.Screens
                 }
                 else if (r == BuyCheck.NotEnoughCoins) NotEnough();
                 else Fill();
-            });
-            Ui.Button(box, Th, T("shop.no"), new Vector2(0.7f, 0.24f), new Vector2(360f, 130f), () => Destroy(root.gameObject), false);
+            }, true, default, 52, false);
+            Ui.Button(box, Th, T("shop.no"), new Vector2(0.7f, 0.24f), new Vector2(360f, 130f), () => Destroy(root.gameObject), false, default, 52, false);
         }
 
         private void NotEnough()

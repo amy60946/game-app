@@ -120,7 +120,7 @@ namespace Pofi.Screens
 
         private void Btn(RectTransform row, string text, bool primary, Vector2 offsetFromBottomRight, Vector2 size, System.Action onClick)
         {
-            var b = Ui.Button(row, Th, text, new Vector2(1f, 0f), size, onClick, primary, default, 40);
+            var b = Ui.Button(row, Th, text, new Vector2(1f, 0f), size, onClick, primary, default, 40, false);
             var rt = (RectTransform)b.transform;
             rt.pivot = new Vector2(1f, 0f);
             rt.anchoredPosition = offsetFromBottomRight;

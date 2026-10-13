@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Pofi.Logic.App;
 using Pofi.Logic.Core;
 using Pofi.Logic.Data;
+using Pofi.Logic.Economy;
+using Pofi.Logic.Island;
 using Pofi.Logic.Pet;
 using Pofi.Logic.Progression;
 using Pofi.Logic.Services;
@@ -29,6 +31,10 @@ namespace Pofi.Core
         public PetNameRules NameRules { get; private set; }
         public StarterKit Starter { get; private set; }
         public LevelTable Levels { get; private set; }
+        public IslandMap Map { get; private set; }
+
+        /// <summary>Açık mini oyunun kimliği (coconut, help_pet, swim, surf, ski).</summary>
+        public string MiniGameId { get; private set; }
         public StatDecayConfig Decay { get; } = StatDecayConfig.Default;
         public IAuthService Auth { get; private set; }
         public ISecureStore Store { get; private set; }
@@ -65,6 +71,7 @@ namespace Pofi.Core
             NameRules = new PetNameRules(ReadData("name_blocklist.json"));
             Starter = new StarterKit(ReadData("start.json"));
             Levels = new LevelTable(Data.Levels);
+            Map = new IslandMap(ReadData("regions.json"), Levels);
             Store = new PrefsStore();
             Auth = new MockAuthService(Store);   // M4'te SupabaseAuthService ile değişecek
             var build = Resources.Load<TextAsset>("build_number");
@@ -128,8 +135,62 @@ namespace Pofi.Core
             if (Session != null) Store.Set(ServerKey(Session.ChildId), Backend.Export());
             Save();
             if (report.CoinsEarned > 0) CoinBurst.Play(Overlay.transform, Theme, Loc.Get("tasks.earned", report.CoinsEarned));
+            var approved = 0;
+            foreach (var ev in report.TaskEvents) if (ev.Kind == Logic.Tasks.TaskEventKind.Approved) approved++;
+            if (approved > 0) RecordActivity("tasks_approved", approved);
             Synced?.Invoke(report);
             return report;
+        }
+
+        /// <summary>Haritadaki bölgeye gir. Henüz yapılmamış yerler için petin söyleyeceği cümle <paramref name="say"/>'e gider.</summary>
+        public void Enter(RegionDef region, Action<string> say)
+        {
+            switch (IslandMap.KindOf(region.Target, out var arg))
+            {
+                case RegionTargetKind.Page:
+                    Open(arg == "shop" ? AppPage.Shop : arg == "tasks" ? AppPage.Tasks : arg == "wardrobe" ? AppPage.Wardrobe : AppPage.Home);
+                    break;
+                case RegionTargetKind.MiniGame:
+                    if (MiniGameScreen.Supports(arg)) { MiniGameId = arg; Open(AppPage.MiniGame); }
+                    else say(Loc.Get("map.soon", region.Name));
+                    break;
+                case RegionTargetKind.Cards:
+                    if (CardsScreen.Available) Open(AppPage.Cards);
+                    else say(Loc.Get("map.soon", region.Name));
+                    break;
+                default:
+                    say(Loc.Get("map.soon", region.Name));
+                    break;
+            }
+        }
+
+        public void OpenMiniGame(string id)
+        {
+            MiniGameId = id;
+            Open(AppPage.MiniGame);
+        }
+
+        /// <summary>XP kazancı (mini oyun, masa oyunu…): günlük sınır, seviye atlama ve kutlama burada.</summary>
+        public XpResult GrantXp(int amount, XpSource source)
+        {
+            var r = Progress.Grant(State, Levels, Session.AgeBand, amount, source, LocalNow);
+            Save();
+            if (r.LevelUp != null) LevelUpCelebration.Show(this, r.LevelUp);
+            return r;
+        }
+
+        /// <summary>
+        /// Oyuncu eylemi kaydı: sayaç → rozet ve günlük görev. Kazanılan rozet/görev XP'si verilir ve bildirim gösterilir.
+        /// </summary>
+        public void RecordActivity(string counter, int n = 1)
+        {
+            if (State == null) return;
+            var r = Activity.Record(State, Data, Levels, counter, n, LocalNow);
+            foreach (var b in r.NewBadges) Toast.Post(Overlay.transform, Theme, Loc.Get("badge.earned", b.Name));
+            foreach (var q in r.QuestsDone) Toast.Post(Overlay.transform, Theme, q.Text + "  " + Loc.Get("xp.gain", q.Xp));
+            if (r.BadgeXp > 0) GrantXp(r.BadgeXp, XpSource.Achievement);
+            if (r.QuestXp > 0) GrantXp(r.QuestXp, XpSource.DailyQuest);
+            Save();
         }
 
         /// <summary>Alt menüden sayfa aç (yalnızca pet hazırsa).</summary>
@@ -181,6 +242,9 @@ namespace Pofi.Core
                         case AppPage.Tasks: _screen = root.gameObject.AddComponent<TasksScreen>(); break;
                         case AppPage.Shop: _screen = root.gameObject.AddComponent<ShopScreen>(); break;
                         case AppPage.Wardrobe: _screen = root.gameObject.AddComponent<WardrobeScreen>(); break;
+                        case AppPage.Map: _screen = root.gameObject.AddComponent<MapScreen>(); break;
+                        case AppPage.MiniGame: _screen = root.gameObject.AddComponent<MiniGameScreen>(); break;
+                        case AppPage.Cards: _screen = root.gameObject.AddComponent<CardsScreen>(); break;
                         default: _screen = root.gameObject.AddComponent<HomeScreen>(); break;
                     }
                     break;

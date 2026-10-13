@@ -46,7 +46,7 @@ namespace Pofi.Screens
             {
                 var slot = Slot.All[i];
                 _tabs[i] = Ui.Button(panel, Th, T("wardrobe.slot." + slot), new Vector2(0.1f + i * 0.2f, 0.87f), new Vector2(190f, 92f),
-                    () => { _slot = slot; Fill(); }, slot == _slot, default, 34);
+                    () => { _slot = slot; Fill(); }, slot == _slot, default, 34, false);
             }
             var area = Ui.Area(panel, "ListArea", Vector2.zero, new Vector2(1f, 0.76f));
             _list = Ui.ScrollList(area, Vector2.zero, Vector2.one, 20f, 3, new Vector2(310f, 190f));

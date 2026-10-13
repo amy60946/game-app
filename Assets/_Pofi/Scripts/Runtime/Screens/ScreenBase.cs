@@ -35,14 +35,14 @@ namespace Pofi.Screens
             bar.pivot = new Vector2(0.5f, 0f);
             bar.anchoredPosition = Vector2.zero;
             bar.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.97f);
-            var pages = new[] { AppPage.Home, AppPage.Tasks, AppPage.Shop, AppPage.Wardrobe };
-            var keys = new[] { "nav.home", "nav.tasks", "nav.shop", "nav.wardrobe" };
+            var pages = new[] { AppPage.Home, AppPage.Map, AppPage.Tasks, AppPage.Shop, AppPage.Wardrobe };
+            var keys = new[] { "nav.home", "nav.map", "nav.tasks", "nav.shop", "nav.wardrobe" };
             for (var i = 0; i < pages.Length; i++)
             {
                 var page = pages[i];
                 var on = page == current;
-                var b = Ui.Button(bar, Th, T(keys[i]), new Vector2(0.125f + i * 0.25f, 0.55f), new Vector2(240f, 120f),
-                    () => { if (App.Page != page) App.Open(page); }, on, default, 40);
+                var b = Ui.Button(bar, Th, T(keys[i]), new Vector2(0.1f + i * 0.2f, 0.55f), new Vector2(196f, 120f),
+                    () => { if (App.Page != page) App.Open(page); }, on, default, 34, false);
                 if (page == AppPage.Tasks) TaskBadge(b.transform);
             }
         }
@@ -107,7 +107,7 @@ namespace Pofi.Screens
                     Close();
                     if (v == ch.Answer) onPass();
                     else onFail?.Invoke(T("gate.wrong"));
-                }, false, default, 56);
+                }, false, default, 56, false);
             }
             Ui.Button(box, Th, "X", new Vector2(0.5f, 0.09f), new Vector2(160f, 100f), Close, false, default, 48);
         }

@@ -94,9 +94,10 @@ namespace Pofi.World
         }
 
         /// <summary>Kamerayı konuma koyar ve petin göğüs hizasına baktırır.</summary>
-        public void SetCamera(Vector3 position, float pitch)
+        public void SetCamera(Vector3 position, float pitch, float fov = 34f)
         {
             Camera.transform.SetPositionAndRotation(position, Quaternion.Euler(pitch, 0f, 0f));
+            Camera.fieldOfView = fov;
         }
 
         public void SetSky(Color sky) => Camera.backgroundColor = sky;

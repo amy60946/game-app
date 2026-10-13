@@ -1,0 +1,19 @@
+{
+  "_doc": "Ada haritası bölgeleri (M5). id levels.json'daki region_* ile aynı; açılış seviyesi oradan okunur. pos: haritada x,z (metre, ada merkezi 0,0; +z kuzey/uzak). target: dokununca açılan yer (page:* sayfa, minigame:* mini oyun, cards: masa oyunları, soon: henüz yok). color: yer tutucu bina rengi.",
+  "regions": [
+    { "id": "region_home",           "name": "Evim",              "pos": [0.0, -1.6],  "target": "page:home",          "color": "#FF8A2A", "shape": "house" },
+    { "id": "region_shop",           "name": "Dükkan",            "pos": [-2.2, -0.9], "target": "page:shop",          "color": "#FF5A7A", "shape": "house" },
+    { "id": "region_task_board",     "name": "Görev Panosu",      "pos": [2.2, -0.9],  "target": "page:tasks",         "color": "#2F80ED", "shape": "board" },
+    { "id": "region_coconut_grove",  "name": "Hindistan Cevizi Bahçesi", "pos": [-3.4, 0.6], "target": "minigame:coconut", "color": "#46D063", "shape": "palm" },
+    { "id": "region_swim_cove",      "name": "Yüzme Koyu",        "pos": [3.5, 0.5],   "target": "minigame:swim",      "color": "#3DC9FF", "shape": "pool" },
+    { "id": "region_surf_beach",     "name": "Sörf Plajı",        "pos": [2.8, 2.1],   "target": "minigame:surf",      "color": "#00A693", "shape": "board" },
+    { "id": "region_game_hut",       "name": "Oyun Kulübesi",     "pos": [-1.2, 1.0],  "target": "cards",              "color": "#A77BFF", "shape": "house" },
+    { "id": "region_ski_hill",       "name": "Kayak Tepesi",      "pos": [-2.4, 2.7],  "target": "minigame:ski",       "color": "#F4F8FF", "shape": "hill" },
+    { "id": "region_garden",         "name": "Bahçe",             "pos": [1.0, 0.6],   "target": "soon",               "color": "#7BD66B", "shape": "garden" },
+    { "id": "region_pier",           "name": "İskele",            "pos": [4.2, -1.9],  "target": "soon",               "color": "#8C5A3C", "shape": "pier" },
+    { "id": "region_cave",           "name": "Mağara",            "pos": [-4.1, -1.9], "target": "soon",               "color": "#5D6380", "shape": "hill" },
+    { "id": "region_festival",       "name": "Festival Alanı",    "pos": [0.4, 2.6],   "target": "soon",               "color": "#FFD23F", "shape": "tent" },
+    { "id": "region_mountain",       "name": "Dağ",               "pos": [-0.6, 4.0],  "target": "soon",               "color": "#9AA5B8", "shape": "hill" },
+    { "id": "region_lighthouse",     "name": "Fener",             "pos": [3.6, 3.7],   "target": "soon",               "color": "#E8453C", "shape": "tower" }
+  ]
+}

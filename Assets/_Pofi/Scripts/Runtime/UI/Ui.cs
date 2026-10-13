@@ -114,9 +114,10 @@ namespace Pofi.UI
         }
 
         public static Button Button(Transform parent, Theme th, string text, Vector2 anchor, Vector2 size, Action onClick,
-            bool primary = true, Vector2 offset = default, int fontSize = 52)
+            bool primary = true, Vector2 offset = default, int fontSize = 52, bool scaleSize = true)
         {
-            var rt = Rect(parent, "Button " + text, anchor, size * th.Scale, offset);
+            // Yaş bandı ölçeği (A: iri) yalnızca serbest yerleşimde; yan yana dizilen düğmelerde (scaleSize=false) taşmasın.
+            var rt = Rect(parent, "Button " + text, anchor, scaleSize ? size * th.Scale : size, offset);
             var img = Panel(rt, primary ? th.Primary : th.Secondary, th.Radius);
             var shadow = rt.gameObject.AddComponent<Shadow>();   // çocuk nesne olsaydı düğmenin üstünde çizilirdi
             shadow.effectColor = new Color(0f, 0f, 0f, 0.16f);

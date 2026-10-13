@@ -1,0 +1,51 @@
+using System.Linq;
+using Pofi.Core;
+using Pofi.Logic.App;
+using Pofi.Logic.Progression;
+using Pofi.UI;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Pofi.Screens
+{
+    /// <summary>Seviye atlama kutlaması (FR-PROG-3): yeni seviye, açılan içerikler, büyüme evresi. "Yaşasın!" ile kapanır.</summary>
+    public static class LevelUpCelebration
+    {
+        public static void Show(GameBootstrap app, LevelUp up)
+        {
+            var th = app.Theme;
+            var root = Ui.Fill(app.Overlay.transform, "LevelUp");
+            root.gameObject.AddComponent<Image>().color = new Color(0.05f, 0.1f, 0.3f, 0.6f);
+            var box = Ui.Rect(root, "Box", new Vector2(0.5f, 0.5f), new Vector2(960f, 1100f));
+            Ui.Panel(box, Color.white, th.Radius);
+            var star = Ui.Rect(box, "Star", new Vector2(0.5f, 0.86f), new Vector2(200f, 200f));
+            Ui.Panel(star, Theme.Hex("#FFD23F"), 30f).raycastTarget = false;
+            star.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            star.gameObject.AddComponent<Pulse>();
+            Ui.Label(box, app.Loc.Get("levelup.title", up.To), th.Font(96), th.Text, new Vector2(0.5f, 0.68f), new Vector2(900f, 140f), FontStyle.Bold);
+
+            var lines = up.Unlocked.Where(id => !id.StartsWith("growth_") && app.Loc.Has("unlock." + id))
+                .Select(id => "- " + app.Loc.Get("unlock." + id)).Take(6).ToList();
+            var y = 0.56f;
+            if (up.NewStage != null)
+            {
+                Ui.Label(box, app.Loc.Get("levelup.grew", app.State.PetName), th.Font(48), th.Primary, new Vector2(0.5f, y), new Vector2(880f, 80f), FontStyle.Bold);
+                y -= 0.08f;
+            }
+            if (lines.Count > 0)
+            {
+                Ui.Label(box, app.Loc.Get("levelup.unlocked"), th.Font(40), th.SubtleText, new Vector2(0.5f, y), new Vector2(880f, 60f), FontStyle.Bold);
+                Ui.Label(box, string.Join("\n", lines), th.Font(40), th.Text, new Vector2(0.5f, y - 0.06f), new Vector2(820f, 360f), FontStyle.Normal, TextAnchor.UpperLeft)
+                    .rectTransform.pivot = new Vector2(0.5f, 1f);
+            }
+            Ui.Button(box, th, app.Loc.Get("levelup.ok"), new Vector2(0.5f, 0.09f), new Vector2(560f, 140f), () =>
+            {
+                Progress.MarkCelebrated(app.State, up);
+                app.Save();
+                Object.Destroy(root.gameObject);
+                if (up.NewStage != null && app.Page == AppPage.Home) app.Route();   // büyüyen peti yeniden çiz
+            });
+            CoinBurst.Play(app.Overlay.transform, th, "");
+        }
+    }
+}
