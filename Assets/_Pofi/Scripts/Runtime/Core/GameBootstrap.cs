@@ -235,6 +235,8 @@ namespace Pofi.Core
             }
             Stage.SetPetVisible(true);
             Stage.SetHomeItems(null, false);   // ev eşyaları yalnızca ev ekranında
+            Stage.SetAmbient(false);
+            Stage.SetSleeping(false);
             Stage.Swiped = null;
             var root = Ui.Fill(Canvas.transform, "Screen " + next);
             switch (next)

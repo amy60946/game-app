@@ -38,6 +38,7 @@ namespace Pofi.Screens
             App.Stage.SetCamera(new Vector3(0f, 1.09f, -6.88f), 0f);
             App.Stage.ShowPet(def, App.Growth, App.State.Inventory.Equipped.Values);
             App.Stage.SetHomeItems(App.State.Home, App.Levels.IsUnlocked("home_expansion", App.Level));
+            App.Stage.SetAmbient(true);
 
             // Üst bilgi kartı: isim, seviye/evre, coin ve göstergeler
             var top = Ui.Rect(Root, "Top", new Vector2(0.5f, 0.835f), new Vector2(1010f, 420f));
@@ -118,6 +119,7 @@ namespace Pofi.Screens
             if (!force && night == _night) return;
             _night = night;
             App.Stage.SetSky(night ? Theme.Hex("#22306B") : Th.Sky);
+            App.Stage.SetSleeping(night);
         }
 
         private void Refresh()

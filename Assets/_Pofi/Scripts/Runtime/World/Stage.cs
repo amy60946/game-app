@@ -107,6 +107,8 @@ namespace Pofi.World
             ClearPet();
             _petDef = def;
             Pet = PetModels.Build(def, _holder);
+            _life = Pet.gameObject.AddComponent<PetLife>();
+            _life.Sleeping = _sleeping;
             SetCosmetics(equipped);
             _baseScale = PetModels.StageScale(stage);
             _appear = 0f;
@@ -149,6 +151,24 @@ namespace Pofi.World
             Pet = null;
         }
 
+        private PetLife _life;
+        private bool _sleeping;
+        private Ambient _ambient;
+
+        /// <summary>Gece: pet uyur (gözler kapalı, yavaş nefes).</summary>
+        public void SetSleeping(bool sleeping)
+        {
+            _sleeping = sleeping;
+            if (_life != null) _life.Sleeping = sleeping;
+        }
+
+        /// <summary>Ada sakinleri (yengeç, martı): yalnızca ev ekranında.</summary>
+        public void SetAmbient(bool on)
+        {
+            if (on && _ambient == null) _ambient = Ambient.Create(transform);
+            else if (!on && _ambient != null) { Destroy(_ambient.gameObject); _ambient = null; }
+        }
+
         public void Hop()
         {
             Audio.Sfx.Play(Audio.SfxKind.Pop);
@@ -175,8 +195,8 @@ namespace Pofi.World
 
             _appear = Mathf.Min(1f, _appear + dt * 3.5f);
             var pop = 1f + Mathf.Sin(_appear * Mathf.PI) * 0.12f * (1f - _appear * 0.3f);
-            _breath += dt * 2.2f;
-            var breath = UI.Theme.ReduceMotion ? 1f : 1f + Mathf.Sin(_breath) * 0.015f;
+            _breath += dt * (_sleeping ? 0.9f : 2.2f);
+            var breath = UI.Theme.ReduceMotion ? 1f : 1f + Mathf.Sin(_breath) * (_sleeping ? 0.03f : 0.015f);
             _hop = Mathf.Max(0f, _hop - dt * 1.6f);
             var hopY = Mathf.Sin(_hop * Mathf.PI) * 0.35f * _hop;
 
