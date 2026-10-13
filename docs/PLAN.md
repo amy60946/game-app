@@ -53,7 +53,7 @@ Assets/_Pofi/
     Economy/     EconomySystem (coin bakiyesi = sunucu; bekleyen harcama kuyruğu), XpSystem (günlük sınır)
     Progression/ ProgressionSystem, UnlockGate
     Tasks/       TaskSyncSystem, TaskBoard
-    Shop/  Inventory/  Garden/  Fishing/  Cards/ (CardGameFramework, IGameRules, Uno, Domino, Jenga)
+    Shop/  Inventory/  Garden/  Fishing/  Cards/ (CardGameFramework, IGameRules, ColorMatch "Renk Eşle", Domino, Tower "Kule")
     MiniGames/   Coconut, HelpPet, Swim, Surf, Ski, Cave, Hike
     Social/      AmbientResidents, FriendVisit (Faz B, bayrak kapalı)
     Audio/       VoiceSubtitleSystem, SubtitleSyncController, PetVoice
@@ -119,7 +119,7 @@ Her milestone sonunda: çalışan build (Android APK + WebGL önizleme; Apple ha
 | M5 | Ada haritası, bölge geçişi, gün/gece, seviye/açılış tablosu, havuç etkisi, seviye kutlaması | Adayı gezme, kilitli bölgeler |
 | M6 | Hindistan cevizi, Pet'e yardım, Yüzme, Sörf, Kayak | 5 mini oyun |
 | M7 | Bahçe, Balık tutma, Koleksiyon, Rozetler, Günlük görevler, Seri | |
-| M8 | `CardGameFramework`, UNO, Domino, Jenga, bot yapay zekâ | 3 masa oyunu |
+| M8 | `CardGameFramework`, Renk Eşle, Domino, Kule, bot yapay zekâ | 3 masa oyunu |
 | M9 | Ses+altyazı senkronu (karaoke), viseme, pet sesleri, erişilebilirlik | |
 | M10 | Mağara, Dağ, Festival, Fener, cila, performans/bellek, mağaza hazırlığı | |
 

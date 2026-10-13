@@ -22,8 +22,8 @@ namespace Pofi.Tests.Logic
         public void Unlock_gate_follows_table()
         {
             Assert.IsTrue(T.IsUnlocked("region_shop", 1));
-            Assert.IsFalse(T.IsUnlocked("card_uno", 2));
-            Assert.IsTrue(T.IsUnlocked("card_uno", 3));
+            Assert.IsFalse(T.IsUnlocked("card_color_match", 2));
+            Assert.IsTrue(T.IsUnlocked("card_color_match", 3));
             Assert.IsFalse(T.IsUnlocked("region_lighthouse", 14));
             Assert.IsTrue(T.IsUnlocked("region_lighthouse", 15));
             Assert.IsFalse(T.IsUnlocked("bilinmeyen_icerik", 15), "tabloda olmayan kimlik kilitli kalmalı");
@@ -36,7 +36,7 @@ namespace Pofi.Tests.Logic
             var up = T.Check(T.TotalXpFor(4) + 10, T.TotalXpFor(6));
             Assert.AreEqual(4, up.From);
             Assert.AreEqual(6, up.To);
-            CollectionAssert.Contains(up.Unlocked, "card_jenga");   // Sv5
+            CollectionAssert.Contains(up.Unlocked, "card_tower");   // Sv5
             CollectionAssert.Contains(up.Unlocked, "region_garden"); // Sv6
             Assert.AreEqual(GrowthStage.Genc, up.NewStage);
             Assert.IsNull(T.Check(10, 20));

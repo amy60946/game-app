@@ -34,4 +34,4 @@ Doğrulama: `dotnet test tests-dotnet` → 112 test, hepsi geçiyor (GitHub Acti
 - **Gerçek modeller ve ses:** yapay zekâ 3D + stüdyo.
 
 ## Kullanıcıya sorulacaklar
-- UNO ve Jenga tescilli markalar: oyunda "Renk Eşle" ve "Kule" gibi özgün adlar öneriliyor.
+- UNO ve Jenga tescilli markalar: oyunda "Renk Eşle" ve "Kule" adları kullanılıyor (onaylandı, 13 Ekim 2026).
