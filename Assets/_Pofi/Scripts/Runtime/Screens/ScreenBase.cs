@@ -49,13 +49,11 @@ namespace Pofi.Screens
 
         private void TaskBadge(Transform button)
         {
-            var open = 0;
-            foreach (var t in App.State.Tasks.Tasks)
-                if (t.Status == Logic.Tasks.ChildTaskStatus.Assigned && !t.IsMissed(App.LocalNow)) open++;
-            if (open == 0) return;
             var badge = Ui.Rect(button, "Badge", new Vector2(0.92f, 0.92f), new Vector2(56f, 56f));
             Ui.Panel(badge, Th.Danger, 28f).raycastTarget = false;
-            Ui.Label(badge, open.ToString(), Th.Font(30), Color.white, new Vector2(0.5f, 0.5f), new Vector2(56f, 56f), FontStyle.Bold);
+            var text = Ui.Label(badge, "", Th.Font(30), Color.white, new Vector2(0.5f, 0.5f), new Vector2(56f, 56f), FontStyle.Bold);
+            var live = badge.gameObject.AddComponent<TaskBadgeView>();
+            live.Init(App, text);
         }
 
         /// <summary>Üst başlık şeridi + sağda coin rozeti. Coin metnini döndürür.</summary>
@@ -114,6 +112,34 @@ namespace Pofi.Screens
 
         /// <summary>Konuşma balonu (petin üstünde); kısa süre sonra kaybolur.</summary>
         protected SpeechBubble Bubble(Vector2 anchor) => SpeechBubble.Create(Root, Th, anchor);
+    }
+
+    /// <summary>Görevler sekmesindeki sayaç: yapılmayı bekleyen görev sayısı; senkron sonrası kendini günceller.</summary>
+    public sealed class TaskBadgeView : MonoBehaviour
+    {
+        private GameBootstrap _app;
+        private Text _text;
+        private float _t;
+
+        public void Init(GameBootstrap app, Text text) { _app = app; _text = text; Refresh(); }
+
+        private void Update()
+        {
+            _t += Time.unscaledDeltaTime;
+            if (_t > 0.5f) { _t = 0f; Refresh(); }
+        }
+
+        private void Refresh()
+        {
+            if (_app == null || _app.State == null) return;
+            var open = 0;
+            foreach (var t in _app.State.Tasks.Tasks)
+                if (t.Status == Logic.Tasks.ChildTaskStatus.Assigned && !t.IsMissed(_app.LocalNow)) open++;
+            _text.text = open.ToString();
+            var img = GetComponent<Image>();
+            if (img != null) img.enabled = open > 0;
+            _text.enabled = open > 0;
+        }
     }
 
     public sealed class SpeechBubble : MonoBehaviour

@@ -3,6 +3,7 @@ using Pofi.Logic.App;
 using Pofi.Logic.Economy;
 using Pofi.Logic.Services.Mock;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Pofi.Core
 {
@@ -44,6 +45,13 @@ namespace Pofi.Core
                         break;
                     case "xp":
                         app.GrantXp(int.Parse(arg), XpSource.Achievement);
+                        break;
+                    case "dismiss":
+                        for (var i = app.Overlay.transform.childCount - 1; i >= 0; i--)
+                        {
+                            var c = app.Overlay.transform.GetChild(i);
+                            if (c.name == "LevelUp") Object.Destroy(c.gameObject);
+                        }
                         break;
                     case "approve":
                         foreach (var t in app.State.Tasks.Tasks)

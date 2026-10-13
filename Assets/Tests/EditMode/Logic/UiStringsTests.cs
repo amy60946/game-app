@@ -40,6 +40,20 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
+        public void Metinlerde_yazi_tipinde_olmayan_karakter_yok()
+        {
+            // Unity'nin yerleşik yazı tipinde (LegacyRuntime) bu karakterler yok; ekranda boşluk olarak görünür.
+            var bad = new[] { '\u2013', '\u2014', '\u2026', '\u2192', '\u25B2', '\u25C0', '\u25B6', '\u2713', '\u2022' };
+            foreach (var f in new[] { "tr.json", "items.json", "pets.json", "regions.json", "badges.json", "daily_quests.json", "collection.json" })
+            {
+                var o = Newtonsoft.Json.Linq.JObject.Parse(TestData.ReadText(f));
+                o.Remove("_doc");
+                var text = o.ToString();
+                foreach (var c in bad) Assert.IsFalse(text.IndexOf(c) >= 0, f + " içinde U+" + ((int)c).ToString("X4"));
+            }
+        }
+
+        [Test]
         public void Birlesik_anahtarlar_tabloda_var()
         {
             var loc = new Localization(TestData.ReadText("tr.json"));

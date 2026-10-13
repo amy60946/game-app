@@ -48,7 +48,8 @@ namespace Pofi.Screens
                 var state = seed == null ? PlotState.Empty : p.StateAt(App.UtcNow, seed);
                 var col = i % 2;
                 var row = i / 2;
-                var cell = Ui.Rect(_grid, "Plot" + i, new Vector2(col == 0 ? 0.27f : 0.73f, 0.84f - row * 0.32f), new Vector2(460f, 420f));
+                var cell = Ui.Rect(_grid, "Plot" + i, new Vector2(col == 0 ? 0.27f : 0.73f, 1f), new Vector2(460f, 380f),
+                    new Vector2(0f, -210f - row * 410f));
                 var soil = Ui.Panel(cell, Theme.Hex(state == PlotState.NeedsWater || state == PlotState.Empty ? "#A9744A" : "#7A4F2E"), Th.Radius);
                 if (seed != null)
                 {
