@@ -1,0 +1,5 @@
+is_global = true
+build_property.RootNamespace = RuntimeCheck
+build_property.ProjectDir = /home/user/pofi-adasi/tools/compile-check/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 

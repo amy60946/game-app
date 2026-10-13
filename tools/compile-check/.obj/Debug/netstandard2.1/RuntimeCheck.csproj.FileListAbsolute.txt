@@ -1,0 +1,11 @@
+/home/user/pofi-adasi/tools/compile-check/.out/netstandard2.1/RuntimeCheck.deps.json
+/home/user/pofi-adasi/tools/compile-check/.out/netstandard2.1/RuntimeCheck.dll
+/home/user/pofi-adasi/tools/compile-check/.out/netstandard2.1/RuntimeCheck.pdb
+/home/user/pofi-adasi/tools/compile-check/.obj/Debug/netstandard2.1/RuntimeCheck.csproj.AssemblyReference.cache
+/home/user/pofi-adasi/tools/compile-check/.obj/Debug/netstandard2.1/RuntimeCheck.GeneratedMSBuildEditorConfig.editorconfig
+/home/user/pofi-adasi/tools/compile-check/.obj/Debug/netstandard2.1/RuntimeCheck.AssemblyInfoInputs.cache
+/home/user/pofi-adasi/tools/compile-check/.obj/Debug/netstandard2.1/RuntimeCheck.AssemblyInfo.cs
+/home/user/pofi-adasi/tools/compile-check/.obj/Debug/netstandard2.1/RuntimeCheck.csproj.CoreCompileInputs.cache
+/home/user/pofi-adasi/tools/compile-check/.obj/Debug/netstandard2.1/RuntimeCheck.sourcelink.json
+/home/user/pofi-adasi/tools/compile-check/.obj/Debug/netstandard2.1/RuntimeCheck.dll
+/home/user/pofi-adasi/tools/compile-check/.obj/Debug/netstandard2.1/RuntimeCheck.pdb

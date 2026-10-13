@@ -102,9 +102,13 @@ namespace Pofi.EditorTools
 
         private static void WriteBuildNumber()
         {
-            var build = Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER") ?? "yerel";
-            File.WriteAllText(ResourcesDir + "/build_number.txt", build);
-            AssetDatabase.ImportAsset(ResourcesDir + "/build_number.txt");
+            // GameCI kapsayıcısına GITHUB_RUN_NUMBER geçmez; CI dosyayı derlemeden önce yazar, burada korunur.
+            var file = ResourcesDir + "/build_number.txt";
+            var build = Environment.GetEnvironmentVariable("GITHUB_RUN_NUMBER");
+            if (string.IsNullOrEmpty(build) && File.Exists(file)) build = File.ReadAllText(file).Trim();
+            if (string.IsNullOrEmpty(build)) build = "yerel";
+            File.WriteAllText(file, build);
+            AssetDatabase.ImportAsset(file);
         }
 
         private static void EnsureBootScene()
