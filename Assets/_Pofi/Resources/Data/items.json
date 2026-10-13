@@ -43,7 +43,7 @@
     { "id": "home_rug",          "name": "Halı",               "category": "home",     "price": 40,  "level": 4, "effects": { "home": 15 } },
     { "id": "home_lamp",         "name": "Deniz kabuğu lamba", "category": "home",     "price": 45,  "level": 4, "effects": { "home": 15 } },
     { "id": "home_bookshelf",    "name": "Kitaplık",           "category": "home",     "price": 80,  "level": 6, "effects": { "home": 20 } },
-    { "id": "home_aquarium",     "name": "Akvaryum",           "category": "home",     "price": 120, "level": 8, "effects": { "home": 30, "happiness": 5 } },
+    { "id": "home_aquarium",     "name": "Akvaryum",           "category": "home",     "price": 100, "level": 8, "effects": { "home": 30, "happiness": 5 } },
 
     { "id": "seed_carrot",       "name": "Havuç tohumu",       "category": "seed",     "price": 2,  "level": 6, "grows": "food_carrot", "growMinutes": 30 },
     { "id": "seed_corn",         "name": "Mısır tohumu",       "category": "seed",     "price": 2,  "level": 6, "grows": "food_corn",   "growMinutes": 60 },

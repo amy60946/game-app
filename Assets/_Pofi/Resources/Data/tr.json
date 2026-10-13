@@ -1,0 +1,72 @@
+{
+  "_doc": "Türkçe metin tablosu. Anahtar → metin. {0}, {1} yer tutucu. Ek alan isimler/sayılar kodda TurkishSuffix ile hazırlanıp verilir: fit.reason.* → İlgi hâli (Pofi'nin), pet.pick_confirm → Belirtme hâli (Pofi'yi), seviye → Bulunma hâli (3'te). Yeni dil: aynı anahtarlarla en.json vb.",
+  "strings": {
+    "fit.reason.head_shape": "{0} kafasına bu şapka oturmuyor.",
+    "fit.reason.no_nose_bridge": "{0} bu gözlüğü takamıyor (burnu yok, klipsli gözlük lazım).",
+    "fit.reason.body_apron_only": "{0} yalnızca önlük ve yelek giyebilir.",
+    "fit.reason.back_wings": "{0} kanatları açılıp kapanıyor, sırtına bir şey takılmaz.",
+    "fit.reason.back_spikes_plates": "{0} sırtına yalnızca düz arma takılabilir.",
+    "fit.reason.flipper_glove": "{0} yüzgeçlerine eldiven olmaz.",
+    "fit.reason.not_owned": "Önce dükkandan almalısın.",
+    "fit.reason.unknown_slot": "Bu eşya giyilemez.",
+
+    "shop.locked": "Seviye {0} açılır!",
+    "shop.not_enough_coins": "Görevlerini tamamlayınca coin kazanırsın.",
+    "shop.go_to_tasks": "Görev panosuna git",
+    "shop.already_owned": "Bu sende zaten var.",
+    "shop.buy_confirm": "{0} – {1} coin. Alalım mı?",
+    "shop.pending": "Gönderiliyor…",
+
+    "care.ok.feed": "Mmm, çok lezzetli!",
+    "care.ok.wash": "Mis gibi oldum!",
+    "care.ok.play": "Yaşasın, oyun!",
+    "care.sleeping": "Şşş… {0} uyuyor. Sabah görüşürüz!",
+    "care.full": "Karnım tok, teşekkürler!",
+    "care.no_item": "Dolapta kalmamış. Dükkana bakalım mı?",
+    "care.sad.fullness": "Karnım biraz acıktı…",
+    "care.sad.cleanliness": "Biraz yıkansam iyi olur.",
+    "care.sad.happiness": "Benimle oynar mısın?",
+    "care.sad.home": "Evimizi biraz düzenleyelim mi?",
+
+    "task.done": "Yaptım",
+    "task.decline": "Yapamam",
+    "task.undo": "Geri al",
+    "task.waiting": "Ebeveynin bakıyor",
+    "task.approved": "Aferin! +{0} coin",
+    "task.rejected": "Bu sefer olmadı. {0}",
+    "task.missed": "Bu görev kaçırıldı. Yarın yeni görevler gelecek!",
+    "task.new": "Yeni bir görevin var!",
+    "task.streak": "{0} günlük seri! +{1} XP",
+    "task.streak_restart": "Yeni bir seri başlıyor!",
+
+    "level.up": "Seviye {0}!",
+    "level.unlocked": "Yeni açılanlar",
+    "level.locked_hint": "Seviye {0} açılır!",
+    "xp.rest": "{0} biraz yoruldu. Yarın devam edelim!",
+
+    "pet.name.too_short": "İsim en az 2 harf olmalı.",
+    "pet.name.too_long": "İsim en fazla 12 harf olabilir.",
+    "pet.name.invalid": "Sadece harf ve boşluk kullanabilirsin.",
+    "pet.name.not_allowed": "Bu ismi seçemeyiz. Başka bir isim dener misin?",
+    "pet.pick_confirm": "{0} seçmek istiyor musun?",
+
+    "auth.code_prompt": "Sihirli kodunu yaz",
+    "auth.invalid": "Bu kod çalışmadı. Ebeveyninden kodu kontrol etmesini iste.",
+    "auth.throttled": "Biraz bekleyelim: {0} saniye sonra tekrar dene.",
+    "auth.revoked": "Bağlantın kapatıldı. Ebeveyninden yeni bir kod iste; adan seni bekliyor.",
+    "auth.offline": "İnternet yok gibi görünüyor. Bağlanınca tekrar deneyelim.",
+
+    "gate.title": "Ebeveyn sorusu",
+    "gate.hint": "Bu bölüm ebeveynler için.",
+    "gate.wrong": "Olmadı, yeni bir soru deneyelim.",
+
+    "minigame.result": "{0} puan · +{1} XP",
+    "minigame.again": "Tekrar oyna",
+    "minigame.exit": "Çık",
+    "cards.lost": "Bu sefer kazanamadın ama çok iyi oynadın! +{0} XP",
+    "cards.won": "Kazandın! +{0} XP",
+
+    "collection.new": "Yeni! {0} deftere eklendi.",
+    "badge.earned": "Yeni rozet: {0}"
+  }
+}
