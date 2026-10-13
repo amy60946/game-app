@@ -125,3 +125,26 @@ namespace Pofi.Tests.Logic
         }
     }
 }
+
+namespace Pofi.Tests.Logic
+{
+    public class CardSessionTests
+    {
+        [Test]
+        public void Zorluk_bantan_baslar_uyarlanir_ve_kayitta_kalir()
+        {
+            var s = GameState.NewFor("c", DateTime.UtcNow);
+            var d = CardSession.Difficulty(s, "card_domino", AgeBand.A);
+            Assert.AreEqual(AgeBandProfile.For(AgeBand.A).MiniGameDifficulty, d.Level, 1e-4);
+            Assert.AreEqual(8, CardSession.Finish(s, "card_domino", AgeBand.A, false));
+            CardSession.Finish(s, "card_domino", AgeBand.A, false);
+            Assert.Less(CardSession.Difficulty(s, "card_domino", AgeBand.A).Level, d.Level + 1e-4f);
+            Assert.Greater(CardSession.Finish(s, "card_domino", AgeBand.A, true), 8);
+
+            var back = SaveCodec.Deserialize(SaveCodec.Serialize(s, DateTime.UtcNow));
+            Assert.AreEqual(s.CardDifficulty["card_domino"].Level, back.CardDifficulty["card_domino"].Level, 1e-4);
+            var levels = new LevelTable(TestData.Load().Levels);
+            foreach (var g in CardSession.Games) Assert.Greater(levels.UnlockLevel(g), 0, g);
+        }
+    }
+}
