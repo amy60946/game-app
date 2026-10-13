@@ -87,8 +87,9 @@ namespace Pofi.Screens
             var top = Ui.Rect(Root, "Top", new Vector2(0.5f, 1f), new Vector2(1080f, 150f));
             top.pivot = new Vector2(0.5f, 1f);
             top.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.88f);
-            Ui.Label(top, T("cards.game." + id), Th.Font(50), Th.Text, new Vector2(0.27f, 0.5f), new Vector2(540f, 100f), FontStyle.Bold);
-            Ui.Label(top, T("cards.vs", _rival.Name), Th.Font(38), Th.SubtleText, new Vector2(0.62f, 0.5f), new Vector2(360f, 100f));
+            Ui.Label(top, T("cards.game." + id), Th.Font(50), Th.Text, new Vector2(0.21f, 0.5f), new Vector2(400f, 100f), FontStyle.Bold);
+            Ui.Label(top, T("cards.vs", _rival.Name), Th.Font(38), Th.SubtleText, new Vector2(0.66f, 0.5f), new Vector2(300f, 100f));
+            Ui.PortraitIcon(top, _rival.Id, Color.Lerp(Theme.Hex(_rival.MainColor), Color.white, 0.6f), new Vector2(0.5f, 0.5f), 110f);
             Ui.Button(top, Th, "X", new Vector2(0.93f, 0.5f), new Vector2(100f, 100f), Picker, false, default, 44, false);
             _status = Ui.Label(Root, "", Th.Font(46), Color.white, new Vector2(0.5f, 0.86f), new Vector2(1000f, 80f), FontStyle.Bold);
             _status.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -4f);

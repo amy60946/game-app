@@ -41,6 +41,36 @@ namespace Pofi.UI
             }
         }
 
+        private static readonly System.Collections.Generic.Dictionary<string, Sprite> Portraits = new System.Collections.Generic.Dictionary<string, Sprite>();
+
+        /// <summary>Petin konsept portresi (Resources/Portraits/pet_XX, art/scripts/render.py hero). Yoksa null.</summary>
+        public static Sprite Portrait(string petId)
+        {
+            if (string.IsNullOrEmpty(petId)) return null;
+            if (Portraits.TryGetValue(petId, out var s)) return s;
+            var tex = Resources.Load<Texture2D>("Portraits/" + petId);
+            s = tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+            Portraits[petId] = s;
+            return s;
+        }
+
+        /// <summary>Portre görüntüsü (yuvarlak arka planlı). Portre yoksa yalnızca renkli daire.</summary>
+        public static RectTransform PortraitIcon(Transform parent, string petId, Color bg, Vector2 anchor, float size, Vector2 offset = default)
+        {
+            var rt = Rect(parent, "Portrait " + petId, anchor, new Vector2(size, size), offset);
+            Panel(rt, bg, size / 2f);
+            var sp = Portrait(petId);
+            if (sp != null)
+            {
+                var pic = Rect(rt, "Pic", new Vector2(0.5f, 0.5f), new Vector2(size * 1.25f, size * 1.25f), new Vector2(0f, size * 0.06f));
+                var img = pic.gameObject.AddComponent<Image>();
+                img.sprite = sp;
+                img.preserveAspect = true;
+                img.raycastTarget = false;
+            }
+            return rt;
+        }
+
         public static Canvas CreateCanvas(string name, int order)
         {
             var go = new GameObject(name);

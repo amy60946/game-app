@@ -45,10 +45,11 @@ namespace Pofi.Screens
             for (var i = 0; i < _picker.Count; i++)
             {
                 var def = App.Data.Pets[i];
-                var x = (i - (_picker.Count - 1) / 2f) * 74f;
-                var dot = Ui.Rect(Root, "Dot " + def.Id, new Vector2(0.5f, 0.335f), new Vector2(54f, 54f), new Vector2(x, 0f));
-                _dots[i] = Ui.Panel(dot, Theme.Hex(def.MainColor), 27f);
+                var x = (i - (_picker.Count - 1) / 2f) * 86f;
+                var dot = Ui.PortraitIcon(Root, def.Id, Color.Lerp(Theme.Hex(def.MainColor), Color.white, 0.55f), new Vector2(0.5f, 0.335f), 78f, new Vector2(x, 0f));
+                _dots[i] = dot.GetComponent<Image>();
                 var btn = dot.gameObject.AddComponent<Button>();
+                btn.targetGraphic = _dots[i];
                 var id = def.Id;
                 btn.onClick.AddListener(() => { _picker.JumpTo(id); Show(); });
                 dot.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.9f);
@@ -66,7 +67,7 @@ namespace Pofi.Screens
             _species.text = def.Species;
             _feature.text = def.Feature;
             for (var i = 0; i < _dots.Length; i++)
-                _dots[i].rectTransform.localScale = Vector3.one * (i == _picker.Index ? 1.35f : 0.85f);
+                _dots[i].rectTransform.localScale = Vector3.one * (i == _picker.Index ? 1.3f : 0.9f);
         }
 
         private void AskConfirm()
