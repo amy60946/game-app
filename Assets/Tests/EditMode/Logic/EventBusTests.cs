@@ -48,7 +48,7 @@ namespace Pofi.Tests.Logic
         public void Version_display_includes_build()
         {
             StringAssert.Contains("derleme 7", GameVersion.Display("7"));
-            StringAssert.StartsWith("v0.0.1", GameVersion.Display(null));
+            StringAssert.StartsWith("v" + GameVersion.Short, GameVersion.Display(null));
         }
     }
 }

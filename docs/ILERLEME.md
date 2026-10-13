@@ -1,7 +1,19 @@
 # İlerleme
 
-Son güncelleme: 13 Ekim 2026. Unity lisansı bekleniyor; bu sürede Unity'siz yazılabilen oyun mantığı tamamlandı.
-Doğrulama: `dotnet test tests-dotnet` → 112 test, hepsi geçiyor (GitHub Actions'ta da çalışır).
+Son güncelleme: 13 Ekim 2026. M0 tamam (Unity derlemesi + iPhone önizlemesi). M1–M2 dikey dilim yazıldı, CI'da derleniyor.
+Doğrulama: `dotnet test tests-dotnet` → 118 test; `tools/compile-check/run.sh` → Unity katmanının hızlı derleme denetimi (Unity'siz); kesin doğrulama GitHub Actions + GameCI.
+
+## Unity katmanı (`Assets/_Pofi/Scripts/Runtime`) – M1–M2 dikey dilim
+
+| Ekran / parça | Dosya | Durum |
+|---|---|---|
+| Uygulama kökü, ekran akışı (`Logic/App/AppFlow`), kayıt (PlayerPrefs) | `Core/GameBootstrap.cs`, `Core/PrefsStore.cs` | yazıldı |
+| Kodla giriş (Mock; deneme kodları ekranda) | `Screens/LoginScreen.cs` | yazıldı |
+| Yaş bandı teması (A iri/yuvarlak, B dengeli, C sade) | `UI/Theme.cs`, `UI/Ui.cs` | yazıldı |
+| 12 yer tutucu pet + soketler, 360° çevirme, zıplama | `World/PetModels.cs`, `World/Stage.cs` | yazıldı |
+| Pet karuseli + son onay | `Screens/PetSelectScreen.cs` | yazıldı |
+| İsim verme + filtre, hoş geldin hediyesi (öneri) | `Screens/PetNameScreen.cs`, `Data/start.json` | yazıldı |
+| Ev: 4 gösterge, besle/yıka/oyna/topla, gece, ebeveyn kapısıyla çıkış | `Screens/HomeScreen.cs` | yazıldı |
 
 ## Yazılan oyun mantığı (`Assets/_Pofi/Scripts/Logic`)
 

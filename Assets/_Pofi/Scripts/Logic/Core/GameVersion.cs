@@ -7,9 +7,9 @@ namespace Pofi.Logic.Core
     public static class GameVersion
     {
         public const int Major = 0;
-        public const int Minor = 0;
-        public const int Patch = 1;
-        public const string Milestone = "M0";
+        public const int Minor = 1;
+        public const int Patch = 0;
+        public const string Milestone = "M1";
 
         public static string Short => $"{Major}.{Minor}.{Patch}";
 

@@ -9,9 +9,11 @@ namespace Pofi.Tests.Logic
     {
         private static GameData _cached;
 
-        public static GameData Load()
+        public static GameData Load() => _cached ??= GameData.Load(ReadText);
+
+        /// <summary>Data klasöründen bir dosyanın metni (ör. "tr.json").</summary>
+        public static string ReadText(string name)
         {
-            if (_cached != null) return _cached;
             string[] roots =
             {
                 Path.Combine(AppContext.BaseDirectory, "Data"),
@@ -19,7 +21,7 @@ namespace Pofi.Tests.Logic
             };
             foreach (var r in roots)
                 if (File.Exists(Path.Combine(r, "pets.json")))
-                    return _cached = GameData.Load(name => File.ReadAllText(Path.Combine(r, name)));
+                    return File.ReadAllText(Path.Combine(r, name));
             throw new FileNotFoundException("Oyun verisi bulunamadı");
         }
     }

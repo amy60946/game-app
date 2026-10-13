@@ -1,0 +1,89 @@
+using System;
+using Pofi.Logic.Auth;
+using Pofi.Logic.Services;
+using Pofi.Logic.Services.Mock;
+using Pofi.UI;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Pofi.Screens
+{
+    /// <summary>Kodla giriş (FR-AUTH-1): ebeveynin Fidan'da ürettiği 6 karakterlik kod. Hatalı denemede bekleme süresi artar.</summary>
+    public sealed class LoginScreen : ScreenBase
+    {
+        private InputField _code;
+        private Button _go;
+        private Text _error;
+        private bool _busy;
+
+        protected override void Build()
+        {
+            App.Stage.AllowDrag = true;
+            App.Stage.SetCamera(new Vector3(0f, 0.47f, -7.7f), 0f);
+            App.Stage.ShowPet(App.Data.Pet("pet_01"), Logic.Progression.GrowthStage.Genc);
+
+            var white = Color.white;
+            var title = Ui.Label(Root, T("auth.title"), Th.Font(120), white, new Vector2(0.5f, 0.885f), new Vector2(1000f, 170f), FontStyle.Bold);
+            title.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
+            Ui.Label(Root, T("auth.code_prompt"), Th.Font(50), white, new Vector2(0.5f, 0.815f), new Vector2(1000f, 80f));
+
+            var card = Ui.Rect(Root, "Card", new Vector2(0.5f, 0.24f), new Vector2(960f, 560f));
+            Ui.Panel(card, Th.Panel, Th.Radius);
+            _code = Ui.Input(card, Th, T("auth.placeholder"), new Vector2(0.5f, 0.76f), new Vector2(640f, 150f), ChildCode.Length,
+                InputField.ContentType.Alphanumeric, 80);
+            _code.onValueChanged.AddListener(OnTyped);
+            _code.onEndEdit.AddListener(_ => { if (ChildCode.IsWellFormed(ChildCode.Normalize(_code.text))) Submit(); });
+            _error = Ui.Label(card, "", Th.Font(36), Th.Danger, new Vector2(0.5f, 0.48f), new Vector2(880f, 110f), FontStyle.Bold);
+            _go = Ui.Button(card, Th, T("auth.button"), new Vector2(0.5f, 0.2f), new Vector2(640f, 140f), Submit);
+            _go.interactable = false;
+
+            // Önizleme Mock arka uçla çalışır: deneme kodlarını göster.
+            if (App.Auth is MockAuthService)
+                Ui.Label(Root, T("auth.demo_hint"), Th.Font(32), white, new Vector2(0.5f, 0.055f), new Vector2(1000f, 90f));
+            Footer();
+        }
+
+        private void OnTyped(string raw)
+        {
+            var norm = ChildCode.Normalize(raw);
+            if (norm != raw) { _code.SetTextWithoutNotify(norm); _code.caretPosition = norm.Length; }
+            _go.interactable = !_busy && ChildCode.IsWellFormed(norm);
+            _error.text = "";
+        }
+
+        private async void Submit()
+        {
+            if (_busy) return;
+            var code = ChildCode.Normalize(_code.text);
+            if (!ChildCode.IsWellFormed(code)) return;
+            _busy = true;
+            _go.interactable = false;
+            AuthResult r;
+            try { r = await App.Auth.SignInWithCodeAsync(code); }
+            catch (Exception e) { Debug.LogException(e); r = AuthResult.Fail(AuthErrorKind.Unknown); }
+            _busy = false;
+            if (this == null) return;   // ekran bu arada kapandı
+            if (r.Ok)
+            {
+                App.OnSignedIn(r.Session);
+                return;
+            }
+            _error.text = ErrorText(r.Error);
+            _go.interactable = true;
+            App.Stage.Hop();
+        }
+
+        private string ErrorText(AuthErrorKind e)
+        {
+            switch (e)
+            {
+                case AuthErrorKind.Throttled:
+                    var secs = App.Auth is MockAuthService m ? (int)Math.Ceiling(m.Throttle.Remaining(DateTime.UtcNow).TotalSeconds) : 30;
+                    return T("auth.throttled", Math.Max(1, secs));
+                case AuthErrorKind.Revoked: return T("auth.revoked");
+                case AuthErrorKind.Network: return T("auth.offline");
+                default: return T("auth.invalid");
+            }
+        }
+    }
+}

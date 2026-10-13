@@ -1,0 +1,216 @@
+using System;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+namespace Pofi.UI
+{
+    /// <summary>
+    /// Koddan uGUI kurma yardımcıları. Sahne dosyası düzenlenmediği için (bkz. CLAUDE.md "kod olarak proje")
+    /// tüm ekranlar bu fonksiyonlarla kurulur. Referans çözünürlük 1080×1920 (dikey).
+    /// </summary>
+    public static class Ui
+    {
+        private static Font _font;
+        private static Sprite _rounded;
+
+        public static Font Font => _font != null ? _font : (_font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
+
+        /// <summary>Yuvarlak köşeli, 9 dilimli beyaz sprite (renk Image.color ile verilir).</summary>
+        public static Sprite Rounded
+        {
+            get
+            {
+                if (_rounded != null) return _rounded;
+                const int size = 128, r = 60;
+                var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+                var px = new Color32[size * size];
+                for (var y = 0; y < size; y++)
+                for (var x = 0; x < size; x++)
+                {
+                    var cx = Mathf.Clamp(x + 0.5f, r, size - r);
+                    var cy = Mathf.Clamp(y + 0.5f, r, size - r);
+                    var d = Mathf.Sqrt((x + 0.5f - cx) * (x + 0.5f - cx) + (y + 0.5f - cy) * (y + 0.5f - cy));
+                    var a = Mathf.Clamp01(r - d + 0.5f);
+                    px[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255));
+                }
+                tex.SetPixels32(px);
+                tex.Apply(false, true);
+                _rounded = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(r, r, r, r));
+                return _rounded;
+            }
+        }
+
+        public static Canvas CreateCanvas(string name, int order)
+        {
+            var go = new GameObject(name);
+            var canvas = go.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = order;
+            var scaler = go.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1080f, 1920f);
+            scaler.matchWidthOrHeight = 0f;   // dikey telefonlarda genişliğe uy: 1080 birim her zaman tam genişlik
+            go.AddComponent<GraphicRaycaster>();
+            return canvas;
+        }
+
+        public static void EnsureEventSystem()
+        {
+            if (EventSystem.current != null) return;
+            var go = new GameObject("EventSystem");
+            go.AddComponent<EventSystem>();
+            go.AddComponent<StandaloneInputModule>();
+        }
+
+        /// <summary>Ebeveyni tamamen kaplayan boş dikdörtgen.</summary>
+        public static RectTransform Fill(Transform parent, string name)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            var rt = (RectTransform)go.transform;
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+            return rt;
+        }
+
+        /// <summary>Çapa noktası (0–1) ve piksel boyutuyla yerleştirilmiş dikdörtgen.</summary>
+        public static RectTransform Rect(Transform parent, string name, Vector2 anchor, Vector2 size, Vector2 offset = default)
+        {
+            var go = new GameObject(name, typeof(RectTransform));
+            go.transform.SetParent(parent, false);
+            var rt = (RectTransform)go.transform;
+            rt.anchorMin = rt.anchorMax = anchor;
+            rt.sizeDelta = size;
+            rt.anchoredPosition = offset;
+            return rt;
+        }
+
+        public static Image Panel(RectTransform rt, Color color, float radius)
+        {
+            var img = rt.gameObject.AddComponent<Image>();
+            img.sprite = Rounded;
+            img.type = Image.Type.Sliced;
+            img.pixelsPerUnitMultiplier = 60f / Mathf.Max(4f, radius);
+            img.color = color;
+            return img;
+        }
+
+        public static Text Label(Transform parent, string text, int size, Color color, Vector2 anchor, Vector2 box,
+            FontStyle style = FontStyle.Normal, TextAnchor align = TextAnchor.MiddleCenter, Vector2 offset = default)
+        {
+            var rt = Rect(parent, "Text", anchor, box, offset);
+            var t = rt.gameObject.AddComponent<Text>();
+            t.font = Font;
+            t.text = text;
+            t.fontSize = size;
+            t.fontStyle = style;
+            t.color = color;
+            t.alignment = align;
+            t.horizontalOverflow = HorizontalWrapMode.Wrap;
+            t.verticalOverflow = VerticalWrapMode.Overflow;
+            t.raycastTarget = false;
+            return t;
+        }
+
+        public static Button Button(Transform parent, Theme th, string text, Vector2 anchor, Vector2 size, Action onClick,
+            bool primary = true, Vector2 offset = default, int fontSize = 52)
+        {
+            var rt = Rect(parent, "Button " + text, anchor, size * th.Scale, offset);
+            var img = Panel(rt, primary ? th.Primary : th.Secondary, th.Radius);
+            var shadow = rt.gameObject.AddComponent<Shadow>();   // çocuk nesne olsaydı düğmenin üstünde çizilirdi
+            shadow.effectColor = new Color(0f, 0f, 0f, 0.16f);
+            shadow.effectDistance = new Vector2(0f, -10f);
+            var btn = rt.gameObject.AddComponent<Button>();
+            btn.targetGraphic = img;
+            var colors = btn.colors;
+            colors.pressedColor = new Color(0.85f, 0.85f, 0.85f);
+            colors.disabledColor = new Color(0.75f, 0.75f, 0.75f, 0.6f);
+            btn.colors = colors;
+            var label = Label(rt, text, th.Font(fontSize), primary ? th.PrimaryText : th.SecondaryText, new Vector2(0.5f, 0.5f), rt.sizeDelta, FontStyle.Bold);
+            label.name = "Label";
+            if (onClick != null) btn.onClick.AddListener(() => onClick());
+            rt.gameObject.AddComponent<PressBounce>();
+            return btn;
+        }
+
+        public static InputField Input(Transform parent, Theme th, string placeholder, Vector2 anchor, Vector2 size, int limit,
+            InputField.ContentType type, int fontSize = 64)
+        {
+            var rt = Rect(parent, "Input", anchor, size * th.Scale);
+            var img = Panel(rt, Color.white, th.Radius);
+            var outline = rt.gameObject.AddComponent<Outline>();
+            outline.effectColor = new Color(th.Primary.r, th.Primary.g, th.Primary.b, 0.6f);
+            outline.effectDistance = new Vector2(4f, -4f);
+            var field = rt.gameObject.AddComponent<InputField>();
+            field.targetGraphic = img;
+            var inner = Fill(rt, "Area");
+            inner.offsetMin = new Vector2(30f, 10f); inner.offsetMax = new Vector2(-30f, -10f);
+            var ph = Label(inner, placeholder, th.Font(fontSize), new Color(th.SubtleText.r, th.SubtleText.g, th.SubtleText.b, 0.5f), new Vector2(0.5f, 0.5f), inner.rect.size);
+            Stretch(ph.rectTransform);
+            ph.fontStyle = FontStyle.Italic;
+            var txt = Label(inner, "", th.Font(fontSize), th.Text, new Vector2(0.5f, 0.5f), inner.rect.size, FontStyle.Bold);
+            Stretch(txt.rectTransform);
+            txt.supportRichText = false;
+            txt.horizontalOverflow = HorizontalWrapMode.Overflow;
+            field.textComponent = txt;
+            field.placeholder = ph;
+            field.characterLimit = limit;
+            field.contentType = type;
+            field.lineType = InputField.LineType.SingleLine;
+            field.caretWidth = 4;
+            field.customCaretColor = true;
+            field.caretColor = th.Primary;
+            return field;
+        }
+
+        /// <summary>Yuvarlak çubuk gösterge (0–1). Dolu kısım rengi değere göre ayarlanabilir.</summary>
+        public static Image Bar(Transform parent, Vector2 anchor, Vector2 size, Color back, Color fill, float radius, Vector2 offset = default)
+        {
+            var rt = Rect(parent, "Bar", anchor, size, offset);
+            Panel(rt, back, radius).raycastTarget = false;
+            var fillRt = Fill(rt, "Fill");
+            fillRt.anchorMax = new Vector2(1f, 1f);
+            var img = Panel(fillRt, fill, radius);
+            img.raycastTarget = false;
+            return img;
+        }
+
+        /// <summary>Bar dolumunu ayarlar (sliced görüntüde fillAmount çalışmadığı için genişlik değiştirilir).</summary>
+        public static void SetBar(Image fill, float value01)
+        {
+            var rt = fill.rectTransform;
+            var v = Mathf.Clamp01(value01);
+            rt.anchorMax = new Vector2(Mathf.Max(0.12f, v), 1f);   // çok küçükte bile yuvarlak uç görünsün
+            fill.enabled = v > 0.001f;
+        }
+
+        public static void Stretch(RectTransform rt)
+        {
+            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+        }
+
+        public static void SetText(Button b, string text)
+        {
+            var t = b.GetComponentInChildren<Text>();
+            if (t != null) t.text = text;
+        }
+    }
+
+    /// <summary>Basınca hafif küçülüp bırakınca geri gelen düğme hissi.</summary>
+    public sealed class PressBounce : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+    {
+        private float _target = 1f;
+
+        public void OnPointerDown(PointerEventData e) => _target = 0.94f;
+        public void OnPointerUp(PointerEventData e) => _target = 1f;
+        public void OnPointerExit(PointerEventData e) => _target = 1f;
+
+        private void Update()
+        {
+            var s = Mathf.Lerp(transform.localScale.x, _target, 1f - Mathf.Exp(-20f * Time.unscaledDeltaTime));
+            transform.localScale = new Vector3(s, s, 1f);
+        }
+    }
+}

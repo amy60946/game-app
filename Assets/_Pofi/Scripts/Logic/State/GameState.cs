@@ -61,6 +61,7 @@ namespace Pofi.Logic.State
         public PlayerSettings Settings = new PlayerSettings();
         public long LastSavedUtcTicks;
         public long LastSyncUtcTicks;
+        public bool StarterGiven;        // hoş geldin hediyesi verildi mi (App/StarterKit)
 
         public bool HasPet => !string.IsNullOrEmpty(PetId) && !string.IsNullOrEmpty(PetName);
 
