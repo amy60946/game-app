@@ -1,0 +1,62 @@
+{
+  "_doc": "Dükkan eşyaları. price: coin. level: gereken seviye. effects: gösterge artışı (fullness, cleanliness, happiness, home). Giyilebilirler: slot head|eyes|body|back|hand; hat variants, glasses variants (normal, clip), body cut full|apron, back flat true/false, hand glove true/false. Tohum: grows → hasat edilen yiyecek, growMinutes.",
+  "items": [
+    { "id": "food_apple",        "name": "Elma",               "category": "food",     "price": 3,  "level": 1, "effects": { "fullness": 20 } },
+    { "id": "food_coconut",      "name": "Hindistan cevizi",   "category": "food",     "price": 4,  "level": 1, "effects": { "fullness": 25, "happiness": 3 } },
+    { "id": "food_bread",        "name": "Ekmek",              "category": "food",     "price": 3,  "level": 1, "effects": { "fullness": 22 } },
+    { "id": "food_watermelon",   "name": "Karpuz dilimi",      "category": "food",     "price": 5,  "level": 2, "effects": { "fullness": 28, "happiness": 5 } },
+    { "id": "food_carrot",       "name": "Havuç",              "category": "food",     "price": 3,  "level": 2, "effects": { "fullness": 20 } },
+    { "id": "food_fish",         "name": "Balık",              "category": "food",     "price": 6,  "level": 3, "effects": { "fullness": 35 } },
+    { "id": "food_icecream",     "name": "Dondurma",           "category": "food",     "price": 6,  "level": 4, "effects": { "fullness": 15, "happiness": 15 } },
+    { "id": "food_corn",         "name": "Mısır",              "category": "food",     "price": 4,  "level": 6, "effects": { "fullness": 26 } },
+    { "id": "food_tomato",       "name": "Domates",            "category": "food",     "price": 3,  "level": 6, "effects": { "fullness": 18 } },
+
+    { "id": "clean_soap",        "name": "Sabun",              "category": "cleaning", "price": 3,  "level": 1, "effects": { "cleanliness": 40 } },
+    { "id": "clean_bubble_bath", "name": "Köpük banyosu",      "category": "cleaning", "price": 8,  "level": 4, "effects": { "cleanliness": 70, "happiness": 8 } },
+
+    { "id": "glasses_round",     "name": "Yuvarlak gözlük",    "category": "accessory", "slot": "eyes", "price": 15, "level": 1, "variants": ["normal", "clip"] },
+    { "id": "glasses_sun",       "name": "Güneş gözlüğü",      "category": "accessory", "slot": "eyes", "price": 20, "level": 2, "variants": ["normal", "clip"] },
+    { "id": "glasses_star",      "name": "Yıldız gözlük",      "category": "accessory", "slot": "eyes", "price": 25, "level": 5, "variants": ["normal"] },
+
+    { "id": "shirt_stripes",     "name": "Çizgili tişört",     "category": "clothes", "slot": "body", "price": 25, "level": 2, "cut": "full" },
+    { "id": "shirt_hawaii",      "name": "Çiçekli gömlek",     "category": "clothes", "slot": "body", "price": 35, "level": 2, "cut": "full" },
+    { "id": "apron_sailor",      "name": "Denizci önlüğü",     "category": "clothes", "slot": "body", "price": 30, "level": 2, "cut": "apron" },
+    { "id": "hoodie_soft",       "name": "Yumuşak sweatshirt", "category": "clothes", "slot": "body", "price": 45, "level": 4, "cut": "full" },
+    { "id": "vest_explorer",     "name": "Kaşif yeleği",       "category": "clothes", "slot": "body", "price": 50, "level": 7, "cut": "apron" },
+    { "id": "raincoat",          "name": "Yağmurluk",          "category": "clothes", "slot": "body", "price": 60, "level": 8, "cut": "full" },
+
+    { "id": "hat_cap",           "name": "Şapka (kasket)",     "category": "accessory", "slot": "head", "price": 20, "level": 3, "variants": ["normal", "ear_holes", "center_hole", "antenna_holes", "mane_fit", "raised"] },
+    { "id": "hat_straw",         "name": "Hasır şapka",        "category": "accessory", "slot": "head", "price": 25, "level": 3, "variants": ["normal", "ear_holes", "center_hole", "antenna_holes", "mane_fit", "raised"] },
+    { "id": "hat_beanie",        "name": "Bere",               "category": "accessory", "slot": "head", "price": 22, "level": 3, "variants": ["normal", "ear_holes", "center_hole", "antenna_holes", "raised"] },
+    { "id": "hat_crown",         "name": "Taç",                "category": "accessory", "slot": "head", "price": 40, "level": 5, "variants": ["normal", "ear_holes", "center_hole", "antenna_holes", "mane_fit", "raised"] },
+    { "id": "headphones",        "name": "Kulaklık",           "category": "accessory", "slot": "head", "price": 35, "level": 4, "variants": ["normal", "mane_fit", "raised"] },
+
+    { "id": "scarf_knit",        "name": "Örgü atkı",          "category": "accessory", "slot": "body", "price": 18, "level": 2, "cut": "apron" },
+    { "id": "backpack_small",    "name": "Küçük sırt çantası", "category": "accessory", "slot": "back", "price": 30, "level": 3, "flat": false },
+    { "id": "cape_hero",         "name": "Kahraman pelerini",  "category": "accessory", "slot": "back", "price": 45, "level": 5, "flat": false },
+    { "id": "badge_patch",       "name": "Arma (sırt yaması)", "category": "accessory", "slot": "back", "price": 12, "level": 2, "flat": true },
+    { "id": "sash_belt",         "name": "Kuşak",              "category": "accessory", "slot": "body", "price": 15, "level": 3, "cut": "apron" },
+    { "id": "glove_mitten",      "name": "Eldiven",            "category": "accessory", "slot": "hand", "price": 15, "level": 4, "glove": true },
+    { "id": "hand_flag",         "name": "Bayrakçık",          "category": "accessory", "slot": "hand", "price": 10, "level": 2, "glove": false },
+
+    { "id": "home_bed",          "name": "Yumuşak yatak",      "category": "home",     "price": 60,  "level": 4, "effects": { "home": 25 } },
+    { "id": "home_rug",          "name": "Halı",               "category": "home",     "price": 40,  "level": 4, "effects": { "home": 15 } },
+    { "id": "home_lamp",         "name": "Deniz kabuğu lamba", "category": "home",     "price": 45,  "level": 4, "effects": { "home": 15 } },
+    { "id": "home_bookshelf",    "name": "Kitaplık",           "category": "home",     "price": 80,  "level": 6, "effects": { "home": 20 } },
+    { "id": "home_aquarium",     "name": "Akvaryum",           "category": "home",     "price": 120, "level": 8, "effects": { "home": 30, "happiness": 5 } },
+
+    { "id": "seed_carrot",       "name": "Havuç tohumu",       "category": "seed",     "price": 2,  "level": 6, "grows": "food_carrot", "growMinutes": 30 },
+    { "id": "seed_corn",         "name": "Mısır tohumu",       "category": "seed",     "price": 2,  "level": 6, "grows": "food_corn",   "growMinutes": 60 },
+    { "id": "seed_tomato",       "name": "Domates tohumu",     "category": "seed",     "price": 2,  "level": 6, "grows": "food_tomato", "growMinutes": 45 },
+    { "id": "seed_watermelon",   "name": "Karpuz tohumu",      "category": "seed",     "price": 3,  "level": 7, "grows": "food_watermelon", "growMinutes": 120 },
+
+    { "id": "decor_umbrella",    "name": "Plaj şemsiyesi",     "category": "decor",    "price": 35, "level": 3 },
+    { "id": "decor_sandcastle",  "name": "Kum kalesi",         "category": "decor",    "price": 25, "level": 2 },
+    { "id": "decor_palm",        "name": "Minik palmiye",      "category": "decor",    "price": 50, "level": 5 },
+    { "id": "decor_lanterns",    "name": "Festival fenerleri", "category": "decor",    "price": 70, "level": 12 },
+
+    { "id": "set_captain",       "name": "Kaptan seti",        "category": "clothes",  "slot": "body", "price": 180, "level": 9,  "cut": "full",  "premium": true },
+    { "id": "set_captain_hat",   "name": "Kaptan şapkası",     "category": "accessory","slot": "head", "price": 70,  "level": 9,  "premium": true, "variants": ["normal", "ear_holes", "center_hole", "antenna_holes", "mane_fit", "raised"] },
+    { "id": "set_star_cape",     "name": "Yıldız sırt arması", "category": "accessory","slot": "back", "price": 150, "level": 14, "premium": true, "flat": true }
+  ]
+}

@@ -1,0 +1,4 @@
+<!-- IL2CPP (iOS/Android) derlemesinde JSON ile doldurulan veri sınıfları silinmesin -->
+<linker>
+  <assembly fullname="Pofi.Logic" preserve="all" />
+</linker>

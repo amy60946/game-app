@@ -1,0 +1,23 @@
+{
+  "_doc": "Seviye 1–15. xpToNext[i] = Sv(i+1) → Sv(i+2) için gereken XP. unlocks: o seviyeye ulaşınca açılan içerik kimlikleri (FR-PROG-2). growth: büyüme evresinin başladığı seviye.",
+  "maxLevel": 15,
+  "xpToNext": [100, 135, 182, 246, 332, 448, 605, 817, 1103, 1489, 2010, 2714, 3664, 4946],
+  "growth": { "yavru": 1, "genc": 5, "yetiskin": 10 },
+  "unlocks": {
+    "1":  ["region_home", "region_shop", "region_coconut_grove", "region_task_board", "shop_basic_food", "shop_soap", "shop_glasses", "minigame_coconut", "minigame_help_pet"],
+    "2":  ["region_swim_cove", "shop_clothes", "minigame_swim"],
+    "3":  ["region_surf_beach", "shop_hats", "region_game_hut", "card_uno", "minigame_surf"],
+    "4":  ["card_domino", "home_decor"],
+    "5":  ["region_ski_hill", "card_jenga", "minigame_ski", "growth_genc"],
+    "6":  ["region_garden", "shop_seeds"],
+    "7":  ["region_pier", "minigame_fishing"],
+    "8":  ["collection_book", "daily_event_board"],
+    "9":  ["shop_premium_sets"],
+    "10": ["growth_yetiskin", "home_expansion"],
+    "11": ["region_cave", "minigame_cave"],
+    "12": ["region_festival", "event_festival"],
+    "13": ["region_mountain", "minigame_hike"],
+    "14": ["shop_special_pet_set"],
+    "15": ["region_lighthouse", "badge_master", "celebration_final"]
+  }
+}
