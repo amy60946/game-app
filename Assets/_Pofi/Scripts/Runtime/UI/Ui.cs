@@ -130,6 +130,7 @@ namespace Pofi.UI
             btn.colors = colors;
             var label = Label(rt, text, th.Font(fontSize), primary ? th.PrimaryText : th.SecondaryText, new Vector2(0.5f, 0.5f), rt.sizeDelta, FontStyle.Bold);
             label.name = "Label";
+            btn.onClick.AddListener(() => Audio.Sfx.Play(Audio.SfxKind.Tap));
             if (onClick != null) btn.onClick.AddListener(() => onClick());
             rt.gameObject.AddComponent<PressBounce>();
             return btn;
@@ -275,7 +276,7 @@ namespace Pofi.UI
     {
         private float _target = 1f;
 
-        public void OnPointerDown(PointerEventData e) => _target = 0.94f;
+        public void OnPointerDown(PointerEventData e) => _target = Theme.ReduceMotion ? 1f : 0.94f;
         public void OnPointerUp(PointerEventData e) => _target = 1f;
         public void OnPointerExit(PointerEventData e) => _target = 1f;
 

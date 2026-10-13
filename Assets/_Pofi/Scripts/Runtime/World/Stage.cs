@@ -132,7 +132,11 @@ namespace Pofi.World
             Pet = null;
         }
 
-        public void Hop() => _hop = 1f;
+        public void Hop()
+        {
+            Audio.Sfx.Play(Audio.SfxKind.Pop);
+            if (!UI.Theme.ReduceMotion) _hop = 1f;
+        }
 
         /// <summary>Petin kafa üstünün ekran konumu (konuşma balonu için).</summary>
         public Vector2 PetHeadScreenPoint()
@@ -155,7 +159,7 @@ namespace Pofi.World
             _appear = Mathf.Min(1f, _appear + dt * 3.5f);
             var pop = 1f + Mathf.Sin(_appear * Mathf.PI) * 0.12f * (1f - _appear * 0.3f);
             _breath += dt * 2.2f;
-            var breath = 1f + Mathf.Sin(_breath) * 0.015f;
+            var breath = UI.Theme.ReduceMotion ? 1f : 1f + Mathf.Sin(_breath) * 0.015f;
             _hop = Mathf.Max(0f, _hop - dt * 1.6f);
             var hopY = Mathf.Sin(_hop * Mathf.PI) * 0.35f * _hop;
 

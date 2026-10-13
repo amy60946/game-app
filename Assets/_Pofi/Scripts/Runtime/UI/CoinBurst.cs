@@ -14,12 +14,13 @@ namespace Pofi.UI
 
         public static void Play(Transform overlay, Theme th, string text)
         {
+            Audio.Sfx.Play(Audio.SfxKind.Coin);
             var root = Ui.Fill(overlay, "CoinBurst");
             var cb = root.gameObject.AddComponent<CoinBurst>();
             var group = root.gameObject.AddComponent<CanvasGroup>();
             group.blocksRaycasts = false;
             group.interactable = false;
-            cb._coins = new RectTransform[18];
+            cb._coins = new RectTransform[Theme.ReduceMotion ? 0 : 18];
             cb._vel = new Vector2[cb._coins.Length];
             for (var i = 0; i < cb._coins.Length; i++)
             {

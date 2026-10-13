@@ -177,3 +177,30 @@ namespace Pofi.Tests.Logic
         }
     }
 }
+
+namespace Pofi.Tests.Logic
+{
+    public class PetChangeTests
+    {
+        [Test]
+        public void Pet_degisince_envanter_kalir_uymayan_cikarilir()
+        {
+            var data = TestData.Load();
+            var s = GameState.NewFor("c", DateTime.UtcNow);
+            PetChange.Choose(s, "pet_01", data);
+            s.PetName = "Pofi";
+            var cape = data.Item("cape_hero");
+            s.Inventory.Add(cape);
+            Assert.IsTrue(s.Inventory.TryEquip(data.Pet("pet_01"), cape).Allowed);
+            s.Wallet.ServerCoins = 40;
+
+            PetChange.Begin(s);
+            Assert.AreEqual(Pofi.Logic.App.AppScreen.PetSelect, AppFlow.Decide(new Pofi.Logic.Services.ChildSession("c", "x", AgeBand.B, null), s));
+            var removed = PetChange.Choose(s, "pet_12", data);    // Benli: sırta eşya takılmaz
+            CollectionAssert.Contains(removed, "cape_hero");
+            Assert.IsTrue(s.Inventory.Owns("cape_hero"));
+            Assert.AreEqual(40, s.Wallet.Available);
+            Assert.IsNull(s.PetName);
+        }
+    }
+}

@@ -14,7 +14,13 @@ namespace Pofi.UI
         public float Radius = 40f;        // köşe yuvarlaklığı (referans çözünürlükte piksel)
         public Color Primary, PrimaryText, Secondary, SecondaryText, Panel, Text, SubtleText, Sky, Danger;
 
-        public int Font(int size) => Mathf.RoundToInt(size * Scale);
+        /// <summary>Oyuncu ayarı "Yazı boyutu" (1 = normal). Yalnızca yazıya uygulanır.</summary>
+        public float TextScale = 1f;
+
+        /// <summary>Oyuncu ayarı "Hareketi azalt": zıplama, nefes ve parçacık efektleri kısılır.</summary>
+        public static bool ReduceMotion;
+
+        public int Font(int size) => Mathf.RoundToInt(size * Scale * TextScale);
 
         public static Theme Default => For(AgeBand.B);
 

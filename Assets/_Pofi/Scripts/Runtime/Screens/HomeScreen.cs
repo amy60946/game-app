@@ -55,8 +55,8 @@ namespace Pofi.Screens
             }
 
             // Ayarlar / çıkış (ebeveyn kapısı)
-            Ui.Button(Root, Th, T("settings.sign_out"), new Vector2(0.87f, 0.972f), new Vector2(210f, 76f),
-                () => ParentGate(App.SignOut, msg => _bubble.Say(msg)), false, default, 34);
+            Ui.Button(Root, Th, T("settings.title"), new Vector2(0.86f, 0.972f), new Vector2(230f, 76f),
+                () => ParentGate(() => App.Open(AppPage.Settings), msg => _bubble.Say(msg)), false, default, 34, false);
 
             Ui.Button(Root, Th, T("home.daily"), new Vector2(0.18f, 0.972f), new Vector2(330f, 76f), DailyPanel, false, default, 34, false);
             Ui.Button(Root, Th, T("album.button"), new Vector2(0.5f, 0.972f), new Vector2(220f, 76f), () => App.Open(AppPage.Album), false, default, 34, false);

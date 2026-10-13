@@ -83,8 +83,7 @@ namespace Pofi.Screens
             Ui.Label(box, T("pet.pick_confirm", TurkishSuffix.Accusative(def.Name)), Th.Font(56), Th.Text, new Vector2(0.5f, 0.78f), new Vector2(880f, 160f), FontStyle.Bold);
             Ui.Button(box, Th, T("pet.pick_yes"), new Vector2(0.5f, 0.43f), new Vector2(700f, 130f), () =>
             {
-                App.State.PetId = def.Id;
-                App.State.PetName = null;
+                PetChange.Choose(App.State, def.Id, App.Data);
                 App.Save();
                 App.Stage.Swiped = null;
                 App.Route();

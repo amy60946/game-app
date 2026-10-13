@@ -106,10 +106,13 @@ namespace Pofi.Core
         {
             Session = session;
             Theme = Theme.For(session.AgeBand);
-            Stage.SetSky(Theme.Sky);
             var saved = SaveCodec.Deserialize(Store.Get(SaveKey(session.ChildId)));
             State = AppFlow.BelongsTo(saved, session) ? saved : GameState.NewFor(session.ChildId, UtcNow);
             State.Stats ??= PetStats.New(UtcNow);
+            Theme.TextScale = State.Settings.TextScale;
+            Theme.ReduceMotion = State.Settings.ReduceMotion;
+            Audio.Sfx.Volume = State.Settings.SfxVolume;
+            Stage.SetSky(Theme.Sky);
             State.Stats.Tick(UtcNow, Decay);
 
             Backend = new MockBackend(Data);
@@ -248,6 +251,7 @@ namespace Pofi.Core
                         case AppPage.Cards: _screen = root.gameObject.AddComponent<CardsScreen>(); break;
                         case AppPage.Garden: _screen = root.gameObject.AddComponent<GardenScreen>(); break;
                         case AppPage.Album: _screen = root.gameObject.AddComponent<AlbumScreen>(); break;
+                        case AppPage.Settings: _screen = root.gameObject.AddComponent<SettingsScreen>(); break;
                         default: _screen = root.gameObject.AddComponent<HomeScreen>(); break;
                     }
                     break;
