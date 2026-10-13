@@ -275,6 +275,9 @@ namespace Pofi.Core
             }
         }
 
+        /// <summary>Tarayıcıdan otomatik test komutu (SendMessage). Bkz. <see cref="DebugCommands"/>.</summary>
+        public void PofiDebug(string line) => DebugCommands.Run(this, line);
+
         private void OnApplicationPause(bool paused) { if (paused) Save(); }
         private void OnApplicationQuit() => Save();
     }

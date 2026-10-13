@@ -56,7 +56,7 @@ body { margin: 0; background: var(--sky); color: var(--ink); font-family: -apple
   s.onerror = function () { fail('Oyun dosyaları yüklenemedi.'); };
   s.onload = function () {
     createUnityInstance(canvas, config, function (p) { fill.style.width = Math.round(p * 100) + '%'; })
-      .then(function () { loader.style.display = 'none'; })
+      .then(function (inst) { window.unityInstance = inst; loader.style.display = 'none'; })
       .catch(function (e) { fail('Hata: ' + (e && e.message ? e.message : e)); });
   };
   document.body.appendChild(s);
