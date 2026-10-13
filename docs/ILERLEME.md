@@ -1,7 +1,7 @@
 # İlerleme
 
 Son güncelleme: 13 Ekim 2026. M0 tamam. M1–M10 oyun ekranları yazıldı (yer tutucu görsellerle); Unity derlemesi CI'da doğrulanıyor.
-Doğrulama: `dotnet test tests-dotnet` → 136 test; `tools/compile-check/run.sh` → Unity katmanının hızlı derleme denetimi (Unity'siz); kesin doğrulama GitHub Actions + GameCI.
+Doğrulama: `dotnet test tests-dotnet` → 140 test; `tools/compile-check/run.sh` → Unity katmanının hızlı derleme denetimi (Unity'siz); kesin doğrulama GitHub Actions + GameCI.
 
 ## Unity katmanı (`Assets/_Pofi/Scripts/Runtime`)
 
@@ -49,7 +49,7 @@ Tüm ekranlar koddan kurulur (sahne dosyası yok). Petler ve eşyalar şimdilik 
 ## Henüz yok
 - **Gerçek 3D modeller, animasyon, seslendirme:** sanat hattı (yapay zekâ 3D aracı kararı bekleniyor).
 - **Cila, performans/bellek ölçümü, mağaza hazırlığı:** M10 sonu.
-- **Sunucu tarafı (Supabase):** yaş bandı sütunu, yeni görev durumları, coin defteri, `spend_coins` / `child_tasks` / oyun kaydı fonksiyonları. Ebeveyn uygulamasına dokunduğu için kullanıcı onayıyla M4'te.
+- **Sunucu tarafı (Supabase):** öneri hazır ve yerelde testli (`docs/M4_SUNUCU_ONERISI.md`, `supabase/proposed/`, `supabase/test/run.sh` → 38 kontrol). Ortak veritabanına uygulanması kullanıcı onayı bekliyor.
 - **Gerçek modeller ve ses:** yapay zekâ 3D + stüdyo.
 
 ## Kullanıcıya sorulacaklar
