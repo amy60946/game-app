@@ -7,7 +7,7 @@ namespace Pofi.Logic.App
     public enum AppScreen { Login, PetSelect, PetName, Home }
 
     /// <summary>Pet hazır olduktan sonra alt menüden açılan sayfalar.</summary>
-    public enum AppPage { Home, Map, Tasks, Shop, Wardrobe, MiniGame, Cards, Garden, Album, Settings }
+    public enum AppPage { Home, Map, Tasks, Shop, Wardrobe, MiniGame, Cards, Garden, Album, Settings, Decorate }
 
     /// <summary>
     /// Hangi ekranın gösterileceğine karar verir. Unity katmanı yalnızca sonucu çizer;

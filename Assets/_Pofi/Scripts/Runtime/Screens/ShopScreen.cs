@@ -17,7 +17,10 @@ namespace Pofi.Screens
     /// </summary>
     public sealed class ShopScreen : ScreenBase
     {
-        private static readonly string[] Tabs = { ItemCategory.Food, ItemCategory.Cleaning, ItemCategory.Clothes, ItemCategory.Accessory, ItemCategory.Seed };
+        private static readonly string[] Tabs = { ItemCategory.Food, ItemCategory.Cleaning, ItemCategory.Clothes, ItemCategory.Accessory, ItemCategory.Seed, ItemCategory.Home };
+
+        /// <summary>"Ev" sekmesi ev eşyalarıyla birlikte dekorları da gösterir.</summary>
+        private static bool InTab(string category, string tab) => category == tab || (tab == ItemCategory.Home && category == ItemCategory.Decor);
         private static string _tab = ItemCategory.Food;   // sayfalar arası hatırlanır
 
         private RectTransform _grid;
@@ -36,8 +39,8 @@ namespace Pofi.Screens
             for (var i = 0; i < Tabs.Length; i++)
             {
                 var cat = Tabs[i];
-                _tabButtons[i] = Ui.Button(tabs, Th, T("shop.tab." + cat), new Vector2(0.1f + i * 0.2f, 0.5f), new Vector2(196f, 96f),
-                    () => { _tab = cat; Fill(); }, cat == _tab, default, 32, false);
+                _tabButtons[i] = Ui.Button(tabs, Th, T("shop.tab." + cat), new Vector2((i + 0.5f) / Tabs.Length, 0.5f), new Vector2(166f, 96f),
+                    () => { _tab = cat; Fill(); }, cat == _tab, default, 28, false);
             }
 
             var area = Ui.Area(Root, "GridArea", Vector2.zero, Vector2.one);
@@ -67,7 +70,7 @@ namespace Pofi.Screens
             }
             Ui.Clear(_grid);
             var pet = App.Data.Pet(App.State.PetId);
-            var items = App.Data.Items.Where(i => i.Category == _tab && !i.Premium).OrderBy(i => i.Level).ThenBy(i => i.Price);
+            var items = App.Data.Items.Where(i => InTab(i.Category, _tab) && !i.Premium).OrderBy(i => i.Level).ThenBy(i => i.Price);
             foreach (var item in items)
                 Card(ShopRules.View(item, App.Level, App.State.Wallet, App.State.Inventory, pet));
         }

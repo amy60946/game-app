@@ -64,6 +64,7 @@ namespace Pofi.Logic.State
         public long LastSyncUtcTicks;
         public Dictionary<string, Cards.DifficultyAdapter> CardDifficulty = new Dictionary<string, Cards.DifficultyAdapter>(); // oyun → uyarlanan bot zorluğu
         public Island.SparkleState Sparkles = new Island.SparkleState();
+        public HashSet<string> HomeEffectsApplied = new HashSet<string>(); // ev eşyası etkisi bir kez (ilk yerleştirme)
         public bool StarterGiven;        // hoş geldin hediyesi verildi mi (App/StarterKit)
 
         public bool HasPet => !string.IsNullOrEmpty(PetId) && !string.IsNullOrEmpty(PetName);

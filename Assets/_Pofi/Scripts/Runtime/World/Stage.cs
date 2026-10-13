@@ -73,7 +73,7 @@ namespace Pofi.World
             _waterMat = PetModels.NewMaterial(new Color(0.25f, 0.75f, 0.95f), 0.9f);
             _islandMat = PetModels.NewMaterial(new Color(1f, 0.86f, 0.6f), 0.15f);
             var water = Cylinder("Water", new Vector3(0f, -0.12f, 0f), new Vector3(9f, 0.02f, 9f), _waterMat);
-            var island = Cylinder("Island", new Vector3(0f, -0.05f, 0f), new Vector3(2.8f, 0.06f, 2.8f), _islandMat);
+            var island = Cylinder("Island", new Vector3(0f, -0.05f, 0.5f), new Vector3(3.6f, 0.06f, 3.6f), _islandMat);
             water.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             island.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
@@ -121,7 +121,24 @@ namespace Pofi.World
             CosmeticModels.Apply(Pet, _petDef, items);
         }
 
-        public void SetPetVisible(bool visible) => _holder.gameObject.SetActive(visible);
+        public void SetPetVisible(bool visible)
+        {
+            _holder.gameObject.SetActive(visible);
+            if (_props != null) _props.gameObject.SetActive(visible);
+        }
+
+        private Transform _props;
+
+        /// <summary>Ev eşyalarını adacığa yerleştirir (boş liste: temizler).</summary>
+        public void SetHomeItems(IEnumerable<Logic.State.Placement> placements, bool expanded)
+        {
+            if (_props == null)
+            {
+                _props = new GameObject("Home").transform;
+                _props.SetParent(transform, false);
+            }
+            HomeProps.Apply(_props, placements ?? Enumerable.Empty<Logic.State.Placement>(), expanded);
+        }
 
         public void ClearPet()
         {

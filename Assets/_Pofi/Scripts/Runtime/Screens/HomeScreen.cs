@@ -37,6 +37,7 @@ namespace Pofi.Screens
             App.Stage.AllowDrag = true;
             App.Stage.SetCamera(new Vector3(0f, 1.09f, -6.88f), 0f);
             App.Stage.ShowPet(def, App.Growth, App.State.Inventory.Equipped.Values);
+            App.Stage.SetHomeItems(App.State.Home, App.Levels.IsUnlocked("home_expansion", App.Level));
 
             // Üst bilgi kartı: isim, seviye/evre, coin ve göstergeler
             var top = Ui.Rect(Root, "Top", new Vector2(0.5f, 0.835f), new Vector2(1010f, 420f));
@@ -55,11 +56,13 @@ namespace Pofi.Screens
             }
 
             // Ayarlar / çıkış (ebeveyn kapısı)
-            Ui.Button(Root, Th, T("settings.title"), new Vector2(0.86f, 0.972f), new Vector2(230f, 76f),
+            Ui.Button(Root, Th, T("settings.title"), new Vector2(0.88f, 0.972f), new Vector2(210f, 76f),
                 () => ParentGate(() => App.Open(AppPage.Settings), msg => _bubble.Say(msg)), false, default, 34, false);
 
             Ui.Button(Root, Th, T("home.daily"), new Vector2(0.18f, 0.972f), new Vector2(330f, 76f), DailyPanel, false, default, 34, false);
-            Ui.Button(Root, Th, T("album.button"), new Vector2(0.5f, 0.972f), new Vector2(220f, 76f), () => App.Open(AppPage.Album), false, default, 34, false);
+            Ui.Button(Root, Th, T("album.button"), new Vector2(0.47f, 0.972f), new Vector2(200f, 76f), () => App.Open(AppPage.Album), false, default, 34, false);
+            if (App.Levels.IsUnlocked("home_decor", App.Level))
+                Ui.Button(Root, Th, T("decor.button"), new Vector2(0.66f, 0.972f), new Vector2(170f, 76f), () => App.Open(AppPage.Decorate), false, default, 34, false);
 
             _bubble = Bubble(new Vector2(0.5f, 0.675f));
 

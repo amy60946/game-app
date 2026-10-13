@@ -204,3 +204,39 @@ namespace Pofi.Tests.Logic
         }
     }
 }
+
+namespace Pofi.Tests.Logic
+{
+    public class HomeLayoutTests
+    {
+        [Test]
+        public void Yerlestir_tasi_kaldir_etki_bir_kez()
+        {
+            var data = TestData.Load();
+            var s = GameState.NewFor("c", DateTime.UtcNow);
+            var rug = data.Item("home_rug");
+            var lamp = data.Item("home_lamp");
+            Assert.AreEqual(Pofi.Logic.Home.PlaceResult.NotOwned, Pofi.Logic.Home.HomeLayout.Place(s, rug, 0, 0, false));
+            s.Inventory.Add(rug); s.Inventory.Add(lamp);
+            s.Stats.Values[(int)Pofi.Logic.Pet.StatKind.Home] = 50f;
+            Assert.AreEqual(Pofi.Logic.Home.PlaceResult.Ok, Pofi.Logic.Home.HomeLayout.Place(s, rug, 0, 0, false));
+            var after = s.Stats[Pofi.Logic.Pet.StatKind.Home];
+            Assert.GreaterOrEqual(after, 50f);
+            Assert.AreEqual(Pofi.Logic.Home.PlaceResult.AlreadyPlaced, Pofi.Logic.Home.HomeLayout.Place(s, rug, 3, 3, false));
+            Assert.AreEqual(Pofi.Logic.Home.PlaceResult.Occupied, Pofi.Logic.Home.HomeLayout.Place(s, lamp, 0, 0, false));
+            Assert.AreEqual(Pofi.Logic.Home.PlaceResult.OutOfBounds, Pofi.Logic.Home.HomeLayout.Place(s, lamp, 4, 0, false));
+            Assert.AreEqual(Pofi.Logic.Home.PlaceResult.OutOfBounds, Pofi.Logic.Home.HomeLayout.Place(s, lamp, 1, 1, false)); // pet yeri
+            Assert.AreEqual(Pofi.Logic.Home.PlaceResult.Ok, Pofi.Logic.Home.HomeLayout.Place(s, lamp, 4, 0, true));       // genişleyince sığar
+            Assert.AreEqual(Pofi.Logic.Home.PlaceResult.Ok, Pofi.Logic.Home.HomeLayout.Move(s, "home_rug", 3, 3, false));
+            Assert.AreEqual(Pofi.Logic.Home.PlaceResult.Ok, Pofi.Logic.Home.HomeLayout.Remove(s, "home_rug"));
+            CollectionAssert.Contains(Pofi.Logic.Home.HomeLayout.Unplaced(s, data).Select(i => i.Id).ToList(), "home_rug");
+            s.Stats.Values[(int)Pofi.Logic.Pet.StatKind.Home] = 50f;
+            Pofi.Logic.Home.HomeLayout.Place(s, rug, 0, 0, false);
+            Assert.AreEqual(50f, s.Stats[Pofi.Logic.Pet.StatKind.Home], 1e-3);   // etki ikinci kez yok
+
+            var back = SaveCodec.Deserialize(SaveCodec.Serialize(s, DateTime.UtcNow));
+            Assert.AreEqual(2, back.Home.Count);
+            Assert.IsTrue(back.HomeEffectsApplied.Contains("home_rug"));
+        }
+    }
+}

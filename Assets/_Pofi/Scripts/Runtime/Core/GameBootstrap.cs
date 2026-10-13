@@ -233,6 +233,7 @@ namespace Pofi.Core
                 Destroy(_screen.gameObject);
             }
             Stage.SetPetVisible(true);
+            Stage.SetHomeItems(null, false);   // ev eşyaları yalnızca ev ekranında
             Stage.Swiped = null;
             var root = Ui.Fill(Canvas.transform, "Screen " + next);
             switch (next)
@@ -252,6 +253,7 @@ namespace Pofi.Core
                         case AppPage.Garden: _screen = root.gameObject.AddComponent<GardenScreen>(); break;
                         case AppPage.Album: _screen = root.gameObject.AddComponent<AlbumScreen>(); break;
                         case AppPage.Settings: _screen = root.gameObject.AddComponent<SettingsScreen>(); break;
+                        case AppPage.Decorate: _screen = root.gameObject.AddComponent<DecorateScreen>(); break;
                         default: _screen = root.gameObject.AddComponent<HomeScreen>(); break;
                     }
                     break;
