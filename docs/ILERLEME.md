@@ -12,7 +12,7 @@ Doğrulama: `dotnet test tests-dotnet` → 118 test; `tools/compile-check/run.sh
 | Yaş bandı teması (A iri/yuvarlak, B dengeli, C sade) | `UI/Theme.cs`, `UI/Ui.cs` | yazıldı |
 | 12 yer tutucu pet + soketler, 360° çevirme, zıplama | `World/PetModels.cs`, `World/Stage.cs` | yazıldı |
 | Pet karuseli + son onay | `Screens/PetSelectScreen.cs` | yazıldı |
-| İsim verme + filtre, hoş geldin hediyesi (öneri) | `Screens/PetNameScreen.cs`, `Data/start.json` | yazıldı |
+| İsim verme + filtre, hoş geldin hediyesi (onaylandı) | `Screens/PetNameScreen.cs`, `Data/start.json` | yazıldı |
 | Ev: 4 gösterge, besle/yıka/oyna/topla, gece, ebeveyn kapısıyla çıkış | `Screens/HomeScreen.cs` | yazıldı |
 
 ## Yazılan oyun mantığı (`Assets/_Pofi/Scripts/Logic`)
