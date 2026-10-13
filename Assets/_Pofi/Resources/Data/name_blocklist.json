@@ -1,0 +1,5 @@
+{
+  "_doc": "Pet ismi filtresi (FR-PET-2, FR-SAFE-5). Karşılaştırma küçük harf + Türkçe harfler sadeleştirilmiş (ç→c, ğ→g, ı→i, ö→o, ş→s, ü→u) + rakam benzeri harfler (0→o, 1→i, 3→e, 4→a, 5→s) + tekrarlı harfler tekleştirilmiş hâlde yapılır. 'contains': ismin herhangi bir yerinde geçerse engellenir (uzun kökler). 'words': yalnızca tam kelime olarak engellenir (kısa kökler; 'Sıkı' gibi masum isimleri engellememek için). Liste geliştirilmeye açıktır.",
+  "contains": ["siktir", "orospu", "yarak", "pezevenk", "serefsiz", "gerizekali", "dangalak", "amcik", "kahpe", "surtuk", "gavat", "kaltak", "pust", "fuck", "shit", "bitch", "porn", "nazi", "hitler"],
+  "words": ["sik", "sikis", "got", "pic", "amk", "aq", "mk", "oc", "ibne", "mal", "salak", "aptal", "ezik", "sex", "seks", "dick", "ass"]
+}
