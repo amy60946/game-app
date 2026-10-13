@@ -48,6 +48,16 @@ jobs:
     if: needs.license.outputs.ok == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Diskte yer aç (Unity imajı ~15 GB)
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
       - uses: actions/checkout@v4
         with:
           lfs: true
@@ -71,6 +81,16 @@ jobs:
     needs: [unity-tests]
     runs-on: ubuntu-latest
     steps:
+      - name: Diskte yer aç (Unity imajı ~15 GB)
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
       - uses: actions/checkout@v4
         with:
           lfs: true
@@ -109,9 +129,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: true
-      - uses: jlumbroso/free-disk-space@v1.3.1
+      - name: Diskte yer aç (Unity imajı ~15 GB)
+        uses: jlumbroso/free-disk-space@v1.3.1
         with:
+          tool-cache: false
           android: false
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
       - uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
