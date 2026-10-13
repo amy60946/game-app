@@ -99,6 +99,8 @@ jobs:
           path: Library
           key: Library-WebGL-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt') }}
           restore-keys: Library-WebGL-
+      - name: Derleme numarasını oyuna yaz
+        run: echo "${GITHUB_RUN_NUMBER}" > Assets/_Pofi/Resources/build_number.txt
       - uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}

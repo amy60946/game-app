@@ -41,3 +41,5 @@ crashlytics-build.properties
 # Python
 __pycache__/
 *.pyc
+Assets/_Pofi/Resources/build_number.txt
+Assets/_Pofi/Resources/build_number.txt.meta
