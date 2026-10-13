@@ -1,0 +1,64 @@
+<title>Pofi Adası Önizleme</title>
+<meta name="theme-color" content="#5CC7FA">
+<style>
+/* Tek görünüm: oyunun kendi gökyüzü rengi, tema değişmez */
+:root { --sky: #5CC7FA; --sand: #FFE3A3; --ink: #0F2B45; --white: #FFFFFF; --sun: #FFB21A; color-scheme: light; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--sky); color: var(--ink); font-family: -apple-system, "SF Pro Rounded", "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+#stage { position: fixed; inset: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+#unity-canvas { width: 100%; height: 100%; display: block; background: var(--sky); touch-action: none; }
+#loader { position: fixed; inset: 0; display: grid; place-items: center; background: var(--sky); padding-inline: 24px; text-align: center; }
+#loader .box { display: grid; gap: 14px; width: min(320px, 100%); }
+#loader h1 { margin: 0; font-size: 40px; font-weight: 800; color: var(--white); text-shadow: 0 3px 0 rgba(15,43,69,.18); }
+#loader p { margin: 0; font-size: 15px; color: var(--ink); opacity: .8; }
+.bar { height: 14px; border-radius: 999px; background: rgba(255,255,255,.5); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0%; background: var(--sun); border-radius: 999px; transition: width .2s; }
+#err { display: none; background: var(--white); border-radius: 16px; padding: 16px; font-size: 14px; text-align: left; line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+
+<div id="stage"><canvas id="unity-canvas" tabindex="-1" aria-label="Pofi Adası oyun ekranı"></canvas></div>
+<div id="loader" role="status" aria-live="polite">
+  <div class="box">
+    <h1>Pofi Adası</h1>
+    <p id="msg">Ada hazırlanıyor… (ilk açılış biraz sürebilir)</p>
+    <div class="bar" aria-hidden="true"><i id="fill"></i></div>
+    <div id="err"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var fill = document.getElementById('fill');
+  var msg = document.getElementById('msg');
+  var err = document.getElementById('err');
+  var loader = document.getElementById('loader');
+  function fail(text) {
+    msg.textContent = 'Önizleme açılamadı.';
+    err.style.display = 'block';
+    err.textContent = text + ' Bu ekranın görüntüsünü alıp Claude\'a gönderebilirsin.';
+  }
+  var canvas = document.getElementById('unity-canvas');
+  var testGl = document.createElement('canvas').getContext('webgl2');
+  if (!testGl) { fail('Bu tarayıcı 3D grafik (WebGL 2) desteklemiyor. iPhone\'da Safari\'yi güncel tutman yeterli.'); return; }
+  var config = {
+    dataUrl: 'Build/PofiAdasi.data.wasm',
+    frameworkUrl: 'Build/PofiAdasi.framework.wasm',
+    codeUrl: 'Build/PofiAdasi.code.wasm',
+    streamingAssetsUrl: 'StreamingAssets',
+    companyName: 'Fidan',
+    productName: 'Pofi Adası',
+    productVersion: '0.0.1',
+    devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2)
+  };
+  var s = document.createElement('script');
+  s.src = 'Build/PofiAdasi.loader.js';
+  s.onerror = function () { fail('Oyun dosyaları yüklenemedi.'); };
+  s.onload = function () {
+    createUnityInstance(canvas, config, function (p) { fill.style.width = Math.round(p * 100) + '%'; })
+      .then(function () { loader.style.display = 'none'; })
+      .catch(function (e) { fail('Hata: ' + (e && e.message ? e.message : e)); });
+  };
+  document.body.appendChild(s);
+})();
+</script>

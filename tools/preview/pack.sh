@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# WebGL önizlemesini Artifact'a uygun pakete çevirir.
+# Artifact yalnızca belirli uzantıları sunar ve .js dosyasında ikili veri kabul etmez; Unity'nin
+# gzip'li .unityweb dosyaları bu yüzden .wasm uzantısıyla yayınlanır (loader içerikten tanır).
+# Kullanım: bash tools/preview/pack.sh <çıktı-klasörü>
+set -euo pipefail
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+OUT="${1:?çıktı klasörü}"
+git -C "$ROOT" fetch -q origin webgl-preview:refs/remotes/origin/webgl-preview
+TMP="$(mktemp -d)"
+git -C "$ROOT" archive origin/webgl-preview | tar -x -C "$TMP"
+rm -rf "$OUT" && mkdir -p "$OUT/Build"
+B="$TMP/PofiAdasi/Build"
+cp "$B/PofiAdasi.loader.js" "$OUT/Build/"
+cp "$B/PofiAdasi.framework.js.unityweb" "$OUT/Build/PofiAdasi.framework.wasm"
+cp "$B/PofiAdasi.data.unityweb" "$OUT/Build/PofiAdasi.data.wasm"
+cp "$B/PofiAdasi.wasm.unityweb" "$OUT/Build/PofiAdasi.code.wasm"
+cp "$ROOT/tools/preview/index.html" "$OUT/index.html"
+cat "$TMP/preview.json"; echo
+ls -la "$OUT/Build"

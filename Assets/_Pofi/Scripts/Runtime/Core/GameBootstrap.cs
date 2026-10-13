@@ -35,8 +35,8 @@ namespace Pofi.Core
             var cam = camGo.AddComponent<Camera>();
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.36f, 0.78f, 0.98f);
-            cam.fieldOfView = 30f;
-            camGo.transform.SetPositionAndRotation(new Vector3(0f, 0.75f, -4.2f), Quaternion.Euler(6f, 0f, 0f));
+            cam.fieldOfView = 34f;
+            camGo.transform.SetPositionAndRotation(new Vector3(0f, 1.3f, -7.5f), Quaternion.Euler(6f, 0f, 0f));
 
             var sun = new GameObject("Sun").AddComponent<Light>();
             sun.type = LightType.Directional;

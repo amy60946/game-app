@@ -1,4 +1,6 @@
 <!-- IL2CPP (iOS/Android) derlemesinde JSON ile doldurulan veri sınıfları silinmesin -->
 <linker>
   <assembly fullname="Pofi.Logic" preserve="all" />
+  <!-- Yer tutucu primitifler çarpıştırıcı ekler; fizik modülü ileride zaten gerekli -->
+  <assembly fullname="UnityEngine.PhysicsModule" preserve="all" />
 </linker>
