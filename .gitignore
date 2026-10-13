@@ -1,0 +1,39 @@
+# Unity
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+*.csproj
+*.sln
+*.suo
+*.user
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.apk
+*.aab
+*.unitypackage
+crashlytics-build.properties
+/[Aa]ssets/[Ss]treamingAssets/aa*
+/ServerData/
+
+# .NET birim testleri (Unity dışı)
+!/tests-dotnet/*.csproj
+/tests-dotnet/bin/
+/tests-dotnet/obj/
+
+# Blender
+*.blend1
+*.blend2
+/art/out/
+
+.DS_Store

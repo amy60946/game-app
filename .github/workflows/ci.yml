@@ -1,0 +1,127 @@
+name: CI
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      android:
+        description: "Android APK da üretilsin mi?"
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  checks: write
+
+jobs:
+  # Unity gerektirmeyen hızlı kontrol: oyun mantığı birim testleri (.NET)
+  logic-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+      - run: dotnet test tests-dotnet --logger "console;verbosity=normal"
+
+  # Unity lisansı GitHub Secrets'a eklenmiş mi? (yoksa Unity işleri atlanır, CI kırmızı olmaz)
+  license:
+    runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.check.outputs.ok }}
+    steps:
+      - id: check
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        run: |
+          if [ -n "$UNITY_LICENSE" ]; then echo "ok=true" >> "$GITHUB_OUTPUT"; else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::UNITY_LICENSE secret yok; Unity testleri ve derlemeleri atlandı (bkz. docs/UNITY_LISANS.md)."
+          fi
+
+  unity-tests:
+    needs: [logic-tests, license]
+    if: needs.license.outputs.ok == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-tests-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: Library-tests-
+      - uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          testMode: editmode
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          checkName: Unity EditMode testleri
+
+  # iPhone'da tarayıcıdan açılan önizleme. Çıktı `webgl-preview` dalına yazılır.
+  build-webgl:
+    needs: [unity-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-WebGL-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: Library-WebGL-
+      - uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: WebGL
+          buildMethod: Pofi.EditorTools.BuildScript.Build
+          buildName: PofiAdasi
+      - name: Önizleme bilgisini yaz
+        run: |
+          sudo chown -R "$(id -u)" build
+          echo "{\"commit\":\"${GITHUB_SHA}\",\"run\":\"${GITHUB_RUN_NUMBER}\",\"branch\":\"${GITHUB_REF_NAME}\"}" > build/WebGL/preview.json
+          du -ah build/WebGL | sort -h | tail -20
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: webgl-preview
+          publish_dir: build/WebGL
+          force_orphan: true
+          commit_message: "WebGL önizleme"
+
+  build-android:
+    needs: [unity-tests]
+    if: github.event_name == 'workflow_dispatch' && inputs.android
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          android: false
+      - uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: Android
+          buildMethod: Pofi.EditorTools.BuildScript.Build
+          buildName: PofiAdasi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pofi-adasi-android
+          path: build/Android
