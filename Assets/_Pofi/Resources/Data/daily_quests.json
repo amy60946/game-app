@@ -1,0 +1,16 @@
+{
+  "_doc": "Günlük oyun içi görevler (FR-META-3): her gün 3 tane, gerçek görevlerle KARIŞMAZ. unlock: gereken içerik (levels.json kimliği).",
+  "perDay": 3,
+  "quests": [
+    { "id": "dq_feed_2",     "text": "Pet'ini 2 kez besle",                 "counter": "pet_fed",          "target": 2, "xp": 15, "unlock": "region_home" },
+    { "id": "dq_wash_1",     "text": "Pet'ini yıka",                        "counter": "pet_washed",       "target": 1, "xp": 10, "unlock": "region_home" },
+    { "id": "dq_play_3",     "text": "Pet'inle 3 kez oyna",                 "counter": "pet_played",       "target": 3, "xp": 10, "unlock": "region_home" },
+    { "id": "dq_coconut_10", "text": "10 hindistan cevizi yakala",          "counter": "coconuts_caught",  "target": 10, "xp": 20, "unlock": "minigame_coconut" },
+    { "id": "dq_help_1",     "text": "Bir pet'in kayıp eşyasını bul",        "counter": "pets_helped",      "target": 1, "xp": 15, "unlock": "minigame_help_pet" },
+    { "id": "dq_swim_1",     "text": "Yüzme koyunda bir tur at",            "counter": "swim_runs",        "target": 1, "xp": 15, "unlock": "minigame_swim" },
+    { "id": "dq_cards_1",    "text": "Bir masa oyunu oyna",                 "counter": "card_games_played","target": 1, "xp": 20, "unlock": "card_uno" },
+    { "id": "dq_water_3",    "text": "Bahçede 3 bitki sula",                "counter": "plants_watered",   "target": 3, "xp": 15, "unlock": "region_garden" },
+    { "id": "dq_fish_2",     "text": "2 balık tut",                         "counter": "fish_caught",      "target": 2, "xp": 20, "unlock": "minigame_fishing" },
+    { "id": "dq_tidy_1",     "text": "Evini düzenle",                       "counter": "home_tidied",      "target": 1, "xp": 10, "unlock": "region_home" }
+  ]
+}

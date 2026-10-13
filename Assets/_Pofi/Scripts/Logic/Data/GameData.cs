@@ -14,6 +14,10 @@ namespace Pofi.Logic.Data
         public IReadOnlyList<PetSpeciesDef> Pets { get; }
         public IReadOnlyList<ItemDef> Items { get; }
         public LevelTableDef Levels { get; }
+        public IReadOnlyList<CollectionEntryDef> Collection { get; private set; } = new List<CollectionEntryDef>();
+        public IReadOnlyList<BadgeDef> Badges { get; private set; } = new List<BadgeDef>();
+        public IReadOnlyList<DailyQuestDef> DailyQuests { get; private set; } = new List<DailyQuestDef>();
+        public int DailyQuestsPerDay { get; private set; } = 3;
 
         private readonly Dictionary<string, PetSpeciesDef> _pets;
         private readonly Dictionary<string, ItemDef> _items;
@@ -31,7 +35,10 @@ namespace Pofi.Logic.Data
             var pets = JsonConvert.DeserializeObject<PetsFile>(readText("pets.json")).Pets;
             var items = JsonConvert.DeserializeObject<ItemsFile>(readText("items.json")).Items;
             var levels = JsonConvert.DeserializeObject<LevelTableDef>(readText("levels.json"));
-            return new GameData(pets, items, levels);
+            var col = JsonConvert.DeserializeObject<CollectionFile>(readText("collection.json")).Entries;
+            var badges = JsonConvert.DeserializeObject<BadgesFile>(readText("badges.json")).Badges;
+            var dq = JsonConvert.DeserializeObject<DailyQuestsFile>(readText("daily_quests.json"));
+            return new GameData(pets, items, levels) { Collection = col, Badges = badges, DailyQuests = dq.Quests, DailyQuestsPerDay = dq.PerDay };
         }
 
         public PetSpeciesDef Pet(string id) => _pets.TryGetValue(id, out var p) ? p : null;
@@ -80,6 +87,18 @@ namespace Pofi.Logic.Data
                 if (Levels.XpToNext[k] <= Levels.XpToNext[k - 1]) errors.Add($"XP eşikleri artmalı (Sv{k + 1})");
             foreach (var key in Levels.Unlocks.Keys)
                 if (!int.TryParse(key, out var lv) || lv < 1 || lv > Levels.MaxLevel) errors.Add($"açılış tablosunda geçersiz seviye {key}");
+            var allUnlocks = new HashSet<string>(Levels.Unlocks.Values.SelectMany(v => v));
+            foreach (var q in DailyQuests)
+                if (!allUnlocks.Contains(q.Unlock)) errors.Add($"{q.Id}: bilinmeyen açılış kimliği {q.Unlock}");
+            Dup(Collection, c => c.Id, "koleksiyon");
+            Dup(Badges, b => b.Id, "rozet");
+            Dup(DailyQuests, q => q.Id, "günlük görev");
+            foreach (var c in Collection)
+                if (c.Time != "day" && c.Time != "night" && c.Time != "any") errors.Add($"{c.Id}: zaman day|night|any olmalı");
+            var fishCount = Collection.Count(c => c.Category == "fish");
+            var fishBadge = Badges.FirstOrDefault(b => b.Counter == "fish_species");
+            if (fishBadge != null && fishBadge.Target != fishCount) errors.Add($"'Bütün balıklar' rozeti {fishBadge.Target} diyor, {fishCount} balık var");
+            if (DailyQuests.Count(q => q.Unlock == "region_home") < DailyQuestsPerDay) errors.Add("Sv1'de günlük görev havuzu yetersiz");
             return errors;
         }
     }

@@ -1,0 +1,25 @@
+{
+  "_doc": "Koleksiyon defteri (FR-META-2). rarity: 1 yaygın – 3 nadir. level: görünmeye başladığı seviye. time: day|night|any (balıklar için).",
+  "entries": [
+    { "id": "fish_sardine",   "name": "Sardalya",        "category": "fish",  "rarity": 1, "level": 7,  "time": "any" },
+    { "id": "fish_bream",     "name": "Çipura",          "category": "fish",  "rarity": 1, "level": 7,  "time": "day" },
+    { "id": "fish_seabass",   "name": "Levrek",          "category": "fish",  "rarity": 2, "level": 7,  "time": "any" },
+    { "id": "fish_mullet",    "name": "Barbunya",        "category": "fish",  "rarity": 2, "level": 8,  "time": "day" },
+    { "id": "fish_bluefish",  "name": "Lüfer",           "category": "fish",  "rarity": 2, "level": 9,  "time": "night" },
+    { "id": "fish_clown",     "name": "Palyaço balığı",  "category": "fish",  "rarity": 2, "level": 10, "time": "day" },
+    { "id": "fish_puffer",    "name": "Balon balığı",    "category": "fish",  "rarity": 3, "level": 11, "time": "any" },
+    { "id": "fish_moon",      "name": "Ay balığı",       "category": "fish",  "rarity": 3, "level": 12, "time": "night" },
+    { "id": "bug_butterfly",  "name": "Kelebek",         "category": "bug",   "rarity": 1, "level": 1,  "time": "day" },
+    { "id": "bug_ladybug",    "name": "Uğur böceği",     "category": "bug",   "rarity": 1, "level": 1,  "time": "day" },
+    { "id": "bug_firefly",    "name": "Ateş böceği",     "category": "bug",   "rarity": 2, "level": 3,  "time": "night" },
+    { "id": "bug_dragonfly",  "name": "Yusufçuk",        "category": "bug",   "rarity": 2, "level": 6,  "time": "day" },
+    { "id": "shell_scallop",  "name": "Tarak kabuğu",    "category": "shell", "rarity": 1, "level": 1,  "time": "any" },
+    { "id": "shell_spiral",   "name": "Sarmal kabuk",    "category": "shell", "rarity": 1, "level": 2,  "time": "any" },
+    { "id": "shell_starfish", "name": "Deniz yıldızı",   "category": "shell", "rarity": 2, "level": 2,  "time": "any" },
+    { "id": "shell_pearl",    "name": "İnci midye",      "category": "shell", "rarity": 3, "level": 11, "time": "any" },
+    { "id": "res_crab",       "name": "Yengeç",          "category": "resident", "rarity": 1, "level": 1, "time": "any" },
+    { "id": "res_seagull",    "name": "Martı",           "category": "resident", "rarity": 1, "level": 1, "time": "day" },
+    { "id": "res_turtle",     "name": "Yavru kaplumbağa","category": "resident", "rarity": 2, "level": 2, "time": "any" },
+    { "id": "res_owl",        "name": "Baykuş",          "category": "resident", "rarity": 3, "level": 13, "time": "night" }
+  ]
+}

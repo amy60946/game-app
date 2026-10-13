@@ -1,0 +1,15 @@
+{
+  "_doc": "Rozetler (FR-META-1). Bir sayaç hedefe ulaşınca kazanılır. xp: ödül (günlük sınıra sayılmaz).",
+  "badges": [
+    { "id": "badge_first_task",   "name": "İlk görev",            "counter": "tasks_approved",   "target": 1,   "xp": 20 },
+    { "id": "badge_task_10",      "name": "Görev kahramanı",      "counter": "tasks_approved",   "target": 10,  "xp": 40 },
+    { "id": "badge_streak_7",     "name": "7 günlük seri",        "counter": "best_streak",      "target": 7,   "xp": 60 },
+    { "id": "badge_food_100",     "name": "Usta aşçı",            "counter": "pet_fed",          "target": 100, "xp": 50 },
+    { "id": "badge_wash_30",      "name": "Mis gibi",             "counter": "pet_washed",       "target": 30,  "xp": 30 },
+    { "id": "badge_coconut_50",   "name": "Ceviz avcısı",         "counter": "coconuts_caught",  "target": 50,  "xp": 30 },
+    { "id": "badge_fish_all",     "name": "Bütün balıklar",       "counter": "fish_species",     "target": 8,   "xp": 80 },
+    { "id": "badge_harvest_20",   "name": "Yeşil parmak",         "counter": "harvests",         "target": 20,  "xp": 40 },
+    { "id": "badge_cards_10",     "name": "Masa oyunu dostu",     "counter": "card_games_played","target": 10,  "xp": 30 },
+    { "id": "badge_master",       "name": "Ada ustası",           "counter": "level",            "target": 15,  "xp": 100 }
+  ]
+}

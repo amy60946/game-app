@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Pofi.Logic.Economy;
+using Pofi.Logic.Garden;
+using Pofi.Logic.Meta;
 using Pofi.Logic.Pet;
 using Pofi.Logic.Shop;
 using Pofi.Logic.Tasks;
@@ -53,6 +55,9 @@ namespace Pofi.Logic.State
         public HashSet<string> Collection = new HashSet<string>();
         public HashSet<string> Badges = new HashSet<string>();
         public HashSet<string> SeenUnlocks = new HashSet<string>();   // kutlaması gösterilmiş açılışlar
+        public Counters Counters = new Counters();
+        public DailyQuestState DailyQuests = new DailyQuestState();
+        public GardenState Garden = new GardenState();
         public PlayerSettings Settings = new PlayerSettings();
         public long LastSavedUtcTicks;
         public long LastSyncUtcTicks;

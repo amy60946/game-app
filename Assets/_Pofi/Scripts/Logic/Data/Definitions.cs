@@ -71,6 +71,43 @@ namespace Pofi.Logic.Data
         [JsonProperty("unlocks")] public Dictionary<string, List<string>> Unlocks = new Dictionary<string, List<string>>();
     }
 
+    public sealed class CollectionEntryDef
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("category")] public string Category;   // fish|bug|shell|resident
+        [JsonProperty("rarity")] public int Rarity = 1;
+        [JsonProperty("level")] public int Level = 1;
+        [JsonProperty("time")] public string Time = "any";   // day|night|any
+    }
+
+    public sealed class BadgeDef
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("name")] public string Name;
+        [JsonProperty("counter")] public string Counter;
+        [JsonProperty("target")] public int Target;
+        [JsonProperty("xp")] public int Xp;
+    }
+
+    public sealed class DailyQuestDef
+    {
+        [JsonProperty("id")] public string Id;
+        [JsonProperty("text")] public string Text;
+        [JsonProperty("counter")] public string Counter;
+        [JsonProperty("target")] public int Target;
+        [JsonProperty("xp")] public int Xp;
+        [JsonProperty("unlock")] public string Unlock;
+    }
+
+    internal sealed class CollectionFile { [JsonProperty("entries")] public List<CollectionEntryDef> Entries = new List<CollectionEntryDef>(); }
+    internal sealed class BadgesFile { [JsonProperty("badges")] public List<BadgeDef> Badges = new List<BadgeDef>(); }
+    internal sealed class DailyQuestsFile
+    {
+        [JsonProperty("perDay")] public int PerDay = 3;
+        [JsonProperty("quests")] public List<DailyQuestDef> Quests = new List<DailyQuestDef>();
+    }
+
     internal sealed class PetsFile { [JsonProperty("pets")] public List<PetSpeciesDef> Pets = new List<PetSpeciesDef>(); }
     internal sealed class ItemsFile { [JsonProperty("items")] public List<ItemDef> Items = new List<ItemDef>(); }
 }
