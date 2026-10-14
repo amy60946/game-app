@@ -147,7 +147,7 @@ namespace Pofi.Screens
             var fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
             var dist = Mathf.Lerp(3.9f, 4.6f, _runBlend) * Mathf.Max(0.85f, scale);   // pet kadrajda büyük (çocuğun odağı)
             var pivot = p + Vector3.up * (hgt * 0.9f);
-            look = pivot + Vector3.up * (hgt * 0.35f) + fwd * Mathf.Lerp(1.2f, 2.2f, _runBlend);   // pet alt üçte bire düşer, önü görünür
+            look = p + Vector3.up * (hgt * 0.55f) + fwd * Mathf.Lerp(0.6f, 1.4f, _runBlend);   // pet baştan ayağa ekranın alt-ortasında (yakın kamerada ayaklar kesilmesin), önü görünür
             // çarpışma (yay-kol + bıyık): arkada bina/tepe varsa kamera önce yana döner (±30°…±90°) ve açık görüş arar;
             // yoksa biraz yükselir (30°, 45°); hâlâ kapalıysa yaklaşır ama petin içine girmez. Dönüş ve yükselme yumuşak.
             float targetPitch = _userPitch, yawOff = 0f;
