@@ -25,6 +25,8 @@ namespace Pofi.Screens
         private bool _overview;
         private Vector2 _pan;                       // kuşbakışı kaydırma (x, z)
         private float _camYaw;                      // yürüme kamerasının pet çevresindeki açısı
+        private float _runBlend;                    // 0 yürüme/durma … 1 koşma (kamera uzaklığı, görüş açısı)
+        private Vector3 _camVel, _lookVel;
         private Vector3 _camPos, _camLook;
         private Vector3 _press, _last;
         private bool _down, _moved, _stick;
@@ -116,15 +118,33 @@ namespace Pofi.Screens
                 fov = 40f;
                 return;
             }
-            // Üçüncü şahıs (14 Ekim 2026 geri bildirimi): petin arkasından, başının biraz üstünden, yakın; pet döndükçe kamera yavaşça arkasına geçer
+            // Profesyonel üçüncü şahıs kamera (yay-kol): petin arkasından ~20° yükseklikte, pet kadrajın alt üçte birinde,
+            // gidilen yöne biraz önden bakar; koşarken hafif uzaklaşır; yön ölü bölge ile yavaşça izlenir (çocukta baş dönmesi yok);
+            // bina/zemin araya girerse kamera öne kayar.
             var w = _world.Walker;
             var p = w.transform.position;
-            var hgt = PetModels.RealHeight * w.transform.lossyScale.y;
-            if (w.Moving || w.Steering) _camYaw = Mathf.MoveTowardsAngle(_camYaw, w.Heading, 110f * Time.deltaTime);
+            var scale = w.transform.lossyScale.y;
+            var hgt = PetModels.RealHeight * scale;
+            var running = w.Moving || w.Steering;
+            if (running)
+            {
+                var diff = Mathf.DeltaAngle(_camYaw, w.Heading);
+                if (Mathf.Abs(diff) > 12f) _camYaw += diff * (1f - Mathf.Exp(-2.0f * Time.deltaTime));   // ölü bölge + yumuşak izleme
+            }
+            _runBlend = Mathf.MoveTowards(_runBlend, running ? 1f : 0f, Time.deltaTime * 1.5f);
             var fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
-            look = p + Vector3.up * (hgt * 0.85f) + fwd * 1.6f;
-            pos = p + Vector3.up * (hgt + 1.55f) - fwd * 4.9f;
-            fov = 52f;
+            var dist = Mathf.Lerp(4.8f, 5.6f, _runBlend) * Mathf.Max(0.85f, scale);
+            const float elev = 20f * Mathf.Deg2Rad;
+            var pivot = p + Vector3.up * (hgt * 0.9f);
+            look = pivot + Vector3.up * (hgt * 0.35f) + fwd * Mathf.Lerp(1.2f, 2.2f, _runBlend);   // pet alt üçte bire düşer, önü görünür
+            var dir = -fwd * Mathf.Cos(elev) + Vector3.up * Mathf.Sin(elev);
+            // çarpışma: pivot → kamera yönünde engel varsa öne kay
+            if (Physics.SphereCast(pivot, 0.35f, dir, out var hit, dist, ~0, QueryTriggerInteraction.Ignore) && hit.collider.gameObject.name != "pet")
+                dist = Mathf.Max(2.2f, hit.distance - 0.3f);
+            pos = pivot + dir * dist;
+            var floor = _world.transform.TransformPoint(new Vector3(0f, _terrain.Height(pos.x - MapWorld.Origin.x, pos.z - MapWorld.Origin.z), 0f)).y + 0.8f;
+            if (pos.y < floor) pos.y = floor;
+            fov = Mathf.Lerp(50f, 55f, _runBlend);
         }
 
         private void SnapCamera()
@@ -146,9 +166,9 @@ namespace Pofi.Screens
             HandleInput();
             UpdateHud();
             TargetCamera(out var pos, out var look, out var fov);
-            var k = 1f - Mathf.Exp(-6f * Time.deltaTime);
-            _camPos = Vector3.Lerp(_camPos, pos, k);
-            _camLook = Vector3.Lerp(_camLook, look, k);
+            var lag = _overview ? 0.25f : 0.16f;
+            _camPos = Vector3.SmoothDamp(_camPos, pos, ref _camVel, lag);
+            _camLook = Vector3.SmoothDamp(_camLook, look, ref _lookVel, lag * 0.7f);
             ApplyCamera(fov);
 
             var cam = App.Stage.Camera;

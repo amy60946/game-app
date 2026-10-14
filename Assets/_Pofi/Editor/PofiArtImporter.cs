@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 3;
+        public override uint GetVersion() => 4;
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -81,12 +81,12 @@ namespace Pofi.EditorTools
             if (!IsArt) return;
             var t = (TextureImporter)assetImporter;
             var normal = Path.GetFileNameWithoutExtension(assetPath).EndsWith("_normal");
-            // Telefon/WebGL boyutu (14 Ekim 2026: veri 88 MB'tı): pet rengi 1024, diğer her şey 512; crunch sıkıştırma
+            // Telefon/WebGL boyutu (14 Ekim 2026: veri 88 MB'tı): pet rengi 1024, diğer her şey 512.
+            // Crunch kapalı: CI kapsayıcısında crnlib iş parçacığı (sem_wait) Unity'yi çökertti (derleme 46).
             t.maxTextureSize = IsPet && !normal ? 1024 : 512;
             t.mipmapEnabled = true;
             t.textureCompression = TextureImporterCompression.Compressed;
-            t.crunchedCompression = true;
-            t.compressionQuality = 60;
+            t.crunchedCompression = false;
             if (normal)
                 t.textureType = TextureImporterType.NormalMap;
             else

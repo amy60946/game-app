@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace Pofi.UI
 {
     /// <summary>
-    /// Tanıtım ipucu (onboarding): büyük altyazı balonu + hareketli dokunma izi (parmak ucu). Dokunma: hedefte 3 kez
+    /// Tanıtım ipucu (onboarding): büyük altyazı balonu + hareketli işaret eden el. Dokunma: hedefte 3 kez
     /// basar; sürükleme: başlangıçtan hedefe 3 kez gider-gelir; kaydırma: ekranın ortasından dışa kayar. Girdiyi engellemez
     /// (çocuk aynı anda hareketi yapabilir). Konumlar ekran pikseli olarak verilir (her karede yeniden okunur: hedef hareket edebilir).
     /// </summary>
@@ -34,15 +34,26 @@ namespace Pofi.UI
             var t = Ui.Label(box, caption, 48, new Color(0.24f, 0.17f, 0.1f), new Vector2(0.5f, 0.5f), new Vector2(1120f, 140f), FontStyle.Bold);
             t.resizeTextForBestFit = true; t.resizeTextMinSize = 30; t.resizeTextMaxSize = 48;
 
-            // parmak ucu: beyaz yuvarlak + halka
+            // dokunma halkası
             c._ring = Ui.Rect(rt, "Ring", Vector2.zero, new Vector2(150f, 150f));
             c._ringImg = c._ring.gameObject.AddComponent<Image>(); c._ringImg.sprite = Ui.Rounded; c._ringImg.type = Image.Type.Sliced;
             c._ringImg.pixelsPerUnitMultiplier = 0.8f; c._ringImg.color = new Color(1f, 1f, 1f, 0.35f);
-            c._finger = Ui.Rect(rt, "Finger", Vector2.zero, new Vector2(84f, 84f));
-            c._fingerImg = c._finger.gameObject.AddComponent<Image>(); c._fingerImg.sprite = Ui.Rounded; c._fingerImg.type = Image.Type.Sliced;
-            c._fingerImg.pixelsPerUnitMultiplier = 1.4f; c._fingerImg.color = Color.white;
-            var fo = c._finger.gameObject.AddComponent<Outline>(); fo.effectColor = new Color(1f, 0.55f, 0.1f); fo.effectDistance = new Vector2(4f, -4f);
-            c._finger.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(4f, -8f);
+            // işaret eden el (Resources/Icons/ui_hand.png, art/scripts/ui_hand.py); pivot = parmak ucu. Yoksa beyaz parmak ucu.
+            var hand = Ui.Icon("ui_hand");
+            c._finger = Ui.Rect(rt, "Finger", Vector2.zero, hand != null ? new Vector2(190f, 190f) : new Vector2(84f, 84f));
+            c._fingerImg = c._finger.gameObject.AddComponent<Image>();
+            if (hand != null)
+            {
+                c._finger.pivot = new Vector2(0.36f, 0.86f);
+                c._fingerImg.sprite = hand; c._fingerImg.preserveAspect = true; c._fingerImg.raycastTarget = false;
+            }
+            else
+            {
+                c._fingerImg.sprite = Ui.Rounded; c._fingerImg.type = Image.Type.Sliced;
+                c._fingerImg.pixelsPerUnitMultiplier = 1.4f; c._fingerImg.color = Color.white;
+                var fo = c._finger.gameObject.AddComponent<Outline>(); fo.effectColor = new Color(1f, 0.55f, 0.1f); fo.effectDistance = new Vector2(4f, -4f);
+                c._finger.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(4f, -8f);
+            }
             Audio.Sfx.Play(Audio.SfxKind.Tap);
             return c;
         }
@@ -79,9 +90,10 @@ namespace Pofi.UI
                     press = 1f;
                     break;
             }
-            _finger.anchoredPosition = p;
+            // el basarken parmak ucu hedefe iner, kalkarken biraz geri çekilir
+            _finger.anchoredPosition = p + new Vector2(10f, -14f) * (1f - press);
             _ring.anchoredPosition = p;
-            _finger.localScale = Vector3.one * Mathf.Lerp(1.1f, 0.85f, press);
+            _finger.localScale = Vector3.one * Mathf.Lerp(1.08f, 0.94f, press);
             _ring.localScale = Vector3.one * Mathf.Lerp(0.6f, 1.25f, press);
             _ringImg.color = new Color(1f, 1f, 1f, 0.45f * press);
         }
