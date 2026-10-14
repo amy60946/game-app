@@ -201,32 +201,28 @@ namespace Pofi.Screens
         }
     }
 
+    /// <summary>Pet konuşma baloncuğu: turuncu şeker panel, alt kuyruk, oyun yazı tarzı; genişlik yazıya göre.</summary>
     public sealed class SpeechBubble : MonoBehaviour
     {
-        private Text _text;
+        private CandyBanner _banner;
         private CanvasGroup _group;
         private float _left;
 
         public static SpeechBubble Create(Transform parent, Theme th, Vector2 anchor)
         {
-            var rt = Ui.Rect(parent, "Bubble", anchor, new Vector2(820f, 150f));
-            Ui.Panel(rt, Color.white, th.Radius).raycastTarget = false;
-            var tail = Ui.Rect(rt, "Tail", new Vector2(0.5f, 0f), new Vector2(44f, 44f), new Vector2(0f, -6f));
-            Ui.Panel(tail, Color.white, 8f).raycastTarget = false;
-            tail.localRotation = Quaternion.Euler(0f, 0f, 45f);
-            tail.SetAsFirstSibling();
-            var b = rt.gameObject.AddComponent<SpeechBubble>();
-            b._group = rt.gameObject.AddComponent<CanvasGroup>();
+            var banner = Candy.Banner(parent, Candy.Orange, null, anchor, Vector2.zero, 980f, 40, true);
+            var b = banner.gameObject.AddComponent<SpeechBubble>();
+            b._banner = banner;
+            b._group = banner.gameObject.AddComponent<CanvasGroup>();
             b._group.alpha = 0f;
             b._group.blocksRaycasts = false;
-            b._text = Ui.Label(rt, "", th.Font(42), th.Text, new Vector2(0.5f, 0.5f), new Vector2(760f, 130f), FontStyle.Bold);
             return b;
         }
 
         public void Say(string text, float seconds = 3.5f)
         {
             if (string.IsNullOrEmpty(text)) return;
-            _text.text = text;
+            _banner.SetText(text);
             _left = seconds;
             transform.localScale = Vector3.one * 0.85f;
         }

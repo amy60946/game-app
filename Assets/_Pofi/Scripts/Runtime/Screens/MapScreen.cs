@@ -80,12 +80,11 @@ namespace Pofi.Screens
 
         private RectTransform Label(RegionView v)
         {
-            var rt = Ui.Rect(_labelLayer, v.Region.Id, new Vector2(0f, 0f), new Vector2(300f, 70f));
+            var rt = Ui.Rect(_labelLayer, v.Region.Id, new Vector2(0f, 0f), new Vector2(300f, 64f));
             rt.pivot = new Vector2(0.5f, 0f);
-            var bg = Ui.Panel(rt, v.Unlocked ? new Color(1f, 1f, 1f, 0.92f) : new Color(0.25f, 0.28f, 0.38f, 0.8f), 35f);
-            bg.raycastTarget = false;
+            // yer adı: yarı saydam şeker etiket (açık: deniz mavisi, kilitli: gri), oyun yazı tarzı
             var text = v.Unlocked ? v.Region.Name : v.Region.Name + " · Sv " + v.UnlockLevel;
-            Ui.Label(rt, text, Th.Font(28), v.Unlocked ? Th.Text : Color.white, new Vector2(0.5f, 0.5f), new Vector2(290f, 66f), FontStyle.Bold);
+            Candy.Tag(rt, text, v.Unlocked ? new Color(0.1f, 0.36f, 0.68f, 0.86f) : new Color(0.3f, 0.32f, 0.42f, 0.82f), 30, 64f);
             if (v.Unlocked && IsPlayPlace(v.Region))
             {
                 // oyun yerinin üstünde "Oyna!" çağrısı

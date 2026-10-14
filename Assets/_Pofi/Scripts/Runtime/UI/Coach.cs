@@ -26,14 +26,10 @@ namespace Pofi.UI
             var cg = rt.gameObject.AddComponent<CanvasGroup>(); cg.blocksRaycasts = false; cg.interactable = false;
             c._root = root; c.Id = id; c._gesture = gesture; c._from = from; c._to = to; c._loops = loops;
 
-            // altyazı balonu (üst orta, iri)
-            var box = Ui.Rect(rt, "Caption", new Vector2(0.5f, 1f), new Vector2(1180f, 150f), new Vector2(0f, -330f));
-            var bg = box.gameObject.AddComponent<Image>(); bg.sprite = Ui.Rounded; bg.type = Image.Type.Sliced; bg.color = new Color(1f, 1f, 1f, 0.96f);
-            var o = box.gameObject.AddComponent<Outline>(); o.effectColor = new Color(1f, 0.6f, 0.15f, 0.9f); o.effectDistance = new Vector2(5f, -5f);
-            box.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -8f);
-            var t = Ui.Label(box, caption, 48, new Color(0.24f, 0.17f, 0.1f), new Vector2(0.5f, 0.5f), new Vector2(1120f, 140f), FontStyle.Bold);
-            t.resizeTextForBestFit = true; t.resizeTextMinSize = 30; t.resizeTextMaxSize = 48;
-
+            // altyazı: mavi şeker panel, solda işaret eden el rozeti; oyun yazı tarzı (beyaz, koyu kontur), genişlik yazıya göre
+            var banner = Candy.Banner(rt, Candy.Blue, "ui_hand", new Vector2(0.5f, 1f), new Vector2(0f, -300f), 1150f, 40, false);
+            banner.SetText(caption);
+            banner.Rect.gameObject.AddComponent<PopIn>();
             // dokunma halkası
             c._ring = Ui.Rect(rt, "Ring", Vector2.zero, new Vector2(150f, 150f));
             c._ringImg = c._ring.gameObject.AddComponent<Image>(); c._ringImg.sprite = Ui.Rounded; c._ringImg.type = Image.Type.Sliced;
@@ -99,5 +95,19 @@ namespace Pofi.UI
         }
 
         public void Done() { if (this != null) Destroy(gameObject); }
+    }
+
+    /// <summary>Açılışta hafif zıplayarak büyüme (0,8 → 1).</summary>
+    public sealed class PopIn : MonoBehaviour
+    {
+        private float _t;
+        private void OnEnable() { _t = 0f; transform.localScale = Vector3.one * 0.8f; }
+        private void Update()
+        {
+            if (_t >= 1f) return;
+            _t = Mathf.Min(1f, _t + Time.unscaledDeltaTime / 0.28f);
+            var k = 1f + Mathf.Sin(_t * Mathf.PI) * 0.06f;                 // küçük taşma
+            transform.localScale = Vector3.one * Mathf.Lerp(0.8f, 1f, 1f - (1f - _t) * (1f - _t)) * k;
+        }
     }
 }
