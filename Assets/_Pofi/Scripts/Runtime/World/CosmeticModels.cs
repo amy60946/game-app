@@ -13,6 +13,7 @@ namespace Pofi.World
     public static class CosmeticModels
     {
         public const string RootName = "cosmetics";
+        private static string _petId;
 
         private static readonly Dictionary<string, string> Colors = new Dictionary<string, string>
         {
@@ -42,6 +43,7 @@ namespace Pofi.World
             var root = new GameObject(RootName).transform;
             root.SetParent(pet, false);
             if (items == null) return;
+            _petId = def?.Id;
             foreach (var item in items)
             {
                 if (item == null) continue;
@@ -64,10 +66,17 @@ namespace Pofi.World
         private static readonly Dictionary<string, Rule> Rules = new Dictionary<string, Rule>
         {
             ["head"] = new Rule("head_end", 0.42f, up: -0.07f, bottom: true),
-            ["eyes"] = new Rule("headfront", 0.32f, up: 0.23f, fwd: -0.03f),
+            ["eyes"] = new Rule("headfront", 0.32f, fwd: -0.03f),   // yükseklik: EyeLine (pet başına)
             ["body"] = new Rule("Spine02", 0.44f, up: 0.02f),
             ["back"] = new Rule("Spine01", 0.30f, up: -0.08f, fwd: -0.12f),
             ["hand"] = new Rule("RightHand", 0.16f, side: 0.04f),
+        };
+
+        /// <summary>Gözlerin yüksekliği: Head kemiğinden head_end'e oranla (Blender'da 12 pet ölçüldü).</summary>
+        private static readonly Dictionary<string, float> EyeLine = new Dictionary<string, float>
+        {
+            ["pet_01"] = 0.38f, ["pet_02"] = 0.6f, ["pet_03"] = 0.55f, ["pet_04"] = 0.5f, ["pet_05"] = 0.45f, ["pet_06"] = 0.5f,
+            ["pet_07"] = 0.5f, ["pet_08"] = 0.3f, ["pet_09"] = 0.55f, ["pet_10"] = 0.47f, ["pet_11"] = 0.45f, ["pet_12"] = 0.5f,
         };
 
         private static Transform FindDeep(Transform t, string name)
@@ -82,7 +91,7 @@ namespace Pofi.World
         }
 
         /// <summary>Gerçek pet + gerçek eşya: kemiğe takılır (animasyonla birlikte hareket eder). Olmazsa false.</summary>
-        private static bool BuildReal(Transform pet, Transform root, ItemDef item, string variant)
+        private static bool BuildReal(Transform pet, Transform root, ItemDef item, string variant, string petId)
         {
             if (item.Slot == null || !Rules.TryGetValue(item.Slot, out var rule)) return false;
             var bone = FindDeep(pet, rule.Bone);
@@ -92,7 +101,7 @@ namespace Pofi.World
             Bounds pb = default; var any = false;
             foreach (var r in pet.GetComponentsInChildren<Renderer>())
             {
-                if (r.transform.IsChildOf(root)) continue;
+                if (r.transform.IsChildOf(root) || r.GetComponentInParent<RealCosmetic>() != null) continue;   // eşyalar ölçüye girmesin
                 if (!any) { pb = r.bounds; any = true; } else pb.Encapsulate(r.bounds);
             }
             if (!any) return false;
@@ -110,16 +119,24 @@ namespace Pofi.World
             ib = RealAssets.WorldBounds(t);
             var up = rule.Up + (variant == "raised" ? 0.05f : 0f);
             var target = bone.position + Vector3.up * (up * h) + front * (rule.Fwd * h) + right * (rule.Side * h);
+            var headBone = FindDeep(pet, "Head");
+            var headEnd = FindDeep(pet, "head_end");
+            if (item.Slot == "eyes" && headBone != null && headEnd != null)
+            {
+                var hh = Vector3.Distance(headEnd.position, headBone.position);
+                target.y = headBone.position.y + (EyeLine.TryGetValue(petId ?? "", out var k) ? k : 0.48f) * hh;
+            }
             var y = rule.Bottom ? target.y - (ib.min.y - t.position.y) : target.y - (ib.center.y - t.position.y);
             t.position = new Vector3(target.x - (ib.center.x - t.position.x), y, target.z - (ib.center.z - t.position.z));
-            t.SetParent(bone, true);
+            // head_end bir uç kemik: animasyonlarda ölçeği bozulabiliyor → kafa eşyaları asıl Head kemiğine takılır
+            t.SetParent(rule.Bone == "head_end" && headBone != null ? headBone : bone, true);
             t.gameObject.AddComponent<RealCosmetic>();
             return true;
         }
 
         private static void Build(Transform pet, Transform root, ItemDef item, string variant)
         {
-            if (BuildReal(pet, root, item, variant)) return;
+            if (BuildReal(pet, root, item, variant, _petId)) return;
             var col = ColorOf(item.Id);
             var m = PetModels.NewMaterial(col, 0.55f);
             switch (item.Slot)
