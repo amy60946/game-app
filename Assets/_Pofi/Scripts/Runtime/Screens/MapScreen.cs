@@ -96,7 +96,7 @@ namespace Pofi.Screens
             foreach (var kv in _labels)
             {
                 var t = _world.Regions[kv.Key];
-                var sp = cam.WorldToScreenPoint(t.position + Vector3.up * 1.15f);
+                var sp = cam.WorldToScreenPoint(t.position + Vector3.up * (_world.LabelHeights.TryGetValue(kv.Key, out var lh) ? lh : 1.15f));
                 kv.Value.gameObject.SetActive(sp.z > 0f);
                 kv.Value.anchoredPosition = new Vector2(sp.x * scale, sp.y * scale);
             }

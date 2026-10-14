@@ -1,0 +1,16 @@
+{
+ "id": "01a139c2-51b0-77f5-923c-fce499ec9539",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Isometric three-quarter view game asset for a cozy children's tropical island game: a small natural rock lagoon pool with clear turquoise water, smooth rounded rocks around it, a tiny wooden diving board. Premium stylized 3D render, soft rounded shapes, warm soft lighting, rich but gentle colors, high detail, clean silhouette, same art style as a soft stylized palm tree and grassy layered island block. Single isolated object on a small patch of ground only if it belongs to it, centered, whole object visible, plain light blue background, no people, no animals, no text, no letters.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791970398661,
+ "started_at": 1791970398666,
+ "finished_at": 1791970422974,
+ "expires_at": 1792229622974,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139c2-51b0-77f5-923c-fce499ec9539_0.png?Expires=1792229622&Signature=IiH0dRcq2KRTsJIUInTVu529gNyMlDwM12JXc9VI2RLnoDW4eZRJtiDv97VLBwb84bZlkw1X5r~htR-LbJbQ7xAxzeL56Ac09VUrCFM-1y~Ssz0dKT64zEo6R8uIIs7o6N1PpgjwJ3ZacSy7vw5FbHzN9~AJbO5f6E10JwZUzO6cDmZ0hlSy0uFYZKW1dG9qTsCgJNUspqCuAQoeJK-bhXhtxCdNxWN96Equ26MrTE6EfDQofP~calfFg8BPlTNyk2jkf7Q3LlNHZYtwukiC-YVMc7tR65GViRLQH-FLJzOaUBA39GsiJS2vmz1iLIB-6MNi0A-jJ0gLAmowSQq9PQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

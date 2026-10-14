@@ -1,0 +1,16 @@
+{
+ "id": "01a139c1-34a5-7695-a76a-6244285c08ba",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Isometric three-quarter view game asset for a cozy children's tropical island game: a small cozy wooden cottage with an orange tiled roof, a round window, a little wooden porch with two steps, flower boxes under the windows, a small chimney. Premium stylized 3D render, soft rounded shapes, warm soft lighting, rich but gentle colors, high detail, clean silhouette, same art style as a soft stylized palm tree and grassy layered island block. Single isolated object on a small patch of ground only if it belongs to it, centered, whole object visible, plain light blue background, no people, no animals, no text, no letters.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791970325684,
+ "started_at": 1791970325689,
+ "finished_at": 1791970345991,
+ "expires_at": 1792229545991,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139c1-34a5-7695-a76a-6244285c08ba_0.png?Expires=1792229545&Signature=aFNPnnBZZaGzhNt82R4yH-4XaA9tWg0s82Mr~a4FJPUAM6HlYXUdKtGN8kZ-9ucwEoxCQXsyjL3cFGJluYJv9cPcNtgIppareXcYELEdxW5jdRLysqjpNhkTXxVjzDSlGin1QUp7iu0pPMGnpF-E6mbyN1es6RrGK25vZftOJLNQiuVB7vj8I1s99W5wJedIYYiunfdp5EGM2fQ-YjKkggE4s~E7RUX5bn5DSuqM4MdNGd7~1d19IVeQCJxra5fKrL9bn7N-tQL-~K5w7wg4jgiUKPC9OTioX8x-JdxCwBCWpFpytDV58tTDLNCdizwvc-r1-KftEQUrAS7YoPqYmA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

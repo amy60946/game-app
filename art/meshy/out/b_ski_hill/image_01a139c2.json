@@ -1,0 +1,16 @@
+{
+ "id": "01a139c2-0c3a-7579-9eea-e85689d504ba",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Isometric three-quarter view game asset for a cozy children's tropical island game: a small snowy hill with a gentle ski slope, a few snowy pine trees, a red flag pole at the top, a little wooden ski rack. Premium stylized 3D render, soft rounded shapes, warm soft lighting, rich but gentle colors, high detail, clean silhouette, same art style as a soft stylized palm tree and grassy layered island block. Single isolated object on a small patch of ground only if it belongs to it, centered, whole object visible, plain light blue background, no people, no animals, no text, no letters.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791970380869,
+ "started_at": 1791970380874,
+ "finished_at": 1791970405282,
+ "expires_at": 1792229605282,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139c2-0c3a-7579-9eea-e85689d504ba_0.png?Expires=1792229605&Signature=DIGibbTZQ8Gr9l1yT9KAK9os~zYW6WV~C86sZeO6oFGFSjdMWtYB7WUsq2OE7X0tr3fZiyIyI1qBcrIrnJv6S0x6yw7fxyQrx2GsIrhbGuUzT-Wv94mRbgjjDzwtifsBEKq-fdAiojS5LxBfPm4k0vKOcJXsfy-r6Y--~DjQuTADgNJRusr8amfxCyq7m4cnW2AU~STlkbmVHcFS26GpO~JKRscYEvOrzjEDJj-kytkdRMFunLSrJkN70YeKoGa4y6gxP089WUOQYYzti9Qjcec8HeQF6fl8GWBOj4ZuAoPhu13tGc1K0vdqWjqmbGJlY19z0G141~vG0juj5Ve1ug__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

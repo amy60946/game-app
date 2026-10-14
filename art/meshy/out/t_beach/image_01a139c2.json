@@ -1,0 +1,16 @@
+{
+ "id": "01a139c2-e6d1-76db-80f7-d2c196f615cf",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Isometric three-quarter view game asset for a cozy children's tropical island game: a square floating island terrain block with a sandy beach top that slopes down on one side, layered sand and earth strata on the sides, a few small shells and rounded stones. Premium stylized 3D render, soft rounded shapes, warm soft lighting, rich but gentle colors, high detail, clean silhouette, same art style as a soft stylized palm tree and grassy layered island block. Single isolated object on a small patch of ground only if it belongs to it, centered, whole object visible, plain light blue background, no people, no animals, no text, no letters.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791970436827,
+ "started_at": 1791970436832,
+ "finished_at": 1791970460507,
+ "expires_at": 1792229660507,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139c2-e6d1-76db-80f7-d2c196f615cf_0.png?Expires=1792229660&Signature=LFd23X4a9rCixPy2Pfsf9jP-nq5RtHay42DxYrjGJA38dYeSueAoRT21whyFPp4mCRK7wopRfCeOb~ms~aev8SHQIqV3JwAQQRA8Y0lQNNIeke2tOKBJ6jK2ERSLyS2XaM6d6guV3pgdUKPT9mxF8y~NIi6xp0ZFWDbd2~djbOKjeuggPwZXXLc~issajZ-lFYeNnc1nWD8Q~yssmWwRyAPB0clt-LIWnaSKjEQA3uyE5PElvIvqOLf9jGSGV3R2sUW9M66Qe2B3~QTXEm3NCYPfeuwU9K8FFNnWnM8-MvwAeSxJObFCwbG3KIeqBC7A3Urv7Y4RaydiQQ02bBcOdg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

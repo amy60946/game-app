@@ -1,0 +1,16 @@
+{
+ "id": "01a139c2-784b-71b9-974d-2a1c3662229b",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Isometric three-quarter view game asset for a cozy children's tropical island game: a small vegetable garden: three raised wooden planter beds with young green sprouts and a few carrots and tomatoes, a little watering can. Premium stylized 3D render, soft rounded shapes, warm soft lighting, rich but gentle colors, high detail, clean silhouette, same art style as a soft stylized palm tree and grassy layered island block. Single isolated object on a small patch of ground only if it belongs to it, centered, whole object visible, plain light blue background, no people, no animals, no text, no letters.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791970408531,
+ "started_at": 1791970408536,
+ "finished_at": 1791970426871,
+ "expires_at": 1792229626871,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139c2-784b-71b9-974d-2a1c3662229b_0.png?Expires=1792229626&Signature=beGaXRN6NCFXpu0FiekeDdcMv8p0TqLDS4U3zyT8VfLZSbW9KeWk3cHQ8IzY8UtirObM~GuG3u188B7DLBt2uFSz2017HhWDM31rQ5SuqhCKVBnjhjWvOvRe830E5Yvb073SUdXLm~lcPM2DvLY1Q5fy4dewNn5SpGefl9gSbgVjcSSxyuOg1EkHlYdj5SIZUwI1QMqSw-X2-hpUxXnIUmzlPgdb57Qy2LV~lxv3lXnoQfTbtX9FLbYCi32AXHXR9tyXpGXxS0GfaGxNnx2avcbx8tVyotDnrzzPSr5I~p4uMcXg12Wg-QUdzB~DJhv1YXZhU1I6ckiKI9802I2ugQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

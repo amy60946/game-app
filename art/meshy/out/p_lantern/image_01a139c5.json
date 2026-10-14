@@ -1,0 +1,16 @@
+{
+ "id": "01a139c5-6771-7675-8d6b-623331e60eb9",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Isometric three-quarter view game asset for a cozy children's tropical island game: a wooden lantern post with a warm glowing lantern hanging from it. Premium stylized 3D render, soft rounded shapes, warm soft lighting, rich but gentle colors, high detail, clean silhouette, same art style as a soft stylized palm tree and grassy layered island block. Single isolated object on a small patch of ground only if it belongs to it, centered, whole object visible, plain light blue background, no people, no animals, no text, no letters.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791970600837,
+ "started_at": 1791970600842,
+ "finished_at": 1791970741100,
+ "expires_at": 1792229941100,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139c5-6771-7675-8d6b-623331e60eb9_0.png?Expires=1792229941&Signature=jRyTIeDXtAqzM3pVwrbg01bXG5gm-58B37r3queurK1GElbWsSZV2NxVlPP0mj640Z-wUkIBvanRbkxathkqjVKFxmYOQMSQ6H-DxhoFVVJMVIhzJ078SpRR7WhD6DoKgmNJXizsMA1njOSoLTURb2cAJaYuXGDPHnGendJzynrj1buffU77bhncAk8F2TLTM8uiJBOeBsvaeeTjM4Vr3Aw6jSr2-CBQMMh7a6gZGLsvpF5qRvB7PMPebJUgRUgQ6EpF8eS99yKKX9o5WiRTg~n9FE5HCJ7tf9FE1bvWS99~ggzs12q~ZUIoA7HXvF1WHURfe0N9wXMPGR1SeCa7-A__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

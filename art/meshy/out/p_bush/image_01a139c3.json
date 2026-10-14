@@ -1,0 +1,16 @@
+{
+ "id": "01a139c3-bb40-76be-8638-41f5c5d2875d",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Isometric three-quarter view game asset for a cozy children's tropical island game: a round fluffy tropical bush with glossy leaves and a few pink flowers. Premium stylized 3D render, soft rounded shapes, warm soft lighting, rich but gentle colors, high detail, clean silhouette, same art style as a soft stylized palm tree and grassy layered island block. Single isolated object on a small patch of ground only if it belongs to it, centered, whole object visible, plain light blue background, no people, no animals, no text, no letters.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791970491220,
+ "started_at": 1791970491226,
+ "finished_at": 1791970593047,
+ "expires_at": 1792229793047,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139c3-bb40-76be-8638-41f5c5d2875d_0.png?Expires=1792229793&Signature=DZmU90f4sor8ZWnAPsEe~zPBYAUogOMcbmPRFQ~RtztddOIckrUWqz4k4xLSfkA2kr3xj-vuM4rbVxE9ScfpBNp8UNi0dGQXfxhYIVz6JGDal92xb0hcf~VYEJ6PCPwIockckxHgoyq2WQhjVsyWEnvaWho8FWUZOzoS8wTwYl~s2o3kvgXTbVc~rfbvzibNmAnpjYLZIp7i8exVasEq6GmZSQSc6bXPP0k3SxAbc4hYc5dRCYrtORJ5ZGQZlDPSq8pNE4F~CuZj~XA~dO~kwCHsg24Tjb9Imwz1dBIYwzWWJ9qZSI6M1oRikdoqpWkavspEHQvjVrdR5WmEYjuB9g__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

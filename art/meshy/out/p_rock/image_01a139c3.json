@@ -1,0 +1,16 @@
+{
+ "id": "01a139c3-537d-726a-beb2-d2c377f58994",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Isometric three-quarter view game asset for a cozy children's tropical island game: a cluster of three smooth rounded grey boulders with a little moss. Premium stylized 3D render, soft rounded shapes, warm soft lighting, rich but gentle colors, high detail, clean silhouette, same art style as a soft stylized palm tree and grassy layered island block. Single isolated object on a small patch of ground only if it belongs to it, centered, whole object visible, plain light blue background, no people, no animals, no text, no letters.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791970464648,
+ "started_at": 1791970464653,
+ "finished_at": 1791970542397,
+ "expires_at": 1792229742397,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139c3-537d-726a-beb2-d2c377f58994_0.png?Expires=1792229742&Signature=mRtK5t5nua8PGXwXem0TaCv-WPfLPHgmI9utTEeK2N3wt93yNkpvOdQn~WP-a7VFyP6P1iRTz8HHtKwJp9dB0gJkZYqCy~I1~EzCo-4R3aaZBSTrKZrHihGDVMKLFAoVjuVCdKORhAGAK7j5UiGvtDhpOvuH6IxTvztvIH8tess1G-9hOz98KYO1rPQZuI6sT855-kY7V9nClVmdtyXflKTRKGH8vmZtOe-Co3ZfnZM9bfGnZ3yrpZpy6~-NUx1ERosjINez2OqH26Xw7HSvgpIKvxMkKtNasQJCnoN0HWJV9Pw5BoYEI0yT4AdyUTqKsvKJhcNedgeXTzns76lehA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

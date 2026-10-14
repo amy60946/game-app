@@ -18,15 +18,20 @@ OUT = os.path.join(HERE, "out")
 LEDGER = os.path.join(HERE, "ledger.csv")
 
 
-def req(method, path, body=None):
+def req(method, path, body=None, tries=8):
     data = json.dumps(body).encode() if body is not None else None
-    r = urllib.request.Request(API + path, data=data, method=method, headers={"Content-Type": "application/json"})
-    try:
-        with urllib.request.urlopen(r, timeout=120) as resp:
-            txt = resp.read().decode()
-            return json.loads(txt) if txt else {}
-    except urllib.error.HTTPError as e:
-        raise SystemExit(f"HTTP {e.code} {path}: {e.read().decode()[:500]}")
+    for attempt in range(tries):
+        r = urllib.request.Request(API + path, data=data, method=method, headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(r, timeout=120) as resp:
+                txt = resp.read().decode()
+                return json.loads(txt) if txt else {}
+        except urllib.error.HTTPError as e:
+            msg = e.read().decode()[:500]
+            if e.code in (429, 502, 503) and attempt < tries - 1:
+                time.sleep(min(60, 5 * 2 ** attempt))   # istek sınırı: bekle ve tekrar dene
+                continue
+            raise SystemExit(f"HTTP {e.code} {path}: {msg}")
 
 
 def balance():
@@ -143,9 +148,20 @@ def cmd_anim(args):
             print("  indirildi:", download(u, os.path.join(OUT, name, f"anim{action}_{k}" + (".glb" if ".glb" in u else ".fbx"))))
 
 
+def cmd_fetchimage(args):
+    """Önceden başlamış text-to-image görevini indir: fetchimage <ad> <görev_id>"""
+    name, tid = args[0], args[1]
+    t = wait("v1/text-to-image", tid)
+    d = os.path.join(OUT, name); os.makedirs(d, exist_ok=True)
+    json.dump(t, open(os.path.join(d, f"image_{tid[:8]}.json"), "w"), indent=1)
+    log(name, "image", tid, int(t.get("consumed_credits") or 0), 0, "geri alındı")
+    for i, u in enumerate(t.get("image_urls") or []):
+        print("  indirildi:", download(u, os.path.join(d, f"concept_{tid[:8]}_{i}.png")))
+
+
 if __name__ == "__main__":
     c, a = sys.argv[1], sys.argv[2:]
     if c == "balance":
         print(balance())
     else:
-        {"image": cmd_image, "to3d": cmd_to3d, "rig": cmd_rig, "anim": cmd_anim}[c](a)
+        {"image": cmd_image, "to3d": cmd_to3d, "rig": cmd_rig, "anim": cmd_anim, "fetchimage": cmd_fetchimage}[c](a)

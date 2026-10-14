@@ -60,6 +60,33 @@ namespace Pofi.World
             return root;
         }
 
+        /// <summary>Çevre modeli, yatay en büyük boyutu <paramref name="footprint"/> olacak şekilde (harita karoları için).</summary>
+        public static Transform EnvFootprint(string name, Transform parent, float footprint, float yaw = 0f)
+        {
+            var prefab = Resources.Load<GameObject>($"Env/{name}/{name}");
+            if (prefab == null) return null;
+            var root = new GameObject(name).transform;
+            root.SetParent(parent, false);
+            var go = Object.Instantiate(prefab, root, false);
+            go.transform.localRotation = Quaternion.Euler(0f, yaw, 0f) * go.transform.localRotation;
+            ApplyMaterial(go, $"Env/{name}/{name}", 0.15f);
+            var b = Bounds(go.transform);
+            var w = Mathf.Max(b.size.x, b.size.z);
+            if (w > 0.0001f) Fit(root, go.transform, b.size.y * footprint / w);
+            return root;
+        }
+
+        /// <summary>Paylaşılan malzemeyi bozmadan renk çarpanı (ör. kilitli bölge grisi).</summary>
+        public static void Tint(Transform t, Color c)
+        {
+            var mpb = new MaterialPropertyBlock();
+            mpb.SetColor("_BaseColor", c);
+            foreach (var r in t.GetComponentsInChildren<Renderer>(true)) r.SetPropertyBlock(mpb);
+        }
+
+        /// <summary>Modelin dünya sınırları (etiket yüksekliği vb. için).</summary>
+        public static Bounds WorldBounds(Transform t) => Bounds(t);
+
         private static void ApplyMaterial(GameObject go, string texBase, float smoothness)
         {
             if (!Materials.TryGetValue(texBase, out var mat))

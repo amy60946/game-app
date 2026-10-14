@@ -1,0 +1,16 @@
+{
+ "id": "01a139c1-3653-72fd-aead-3ecef9c93591",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Isometric three-quarter view game asset for a cozy children's tropical island game: a round wooden playhouse hut with a purple cone roof, a big round door, colorful bunting flags, a giant dice and a big playing-card shaped sign leaning by the door (no symbols). Premium stylized 3D render, soft rounded shapes, warm soft lighting, rich but gentle colors, high detail, clean silhouette, same art style as a soft stylized palm tree and grassy layered island block. Single isolated object on a small patch of ground only if it belongs to it, centered, whole object visible, plain light blue background, no people, no animals, no text, no letters.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791970326111,
+ "started_at": 1791970326114,
+ "finished_at": 1791970346581,
+ "expires_at": 1792229546581,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139c1-3653-72fd-aead-3ecef9c93591_0.png?Expires=1792229546&Signature=Uau6gX2GP7cbVuygkPT~lheQ7HYhHzfpKAHpSccai0IonUzQh1J3MetUz9N9G7aF6S1ZUx~3UGzReD93w6bLrMpxdAR2i9rnTM8Jb2GZLwCQ36fwylsT9G6wIKfR68Z49GL3T-jERN2JoYQGP0Zy2df2FLX78-k8RfBYPK-BF~bUKpPwrBL4PGYsFVkT2wKx9zbg74YfK6soXQjRTBBcrT0MgxRugz4CKC1AbAyFBY7OnyBiDqDvkEjhmv5f2-pG6HqGQz8dBKPoH7uC9902UH5otEN36fJu72aiOaU2B5zCg-j6j29mTYJtAT9L-64BkJ9U3M2NyvzHMgAoUHwHeg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
