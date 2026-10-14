@@ -21,17 +21,10 @@ namespace Pofi.Screens
         {
             App.Stage.SetPetVisible(false);
             _coins = Header(T("tasks.title"));
-            var listArea = Ui.Area(Root, "ListArea", new Vector2(0f, 0f), new Vector2(1f, 1f));
-            listArea.offsetMin = new Vector2(0f, NavHeight + 150f);
-            listArea.offsetMax = new Vector2(0f, -180f);
-            _list = Ui.ScrollList(listArea, Vector2.zero, Vector2.one, 24f);
+            var listArea = CenterColumn("ListArea", 1200f);
+            _list = Ui.ScrollList(listArea, Vector2.zero, Vector2.one, 20f);
 
-            if (App.Backend != null)
-            {
-                var demo = Ui.Button(Root, Th, T("demo.parent_button"), new Vector2(0.5f, 0f), new Vector2(560f, 100f),
-                    () => ParentGate(OpenDemoPanel), false, default, 38);
-                ((RectTransform)demo.transform).anchoredPosition = new Vector2(0f, NavHeight + 75f);
-            }
+            if (App.Backend != null) CornerButton(T("demo.parent_button"), () => ParentGate(OpenDemoPanel));
             NavBar(AppPage.Tasks);
             App.Synced += OnSynced;
             Fill();
@@ -64,7 +57,7 @@ namespace Pofi.Screens
 
         private void Card(ChildTask task, System.DateTime local)
         {
-            var row = Ui.Row(_list, task.Key, 250f);
+            var row = Ui.Row(_list, task.Key, 210f);
             var missed = task.IsMissed(local);
             var faded = missed || task.Status == ChildTaskStatus.RejectedByParent || task.Status == ChildTaskStatus.DeclinedByChild;
             Ui.Panel(row, faded ? new Color(1f, 1f, 1f, 0.75f) : Th.Panel, Th.Radius);

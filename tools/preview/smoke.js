@@ -6,7 +6,7 @@ const fs = require('fs');
   const [url, out] = [process.argv[2], process.argv[3]];
   fs.mkdirSync(out, { recursive: true });
   const b = await chromium.launch({ args: ['--use-gl=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-  const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 });
+  const p = await b.newPage({ viewport: { width: 844, height: 390 }, deviceScaleFactor: 2 });
   const logs = [];
   p.on('pageerror', e => logs.push('PAGEERROR ' + e.message));
   p.on('console', m => {

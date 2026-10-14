@@ -20,11 +20,8 @@ namespace Pofi.Screens
         {
             App.Stage.SetPetVisible(false);
             Header(T("garden.title"));
-            _bubble = Bubble(new Vector2(0.5f, 0.84f));
-            var area = Ui.Area(Root, "Plots", Vector2.zero, Vector2.one);
-            area.offsetMin = new Vector2(0f, NavHeight + 30f);
-            area.offsetMax = new Vector2(0f, -320f);
-            _grid = area;
+            _bubble = Bubble(new Vector2(0.5f, 0.9f));
+            _grid = ContentArea("Plots");
             NavBar(AppPage.Map);
             Fill();
         }
@@ -46,10 +43,10 @@ namespace Pofi.Screens
                 var p = g.Plots[i];
                 var seed = string.IsNullOrEmpty(p.SeedId) ? null : App.Data.Item(p.SeedId);
                 var state = seed == null ? PlotState.Empty : p.StateAt(App.UtcNow, seed);
-                var col = i % 2;
-                var row = i / 2;
-                var cell = Ui.Rect(_grid, "Plot" + i, new Vector2(col == 0 ? 0.27f : 0.73f, 1f), new Vector2(460f, 380f),
-                    new Vector2(0f, -210f - row * 410f));
+                var col = i % 3;
+                var row = i / 3;
+                var cell = Ui.Rect(_grid, "Plot" + i, new Vector2(0.5f, 0.5f), new Vector2(440f, 360f),
+                    new Vector2((col - 1) * 480f, row == 0 ? 195f : -195f));
                 var soil = Ui.Panel(cell, Theme.Hex(state == PlotState.NeedsWater || state == PlotState.Empty ? "#A9744A" : "#7A4F2E"), Th.Radius);
                 if (seed != null)
                 {

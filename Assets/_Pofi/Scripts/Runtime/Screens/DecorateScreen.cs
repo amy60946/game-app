@@ -25,17 +25,18 @@ namespace Pofi.Screens
         {
             App.Stage.SetPetVisible(false);
             Header(T("decor.title"));
-            _bubble = Bubble(new Vector2(0.5f, 0.86f));
-            _board = Ui.Rect(Root, "Board", new Vector2(0.5f, 0.56f), new Vector2(1000f, 860f));
+            _bubble = Bubble(new Vector2(0.36f, 0.93f));
+            // Yatay: solda üstten ızgara, sağda eşya tepsisi ve araçlar
+            _board = Ui.Rect(Root, "Board", new Vector2(0.36f, 0.5f), new Vector2(1000f, 760f), new Vector2(0f, 10f));
             Ui.Panel(_board, Theme.Hex("#F5DEB3"), Th.Radius);
-            var tools = Ui.Rect(Root, "Tools", new Vector2(0.5f, 0f), new Vector2(1000f, 120f));
-            tools.pivot = new Vector2(0.5f, 0f);
-            tools.anchoredPosition = new Vector2(0f, NavHeight + 300f);
-            _rotate = Ui.Button(tools, Th, T("decor.rotate"), new Vector2(0.27f, 0.5f), new Vector2(420f, 100f), () => { HomeLayout.Rotate(App.State, _selected); Done(); }, false, default, 38, false);
-            _remove = Ui.Button(tools, Th, T("decor.remove"), new Vector2(0.73f, 0.5f), new Vector2(420f, 100f), () => { HomeLayout.Remove(App.State, _selected); _selected = null; Done(); }, false, default, 38, false);
-            var trayArea = Ui.Rect(Root, "Tray", new Vector2(0.5f, 0f), new Vector2(1040f, 280f));
-            trayArea.pivot = new Vector2(0.5f, 0f);
-            trayArea.anchoredPosition = new Vector2(0f, NavHeight + 10f);
+            var tools = Ui.Rect(Root, "Tools", new Vector2(1f, 1f), new Vector2(700f, 110f));
+            tools.pivot = new Vector2(1f, 1f);
+            tools.anchoredPosition = new Vector2(-36f, -(HeaderHeight + 10f));
+            _rotate = Ui.Button(tools, Th, T("decor.rotate"), new Vector2(0.25f, 0.5f), new Vector2(320f, 96f), () => { HomeLayout.Rotate(App.State, _selected); Done(); }, false, default, 36, false);
+            _remove = Ui.Button(tools, Th, T("decor.remove"), new Vector2(0.75f, 0.5f), new Vector2(320f, 96f), () => { HomeLayout.Remove(App.State, _selected); _selected = null; Done(); }, false, default, 36, false);
+            var trayArea = Ui.Rect(Root, "Tray", new Vector2(1f, 0f), new Vector2(700f, 600f));
+            trayArea.pivot = new Vector2(1f, 0f);
+            trayArea.anchoredPosition = new Vector2(-36f, NavHeight + 20f);
             Ui.Panel(trayArea, Th.Panel, Th.Radius);
             _tray = trayArea;
             NavBar(AppPage.Home);
@@ -55,7 +56,7 @@ namespace Pofi.Screens
             Ui.Clear(_tray);
             var expanded = Expanded;
             var (w, h) = HomeLayout.Size(expanded);
-            var cell = Mathf.Min(960f / w, 820f / h);
+            var cell = Mathf.Min(960f / w, 720f / h);
             for (var y = 0; y < h; y++)
             for (var x = 0; x < w; x++)
             {
@@ -82,12 +83,12 @@ namespace Pofi.Screens
 
             var free = HomeLayout.Unplaced(App.State, App.Data);
             if (free.Count == 0)
-                Ui.Label(_tray, T("decor.none"), Th.Font(36), Th.SubtleText, new Vector2(0.5f, 0.5f), new Vector2(980f, 200f));
-            for (var i = 0; i < free.Count && i < 5; i++)
+                Ui.Label(_tray, T("decor.none"), Th.Font(36), Th.SubtleText, new Vector2(0.5f, 0.5f), new Vector2(640f, 300f));
+            for (var i = 0; i < free.Count && i < 6; i++)
             {
                 var it = free[i];
                 var sel = it.Id == _selected;
-                var b = Ui.Button(_tray, Th, it.Name, new Vector2(0.1f + i * 0.2f, 0.5f), new Vector2(190f, 220f), () => { _selected = it.Id; Fill(); }, sel, default, 30, false);
+                var b = Ui.Button(_tray, Th, it.Name, new Vector2(i % 2 == 0 ? 0.27f : 0.73f, 0.82f - (i / 2) * 0.32f), new Vector2(300f, 160f), () => { _selected = it.Id; Fill(); }, sel, default, 30, false);
                 if (!sel) b.targetGraphic.color = ItemColor(it.Id);
             }
             var placedSel = _selected != null && App.State.Home.Any(p => p.ItemId == _selected);

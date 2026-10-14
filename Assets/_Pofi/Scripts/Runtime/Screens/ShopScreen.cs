@@ -32,21 +32,22 @@ namespace Pofi.Screens
             App.Stage.SetPetVisible(false);
             _coins = Header(T("shop.title"));
 
-            var tabs = Ui.Rect(Root, "Tabs", new Vector2(0.5f, 1f), new Vector2(1040f, 110f));
-            tabs.pivot = new Vector2(0.5f, 1f);
-            tabs.anchoredPosition = new Vector2(0f, -175f);
+            // Yatay: solda dikey kategori sekmeleri, sağda eşya ızgarası
             _tabButtons = new Button[Tabs.Length];
             for (var i = 0; i < Tabs.Length; i++)
             {
                 var cat = Tabs[i];
-                _tabButtons[i] = Ui.Button(tabs, Th, T("shop.tab." + cat), new Vector2((i + 0.5f) / Tabs.Length, 0.5f), new Vector2(166f, 96f),
-                    () => { _tab = cat; Fill(); }, cat == _tab, default, 28, false);
+                var b = Ui.Button(Root, Th, T("shop.tab." + cat), new Vector2(0f, 1f), new Vector2(250f, 96f),
+                    () => { _tab = cat; Fill(); }, cat == _tab, default, 32, false);
+                var rt = (RectTransform)b.transform;
+                rt.pivot = new Vector2(0f, 1f);
+                rt.anchoredPosition = new Vector2(36f, -(HeaderHeight + 10f) - i * 110f);
+                _tabButtons[i] = b;
             }
 
-            var area = Ui.Area(Root, "GridArea", Vector2.zero, Vector2.one);
-            area.offsetMin = new Vector2(0f, NavHeight + 10f);
-            area.offsetMax = new Vector2(0f, -300f);
-            _grid = Ui.ScrollList(area, Vector2.zero, Vector2.one, 24f, 3, new Vector2(320f, 400f));
+            var area = ContentArea("GridArea");
+            area.offsetMin = new Vector2(320f, area.offsetMin.y);
+            _grid = Ui.ScrollList(area, Vector2.zero, Vector2.one, 24f, 5, new Vector2(280f, 330f));
 
             NavBar(AppPage.Shop);
             App.Synced += OnSynced;
@@ -86,13 +87,13 @@ namespace Pofi.Screens
             var bg = Ui.Panel(card, locked || noFit ? new Color(1f, 1f, 1f, 0.7f) : Th.Panel, Th.Radius);
 
             // yer tutucu simge: eşyanın rengiyle yuvarlak kare + baş harf
-            var icon = Ui.Rect(card, "Icon", new Vector2(0.5f, 0.66f), new Vector2(190f, 190f));
+            var icon = Ui.Rect(card, "Icon", new Vector2(0.5f, 0.66f), new Vector2(150f, 150f));
             var col = item.IsWearable ? CosmeticModels.ColorOf(item.Id) : CategoryColor(item.Category);
             if (locked || noFit) col = Color.Lerp(col, Color.gray, 0.7f);
             Ui.Panel(icon, col, 40f).raycastTarget = false;
-            Ui.Label(icon, item.Name.Substring(0, 1), Th.Font(96), Color.white, new Vector2(0.5f, 0.5f), new Vector2(190f, 190f), FontStyle.Bold);
+            Ui.Label(icon, item.Name.Substring(0, 1), Th.Font(80), Color.white, new Vector2(0.5f, 0.5f), new Vector2(150f, 150f), FontStyle.Bold);
 
-            Ui.Label(card, item.Name, Th.Font(34), Th.Text, new Vector2(0.5f, 0.29f), new Vector2(300f, 90f), FontStyle.Bold);
+            Ui.Label(card, item.Name, Th.Font(30), Th.Text, new Vector2(0.5f, 0.3f), new Vector2(270f, 80f), FontStyle.Bold);
 
             string bottom;
             var bottomColor = Theme.Hex("#5A3B00");
@@ -103,7 +104,7 @@ namespace Pofi.Screens
                 case BuyCheck.DoesNotFitPet: bottom = T("shop.not_fit"); bottomColor = Th.SubtleText; break;
                 default: bottom = item.Price + " coin"; break;
             }
-            Ui.Label(card, bottom, Th.Font(32), bottomColor, new Vector2(0.5f, 0.09f), new Vector2(300f, 60f), FontStyle.Bold);
+            Ui.Label(card, bottom, Th.Font(28), bottomColor, new Vector2(0.5f, 0.1f), new Vector2(270f, 60f), FontStyle.Bold);
             if (item.IsConsumable && App.State.Inventory.CountOf(item.Id) > 0)
             {
                 var badge = Ui.Rect(card, "Count", new Vector2(0.86f, 0.9f), new Vector2(64f, 64f));

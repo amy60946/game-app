@@ -7,7 +7,7 @@ namespace Pofi.UI
 {
     /// <summary>
     /// Koddan uGUI kurma yardımcıları. Sahne dosyası düzenlenmediği için (bkz. CLAUDE.md "kod olarak proje")
-    /// tüm ekranlar bu fonksiyonlarla kurulur. Referans çözünürlük 1080×1920 (dikey).
+    /// tüm ekranlar bu fonksiyonlarla kurulur. Yatay: yükseklik 1080 birim, genişlik ekrana göre (en az ~1920).
     /// </summary>
     public static class Ui
     {
@@ -79,8 +79,8 @@ namespace Pofi.UI
             canvas.sortingOrder = order;
             var scaler = go.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1080f, 1920f);
-            scaler.matchWidthOrHeight = 0f;   // dikey telefonlarda genişliğe uy: 1080 birim her zaman tam genişlik
+            scaler.referenceResolution = new Vector2(1920f, 1080f);
+            scaler.matchWidthOrHeight = 1f;   // yatay oyun: yükseklik her zaman 1080 birim, genişlik ekrana göre (16:9 → 1920, iPhone → ~2340)
             go.AddComponent<GraphicRaycaster>();
             return canvas;
         }

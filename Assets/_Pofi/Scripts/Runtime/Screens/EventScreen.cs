@@ -72,11 +72,11 @@ namespace Pofi.Screens
             sea.SetSiblingIndex(1);
             Header(T("event.lighthouse.title"));
             var done = App.State.Events.FinalCelebrated;
-            var tower = Ui.Rect(Root, "Tower", new Vector2(0.5f, 0.45f), new Vector2(260f, 1000f));
+            var tower = Ui.Rect(Root, "Tower", new Vector2(0.5f, 0.42f), new Vector2(220f, 600f));
             Ui.Panel(tower, Color.white, 40f).raycastTarget = false;
             for (var i = 0; i < 4; i++)
             {
-                var stripe = Ui.Rect(tower, "Stripe" + i, new Vector2(0.5f, 0.15f + i * 0.22f), new Vector2(260f, 90f));
+                var stripe = Ui.Rect(tower, "Stripe" + i, new Vector2(0.5f, 0.15f + i * 0.22f), new Vector2(220f, 60f));
                 Ui.Panel(stripe, Theme.Hex("#E8453C"), 10f).raycastTarget = false;
             }
             var lamp = Ui.Rect(Root, "Lamp", new Vector2(0.5f, 0.75f), new Vector2(200f, 200f));

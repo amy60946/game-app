@@ -20,15 +20,15 @@ namespace Pofi.Screens
         {
             App.Stage.SetPetVisible(false);
             Header(T("album.title"));
-            var tabs = Ui.Rect(Root, "Tabs", new Vector2(0.5f, 1f), new Vector2(1000f, 110f));
-            tabs.pivot = new Vector2(0.5f, 1f);
-            tabs.anchoredPosition = new Vector2(0f, -175f);
-            _tabC = Ui.Button(tabs, Th, T("album.tab.collection"), new Vector2(0.27f, 0.5f), new Vector2(440f, 96f), () => { _badges = false; Fill(); }, !_badges, default, 40, false);
-            _tabB = Ui.Button(tabs, Th, T("album.tab.badges"), new Vector2(0.73f, 0.5f), new Vector2(440f, 96f), () => { _badges = true; Fill(); }, _badges, default, 40, false);
-            var area = Ui.Area(Root, "List", Vector2.zero, Vector2.one);
-            area.offsetMin = new Vector2(0f, NavHeight + 10f);
-            area.offsetMax = new Vector2(0f, -300f);
-            _list = Ui.ScrollList(area, Vector2.zero, Vector2.one, 18f);
+            _tabC = Ui.Button(Root, Th, T("album.tab.collection"), new Vector2(0f, 1f), new Vector2(300f, 96f), () => { _badges = false; Fill(); }, !_badges, default, 36, false);
+            _tabB = Ui.Button(Root, Th, T("album.tab.badges"), new Vector2(0f, 1f), new Vector2(300f, 96f), () => { _badges = true; Fill(); }, _badges, default, 36, false);
+            foreach (var (b, i) in new[] { (_tabC, 0), (_tabB, 1) })
+            {
+                var rt = (RectTransform)b.transform;
+                rt.pivot = new Vector2(0f, 1f);
+                rt.anchoredPosition = new Vector2(36f, -(HeaderHeight + 10f) - i * 110f);
+            }
+            _list = Ui.ScrollList(CenterColumn("List", 1300f), Vector2.zero, Vector2.one, 18f);
             NavBar(AppPage.Home);
             Fill();
         }

@@ -26,14 +26,57 @@ namespace Pofi.Screens
         protected Text Footer() =>
             Ui.Label(Root, App.BuildLabel, Th.Font(26), new Color(1f, 1f, 1f, 0.85f), new Vector2(0.5f, 0.018f), new Vector2(1000f, 40f));
 
-        public const float NavHeight = 190f;
+        /// <summary>Yatay düzen ölçüleri (tuval yüksekliği her zaman 1080; genişlik ≥ 1920).</summary>
+        public const float NavHeight = 120f, HeaderHeight = 120f;
 
-        /// <summary>Alt menü: Ev, Görevler, Dükkan, Dolap. Seçili sekme vurgulu. Ekranın altına yapışır.</summary>
+        /// <summary>Tuvalin güncel genişliği (yatay telefonda ~1920–2340).</summary>
+        protected float Width => Root.rect.width > 1f ? Root.rect.width : 1920f;
+
+        /// <summary>Ekran genişliğinde, alttan <paramref name="bottom"/> yukarıda, <paramref name="height"/> yüksekliğinde şerit.</summary>
+        protected RectTransform Strip(string name, float bottom, float height)
+        {
+            var rt = Ui.Rect(Root, name, Vector2.zero, Vector2.zero);
+            rt.anchorMin = new Vector2(0f, 0f); rt.anchorMax = new Vector2(1f, 0f);
+            rt.pivot = new Vector2(0.5f, 0f);
+            rt.sizeDelta = new Vector2(0f, height);
+            rt.anchoredPosition = new Vector2(0f, bottom);
+            return rt;
+        }
+
+        /// <summary>Başlık ve alt menü arasında kalan içerik alanı (kenarlardan <paramref name="side"/> boşluk).</summary>
+        protected RectTransform ContentArea(string name, float side = 40f, float top = HeaderHeight, float bottom = NavHeight)
+        {
+            var rt = Ui.Area(Root, name, Vector2.zero, Vector2.one);
+            rt.offsetMin = new Vector2(side, bottom + 10f);
+            rt.offsetMax = new Vector2(-side, -(top + 10f));
+            return rt;
+        }
+
+        /// <summary>Ortada sabit genişlikte, başlık ile alt menü arasını dolduran sütun (listeler için).</summary>
+        protected RectTransform CenterColumn(string name, float width, float top = HeaderHeight, float bottom = NavHeight)
+        {
+            var rt = Ui.Rect(Root, name, Vector2.zero, Vector2.zero);
+            rt.anchorMin = new Vector2(0.5f, 0f); rt.anchorMax = new Vector2(0.5f, 1f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.offsetMin = new Vector2(-width / 2f, bottom + 10f);
+            rt.offsetMax = new Vector2(width / 2f, -(top + 10f));
+            return rt;
+        }
+
+        /// <summary>Sağ alt köşeye (alt menünün üstüne) yerleştirilmiş düğme.</summary>
+        protected Button CornerButton(string text, System.Action onClick, float width = 420f)
+        {
+            var b = Ui.Button(Root, Th, text, new Vector2(1f, 0f), new Vector2(width, 90f), onClick, false, default, 34, false);
+            var rt = (RectTransform)b.transform;
+            rt.pivot = new Vector2(1f, 0f);
+            rt.anchoredPosition = new Vector2(-36f, NavHeight + 20f);
+            return b;
+        }
+
+        /// <summary>Alt menü: Ev, Ada, Görevler, Dükkan, Dolap. Seçili sekme vurgulu. Ekranın altına yapışır, ortalı.</summary>
         protected void NavBar(AppPage current)
         {
-            var bar = Ui.Rect(Root, "Nav", new Vector2(0.5f, 0f), new Vector2(1080f, NavHeight));
-            bar.pivot = new Vector2(0.5f, 0f);
-            bar.anchoredPosition = Vector2.zero;
+            var bar = Strip("Nav", 0f, NavHeight);
             bar.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.97f);
             var pages = new[] { AppPage.Home, AppPage.Map, AppPage.Tasks, AppPage.Shop, AppPage.Wardrobe };
             var keys = new[] { "nav.home", "nav.map", "nav.tasks", "nav.shop", "nav.wardrobe" };
@@ -41,8 +84,8 @@ namespace Pofi.Screens
             {
                 var page = pages[i];
                 var on = page == current;
-                var b = Ui.Button(bar, Th, T(keys[i]), new Vector2(0.1f + i * 0.2f, 0.55f), new Vector2(196f, 120f),
-                    () => { if (App.Page != page) App.Open(page); }, on, default, 34, false);
+                var b = Ui.Button(bar, Th, T(keys[i]), new Vector2(0.5f, 0.5f), new Vector2(240f, 92f),
+                    () => { if (App.Page != page) App.Open(page); }, on, new Vector2((i - 2) * 270f, 0f), 34, false);
                 if (page == AppPage.Tasks) TaskBadge(b.transform);
             }
         }
@@ -59,12 +102,18 @@ namespace Pofi.Screens
         /// <summary>Üst başlık şeridi + sağda coin rozeti. Coin metnini döndürür.</summary>
         protected Text Header(string title)
         {
-            var top = Ui.Rect(Root, "Header", new Vector2(0.5f, 1f), new Vector2(1080f, 170f));
+            var top = Ui.Rect(Root, "Header", Vector2.zero, Vector2.zero);
+            top.anchorMin = new Vector2(0f, 1f); top.anchorMax = new Vector2(1f, 1f);
             top.pivot = new Vector2(0.5f, 1f);
+            top.sizeDelta = new Vector2(0f, HeaderHeight);
             top.anchoredPosition = Vector2.zero;
-            Ui.Label(top, title, Th.Font(72), Color.white, new Vector2(0.36f, 0.45f), new Vector2(700f, 120f), FontStyle.Bold, TextAnchor.MiddleLeft)
-                .gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -5f);
-            return CoinPill(top, new Vector2(0.84f, 0.45f));
+            var t = Ui.Label(top, title, Th.Font(64), Color.white, new Vector2(0f, 0.5f), new Vector2(900f, 110f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            t.rectTransform.pivot = new Vector2(0f, 0.5f);
+            t.rectTransform.anchoredPosition = new Vector2(48f, 0f);
+            t.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -5f);
+            var pill = CoinPill(top, new Vector2(1f, 0.5f));
+            ((RectTransform)pill.transform.parent).anchoredPosition = new Vector2(-170f, 0f);
+            return pill;
         }
 
         protected Text CoinPill(Transform parent, Vector2 anchor)
@@ -81,7 +130,7 @@ namespace Pofi.Screens
         {
             var root = Ui.Fill(Root, "Modal");
             root.gameObject.AddComponent<Image>().color = new Color(0f, 0.08f, 0.2f, 0.5f);
-            box = Ui.Rect(root, "Box", new Vector2(0.5f, 0.5f), new Vector2(960f, height));
+            box = Ui.Rect(root, "Box", new Vector2(0.5f, 0.5f), new Vector2(960f, Mathf.Min(height, 980f)));
             Ui.Panel(box, Color.white, Th.Radius);
             return root;
         }
@@ -91,7 +140,7 @@ namespace Pofi.Screens
         {
             App.Stage.AllowDrag = false;
             var ch = Logic.Safety.ParentGate.Create(App.Session.AgeBand, new System.Random());
-            var root = Modal(900f, out var box);
+            var root = Modal(860f, out var box);
             void Close() { Destroy(root.gameObject); App.Stage.AllowDrag = true; }
             Ui.Label(box, T("gate.title"), Th.Font(56), Th.Text, new Vector2(0.5f, 0.9f), new Vector2(880f, 80f), FontStyle.Bold);
             Ui.Label(box, T("gate.hint"), Th.Font(34), Th.SubtleText, new Vector2(0.5f, 0.82f), new Vector2(880f, 60f));
@@ -108,6 +157,25 @@ namespace Pofi.Screens
                 }, false, default, 56, false);
             }
             Ui.Button(box, Th, "X", new Vector2(0.5f, 0.09f), new Vector2(160f, 100f), Close, false, default, 48);
+        }
+
+        /// <summary>
+        /// Kamerayı, petin ekranda istenen yerde durması için konumlar: yatay merkez <paramref name="x01"/>,
+        /// ayaklar <paramref name="feet01"/>, kafa üstü <paramref name="top01"/> (0–1 ekran oranları). Ekran en-boy oranına uyar.
+        /// </summary>
+        protected void PetCamera(float x01, float feet01, float top01, float height = World.PetModels.RealHeight)
+        {
+            var cam = App.Stage.Camera;
+            const float fov = 34f;
+            var tanV = Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad);
+            var aspect = Mathf.Max(1.2f, (float)Screen.width / Mathf.Max(1, Screen.height));
+            var tFeet = (feet01 - 0.5f) * 2f * tanV;
+            var tTop = (top01 - 0.5f) * 2f * tanV;
+            var d = height / Mathf.Max(0.05f, tTop - tFeet);
+            var cy = -tFeet * d;
+            var cx = -(x01 - 0.5f) * 2f * tanV * aspect * d;
+            App.Stage.SetCamera(new Vector3(cx, cy, -d), 0f, fov);
+            if (cam != null) cam.fieldOfView = fov;
         }
 
         /// <summary>Konuşma balonu (petin üstünde); kısa süre sonra kaybolur.</summary>

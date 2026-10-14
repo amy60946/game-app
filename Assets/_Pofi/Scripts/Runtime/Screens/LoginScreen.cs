@@ -19,15 +19,16 @@ namespace Pofi.Screens
         protected override void Build()
         {
             App.Stage.AllowDrag = true;
-            App.Stage.SetCamera(new Vector3(0f, 0.47f, -7.7f), 0f);
+            // Yatay: solda pet, sağda kod kartı
+            PetCamera(0.3f, 0.1f, 0.78f);
             App.Stage.ShowPet(App.Data.Pet("pet_01"), Logic.Progression.GrowthStage.Genc);
 
             var white = Color.white;
-            var title = Ui.Label(Root, T("auth.title"), Th.Font(120), white, new Vector2(0.5f, 0.885f), new Vector2(1000f, 170f), FontStyle.Bold);
+            var title = Ui.Label(Root, T("auth.title"), Th.Font(110), white, new Vector2(0.72f, 0.86f), new Vector2(900f, 150f), FontStyle.Bold);
             title.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
-            Ui.Label(Root, T("auth.code_prompt"), Th.Font(50), white, new Vector2(0.5f, 0.815f), new Vector2(1000f, 80f));
+            Ui.Label(Root, T("auth.code_prompt"), Th.Font(46), white, new Vector2(0.72f, 0.76f), new Vector2(900f, 70f));
 
-            var card = Ui.Rect(Root, "Card", new Vector2(0.5f, 0.24f), new Vector2(960f, 560f));
+            var card = Ui.Rect(Root, "Card", new Vector2(0.72f, 0.42f), new Vector2(820f, 520f));
             Ui.Panel(card, Th.Panel, Th.Radius);
             _code = Ui.Input(card, Th, T("auth.placeholder"), new Vector2(0.5f, 0.76f), new Vector2(640f, 150f), ChildCode.Length,
                 InputField.ContentType.Alphanumeric, 80);
@@ -39,7 +40,7 @@ namespace Pofi.Screens
 
             // Önizleme Mock arka uçla çalışır: deneme kodlarını göster.
             if (App.Auth is MockAuthService)
-                Ui.Label(Root, T("auth.demo_hint"), Th.Font(32), white, new Vector2(0.5f, 0.055f), new Vector2(1000f, 90f));
+                Ui.Label(Root, T("auth.demo_hint"), Th.Font(28), white, new Vector2(0.72f, 0.1f), new Vector2(900f, 80f));
             Footer();
         }
 

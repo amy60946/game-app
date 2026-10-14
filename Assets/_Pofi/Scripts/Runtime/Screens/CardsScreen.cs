@@ -56,17 +56,17 @@ namespace Pofi.Screens
             Ui.Clear(Root);
             _botDelay = -1f;
             Header(T("cards.title"));
-            Ui.Label(Root, T("cards.pick"), Th.Font(44), Color.white, new Vector2(0.5f, 0.84f), new Vector2(1000f, 80f), FontStyle.Bold);
+            Ui.Label(Root, T("cards.pick"), Th.Font(44), Color.white, new Vector2(0.5f, 0.82f), new Vector2(1000f, 80f), FontStyle.Bold);
             for (var i = 0; i < CardSession.Games.Length; i++)
             {
                 var id = CardSession.Games[i];
                 var need = App.Levels.UnlockLevel(id);
                 var open = App.Level >= need;
-                var card = Ui.Rect(Root, id, new Vector2(0.5f, 0.69f - i * 0.17f), new Vector2(960f, 300f));
+                var card = Ui.Rect(Root, id, new Vector2(0.5f, 0.48f), new Vector2(540f, 520f), new Vector2((i - 1) * 590f, 0f));
                 var img = Ui.Panel(card, open ? Th.Panel : new Color(1f, 1f, 1f, 0.6f), Th.Radius);
-                Ui.Label(card, T("cards.game." + id), Th.Font(60), open ? Th.Text : Th.SubtleText, new Vector2(0.5f, 0.72f), new Vector2(900f, 90f), FontStyle.Bold);
-                Ui.Label(card, open ? T("cards.desc." + id) : T("shop.locked", TurkishSuffix.Locative(need)), Th.Font(36), Th.SubtleText,
-                    new Vector2(0.5f, 0.32f), new Vector2(880f, 130f));
+                Ui.Label(card, T("cards.game." + id), Th.Font(60), open ? Th.Text : Th.SubtleText, new Vector2(0.5f, 0.78f), new Vector2(500f, 90f), FontStyle.Bold);
+                Ui.Label(card, open ? T("cards.desc." + id) : T("shop.locked", TurkishSuffix.Locative(need)), Th.Font(34), Th.SubtleText,
+                    new Vector2(0.5f, 0.4f), new Vector2(460f, 260f));
                 var b = card.gameObject.AddComponent<Button>();
                 b.targetGraphic = img;
                 b.interactable = open;
@@ -84,16 +84,18 @@ namespace Pofi.Screens
             var others = App.Data.Pets.Where(p => p.Id != App.State.PetId).ToList();
             _rival = others[_rng.Next(others.Count)];
             Ui.Clear(Root);
-            var top = Ui.Rect(Root, "Top", new Vector2(0.5f, 1f), new Vector2(1080f, 150f));
+            var top = Ui.Rect(Root, "Top", Vector2.zero, Vector2.zero);
+            top.anchorMin = new Vector2(0f, 1f); top.anchorMax = new Vector2(1f, 1f);
             top.pivot = new Vector2(0.5f, 1f);
+            top.sizeDelta = new Vector2(0f, 110f);
             top.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.88f);
-            Ui.Label(top, T("cards.game." + id), Th.Font(50), Th.Text, new Vector2(0.21f, 0.5f), new Vector2(400f, 100f), FontStyle.Bold);
-            Ui.Label(top, T("cards.vs", _rival.Name), Th.Font(38), Th.SubtleText, new Vector2(0.66f, 0.5f), new Vector2(300f, 100f));
-            Ui.PortraitIcon(top, _rival.Id, Color.Lerp(Theme.Hex(_rival.MainColor), Color.white, 0.6f), new Vector2(0.5f, 0.5f), 110f);
-            Ui.Button(top, Th, "X", new Vector2(0.93f, 0.5f), new Vector2(100f, 100f), Picker, false, default, 44, false);
-            _status = Ui.Label(Root, "", Th.Font(46), Color.white, new Vector2(0.5f, 0.86f), new Vector2(1000f, 80f), FontStyle.Bold);
+            Ui.Label(top, T("cards.game." + id), Th.Font(50), Th.Text, new Vector2(0.15f, 0.5f), new Vector2(500f, 100f), FontStyle.Bold);
+            Ui.PortraitIcon(top, _rival.Id, Color.Lerp(Theme.Hex(_rival.MainColor), Color.white, 0.6f), new Vector2(0.5f, 0.5f), 100f, new Vector2(-180f, 0f));
+            Ui.Label(top, T("cards.vs", _rival.Name), Th.Font(38), Th.SubtleText, new Vector2(0.5f, 0.5f), new Vector2(320f, 100f), FontStyle.Normal, TextAnchor.MiddleLeft, new Vector2(60f, 0f));
+            Ui.Button(top, Th, "X", new Vector2(0.96f, 0.5f), new Vector2(96f, 96f), Picker, false, default, 44, false);
+            _status = Ui.Label(Root, "", Th.Font(44), Color.white, new Vector2(0.5f, 0.84f), new Vector2(1000f, 70f), FontStyle.Bold);
             _status.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -4f);
-            _board = Ui.Area(Root, "Board", new Vector2(0f, 0f), new Vector2(1f, 0.82f));
+            _board = Ui.Area(Root, "Board", new Vector2(0f, 0f), new Vector2(1f, 0.8f));
             switch (id)
             {
                 case "card_color_match": StartColorMatch(); break;
@@ -166,20 +168,20 @@ namespace Pofi.Screens
             var n = s.Hands[1].Count;
             for (var i = 0; i < n; i++)
             {
-                var back = Ui.Rect(_board, "Back", new Vector2(0.5f, 0.9f), new Vector2(110f, 160f), new Vector2((i - (n - 1) / 2f) * Mathf.Min(70f, 900f / Mathf.Max(1, n)), 0f));
+                var back = Ui.Rect(_board, "Back", new Vector2(0.5f, 0.9f), new Vector2(90f, 130f), new Vector2((i - (n - 1) / 2f) * Mathf.Min(70f, 1200f / Mathf.Max(1, n)), 0f));
                 Ui.Panel(back, Theme.Hex(_rival.MainColor), 20f).raycastTarget = false;
                 back.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.9f);
             }
-            Ui.Label(_board, T("cards.cards_left", n), Th.Font(34), Color.white, new Vector2(0.5f, 0.8f), new Vector2(400f, 60f), FontStyle.Bold);
+            Ui.Label(_board, T("cards.cards_left", n), Th.Font(32), Color.white, new Vector2(0.5f, 0.78f), new Vector2(400f, 50f), FontStyle.Bold);
 
             // masa: açık kart + aktif renk + deste
-            CardView(_board, s.Top, new Vector2(0.4f, 0.58f), new Vector2(200f, 290f));
-            var active = Ui.Rect(_board, "Active", new Vector2(0.4f, 0.4f), new Vector2(220f, 60f));
+            CardView(_board, s.Top, new Vector2(0.45f, 0.56f), new Vector2(160f, 230f));
+            var active = Ui.Rect(_board, "Active", new Vector2(0.45f, 0.36f), new Vector2(220f, 56f));
             Ui.Panel(active, CardCol(s.ActiveColor), 30f).raycastTarget = false;
             Ui.Label(active, T("cards.color." + s.ActiveColor), Th.Font(32), Color.white, new Vector2(0.5f, 0.5f), new Vector2(220f, 60f), FontStyle.Bold);
             var mine = s.Current == 0 && !_cm.IsOver(s);
             var drawLabel = s.DrewThisTurn ? T("cards.pass") : T("cards.draw");
-            var draw = Ui.Button(_board, Th, drawLabel, new Vector2(0.72f, 0.58f), new Vector2(240f, 290f), () =>
+            var draw = Ui.Button(_board, Th, drawLabel, new Vector2(0.58f, 0.56f), new Vector2(180f, 230f), () =>
             {
                 if (_cms.Current != 0) return;
                 _cm.Apply(_cms, ColorMatchMove.DrawCard());
@@ -189,8 +191,8 @@ namespace Pofi.Screens
 
             // benim elim (iki sıra)
             var hand = s.Hands[0];
-            var perRow = Mathf.Max(6, Mathf.CeilToInt(hand.Count / 2f));
-            var w = Mathf.Min(150f, 1000f / perRow);
+            var perRow = Mathf.Max(8, hand.Count);   // yatay: tek sıra
+            var w = Mathf.Min(150f, 1700f / perRow);
             for (var i = 0; i < hand.Count; i++)
             {
                 var row = i / perRow;
@@ -199,7 +201,7 @@ namespace Pofi.Screens
                 var x = (col - (count - 1) / 2f) * w;
                 var c = hand[i];
                 var playable = mine && ColorMatchRules.CanPlay(s, c);
-                var cv = CardView(_board, c, new Vector2(0.5f, row == 0 ? 0.2f : 0.06f), new Vector2(w - 12f, 200f), new Vector2(x, playable ? 24f : 0f));
+                var cv = CardView(_board, c, new Vector2(0.5f, 0.13f), new Vector2(w - 12f, 180f), new Vector2(x, playable ? 24f : 0f));
                 if (!playable) cv.GetComponent<Image>().color = Color.Lerp(CardCol(c.Color), Color.gray, 0.45f);
                 var b = cv.gameObject.AddComponent<Button>();
                 b.interactable = playable;
@@ -292,23 +294,23 @@ namespace Pofi.Screens
             for (var i = 0; i < show.Count; i++)
             {
                 var x = (i - (show.Count - 1) / 2f) * 128f;
-                TileView(_board, show[i], new Vector2(0.5f, 0.6f), new Vector2(x, 0f), 0.95f, false).GetComponent<Image>().raycastTarget = false;
+                TileView(_board, show[i], new Vector2(0.5f, 0.58f), new Vector2(x, 0f), 0.85f, false).GetComponent<Image>().raycastTarget = false;
             }
             if (s.Line.Count > 0)
             {
-                Ui.Label(_board, "< " + s.LeftEnd, Th.Font(44), Color.white, new Vector2(0.12f, 0.45f), new Vector2(200f, 70f), FontStyle.Bold);
-                Ui.Label(_board, s.RightEnd + " >", Th.Font(44), Color.white, new Vector2(0.88f, 0.45f), new Vector2(200f, 70f), FontStyle.Bold);
+                Ui.Label(_board, "< " + s.LeftEnd, Th.Font(44), Color.white, new Vector2(0.22f, 0.58f), new Vector2(200f, 70f), FontStyle.Bold);
+                Ui.Label(_board, s.RightEnd + " >", Th.Font(44), Color.white, new Vector2(0.78f, 0.58f), new Vector2(200f, 70f), FontStyle.Bold);
             }
 
             var mine = s.Current == 0 && !_dm.IsOver(s);
             var legal = mine ? _dm.LegalMoves(s) : (IReadOnlyList<DominoMove>)new List<DominoMove>();
             var hand = s.Hands[0];
-            var w = Mathf.Min(140f, 1000f / Mathf.Max(1, hand.Count));
+            var w = Mathf.Min(140f, 1600f / Mathf.Max(1, hand.Count));
             for (var i = 0; i < hand.Count; i++)
             {
                 var idx = i;
                 var moves = legal.Where(m => !m.Draw && m.HandIndex == idx).ToList();
-                var tv = TileView(_board, hand[i], new Vector2(0.5f, 0.17f), new Vector2((i - (hand.Count - 1) / 2f) * w, moves.Count > 0 ? 24f : 0f), Mathf.Min(1f, w / 130f), moves.Count > 0);
+                var tv = TileView(_board, hand[i], new Vector2(0.5f, 0.15f), new Vector2((i - (hand.Count - 1) / 2f) * w, moves.Count > 0 ? 24f : 0f), Mathf.Min(1f, w / 130f), moves.Count > 0);
                 var b = tv.gameObject.AddComponent<Button>();
                 b.interactable = moves.Count > 0;
                 b.onClick.AddListener(() =>
@@ -324,7 +326,7 @@ namespace Pofi.Screens
             if (mine && legal.Count == 1 && legal[0].Draw)
             {
                 var label = s.Boneyard.Count > 0 ? T("cards.draw_tile") : T("cards.pass");
-                Ui.Button(_board, Th, label, new Vector2(0.5f, 0.36f), new Vector2(420f, 120f), () => { _dm.Apply(_dms, DominoMove.DrawOrPass()); AfterDominoMove(); });
+                Ui.Button(_board, Th, label, new Vector2(0.85f, 0.15f), new Vector2(340f, 110f), () => { _dm.Apply(_dms, DominoMove.DrawOrPass()); AfterDominoMove(); });
             }
             _status.text = _dm.IsOver(s) ? "" : mine ? T("cards.your_turn") : T("cards.bot_turn", _rival.Name);
         }
@@ -367,8 +369,8 @@ namespace Pofi.Screens
             var mine = s.Current == 0 && !_tw.IsOver(s);
             var legal = mine ? _tw.LegalMoves(s) : (IReadOnlyList<TowerMove>)new List<TowerMove>();
             var layers = s.Layers.Count;
-            var h = Mathf.Min(70f, 1200f / layers);
-            var baseY = -600f;
+            var h = Mathf.Min(48f, 700f / layers);
+            var baseY = -380f;
             for (var l = 0; l < layers; l++)
             {
                 for (var k = 0; k < 3; k++)

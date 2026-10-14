@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System;
 using System.Linq;
 using Pofi.Logic.App;
@@ -35,49 +36,54 @@ namespace Pofi.Screens
         {
             var def = App.Data.Pet(App.State.PetId);
             App.Stage.AllowDrag = true;
-            App.Stage.SetCamera(new Vector3(0f, 1.09f, -6.88f), 0f);
+            PetCamera(0.5f, 0.2f, 0.78f);   // yatay: pet ortada, göstergeler solda, bakım düğmeleri sağda
             App.Stage.ShowPet(def, App.Growth, App.State.Inventory.Equipped.Values);
             App.Stage.SetHomeItems(App.State.Home, App.Levels.IsUnlocked("home_expansion", App.Level));
             App.Stage.SetAmbient(true);
 
             // Üst bilgi kartı: isim, seviye/evre, coin ve göstergeler
-            var top = Ui.Rect(Root, "Top", new Vector2(0.5f, 0.835f), new Vector2(1010f, 420f));
+            // Sol üst: isim, seviye, coin ve göstergeler
+            var top = Ui.Rect(Root, "Top", new Vector2(0f, 1f), new Vector2(620f, 440f));
+            top.pivot = new Vector2(0f, 1f);
+            top.anchoredPosition = new Vector2(36f, -30f);
             Ui.Panel(top, Th.Panel, Th.Radius);
-            _title = Ui.Label(top, "", Th.Font(54), Th.Text, new Vector2(0.4f, 0.85f), new Vector2(740f, 80f), FontStyle.Bold, TextAnchor.MiddleLeft);
-            _coins = CoinPill(top, new Vector2(0.84f, 0.85f));
-            _xpBar = Ui.Bar(top, new Vector2(0.5f, 0.71f), new Vector2(940f, 18f), new Color(0f, 0f, 0f, 0.08f), Theme.Hex("#FFC400"), 9f);
+            _title = Ui.Label(top, "", Th.Font(46), Th.Text, new Vector2(0.36f, 0.89f), new Vector2(400f, 70f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            _coins = CoinPill(top, new Vector2(0.8f, 0.89f));
+            _xpBar = Ui.Bar(top, new Vector2(0.5f, 0.77f), new Vector2(560f, 16f), new Color(0f, 0f, 0f, 0.08f), Theme.Hex("#FFC400"), 8f);
 
             for (var i = 0; i < 4; i++)
             {
-                var col = i % 2;
-                var row = i / 2;
-                var anchor = new Vector2(col == 0 ? 0.27f : 0.73f, row == 0 ? 0.5f : 0.2f);
-                Ui.Label(top, T(StatKeys[i]), Th.Font(34), Th.SubtleText, anchor, new Vector2(440f, 50f), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 34f));
-                _bars[i] = Ui.Bar(top, anchor, new Vector2(440f, 40f), new Color(0f, 0f, 0f, 0.08f), StatColors[i], 20f, new Vector2(0f, -14f));
+                var y = 0.62f - i * 0.16f;
+                var anchor = new Vector2(0.5f, y);
+                Ui.Label(top, T(StatKeys[i]), Th.Font(30), Th.SubtleText, anchor, new Vector2(560f, 40f), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, 22f));
+                _bars[i] = Ui.Bar(top, anchor, new Vector2(560f, 26f), new Color(0f, 0f, 0f, 0.08f), StatColors[i], 13f, new Vector2(0f, -14f));
             }
 
-            // Ayarlar / çıkış (ebeveyn kapısı)
-            Ui.Button(Root, Th, T("settings.title"), new Vector2(0.88f, 0.972f), new Vector2(210f, 76f),
-                () => ParentGate(() => App.Open(AppPage.Settings), msg => _bubble.Say(msg)), false, default, 34, false);
+            // Sağ üst: günün görevleri, defter, süsle, ayarlar (ebeveyn kapısı)
+            var row = new List<(string key, System.Action act)> { ("home.daily", DailyPanel), ("album.button", () => App.Open(AppPage.Album)) };
+            if (App.Levels.IsUnlocked("home_decor", App.Level)) row.Add(("decor.button", () => App.Open(AppPage.Decorate)));
+            row.Add(("settings.title", () => ParentGate(() => App.Open(AppPage.Settings), msg => _bubble.Say(msg))));
+            for (var i = 0; i < row.Count; i++)
+            {
+                var b = Ui.Button(Root, Th, T(row[i].key), new Vector2(1f, 1f), new Vector2(250f, 78f), row[i].act, false, default, 32, false);
+                var rt = (RectTransform)b.transform;
+                rt.pivot = new Vector2(1f, 1f);
+                rt.anchoredPosition = new Vector2(-36f, -30f - i * 92f);
+            }
 
-            Ui.Button(Root, Th, T("home.daily"), new Vector2(0.18f, 0.972f), new Vector2(330f, 76f), DailyPanel, false, default, 34, false);
-            Ui.Button(Root, Th, T("album.button"), new Vector2(0.47f, 0.972f), new Vector2(200f, 76f), () => App.Open(AppPage.Album), false, default, 34, false);
-            if (App.Levels.IsUnlocked("home_decor", App.Level))
-                Ui.Button(Root, Th, T("decor.button"), new Vector2(0.66f, 0.972f), new Vector2(170f, 76f), () => App.Open(AppPage.Decorate), false, default, 34, false);
+            _bubble = Bubble(new Vector2(0.5f, 0.86f));
 
-            _bubble = Bubble(new Vector2(0.5f, 0.675f));
-
-            // Bakım düğmeleri
-            var bar = Ui.Rect(Root, "Actions", new Vector2(0.5f, 0f), new Vector2(1010f, 230f));
-            bar.pivot = new Vector2(0.5f, 0f);
-            bar.anchoredPosition = new Vector2(0f, NavHeight + 16f);
+            // Sağ alt: bakım düğmeleri (2×2)
+            var bar = Ui.Rect(Root, "Actions", new Vector2(1f, 0f), new Vector2(500f, 380f));
+            bar.pivot = new Vector2(1f, 0f);
+            bar.anchoredPosition = new Vector2(-36f, NavHeight + 20f);
             Ui.Panel(bar, Th.Panel, Th.Radius);
             var labels = new[] { "home.feed", "home.wash", "home.play", "home.tidy" };
             var actions = new[] { CareAction.Feed, CareAction.Wash, CareAction.Play, CareAction.Tidy };
             for (var i = 0; i < 4; i++)
             {
                 var a = actions[i];
-                var b = Ui.Button(bar, Th, T(labels[i]), new Vector2(0.125f + i * 0.25f, 0.5f), new Vector2(220f, 170f), () => Care(a), i == 2, default, 42, false);
+                var b = Ui.Button(bar, Th, T(labels[i]), new Vector2(i % 2 == 0 ? 0.27f : 0.73f, i < 2 ? 0.73f : 0.27f), new Vector2(210f, 150f), () => Care(a), i == 2, default, 40, false);
                 var badge = Ui.Rect(b.transform, "Count", new Vector2(0.88f, 0.9f), new Vector2(64f, 64f));
                 if (a == CareAction.Feed || a == CareAction.Wash)
                 {

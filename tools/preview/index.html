@@ -15,9 +15,13 @@ body { margin: 0; background: var(--sky); color: var(--ink); font-family: -apple
 .bar i { display: block; height: 100%; width: 0%; background: var(--sun); border-radius: 999px; transition: width .2s; }
 #err { display: none; background: var(--white); border-radius: 16px; padding: 16px; font-size: 14px; text-align: left; line-height: 1.5; }
 @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+#rotate { position: fixed; inset: 0; display: none; place-items: center; background: var(--sky); color: var(--white); text-align: center; padding: 24px; z-index: 10; font: 700 22px/1.4 system-ui, sans-serif; }
+#rotate .icon { font-size: 64px; display: block; margin-bottom: 12px; }
+@media (orientation: portrait) { #rotate { display: grid; } }
 </style>
 
 <div id="stage"><canvas id="unity-canvas" tabindex="-1" aria-label="Pofi Adası oyun ekranı"></canvas></div>
+<div id="rotate"><div><span class="icon">&#x21bb;</span>Pofi Adası yatay oynanır.<br>Telefonunu yan çevir.</div></div>
 <div id="loader" role="status" aria-live="polite">
   <div class="box">
     <h1>Pofi Adası</h1>

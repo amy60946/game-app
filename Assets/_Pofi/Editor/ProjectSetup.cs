@@ -48,7 +48,12 @@ namespace Pofi.EditorTools
             PlayerSettings.productName = "Pofi Adası";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, BundleId);
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, BundleId);
-            PlayerSettings.defaultInterfaceOrientation = UIOrientation.Portrait;
+            // Yatay oyun (14 Ekim 2026 kararı): iki yatay yöne döner, dikeye dönmez
+            PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
+            PlayerSettings.allowedAutorotateToLandscapeLeft = true;
+            PlayerSettings.allowedAutorotateToLandscapeRight = true;
+            PlayerSettings.allowedAutorotateToPortrait = false;
+            PlayerSettings.allowedAutorotateToPortraitUpsideDown = false;
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Gzip;
             // Sıkıştırmalı dosyalar, sunucu özel başlık göndermese de açılsın (statik barındırma).

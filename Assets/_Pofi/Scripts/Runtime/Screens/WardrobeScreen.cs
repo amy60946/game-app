@@ -27,28 +27,28 @@ namespace Pofi.Screens
         {
             _pet = App.Data.Pet(App.State.PetId);
             App.Stage.AllowDrag = true;
-            App.Stage.SetCamera(new Vector3(0f, 0.34f, -6.88f), 0f);
+            PetCamera(0.28f, 0.16f, 0.8f);   // yatay: pet solda, dolap paneli sağda
             App.Stage.ShowPet(_pet, App.Growth, App.State.Inventory.Equipped.Values);
 
-            var title = Ui.Label(Root, T("wardrobe.title"), Th.Font(72), Color.white, new Vector2(0.5f, 1f), new Vector2(1000f, 130f), FontStyle.Bold);
+            var title = Ui.Label(Root, T("wardrobe.title"), Th.Font(64), Color.white, new Vector2(0.28f, 1f), new Vector2(800f, 120f), FontStyle.Bold);
             title.rectTransform.pivot = new Vector2(0.5f, 1f);
             title.rectTransform.anchoredPosition = new Vector2(0f, -24f);
             title.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -5f);
-            _bubble = Bubble(new Vector2(0.5f, 0.84f));
+            _bubble = Bubble(new Vector2(0.28f, 0.86f));
 
-            var panel = Ui.Rect(Root, "Panel", new Vector2(0.5f, 0f), new Vector2(1040f, 560f));
-            panel.pivot = new Vector2(0.5f, 0f);
-            panel.anchoredPosition = new Vector2(0f, NavHeight + 12f);
+            var panel = Ui.Rect(Root, "Panel", new Vector2(1f, 0f), new Vector2(1040f, 1080f - NavHeight - 60f));
+            panel.pivot = new Vector2(1f, 0f);
+            panel.anchoredPosition = new Vector2(-36f, NavHeight + 20f);
             Ui.Panel(panel, Th.Panel, Th.Radius);
 
             _tabs = new Button[Slot.All.Length];
             for (var i = 0; i < Slot.All.Length; i++)
             {
                 var slot = Slot.All[i];
-                _tabs[i] = Ui.Button(panel, Th, T("wardrobe.slot." + slot), new Vector2(0.1f + i * 0.2f, 0.87f), new Vector2(190f, 92f),
+                _tabs[i] = Ui.Button(panel, Th, T("wardrobe.slot." + slot), new Vector2(0.1f + i * 0.2f, 0.9f), new Vector2(190f, 88f),
                     () => { _slot = slot; Fill(); }, slot == _slot, default, 34, false);
             }
-            var area = Ui.Area(panel, "ListArea", Vector2.zero, new Vector2(1f, 0.76f));
+            var area = Ui.Area(panel, "ListArea", Vector2.zero, new Vector2(1f, 0.8f));
             _list = Ui.ScrollList(area, Vector2.zero, Vector2.one, 20f, 3, new Vector2(310f, 190f));
 
             NavBar(AppPage.Wardrobe);

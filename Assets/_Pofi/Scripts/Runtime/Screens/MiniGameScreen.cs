@@ -57,8 +57,10 @@ namespace Pofi.Screens
         {
             Ui.Clear(Root);
             _area = Ui.Fill(Root, "Area");
-            _hud = Ui.Rect(Root, "Hud", new Vector2(0.5f, 1f), new Vector2(1080f, 150f));
+            _hud = Ui.Rect(Root, "Hud", Vector2.zero, Vector2.zero);
+            _hud.anchorMin = new Vector2(0f, 1f); _hud.anchorMax = new Vector2(1f, 1f);
             _hud.pivot = new Vector2(0.5f, 1f);
+            _hud.sizeDelta = new Vector2(0f, 110f);
             _hud.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.85f);
             Ui.Label(_hud, Title, Th.Font(48), Th.Text, new Vector2(0.22f, 0.5f), new Vector2(420f, 100f), FontStyle.Bold);
             _score = Ui.Label(_hud, T("mg.score", 0), Th.Font(48), Th.Text, new Vector2(0.62f, 0.5f), new Vector2(360f, 100f), FontStyle.Bold);
@@ -130,7 +132,8 @@ namespace Pofi.Screens
             Backdrop(Theme.Hex("#8FDBFF"), Theme.Hex("#F6D79A"), 0.16f);
             var basketW = App.Session.AgeBand == AgeBand.A ? 0.28f : App.Session.AgeBand == AgeBand.B ? 0.24f : 0.2f;
             const float BasketY = 0.2f;
-            var basket = Ui.Rect(_area, "Basket", new Vector2(0.5f, BasketY), new Vector2(1080f * basketW, 110f));
+            var basket = Ui.Rect(_area, "Basket", new Vector2(0.5f, BasketY), new Vector2(Width * basketW * 0.6f, 100f));
+            basketW *= 0.6f;   // yatay ekran geniş: sepet oransal olarak daralır
             Ui.Panel(basket, PetColor, 40f).raycastTarget = false;
             var basketX = 0.5f;
             var live = new Dictionary<int, RectTransform>();
@@ -182,9 +185,9 @@ namespace Pofi.Screens
             var game = new HelpPetSearch(App.Session.AgeBand, seed);
             Backdrop(Theme.Hex("#8FDBFF"), Theme.Hex("#9BD77F"), 0.75f);
             _timer.text = "";
-            var grid = Ui.Rect(_area, "Grid", new Vector2(0.5f, 0.42f), new Vector2(1000f, 1000f));
-            var cellW = 1000f / game.Columns;
-            var cellH = 1000f / game.Rows;
+            var grid = Ui.Rect(_area, "Grid", new Vector2(0.5f, 0.44f), new Vector2(1300f, 720f));
+            var cellW = 1300f / game.Columns;
+            var cellH = 720f / game.Rows;
             var size = Mathf.Min(cellW, cellH) - 30f;
             var done = false;
             for (var i = 0; i < game.Columns * game.Rows; i++)
@@ -192,7 +195,7 @@ namespace Pofi.Screens
                 var spot = i;
                 var c = i % game.Columns;
                 var r = i / game.Columns;
-                var pos = new Vector2(-500f + cellW * (c + 0.5f), 500f - cellH * (r + 0.5f));
+                var pos = new Vector2(-650f + cellW * (c + 0.5f), 360f - cellH * (r + 0.5f));
                 var bush = Ui.Rect(grid, "Bush" + i, new Vector2(0.5f, 0.5f), new Vector2(size, size), pos);
                 var img = Ui.Panel(bush, Theme.Hex("#46B85A"), size / 2.2f);
                 var btn = bush.gameObject.AddComponent<Button>();
@@ -238,7 +241,7 @@ namespace Pofi.Screens
             var bg = _area.gameObject.AddComponent<Image>();
             bg.color = _id == "ski" ? Theme.Hex("#EAF4FF") : _id == "surf" ? Theme.Hex("#38B6E8") : Theme.Hex("#5CCBF5");
             bg.raycastTarget = false;
-            float[] laneX = { 0.2f, 0.5f, 0.8f };
+            float[] laneX = { 0.36f, 0.5f, 0.64f };
             const float PlayerY = 0.2f, RowGap = 0.13f;
             var obstacleColor = _id == "ski" ? Theme.Hex("#B8C7DA") : _id == "surf" ? Color.white : Theme.Hex("#7D8796");
             var player = Dot(_area, new Vector2(laneX[1], PlayerY), 130f, PetColor);
@@ -328,7 +331,7 @@ namespace Pofi.Screens
             var bg = _area.gameObject.AddComponent<Image>();
             bg.color = Theme.Hex("#1B1830");
             bg.raycastTarget = false;
-            var cell = Mathf.Min(1000f / game.Width, 1300f / game.Height);
+            var cell = Mathf.Min(1400f / game.Width, 760f / game.Height);
             var cells = new Image[game.Width * game.Height];
             _timer.text = T("mg.cave.lights", game.Lights);
             var finishing = false;
@@ -337,7 +340,7 @@ namespace Pofi.Screens
                 var idx = i;
                 var x = i % game.Width;
                 var y = i / game.Width;
-                var pos = new Vector2((x - (game.Width - 1) / 2f) * cell, ((game.Height - 1) / 2f - y) * cell - 60f);
+                var pos = new Vector2((x - (game.Width - 1) / 2f) * cell, ((game.Height - 1) / 2f - y) * cell - 40f);
                 var rt = Ui.Rect(_area, "c" + i, new Vector2(0.5f, 0.5f), new Vector2(cell - 8f, cell - 8f), pos);
                 cells[i] = Ui.Panel(rt, Theme.Hex("#2C2850"), 16f);
                 var b = rt.gameObject.AddComponent<Button>();
@@ -374,10 +377,10 @@ namespace Pofi.Screens
             var bg = _area.gameObject.AddComponent<Image>();
             bg.color = Theme.Hex("#A8D8A0");
             bg.raycastTarget = false;
-            var layerH = 1500f / game.Layers;
+            var layerH = 780f / game.Layers;
             var buttons = new Button[game.Layers, HikeRoute.Columns];
             RectTransform walker = null;
-            Vector2 Pos(int l, int c) => new Vector2((c - 1) * 300f, -760f + l * layerH);
+            Vector2 Pos(int l, int c) => new Vector2((c - 1) * 320f, -400f + l * layerH);
             void Refresh()
             {
                 for (var l = 0; l < game.Layers; l++)
@@ -399,7 +402,7 @@ namespace Pofi.Screens
             {
                 if (l == 0 && c != 1) continue;
                 var lc = l; var cc = c;
-                var rt = Ui.Rect(_area, $"n{l}_{c}", new Vector2(0.5f, 0.5f), new Vector2(170f, Mathf.Min(120f, layerH - 16f)), Pos(l, c));
+                var rt = Ui.Rect(_area, $"n{l}_{c}", new Vector2(0.5f, 0.5f), new Vector2(200f, Mathf.Min(110f, layerH - 12f)), Pos(l, c));
                 var img = Ui.Panel(rt, Color.white, 40f);
                 var v = game.Value[l, c];
                 if (l == game.Layers - 1) Ui.Label(rt, "^", Th.Font(60), Th.Text, new Vector2(0.5f, 0.5f), rt.sizeDelta, FontStyle.Bold);

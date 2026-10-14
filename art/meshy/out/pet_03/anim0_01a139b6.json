@@ -1,0 +1,20 @@
+{
+ "id": "01a139b6-60bc-7170-ad03-ccb4791562d4",
+ "type": "animate",
+ "name": "",
+ "status": "SUCCEEDED",
+ "created_at": 1791969616245,
+ "progress": 100,
+ "started_at": 1791969616250,
+ "finished_at": 1791969621449,
+ "expires_at": 1792228821449,
+ "task_error": null,
+ "result": {
+  "animation_glb_url": "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/tasks/01a139b6-60bc-7170-ad03-ccb4791562d4/output/Animation_Idle_withSkin.glb?Expires=1792228821&Signature=haetFFkxyp7d724P1O6BrFIUbEUo-i3ekzQt1B8DTlM1YNeDdWjo0V60J2yg8yxlx8PfqzosopS3d0o6QUCK6-Eeyo2QYs~aMEbqq0cQGXoDntqfxf9PeXKbmeufEJSBkR94tWZ2YbTyMRv8HOFpJLmOnN~gIJ5sHPDfZgU~dkMIR-pZERd14ClEcupVnrYn8H2SfYNPyH3hnRGQY69eRmzTxFe5qew-ikZD~WEfEOpvGHpRB7k-cL702KHwr6nEVPhnf~0T0Jg-Q1ZGg7D-tyQVHglqdcrBDKyBAlyiZE2CQVyxrpHs8VCqhs6vbNmg9R8eJzWkBnd-n4eWOJWdeQ__&Key-Pair-Id=K1VGYTHIYLM9UM",
+  "animation_fbx_url": "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/tasks/01a139b6-60bc-7170-ad03-ccb4791562d4/output/Animation_Idle_withSkin.fbx?Expires=1792228821&Signature=S3A2Qm9fpg80ofSRCOUw7QR60ObtO8Y023o2Kp6YC0MQ9Hv9Xvi6wJ917Zq61VRaTy7zmk7~7YZWYUoZ5u0Z3JBqEFCka-mde8Wblgs5rIZGP5R3joNqNkBiYl5PBRzDMz~DuqAB0qhscsW2-Xq8mmgjodlSa-ABdLNUbRX3lFS4cUJN7wUN4wm3h7TXwy-xkHR3~c~Q8QnbxKLkq~sCS5J~n2G-18xsjQizfYFJU597cKzQHP1M5klNgDOXuNA4ywYzPshCqCk0LWhBFTWRS0ZTXZ7fe8GiDF3QUQmEibgOI4jOc~dniUsDkdwo9y4s5Q4tcQi2HCj6H-qhrAXtbA__&Key-Pair-Id=K1VGYTHIYLM9UM",
+  "processed_usdz_url": "",
+  "processed_armature_fbx_url": "",
+  "processed_animation_fps_fbx_url": ""
+ },
+ "consumed_credits": 3
+}

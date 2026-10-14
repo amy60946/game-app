@@ -18,10 +18,7 @@ namespace Pofi.Screens
         {
             App.Stage.SetPetVisible(false);
             Header(T("settings.title"));
-            var area = Ui.Area(Root, "List", Vector2.zero, Vector2.one);
-            area.offsetMin = new Vector2(0f, NavHeight + 10f);
-            area.offsetMax = new Vector2(0f, -190f);
-            _list = Ui.ScrollList(area, Vector2.zero, Vector2.one, 20f);
+            _list = Ui.ScrollList(CenterColumn("List", 1200f), Vector2.zero, Vector2.one, 20f);
             NavBar(AppPage.Home);
             Fill();
         }

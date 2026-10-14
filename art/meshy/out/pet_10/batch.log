@@ -1,0 +1,75 @@
+pet_10: to3d başladı 01a139b4-0fef-71d5-ba69-8f8a32b08528
+  v1/image-to-3d 01a139b4 IN_PROGRESS 1
+  v1/image-to-3d 01a139b4 IN_PROGRESS 1
+  v1/image-to-3d 01a139b4 IN_PROGRESS 1
+  v1/image-to-3d 01a139b4 IN_PROGRESS 1
+  v1/image-to-3d 01a139b4 IN_PROGRESS 1
+  v1/image-to-3d 01a139b4 IN_PROGRESS 1
+  v1/image-to-3d 01a139b4 IN_PROGRESS 1
+  v1/image-to-3d 01a139b4 IN_PROGRESS 6
+  v1/image-to-3d 01a139b4 IN_PROGRESS 18
+  v1/image-to-3d 01a139b4 IN_PROGRESS 41
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 45
+  v1/image-to-3d 01a139b4 IN_PROGRESS 50
+  v1/image-to-3d 01a139b4 IN_PROGRESS 74
+  v1/image-to-3d 01a139b4 IN_PROGRESS 84
+  v1/image-to-3d 01a139b4 IN_PROGRESS 93
+  v1/image-to-3d 01a139b4 IN_PROGRESS 99
+  v1/image-to-3d 01a139b4 SUCCEEDED 100
+  kredi: 30  (kalan 2343)
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/pet_10.glb
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/pet_10.fbx
+pet_10: rig başladı 01a139b8-c4a9-75f3-b6c1-9067f8a726fc
+  v1/rigging 01a139b8 IN_PROGRESS 0
+  v1/rigging 01a139b8 IN_PROGRESS 26
+  v1/rigging 01a139b8 SUCCEEDED 100
+  kredi: 5  (kalan 2338)
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/rig_rigged_character_fbx_url.fbx
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/rig_rigged_character_glb_url.glb
+pet_10: anim0 başladı 01a139b9-2165-70fd-abd5-4de97ce6815f
+  v1/animations 01a139b9 IN_PROGRESS 0
+  v1/animations 01a139b9 SUCCEEDED 100
+  kredi: 3  (kalan 2335)
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/anim0_animation_glb_url.glb
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/anim0_animation_fbx_url.fbx
+pet_10: anim44 başladı 01a139b9-5272-7348-8495-dd520fa8d86f
+  v1/animations 01a139b9 IN_PROGRESS 0
+  v1/animations 01a139b9 IN_PROGRESS 95
+  v1/animations 01a139b9 SUCCEEDED 100
+  kredi: 3  (kalan 2332)
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/anim44_animation_glb_url.glb
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/anim44_animation_fbx_url.fbx
+pet_10: anim28 başladı 01a139b9-a395-72f1-b7a2-51cacf0527ef
+  v1/animations 01a139b9 IN_PROGRESS 0
+  v1/animations 01a139b9 SUCCEEDED 100
+  kredi: 3  (kalan 2329)
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/anim28_animation_glb_url.glb
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/anim28_animation_fbx_url.fbx
+pet_10: anim269 başladı 01a139b9-d369-7352-9ef0-0f8879aeb854
+  v1/animations 01a139b9 IN_PROGRESS 0
+  v1/animations 01a139b9 SUCCEEDED 100
+  kredi: 3  (kalan 2326)
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/anim269_animation_glb_url.glb
+  indirildi: /home/user/pofi-adasi/art/meshy/out/pet_10/anim269_animation_fbx_url.fbx
+pet_10 TAMAM
