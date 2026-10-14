@@ -47,3 +47,5 @@ art/meshy/out/**/*.glb
 art/meshy/out/**/*.fbx
 art/meshy/out/**/render_*.png
 art/meshy/out/**/*.log
+/tools/island-export/bin/
+/tools/island-export/obj/
