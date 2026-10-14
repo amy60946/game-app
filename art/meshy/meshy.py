@@ -67,7 +67,7 @@ def download(url, path):
 def log(name, kind, task_id, before, after, note=""):
     new = not os.path.exists(LEDGER)
     with open(LEDGER, "a", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         if new:
             w.writerow(["zaman", "ad", "tür", "görev", "kredi", "not"])
         w.writerow([datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"), name, kind, task_id, before - after, note])
