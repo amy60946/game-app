@@ -49,6 +49,14 @@ namespace Pofi.World
             Camera.clearFlags = CameraClearFlags.SolidColor;
             Camera.backgroundColor = sky;
             Camera.fieldOfView = 34f;
+            // Gökyüzü: kodla çizilen geçiş + güneş + bulut tülü (Pofi/Sky); yoksa düz renk
+            var skySh = Shader.Find("Pofi/Sky");
+            if (skySh != null)
+            {
+                _skyMat = new Material(skySh);
+                RenderSettings.skybox = _skyMat;
+                Camera.clearFlags = CameraClearFlags.Skybox;
+            }
             SetCamera(new Vector3(0f, 1.25f, -6.2f), 7f);
 
             var sun = new GameObject("Sun").AddComponent<Light>();
@@ -104,6 +112,8 @@ namespace Pofi.World
             Prop("p_rock", 0.8f, new Vector3(2.95f, -0.05f, 1.4f), 160f);
             Prop("p_lantern", 0.5f, new Vector3(2.5f, -0.05f, 3.1f), 200f);
 
+            Clouds.Spawn(transform, Vector3.zero, 60f, 6, 9f, 17f, 6f, 3, 35f, 145f);   // adacığın arkasında pofuduk bulutlar
+
             _holder = new GameObject("PetHolder").transform;
             _holder.SetParent(transform, false);
         }
@@ -127,7 +137,28 @@ namespace Pofi.World
             Camera.fieldOfView = fov;
         }
 
-        public void SetSky(Color sky) => Camera.backgroundColor = sky;
+        private Material _skyMat;
+
+        /// <summary>Gökyüzü tonu: gündüz varsayılan geçiş; koyu renk verilirse (gece) geçiş o renge göre koyulaşır.</summary>
+        public void SetSky(Color sky)
+        {
+            Camera.backgroundColor = sky;
+            if (_skyMat == null) return;
+            if (sky.grayscale > 0.45f)
+            {
+                _skyMat.SetColor("_Zenith", new Color(0.13f, 0.38f, 0.86f));
+                _skyMat.SetColor("_Horizon", new Color(0.62f, 0.8f, 0.98f));
+                _skyMat.SetColor("_Ground", new Color(0.42f, 0.66f, 0.86f));
+                _skyMat.SetFloat("_Wisps", 0.4f);
+            }
+            else
+            {
+                _skyMat.SetColor("_Zenith", sky * 0.55f);
+                _skyMat.SetColor("_Horizon", Color.Lerp(sky, Color.white, 0.25f));
+                _skyMat.SetColor("_Ground", sky * 0.8f);
+                _skyMat.SetFloat("_Wisps", 0.12f);
+            }
+        }
 
         public void ShowPet(PetSpeciesDef def, GrowthStage stage, IEnumerable<string> equipped = null, bool resetYaw = true)
         {

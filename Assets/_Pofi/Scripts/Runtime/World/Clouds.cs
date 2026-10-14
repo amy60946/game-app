@@ -1,0 +1,89 @@
+using UnityEngine;
+
+namespace Pofi.World
+{
+    /// <summary>
+    /// Kodla üretilen pofuduk 3B bulutlar (Pofi/Cloud): gürültüyle şişirilmiş küre "puf"lardan kümeler. Kredi gerektirmez.
+    /// Kümeler yavaşça süzülür; bir halka boyunca yerleştirilir (ada çevresi ya da ev sahnesinin arkası).
+    /// </summary>
+    public sealed class Clouds : MonoBehaviour
+    {
+        private static Mesh _puff;
+        private static Material _mat;
+        private Vector3 _drift, _start;
+        private bool _started;
+
+        /// <summary>Merkez çevresinde (yay açısı içinde) <paramref name="count"/> küme kurar.</summary>
+        public static Transform Spawn(Transform parent, Vector3 center, float radius, int count, float yMin, float yMax, float size, int seed,
+            float arcFrom = 0f, float arcTo = 360f)
+        {
+            if (_mat == null)
+            {
+                var sh = Shader.Find("Pofi/Cloud");
+                if (sh == null) return null;
+                _mat = new Material(sh);
+            }
+            if (_puff == null) _puff = PuffMesh();
+            var root = new GameObject("Clouds").transform;
+            root.SetParent(parent, false);
+            var rnd = new System.Random(seed);
+            for (var c = 0; c < count; c++)
+            {
+                var a = Mathf.Deg2Rad * Mathf.Lerp(arcFrom, arcTo, (c + (float)rnd.NextDouble() * 0.7f) / count);
+                var r = radius * (0.85f + (float)rnd.NextDouble() * 0.3f);
+                var cl = new GameObject("Cloud" + c).transform;
+                cl.SetParent(root, false);
+                cl.localPosition = center + new Vector3(Mathf.Cos(a) * r, Mathf.Lerp(yMin, yMax, (float)rnd.NextDouble()), Mathf.Sin(a) * r);
+                cl.localRotation = Quaternion.Euler(0f, (float)rnd.NextDouble() * 360f, 0f);
+                var s = size * (0.7f + (float)rnd.NextDouble() * 0.6f);
+                var puffs = 9 + rnd.Next(6);
+                for (var k = 0; k < puffs; k++)
+                {
+                    var p = new GameObject("puf").transform;
+                    p.SetParent(cl, false);
+                    var pr = s * (0.32f + (float)rnd.NextDouble() * 0.38f);
+                    p.localPosition = new Vector3(((float)rnd.NextDouble() * 2f - 1f) * s * 1.5f, (float)rnd.NextDouble() * s * 0.45f, ((float)rnd.NextDouble() * 2f - 1f) * s * 0.6f);
+                    p.localScale = new Vector3(pr, pr * 0.8f, pr);
+                    p.localRotation = Quaternion.Euler(0f, (float)rnd.NextDouble() * 360f, 0f);
+                    p.gameObject.AddComponent<MeshFilter>().sharedMesh = _puff;
+                    var mr = p.gameObject.AddComponent<MeshRenderer>();
+                    mr.sharedMaterial = _mat;
+                    mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                    mr.receiveShadows = false;
+                }
+                var drift = cl.gameObject.AddComponent<Clouds>();
+                drift._drift = new Vector3(0.35f + (float)rnd.NextDouble() * 0.25f, 0f, 0.12f);
+            }
+            return root;
+        }
+
+        /// <summary>Gürültüyle şişirilmiş, altı hafif düz küre.</summary>
+        private static Mesh PuffMesh()
+        {
+            var tmp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            var src = tmp.GetComponent<MeshFilter>().sharedMesh;
+            var v = src.vertices;
+            for (var i = 0; i < v.Length; i++)
+            {
+                var n = v[i].normalized;
+                var bump = Mathf.PerlinNoise(n.x * 2.3f + 3.1f, n.z * 2.3f + n.y * 1.7f) * 0.22f + Mathf.PerlinNoise(n.x * 6f, n.y * 6f + n.z * 3f) * 0.06f;
+                var p = n * (0.5f + bump);
+                if (p.y < -0.18f) p.y = -0.18f + (p.y + 0.18f) * 0.25f;   // alt düzlük
+                v[i] = p;
+            }
+            var m = new Mesh { name = "CloudPuff" };
+            m.vertices = v; m.triangles = src.triangles;
+            m.RecalculateNormals();
+            m.RecalculateBounds();
+            Destroy(tmp);
+            return m;
+        }
+
+        private void Update()
+        {
+            if (!_started) { _start = transform.localPosition; _started = true; }
+            transform.localPosition += _drift * Time.deltaTime;
+            if ((transform.localPosition - _start).magnitude > 30f) transform.localPosition -= _drift.normalized * 60f;   // sonsuz süzülme
+        }
+    }
+}
