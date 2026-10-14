@@ -79,6 +79,7 @@ namespace Pofi.World
 
             // Gerçek çevre varlıkları varsa (Meshy): arkada ada parçası ve palmiyeler
             var env = new GameObject("Scenery").transform;
+            _scenery = env;
             env.SetParent(transform, false);
             var chunk = RealAssets.Env("island_chunk", env, 1.5f);
             if (chunk != null)
@@ -147,6 +148,20 @@ namespace Pofi.World
             if (Pet == null || _petDef == null) return;
             var items = equipped == null || ItemLookup == null ? null : equipped.Select(ItemLookup).Where(i => i != null).ToList();
             CosmeticModels.Apply(Pet, _petDef, items);
+        }
+
+        private Transform _scenery, _backdrop;
+
+        /// <summary>Petin arkasına büyük bir yapı koyar (ör. dükkân tezgâhı); adacık süsleri gizlenir. null: kaldırır.</summary>
+        public void SetBackdrop(string asset, float footprint = 5f, float z = 3.2f)
+        {
+            if (_backdrop != null) { Destroy(_backdrop.gameObject); _backdrop = null; }
+            if (_scenery != null) _scenery.gameObject.SetActive(string.IsNullOrEmpty(asset));
+            if (string.IsNullOrEmpty(asset)) return;
+            _backdrop = new GameObject("Backdrop").transform;
+            _backdrop.SetParent(transform, false);
+            var m = RealAssets.EnvFootprint(asset, _backdrop, footprint, 180f);
+            if (m != null) m.localPosition = new Vector3(0f, -0.1f, z);
         }
 
         public void SetPetVisible(bool visible)
