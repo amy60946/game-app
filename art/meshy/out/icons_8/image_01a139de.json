@@ -1,0 +1,16 @@
+{
+ "id": "01a139de-05e1-732b-a7a6-382bb8c58415",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game item icons for a cozy children's tropical island pet game, laid out in three rows of three, reading order left to right then top to bottom: 1) an open clam shell with a white pearl, 2) a cute red crab, 3) a cute white seagull, 4) a cute baby sea turtle, 5) a cute brown owl, 6) a shiny gold coin with a paw print, 7) a glossy golden star, 8) a glossy red heart, 9) a wrapped gift box with a ribbon. Each icon is a single object, centered in its own equal square cell with wide empty space between icons, nothing touching or overlapping. Premium stylized 3D render, soft rounded shapes, glossy, warm soft lighting, rich gentle colors, clean silhouette, slight three-quarter view. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791972214252,
+ "started_at": 1791972214265,
+ "finished_at": 1791972268430,
+ "expires_at": 1792231468430,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139de-05e1-732b-a7a6-382bb8c58415_0.png?Expires=1792231468&Signature=eXSsjMHGduHc54h-IB-D3DcuGxrpIk52UIAe0U40ebFoJbmNYiLhBW3UYSFARBW92YI3qjZB7uontba~l50lZUkULOgov9QyF1POWxdwmkuAgQIO0I30sSLd-HF~t3rPOz9CAAjlq972GUQIbZHt0z6uVcp6IY3qUKNA7YfrIImslXFtFMWX23~AV-BfgnYyWNTcpdc-lXevmaIBY1j8V8naz~3SjNeDC35iJn2I8AB3ZGo-R1Nk50A0A73iwN98hIGSIA70a40aMDcbeVrfepRAoCbJ6fmv7-zuksBivAkKMH3MoR6Po6h1bN0Z6GmehCJUUfMA20sSRTeUcP0raw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

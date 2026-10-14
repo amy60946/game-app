@@ -1,0 +1,16 @@
+{
+ "id": "01a139db-fb5f-70c1-b063-34d2e225c8a5",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game item icons for a cozy children's tropical island pet game, laid out in three rows of three, reading order left to right then top to bottom: 1) a shiny red apple with a green leaf, 2) a brown coconut cut open showing white flesh, 3) a golden loaf of bread, 4) a slice of watermelon with black seeds, 5) an orange carrot with green top, 6) a small cooked fish on a leaf, 7) a strawberry ice cream cone, 8) a yellow corn cob with green husk, 9) a ripe red tomato. Each icon is a single object, centered in its own equal square cell with wide empty space between icons, nothing touching or overlapping. Premium stylized 3D render, soft rounded shapes, glossy, warm soft lighting, rich gentle colors, clean silhouette, slight three-quarter view. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791972080503,
+ "started_at": 1791972080510,
+ "finished_at": 1791972122632,
+ "expires_at": 1792231322632,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139db-fb5f-70c1-b063-34d2e225c8a5_0.png?Expires=1792231322&Signature=kZ7cvV~na49bHz-K00kOUL9kH1xeFD~hoOtYxO6bgzrdQIHbovvk5tEJf21XZskkUw05qFGpUwCr3X~RAiHUHVwZmShWMiP8IrHa0BPP6qvIzkCU4gRXgrKOxWZDp55bXtjfcZMHOHvxVTwSsidx6zDjiXB~umCjfh0p1qhK~O4Hah~NLq~ZtdKbWrRLMNOMHZCH1lG4onH41bF5iStPyoEhzcg3Ufi~Q-1CKqA-uvhBfLYeTLq3ghGcCZwXr5QghoYni1-0dvRjaAHifnQhfhuWuBSAN8BU0VMe6nwmhK6wGQp95BBxejLVUjwb-GDHRX1NtwtxoW8NksvpMMgXsQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

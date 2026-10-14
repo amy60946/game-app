@@ -53,7 +53,8 @@ namespace Pofi.Screens
                     var produce = App.Data.Item(seed.Grows);
                     var size = state == PlotState.Ready ? 200f : state == PlotState.Growing ? 120f : 60f;
                     var plant = Ui.Rect(cell, "Plant", new Vector2(0.5f, 0.6f), new Vector2(size, size));
-                    Ui.Panel(plant, state == PlotState.Ready ? Theme.Hex("#FF9F43") : Theme.Hex("#46D063"), size / 2f).raycastTarget = false;
+                    if (state != PlotState.Ready || produce == null || Ui.IconImage(plant, produce.Id, new Vector2(0.5f, 0.5f), size) == null)
+                        Ui.Panel(plant, state == PlotState.Ready ? Theme.Hex("#FF9F43") : Theme.Hex("#46D063"), size / 2f).raycastTarget = false;
                     Ui.Label(cell, produce != null ? produce.Name : seed.Name, Th.Font(34), Color.white, new Vector2(0.5f, 0.88f), new Vector2(440f, 60f), FontStyle.Bold);
                 }
                 string label;

@@ -1,0 +1,16 @@
+{
+ "id": "01a139dd-0740-71b5-b6db-6bb5b696e85a",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game item icons for a cozy children's tropical island pet game, laid out in three rows of three, reading order left to right then top to bottom: 1) a pink bar of soap with bubbles, 2) a blue bottle of bubble bath with foam bubbles, 3) round orange kids eyeglasses, 4) cool blue sunglasses, 5) star-shaped pink party glasses, 6) a striped red and white t-shirt, 7) a flowery tropical shirt, 8) a navy sailor apron with an anchor, 9) a soft lilac hoodie. Each icon is a single object, centered in its own equal square cell with wide empty space between icons, nothing touching or overlapping. Premium stylized 3D render, soft rounded shapes, glossy, warm soft lighting, rich gentle colors, clean silhouette, slight three-quarter view. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791972149070,
+ "started_at": 1791972149074,
+ "finished_at": 1791972172256,
+ "expires_at": 1792231372256,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139dd-0740-71b5-b6db-6bb5b696e85a_0.png?Expires=1792231372&Signature=Chf4EkFqNJyonDt8g2YUu8xSD6Qf9AEb3P-AYyiZnScy5xakOfaQOiZZq3AYtS0-oh3MJ9ZxMhr6e0m3CI3kzNy1X~iPkM7XQWLDuoSYNfENgCUP~Eg0QjC~HsuqGNdnqqBVZwS32nIKaklcPaAyENIKkqP857egdJtHC~FyQk6SUb~SF9L3EpncWAMh~GaFqHDq7EcQlsBXQZKrxQyqU8QF3Mhqm~eHKYcU--LFudSoy7q3BCoq2wKAAhLksbYJwv6iLATKuvlZ9EdxF2VyDzlMwknycD2gHHmvomEP26HxHDah2LrOypYHYEhJOngJBsvY0oB2YOsC1kA5YLHgSQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

@@ -1,0 +1,16 @@
+{
+ "id": "01a139dd-b536-7400-90e2-fb762234d1f2",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game item icons for a cozy children's tropical island pet game, laid out in three rows of three, reading order left to right then top to bottom: 1) a round spiky puffer fish, 2) a big round silver ocean sunfish, 3) a colorful butterfly, 4) a red ladybug with black dots, 5) a cute glowing firefly, 6) a blue dragonfly, 7) a pink scallop seashell, 8) a spiral conch seashell, 9) an orange starfish. Each icon is a single object, centered in its own equal square cell with wide empty space between icons, nothing touching or overlapping. Premium stylized 3D render, soft rounded shapes, glossy, warm soft lighting, rich gentle colors, clean silhouette, slight three-quarter view. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791972193600,
+ "started_at": 1791972193608,
+ "finished_at": 1791972213276,
+ "expires_at": 1792231413276,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139dd-b536-7400-90e2-fb762234d1f2_0.png?Expires=1792231413&Signature=jppUDjAuH61mc5eIx3U7HhlUOO~WvVePnmZbpEihmV59oFZn9X2lbyuiGSOpScUTceFoGsfRYEjn4kheT2uCgtgMPMsrO3reH0Gd4tfxE61jnX85IpwMlFLtGASvIUeDEhQrXcXWlfrB9564d~U0kZlMdDbUYjdKMgCvrsgPUEO2mUE-vCGgXh19hkT5l~zKjwPcHSMmftvQDjMkIKIot6U8SE19UXR05jgt-yMJuP3MalaFun8yQn5lQm21u9TvdaljJNTJVl6ifESBceo3lE7HS52p-gLR0msF9RVo5jLs55o8b2OBfaD39jO4sTC2MQVV6dDgH6Oll6sAf0VSrw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

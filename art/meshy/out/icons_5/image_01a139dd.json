@@ -1,0 +1,16 @@
+{
+ "id": "01a139dd-772a-7246-a840-0a8681a89b20",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game item icons for a cozy children's tropical island pet game, laid out in three rows of three, reading order left to right then top to bottom: 1) a small round fish aquarium, 2) a seed packet with a carrot picture, 3) a seed packet with a corn picture, 4) a seed packet with a tomato picture, 5) a seed packet with a watermelon picture, 6) a striped beach umbrella, 7) a small sandcastle with a flag, 8) a tiny potted palm tree, 9) a string of colorful festival paper lanterns. Each icon is a single object, centered in its own equal square cell with wide empty space between icons, nothing touching or overlapping. Premium stylized 3D render, soft rounded shapes, glossy, warm soft lighting, rich gentle colors, clean silhouette, slight three-quarter view. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791972177723,
+ "started_at": 1791972177729,
+ "finished_at": 1791972204268,
+ "expires_at": 1792231404268,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139dd-772a-7246-a840-0a8681a89b20_0.png?Expires=1792231404&Signature=JyCjB~pjESpZ~sDdiY6Y8rxW45cqgnT3V2sLn1AaYD7y2LINTMChjatgNAAB1cCV1qBTLWyGSsFw4RzmagivIAJHElPHuVIXfCkTXeJJtt~z5j8E~4W5XOejKWqtUakWbmDJgOmNEQP6HekeHnuLo0w5R5895aALEZsmdZbkA2rs9ISUsbL0DEUrcaQAqlLyqFoJenVqhAWI8Y5QZ-BxUazXhAy88R5XFthYHv9-ic7Jigu4KfrwPQZYtysETYckD5E7wQjOe0AXZ8p8GUMEt46z9lw2GleoF9mRGDnlAvUa-YcHgx28wgLIwGYsnZx-1sGl49OdhlFBxibZN~QqOQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

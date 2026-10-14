@@ -1,0 +1,16 @@
+{
+ "id": "01a139dd-0700-7568-a83b-0227ef4e8930",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game item icons for a cozy children's tropical island pet game, laid out in three rows of three, reading order left to right then top to bottom: 1) a red hero cape, 2) a round embroidered star patch badge, 3) a colorful woven sash belt, 4) a pair of cozy orange mittens, 5) a small triangular flag on a stick, 6) a soft cozy pet bed with a pillow, 7) a round woven colorful rug, 8) a seashell shaped lamp glowing, 9) a small wooden bookshelf with books. Each icon is a single object, centered in its own equal square cell with wide empty space between icons, nothing touching or overlapping. Premium stylized 3D render, soft rounded shapes, glossy, warm soft lighting, rich gentle colors, clean silhouette, slight three-quarter view. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791972149001,
+ "started_at": 1791972149004,
+ "finished_at": 1791972177032,
+ "expires_at": 1792231377032,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139dd-0700-7568-a83b-0227ef4e8930_0.png?Expires=1792231377&Signature=fSF9svEgFL--GFiHaxCMJWWWmmo6GLnvIRc5XhDpblf8-l3~3KZL~Bj2fgNd0loIj15rwjxMznfK-Pmm~BaXO22L2cQJ8D2MhG5pZfrLJ33aWg8-kZC8DP3DLoPswyuPFcywNPhBvr7DGla8n42q2MrbNfdyFkcfTCqawOWfvdzEH8~TuLl0ZigW3HwexRZblzf70G2yRi9rNl2yeYcUmeG-eyCoQJJeQKpTnG~7l~S92o6PqDc5QFYBCet7hHOyZlc657CEAi5c6-MBAqkj~aHi04xxXGbdP0wmE5a2PKk0KPEbKKZ3EyhpLN0UE6Wrq3tYPvLK~E2ud5suK5PKbg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

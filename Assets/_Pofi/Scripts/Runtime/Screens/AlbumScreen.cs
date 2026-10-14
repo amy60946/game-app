@@ -72,7 +72,8 @@ namespace Pofi.Screens
                     Ui.Panel(cell, have ? Th.Panel : new Color(1f, 1f, 1f, 0.45f), Th.Radius).raycastTarget = false;
                     var dot = Ui.Rect(cell, "Icon", new Vector2(0.5f, 0.62f), new Vector2(110f, 110f));
                     Ui.Panel(dot, have ? RarityColor(e.Rarity) : new Color(0f, 0f, 0f, 0.15f), 55f).raycastTarget = false;
-                    if (!have) Ui.Label(dot, T("album.unknown"), Th.Font(60), Color.white, new Vector2(0.5f, 0.5f), new Vector2(110f, 110f), FontStyle.Bold);
+                    var pic = Ui.IconImage(dot, e.Id, new Vector2(0.5f, 0.5f), 130f, default, have ? (Color?)null : new Color(0.1f, 0.12f, 0.2f, 0.45f));   // bulunmayan: siluet
+                    if (!have && pic == null) Ui.Label(dot, T("album.unknown"), Th.Font(60), Color.white, new Vector2(0.5f, 0.5f), new Vector2(110f, 110f), FontStyle.Bold);
                     Ui.Label(cell, have ? e.Name : "Sv " + e.Level, Th.Font(28), Th.Text, new Vector2(0.5f, 0.17f), new Vector2(220f, 70f), FontStyle.Bold);
                 }
             }

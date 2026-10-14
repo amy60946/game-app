@@ -91,7 +91,8 @@ namespace Pofi.Screens
             if (!fit.Allowed) col = Color.Lerp(col, Color.gray, 0.7f);
             var img = Ui.Panel((RectTransform)go.transform, on ? Th.Primary : Color.white, Th.Radius);
             var dot = Ui.Rect(go.transform, "Swatch", new Vector2(0.5f, 0.66f), new Vector2(90f, 90f));
-            Ui.Panel(dot, col, 45f).raycastTarget = false;
+            Ui.Panel(dot, Ui.Icon(item.Id) != null ? Color.Lerp(col, Color.white, 0.7f) : col, 45f).raycastTarget = false;
+            Ui.IconImage(dot, item.Id, new Vector2(0.5f, 0.5f), 110f, default, fit.Allowed ? (Color?)null : new Color(0.6f, 0.6f, 0.6f, 0.6f));
             Ui.Label(go.transform, item.Name, Th.Font(30), on ? Th.PrimaryText : Th.Text, new Vector2(0.5f, 0.2f), new Vector2(300f, 70f), FontStyle.Bold);
             var b = go.AddComponent<Button>();
             b.targetGraphic = img;

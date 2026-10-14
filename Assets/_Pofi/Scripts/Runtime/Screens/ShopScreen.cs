@@ -90,8 +90,9 @@ namespace Pofi.Screens
             var icon = Ui.Rect(card, "Icon", new Vector2(0.5f, 0.66f), new Vector2(150f, 150f));
             var col = item.IsWearable ? CosmeticModels.ColorOf(item.Id) : CategoryColor(item.Category);
             if (locked || noFit) col = Color.Lerp(col, Color.gray, 0.7f);
-            Ui.Panel(icon, col, 40f).raycastTarget = false;
-            Ui.Label(icon, item.Name.Substring(0, 1), Th.Font(80), Color.white, new Vector2(0.5f, 0.5f), new Vector2(150f, 150f), FontStyle.Bold);
+            Ui.Panel(icon, Ui.Icon(item.Id) != null ? Color.Lerp(col, Color.white, 0.75f) : col, 75f).raycastTarget = false;
+            if (Ui.IconImage(icon, item.Id, new Vector2(0.5f, 0.5f), 170f, default, locked ? new Color(1f, 1f, 1f, 0.5f) : (Color?)null) == null)
+                Ui.Label(icon, item.Name.Substring(0, 1), Th.Font(80), Color.white, new Vector2(0.5f, 0.5f), new Vector2(150f, 150f), FontStyle.Bold);
 
             Ui.Label(card, item.Name, Th.Font(30), Th.Text, new Vector2(0.5f, 0.3f), new Vector2(270f, 80f), FontStyle.Bold);
 

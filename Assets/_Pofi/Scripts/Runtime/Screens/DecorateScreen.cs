@@ -73,7 +73,8 @@ namespace Pofi.Screens
                 if (placed != null)
                 {
                     var item = App.Data.Item(placed.ItemId);
-                    Ui.Label(rt, item != null ? item.Name : placed.ItemId, Th.Font(26), Color.white, new Vector2(0.5f, 0.5f), new Vector2(cell - 16f, cell - 16f), FontStyle.Bold);
+                    if (Ui.IconImage(rt, placed.ItemId, new Vector2(0.5f, 0.5f), cell - 24f) == null)
+                        Ui.Label(rt, item != null ? item.Name : placed.ItemId, Th.Font(26), Color.white, new Vector2(0.5f, 0.5f), new Vector2(cell - 16f, cell - 16f), FontStyle.Bold);
                 }
                 if (pet) { img.raycastTarget = false; continue; }
                 var b = rt.gameObject.AddComponent<Button>();

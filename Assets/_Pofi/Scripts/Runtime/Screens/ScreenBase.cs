@@ -121,7 +121,8 @@ namespace Pofi.Screens
             var coin = Ui.Rect(parent, "Coins", anchor, new Vector2(230f, 84f));
             Ui.Panel(coin, Theme.Hex("#FFD23F"), 42f).raycastTarget = false;
             var dot = Ui.Rect(coin, "Icon", new Vector2(0.2f, 0.5f), new Vector2(54f, 54f));
-            Ui.Panel(dot, Theme.Hex("#F5A300"), 27f).raycastTarget = false;
+            if (Ui.IconImage(coin, "ui_coin", new Vector2(0.2f, 0.5f), 70f) != null) Object.Destroy(dot.gameObject);
+            else Ui.Panel(dot, Theme.Hex("#F5A300"), 27f).raycastTarget = false;
             return Ui.Label(coin, App.State.Wallet.Available.ToString(), Th.Font(46), Theme.Hex("#5A3B00"), new Vector2(0.62f, 0.5f), new Vector2(150f, 80f), FontStyle.Bold);
         }
 

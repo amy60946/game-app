@@ -54,6 +54,33 @@ namespace Pofi.UI
             return s;
         }
 
+        private static readonly System.Collections.Generic.Dictionary<string, Sprite> Icons = new System.Collections.Generic.Dictionary<string, Sprite>();
+
+        /// <summary>Eşya/koleksiyon simgesi (Resources/Icons/&lt;id&gt;.png, şeffaf). Yoksa null.</summary>
+        public static Sprite Icon(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return null;
+            if (Icons.TryGetValue(id, out var s)) return s;
+            var tex = Resources.Load<Texture2D>("Icons/" + id);
+            s = tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+            Icons[id] = s;
+            return s;
+        }
+
+        /// <summary>Simge görüntüsü; simge yoksa null (çağıran yer tutucu çizer). tint: gri/siluet için.</summary>
+        public static RectTransform IconImage(Transform parent, string id, Vector2 anchor, float size, Vector2 offset = default, Color? tint = null)
+        {
+            var sp = Icon(id);
+            if (sp == null) return null;
+            var rt = Rect(parent, "Icon " + id, anchor, new Vector2(size, size), offset);
+            var img = rt.gameObject.AddComponent<Image>();
+            img.sprite = sp;
+            img.preserveAspect = true;
+            img.raycastTarget = false;
+            if (tint.HasValue) img.color = tint.Value;
+            return rt;
+        }
+
         /// <summary>Portre görüntüsü (yuvarlak arka planlı). Portre yoksa yalnızca renkli daire.</summary>
         public static RectTransform PortraitIcon(Transform parent, string petId, Color bg, Vector2 anchor, float size, Vector2 offset = default)
         {

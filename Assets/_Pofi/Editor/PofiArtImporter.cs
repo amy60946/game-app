@@ -62,6 +62,16 @@ namespace Pofi.EditorTools
 
         private void OnPreprocessTexture()
         {
+            if (assetPath.Replace('\\', '/').Contains("/Resources/Icons/"))
+            {
+                var ti = (TextureImporter)assetImporter;
+                ti.alphaIsTransparency = true;
+                ti.mipmapEnabled = false;
+                ti.maxTextureSize = 256;
+                ti.sRGBTexture = true;
+                ti.textureCompression = TextureImporterCompression.Compressed;
+                return;
+            }
             if (!IsArt) return;
             var t = (TextureImporter)assetImporter;
             t.maxTextureSize = 1024;

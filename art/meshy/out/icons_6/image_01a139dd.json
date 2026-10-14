@@ -1,0 +1,16 @@
+{
+ "id": "01a139dd-9684-74f1-b47f-a9a75d6ad4c6",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game item icons for a cozy children's tropical island pet game, laid out in three rows of three, reading order left to right then top to bottom: 1) a navy captain jacket with gold buttons, 2) a white captain hat with gold anchor, 3) a blue cape with a golden star emblem, 4) a small silver sardine fish, 5) a silver gilt-head sea bream fish, 6) a grey sea bass fish, 7) a red mullet fish, 8) a blue-green bluefish, 9) an orange and white clownfish. Each icon is a single object, centered in its own equal square cell with wide empty space between icons, nothing touching or overlapping. Premium stylized 3D render, soft rounded shapes, glossy, warm soft lighting, rich gentle colors, clean silhouette, slight three-quarter view. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791972185741,
+ "started_at": 1791972185746,
+ "finished_at": 1791972205029,
+ "expires_at": 1792231405029,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139dd-9684-74f1-b47f-a9a75d6ad4c6_0.png?Expires=1792231405&Signature=AeyrNotmSldCtX-7v0JFiZpcWiFRMjwSC9FgOG3ux1d0jQyxHNPsC-vZKFwgWB07u8q6S8AUMuB9asz2lTsaAllzCpqKszzubrqc3oNoK7OVsP~YsDLKvRC9eviqHnD27ntfTUAgie~egktQbcbMPeLg5LAYUbuetmF4-W0siz-b3X4j2UgYqNwNTWwe1BLALXAoP1jW3gAzi0HKmYQisYVfaBwG7ocXBNONfpKmm32v5LwLSZcHNHyYuI6TqWaNd1CWb3bIJia3myEIISoawwMOQaeL-uE2t2C4EXsK-6DdiY-Hsrd5b2kCZrsVRMVMZVNVvXYEBgwdSm-GQuezSg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

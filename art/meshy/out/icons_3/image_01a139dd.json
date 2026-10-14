@@ -1,0 +1,16 @@
+{
+ "id": "01a139dd-0554-7401-b6c6-154bd9012d34",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game item icons for a cozy children's tropical island pet game, laid out in three rows of three, reading order left to right then top to bottom: 1) a khaki explorer vest with pockets, 2) a yellow raincoat, 3) a red baseball cap, 4) a straw sun hat with a ribbon, 5) a knitted teal beanie with a pompom, 6) a small golden crown with gems, 7) pink over-ear headphones, 8) a knitted striped scarf, 9) a small green backpack. Each icon is a single object, centered in its own equal square cell with wide empty space between icons, nothing touching or overlapping. Premium stylized 3D render, soft rounded shapes, glossy, warm soft lighting, rich gentle colors, clean silhouette, slight three-quarter view. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791972148578,
+ "started_at": 1791972148583,
+ "finished_at": 1791972184735,
+ "expires_at": 1792231384735,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139dd-0554-7401-b6c6-154bd9012d34_0.png?Expires=1792231384&Signature=l1SO-xxJtCUi7TVXwtJVHfwwQdYweEpWhown56YKThSkg1Kujvu-6eS51CuEAx7zrDGCdTnuqnTZeCCex4q~Np0~aj~9qsPDSs4F7l9xHCMmUF8UYsQQF3pTB3Y0GoybRBP26FKTG2XKrErL0ypBRDG-AoeuxenV32V11~hLzfkarMMb60GSejkQcBEC-qNcjWQSKhNZRiLouU~XOqy1mRVztdcsWdc2ODXo9NgXYl~nxlWElptB4Ce-V5bojpg7vHulb4o7rZriF-NPvPDV5hJ5LhE8TtOMjIUN3gsCA1tJLhapL49164aJk7MM3MqxCYLHHJcWT9y5wcNlvpCmlA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
