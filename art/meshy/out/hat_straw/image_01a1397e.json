@@ -1,0 +1,16 @@
+{
+ "id": "01a1397e-10cd-7728-a4d1-5911d0e7914d",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A single small straw sun hat game accessory for a cute pet dress-up game: woven straw texture, round brim, red ribbon band with a small bow. Premium stylized 3D render, soft studio lighting, high-end mobile game quality. Isolated object, centered, three-quarter view, plain light grey background, no character, no text.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791965925589,
+ "started_at": 1791965925602,
+ "finished_at": 1791965951101,
+ "expires_at": 1792225151101,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1397e-10cd-7728-a4d1-5911d0e7914d_0.png?Expires=1792225151&Signature=EjUt1M3zu9dxEfuascJxhCm8Ng8~bJa6YAlJN5Yyg7ZOmQTLLjjn9E4DF58h4GhV~mtI9rsjuFALUolsdsJyQyOZ1xI4UzMHAN6V6EgPnCGSyvv1b9Rt8N5h9ehwECJQBe7cLD3nH6IrY-l0m0y37SaTuoM6KP9TLnFt1MRW7Dwu~J3DPmAWzj96rCdOn-7Vf3Ax7V4ohhb9eg3GO1U~WtoFoBwA8BasS9VG4HuGfqvOCCpECUhWxVZ1w297yFA7YBndDRSadGtaCbpQp8oEz6VZFCWn4ldW3mp5H9AoMnheWMZKl-Wt2~x84P-xcWlRuhsu44Z-IZBdkV~gcKB8Cg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
