@@ -46,3 +46,4 @@ Assets/_Pofi/Resources/build_number.txt.meta
 art/meshy/out/**/*.glb
 art/meshy/out/**/*.fbx
 art/meshy/out/**/render_*.png
+art/meshy/out/*.log
