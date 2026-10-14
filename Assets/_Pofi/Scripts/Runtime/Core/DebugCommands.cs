@@ -10,7 +10,7 @@ namespace Pofi.Core
     /// <summary>
     /// Otomatik test kancası (yalnızca sahte arka uçla): tarayıcıdan
     /// <c>unityInstance.SendMessage("Bootstrap", "PofiDebug", "login A1A1A1")</c> ile çağrılır. Gerçek sunucuda kapalıdır.
-    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · region ID
+    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · region ID · wear ID… · place ID…
     /// </summary>
     public static class DebugCommands
     {
@@ -50,6 +50,33 @@ namespace Pofi.Core
                         var xz = arg.Split(' ');
                         Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugWalk(
                             float.Parse(xz[0], System.Globalization.CultureInfo.InvariantCulture), float.Parse(xz[1], System.Globalization.CultureInfo.InvariantCulture));
+                        break;
+                    case "wear":        // test: eşyayı ver ve giydir ("wear hat_straw glasses_round …")
+                        foreach (var id in arg.Split(' '))
+                        {
+                            var it = app.Data.Item(id);
+                            if (it == null) continue;
+                            if (!app.State.Inventory.Owns(id)) app.State.Inventory.Add(it);
+                            if (it.IsWearable) app.State.Inventory.TryEquip(app.Data.Pet(app.State.PetId), it);
+                        }
+                        app.Save(); app.Route();
+                        break;
+                    case "place":       // test: ev eşyasını ver ve evde ilk boş kareye koy
+                        foreach (var id in arg.Split(' '))
+                        {
+                            var it = app.Data.Item(id);
+                            if (it != null && !app.State.Inventory.Owns(id)) app.State.Inventory.Add(it);
+                        }
+                        var exp = app.Levels.IsUnlocked("home_expansion", app.Level);
+                        var (hw, hh) = Logic.Home.HomeLayout.Size(exp);
+                        foreach (var it in Logic.Home.HomeLayout.Unplaced(app.State, app.Data))
+                        {
+                            var done = false;
+                            for (var yy = hh - 1; yy >= 0 && !done; yy--)
+                            for (var xx = 0; xx < hw && !done; xx++)
+                                done = Logic.Home.HomeLayout.Place(app.State, it, xx, yy, exp) == Logic.Home.PlaceResult.Ok;
+                        }
+                        app.Save(); app.Route();
                         break;
                     case "region":      // ada: bölgeye gir
                         Object.FindAnyObjectByType<Screens.MapScreen>()?.EnterById(arg);

@@ -141,7 +141,8 @@ namespace Pofi.World
         {
             var b = Bounds(model);
             if (b.size.y <= 0.0001f) return;
-            var s = height / b.size.y;
+            // height kökün yerel biriminde: üst nesne o an ölçekliyse (ör. büyüme animasyonu) dünya ölçüsüne çevir
+            var s = height * Mathf.Abs(root.lossyScale.y) / b.size.y;
             model.localScale *= s;
             b = Bounds(model);
             var offset = root.position - new Vector3(b.center.x, b.min.y, b.center.z);
