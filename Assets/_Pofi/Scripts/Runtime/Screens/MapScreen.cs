@@ -15,7 +15,7 @@ namespace Pofi.Screens
     /// Parmakla yana sürüklemek kamerayı petin çevresinde döndürür. Kuşbakışı: tüm ada, kaydırılır; dokunulan yere
     /// pet hemen gider (hızlı geçiş). Kilitli bölge gri ve "Seviye N'de açılır!" der; yeni açılanda "Yeni!".
     /// </summary>
-    public sealed class MapScreen : ScreenBase
+    public sealed partial class MapScreen : ScreenBase
     {
         private static IslandTerrain _terrain;   // oturum boyunca bir kez kurulur
 
@@ -27,7 +27,7 @@ namespace Pofi.Screens
         private float _camYaw;                      // yürüme kamerasının pet çevresindeki açısı
         private Vector3 _camPos, _camLook;
         private Vector3 _press, _last;
-        private bool _down, _moved;
+        private bool _down, _moved, _stick;
         private SpeechBubble _toast;
         private RectTransform _labelLayer;
         private Text _modeText;
@@ -53,27 +53,14 @@ namespace Pofi.Screens
             {
                 _sparkles = Sparkles.Open(App.State.Sparkles, Day, Sparkles.ForDay(Day, App.State.ChildId, App.Level,
                     Logic.Pet.PetCare.IsNight(App.LocalNow), App.Data.Collection, _terrain));
-                foreach (var sp in _sparkles) _world.AddSparkle(sp.Index, sp.X, sp.Z);
+                foreach (var sp in _sparkles) _sparkleObjs[sp.Index] = _world.AddSparkle(sp.Index, sp.X, sp.Z);
             }
 
             _labelLayer = Ui.Fill(Root, "Labels");
             foreach (var v in _views) _labels[v.Region.Id] = Label(v);
 
-            var header = Header(T("map.title"));
-            header.text = App.State.Wallet.Available.ToString();
-            var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions);
-            if (next != null)
-            {
-                var hint = Ui.Rect(Root, "Next", new Vector2(0.5f, 0f), new Vector2(900f, 90f));
-                hint.pivot = new Vector2(0.5f, 0f);
-                hint.anchoredPosition = new Vector2(0f, NavHeight + 20f);
-                Ui.Panel(hint, new Color(1f, 1f, 1f, 0.9f), 45f).raycastTarget = false;
-                Ui.Label(hint, T("map.next", next.Region.Name, next.UnlockLevel), Th.Font(36), Th.Text, new Vector2(0.5f, 0.5f), new Vector2(880f, 80f), FontStyle.Bold);
-            }
-            var mode = CornerButton(T("map.overview"), ToggleMode, 340f);
-            _modeText = mode.GetComponentInChildren<Text>();
-            _toast = Bubble(new Vector2(0.5f, 0.8f));
-            NavBar(AppPage.Map);
+            BuildHud();
+            _toast = Bubble(new Vector2(0.5f, 0.78f));
 
             SnapCamera();
             _toast.Say(T("map.hint_walk"));
@@ -82,7 +69,8 @@ namespace Pofi.Screens
         private void ToggleMode()
         {
             _overview = !_overview;
-            _modeText.text = T(_overview ? "map.walk" : "map.overview");
+            if (_modeText != null) _modeText.text = T(_overview ? "map.walk" : "map.overview");
+            if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
             if (_overview && _world.Walker != null) _pan = _world.Walker.Position;
             _toast.Say(T(_overview ? "map.hint_overview" : "map.hint_walk"));
         }
@@ -95,6 +83,16 @@ namespace Pofi.Screens
             bg.raycastTarget = false;
             var text = v.Unlocked ? v.Region.Name : v.Region.Name + " · Sv " + v.UnlockLevel;
             Ui.Label(rt, text, Th.Font(28), v.Unlocked ? Th.Text : Color.white, new Vector2(0.5f, 0.5f), new Vector2(290f, 66f), FontStyle.Bold);
+            if (v.Unlocked && IsPlayPlace(v.Region))
+            {
+                // oyun yerinin üstünde "Oyna!" çağrısı
+                var play = Ui.Rect(rt, "Play", new Vector2(0.5f, 1f), new Vector2(220f, 84f), new Vector2(0f, 56f));
+                var img = play.gameObject.AddComponent<Image>();
+                img.sprite = Ui.Rounded; img.type = Image.Type.Sliced; img.color = Candy.Green; img.raycastTarget = false;
+                var o = play.gameObject.AddComponent<Outline>(); o.effectColor = Color.white; o.effectDistance = new Vector2(4f, -4f);
+                Candy.Caption(play, T("hud.play"), 44, new Vector2(0.5f, 0.5f), new Vector2(220f, 84f));
+                play.gameObject.AddComponent<Pulse>();
+            }
             if (v.IsNew)
             {
                 var badge = Ui.Rect(rt, "New", new Vector2(0.5f, 1f), new Vector2(120f, 50f), new Vector2(0f, 26f));
@@ -141,6 +139,7 @@ namespace Pofi.Screens
         private void Update()
         {
             HandleInput();
+            UpdateHud();
             TargetCamera(out var pos, out var look, out var fov);
             var k = 1f - Mathf.Exp(-6f * Time.deltaTime);
             _camPos = Vector3.Lerp(_camPos, pos, k);
@@ -168,6 +167,19 @@ namespace Pofi.Screens
             {
                 _down = true; _moved = false;
                 _press = _last = Input.mousePosition;
+                _stick = !_overview && _world.Walker != null && _press.x < Screen.width * 0.42f && _press.y < Screen.height * 0.8f;
+            }
+            if (_stick)
+            {
+                if (_down && Input.GetMouseButton(0)) { HandleStick(Input.mousePosition); return; }
+                if (Input.GetMouseButtonUp(0))
+                {
+                    _down = false; _stick = false;
+                    var moved = _moved;
+                    EndStick();
+                    if (!moved) Tap(Input.mousePosition);
+                }
+                return;
             }
             if (_down && Input.GetMouseButton(0))
             {
@@ -205,6 +217,12 @@ namespace Pofi.Screens
             var ray = App.Stage.Camera.ScreenPointToRay(screen);
             if (!Physics.Raycast(ray, out var hit, 400f)) return;
             var go = hit.collider.gameObject;
+            if (go.name == "pet" && !_overview)
+            {
+                App.Stage.SetPetVisible(true);
+                App.Open(AppPage.Wardrobe);   // giydirme: pete dokununca
+                return;
+            }
             if (go.name.StartsWith("sparkle_"))
             {
                 var spot = _world.Local(go.transform.position);

@@ -49,7 +49,7 @@ namespace Pofi.Core
         /// <summary>Sahte sunucu (M4'te Supabase servisleriyle değişecek). Ebeveyn rolü: <see cref="DemoParent"/>.</summary>
         public MockBackend Backend { get; private set; }
         public SyncCoordinator Sync { get; private set; }
-        public AppPage Page { get; private set; } = AppPage.Home;
+        public AppPage Page { get; private set; } = AppPage.Map;   // ana merkez ada (14 Ekim 2026)
 
         /// <summary>Her senkrondan sonra (görev olayları, kazanılan coin).</summary>
         public event Action<SyncReport> Synced;
@@ -119,7 +119,7 @@ namespace Pofi.Core
             Backend.Import(Store.Get(ServerKey(session.ChildId)));
             DemoParent.EnsureToday(Backend, LocalNow);
             Sync = new SyncCoordinator(Backend, Backend, Backend, Data);
-            Page = AppPage.Home;
+            Page = AppPage.Map;
             _ = SyncNow();
             if (route) Route();
         }

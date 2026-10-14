@@ -74,21 +74,17 @@ namespace Pofi.Screens
             return b;
         }
 
-        /// <summary>Alt menü: Ev, Ada, Görevler, Dükkan, Dolap. Seçili sekme vurgulu. Ekranın altına yapışır, ortalı.</summary>
+        /// <summary>
+        /// Alt menü kaldırıldı (14 Ekim 2026): ada ana merkez. Her ekranın sol altında geri düğmesi: evin alt sayfaları
+        /// (defter, ayarlar, süsle) Evim'e, diğerleri adaya döner. Adanın kendisinde düğme yok.
+        /// </summary>
         protected void NavBar(AppPage current)
         {
-            var bar = Strip("Nav", 0f, NavHeight);
-            bar.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0.97f);
-            var pages = new[] { AppPage.Home, AppPage.Map, AppPage.Tasks, AppPage.Shop, AppPage.Wardrobe };
-            var keys = new[] { "nav.home", "nav.map", "nav.tasks", "nav.shop", "nav.wardrobe" };
-            for (var i = 0; i < pages.Length; i++)
-            {
-                var page = pages[i];
-                var on = page == current;
-                var b = Ui.Button(bar, Th, T(keys[i]), new Vector2(0.5f, 0.5f), new Vector2(240f, 92f),
-                    () => { if (App.Page != page) App.Open(page); }, on, new Vector2((i - 2) * 270f, 0f), 34, false);
-                if (page == AppPage.Tasks) TaskBadge(b.transform);
-            }
+            if (App.Page == AppPage.Map) return;
+            var home = App.Page == AppPage.Settings || App.Page == AppPage.Album || App.Page == AppPage.Decorate;
+            var target = home ? AppPage.Home : AppPage.Map;
+            Candy.Pill(Root, Candy.Blue, T(home ? "hud.home" : "hud.back"), new Vector2(0f, 0f), new Vector2(250f, 100f), new Vector2(160f, 66f),
+                () => App.Open(target), home ? "home_bed" : "decor_palm", 42);
         }
 
         private void TaskBadge(Transform button)

@@ -44,7 +44,7 @@ namespace Pofi.Screens
                 Progress.MarkCelebrated(app.State, up);
                 app.Save();
                 Object.Destroy(root.gameObject);
-                if (up.NewStage != null && app.Page == AppPage.Home) app.Route();   // büyüyen peti yeniden çiz
+                if (up.NewStage != null && (app.Page == AppPage.Home || app.Page == AppPage.Map)) app.Route();   // büyüyen peti yeniden çiz
             });
             CoinBurst.Play(app.Overlay.transform, th, "");
         }

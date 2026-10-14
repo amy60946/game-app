@@ -17,3 +17,8 @@
 - Ekran yönü kararı (14 Ekim 2026): **YATAY** (telefon yan). Arayüz görselleri ve yerleşimler yataya göre. Pet konseptleri onaylandı (art/meshy/out/pet_XX/concept_*.png); Tosbi (pet_07) şimdilik bu haliyle, kredi kalırsa sırt kabuklu yeniden üretilecek.
 - İletişim dili (14 Ekim 2026): kullanıcıyla **Türkçe** yaz.
 - Ada gezme kararı (14 Ekim 2026): **dokun-yürü + kuşbakışı**. Pet adada yürür (yere dokun → oraya yürür, binaya dokun → kapısına gidip girer, kamera arkadan-yukarıdan takip eder); hızlı geçiş için kuşbakışı harita kalır. Ada köy gibi gezilecek kadar büyük, yapılar aralıklı; zemin gerçekçi (engebe, kumsal, tepe, patika) — prosedürel arazi + Meshy süsleri. P1 sanat onaylandı; P2 (kıyafet/ev eşyası) devam.
+- Arayüz kararı (14 Ekim 2026, taslaklar onaylı): panel/alt menü yok; ana merkez ada. Sahne üstünde süzülen 3B "şeker" düğmeler.
+  Sol üst pet rozeti + 4 gösterge halkası; sağ üst coin, Harita (kuşbakışı), Görev kısayolu; sol kenar Besle/Yıka (her yerde, yiyecek yoksa dükkâna koşar);
+  sol alt yüzen joystick + dokun-yürü birlikte; sağ alt tek bağlamsal eylem tuşu (Zıpla/Gir/Topla/Oyna); eğilme yok.
+  Topla, uyku, süsleme evde ("Evim" iç mekân). Giydirme: pete dokununca ve dükkânda. Oyun yerlerinin üstünde "▶ Oyna". Dükkân ürünleri tezgâhta süzülen baloncuklar.
+  Hedef: 6-15 yaş için basit ama profesyonel; amaçsız tuş/özellik yok.

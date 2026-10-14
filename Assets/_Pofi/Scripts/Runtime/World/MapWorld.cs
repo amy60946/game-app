@@ -257,6 +257,9 @@ namespace Pofi.World
             var pet = PetModels.Build(def, holder);
             CosmeticModels.Apply(pet, def, items);
             holder.localScale = Vector3.one * scale;
+            var col = holder.gameObject.AddComponent<CapsuleCollider>();   // pete dokununca giydirme
+            col.center = new Vector3(0f, 0.9f, 0f); col.height = 1.8f; col.radius = 0.6f;
+            holder.gameObject.name = "pet";
             Walker = holder.gameObject.AddComponent<PetWalker>();
             Walker.Init(this, pet, x, z);
             return Walker;
@@ -302,8 +305,26 @@ namespace Pofi.World
         private MapWorld _world;
         private Transform _pet;
         private readonly List<Vector2> _route = new List<Vector2>();
-        private float _x, _z, _yaw, _speed;
+        private float _x, _z, _yaw, _speed, _jump;
+        private Vector2 _direct;
+        private bool _steering;
         private string _clip;
+
+        /// <summary>Joystick: dünya düzleminde yön (uzunluk 0..1). Sıfır verilince durur.</summary>
+        public void Steer(Vector2 dir)
+        {
+            if (dir.sqrMagnitude > 0.0004f) { _route.Clear(); Arrived = null; }
+            _direct = Vector2.ClampMagnitude(dir, 1f);
+        }
+
+        /// <summary>Zıpla: sevinç animasyonu + küçük sıçrama (yürürken de olur).</summary>
+        public void Jump()
+        {
+            if (_jump > 0f) return;
+            _jump = 1f;
+            if (RealAssets.Play(_pet, "happy")) _clip = null;
+            Audio.Sfx.Play(Audio.SfxKind.Tap);
+        }
 
         public void Init(MapWorld world, Transform pet, float x, float z)
         {
@@ -343,6 +364,22 @@ namespace Pofi.World
 
         private void Update()
         {
+            if (_jump > 0f) { _jump = Mathf.Max(0f, _jump - Time.deltaTime / 0.75f); Apply(); }
+            if (_direct.sqrMagnitude > 0.0004f)
+            {
+                _steering = true;
+                var sp = Mathf.Lerp(WalkSpeed * 0.6f, RunSpeed, _direct.magnitude);
+                var nx = _x + _direct.x * sp * Time.deltaTime; var nz = _z + _direct.y * sp * Time.deltaTime;
+                if (_world.Terrain.Walkable(nx, nz)) { _x = nx; _z = nz; }
+                else if (_world.Terrain.Walkable(nx, _z)) _x = nx;          // engelde kayarak ilerle
+                else if (_world.Terrain.Walkable(_x, nz)) _z = nz;
+                var want = Mathf.Atan2(_direct.x, _direct.y) * Mathf.Rad2Deg;
+                _yaw = Mathf.MoveTowardsAngle(_yaw, want, 720f * Time.deltaTime);
+                Play(_direct.magnitude > 0.7f ? "run" : "walk", "walk");
+                Apply();
+                return;
+            }
+            if (_steering) { _steering = false; if (_route.Count == 0) Play("idle"); }
             if (_route.Count == 0) return;
             var target = _route[0];
             var pos = Position;
@@ -373,7 +410,8 @@ namespace Pofi.World
 
         private void Apply()
         {
-            transform.localPosition = new Vector3(_x, _world.Terrain.Height(_x, _z), _z);
+            var hop = _jump > 0f ? Mathf.Sin((1f - _jump) * Mathf.PI) * 0.9f : 0f;
+            transform.localPosition = new Vector3(_x, _world.Terrain.Height(_x, _z) + hop, _z);
             // gerçek pet modeli kameraya dönük (180°) kurulu; yürüme yönüne bakması için ön = +z kabul edilir
             transform.localRotation = Quaternion.Euler(0f, _yaw + 180f, 0f);
         }
