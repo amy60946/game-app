@@ -146,17 +146,27 @@ namespace Pofi.World
             if (_skyMat == null) return;
             if (sky.grayscale > 0.45f)
             {
-                _skyMat.SetColor("_Zenith", new Color(0.13f, 0.38f, 0.86f));
-                _skyMat.SetColor("_Horizon", new Color(0.62f, 0.8f, 0.98f));
-                _skyMat.SetColor("_Ground", new Color(0.42f, 0.66f, 0.86f));
-                _skyMat.SetFloat("_Wisps", 0.4f);
+                // gündüz: stilize açık mavi (Pofi/Sky varsayılanları)
+                _skyMat.SetColor("_Zenith", new Color(0.33f, 0.66f, 0.97f));
+                _skyMat.SetColor("_Mid", new Color(0.52f, 0.8f, 1f));
+                _skyMat.SetColor("_Horizon", new Color(0.76f, 0.92f, 1f));
+                _skyMat.SetColor("_Ground", new Color(0.45f, 0.75f, 0.95f));
+                _skyMat.SetColor("_CloudLit", Color.white);
+                _skyMat.SetColor("_CloudShade", new Color(0.8f, 0.87f, 0.98f));
+                _skyMat.SetFloat("_Clouds", 0.65f);
+                _skyMat.SetFloat("_Sun", 1f);
             }
             else
             {
+                // gece: verilen koyu tona göre; bulutlar soluk mavi, güneş yok
                 _skyMat.SetColor("_Zenith", sky * 0.55f);
+                _skyMat.SetColor("_Mid", sky * 0.8f);
                 _skyMat.SetColor("_Horizon", Color.Lerp(sky, Color.white, 0.25f));
                 _skyMat.SetColor("_Ground", sky * 0.8f);
-                _skyMat.SetFloat("_Wisps", 0.12f);
+                _skyMat.SetColor("_CloudLit", Color.Lerp(sky, Color.white, 0.45f));
+                _skyMat.SetColor("_CloudShade", Color.Lerp(sky, Color.white, 0.2f));
+                _skyMat.SetFloat("_Clouds", 0.4f);
+                _skyMat.SetFloat("_Sun", 0f);
             }
         }
 

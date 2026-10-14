@@ -4,7 +4,7 @@ Shader "Pofi/Cloud"
     Properties
     {
         _Lit ("Aydınlık", Color) = (1, 1, 1, 1)
-        _Shade ("Gölge", Color) = (0.7, 0.78, 0.9, 1)
+        _Shade ("Gölge", Color) = (0.8, 0.87, 0.98, 1)
     }
     SubShader
     {

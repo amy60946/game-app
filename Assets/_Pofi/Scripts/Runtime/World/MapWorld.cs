@@ -69,6 +69,7 @@ namespace Pofi.World
             foreach (var v in views) BuildRegion(v);
             BuildProps();
             Clouds.Spawn(transform, new Vector3(0f, 0f, Terrain.Def.Cz), 72f, 10, 18f, 30f, 9f, 5);   // ada çevresinde bulutlar
+            Birds.Spawn(transform, new Vector3(0f, 0f, Terrain.Def.Cz), 54f, 3, 9);                   // denizin üstünde kuş sürüleri
         }
 
         // ------------------------------------------------------------------ zemin
