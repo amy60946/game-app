@@ -22,3 +22,5 @@
   sol alt yüzen joystick + dokun-yürü birlikte; sağ alt tek bağlamsal eylem tuşu (Zıpla/Gir/Topla/Oyna); eğilme yok.
   Topla, uyku, süsleme evde ("Evim" iç mekân). Giydirme: pete dokununca ve dükkânda. Oyun yerlerinin üstünde "▶ Oyna". Dükkân ürünleri tezgâhta süzülen baloncuklar.
   Hedef: 6-15 yaş için basit ama profesyonel; amaçsız tuş/özellik yok.
+- Görsel gerçekçilik (14 Ekim 2026, onaylı sıra): önce KREDİSİZ deniz (dalga, parıltı, sığ turkuaz, kıyı köpüğü), kum (tepecik, rüzgâr çizgisi, ıslak kum), çim telleri, ışık; sonra kumsal objeleri için simge sayfası ön çalışması (~18 kredi) → onay → lite 3D (~260–320 kredi).
+  **Işık uyarısı (kullanıcı):** ekran parlamasın, renkler uçuk/soluk olmasın; canlı ama dengeli, net gölge. Kullanıcının kumsal örnek görselleri yalnız hava/kalite hedefi (yapay zekâya yüklenmez, karakterler kopyalanmaz).
