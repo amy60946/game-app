@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 2;
+        public override uint GetVersion() => 3;
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -35,6 +35,9 @@ namespace Pofi.EditorTools
             {
                 m.animationType = ModelImporterAnimationType.Legacy;
                 m.importAnimation = isAnim;
+                // Model ve animasyon dosyalarında kök düğüm aynı kalsın: aksi halde Unity boş kökü modelde siler ama
+                // animasyonlu kökü korur → kemik yolları uyuşmaz, hiçbir animasyon oynamaz (14 Ekim 2026 önizlemesi).
+                m.preserveHierarchy = true;
                 m.generateAnimations = ModelImporterGenerateAnimations.GenerateAnimations;
             }
             else

@@ -373,6 +373,9 @@ namespace Pofi.World
         public const float WalkSpeed = 2.6f, RunSpeed = 5.2f;
         public System.Action Arrived;
         public bool Moving => _route.Count > 0;
+        public bool Steering => _steering;
+        /// <summary>Petin baktığı yön (derece; 0 = +z).</summary>
+        public float Heading => _yaw;
         public Vector2 Position => new Vector2(_x, _z);
 
         private MapWorld _world;

@@ -215,13 +215,7 @@ namespace Pofi.Screens
             GoTo(dx, dz, () => EnterRegion(shop));
         }
 
-        private void GoTasks()
-        {
-            var board = _views.FirstOrDefault(v => v.Region.Id == "region_task_board");
-            if (board == null) { App.Open(AppPage.Tasks); return; }
-            var (dx, dz) = _terrain.Door(board.Region);
-            GoTo(dx, dz, () => EnterRegion(board));
-        }
+        private void GoTasks() => App.Open(AppPage.Tasks);   // görev ekranı doğrudan (yürümeye gerek yok)
 
         // ------------------------------------------------------------------ joystick
 

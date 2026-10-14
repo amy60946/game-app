@@ -47,7 +47,7 @@ namespace Pofi.Screens
             var (sx, sz) = start != null ? _terrain.Door(start) : (_terrain.PlazaX, _terrain.PlazaZ);
             var def = App.Data.Pet(App.State.PetId);
             var items = App.State.Inventory.Equipped.Values.Select(App.Data.Item).Where(i => i != null).ToList();
-            if (def != null) _world.PlacePet(def, PetModels.StageScale(App.Growth), items, sx, sz);
+            if (def != null) { _world.PlacePet(def, PetModels.StageScale(App.Growth), items, sx, sz); _world.Walker.Teleport(sx, sz, 0f); _camYaw = 0f; }
 
             if (App.Levels.IsUnlocked(Sparkles.UnlockId, App.Level))
             {
@@ -115,11 +115,15 @@ namespace Pofi.Screens
                 fov = 40f;
                 return;
             }
-            var p = _world.Walker.transform.position;
-            look = p + Vector3.up * 1.2f;
-            var back = Quaternion.Euler(0f, _camYaw, 0f) * new Vector3(0f, 0f, -11f);
-            pos = look + back + Vector3.up * 8.5f;
-            fov = 42f;
+            // Üçüncü şahıs (14 Ekim 2026 geri bildirimi): petin arkasından, başının biraz üstünden, yakın; pet döndükçe kamera yavaşça arkasına geçer
+            var w = _world.Walker;
+            var p = w.transform.position;
+            var hgt = PetModels.RealHeight * w.transform.lossyScale.y;
+            if (w.Moving || w.Steering) _camYaw = Mathf.MoveTowardsAngle(_camYaw, w.Heading, 110f * Time.deltaTime);
+            var fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
+            look = p + Vector3.up * (hgt * 0.85f) + fwd * 1.6f;
+            pos = p + Vector3.up * (hgt + 1.55f) - fwd * 4.9f;
+            fov = 52f;
         }
 
         private void SnapCamera()
@@ -152,8 +156,10 @@ namespace Pofi.Screens
             foreach (var kv in _labels)
             {
                 var t = _world.Regions[kv.Key];
-                var near = _overview || Vector3.Distance(t.position, petPos) < 22f;
-                var sp = cam.WorldToScreenPoint(t.position + Vector3.up * (_world.LabelHeights.TryGetValue(kv.Key, out var lh) ? lh : 1.5f));
+                var near = _overview || Vector3.Distance(t.position, petPos) < 26f;
+                var lh = _world.LabelHeights.TryGetValue(kv.Key, out var hh) ? hh : 1.5f;
+                if (!_overview) lh = Mathf.Min(lh, 3.4f);   // yakın kamerada etiket kadrajda kalsın (kapı üstü)
+                var sp = cam.WorldToScreenPoint(t.position + Vector3.up * lh);
                 kv.Value.gameObject.SetActive(near && sp.z > 0f);
                 kv.Value.anchoredPosition = new Vector2(sp.x * scale, sp.y * scale);
             }
@@ -167,7 +173,7 @@ namespace Pofi.Screens
             {
                 _down = true; _moved = false;
                 _press = _last = Input.mousePosition;
-                _stick = !_overview && _world.Walker != null && _press.x < Screen.width * 0.42f && _press.y < Screen.height * 0.8f;
+                _stick = !_overview && _world.Walker != null;   // joystick ekranın her yerinde (kamera sürükleme kaldırıldı)
             }
             if (_stick)
             {
@@ -193,7 +199,7 @@ namespace Pofi.Screens
                         _pan -= new Vector2(d.x, d.y) * k;
                         _pan = Vector2.Max(new Vector2(_terrain.MinX + 8f, _terrain.MinZ + 6f), Vector2.Min(new Vector2(_terrain.MaxX - 8f, _terrain.MaxZ - 16f), _pan));
                     }
-                    else _camYaw += d.x * 180f / Mathf.Max(1f, Screen.width);
+
                 }
                 _last = Input.mousePosition;
             }
@@ -253,7 +259,7 @@ namespace Pofi.Screens
             {
                 var w = _terrain.NearestWalkable(x, z);
                 if (float.IsNaN(w.x)) return;
-                walker.Teleport(w.x, w.z, 180f);
+                walker.Teleport(w.x, w.z, _camYaw);
                 ToggleMode();
                 SnapCamera();
                 arrived?.Invoke();

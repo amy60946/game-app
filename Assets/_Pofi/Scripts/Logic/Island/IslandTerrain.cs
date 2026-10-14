@@ -67,14 +67,66 @@ namespace Pofi.Logic.Island
             for (var i = 0; i < _nx; i++)
                 _walk[j * _nx + i] = ComputeWalkable(MinX + i * Cell, MinZ + j * Cell);
 
-            // Patikalar: meydandan her kapıya yol bulmayla (yakından uzağa; sonrakiler var olan patikaları tercih eder → doğal ağ)
-            foreach (var r in regions.OrderBy(r => Dist(PlazaX, PlazaZ, r.X, r.Z)))
+            // Patikalar: dallanan yol ağı (en kısa bağlantı ağacı). Meydandan başlar; her adımda ağa en yakın kapı,
+            // ağdaki en yakın noktadan yol bulmayla bağlanır (var olan patikalar tercih edilir) → köy gibi dallanır.
+            var nodes = new List<(float x, float z)> { (PlazaX, PlazaZ) };
+            var left = regions.ToList();
+            while (left.Count > 0)
             {
-                var (dx, dz) = Door(r);
-                var route = FindPath(PlazaX, PlazaZ, dx, dz);
+                RegionDef bestR = null; (float x, float z) bestN = default; var bestD = float.MaxValue;
+                foreach (var r in left)
+                {
+                    var d0 = Door(r);
+                    foreach (var n in nodes)
+                    {
+                        var d = Dist(n.x, n.z, d0.x, d0.z);
+                        if (d < bestD) { bestD = d; bestR = r; bestN = n; }
+                    }
+                }
+                left.Remove(bestR);
+                var (dx, dz) = Door(bestR);
+                var route = FindPath(bestN.x, bestN.z, dx, dz);
                 if (route.Count == 0) continue;
-                var (px, pz) = (PlazaX, PlazaZ);
-                foreach (var w in route) { _paths.Add((px, pz, w.x, w.z)); (px, pz) = w; }
+                var (px, pz) = bestN;
+                foreach (var w in route)
+                {
+                    _paths.Add((px, pz, w.x, w.z));
+                    // ara noktalar da ağa katılır: sonraki yollar buradan dallanabilir
+                    var segLen = Dist(px, pz, w.x, w.z);
+                    for (var k = 4f; k < segLen; k += 4f) nodes.Add((px + (w.x - px) * k / segLen, pz + (w.z - pz) * k / segLen));
+                    nodes.Add(w);
+                    (px, pz) = w;
+                }
+            }
+
+            // Süsler yerleşir ve engel olur: ağaç, kaya, çalı, çit… içinden geçilmez
+            _props = BuildProps();
+            foreach (var p in _props)
+            {
+                var rad = ObstacleRadius(p);
+                if (rad <= 0f) continue;
+                var ci = (int)Math.Round((p.X - MinX) / Cell); var cj = (int)Math.Round((p.Z - MinZ) / Cell);
+                if (ci >= 0 && cj >= 0 && ci < _nx && cj < _nz) _walk[cj * _nx + ci] = false;   // ince süslerde de merkez hücre
+                for (var j = (int)((p.Z - rad - MinZ) / Cell); j <= (int)((p.Z + rad - MinZ) / Cell) + 1; j++)
+                for (var i = (int)((p.X - rad - MinX) / Cell); i <= (int)((p.X + rad - MinX) / Cell) + 1; i++)
+                {
+                    if (i < 0 || j < 0 || i >= _nx || j >= _nz) continue;
+                    if (Dist(MinX + i * Cell, MinZ + j * Cell, p.X, p.Z) <= rad) _walk[j * _nx + i] = false;
+                }
+            }
+        }
+
+        private readonly List<PropSpot> _props;
+
+        /// <summary>Süsün yürüme engeli yarıçapı (m).</summary>
+        public static float ObstacleRadius(PropSpot p)
+        {
+            switch (p.Asset)
+            {
+                case "palm": return 0.45f;
+                case "p_lantern": case "p_sign": return 0.3f;
+                case "p_flowers": return p.Size * 0.3f;
+                default: return p.Size * 0.42f;   // kaya, çalı, çit, sandık
             }
         }
 
@@ -353,7 +405,9 @@ namespace Pofi.Logic.Island
         // ------------------------------------------------------------------ süsler
 
         /// <summary>Belirlenimci süs yerleşimi: kumsalda palmiye/kaya, çimende çalı/çiçek, patika boyunca fener, iskelede sandık/kayık.</summary>
-        public List<PropSpot> Props()
+        public List<PropSpot> Props() => new List<PropSpot>(_props);
+
+        private List<PropSpot> BuildProps()
         {
             var list = new List<PropSpot>();
             var rng = new Random(Def.Seed * 131 + 17);

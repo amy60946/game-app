@@ -79,6 +79,21 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
+        public void Suslerin_icinden_gecilmez()
+        {
+            foreach (var p in T.Props())
+                if (IslandTerrain.ObstacleRadius(p) > 0f) Assert.IsFalse(T.Walkable(p.X, p.Z), p.Asset + " engel olmalı");
+        }
+
+        [Test]
+        public void Patikalar_dallanir_tek_merkezden_yildiz_degil()
+        {
+            // meydandan çıkan patika sayısı az (en kısa bağlantı ağacı); yıldız biçimi 8+ olurdu
+            var fromPlaza = T.Paths.Count(p => IslandTerrain.Dist(p.ax, p.az, T.PlazaX, T.PlazaZ) < 0.6f);
+            Assert.LessOrEqual(fromPlaza, 4);
+        }
+
+        [Test]
         public void Patikalar_var_ve_yuzey_turleri_cesitli()
         {
             Assert.Greater(T.Paths.Count, 10);
