@@ -55,6 +55,17 @@ namespace Pofi.Screens
             NavBar(AppPage.Shop);
             App.Synced += OnSynced;
             Fill();
+            if (Onboarding.Pending(App.State, Onboarding.Shop))
+                _coach = Coach.Show(Root, Onboarding.Shop, T("tip.shop"), TipGesture.Tap, () => new Vector2(Screen.width * 0.62f, Screen.height * 0.72f));
+        }
+
+        private Coach _coach;
+
+        private void ShopTipDone()
+        {
+            if (!Onboarding.Pending(App.State, Onboarding.Shop)) return;
+            Onboarding.Done(App.State, Onboarding.Shop); App.Save();
+            if (_coach != null) { _coach.Done(); _coach = null; }
         }
 
         private void OnSynced(Logic.State.SyncReport r)
@@ -93,7 +104,7 @@ namespace Pofi.Screens
                 var pos = new Vector2(off * 270f, 250f - off * off * 34f);
                 var size = sel ? 210f : 160f;
                 var idx = k;
-                var b = Candy.Round(_shelf, sel ? new Color(1f, 0.93f, 0.6f) : Candy.White, v.Item.Id, size, new Vector2(0.5f, 0.5f), pos, () => { _selected = idx; Fill(); });
+                var b = Candy.Round(_shelf, sel ? new Color(1f, 0.93f, 0.6f) : Candy.White, v.Item.Id, size, new Vector2(0.5f, 0.5f), pos, () => { _selected = idx; ShopTipDone(); Fill(); });
                 var dim = v.State == BuyCheck.LevelLocked || v.State == BuyCheck.DoesNotFitPet;
                 if (dim) foreach (var img in b.GetComponentsInChildren<Image>()) img.color *= new Color(1f, 1f, 1f, 0.55f);
                 // altında fiyat / durum

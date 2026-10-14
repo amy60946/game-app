@@ -69,6 +69,7 @@ namespace Pofi.Screens
         private void ToggleMode()
         {
             _overview = !_overview;
+            if (_overview) TipDone(Onboarding.Overview); else TipDone(null);
             if (_modeText != null) _modeText.text = T(_overview ? "map.walk" : "map.overview");
             if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
             if (_overview) _pan = new Vector2(0f, _terrain.Def.Cz - 6f);   // kuşbakışı: adanın ortası
@@ -225,6 +226,7 @@ namespace Pofi.Screens
             var go = hit.collider.gameObject;
             if (go.name == "pet" && !_overview)
             {
+                TipDone(Onboarding.Wardrobe);
                 App.Stage.SetPetVisible(true);
                 App.Open(AppPage.Wardrobe);   // giydirme: pete dokununca
                 return;
@@ -245,6 +247,7 @@ namespace Pofi.Screens
             }
             if (go.name == "ground")
             {
+                TipDone(Onboarding.Walk);
                 var p = _world.Local(hit.point);
                 GoTo(p.x, p.y, null);
             }
@@ -289,6 +292,7 @@ namespace Pofi.Screens
             var sp = _sparkles.FirstOrDefault(s => s.Index == idx);
             if (sp == null) return;
             Sparkles.Take(App.State.Sparkles, Day, sp);
+            TipDone(Onboarding.Sparkle);
             Destroy(go);
             var entry = App.Data.Collection.FirstOrDefault(e => e.Id == sp.EntryId);
             if (entry == null) return;
@@ -304,6 +308,7 @@ namespace Pofi.Screens
 
         private void OnDestroy()
         {
+            HudDestroy();
             if (_world != null) Destroy(_world.gameObject);
             if (App != null && App.Stage != null) App.Stage.AllowDrag = true;
         }

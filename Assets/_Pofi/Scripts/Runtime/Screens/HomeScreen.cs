@@ -26,6 +26,8 @@ namespace Pofi.Screens
         };
 
         private readonly Image[] _gaugeFills = new Image[4];
+        private RectTransform _tidyBtn;
+        private Coach _coach;
         private static readonly string[] GaugeIcons = { "food_apple", "clean_soap", "ui_heart", "home_bed" };
         private Text _coins, _title, _feedCount, _washCount;
         private Image _xpBar;
@@ -65,6 +67,7 @@ namespace Pofi.Screens
             {
                 var a = actions[i];
                 var b = Candy.Round(Root, colors[i], icons[i], 140f, new Vector2(1f, 0f), new Vector2(i % 2 == 0 ? -400f : -210f, i < 2 ? 400f : 200f), () => Care(a), T(labels[i]));
+                if (a == CareAction.Tidy) _tidyBtn = (RectTransform)b.transform;
                 if (a == CareAction.Feed) _feedCount = Candy.Count(b.transform);
                 if (a == CareAction.Wash) _washCount = Candy.Count(b.transform);
             }
@@ -72,7 +75,9 @@ namespace Pofi.Screens
             App.Synced += OnSynced;
 
             Refresh();
-            _bubble.Say(T("pet.welcome", App.State.PetName), 4f);
+            if (Onboarding.Pending(App.State, Onboarding.Home))
+                _coach = Coach.Show(Root, Onboarding.Home, T("tip.home"), TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, _tidyBtn.position));
+            else _bubble.Say(T("pet.welcome", App.State.PetName), 4f);
             ApplyNight(true);
         }
 
@@ -136,7 +141,10 @@ namespace Pofi.Screens
                     r = soap == null ? (PetCare.IsNight(local) ? CareResult.Sleeping : CareResult.NoItem) : PetCare.Wash(st.Stats, st.Inventory, soap, local);
                     break;
                 case CareAction.Play: r = PetCare.Play(st.Stats, local); break;
-                default: r = PetCare.Tidy(st.Stats); break;
+                default:
+                    r = PetCare.Tidy(st.Stats);
+                    if (Onboarding.Pending(st, Onboarding.Home)) { Onboarding.Done(st, Onboarding.Home); if (_coach != null) { _coach.Done(); _coach = null; } }
+                    break;
             }
             if (r == CareResult.Ok)
             {

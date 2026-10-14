@@ -1,0 +1,41 @@
+# Tanıtım (onboarding) ipuçları
+
+Kullanıcı isteği (14 Ekim 2026, geri bildirim madde 7 ve 11): çocuk her işlevi ilk karşılaştığında ekranda **hareketli bir dokunma izi**
+(parmak ucu) hareketi 3 kez gösterir, üstte **iri altyazı** açıklar. Sonra bu altyazılar **seslendirilecek** (ses kimliği tabloda).
+
+İlkeler
+- Aynı anda tek ipucu. Her ipucu bir kez tamamlanır (`GameState.SeenTips`); çocuk hareketi yapınca kaybolur.
+- İpucu girdiyi engellemez: çocuk ipucu sürerken hareketi yapabilir.
+- Hareket türleri: **Dokunma** (hedefte iki kez basar), **Sürükleme** (başlangıçtan hedefe gider), **Kaydırma** (ekranda kayar).
+- Altyazılar 6–15 yaş için kısa, emir kipinde, pet adıyla kişisel. Ekran parlamaz; balon beyaz, turuncu kenarlı.
+- Kod: `Logic/App/Onboarding.cs` (liste, kural, testli), `UI/Coach.cs` (gösterim), ekranlar (tetikleyici ve tamamlanma).
+
+| # | Kimlik | Ekran | Hareket | Ne zaman | Tamamlanır | Altyazı (tr.json) | Ses kaydı |
+|---|---|---|---|---|---|---|---|
+| 1 | `walk` | Ada | Kaydırma: parmak ekranın ortasından yukarı kayar (3 kez) | Adaya ilk giriş | Pet joystick ya da dokunmayla yürüdü | Ekrana dokun ve parmağını kaydır: {0} o yöne yürür! | `vo_tip_walk` |
+| 2 | `jump` | Ada | Dokunma: sağ alttaki yeşil eylem tuşu | Yürüme öğrenildikten 6 sn sonra, tuş "Zıpla" iken | Zıpla tuşuna basıldı | Yeşil tuşa bas, {0} zıplasın! | `vo_tip_jump` |
+| 3 | `enter` | Ada | Dokunma: yeşil eylem tuşu ("Gir") | İlk kez bir kapının önünde | Gir tuşuna basıldı | Kapının önündesin! Yeşil tuşa bas, içeri gir. | `vo_tip_enter` |
+| 4 | `play` | Ada | Dokunma: yeşil eylem tuşu ("Oyna!") | İlk kez bir oyun yerinin kapısında | Oyna tuşuna basıldı | Burada oyun var! Yeşil 'Oyna' tuşuna bas. | `vo_tip_play` |
+| 5 | `feed` | Ada (Besle tepsisi) | Sürükleme: tepsideki ilk yiyecekten petin üstüne (3 kez) | Besle tepsisi ilk açılış; ayrıca yiyeceğe yalnız dokunulursa yeniden | Yiyecek pete sürüklenip bırakıldı | Yiyeceği basılı tut ve {0} üstüne sürükle! | `vo_tip_feed` |
+| 6 | `wash` | Ada (Yıka tepsisi) | Sürükleme: sabundan petin üstüne (3 kez) | Yıka tepsisi ilk açılış; sabuna yalnız dokunulursa yeniden | Sabun pete sürüklenip bırakıldı | Sabunu basılı tut ve {0} üstüne sürükle, köpürt! | `vo_tip_wash` |
+| 7 | `tasks` | Ada | Dokunma: sağ üstteki bayrak (Görev) | Adada 20 sn geçince | Görev düğmesine basıldı | Gerçek görevlerini yap, coin kazan! Bayrağa dokun. | `vo_tip_tasks` |
+| 8 | `xp` | Ada | Dokunma: sol üstteki yıldız rozeti ve XP çubuğu | İlk XP kazancında ("+N ★" süzülür) | 6 sn gösterildi | Yıldız topla, büyü! Oyun oyna, görev yap, parıltı bul: her biri yıldız verir. Çubuk dolunca seviye atlarsın. | `vo_tip_xp` |
+| 9 | `wardrobe` | Ada | Dokunma: petin üstü | Giyilebilir bir eşya sahibi olunca | Pete dokunuldu (giydirme açıldı) | {0} üstünü değiştirmek için ona dokun! | `vo_tip_wardrobe` |
+| 10 | `sparkle` | Ada | Dokunma: parıltının üstü | 14 m yakında parıltı varken | Parıltı toplandı | Parıltıyı gördün mü? Yanına git ve topla! | `vo_tip_sparkle` |
+| 11 | `overview` | Ada | Dokunma: Kuşbakışı düğmesi | Görev ipucundan sonra, adada 45 sn | Kuşbakışı açıldı | Haritayı aç: dokunduğun yere hemen gidersin. | `vo_tip_overview` |
+| 12 | `shop` | Dükkân | Dokunma: tezgâhtaki ürünler | Dükkân ilk açılış | Bir ürün seçildi | Bir ürüne dokun, sonra 'Al'a bas. | `vo_tip_shop` |
+| 13 | `wardrobe_spots` | Giydirme | Dokunma: petin kafasındaki nokta | Giydirme ilk açılış | Bir yuva noktası seçildi | Noktalara dokun: şapka, gözlük, tişört, çanta! | `vo_tip_wardrobe_spots` |
+| 14 | `home` | Evim | Dokunma: Topla düğmesi | Evim ilk açılış | Topla'ya basıldı | Evini toplamak için Topla'ya bas! | `vo_tip_home` |
+
+`{0}` yerine petin adı gelir (gerekirse ek ile: "Pofi'nin").
+
+## XP (yıldız) nasıl anlatılıyor (madde 11)
+- Sol üstte seviye rozetinin altında **XP çubuğu**: dolunca seviye atlanır.
+- XP kazanılınca rozetin yanında **"+N ★"** yukarı süzülür.
+- İlk XP'de `xp` ipucu: "Yıldız topla, büyü! Oyun oyna, görev yap, parıltı bul: her biri yıldız verir. Çubuk dolunca seviye atlarsın."
+- XP kaynakları: mini oyunlar, masa oyunları, balık tutma, bahçe, günün görevleri, görev serisi, rozetler, keşif parıltıları.
+
+## Sonraki adımlar (öneri)
+- Seslendirme: tablodaki `vo_tip_*` satırları kayıt listesidir; ses gelince altyazıyla eşzamanlı çalınır (karaoke altyazı altyapısı hazır).
+- El görseli: şimdilik parmak ucu (beyaz yuvarlak + halka). İstenirse bir sonraki simge sayfasında 3B "işaret eden el" üretilebilir (~2 kredi payı).
+- Diğer ekranlar (bahçe, balık, mini oyunlar, masa oyunları) için de aynı kalıpla ipucu eklenecek.

@@ -4,6 +4,7 @@ using Pofi.Logic.App;
 using Pofi.Logic.Data;
 using Pofi.Logic.Island;
 using Pofi.Logic.Pet;
+using Pofi.Logic.Core;
 using Pofi.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,21 +28,30 @@ namespace Pofi.Screens
         private string _actionKey;
         private float _hudTick, _statTick;
         private readonly Dictionary<int, Transform> _sparkleObjs = new Dictionary<int, Transform>();
+        private Coach _coach;
+        private float _islandTime;
+        private RectTransform _levelBadge, _tasksBtn, _mapBtn;
+        private Image _xpFill;
 
         private void BuildHud()
         {
             var hud = Ui.Fill(Root, "Hud");
             // sol üst
-            _levelText = Candy.Badge(hud, "ui_star", "", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -24f), 84f, 440f);
+            _levelText = Candy.Badge(hud, "ui_star", "", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -22f), 104f, 520f);
+            _levelBadge = (RectTransform)_levelText.transform.parent;
+            // XP çubuğu: rozetin altında; dolunca seviye atlanır (madde 11)
+            _xpFill = Ui.Bar(hud, new Vector2(0f, 1f), new Vector2(480f, 22f), new Color(1f, 1f, 1f, 0.45f), new Color(1f, 0.78f, 0.1f), 11f, new Vector2(290f, -146f));
             Color[] cols = { new Color(1f, 0.62f, 0.26f), new Color(0.24f, 0.79f, 1f), new Color(1f, 0.44f, 0.68f), new Color(0.48f, 0.84f, 0.42f) };
             for (var i = 0; i < 4; i++)
-                _gauges[i] = Candy.Gauge(hud, cols[i], HudIcons[i], 112f, new Vector2(0f, 1f), new Vector2(30f + 56f + i * 128f, -176f));
+                _gauges[i] = Candy.Gauge(hud, cols[i], HudIcons[i], 138f, new Vector2(0f, 1f), new Vector2(30f + 69f + i * 156f, -240f));
 
             // sağ üst
-            _coinText = Candy.Badge(hud, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -24f), 84f, 250f);
-            var map = Candy.Pill(hud, Candy.Blue, T("map.overview"), new Vector2(1f, 1f), new Vector2(250f, 96f), new Vector2(-155f, -176f), ToggleMode, null, 40);
+            _coinText = Candy.Badge(hud, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -22f), 104f, 300f);
+            var map = Candy.Pill(hud, Candy.Blue, T("map.overview"), new Vector2(1f, 1f), new Vector2(300f, 116f), new Vector2(-180f, -206f), ToggleMode, null, 48);
             _modeText = map.transform.Find("Label").GetComponent<Text>();
-            var tasks = Candy.Round(hud, Candy.Orange, "hand_flag", 104f, new Vector2(1f, 1f), new Vector2(-370f, -176f), GoTasks, T("hud.tasks"));
+            _mapBtn = (RectTransform)map.transform;
+            var tasks = Candy.Round(hud, Candy.Orange, "hand_flag", 132f, new Vector2(1f, 1f), new Vector2(-430f, -206f), GoTasks, T("hud.tasks"));
+            _tasksBtn = (RectTransform)tasks.transform;
             var count = Candy.Count(tasks.transform);
             count.transform.parent.gameObject.AddComponent<TaskBadgeView>().Init(App, count);
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions);
@@ -49,14 +59,14 @@ namespace Pofi.Screens
                 Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
 
             // sol kenar: Besle, Yıka
-            _leftBar = Ui.Rect(hud, "Care", new Vector2(0f, 0.5f), new Vector2(160f, 360f), new Vector2(110f, -40f));
-            var feed = Candy.Round(_leftBar, Candy.Orange, "food_apple", 132f, new Vector2(0.5f, 0.78f), Vector2.zero, OnFeed, T("hud.feed"));
+            _leftBar = Ui.Rect(hud, "Care", new Vector2(0f, 0.5f), new Vector2(190f, 430f), new Vector2(130f, -70f));
+            var feed = Candy.Round(_leftBar, Candy.Orange, "food_apple", 160f, new Vector2(0.5f, 0.78f), Vector2.zero, OnFeed, T("hud.feed"));
             _feedCount = Candy.Count(feed.transform);
-            var wash = Candy.Round(_leftBar, Candy.Blue, "clean_soap", 132f, new Vector2(0.5f, 0.2f), Vector2.zero, OnWash, T("hud.wash"));
+            var wash = Candy.Round(_leftBar, Candy.Blue, "clean_soap", 160f, new Vector2(0.5f, 0.2f), Vector2.zero, OnWash, T("hud.wash"));
             _washCount = Candy.Count(wash.transform);
 
             // sağ alt: bağlamsal eylem
-            var act = Candy.Pill(hud, Candy.Green, T("hud.jump"), new Vector2(1f, 0f), new Vector2(300f, 150f), new Vector2(-200f, 150f), () => _actionDo?.Invoke(), null, 54);
+            var act = Candy.Pill(hud, Candy.Green, T("hud.jump"), new Vector2(1f, 0f), new Vector2(360f, 180f), new Vector2(-230f, 160f), () => _actionDo?.Invoke(), null, 66);
             _action = (RectTransform)act.transform;
             _actionText = act.transform.Find("Label").GetComponent<Text>();
 
@@ -69,8 +79,33 @@ namespace Pofi.Screens
             _stickKnob.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
             _stickBase.gameObject.SetActive(false);
 
+            App.XpGained += OnXp;
             RefreshHud();
         }
+
+        private void HudDestroy()
+        {
+            if (App != null) App.XpGained -= OnXp;
+        }
+
+        /// <summary>XP kazanınca rozetin yanında "+N ★" süzülür; ilk seferde XP ipucu.</summary>
+        private void OnXp(int n)
+        {
+            if (this == null || _levelBadge == null) return;
+            var f = Ui.Rect(_levelBadge.parent, "XpGain", new Vector2(0f, 1f), new Vector2(240f, 90f), new Vector2(620f, -70f));
+            Ui.IconImage(f, "ui_star", new Vector2(0f, 0.5f), 80f, new Vector2(40f, 0f));
+            Candy.Caption(f, T("xp.star", n), 56, new Vector2(0.5f, 0.5f), new Vector2(160f, 90f), new Vector2(40f, 0f));
+            f.gameObject.AddComponent<FloatUp>();
+            RefreshHud();
+            if (Onboarding.Pending(App.State, Onboarding.Xp))
+            {
+                TipDone(null);
+                Tip(Onboarding.Xp, TipGesture.Tap, () => UiScreen(_levelBadge));
+                _xpTipT = 6f;
+            }
+        }
+
+        private float _xpTipT;
 
         private void RefreshHud()
         {
@@ -78,6 +113,7 @@ namespace Pofi.Screens
             for (var i = 0; i < 4; i++) _gauges[i].fillAmount = st.Stats[HudKinds[i]] / 100f;
             _levelText.text = $"{st.PetName} · {T("home.level", App.Level)}";
             _coinText.text = st.Wallet.Available.ToString();
+            Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
             SetCount(_feedCount, Count(ItemCategory.Food));
             SetCount(_washCount, Count(ItemCategory.Cleaning));
         }
@@ -103,6 +139,57 @@ namespace Pofi.Screens
             _action.gameObject.SetActive(walking);
             if (!walking) { CloseTray(); return; }
             UpdateAction();
+            _islandTime += Time.deltaTime;
+            UpdateTips();
+        }
+
+        // ------------------------------------------------------------------ tanıtım ipuçları (docs/ONBOARDING.md)
+
+        private string PetGen => Logic.Core.TurkishSuffix.Genitive(App.State.PetName);
+
+        private void Tip(string id, TipGesture g, System.Func<Vector2> from, System.Func<Vector2> to = null, string arg = null)
+        {
+            if (_coach != null || !Onboarding.Pending(App.State, id)) return;
+            _coach = Coach.Show(Root, id, T(Onboarding.Get(id).CaptionKey, arg ?? App.State.PetName), g, from, to);
+        }
+
+        /// <summary>İpucu tamamlandı (id null: yalnız ekrandakini kapat).</summary>
+        private void TipDone(string id)
+        {
+            if (id != null && Onboarding.Pending(App.State, id)) { Onboarding.Done(App.State, id); App.Save(); }
+            if (_coach != null && (id == null || _coach.Id == id)) { _coach.Done(); _coach = null; }
+        }
+
+        private static Vector2 UiScreen(RectTransform rt) => RectTransformUtility.WorldToScreenPoint(null, rt.position);
+        private Vector2 PetScreen() => App.Stage.Camera.WorldToScreenPoint(_world.Walker.transform.position + Vector3.up * 1.0f);
+
+        private void UpdateTips()
+        {
+            if (_xpTipT > 0f) { _xpTipT -= Time.deltaTime; if (_xpTipT <= 0f) TipDone(Onboarding.Xp); }
+            if (_coach != null || _tray != null) return;
+            var st = App.State;
+            if (Onboarding.Pending(st, Onboarding.Walk))
+            {
+                Tip(Onboarding.Walk, TipGesture.Slide, () => new Vector2(Screen.width * 0.5f, Screen.height * 0.35f), () => new Vector2(Screen.width * 0.5f, Screen.height * 0.62f));
+                return;
+            }
+            if (_actionKey == "hud.enter") { Tip(Onboarding.Enter, TipGesture.Tap, () => UiScreen(_action)); return; }
+            if (_actionKey == "hud.play") { Tip(Onboarding.Play, TipGesture.Tap, () => UiScreen(_action)); return; }
+            foreach (var kv in _sparkleObjs)
+            {
+                if (kv.Value == null || !Onboarding.Pending(st, Onboarding.Sparkle)) break;
+                if (Vector3.Distance(kv.Value.position, _world.Walker.transform.position) < 14f)
+                {
+                    var tr = kv.Value;
+                    Tip(Onboarding.Sparkle, TipGesture.Tap, () => tr != null ? (Vector2)App.Stage.Camera.WorldToScreenPoint(tr.position) : PetScreen());
+                    return;
+                }
+            }
+            if (_actionKey == "hud.jump" && _islandTime > 6f) { Tip(Onboarding.Jump, TipGesture.Tap, () => UiScreen(_action)); if (_coach != null) return; }
+            if (_islandTime > 20f) { Tip(Onboarding.Tasks, TipGesture.Tap, () => UiScreen(_tasksBtn)); if (_coach != null) return; }
+            if (st.Inventory.Owned.Any(id => App.Data.Item(id)?.IsWearable == true))
+            { Tip(Onboarding.Wardrobe, TipGesture.Tap, PetScreen, null, PetGen); if (_coach != null) return; }
+            if (!Onboarding.Pending(st, Onboarding.Tasks) && _islandTime > 45f) Tip(Onboarding.Overview, TipGesture.Tap, () => UiScreen(_mapBtn));
         }
 
         // ------------------------------------------------------------------ bağlamsal eylem
@@ -143,7 +230,8 @@ namespace Pofi.Screens
                     act = () => EnterRegion(v);
                 }
             }
-            _actionDo = act;
+            var k2 = key;
+            _actionDo = () => { TipDone(k2 == "hud.jump" ? Onboarding.Jump : k2 == "hud.play" ? Onboarding.Play : k2 == "hud.enter" ? Onboarding.Enter : null); act(); };
             if (_actionKey != key) { _actionKey = key; _actionText.text = T(key); }
         }
 
@@ -156,30 +244,48 @@ namespace Pofi.Screens
 
         // ------------------------------------------------------------------ bakım
 
-        private void OnFeed()
+        private void OnFeed() => OpenTray(ItemCategory.Food, CareAction.Feed, Onboarding.Feed, "hud.no_food");
+        private void OnWash() => OpenTray(ItemCategory.Cleaning, CareAction.Wash, Onboarding.Wash, "hud.no_soap");
+
+        /// <summary>Tepsi: eldeki yiyecek/sabunlar; basılı tutup pete sürükleyince kullanılır (el becerisi, madde 7).</summary>
+        private void OpenTray(string category, CareAction action, string tip, string emptyKey)
         {
             if (_tray != null) { CloseTray(); return; }
-            var foods = App.State.Inventory.Counts.Where(kv => kv.Value > 0).Select(kv => App.Data.Item(kv.Key))
-                .Where(it => it != null && it.Category == ItemCategory.Food).ToList();
-            if (foods.Count == 0) { RunToShop(T("hud.no_food")); return; }
-            _tray = Ui.Rect(_leftBar.parent, "Tray", new Vector2(0f, 0.5f), new Vector2(foods.Count * 124f + 30f, 150f), new Vector2(0f, 60f));
+            var items = App.State.Inventory.Counts.Where(kv => kv.Value > 0).Select(kv => App.Data.Item(kv.Key))
+                .Where(it => it != null && it.Category == category).ToList();
+            if (items.Count == 0) { RunToShop(T(emptyKey)); return; }
+            _tray = Ui.Rect(_leftBar.parent, "Tray", new Vector2(0f, 0.5f), new Vector2(items.Count * 150f + 30f, 170f), Vector2.zero);
             _tray.pivot = new Vector2(0f, 0.5f);
-            _tray.anchoredPosition = new Vector2(210f, 40f);
-            for (var i = 0; i < foods.Count; i++)
+            _tray.anchoredPosition = new Vector2(250f, action == CareAction.Feed ? 30f : -150f);
+            RectTransform first = null;
+            for (var i = 0; i < items.Count; i++)
             {
-                var it = foods[i];
-                var b = Candy.Round(_tray, Candy.White, it.Id, 108f, new Vector2(0f, 0.5f), new Vector2(70f + i * 124f, 0f), () => Care(CareAction.Feed, it));
+                var it = items[i];
+                var b = Candy.Round(_tray, Candy.White, it.Id, 130f, new Vector2(0f, 0.5f), new Vector2(80f + i * 150f, 0f), null);
                 Candy.Count(b.transform).text = App.State.Inventory.CountOf(it.Id).ToString();
+                var d = b.gameObject.AddComponent<DragItem>();
+                d.IconId = it.Id; d.Layer = Root;
+                d.Dropped = pos => { if (!OverPet(pos)) return false; Care(action, it); return true; };
+                d.Tapped = () => { _toast.Say(T("tip." + tip, PetGen)); TipDone(null); ShowDragTip(tip, (RectTransform)b.transform, true); };
+                if (first == null) first = (RectTransform)b.transform;
             }
+            ShowDragTip(tip, first, false);
         }
 
-        private void OnWash()
+        private void ShowDragTip(string tip, RectTransform from, bool force)
         {
-            CloseTray();
-            var soap = App.State.Inventory.Counts.Where(kv => kv.Value > 0).Select(kv => App.Data.Item(kv.Key))
-                .FirstOrDefault(it => it != null && it.Category == ItemCategory.Cleaning);
-            if (soap == null) { RunToShop(T("hud.no_soap")); return; }
-            Care(CareAction.Wash, soap);
+            if (from == null || (!force && !Onboarding.Pending(App.State, tip))) return;
+            if (force && _coach != null) TipDone(null);
+            _coach = Coach.Show(Root, tip, T(Onboarding.Get(tip).CaptionKey, PetGen), TipGesture.Drag, () => UiScreen(from), PetScreen);
+        }
+
+        /// <summary>Bırakılan nokta petin üstünde mi (ekranda petin çevresi ya da çarpışma kutusu)?</summary>
+        private bool OverPet(Vector2 screen)
+        {
+            if (_world.Walker == null) return false;
+            var cam = App.Stage.Camera;
+            if (Physics.Raycast(cam.ScreenPointToRay(screen), out var hit, 200f) && hit.collider.gameObject.name == "pet") return true;
+            return Vector2.Distance(screen, PetScreen()) < Screen.height * 0.16f;
         }
 
         private void Care(CareAction a, ItemDef item)
@@ -190,6 +296,7 @@ namespace Pofi.Screens
             var r = a == CareAction.Feed ? PetCare.Feed(st.Stats, st.Inventory, item, local) : PetCare.Wash(st.Stats, st.Inventory, item, local);
             if (r == CareResult.Ok)
             {
+                TipDone(a == CareAction.Feed ? Onboarding.Feed : Onboarding.Wash);
                 _world.Walker?.Jump();
                 App.Save();
                 App.RecordActivity(a == CareAction.Feed ? "pet_fed" : "pet_washed");
@@ -201,6 +308,7 @@ namespace Pofi.Screens
         private void CloseTray()
         {
             if (_tray == null) return;
+            if (_coach != null && (_coach.Id == Onboarding.Feed || _coach.Id == Onboarding.Wash)) { _coach.Done(); _coach = null; }
             Destroy(_tray.gameObject);
             _tray = null;
         }
@@ -215,7 +323,7 @@ namespace Pofi.Screens
             GoTo(dx, dz, () => EnterRegion(shop));
         }
 
-        private void GoTasks() => App.Open(AppPage.Tasks);   // görev ekranı doğrudan (yürümeye gerek yok)
+        private void GoTasks() { TipDone(Onboarding.Tasks); App.Open(AppPage.Tasks); }   // görev ekranı doğrudan (yürümeye gerek yok)
 
         // ------------------------------------------------------------------ joystick
 
@@ -232,6 +340,7 @@ namespace Pofi.Screens
                 _stickBase.anchoredPosition = new Vector2(_press.x * k, _press.y * k);
             }
             if (!_moved) return;
+            TipDone(Onboarding.Walk);
             var dir = Vector2.ClampMagnitude(delta / radius, 1f);
             _stickKnob.anchoredPosition = dir * 70f;
             var w = Quaternion.Euler(0f, _camYaw, 0f) * new Vector3(dir.x, 0f, dir.y);

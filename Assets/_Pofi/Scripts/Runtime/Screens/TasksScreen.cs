@@ -67,11 +67,13 @@ namespace Pofi.Screens
             title.rectTransform.anchoredPosition = new Vector2(36f, -22f);
 
             // ödül
-            var pill = Ui.Rect(row, "Reward", new Vector2(1f, 1f), new Vector2(170f, 74f));
+            // ödül: coin simgesi + miktar (yazı yok)
+            var pill = Ui.Rect(row, "Reward", new Vector2(1f, 1f), new Vector2(190f, 80f));
             pill.pivot = new Vector2(1f, 1f);
-            pill.anchoredPosition = new Vector2(-28f, -22f);
-            Ui.Panel(pill, Theme.Hex("#FFD23F"), 37f).raycastTarget = false;
-            Ui.Label(pill, T("tasks.coin", task.RewardCoins), Th.Font(40), Theme.Hex("#5A3B00"), new Vector2(0.5f, 0.5f), new Vector2(160f, 70f), FontStyle.Bold);
+            pill.anchoredPosition = new Vector2(-28f, -20f);
+            Ui.Panel(pill, Theme.Hex("#FFD23F"), 40f).raycastTarget = false;
+            Ui.IconImage(pill, "ui_coin", new Vector2(0f, 0.5f), 70f, new Vector2(42f, 0f));
+            Ui.Label(pill, T("tasks.coin", task.RewardCoins), Th.Font(44), Theme.Hex("#5A3B00"), new Vector2(0.62f, 0.5f), new Vector2(110f, 74f), FontStyle.Bold);
 
             string status = null;
             Color statusColor = Th.SubtleText;
@@ -107,7 +109,9 @@ namespace Pofi.Screens
             {
                 var st = Ui.Label(row, status, Th.Font(36), statusColor, new Vector2(0f, 0f), new Vector2(620f, 100f), FontStyle.Bold, TextAnchor.MiddleLeft);
                 st.rectTransform.pivot = new Vector2(0f, 0f);
-                st.rectTransform.anchoredPosition = new Vector2(36f, 26f);
+                var withCoin = task.Status == ChildTaskStatus.Approved;
+                st.rectTransform.anchoredPosition = new Vector2(withCoin ? 100f : 36f, 26f);
+                if (withCoin) Ui.IconImage(row, "ui_coin", new Vector2(0f, 0f), 64f, new Vector2(64f, 76f));
             }
         }
 

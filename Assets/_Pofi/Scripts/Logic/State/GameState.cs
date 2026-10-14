@@ -55,6 +55,7 @@ namespace Pofi.Logic.State
         public HashSet<string> Collection = new HashSet<string>();
         public HashSet<string> Badges = new HashSet<string>();
         public HashSet<string> SeenUnlocks = new HashSet<string>();   // kutlaması gösterilmiş açılışlar
+        public HashSet<string> SeenTips = new HashSet<string>();      // tamamlanan tanıtım ipuçları (Onboarding)
         public HashSet<string> VisitedRegions = new HashSet<string>(); // haritada ziyaret edilen bölgeler ("yeni" işareti için)
         public string LastRegion;                                       // adada en son girilen bölge: pet dönüşte onun kapısında belirir
         public Counters Counters = new Counters();

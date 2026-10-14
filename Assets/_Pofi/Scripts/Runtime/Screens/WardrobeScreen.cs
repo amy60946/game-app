@@ -43,12 +43,24 @@ namespace Pofi.Screens
             for (var i = 0; i < Slot.All.Length; i++)
             {
                 var slot = Slot.All[i];
-                var b = Candy.Round(Root, Candy.White, SlotIcons[i], 104f, Vector2.zero, Vector2.zero, () => { _slot = slot; Fill(); });
+                var b = Candy.Round(Root, Candy.White, SlotIcons[i], 120f, Vector2.zero, Vector2.zero, () => { _slot = slot; SpotsTipDone(); Fill(); });
                 _spots[i] = (RectTransform)b.transform;
             }
             _items = Ui.Fill(Root, "Items");
             NavBar(AppPage.Wardrobe);
             Fill();
+            if (Onboarding.Pending(App.State, Onboarding.WardrobeSpots))
+                _coach = Coach.Show(Root, Onboarding.WardrobeSpots, T("tip.wardrobe_spots"), TipGesture.Tap,
+                    () => RectTransformUtility.WorldToScreenPoint(null, _spots[0].position));
+        }
+
+        private Coach _coach;
+
+        private void SpotsTipDone()
+        {
+            if (!Onboarding.Pending(App.State, Onboarding.WardrobeSpots)) return;
+            Onboarding.Done(App.State, Onboarding.WardrobeSpots); App.Save();
+            if (_coach != null) { _coach.Done(); _coach = null; }
         }
 
         private void LateUpdate()

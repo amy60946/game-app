@@ -176,10 +176,14 @@ namespace Pofi.Core
         }
 
         /// <summary>XP kazancı (mini oyun, masa oyunu…): günlük sınır, seviye atlama ve kutlama burada.</summary>
+        /// <summary>XP kazanıldı (miktar): arayüz "+N ★" gösterir.</summary>
+        public event System.Action<int> XpGained;
+
         public XpResult GrantXp(int amount, XpSource source)
         {
             var r = Progress.Grant(State, Levels, Session.AgeBand, amount, source, LocalNow);
             Save();
+            if (r.Grant.Granted > 0) XpGained?.Invoke(r.Grant.Granted);
             if (r.LevelUp != null) LevelUpCelebration.Show(this, r.LevelUp);
             return r;
         }
