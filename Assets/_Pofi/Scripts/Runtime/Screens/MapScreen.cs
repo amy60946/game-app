@@ -134,17 +134,47 @@ namespace Pofi.Screens
             _runBlend = Mathf.MoveTowards(_runBlend, running ? 1f : 0f, Time.deltaTime * 1.5f);
             var fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
             var dist = Mathf.Lerp(4.8f, 5.6f, _runBlend) * Mathf.Max(0.85f, scale);
-            const float elev = 20f * Mathf.Deg2Rad;
             var pivot = p + Vector3.up * (hgt * 0.9f);
             look = pivot + Vector3.up * (hgt * 0.35f) + fwd * Mathf.Lerp(1.2f, 2.2f, _runBlend);   // pet alt üçte bire düşer, önü görünür
-            var dir = -fwd * Mathf.Cos(elev) + Vector3.up * Mathf.Sin(elev);
-            // çarpışma: pivot → kamera yönünde engel varsa öne kay
-            if (Physics.SphereCast(pivot, 0.35f, dir, out var hit, dist, ~0, QueryTriggerInteraction.Ignore) && hit.collider.gameObject.name != "pet")
-                dist = Mathf.Max(2.2f, hit.distance - 0.3f);
+            // çarpışma (yay-kol): arkada bina/tepe varsa kamera önce yukarı kalkar (çatının üstünden bakar), açık açı yoksa
+            // biraz yaklaşır ama petin içine girmez
+            var dir = Boom(20f, fwd);
+            var clear = false;
+            foreach (var e in BoomPitches)
+            {
+                var d = Boom(e, fwd);
+                if (CameraBlocked(pivot, d, dist, out _)) continue;
+                dir = d; clear = true; break;
+            }
+            if (!clear && CameraBlocked(pivot, dir, dist, out var hitDist)) dist = Mathf.Max(3.2f, hitDist - 0.3f);
             pos = pivot + dir * dist;
             var floor = _world.transform.TransformPoint(new Vector3(0f, _terrain.Height(pos.x - MapWorld.Origin.x, pos.z - MapWorld.Origin.z), 0f)).y + 0.8f;
             if (pos.y < floor) pos.y = floor;
             fov = Mathf.Lerp(50f, 55f, _runBlend);
+        }
+
+        private static readonly float[] BoomPitches = { 20f, 32f, 45f, 58f };
+
+        private static Vector3 Boom(float pitchDeg, Vector3 fwd)
+        {
+            var e = pitchDeg * Mathf.Deg2Rad;
+            return -fwd * Mathf.Cos(e) + Vector3.up * Mathf.Sin(e);
+        }
+
+        /// <summary>Pivot → kamera yönünde görüşü kapatan engel var mı (pet ve parıltılar sayılmaz).</summary>
+        private static bool CameraBlocked(Vector3 pivot, Vector3 dir, float dist, out float hitDist)
+        {
+            hitDist = dist;
+            var hits = Physics.SphereCastAll(pivot, 0.35f, dir, dist, ~0, QueryTriggerInteraction.Ignore);
+            var blocked = false;
+            foreach (var h in hits)
+            {
+                if (h.collider.gameObject.name == "pet" || h.collider is SphereCollider) continue;
+                if (h.distance <= 0f) continue;                                   // pivot zaten içindeyse (kapı önü) sayma
+                if (h.distance < hitDist) hitDist = h.distance;
+                blocked = true;
+            }
+            return blocked;
         }
 
         private void SnapCamera()
