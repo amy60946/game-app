@@ -92,6 +92,16 @@ namespace Pofi.World
                 var p2 = RealAssets.Env("palm", env, 2.1f);
                 if (p2 != null) { p2.localPosition = new Vector3(1.5f, -0.05f, 3.2f); p2.localRotation = Quaternion.Euler(0f, -140f, 0f); }
             }
+            // Petin çevresinde alçak süsler ve arkada ev (gerçek modeller varsa)
+            void Prop(string name, float footprint, Vector3 pos, float yaw)
+            {
+                var t = RealAssets.EnvFootprint(name, env, footprint, yaw);
+                if (t != null) t.localPosition = pos;
+            }
+            Prop("b_home", 2.6f, new Vector3(-3.6f, -0.08f, 6.2f), 215f);
+            Prop("p_flowers", 0.7f, new Vector3(-1.05f, -0.05f, 1.0f), 190f);
+            Prop("p_rock", 0.6f, new Vector3(1.25f, -0.05f, 1.5f), 160f);
+            Prop("p_lantern", 0.45f, new Vector3(0.95f, -0.05f, 2.6f), 200f);
 
             _holder = new GameObject("PetHolder").transform;
             _holder.SetParent(transform, false);

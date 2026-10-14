@@ -31,10 +31,10 @@ namespace Pofi.World
         /// <summary>Bölge → Meshy modeli (Resources/Env) ve haritadaki taban genişliği (m).</summary>
         private static readonly Dictionary<string, (string asset, float size)> RealRegions = new Dictionary<string, (string, float)>
         {
-            { "region_home", ("b_home", 1.5f) }, { "region_shop", ("b_shop", 1.5f) }, { "region_task_board", ("b_task_board", 1.3f) },
+            { "region_home", ("b_home", 1.5f) }, { "region_shop", ("b_shop", 1.5f) }, { "region_task_board", ("b_task_board", 1.2f) },
             { "region_swim_cove", ("b_swim", 1.6f) }, { "region_surf_beach", ("b_surf", 1.4f) }, { "region_game_hut", ("b_game_hut", 1.5f) },
             { "region_ski_hill", ("b_ski_hill", 1.7f) }, { "region_garden", ("b_garden", 1.5f) }, { "region_pier", ("b_pier", 1.6f) },
-            { "region_cave", ("b_cave", 1.6f) }, { "region_festival", ("b_festival", 1.6f) }, { "region_mountain", ("b_mountain", 2.0f) },
+            { "region_cave", ("b_cave", 1.6f) }, { "region_festival", ("b_festival", 1.45f) }, { "region_mountain", ("b_mountain", 1.8f) },
             { "region_lighthouse", ("b_lighthouse", 1.3f) },
         };
 
