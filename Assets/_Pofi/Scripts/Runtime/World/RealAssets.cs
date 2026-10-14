@@ -27,6 +27,7 @@ namespace Pofi.World
             root.SetParent(parent, false);
             var go = Object.Instantiate(prefab, root, false);
             go.name = "model";
+            go.transform.localRotation = Quaternion.Euler(0f, 180f, 0f) * go.transform.localRotation;   // Meshy/Blender önü +Z → kameraya (−Z) dön
             ApplyMaterial(go, $"Pets/{petId}/{petId}", 0.28f);
             Fit(root, go.transform, height);
 

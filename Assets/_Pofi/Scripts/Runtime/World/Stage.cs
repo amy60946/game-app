@@ -80,15 +80,17 @@ namespace Pofi.World
             // Gerçek çevre varlıkları varsa (Meshy): arkada ada parçası ve palmiyeler
             var env = new GameObject("Scenery").transform;
             env.SetParent(transform, false);
-            var chunk = RealAssets.Env("island_chunk", env, 2.4f);
+            var chunk = RealAssets.Env("island_chunk", env, 1.5f);
             if (chunk != null)
             {
-                chunk.localPosition = new Vector3(0.4f, -0.3f, 4.2f);
-                chunk.localRotation = Quaternion.Euler(0f, 35f, 0f);
-                var p1 = RealAssets.Env("palm", env, 2.8f);
-                if (p1 != null) { p1.localPosition = new Vector3(-1.6f, -0.05f, 1.8f); p1.localRotation = Quaternion.Euler(0f, 60f, 0f); }
-                var p2 = RealAssets.Env("palm", env, 2.3f);
-                if (p2 != null) { p2.localPosition = new Vector3(1.7f, -0.05f, 2.6f); p2.localRotation = Quaternion.Euler(0f, -140f, 0f); }
+                chunk.localPosition = new Vector3(2.6f, -0.5f, 7.5f);
+                chunk.localRotation = Quaternion.Euler(0f, 30f, 0f);
+                var c2 = RealAssets.Env("island_chunk", env, 1.2f);
+                if (c2 != null) { c2.localPosition = new Vector3(-3.0f, -0.6f, 9f); c2.localRotation = Quaternion.Euler(0f, -50f, 0f); }
+                var p1 = RealAssets.Env("palm", env, 2.6f);
+                if (p1 != null) { p1.localPosition = new Vector3(-1.45f, -0.05f, 2.4f); p1.localRotation = Quaternion.Euler(0f, 60f, 0f); }
+                var p2 = RealAssets.Env("palm", env, 2.1f);
+                if (p2 != null) { p2.localPosition = new Vector3(1.5f, -0.05f, 3.2f); p2.localRotation = Quaternion.Euler(0f, -140f, 0f); }
             }
 
             _holder = new GameObject("PetHolder").transform;
