@@ -107,6 +107,11 @@ namespace Pofi.Logic.Island
             var inland = SmoothStep(0.86f, 0.6f, c);
             h += inland * (Noise(x * 0.11f + 3f, z * 0.11f) - 0.5f) * 1.3f;      // yumuşak engebe
             h += inland * (Noise(x * 0.33f, z * 0.33f + 9f) - 0.5f) * 0.25f;
+            // kumsalda küçük kum tepecikleri (rüzgâr yönünde uzamış)
+            var beach = SmoothStep(0.84f, 0.9f, c) * SmoothStep(1.0f, 0.95f, c);
+            var dune = (float)Math.Sin(x * 0.9f + z * 0.35f) * 0.5f + 0.5f;
+            var dune2 = (float)Math.Sin(z * 0.6f - x * 0.2f);
+            h += beach * 0.16f * dune * dune2 * dune2;
             return h;
         }
 

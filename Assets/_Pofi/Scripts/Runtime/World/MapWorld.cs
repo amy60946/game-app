@@ -89,7 +89,8 @@ namespace Pofi.World
             go.transform.SetParent(transform, false);
             go.AddComponent<MeshFilter>().sharedMesh = _groundMesh;
             var mr = go.AddComponent<MeshRenderer>();
-            var mat = PetModels.NewMaterial(Color.white, 0.12f);
+            var gsh = Shader.Find("Pofi/Ground");
+            var mat = gsh != null ? new Material(gsh) : PetModels.NewMaterial(Color.white, 0.12f);
             mat.SetTexture("_BaseMap", _groundTex);
             mr.sharedMaterial = mat;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -153,7 +154,8 @@ namespace Pofi.World
                 c = Color.Lerp(c, path, mix.Path);
                 c = Color.Lerp(c, wet, mix.Water);
                 var v = 0.96f + (float)rng.NextDouble() * 0.05f;
-                px[j * w + i] = new Color(c.r * v, c.g * v, c.b * v, 1f);
+                var sandW = Mathf.Clamp01(mix.Sand * (1f - mix.Path) * (1f - mix.Water));   // alfa: kum (çizgi ve ıslaklık gölgelendiricide)
+                px[j * w + i] = new Color(c.r * v, c.g * v, c.b * v, sandW);
             }
             var tex = new Texture2D(w, h, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, anisoLevel = 4 };
             tex.SetPixels32(px);
@@ -163,19 +165,88 @@ namespace Pofi.World
 
         private static Color Theme(float r, float g, float b) => new Color(r, g, b);
 
+        private static Texture2D _shoreTex;
+        private static Mesh _waterMesh;
+
+        /// <summary>Deniz: dalgalı ağ (Pofi/Water), kıyı haritasıyla sığ turkuaz ve köpük; uzakta düz ufuk düzlemi.</summary>
         private void BuildWater()
         {
-            var water = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            water.name = "Water";
-            water.transform.SetParent(transform, false);
-            water.transform.localPosition = new Vector3(0f, -0.02f, Terrain.Def.Cz);
-            water.transform.localScale = new Vector3(40f, 1f, 40f);
-            var m = PetModels.NewMaterial(new Color(0.22f, 0.7f, 0.95f), 0.88f);
+            var t = Terrain;
+            var sh = Shader.Find("Pofi/Water");
+            Material m;
+            if (sh != null)
+            {
+                if (_cachedFor != Terrain || _shoreTex == null) _shoreTex = ShoreMap();
+                m = new Material(sh);
+                m.SetTexture("_ShoreMap", _shoreTex);
+                m.SetVector("_ShoreRect", new Vector4(t.MinX, t.MinZ, t.MaxX - t.MinX, t.MaxZ - t.MinZ));
+            }
+            else m = PetModels.NewMaterial(new Color(0.22f, 0.7f, 0.95f), 0.88f);
             _owned.Add(m);
-            var r = water.GetComponent<Renderer>();
+
+            if (_waterMesh == null) _waterMesh = WaterGrid(140, 1.6f);
+            var go = new GameObject("Water");
+            go.transform.SetParent(transform, false);
+            go.transform.localPosition = new Vector3((t.MinX + t.MaxX) * 0.5f, -0.02f, (t.MinZ + t.MaxZ) * 0.5f);
+            go.AddComponent<MeshFilter>().sharedMesh = _waterMesh;
+            var r = go.AddComponent<MeshRenderer>();
             r.sharedMaterial = m;
             r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            Destroy(water.GetComponent<Collider>());
+
+            // ufka kadar düz deniz (dalga ağı bitince boşluk görünmesin)
+            var far = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            far.name = "FarWater";
+            far.transform.SetParent(transform, false);
+            far.transform.localPosition = new Vector3(0f, -0.06f, t.Def.Cz);
+            far.transform.localScale = new Vector3(80f, 1f, 80f);
+            var fr = far.GetComponent<Renderer>();
+            fr.sharedMaterial = m;
+            fr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            Destroy(far.GetComponent<Collider>());
+        }
+
+        private static Mesh WaterGrid(int n, float step)
+        {
+            var verts = new Vector3[(n + 1) * (n + 1)];
+            var half = n * step * 0.5f;
+            for (var j = 0; j <= n; j++)
+            for (var i = 0; i <= n; i++) verts[j * (n + 1) + i] = new Vector3(i * step - half, 0f, j * step - half);
+            var tris = new int[n * n * 6];
+            var k = 0;
+            for (var j = 0; j < n; j++)
+            for (var i = 0; i < n; i++)
+            {
+                var a = j * (n + 1) + i;
+                tris[k++] = a; tris[k++] = a + n + 1; tris[k++] = a + 1;
+                tris[k++] = a + 1; tris[k++] = a + n + 1; tris[k++] = a + n + 2;
+            }
+            var mesh = new Mesh { name = "WaterGrid", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+            mesh.vertices = verts; mesh.triangles = tris;
+            mesh.RecalculateNormals();
+            mesh.bounds = new Bounds(Vector3.zero, new Vector3(n * step, 4f, n * step));
+            return mesh;
+        }
+
+        /// <summary>Kıyı haritası: r = sığlık (kıyıya yakın 1), g = köpük şeridi (kıyı çizgisinde 1).</summary>
+        private Texture2D ShoreMap()
+        {
+            const int size = 192;
+            var t = Terrain;
+            var px = new Color32[size * size];
+            for (var j = 0; j < size; j++)
+            for (var i = 0; i < size; i++)
+            {
+                var x = t.MinX + (i + 0.5f) / size * (t.MaxX - t.MinX);
+                var z = t.MinZ + (j + 0.5f) / size * (t.MaxZ - t.MinZ);
+                var h = t.Height(x, z);
+                var shallow = h >= 0f ? 1f : Mathf.Clamp01(1f + h / 1.4f);
+                var foam = h >= 0f ? 1f : Mathf.Pow(Mathf.Clamp01(1f + h / 0.45f), 2f);
+                px[j * size + i] = new Color32((byte)(shallow * 255), (byte)(foam * 255), 0, 255);
+            }
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            tex.SetPixels32(px);
+            tex.Apply(false, true);
+            return tex;
         }
 
         // ------------------------------------------------------------------ bölgeler
@@ -262,6 +333,7 @@ namespace Pofi.World
             holder.gameObject.name = "pet";
             Walker = holder.gameObject.AddComponent<PetWalker>();
             Walker.Init(this, pet, x, z);
+            gameObject.AddComponent<GrassField>().Init(this);
             return Walker;
         }
 
