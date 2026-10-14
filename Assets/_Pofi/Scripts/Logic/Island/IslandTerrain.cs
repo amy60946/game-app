@@ -27,6 +27,9 @@ namespace Pofi.Logic.Island
 
     public enum Surface { Water, Sand, Grass, Path, Rock, Snow }
 
+    /// <summary>Zemin yüzey ağırlıkları (çimen = geri kalan).</summary>
+    public struct SurfaceMix { public float Water, Sand, Path, Rock, Snow; }
+
     /// <summary>Haritaya serpiştirilen süs (palmiye, kaya, çalı…).</summary>
     public sealed class PropSpot
     {
@@ -159,6 +162,27 @@ namespace Pofi.Logic.Island
             if (PathDistance(x, z) < PathHalfWidth) return Surface.Path;
             if (h < 0.45f || Coast(x, z) > 0.93f) return Surface.Sand;
             return Surface.Grass;
+        }
+
+        /// <summary>Yumuşak yüzey karışımı (0..1 ağırlıklar): zemin dokusunda basamaksız geçiş için. Kalan = çimen.</summary>
+        public SurfaceMix MixAt(float x, float z)
+        {
+            var h = Height(x, z);
+            var c = Coast(x, z);
+            HillHeight(x, z, out var snowW);
+            var m = new SurfaceMix
+            {
+                Water = SmoothStep(0.05f, -0.2f, h),
+                Sand = Math.Max(SmoothStep(0.6f, 0.3f, h), SmoothStep(0.89f, 0.95f, c)),
+                Snow = SmoothStep(0.25f, 0.5f, snowW) * SmoothStep(1.2f, 2.0f, h),
+                Rock = SmoothStep(0.75f, 1.15f, Slope(x, z)),
+            };
+            if (h > 0.1f)
+            {
+                var d = PathDistance(x, z) + (Noise(x * 0.9f + 5f, z * 0.9f) - 0.5f) * 0.35f;   // kenar hafif düzensiz
+                m.Path = SmoothStep(PathHalfWidth + 0.3f, PathHalfWidth - 0.25f, d);
+            }
+            return m;
         }
 
         /// <summary>En yakın patikaya uzaklık (meydan → her bölge kapısı).</summary>

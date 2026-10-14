@@ -145,20 +145,14 @@ namespace Pofi.World
             {
                 var x = t.MinX + (i + 0.5f) / w * (t.MaxX - t.MinX);
                 var z = t.MinZ + (j + 0.5f) / h * (t.MaxZ - t.MinZ);
-                Color c;
-                switch (t.SurfaceAt(x, z))
-                {
-                    case Surface.Water: c = wet; break;
-                    case Surface.Sand: c = sand; break;
-                    case Surface.Path: c = path; break;
-                    case Surface.Rock: c = rock; break;
-                    case Surface.Snow: c = snow; break;
-                    default:
-                        var n = Mathf.PerlinNoise(x * 0.12f + 31f, z * 0.12f + 7f);
-                        c = Color.Lerp(grass2, grass, n);
-                        break;
-                }
-                var v = 0.95f + (float)rng.NextDouble() * 0.08f;
+                var mix = t.MixAt(x, z);
+                var c = Color.Lerp(grass2, grass, Mathf.PerlinNoise(x * 0.12f + 31f, z * 0.12f + 7f));
+                c = Color.Lerp(c, sand, mix.Sand);
+                c = Color.Lerp(c, rock, mix.Rock);
+                c = Color.Lerp(c, snow, mix.Snow);
+                c = Color.Lerp(c, path, mix.Path);
+                c = Color.Lerp(c, wet, mix.Water);
+                var v = 0.96f + (float)rng.NextDouble() * 0.05f;
                 px[j * w + i] = new Color(c.r * v, c.g * v, c.b * v, 1f);
             }
             var tex = new Texture2D(w, h, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, anisoLevel = 4 };
