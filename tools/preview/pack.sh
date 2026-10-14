@@ -13,7 +13,10 @@ rm -rf "$OUT" && mkdir -p "$OUT/Build"
 B="$TMP/PofiAdasi/Build"
 cp "$B/PofiAdasi.loader.js" "$OUT/Build/"
 cp "$B/PofiAdasi.framework.js.unityweb" "$OUT/Build/PofiAdasi.framework.wasm"
-cp "$B/PofiAdasi.data.unityweb" "$OUT/Build/PofiAdasi.data.wasm"
+# Veri dosyası 14 MB'lık parçalara bölünür (önizleme sayfası tek dosyada 15 MB sınırı); sayfa parts.json'a göre birleştirir
+split -b 14000000 -d -a 1 "$B/PofiAdasi.data.unityweb" "$OUT/Build/PofiAdasi.data.part"
+n=0; for f in "$OUT"/Build/PofiAdasi.data.part[0-9]; do mv "$f" "$f.wasm"; n=$((n+1)); done
+echo "{\"parts\": $n}" > "$OUT/Build/parts.json"
 cp "$B/PofiAdasi.wasm.unityweb" "$OUT/Build/PofiAdasi.code.wasm"
 cp "$ROOT/tools/preview/index.html" "$OUT/index.html"
 cat "$TMP/preview.json"; echo

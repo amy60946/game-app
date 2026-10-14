@@ -71,7 +71,7 @@ namespace Pofi.Screens
             _overview = !_overview;
             if (_modeText != null) _modeText.text = T(_overview ? "map.walk" : "map.overview");
             if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
-            if (_overview && _world.Walker != null) _pan = _world.Walker.Position;
+            if (_overview) _pan = new Vector2(0f, _terrain.Def.Cz - 6f);   // kuşbakışı: adanın ortası
             _toast.Say(T(_overview ? "map.hint_overview" : "map.hint_walk"));
         }
 

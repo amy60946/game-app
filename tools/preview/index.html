@@ -55,14 +55,29 @@ body { margin: 0; background: var(--sky); color: var(--ink); font-family: -apple
     productVersion: '0.0.1',
     devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2)
   };
+  // Veri dosyası önizleme sayfasının dosya sınırı yüzünden parçalı yayınlanabilir (parts.json); parçalar indirilip birleştirilir.
+  function loadData(done) {
+    fetch('Build/parts.json').then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (info) {
+      if (!info || !info.parts) { done(); return; }
+      var got = 0, bufs = new Array(info.parts);
+      msg.textContent = 'Ada indiriliyor… (ilk açılış biraz sürebilir)';
+      for (let i = 0; i < info.parts; i++) {
+        fetch('Build/PofiAdasi.data.part' + i + '.wasm').then(function (r) { return r.arrayBuffer(); }).then(function (b) {
+          bufs[i] = b; got++;
+          fill.style.width = Math.round(got / info.parts * 50) + '%';
+          if (got === info.parts) { config.dataUrl = URL.createObjectURL(new Blob(bufs)); done(); }
+        }).catch(function () { fail('Oyun dosyaları indirilemedi.'); });
+      }
+    });
+  }
   var s = document.createElement('script');
   s.src = 'Build/PofiAdasi.loader.js';
   s.onerror = function () { fail('Oyun dosyaları yüklenemedi.'); };
   s.onload = function () {
-    createUnityInstance(canvas, config, function (p) { fill.style.width = Math.round(p * 100) + '%'; })
+    createUnityInstance(canvas, config, function (p) { fill.style.width = Math.round(50 + p * 50) + '%'; })
       .then(function (inst) { window.unityInstance = inst; loader.style.display = 'none'; })
       .catch(function (e) { fail('Hata: ' + (e && e.message ? e.message : e)); });
   };
-  document.body.appendChild(s);
+  loadData(function () { document.body.appendChild(s); });
 })();
 </script>

@@ -46,7 +46,7 @@ namespace Pofi.Screens
             count.transform.parent.gameObject.AddComponent<TaskBadgeView>().Init(App, count);
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions);
             if (next != null)
-                Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 30, new Vector2(1f, 1f), new Vector2(620f, 50f), new Vector2(-330f, -270f));
+                Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
 
             // sol kenar: Besle, Yıka
             _leftBar = Ui.Rect(hud, "Care", new Vector2(0f, 0.5f), new Vector2(160f, 360f), new Vector2(110f, -40f));
@@ -62,7 +62,7 @@ namespace Pofi.Screens
 
             // sol alt: yüzen joystick (parmak değince belirir)
             _stickBase = Ui.Rect(hud, "Stick", Vector2.zero, new Vector2(250f, 250f));
-            var sb = _stickBase.gameObject.AddComponent<Image>(); sb.sprite = Ui.Rounded; sb.type = Image.Type.Sliced; sb.color = new Color(1f, 1f, 1f, 0.25f); sb.raycastTarget = false;
+            var sb = _stickBase.gameObject.AddComponent<Image>(); sb.sprite = Ui.Rounded; sb.type = Image.Type.Sliced; sb.pixelsPerUnitMultiplier = 0.48f; sb.color = new Color(1f, 1f, 1f, 0.25f); sb.raycastTarget = false;   // tam daire
             var so = _stickBase.gameObject.AddComponent<Outline>(); so.effectColor = new Color(1f, 1f, 1f, 0.7f); so.effectDistance = new Vector2(4f, -4f);
             _stickKnob = Ui.Rect(_stickBase, "Knob", new Vector2(0.5f, 0.5f), new Vector2(120f, 120f));
             var kb = _stickKnob.gameObject.AddComponent<Image>(); kb.sprite = Ui.Rounded; kb.type = Image.Type.Sliced; kb.color = new Color(1f, 1f, 1f, 0.9f); kb.raycastTarget = false;

@@ -12,5 +12,6 @@ for n in $ids; do
   R="$root/Assets/_Pofi/Resources/Items/$n"
   rm -rf "$R"; mkdir -p "$R"
   $B $M/scripts/prepare_asset.py model "$M/out/$n/$n.glb" "$R" "$n" 512 > "$M/out/$n/prepare.log" 2>&1 || { echo "$n: HATA"; continue; }
+  rm -f "$R"/*_normal.jpg   # çevre/eşyada normal haritası yok (boyut)
   echo "$n: $(du -sh "$R" | cut -f1)"
 done

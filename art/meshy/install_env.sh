@@ -11,5 +11,6 @@ for n in $names; do
   R="$root/Assets/_Pofi/Resources/Env/$n"
   rm -rf "$R"; mkdir -p "$R"
   $B $M/scripts/prepare_asset.py model "$M/out/$n/$n.glb" "$R" "$n" > "$M/out/$n/prepare.log" 2>&1 || { echo "$n: HATA (out/$n/prepare.log)"; continue; }
+  rm -f "$R"/*_normal.jpg   # çevre/eşyada normal haritası yok (boyut)
   echo "$n: $(ls "$R" | wc -l) dosya, $(du -sh "$R" | cut -f1)"
 done
