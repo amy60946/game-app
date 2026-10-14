@@ -49,10 +49,10 @@ Tüm ekranlar koddan kurulur (sahne dosyası yok). Petler ve eşyalar şimdilik 
 | Türkçe metin tablosu + ek uyumu | §2 | `Resources/Data/tr.json`, `Core/TurkishSuffix.cs` | ✅ |
 
 ## Henüz yok
-- **Gerçek 3D modeller, animasyon, seslendirme:** sanat hattı (yapay zekâ 3D aracı kararı bekleniyor).
+- **Sanat (Meshy, 14 Ekim 2026):** ✅ 12 pet (model + iskelet + 6 animasyon), ✅ 24 ada modeli (13 bina, 3 zemin, 8 süs; haritada ve ev sahnesinde), ✅ 72 simge (eşya, koleksiyon, arayüz). Sırada: kıyafet/aksesuar ve ev eşyası 3D (P2), arayüz görselleri. Kredi durumu: `docs/art/KREDI_PLANI.md`.
+- **Seslendirme:** stüdyo/ses kararı sonra.
 - **Cila, performans/bellek ölçümü, mağaza hazırlığı:** M10 sonu.
 - **Sunucu tarafı (Supabase):** öneri hazır ve yerelde testli (`docs/M4_SUNUCU_ONERISI.md`, `supabase/proposed/`, `supabase/test/run.sh` → 38 kontrol). Ortak veritabanına uygulanması kullanıcı onayı bekliyor.
-- **Gerçek modeller ve ses:** yapay zekâ 3D + stüdyo.
 
 ## Kullanıcıya sorulacaklar
 - UNO ve Jenga tescilli markalar: oyunda "Renk Eşle" ve "Kule" adları kullanılıyor (onaylandı, 13 Ekim 2026).
