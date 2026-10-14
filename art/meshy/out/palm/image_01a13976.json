@@ -1,0 +1,16 @@
+{
+ "id": "01a13976-a231-741c-8181-8d3673b0b0ba",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A single stylized tropical palm tree game asset for a cozy children's island game. Gently curved textured trunk with ring segments, lush crown of 8 glossy green fronds with soft color variation, two small coconuts under the crown. Premium stylized 3D render, soft hand-painted look, warm soft studio lighting, high-end mobile game quality. Isolated object, centered, full tree visible from base to top, plain light grey background, no ground, no shadow, no text.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791965438531,
+ "started_at": 1791965438535,
+ "finished_at": 1791965468270,
+ "expires_at": 1792224668270,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a13976-a231-741c-8181-8d3673b0b0ba_0.png?Expires=1792224668&Signature=FWkGaQ0gW5hgwZa8DIx-rX2rYoDVQ0EcQfI0aVGtFdTvTA8Bx-kEvx3omlLmovWJvlsFIAmNuxo9fdv1JN9EyLnXCNfXUEdiEvrRO5fnoUmHPjTQhd2~ZVeP0KdKYdQRPe3VLqg-WsBQEmN5IpipAA~8FIqQoj~UBJra5ulCJfBCl5x8BiU3JDsw-25e5WRKP9OkZq3lhh2tAiaOjRknD2xDUYSO0~17VUV1yBwr8TJHUYp1DgiGKPNyRsH-7Etdi8aMouds0wM2Ns2spNODThWESnEciHGMrsoHBYATXIACJBYYE4J-iCvfomZlT5HeeRAAM76jUsr7-lfuyhmxyA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

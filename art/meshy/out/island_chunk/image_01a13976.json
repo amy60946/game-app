@@ -1,0 +1,16 @@
+{
+ "id": "01a13976-a0dd-74b4-a425-a06932650406",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Isometric game asset: a small square floating island terrain block for a cozy children's island game. Two stepped grassy terraces with thick lush moss-green grass tops, layered brown and beige earth strata on the cliff sides, rounded grey boulders at the edges, a winding sandy path between terraces, a few tiny white and pink flowers. NO trees, NO buildings, NO water, NO people. Premium stylized 3D render, soft lighting, high detail, clean silhouette. Isolated on a plain light blue background, whole block visible, no text.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791965438181,
+ "started_at": 1791965438185,
+ "finished_at": 1791965463360,
+ "expires_at": 1792224663360,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a13976-a0dd-74b4-a425-a06932650406_0.png?Expires=1792224663&Signature=gxjJUZEefhOlsbDTCw4aZ81a4DBCDwHAawCsllnM5VZViRa0MzylozqewAOyBSPbokPBRFa5rWqwjYdyXAFNGBVbmMZk2LXZVYHZUZdv0CFcHxZ5pa0h7wU19LWg96HyfIY9NVx6d048ZLJPiV1j8T-nR~RNerjE8HgFLzXJp8ZXcUqtbHeaOJB46jI7e~8Bs0QyhSizGZK0FyhpRoY-sismd4mWsYyCkg~oaLf3Wwt1T3p78fjCU37VzuyMh0jChcsslb7dSimUzVHoEfS5th4sFRW3xbAGe4emWKo3qOtn5~Mkus4Api8D3E3GNIBs9CbD5L0R6fChJmk4Rf0t-w__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

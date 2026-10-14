@@ -17,8 +17,14 @@ namespace Pofi.World
 
         public static float StageScale(GrowthStage s) => s == GrowthStage.Yavru ? 0.8f : s == GrowthStage.Yetiskin ? 1.17f : 1f;
 
+        /// <summary>Gerçek modelin hedef boyu (kulak/anten dahil), yer tutucuyla aynı çerçeve.</summary>
+        public const float RealHeight = 1.75f;
+
         public static Transform Build(PetSpeciesDef def, Transform parent)
         {
+            var real = RealAssets.Pet(def.Id, parent, RealHeight);
+            if (real != null) return real;
+
             var root = new GameObject(def.Id + "_placeholder").transform;
             root.SetParent(parent, false);
             var b = new Builder(root, Hex(def.MainColor), Hex(def.AccentColor));

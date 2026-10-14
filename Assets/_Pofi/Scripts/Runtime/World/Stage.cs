@@ -77,6 +77,20 @@ namespace Pofi.World
             water.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             island.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
+            // Gerçek çevre varlıkları varsa (Meshy): arkada ada parçası ve palmiyeler
+            var env = new GameObject("Scenery").transform;
+            env.SetParent(transform, false);
+            var chunk = RealAssets.Env("island_chunk", env, 2.4f);
+            if (chunk != null)
+            {
+                chunk.localPosition = new Vector3(0.4f, -0.3f, 4.2f);
+                chunk.localRotation = Quaternion.Euler(0f, 35f, 0f);
+                var p1 = RealAssets.Env("palm", env, 2.8f);
+                if (p1 != null) { p1.localPosition = new Vector3(-1.6f, -0.05f, 1.8f); p1.localRotation = Quaternion.Euler(0f, 60f, 0f); }
+                var p2 = RealAssets.Env("palm", env, 2.3f);
+                if (p2 != null) { p2.localPosition = new Vector3(1.7f, -0.05f, 2.6f); p2.localRotation = Quaternion.Euler(0f, -140f, 0f); }
+            }
+
             _holder = new GameObject("PetHolder").transform;
             _holder.SetParent(transform, false);
         }
@@ -146,7 +160,7 @@ namespace Pofi.World
         {
             if (Pet == null) return;
             foreach (var r in Pet.GetComponentsInChildren<Renderer>())
-                foreach (var m in r.sharedMaterials) if (m != null) Destroy(m);
+                foreach (var m in r.sharedMaterials) if (m != null && !RealAssets.IsShared(m)) Destroy(m);
             Destroy(Pet.gameObject);
             Pet = null;
         }
@@ -160,6 +174,7 @@ namespace Pofi.World
         {
             _sleeping = sleeping;
             if (_life != null) _life.Sleeping = sleeping;
+            RealAssets.Play(Pet, sleeping ? "sleep" : "idle", false);
         }
 
         /// <summary>Ada sakinleri (yengeç, martı): yalnızca ev ekranında.</summary>
@@ -172,6 +187,7 @@ namespace Pofi.World
         public void Hop()
         {
             Audio.Sfx.Play(Audio.SfxKind.Pop);
+            if (RealAssets.Play(Pet, "happy")) return;   // gerçek modelde zıplama animasyonu
             if (!UI.Theme.ReduceMotion) _hop = 1f;
         }
 

@@ -1,0 +1,16 @@
+{
+ "id": "01a13970-0536-76a1-bb9c-fe79fb6daf87",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Full-body character concept of Pofi, an ORIGINAL cute fox-rabbit hybrid pet for a children's island game. Use the reference only for shape, colors and proportions. Chibi proportions: big round head (about 55% of total height), small round body, short legs, standing in a relaxed A-pose facing the camera, front view, symmetrical. Long upright rabbit ears with rounded tips and pale peach inner ears; big fluffy fox tail with a cream tip visible beside the body; warm orange soft short fur with a cream belly and cream muzzle; large glossy dark eyes with white highlights, tiny nose, gentle smile, soft rosy cheeks. Premium stylized 3D render, soft fur detail, warm subsurface glow, soft studio lighting, high-end mobile pet game quality. Plain light grey background, no text, no props, no clothes, entire body visible.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791965005306,
+ "started_at": 1791965005315,
+ "finished_at": 1791965038368,
+ "expires_at": 1792224238368,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a13970-0536-76a1-bb9c-fe79fb6daf87_0.png?Expires=1792224238&Signature=Ajd8MCUZVwREjVcwp68VRwdVUGMwM4rywRNKwH1TI0CWxPcpLgVMp39atxvtHZIBrRuvcnKX-hC3RrafDwdTdmOpB3i0Cjsqmi0ZuH9zHVR0gKQZLMXJUWi42YmRUkDQuL1ffckyTCVdfqjL8opEIYL1IIj9DsRCvPatGve4dK38WYV86ZZqbFoYGBBSLcgiK~6yLEIBWjkn8NOLqF27iR2SriVMCHq41ucAfskc4-MU~PIK3DJFu~n8K2nfP~rwn8WfQsNLKVH2Xh1H1iEMPJYNGWcNhgJ5Oe3q6URh6Xth2T4mlfBXosn8Q8WVP-DCHMi00jU57JvKAsFSW-kB2g__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
