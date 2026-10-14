@@ -175,10 +175,7 @@ namespace Pofi.UI
         {
             // Yaş bandı ölçeği (A: iri) yalnızca serbest yerleşimde; yan yana dizilen düğmelerde (scaleSize=false) taşmasın.
             var rt = Rect(parent, "Button " + text, anchor, scaleSize ? size * th.Scale : size, offset);
-            var img = Panel(rt, primary ? th.Primary : th.Secondary, th.Radius);
-            var shadow = rt.gameObject.AddComponent<Shadow>();   // çocuk nesne olsaydı düğmenin üstünde çizilirdi
-            shadow.effectColor = new Color(0f, 0f, 0f, 0.16f);
-            shadow.effectDistance = new Vector2(0f, -10f);
+            var img = Candy.Shell(rt, primary ? th.Primary : th.Secondary);   // 3B şeker görünüm (14 Ekim 2026)
             var btn = rt.gameObject.AddComponent<Button>();
             btn.targetGraphic = img;
             var colors = btn.colors;
@@ -187,6 +184,7 @@ namespace Pofi.UI
             btn.colors = colors;
             var label = Label(rt, text, th.Font(fontSize), primary ? th.PrimaryText : th.SecondaryText, new Vector2(0.5f, 0.5f), rt.sizeDelta, FontStyle.Bold);
             label.name = "Label";
+            if (primary) { var o = label.gameObject.AddComponent<Outline>(); o.effectColor = new Color(0.45f, 0.2f, 0f, 0.7f); o.effectDistance = new Vector2(2f, -2f); }
             btn.onClick.AddListener(() => Audio.Sfx.Play(Audio.SfxKind.Tap));
             if (onClick != null) btn.onClick.AddListener(() => onClick());
             rt.gameObject.AddComponent<PressBounce>();

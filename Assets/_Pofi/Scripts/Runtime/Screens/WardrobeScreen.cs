@@ -82,7 +82,7 @@ namespace Pofi.Screens
             for (var i = 0; i < Slot.All.Length; i++)
             {
                 var on = Slot.All[i] == _slot;
-                _spots[i].GetComponent<Image>().color = on ? Candy.Orange : Candy.White;
+                _spots[i].GetComponent<Button>().targetGraphic.color = on ? Candy.Orange : Candy.White;
                 _spots[i].localScale = Vector3.one * (on ? 1.15f : 1f);
             }
             Ui.Clear(_items);

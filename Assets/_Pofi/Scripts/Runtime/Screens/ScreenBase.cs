@@ -99,18 +99,10 @@ namespace Pofi.Screens
         /// <summary>Üst başlık şeridi + sağda coin rozeti. Coin metnini döndürür.</summary>
         protected Text Header(string title)
         {
-            var top = Ui.Rect(Root, "Header", Vector2.zero, Vector2.zero);
-            top.anchorMin = new Vector2(0f, 1f); top.anchorMax = new Vector2(1f, 1f);
-            top.pivot = new Vector2(0.5f, 1f);
-            top.sizeDelta = new Vector2(0f, HeaderHeight);
-            top.anchoredPosition = Vector2.zero;
-            var t = Ui.Label(top, title, Th.Font(64), Color.white, new Vector2(0f, 0.5f), new Vector2(900f, 110f), FontStyle.Bold, TextAnchor.MiddleLeft);
-            t.rectTransform.pivot = new Vector2(0f, 0.5f);
-            t.rectTransform.anchoredPosition = new Vector2(48f, 0f);
-            t.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -5f);
-            var pill = CoinPill(top, new Vector2(1f, 0.5f));
-            ((RectTransform)pill.transform.parent).anchoredPosition = new Vector2(-170f, 0f);
-            return pill;
+            // Şerit yok: başlık sahne üstünde kenarlı yazı, coin sağ üstte rozet (14 Ekim 2026 arayüz kararı)
+            var t = Candy.Caption(Root, title, 64, new Vector2(0f, 1f), new Vector2(900f, 110f), new Vector2(480f, -62f));
+            t.alignment = TextAnchor.MiddleLeft;
+            return Candy.Badge(Root, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -20f), 84f, 250f);
         }
 
         protected Text CoinPill(Transform parent, Vector2 anchor)
@@ -129,7 +121,8 @@ namespace Pofi.Screens
             var root = Ui.Fill(Root, "Modal");
             root.gameObject.AddComponent<Image>().color = new Color(0f, 0.08f, 0.2f, 0.5f);
             box = Ui.Rect(root, "Box", new Vector2(0.5f, 0.5f), new Vector2(960f, Mathf.Min(height, 980f)));
-            Ui.Panel(box, Color.white, Th.Radius);
+            Candy.Shell(box, new Color(1f, 0.99f, 0.96f)).raycastTarget = true;   // kabarık beyaz kutu
+            box.GetComponent<Image>().raycastTarget = true;
             return root;
         }
 

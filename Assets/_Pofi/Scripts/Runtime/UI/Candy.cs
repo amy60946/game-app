@@ -73,9 +73,14 @@ namespace Pofi.UI
             return img;
         }
 
-        /// <summary>Şeker gövde (alt dudak gölgesi + gövde + parlama) çizer; gövde Image'ını döndürür.</summary>
-        private static Image Shell(RectTransform rt, Color c)
+        /// <summary>
+        /// Şeker gövde: altta koyu dudak (3B kalınlık) + gövde + parlama. Sıra önemli: uGUI'de sonra gelen çocuk üstte çizilir.
+        /// Gövde Image'ını döndürür (düğmenin hedef grafiği; renk değiştirmek için).
+        /// </summary>
+        internal static Image Shell(RectTransform rt, Color c)
         {
+            var hit = rt.gameObject.AddComponent<Image>();               // tıklama alanı (görünmez)
+            hit.color = new Color(1f, 1f, 1f, 0f);
             var lip = Ui.Rect(rt, "Lip", Vector2.zero, Vector2.zero);
             lip.anchorMin = Vector2.zero; lip.anchorMax = Vector2.one;
             lip.offsetMin = new Vector2(0f, -9f); lip.offsetMax = new Vector2(0f, -9f);
@@ -83,9 +88,8 @@ namespace Pofi.UI
             li.sprite = Body; li.type = Image.Type.Sliced; li.color = new Color(c.r * 0.6f, c.g * 0.6f, c.b * 0.6f, 1f); li.raycastTarget = false;
             var drop = lip.gameObject.AddComponent<Shadow>();
             drop.effectColor = new Color(0f, 0f, 0f, 0.28f); drop.effectDistance = new Vector2(0f, -8f);
-            var body = rt.gameObject.AddComponent<Image>();
-            body.sprite = Body; body.type = Image.Type.Sliced; body.color = c;
-            var edge = rt.gameObject.AddComponent<Outline>();
+            var body = Img(rt, "Body", Body, c, true);
+            var edge = body.gameObject.AddComponent<Outline>();
             edge.effectColor = new Color(1f, 1f, 1f, 0.85f); edge.effectDistance = new Vector2(3f, -3f);
             Img(rt, "Gloss", Gloss, Color.white, true);
             return body;
@@ -94,7 +98,7 @@ namespace Pofi.UI
         private static Button Clickable(RectTransform rt, Image body, Action onClick)
         {
             var btn = rt.gameObject.AddComponent<Button>();
-            btn.targetGraphic = body;
+            btn.targetGraphic = body;   // basılınca gövde koyulaşır; tıklamayı görünmez "hit" alır
             var cols = btn.colors; cols.pressedColor = new Color(0.85f, 0.85f, 0.85f); cols.disabledColor = new Color(0.7f, 0.7f, 0.7f, 0.6f); btn.colors = cols;
             btn.onClick.AddListener(() => Audio.Sfx.Play(Audio.SfxKind.Tap));
             if (onClick != null) btn.onClick.AddListener(() => onClick());
