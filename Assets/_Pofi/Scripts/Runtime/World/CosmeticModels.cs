@@ -65,7 +65,7 @@ namespace Pofi.World
         // art/meshy önizlemesiyle (Blender, 3 farklı pet) ayarlandı; Meshy iskelet kemik adları
         private static readonly Dictionary<string, Rule> Rules = new Dictionary<string, Rule>
         {
-            ["head"] = new Rule("head_end", 0.42f, up: -0.07f, bottom: true),
+            ["head"] = new Rule("head_end", 0.55f, up: -0.07f, bottom: true),
             ["eyes"] = new Rule("headfront", 0.32f, fwd: -0.03f),   // yükseklik: EyeLine (pet başına)
             ["body"] = new Rule("Spine02", 0.44f, up: 0.02f),
             ["back"] = new Rule("Spine01", 0.30f, up: -0.08f, fwd: -0.12f),
