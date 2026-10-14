@@ -53,13 +53,14 @@ namespace Pofi.Screens
         }
 
         /// <summary>Ortada sabit genişlikte, başlık ile alt menü arasını dolduran sütun (listeler için).</summary>
-        protected RectTransform CenterColumn(string name, float width, float top = HeaderHeight, float bottom = NavHeight)
+        protected RectTransform CenterColumn(string name, float width, float top = HeaderHeight, float bottom = NavHeight, bool backdrop = false)
         {
             var rt = Ui.Rect(Root, name, Vector2.zero, Vector2.zero);
             rt.anchorMin = new Vector2(0.5f, 0f); rt.anchorMax = new Vector2(0.5f, 1f);
             rt.pivot = new Vector2(0.5f, 0.5f);
             rt.offsetMin = new Vector2(-width / 2f, bottom + 10f);
             rt.offsetMax = new Vector2(width / 2f, -(top + 10f));
+            if (backdrop) Ui.Panel(rt, new Color(0.05f, 0.2f, 0.42f, 0.38f), Th.Radius).raycastTarget = false;   // sahne üstünde okunurluk
             return rt;
         }
 

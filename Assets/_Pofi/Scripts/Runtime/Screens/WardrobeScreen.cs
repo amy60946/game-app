@@ -27,7 +27,7 @@ namespace Pofi.Screens
         {
             _pet = App.Data.Pet(App.State.PetId);
             App.Stage.AllowDrag = true;
-            PetCamera(0.28f, 0.16f, 0.8f);   // yatay: pet solda, dolap paneli sağda
+            PetCamera(0.28f, 0.12f, 0.84f, World.PetModels.RealHeight * World.PetModels.StageScale(Logic.Progression.GrowthStage.Yetiskin));   // yatay: pet solda, dolap paneli sağda
             App.Stage.ShowPet(_pet, App.Growth, App.State.Inventory.Equipped.Values);
 
             var title = Ui.Label(Root, T("wardrobe.title"), Th.Font(64), Color.white, new Vector2(0.28f, 1f), new Vector2(800f, 120f), FontStyle.Bold);

@@ -57,6 +57,7 @@ namespace Pofi.Screens
             var expanded = Expanded;
             var (w, h) = HomeLayout.Size(expanded);
             var cell = Mathf.Min(960f / w, 720f / h);
+            RectTransform petLabelCell = null;
             for (var y = 0; y < h; y++)
             for (var x = 0; x < w; x++)
             {
@@ -69,7 +70,10 @@ namespace Pofi.Screens
                 if (placed != null) col = placed.ItemId == _selected ? Th.Primary : ItemColor(placed.ItemId);
                 var img = Ui.Panel(rt, col, 18f);
                 if (pet && x == w / 2 - 1 && y == (h - 1) / 2)
+                {
                     Ui.Label(rt, App.State.PetName, Th.Font(30), Th.SubtleText, new Vector2(1f, 0f), new Vector2(cell * 2f, 60f), FontStyle.Bold);
+                    petLabelCell = rt;
+                }
                 if (placed != null)
                 {
                     var item = App.Data.Item(placed.ItemId);
@@ -81,6 +85,8 @@ namespace Pofi.Screens
                 b.targetGraphic = img;
                 b.onClick.AddListener(() => TapCell(cx, cy));
             }
+
+            if (petLabelCell != null) petLabelCell.SetAsLastSibling();   // pet adı komşu karelerin altında kalmasın
 
             var free = HomeLayout.Unplaced(App.State, App.Data);
             if (free.Count == 0)

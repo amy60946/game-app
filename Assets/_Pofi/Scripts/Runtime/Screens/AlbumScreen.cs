@@ -28,7 +28,7 @@ namespace Pofi.Screens
                 rt.pivot = new Vector2(0f, 1f);
                 rt.anchoredPosition = new Vector2(36f, -(HeaderHeight + 10f) - i * 110f);
             }
-            _list = Ui.ScrollList(CenterColumn("List", 1300f), Vector2.zero, Vector2.one, 18f);
+            _list = Ui.ScrollList(CenterColumn("List", 1300f, HeaderHeight, NavHeight, true), Vector2.zero, Vector2.one, 18f);
             NavBar(AppPage.Home);
             Fill();
         }

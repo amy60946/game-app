@@ -36,19 +36,19 @@ namespace Pofi.Screens
         {
             var def = App.Data.Pet(App.State.PetId);
             App.Stage.AllowDrag = true;
-            PetCamera(0.5f, 0.2f, 0.78f);   // yatay: pet ortada, göstergeler solda, bakım düğmeleri sağda
+            PetCamera(0.5f, 0.18f, 0.86f, World.PetModels.RealHeight * World.PetModels.StageScale(Logic.Progression.GrowthStage.Yetiskin));   // yatay: pet ortada; çerçeve yetişkine göre, yavru daha küçük görünür
             App.Stage.ShowPet(def, App.Growth, App.State.Inventory.Equipped.Values);
             App.Stage.SetHomeItems(App.State.Home, App.Levels.IsUnlocked("home_expansion", App.Level));
             App.Stage.SetAmbient(true);
 
             // Üst bilgi kartı: isim, seviye/evre, coin ve göstergeler
             // Sol üst: isim, seviye, coin ve göstergeler
-            var top = Ui.Rect(Root, "Top", new Vector2(0f, 1f), new Vector2(620f, 440f));
+            var top = Ui.Rect(Root, "Top", new Vector2(0f, 1f), new Vector2(680f, 440f));
             top.pivot = new Vector2(0f, 1f);
             top.anchoredPosition = new Vector2(36f, -30f);
             Ui.Panel(top, Th.Panel, Th.Radius);
-            _title = Ui.Label(top, "", Th.Font(46), Th.Text, new Vector2(0.36f, 0.89f), new Vector2(400f, 70f), FontStyle.Bold, TextAnchor.MiddleLeft);
-            _coins = CoinPill(top, new Vector2(0.8f, 0.89f));
+            _title = Ui.Label(top, "", Th.Font(46), Th.Text, new Vector2(0.33f, 0.89f), new Vector2(400f, 70f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            _coins = CoinPill(top, new Vector2(0.815f, 0.89f));
             _xpBar = Ui.Bar(top, new Vector2(0.5f, 0.77f), new Vector2(560f, 16f), new Color(0f, 0f, 0f, 0.08f), Theme.Hex("#FFC400"), 8f);
 
             for (var i = 0; i < 4; i++)
@@ -65,7 +65,7 @@ namespace Pofi.Screens
             row.Add(("settings.title", () => ParentGate(() => App.Open(AppPage.Settings), msg => _bubble.Say(msg))));
             for (var i = 0; i < row.Count; i++)
             {
-                var b = Ui.Button(Root, Th, T(row[i].key), new Vector2(1f, 1f), new Vector2(250f, 78f), row[i].act, false, default, 32, false);
+                var b = Ui.Button(Root, Th, T(row[i].key), new Vector2(1f, 1f), new Vector2(310f, 78f), row[i].act, false, default, 32, false);
                 var rt = (RectTransform)b.transform;
                 rt.pivot = new Vector2(1f, 1f);
                 rt.anchoredPosition = new Vector2(-36f, -30f - i * 92f);

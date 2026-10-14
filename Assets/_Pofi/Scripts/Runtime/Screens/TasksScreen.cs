@@ -57,7 +57,7 @@ namespace Pofi.Screens
 
         private void Card(ChildTask task, System.DateTime local)
         {
-            var row = Ui.Row(_list, task.Key, 210f);
+            var row = Ui.Row(_list, task.Key, 240f);
             var missed = task.IsMissed(local);
             var faded = missed || task.Status == ChildTaskStatus.RejectedByParent || task.Status == ChildTaskStatus.DeclinedByChild;
             Ui.Panel(row, faded ? new Color(1f, 1f, 1f, 0.75f) : Th.Panel, Th.Radius);
@@ -69,7 +69,7 @@ namespace Pofi.Screens
             // ödül
             var pill = Ui.Rect(row, "Reward", new Vector2(1f, 1f), new Vector2(170f, 74f));
             pill.pivot = new Vector2(1f, 1f);
-            pill.anchoredPosition = new Vector2(-28f, -26f);
+            pill.anchoredPosition = new Vector2(-28f, -22f);
             Ui.Panel(pill, Theme.Hex("#FFD23F"), 37f).raycastTarget = false;
             Ui.Label(pill, T("tasks.coin", task.RewardCoins), Th.Font(40), Theme.Hex("#5A3B00"), new Vector2(0.5f, 0.5f), new Vector2(160f, 70f), FontStyle.Bold);
 
@@ -81,17 +81,17 @@ namespace Pofi.Screens
                 switch (task.Status)
                 {
                     case ChildTaskStatus.Assigned:
-                        Btn(row, T("task.done"), true, new Vector2(-28f, 28f), new Vector2(330f, 110f), () => Mark(task, ChildTaskStatus.ChildDone));
-                        Btn(row, T("task.decline"), false, new Vector2(-380f, 28f), new Vector2(250f, 110f), () => Mark(task, ChildTaskStatus.DeclinedByChild));
+                        Btn(row, T("task.done"), true, new Vector2(-28f, 22f), new Vector2(330f, 100f), () => Mark(task, ChildTaskStatus.ChildDone));
+                        Btn(row, T("task.decline"), false, new Vector2(-380f, 22f), new Vector2(250f, 100f), () => Mark(task, ChildTaskStatus.DeclinedByChild));
                         break;
                     case ChildTaskStatus.ChildDone:
                         status = T("task.waiting");
                         statusColor = Th.Primary;
-                        Btn(row, T("task.undo"), false, new Vector2(-28f, 28f), new Vector2(250f, 100f), () => Mark(task, ChildTaskStatus.Assigned));
+                        Btn(row, T("task.undo"), false, new Vector2(-28f, 22f), new Vector2(250f, 100f), () => Mark(task, ChildTaskStatus.Assigned));
                         break;
                     case ChildTaskStatus.DeclinedByChild:
                         status = T("tasks.declined");
-                        Btn(row, T("task.undo"), false, new Vector2(-28f, 28f), new Vector2(250f, 100f), () => Mark(task, ChildTaskStatus.Assigned));
+                        Btn(row, T("task.undo"), false, new Vector2(-28f, 22f), new Vector2(250f, 100f), () => Mark(task, ChildTaskStatus.Assigned));
                         break;
                     case ChildTaskStatus.Approved:
                         status = T("task.approved", task.RewardCoins);
