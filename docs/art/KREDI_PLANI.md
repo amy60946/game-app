@@ -36,3 +36,15 @@ Sonuç: Premium'un bu ayki kredisi projeyi **sığdırıyor** ama yedek dar. Kur
 Riskler:
 - Meshy iskeleti iki ayaklı karakterler için. Top gövdeli Pıtı, kaplumbağa Tosbi ve uğur böceği Benli'de iskelet zorlanabilir. Gerekirse bu üçünde animasyonu basit hareketlerle (zıplama, sallanma) kodla yaparım.
 - Kıyafetler 12 farklı vücuda tek modelle oturmayacak: soket + ölçek + pet başına küçük ayar tablosu gerekir.
+
+## Gerçekleşen (14 Ekim 2026)
+
+| İş | Harcanan | Kalan |
+|---|---|---|
+| Pilot (Pofi, palmiye, ada parçası) | 134 | 2.966 |
+| 12 pet konsepti + 11 pet 3D/iskelet/animasyon | 640 | 2.326 |
+| 24 çevre konsepti (+1 yeniden: oyun kulübesi) | 225 | 2.101 |
+| 24 çevre 3D (13 bina, 3 zemin, 8 süs) | 525 | 1.576 |
+| Çiçek süsü yeniden (lite renkleri soluk çıktı → tam model) | 30 | 1.546 |
+
+Kalan P1: simgeler (~45) + arayüz görselleri (~90). P2 (kıyafet ~650, ev eşyası ~215) sonrası tahmini kalan ~540.
