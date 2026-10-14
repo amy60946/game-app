@@ -44,10 +44,10 @@ def layer(az, el, cells, el0, el1, size, seed, T, aa):
             rr = np.maximum(sp * 0.72, (0.24 + 0.2 * r(40 + i)) * (0.7 + Hh * 0.6)) * (1 - 0.3 * np.abs(u))
             oy = np.minimum(Hh * (1 - u * u) * (0.55 + 0.7 * r(30 + i)), rb + rr * (0.5 + Hh * 0.9))
             dd = np.where(on_i, np.sqrt((px - ox) ** 2 + (py - oy) ** 2) - rr, 9.0)
-            dist = smin(dist, dd, 0.08)
-            cov = ss(0.02, -0.02, dd)
-            lt = lt + (ss(-0.6, 0.3, (py - oy) / rr + (px - ox) / rr * sunx) - lt) * cov
-        cov = ss(0.02, -0.02, body)
+            dist = smin(dist, dd, 0.22)
+            cov = ss(0.06, -0.22, dd) * 0.85
+            lt = lt + (ss(-0.9, 0.55, (py - oy) / rr + (px - ox) / rr * sunx) - lt) * cov
+        cov = ss(0.06, -0.22, body)
         lt = lt + (ss(-1.0, 0.7, (py - 0.06) / rb) - lt) * cov * ss(0.0, -0.15, py - 0.06)   # gövdenin alt yarısı en önde
         dist = np.maximum(dist, -(py + 0.1))                                    # düz taban
         a = (1 - ss(-aa / s, aa / s, dist)) * on

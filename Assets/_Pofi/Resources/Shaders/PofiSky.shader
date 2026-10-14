@@ -85,12 +85,12 @@ Shader "Pofi/Sky"
                         float rr = max(sp * 0.72, (0.24 + 0.2 * h1(k0 + 40 + i)) * (0.7 + H * 0.6)) * (1.0 - 0.3 * abs(u));
                         float oy = min(H * (1.0 - u * u) * (0.55 + 0.7 * h1(k0 + 30 + i)), rb + rr * (0.5 + H * 0.9));
                         float dd = length(float2(px - ox, py - oy)) - rr + on;
-                        dist = smin(dist, dd, 0.08);
-                        float cov = smoothstep(0.02, -0.02, dd);
-                        lt = lerp(lt, smoothstep(-0.6, 0.3, (py - oy) / rr + (px - ox) / rr * sunx), cov);
+                        dist = smin(dist, dd, 0.22);                                   // geniş yumuşak birleşim (tekil toplar seçilmesin)
+                        float cov = smoothstep(0.06, -0.22, dd) * 0.85;               // yumuşak geçişli kıvrım
+                        lt = lerp(lt, smoothstep(-0.9, 0.55, (py - oy) / rr + (px - ox) / rr * sunx), cov);
                     }
                     // gövdenin alt yarısı en önde
-                    lt = lerp(lt, smoothstep(-1.0, 0.7, (py - 0.06) / rb), smoothstep(0.02, -0.02, body) * smoothstep(0.0, -0.15, py - 0.06));
+                    lt = lerp(lt, smoothstep(-1.0, 0.7, (py - 0.06) / rb), smoothstep(0.06, -0.22, body) * smoothstep(0.0, -0.15, py - 0.06));
                     dist = max(dist, -(py + 0.1));                                      // düz taban
                     float w = max(pw / s, 0.002);                                    // bir piksel (kenar yumuşatma)
                     float a = 1.0 - smoothstep(-w, w, dist);
