@@ -451,7 +451,7 @@ namespace Pofi.World
                 else if (_world.Terrain.Walkable(nx, _z)) _x = nx;          // engelde kayarak ilerle
                 else if (_world.Terrain.Walkable(_x, nz)) _z = nz;
                 var want = Mathf.Atan2(_direct.x, _direct.y) * Mathf.Rad2Deg;
-                _yaw = Mathf.MoveTowardsAngle(_yaw, want, 720f * Time.deltaTime);
+                _yaw = Mathf.MoveTowardsAngle(_yaw, want, 480f * Time.deltaTime);   // doğal dönüş (ani savrulma yok)
                 Play(_direct.magnitude > 0.7f ? "run" : "walk", "walk");
                 Apply();
                 return;

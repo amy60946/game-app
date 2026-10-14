@@ -38,7 +38,7 @@ namespace Pofi.Tests.Logic
         public void Tidy_collapses_spaces() => Assert.AreEqual("Şeker Kız", PetNameRules.Tidy("  Şeker   Kız "));
 
         [Test]
-        public void Feeding_uses_inventory_and_respects_night_and_fullness()
+        public void Feeding_uses_inventory_and_fullness_no_night_block()
         {
             var d = TestData.Load();
             var stats = PetStats.New(DateTime.UtcNow);
@@ -50,7 +50,8 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual(CareResult.Ok, PetCare.Feed(stats, inv, apple, day));
             Assert.AreEqual(100f, stats[StatKind.Fullness], 0.01f);
             Assert.AreEqual(CareResult.AlreadyFull, PetCare.Feed(stats, inv, apple, day));
-            Assert.AreEqual(CareResult.Sleeping, PetCare.Play(stats, new DateTime(2026, 10, 13, 22, 30, 0)));
+            // gece döngüsü kapalı: gece 22:30'da da oynanır, "uyuyor" engeli yok
+            Assert.AreEqual(CareResult.Ok, PetCare.Play(stats, new DateTime(2026, 10, 13, 22, 30, 0)));
             Assert.AreEqual(CareResult.WrongItem, PetCare.Wash(stats, inv, apple, day));
             inv.Add(d.Item("clean_soap"));
             stats.Add(StatKind.Cleanliness, -50f);

@@ -16,8 +16,16 @@ namespace Pofi.Logic.Pet
         public const float PlayHappiness = 12f;
         public const float TidyHome = 10f;
 
-        /// <summary>Gece: 21:00–07:00 (yerel saat). Pet uyurken beslenmez, oynamaz; sabah kendiliğinden uyanır.</summary>
-        public static bool IsNight(DateTime local) => local.Hour >= 21 || local.Hour < 7;
+        /// <summary>
+        /// Gece döngüsü kapalı (kullanıcı kararı, 14 Ekim 2026): gökyüzü hep gündüz, pet hiç "uyuyor" diye bakımı reddetmez.
+        /// Açılırsa gece 21:00–07:00 (yerel saat) olur.
+        /// </summary>
+        public const bool NightCycle = false;
+
+        public static bool IsNight(DateTime local) => NightCycle && (local.Hour >= 21 || local.Hour < 7);
+
+        /// <summary>Koleksiyon zaman süzgeci: gece döngüsü kapalıysa null (gündüz/gece eşyaları her zaman bulunur).</summary>
+        public static bool? CollectTime(DateTime local) => NightCycle ? IsNight(local) : (bool?)null;
 
         public static CareResult Feed(PetStats stats, Inventory inv, ItemDef food, DateTime local)
         {

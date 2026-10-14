@@ -46,6 +46,9 @@ namespace Pofi.Logic.Services.Mock
             return t;
         }
 
+        /// <summary>Yalnız önizleme test erişimi (TestAccess): sahte arka uçta bakiye ekler.</summary>
+        public void TestGrantCoins(int coins) => Coins += Math.Max(0, coins);
+
         public void ParentApprove(string key, string note = null)
         {
             var t = _tasks.First(x => x.Key == key);

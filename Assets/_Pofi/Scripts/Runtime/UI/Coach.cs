@@ -27,7 +27,8 @@ namespace Pofi.UI
             c._root = root; c.Id = id; c._gesture = gesture; c._from = from; c._to = to; c._loops = loops;
 
             // altyazı: mavi şeker panel, solda işaret eden el rozeti; oyun yazı tarzı (beyaz, koyu kontur), genişlik yazıya göre
-            var banner = Candy.Banner(rt, Candy.Blue, "ui_hand", new Vector2(0.5f, 1f), new Vector2(0f, -300f), 1150f, 40, false);
+            // üst şerit: seviye rozeti ile coin arasında (ekranın ortası, pet ve yol açık kalır); kısa cümle
+            var banner = Candy.Banner(rt, Candy.Blue, "ui_hand", new Vector2(0.5f, 1f), new Vector2(0f, -70f), 760f, 36, false);
             banner.SetText(caption);
             banner.Rect.gameObject.AddComponent<PopIn>();
             // dokunma halkası

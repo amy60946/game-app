@@ -50,7 +50,7 @@ namespace Pofi.Screens
                 _gaugeFills[i] = Candy.Gauge(Root, StatColors[i], GaugeIcons[i], 112f, new Vector2(0f, 1f), new Vector2(30f + 56f + i * 128f, -176f));
             _coins = Candy.Badge(Root, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -24f), 84f, 250f);
 
-            var row = new List<(string key, System.Action act)> { ("home.daily", DailyPanel), ("album.button", () => App.Open(AppPage.Album)) };
+            var row = new List<(string key, System.Action act)> { ("home.daily", () => QuestPanel()), ("album.button", () => App.Open(AppPage.Album)) };
             if (App.Levels.IsUnlocked("home_decor", App.Level)) row.Add(("decor.button", () => App.Open(AppPage.Decorate)));
             row.Add(("settings.title", () => ParentGate(() => App.Open(AppPage.Settings), msg => _bubble.Say(msg))));
             for (var i = 0; i < row.Count; i++)
@@ -213,28 +213,6 @@ namespace Pofi.Screens
             _idle = 0f;
             _bubble.Say(CareFeedback.Message(App.Loc, a, r, st.PetName));
             Refresh();
-        }
-
-        private void DailyPanel()
-        {
-            Activity.EnsureQuests(App.State, App.Data, App.Levels, App.LocalNow);
-            var root = Modal(760f, out var box);
-            Ui.Label(box, T("home.daily"), Th.Font(60), Th.Text, new Vector2(0.5f, 0.88f), new Vector2(880f, 90f), FontStyle.Bold);
-            var i = 0;
-            foreach (var id in App.State.DailyQuests.Ids)
-            {
-                var q = App.Data.DailyQuests.FirstOrDefault(x => x.Id == id);
-                if (q == null) continue;
-                var y = 0.7f - i * 0.17f;
-                var done = App.State.DailyQuests.Claimed.Contains(id);
-                var prog = DailyQuests.Progress(q, App.State.Counters);
-                Ui.Label(box, q.Text, Th.Font(40), done ? Theme.Hex("#2E9E4F") : Th.Text, new Vector2(0.42f, y), new Vector2(700f, 70f), FontStyle.Bold, TextAnchor.MiddleLeft);
-                Ui.Label(box, done ? T("home.daily_done") : prog + "/" + q.Target, Th.Font(38), Th.SubtleText, new Vector2(0.86f, y), new Vector2(200f, 70f), FontStyle.Bold);
-                var bar = Ui.Bar(box, new Vector2(0.5f, y - 0.055f), new Vector2(860f, 16f), new Color(0f, 0f, 0f, 0.08f), Th.Primary, 8f);
-                Ui.SetBar(bar, (float)prog / q.Target);
-                i++;
-            }
-            Ui.Button(box, Th, T("common.ok"), new Vector2(0.5f, 0.1f), new Vector2(360f, 110f), () => Destroy(root.gameObject), false, default, 44);
         }
 
         private void OnSynced(Logic.State.SyncReport r) => Refresh();

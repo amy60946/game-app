@@ -150,7 +150,9 @@ namespace Pofi.Screens
                 while (next < game.Schedule.Count && game.Schedule[next].AtMs <= ms)
                 {
                     var f = game.Schedule[next];
-                    live[next] = Dot(_area, new Vector2(f.X, 1.02f), f.Golden ? 100f : 90f, f.Golden ? Theme.Hex("#FFC400") : Theme.Hex("#7A4A26"));
+                    // 3B görünümlü hindistan cevizi (art/scripts/ui_coconut.py); simge yoksa eski renkli daire
+                    live[next] = Ui.IconImage(_area, f.Golden ? "ui_coconut_gold" : "ui_coconut", new Vector2(f.X, 1.02f), f.Golden ? 130f : 118f)
+                                 ?? Dot(_area, new Vector2(f.X, 1.02f), f.Golden ? 100f : 90f, f.Golden ? Theme.Hex("#FFC400") : Theme.Hex("#7A4A26"));
                     next++;
                 }
                 foreach (var i in new List<int>(live.Keys))
@@ -159,6 +161,7 @@ namespace Pofi.Screens
                     var p = (ms - f.AtMs) / (game.FallSeconds * 1000f);
                     var y = Mathf.Lerp(1.02f, BasketY, p);
                     live[i].anchorMin = live[i].anchorMax = new Vector2(f.X, y);
+                    live[i].localRotation = Quaternion.Euler(0f, 0f, (i % 2 == 0 ? 1f : -1f) * p * 160f);   // düşerken yavaş döner
                     if (p >= 1f && p < 1.08f && Mathf.Abs(f.X - basketX) < basketW / 2f + 0.03f)
                     {
                         caught.Add(i);
@@ -478,7 +481,7 @@ namespace Pofi.Screens
             {
                 if (fr == null)
                 {
-                    fr = new FishingRound(rng, App.Session.AgeBand, App.Level, Logic.Pet.PetCare.IsNight(App.LocalNow), App.Data.Collection);
+                    fr = new FishingRound(rng, App.Session.AgeBand, App.Level, Logic.Pet.PetCare.CollectTime(App.LocalNow), App.Data.Collection);
                     t = 0f;
                     Ui.SetText(action, T("mg.fishing.pull"));
                     _bubble.Say(T("mg.fishing.wait"), 1.2f);

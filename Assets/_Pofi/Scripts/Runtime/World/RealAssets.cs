@@ -37,6 +37,9 @@ namespace Pofi.World
                 clip.legacy = true;
                 if (anim.GetClip(clip.name) == null) anim.AddClip(clip, clip.name);
             }
+            // döngüsel klipler: içe aktarma ayarı Legacy durumuna her zaman geçmiyor (yürüme 2 adımda duruyordu) → çalışırken de döngü
+            foreach (var loop in LoopClips)
+                if (anim.GetClip(loop) != null) anim[loop].wrapMode = WrapMode.Loop;
             if (anim.GetClip("idle") != null)
             {
                 anim.clip = anim.GetClip("idle");
@@ -180,6 +183,8 @@ namespace Pofi.World
             Socket("socket_hand_L", Bone("LeftHand"), new Vector3(-0.3f, 0.4f, 0f));
             Socket("socket_hand_R", Bone("RightHand"), new Vector3(0.3f, 0.4f, 0f));
         }
+
+        private static readonly string[] LoopClips = { "idle", "walk", "run", "sleep", "swim" };
 
         /// <summary>Animasyon oynat (varsa); yoksa false.</summary>
         public static bool Play(Transform pet, string clip, bool returnToIdle = true)

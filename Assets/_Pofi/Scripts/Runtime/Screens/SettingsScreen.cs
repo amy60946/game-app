@@ -42,6 +42,19 @@ namespace Pofi.Screens
                 App.Route();
             });
             Action(T("settings.sign_out"), T("settings.sign_out_hint"), App.SignOut);
+            // önizleme test erişimi: XP biriktirmeden tüm seviyeler, eşyalar, coin (yalnız sahte arka uçta)
+            if (App.Backend != null)
+                Action(T("settings.test"), T("settings.test_hint"), async () =>
+                {
+                    var added = Logic.App.TestAccess.GiveAllItems(App.Data, App.State.Inventory);
+                    App.Backend.TestGrantCoins(Logic.App.TestAccess.Coins);
+                    var xp = Logic.App.TestAccess.XpToMax(App.Levels, App.State.Xp.TotalXp);
+                    if (xp > 0) App.GrantXp(xp, Logic.Economy.XpSource.Achievement);
+                    App.Save();
+                    await App.SyncNow();
+                    Debug.Log(T("settings.test_done", App.Level, added));
+                    Fill();
+                });
 
             var info = Ui.Row(_list, "Info", 140f);
             Ui.Stretch(Ui.Label(info, App.BuildLabel + "\n" + T("settings.child", App.Session.DisplayName), Th.Font(30), Color.white,

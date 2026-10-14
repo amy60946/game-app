@@ -18,7 +18,7 @@ namespace Pofi.Logic.Fishing
         public int WindowMs { get; }
         public CollectionEntryDef Fish { get; }
 
-        public FishingRound(Random rng, AgeBand band, int level, bool night, IEnumerable<CollectionEntryDef> collection)
+        public FishingRound(Random rng, AgeBand band, int level, bool? night, IEnumerable<CollectionEntryDef> collection)
         {
             BiteAtMs = 1500 + rng.Next(3500);
             WindowMs = band == AgeBand.A ? 1400 : band == AgeBand.B ? 1000 : 700;
@@ -31,10 +31,10 @@ namespace Pofi.Logic.Fishing
             return tapAtMs <= BiteAtMs + WindowMs ? CatchResult.Caught : CatchResult.TooLate;
         }
 
-        public static CollectionEntryDef Pick(Random rng, int level, bool night, IEnumerable<CollectionEntryDef> collection)
+        public static CollectionEntryDef Pick(Random rng, int level, bool? night, IEnumerable<CollectionEntryDef> collection)
         {
             var pool = collection.Where(e => e.Category == "fish" && e.Level <= level &&
-                                             (e.Time == "any" || (e.Time == "night") == night)).ToList();
+                                             (night == null || e.Time == "any" || (e.Time == "night") == night)).ToList();
             if (pool.Count == 0) return null;
             // Nadirlik ağırlığı: yaygın 6, orta 3, nadir 1
             var weights = pool.Select(e => e.Rarity == 1 ? 6 : e.Rarity == 2 ? 3 : 1).ToList();

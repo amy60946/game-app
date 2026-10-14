@@ -4,30 +4,41 @@ using UnityEngine;
 namespace Pofi.World
 {
     /// <summary>
-    /// Petin çevresinde çim telleri (GPU instancing, Pofi/Grass). Telefonu yormamak için yalnız ~14 m yarıçapta ve
-    /// çimen yüzeyinde çizilir; pet 3 m yürüyünce alan yeniden kurulur. Uzakta zemin dokusu yeterli.
+    /// Petin çevresinde çim telleri (Pofi/Grass). Telefonu yormamak için yalnız ~13 m yarıçapta ve çimen yüzeyinde çizilir;
+    /// pet 3 m yürüyünce alan yeniden kurulur. Uzakta zemin dokusu yeterli.
+    /// Öbekler tek bir birleşik ağda çizilir: GPU instancing derlemede ayıklanıyordu (kodla kurulan malzeme instancing
+    /// kullanmadığı için Unity varyantı siliyor → çim hiç görünmüyordu).
     /// </summary>
     public sealed class GrassField : MonoBehaviour
     {
-        private const float Radius = 14f, Cell = 0.7f, Rebuild = 3f;
+        private const float Radius = 13f, Cell = 0.5f, Rebuild = 3f;
         private MapWorld _world;
         private Mesh _mesh;
         private Material _mat;
-        private readonly List<Matrix4x4[]> _batches = new List<Matrix4x4[]>();
+        private Mesh _field;
+        private Transform _holder;
         private Vector2 _center = new Vector2(float.MaxValue, 0f);
-        private RenderParams _rp;
 
         public void Init(MapWorld world)
         {
             _world = world;
             var sh = Shader.Find("Pofi/Grass");
             if (sh == null) { enabled = false; return; }
-            _mat = new Material(sh) { enableInstancing = true };
+            _mat = new Material(sh);
             _mesh = Clump();
-            _rp = new RenderParams(_mat) { shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off, receiveShadows = true };
+            _field = new Mesh { name = "GrassField", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+            _field.MarkDynamic();
+            var holder = new GameObject("GrassMesh");
+            holder.transform.SetParent(transform, false);
+            _holder = holder.transform;
+            holder.AddComponent<MeshFilter>().sharedMesh = _field;
+            var mr = holder.AddComponent<MeshRenderer>();
+            mr.sharedMaterial = _mat;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            mr.receiveShadows = true;
         }
 
-        /// <summary>Bir öbek: 7 incelen tel, rastgele yön ve boy (0,18–0,32 m).</summary>
+        /// <summary>Bir öbek: 7 incelen tel, rastgele yön ve boy (0,24–0,42 m).</summary>
         private static Mesh Clump()
         {
             var rnd = new System.Random(11);
@@ -38,8 +49,8 @@ namespace Pofi.World
                 var r = (float)rnd.NextDouble() * 0.22f;
                 var root = new Vector3(Mathf.Cos(a) * r, 0f, Mathf.Sin(a) * r);
                 var face = (float)rnd.NextDouble() * Mathf.PI;
-                var side = new Vector3(Mathf.Cos(face), 0f, Mathf.Sin(face)) * 0.022f;
-                var h = 0.18f + (float)rnd.NextDouble() * 0.14f;
+                var side = new Vector3(Mathf.Cos(face), 0f, Mathf.Sin(face)) * 0.03f;
+                var h = 0.24f + (float)rnd.NextDouble() * 0.18f;
                 var lean = new Vector3((float)rnd.NextDouble() - 0.5f, 0f, (float)rnd.NextDouble() - 0.5f) * 0.08f;
                 var i0 = v.Count;
                 v.Add(root - side); v.Add(root + side); v.Add(root + lean + Vector3.up * h);
@@ -58,14 +69,11 @@ namespace Pofi.World
             if (_world == null || _world.Walker == null || _mesh == null) return;
             var p = _world.Walker.Position;
             if (Vector2.Distance(p, _center) > Rebuild) Build(p);
-            for (var i = 0; i < _batches.Count; i++)
-                Graphics.RenderMeshInstanced(_rp, _mesh, 0, _batches[i]);
         }
 
         private void Build(Vector2 c)
         {
             _center = c;
-            _batches.Clear();
             var t = _world.Terrain;
             var list = new List<Matrix4x4>();
             var steps = Mathf.CeilToInt(Radius / Cell);
@@ -87,8 +95,22 @@ namespace Pofi.World
                 var s = 0.8f + hsh * 0.6f;
                 list.Add(Matrix4x4.TRS(pos, Quaternion.Euler(0f, hsh * 360f, 0f), new Vector3(s, s * (0.8f + Hash(gx + 7, gz) * 0.5f), s)));
             }
-            for (var k = 0; k < list.Count; k += 1000)
-                _batches.Add(list.GetRange(k, Mathf.Min(1000, list.Count - k)).ToArray());
+            // öbekleri tek ağda birleştir (dünya → bu nesnenin yerel uzayı)
+            var src = _mesh.vertices; var suv = _mesh.uv; var stri = _mesh.triangles;
+            var verts = new List<Vector3>(list.Count * src.Length); var uvs = new List<Vector2>(list.Count * src.Length);
+            var tris = new List<int>(list.Count * stri.Length);
+            var toLocal = _holder.worldToLocalMatrix;
+            foreach (var m in list)
+            {
+                var mm = toLocal * m;
+                var b = verts.Count;
+                for (var i = 0; i < src.Length; i++) { verts.Add(mm.MultiplyPoint3x4(src[i])); uvs.Add(suv[i]); }
+                for (var i = 0; i < stri.Length; i++) tris.Add(b + stri[i]);
+            }
+            _field.Clear();
+            _field.SetVertices(verts); _field.SetUVs(0, uvs); _field.SetTriangles(tris, 0);
+            _field.RecalculateNormals();
+            _field.RecalculateBounds();
         }
 
         private static float Hash(float x, float z)
@@ -105,6 +127,7 @@ namespace Pofi.World
         {
             if (_mat != null) Destroy(_mat);
             if (_mesh != null) Destroy(_mesh);
+            if (_field != null) Destroy(_field);
         }
     }
 }

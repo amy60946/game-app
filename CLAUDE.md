@@ -24,3 +24,10 @@
   Hedef: 6-15 yaş için basit ama profesyonel; amaçsız tuş/özellik yok.
 - Görsel gerçekçilik (14 Ekim 2026, onaylı sıra): önce KREDİSİZ deniz (dalga, parıltı, sığ turkuaz, kıyı köpüğü), kum (tepecik, rüzgâr çizgisi, ıslak kum), çim telleri, ışık; sonra kumsal objeleri için simge sayfası ön çalışması (~18 kredi) → onay → lite 3D (~260–320 kredi).
   **Işık uyarısı (kullanıcı):** ekran parlamasın, renkler uçuk/soluk olmasın; canlı ama dengeli, net gölge. Kullanıcının kumsal örnek görselleri yalnız hava/kalite hedefi (yapay zekâya yüklenmez, karakterler kopyalanmaz).
+- Geri bildirim 3 kararları (14 Ekim 2026):
+  - **Gece döngüsü kapalı** (`PetCare.NightCycle = false`): gökyüzü hep gündüz, "uyuyor" engeli yok; gece/gündüz koleksiyonları her zaman bulunur.
+  - Kontrol: **sol yarı joystick, sağ yarı görünmez kamera döndürme** (iki başparmak aynı anda); otomatik kamera takibi yavaş, yalnız ileri giderken.
+  - **Görev (sağ üst) = oyun içi seviye görevleri** (yıldız/XP). Ebeveynin gerçek görevleri adadaki panoda, geçici adı **"Quests"**.
+    ⚠️ HATIRLAT: "Quests" yerine Türkçe bir ad bulunacak (kullanıcıyla).
+  - Önizlemede **Test erişimi**: Evim → Ayarlar → "Test: her şeyi aç" (en üst seviye, tüm eşyalar, 5000 coin; yalnız sahte arka uçta).
+  - İpucu paneli üst şeritte, cümleler kısa.

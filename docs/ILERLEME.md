@@ -57,5 +57,14 @@ Tüm ekranlar koddan kurulur (sahne dosyası yok). Petler ve eşyalar şimdilik 
 - **Cila, performans/bellek ölçümü, mağaza hazırlığı:** M10 sonu.
 - **Sunucu tarafı (Supabase):** öneri hazır ve yerelde testli (`docs/M4_SUNUCU_ONERISI.md`, `supabase/proposed/`, `supabase/test/run.sh` → 38 kontrol). Ortak veritabanına uygulanması kullanıcı onayı bekliyor.
 
+## Bekleyen işler (14 Ekim 2026 listesi)
+- **M4 sunucu (Supabase):** öneri hazır, uygulanması kullanıcı onayı bekliyor. Bu olmadan ebeveyn uygulamasındaki gerçek görevler oyuna gelmez (şimdilik sahte ebeveyn).
+- **M9 seslendirme:** tanıtım ipuçları ve pet konuşmaları için ses kaydı/ses kararı (`vo_tip_*`).
+- **M10 cila:** performans/bellek ölçümü (telefonda), mağaza hazırlığı (App Store / Google Play), gizlilik metinleri.
+- **Sanat:** kumsal objeleri simge ön çalışması (~18 kredi) → onay → lite 3D (~260–320 kredi); kıyafet/ev eşyası 3D (P2); Tosbi sırt kabuğu (kredi kalırsa).
+- **Tanıtım:** bahçe, balık tutma, mini oyunlar ve masa oyunları için ipuçları.
+- **"Quests" için Türkçe ad** (kullanıcıyla).
+- **Kurulabilir önizleme:** TestFlight / Android / ana ekrana eklenebilir web sürümü kararı.
+
 ## Kullanıcıya sorulacaklar
 - UNO ve Jenga tescilli markalar: oyunda "Renk Eşle" ve "Kule" adları kullanılıyor (onaylandı, 13 Ekim 2026).

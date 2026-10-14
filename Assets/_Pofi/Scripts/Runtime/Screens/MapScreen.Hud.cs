@@ -31,6 +31,8 @@ namespace Pofi.Screens
         private Coach _coach;
         private float _islandTime;
         private RectTransform _levelBadge, _tasksBtn, _mapBtn;
+        private Text _questCount;
+        private float _questT;
         private Image _xpFill;
 
         private void BuildHud()
@@ -52,8 +54,7 @@ namespace Pofi.Screens
             _mapBtn = (RectTransform)map.transform;
             var tasks = Candy.Round(hud, Candy.Orange, "hand_flag", 132f, new Vector2(1f, 1f), new Vector2(-430f, -206f), GoTasks, T("hud.tasks"));
             _tasksBtn = (RectTransform)tasks.transform;
-            var count = Candy.Count(tasks.transform);
-            count.transform.parent.gameObject.AddComponent<TaskBadgeView>().Init(App, count);
+            _questCount = Candy.Count(tasks.transform);   // bugün açık oyun içi görev sayısı
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions);
             if (next != null)
                 Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
@@ -114,6 +115,7 @@ namespace Pofi.Screens
             _levelText.text = $"{st.PetName} · {T("home.level", App.Level)}";
             _coinText.text = st.Wallet.Available.ToString();
             Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
+            if ((_questT -= Time.deltaTime) <= 0f) { _questT = 1f; SetCount(_questCount, OpenQuests()); }
             SetCount(_feedCount, Count(ItemCategory.Food));
             SetCount(_washCount, Count(ItemCategory.Cleaning));
         }
@@ -170,7 +172,14 @@ namespace Pofi.Screens
             var st = App.State;
             if (Onboarding.Pending(st, Onboarding.Walk))
             {
-                Tip(Onboarding.Walk, TipGesture.Slide, () => new Vector2(Screen.width * 0.5f, Screen.height * 0.35f), () => new Vector2(Screen.width * 0.5f, Screen.height * 0.62f));
+                // sol yarı: joystick
+                Tip(Onboarding.Walk, TipGesture.Slide, () => new Vector2(Screen.width * 0.25f, Screen.height * 0.3f), () => new Vector2(Screen.width * 0.25f, Screen.height * 0.55f));
+                return;
+            }
+            if (Onboarding.Pending(st, Onboarding.Look) && _islandTime > 4f)
+            {
+                // sağ yarı: kamerayı döndür
+                Tip(Onboarding.Look, TipGesture.Slide, () => new Vector2(Screen.width * 0.78f, Screen.height * 0.45f), () => new Vector2(Screen.width * 0.58f, Screen.height * 0.45f));
                 return;
             }
             if (_actionKey == "hud.enter") { Tip(Onboarding.Enter, TipGesture.Tap, () => UiScreen(_action)); return; }
@@ -323,14 +332,15 @@ namespace Pofi.Screens
             GoTo(dx, dz, () => EnterRegion(shop));
         }
 
-        private void GoTasks() { TipDone(Onboarding.Tasks); App.Open(AppPage.Tasks); }   // görev ekranı doğrudan (yürümeye gerek yok)
+        // Görev: oyun içi seviye görevleri (yıldız). Ebeveyn görevleri adadaki "Quests" panosunda.
+        private void GoTasks() { TipDone(Onboarding.Tasks); QuestPanel(); }
 
         // ------------------------------------------------------------------ joystick
 
-        private void HandleStick(Vector3 screen)
+        private void HandleStick(Vector2 screen)
         {
             var radius = Screen.height * 0.11f;
-            var delta = (Vector2)(screen - _press);
+            var delta = screen - _press;
             if (!_moved && delta.magnitude > Screen.height * 0.025f)
             {
                 _moved = true;

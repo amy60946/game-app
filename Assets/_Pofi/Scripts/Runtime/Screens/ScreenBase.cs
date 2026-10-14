@@ -126,6 +126,42 @@ namespace Pofi.Screens
             return root;
         }
 
+        /// <summary>
+        /// Oyun içi görevler (sağ üst "Görev"; kullanıcı kararı 14 Ekim 2026): seviyeye göre açılan günlük görevler, her biri yıldız (XP) verir.
+        /// Ebeveynin gerçek hayat görevleri ayrı: adadaki panoda ("Quests", geçici ad).
+        /// </summary>
+        protected void QuestPanel()
+        {
+            Logic.App.Activity.EnsureQuests(App.State, App.Data, App.Levels, App.LocalNow);
+            var root = Modal(760f, out var box);
+            Ui.Label(box, T("home.daily"), Th.Font(60), Th.Text, new Vector2(0.5f, 0.88f), new Vector2(880f, 90f), FontStyle.Bold);
+            var i = 0;
+            foreach (var id in App.State.DailyQuests.Ids)
+            {
+                var q = System.Linq.Enumerable.FirstOrDefault(App.Data.DailyQuests, x => x.Id == id);
+                if (q == null) continue;
+                var y = 0.7f - i * 0.17f;
+                var done = App.State.DailyQuests.Claimed.Contains(id);
+                var prog = Logic.Meta.DailyQuests.Progress(q, App.State.Counters);
+                Ui.Label(box, q.Text, Th.Font(40), done ? Theme.Hex("#2E9E4F") : Th.Text, new Vector2(0.4f, y), new Vector2(640f, 70f), FontStyle.Bold, TextAnchor.MiddleLeft);
+                // ödül: yıldız simgesi + XP (coin değil: oyun içi görevler yıldız verir)
+                Ui.IconImage(box, "ui_star", new Vector2(0.77f, y), 54f);
+                Ui.Label(box, T("xp.star", q.Xp), Th.Font(36), Th.Text, new Vector2(0.83f, y), new Vector2(110f, 60f), FontStyle.Bold);
+                Ui.Label(box, done ? T("home.daily_done") : prog + "/" + q.Target, Th.Font(34), Th.SubtleText, new Vector2(0.93f, y), new Vector2(120f, 60f), FontStyle.Bold);
+                var bar = Ui.Bar(box, new Vector2(0.5f, y - 0.055f), new Vector2(860f, 16f), new Color(0f, 0f, 0f, 0.08f), Th.Primary, 8f);
+                Ui.SetBar(bar, (float)prog / q.Target);
+                i++;
+            }
+            Ui.Button(box, Th, T("common.ok"), new Vector2(0.5f, 0.1f), new Vector2(360f, 110f), () => Destroy(root.gameObject), false, default, 44);
+        }
+
+        /// <summary>Bugün henüz tamamlanmamış oyun içi görev sayısı (Görev rozeti).</summary>
+        protected int OpenQuests()
+        {
+            Logic.App.Activity.EnsureQuests(App.State, App.Data, App.Levels, App.LocalNow);
+            return System.Linq.Enumerable.Count(App.State.DailyQuests.Ids, id => !App.State.DailyQuests.Claimed.Contains(id));
+        }
+
         /// <summary>Ebeveyn sorusu (FR-SET-1): doğru cevapta <paramref name="onPass"/> çalışır.</summary>
         protected void ParentGate(System.Action onPass, System.Action<string> onFail = null)
         {

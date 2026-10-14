@@ -29,10 +29,10 @@ namespace Pofi.Logic.Island
         public const int PerDay = 3;
         public const string UnlockId = "collection_book";
 
-        public static List<Sparkle> ForDay(int day, string childId, int level, bool night,
+        public static List<Sparkle> ForDay(int day, string childId, int level, bool? night,
             IEnumerable<CollectionEntryDef> all, IslandTerrain terrain)
         {
-            var pool = all.Where(e => e.Category != "fish" && e.Level <= level && (e.Time == "any" || (e.Time == "night") == night))
+            var pool = all.Where(e => e.Category != "fish" && e.Level <= level && (night == null || e.Time == "any" || (e.Time == "night") == night))
                 .OrderBy(e => e.Id, StringComparer.Ordinal).ToList();
             var list = new List<Sparkle>();
             if (pool.Count == 0) return list;
