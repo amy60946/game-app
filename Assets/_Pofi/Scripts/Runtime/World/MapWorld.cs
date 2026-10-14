@@ -447,12 +447,15 @@ namespace Pofi.World
                 _steering = true;
                 var sp = Mathf.Lerp(WalkSpeed * 0.6f, RunSpeed, _direct.magnitude);
                 var nx = _x + _direct.x * sp * Time.deltaTime; var nz = _z + _direct.y * sp * Time.deltaTime;
+                var moved = true;
                 if (_world.Terrain.Walkable(nx, nz)) { _x = nx; _z = nz; }
                 else if (_world.Terrain.Walkable(nx, _z)) _x = nx;          // engelde kayarak ilerle
                 else if (_world.Terrain.Walkable(_x, nz)) _z = nz;
+                else moved = false;
                 var want = Mathf.Atan2(_direct.x, _direct.y) * Mathf.Rad2Deg;
                 _yaw = Mathf.MoveTowardsAngle(_yaw, want, 480f * Time.deltaTime);   // doğal dönüş (ani savrulma yok)
-                Play(_direct.magnitude > 0.7f ? "run" : "walk", "walk");
+                // kıyıya/duvara dayanınca yerinde koşmasın: durur
+                if (moved) Play(_direct.magnitude > 0.7f ? "run" : "walk", "walk"); else Play("idle");
                 Apply();
                 return;
             }

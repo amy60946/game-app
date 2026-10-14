@@ -281,7 +281,7 @@ namespace Pofi.Logic.Island
         private bool ComputeWalkable(float x, float z)
         {
             var h = Height(x, z);
-            if (h < 0.05f) return false;
+            if (h < 0.15f) return false;                                      // kuru kumda kal: dalgalar ve kıyı köpüğü ~0,1 m (pet suyun üstünde görünmesin)
             if (BuildingAt(x, z) != null) return false;
             return Slope(x, z) < 1.1f;
         }
