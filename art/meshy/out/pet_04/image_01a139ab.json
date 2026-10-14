@@ -1,0 +1,16 @@
+{
+ "id": "01a139ab-4e6a-7055-9f60-bbe0983aa423",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Full-body character concept of Mimi, an ORIGINAL cute kitten pet for a children's island game. Use the reference only for shape, colors and proportions. Chibi proportions: big round head (about 55% of total height), small round body, short legs, standing in a relaxed A-pose facing the camera, front view, symmetrical. Soft pink fur with lighter pink belly and muzzle, triangular ears with pale pink insides, short white whiskers, a thin curled tail visible beside the body. Large glossy dark eyes with white highlights, gentle smile, soft rosy cheeks. Premium stylized 3D render, soft short fur or soft vinyl skin as appropriate, warm subsurface glow, soft studio lighting, high-end mobile pet game quality, same art style as a cute fox-rabbit pet. Plain light grey background, no text, no props, no clothes, entire body visible.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791968890663,
+ "started_at": 1791968890668,
+ "finished_at": 1791968920867,
+ "expires_at": 1792228120867,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139ab-4e6a-7055-9f60-bbe0983aa423_0.png?Expires=1792228120&Signature=E3sKpGOqToBhdyK7x3ki4d52QftqUvcp4m3nPmd43kT1JEmMXojWCNJsc7~g3gG7adS50at4NX6MKr~yi92ByO656uuIOzVdqrpX2rnWYz4yLrInW3ASG8eZIaoHskmfst-56UX1dSaumz5LduQgPQplcUJBpPawAklS3DnXcH5I8qtSIu1x1WlXmtCB5Ki3-K2gNjnq83PUk2hmzcpmkLhXr1f0QsjSGVwrHJakl1-hvXlEgZQfim6reGLbZyL9v6XPMYvRLLj-gKK4xaavC20R7FKN7alQd3K1AHLVc6ISESrUK~ILn4aki50TvgFlsomVJdzaElJkPBAAfYwvTw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

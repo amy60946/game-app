@@ -1,0 +1,16 @@
+{
+ "id": "01a139ab-4e88-7063-bc82-0a8653f392bd",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Full-body character concept of Lolo, an ORIGINAL cute baby llama pet for a children's island game. Use the reference only for shape, colors and proportions. Chibi proportions: big round head (about 55% of total height), small round body, short legs, standing in a relaxed A-pose facing the camera, front view, symmetrical. Creamy white wool, a slightly longer neck, long upright ears in soft orange, a fluffy wool tuft on top of the head, three small colorful tassels (pink, yellow, sky blue) on a band around the neck. Large glossy dark eyes with white highlights, gentle smile, soft rosy cheeks. Premium stylized 3D render, soft short fur or soft vinyl skin as appropriate, warm subsurface glow, soft studio lighting, high-end mobile pet game quality, same art style as a cute fox-rabbit pet. Plain light grey background, no text, no props, no clothes, entire body visible.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791968890694,
+ "started_at": 1791968890700,
+ "finished_at": 1791968929151,
+ "expires_at": 1792228129151,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139ab-4e88-7063-bc82-0a8653f392bd_0.png?Expires=1792228129&Signature=TeULy3QDyY3ME8mk85~td5Y~m7VaWPGcO~gCSEQe~cMtOJm~vwmXOyUvwoxzcqXNYUnOIjYpgOUru5A2~0Sw9Pa-~ww3~a-PAqyFxlKpZNHjSoXq89eKeQ4qa1DMrsUJQaoqzzKyI~4cbR~~-vHrxxapBbnxi4K0EeEBg~j56hWefpP4YNKRUmMOBLZilYXxl8OBOFTyCyLkq3YvivXmIWs0TO-XvaalDOnsA3PnOqv3nIAOpsjKPssgjNtedUGAIPs75hjcN6zQhV-yLi6wMdl7SFFWHWBc8Bv2v2yIeHONxKxN~cWX-aFQNGx816EH-C8eihC-66GzlCG0v14~bw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

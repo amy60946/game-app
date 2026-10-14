@@ -1,0 +1,16 @@
+{
+ "id": "01a139ab-4f07-7663-8ce5-c487c96b89b5",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Full-body character concept of Piti, an ORIGINAL cute baby chick pet for a children's island game. Use the reference only for shape, colors and proportions. Chibi proportions: big round head (about 55% of total height), small round body, short legs, standing in a relaxed A-pose facing the camera, front view, symmetrical. A single round ball-shaped body in sunny yellow fluff, a big orange tuft of three feathers on top of the head, small orange beak, tiny wings at the sides, small orange feet. Large glossy dark eyes with white highlights, gentle smile, soft rosy cheeks. Premium stylized 3D render, soft short fur or soft vinyl skin as appropriate, warm subsurface glow, soft studio lighting, high-end mobile pet game quality, same art style as a cute fox-rabbit pet. Plain light grey background, no text, no props, no clothes, entire body visible.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791968890820,
+ "started_at": 1791968890823,
+ "finished_at": 1791968918660,
+ "expires_at": 1792228118660,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139ab-4f07-7663-8ce5-c487c96b89b5_0.png?Expires=1792228118&Signature=lYEXUnk2KPFt7Y10wESRWj1l6EutRYcradIeHUpljInZQWLigQzY3QhOMWLLs~sCRyERMZBOZoclhY9R3sb2xdVT0XP9cKT47tkH-k1k5Nlrt9RUVMWCiENofM9ijic6b~7jJT159onhKQKomlZ6aCBax45tSLNUxsUeqh2IC-Jc4mV923mG5d9Q-atqt2dYp08o3eDI8H3KVI07ZEuD~BFLu0i0nIYZ4ICfkyBwlU4tY0s0XIID8j4t4huHvA8OIpDtO7~pKwjI49IFNG0kdqZa7H6AyOE6AMySehBEBCh~ulrpOjL8Ye2nWO~etJ5oMqEJWq5rI2D0ktRbZZr38w__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

@@ -1,0 +1,16 @@
+{
+ "id": "01a139ab-4e70-725a-960a-ec3c68ea8e22",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Full-body character concept of Tosbi, an ORIGINAL cute baby sea turtle pet for a children's island game. Use the reference only for shape, colors and proportions. Chibi proportions: big round head (about 55% of total height), small round body, short legs, standing in a relaxed A-pose facing the camera, front view, symmetrical. Teal green skin, a big domed dark teal shell on its back with light aqua hexagon plate pattern and a wavy shell rim visible from the front, flipper-like hands and feet, cream face. Large glossy dark eyes with white highlights, gentle smile, soft rosy cheeks. Premium stylized 3D render, soft short fur or soft vinyl skin as appropriate, warm subsurface glow, soft studio lighting, high-end mobile pet game quality, same art style as a cute fox-rabbit pet. Plain light grey background, no text, no props, no clothes, entire body visible.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791968890689,
+ "started_at": 1791968890694,
+ "finished_at": 1791968913966,
+ "expires_at": 1792228113966,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139ab-4e70-725a-960a-ec3c68ea8e22_0.png?Expires=1792228113&Signature=Moe-1B~qUUclpYysY0z5v8zqCzCUsqeA2vAAE8Q58JmYJfXrb5WqoMh1LjwpkRLLj8IhNoEZGQHnBP8A~3x7niCAYBq6TSS-OGBmBOvAOzVwK6KDoG6O09hFVUcE2AlKme4m8abQc0DtSB~jfXveEQHtxNfoWguyhxM-rWja2hO4zQNY-ZZRdZ8yEShjn47TF6z7CgeoXbPF3bvMLyMJDfgqDSwh~jHpKAJ2PSpPQjoj4JcXL2RG6QKGzRsJnXzt0dhkxS2hJg3VAksBWDP4W~JnqBOF40obEXCUNRlaW7IlA67Zl40f9DdHZm~Ox~joFZg6KM6sYttXc6bmbQDmuA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

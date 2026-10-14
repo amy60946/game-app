@@ -1,0 +1,16 @@
+{
+ "id": "01a139ab-4ea1-732c-8055-2e71d9fdb280",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Full-body character concept of Fifi, an ORIGINAL cute baby elephant pet for a children's island game. Use the reference only for shape, colors and proportions. Chibi proportions: big round head (about 55% of total height), small round body, short legs, standing in a relaxed A-pose facing the camera, front view, symmetrical. Light sky blue skin, huge fan-shaped ears spread to the sides with butter-yellow insides, a short curled trunk, chubby legs. Large glossy dark eyes with white highlights, gentle smile, soft rosy cheeks. Premium stylized 3D render, soft short fur or soft vinyl skin as appropriate, warm subsurface glow, soft studio lighting, high-end mobile pet game quality, same art style as a cute fox-rabbit pet. Plain light grey background, no text, no props, no clothes, entire body visible.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791968890723,
+ "started_at": 1791968890729,
+ "finished_at": 1791969039099,
+ "expires_at": 1792228239099,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139ab-4ea1-732c-8055-2e71d9fdb280_0.png?Expires=1792228239&Signature=guPYJ36DJU~XFv5HFQuymej2kM2-e-D-RIZvtUbTnJ~z~Yum0Wk3ylYa7D0N~-cME9YTzjOk3b6C4WCfIDYYKQIFQwmB4f1PiT1pKkOE944M3cX~amPt3STNF38VLUdqUsKQjdB5Pcqu3eUl-Tek6Q8VBNSRmVGc7OPQMUG8uruZAGIAxVCZ8X7E8cJ56fovvnD7ntJpcMo2iavn3LBjQQYbdlzQPoMtyXAd9g3H1Rk4nb-dWZW9uQxN1y7CGLg2Eq~V0NT4GFJBxxDZaly91k1sbeAs0yzBNxNUR-SytG2uIcCE-79uiqeMJclwfxi70MctPi2DvR~WIQ1-u7ybJQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

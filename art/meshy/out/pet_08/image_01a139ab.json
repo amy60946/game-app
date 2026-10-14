@@ -1,0 +1,16 @@
+{
+ "id": "01a139ab-4e92-7507-9517-9d1d159db0ba",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Full-body character concept of Piko, an ORIGINAL cute baby hedgehog pet for a children's island game. Use the reference only for shape, colors and proportions. Chibi proportions: big round head (about 55% of total height), small round body, short legs, standing in a relaxed A-pose facing the camera, front view, symmetrical. Warm brown body, a round cream face and cream belly, soft rounded dark brown spikes covering the back of the head and back, small dark nose, tiny paws. Large glossy dark eyes with white highlights, gentle smile, soft rosy cheeks. Premium stylized 3D render, soft short fur or soft vinyl skin as appropriate, warm subsurface glow, soft studio lighting, high-end mobile pet game quality, same art style as a cute fox-rabbit pet. Plain light grey background, no text, no props, no clothes, entire body visible.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1791968890713,
+ "started_at": 1791968890718,
+ "finished_at": 1791968919295,
+ "expires_at": 1792228119295,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a139ab-4e92-7507-9517-9d1d159db0ba_0.png?Expires=1792228119&Signature=D5dyUrbDeDJJNxtPzFO3GXKbSJHHL1JEqoEjIa8rXkkGJZfzD04NgyDgZfk4yHIghc3ubsfpfRzYKeHJ4Mh-igewSWQjxuvQqB2z2DtrK7POFh4wVM5OQ8ZetF1jFuQqKsIYQOe1t8qWwWZzEJgYEqUFMa9HJ0qJs~Jt9BPQkAA-h9AP0Reddwz4aICOtQNeOvrhLNO6tk2~55gTrNe7EPY2NZsLgTzypC3cYdR4dm2o0NQQ4NyrYPMImnBMt7OdufEPbQEup2AyPJEJBnrxJezqNVvEY30NgkheSeOAwRwgMmNyrOLwfTAg54qdkbJ5sXV9FRDpMqdJMa7cQENLYw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
