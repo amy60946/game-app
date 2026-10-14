@@ -46,5 +46,9 @@ Riskler:
 | 24 çevre konsepti (+1 yeniden: oyun kulübesi) | 225 | 2.101 |
 | 24 çevre 3D (13 bina, 3 zemin, 8 süs) | 525 | 1.576 |
 | Çiçek süsü yeniden (lite renkleri soluk çıktı → tam model) | 30 | 1.546 |
+| 72 simge (8 sayfa × 9) | 72 | 1.474 |
+| P2 pilot: 3 kıyafet simgeden 3D | 45 | 1.429 |
+| P2: 30 kıyafet/ev eşyası (lite, simgeden; konsept kredisi yok) | 435 | 994 |
+| Şemsiye + akvaryum tam modelle yeniden | 60 | 934 |
 
-Kalan P1: simgeler (~45) + arayüz görselleri (~90). P2 (kıyafet ~650, ev eşyası ~215) sonrası tahmini kalan ~540.
+P1 ve P2 tamam (14 Ekim 2026). Ada zemini prosedürel (kredisiz). Kalan 934: Tosbi sırt kabuklu yeniden (~75), arayüz görselleri (~90), düzeltmeler ve yeni içerik için yedek.
