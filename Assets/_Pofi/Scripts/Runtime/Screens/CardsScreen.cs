@@ -168,6 +168,7 @@ namespace Pofi.Screens
             {
                 var back = Ui.Rect(_board, "Back", new Vector2(0.5f, 0.9f), new Vector2(110f, 160f), new Vector2((i - (n - 1) / 2f) * Mathf.Min(70f, 900f / Mathf.Max(1, n)), 0f));
                 Ui.Panel(back, Theme.Hex(_rival.MainColor), 20f).raycastTarget = false;
+                back.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.9f);
             }
             Ui.Label(_board, T("cards.cards_left", n), Th.Font(34), Color.white, new Vector2(0.5f, 0.8f), new Vector2(400f, 60f), FontStyle.Bold);
 

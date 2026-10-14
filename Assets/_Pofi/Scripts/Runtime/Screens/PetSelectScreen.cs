@@ -24,7 +24,7 @@ namespace Pofi.Screens
             _picker = new PetPicker(App.Data.Pets.Select(p => p.Id).ToList());
             if (!string.IsNullOrEmpty(App.State.PetId)) _picker.JumpTo(App.State.PetId);
             App.Stage.AllowDrag = true;
-            App.Stage.SetCamera(new Vector3(0f, 0.46f, -6.23f), 0f);
+            App.Stage.SetCamera(new Vector3(0f, 0.62f, -7.3f), 0f);
             App.Stage.Swiped = dir => { if (dir < 0) _picker.Next(); else _picker.Prev(); Show(); };
 
             var white = Color.white;

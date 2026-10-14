@@ -107,6 +107,19 @@ namespace Pofi.Screens
             return rt;
         }
 
+        /// <summary>Basit sahne arka planı: gökyüzü + zemin şeridi (zeminin üst sınırı ekran yüksekliğinin oranı).</summary>
+        private void Backdrop(Color sky, Color ground, float groundTop)
+        {
+            var bg = Ui.Fill(_area, "Sky");
+            bg.gameObject.AddComponent<Image>().color = sky;
+            bg.GetComponent<Image>().raycastTarget = false;
+            var g = Ui.Area(_area, "Ground", Vector2.zero, new Vector2(1f, groundTop));
+            g.gameObject.AddComponent<Image>().color = ground;
+            g.GetComponent<Image>().raycastTarget = false;
+            bg.SetAsFirstSibling();
+            g.SetSiblingIndex(1);
+        }
+
         private static float PointerX01() => Mathf.Clamp01(Input.mousePosition.x / Mathf.Max(1f, Screen.width));
 
         // ------------------------------------------------------------ Ceviz Yakala
@@ -114,6 +127,7 @@ namespace Pofi.Screens
         private void StartCoconut(int seed)
         {
             var game = new CoconutCatch(App.Session.AgeBand, Difficulty, seed);
+            Backdrop(Theme.Hex("#8FDBFF"), Theme.Hex("#F6D79A"), 0.16f);
             var basketW = App.Session.AgeBand == AgeBand.A ? 0.28f : App.Session.AgeBand == AgeBand.B ? 0.24f : 0.2f;
             const float BasketY = 0.2f;
             var basket = Ui.Rect(_area, "Basket", new Vector2(0.5f, BasketY), new Vector2(1080f * basketW, 110f));
@@ -166,6 +180,7 @@ namespace Pofi.Screens
         private void StartHelpPet(int seed)
         {
             var game = new HelpPetSearch(App.Session.AgeBand, seed);
+            Backdrop(Theme.Hex("#8FDBFF"), Theme.Hex("#9BD77F"), 0.75f);
             _timer.text = "";
             var grid = Ui.Rect(_area, "Grid", new Vector2(0.5f, 0.42f), new Vector2(1000f, 1000f));
             var cellW = 1000f / game.Columns;

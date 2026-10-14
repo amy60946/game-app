@@ -20,6 +20,8 @@ Tüm ekranlar koddan kurulur (sahne dosyası yok). Petler ve eşyalar şimdilik 
 | M9 (kısmi) | Ayarlar (ses, yazı boyutu, hareketi azalt, pet değiştir, çıkış), kodla üretilen ses efektleri | `Screens/SettingsScreen.cs`, `Audio/Sfx.cs` | yazıldı (seslendirme/altyazı: ses kaydı gelince) |
 | M10 (içerik) | Mağara Keşfi, Dağ Yürüyüşü, Festival, Fener finali; ev süsleme (FR-ISL-3) | `Screens/EventScreen.cs`, `Screens/DecorateScreen.cs` | yazıldı |
 
+**Duman testi (14 Ekim 2026, derleme 30):** `tools/preview/smoke.js` ile WebGL sürümü 3 yaş bandında (A1A1A1, B2B2B2, C3C3C3) 117 komutla gezildi: her ekran, 6 mini oyun, 3 masa oyunu açıldı; konsol hatası yok.
+
 Önizleme ve otomatik test: `GameBootstrap.PofiDebug` (yalnızca sahte arka uçla) tarayıcıdan `unityInstance.SendMessage("Bootstrap","PofiDebug","login A1A1A1")`.
 
 ## Yazılan oyun mantığı (`Assets/_Pofi/Scripts/Logic`)

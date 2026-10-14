@@ -64,6 +64,12 @@ namespace Pofi.Screens
 
         private void Lighthouse()
         {
+            var sky = Ui.Area(Root, "Sky", Vector2.zero, Vector2.one);
+            sky.gameObject.AddComponent<Image>().color = Theme.Hex("#FFB88A");
+            sky.SetAsFirstSibling();
+            var sea = Ui.Area(Root, "Sea", Vector2.zero, new Vector2(1f, 0.2f));
+            sea.gameObject.AddComponent<Image>().color = Theme.Hex("#3D8FD6");
+            sea.SetSiblingIndex(1);
             Header(T("event.lighthouse.title"));
             var done = App.State.Events.FinalCelebrated;
             var tower = Ui.Rect(Root, "Tower", new Vector2(0.5f, 0.45f), new Vector2(260f, 1000f));
