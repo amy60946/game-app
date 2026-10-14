@@ -36,7 +36,7 @@ namespace Pofi.Tests.Logic
             for (var j = i + 1; j < rs.Count; j++)
             {
                 var d = Math.Sqrt(Math.Pow(rs[i].X - rs[j].X, 2) + Math.Pow(rs[i].Z - rs[j].Z, 2));
-                Assert.Greater(d, 1.1, rs[i].Id + " – " + rs[j].Id);
+                Assert.Greater(d, (rs[i].Size + rs[j].Size) / 2f + 2.5f, rs[i].Id + " – " + rs[j].Id);   // aralarından yürünebilsin
             }
         }
 
@@ -158,9 +158,11 @@ namespace Pofi.Tests.Logic
         {
             var data = TestData.Load();
             var map = new IslandMap(TestData.ReadText("regions.json"), new LevelTable(data.Levels));
-            var a = Sparkles.ForDay(20000, "child_a", 8, false, data.Collection, map.Regions);
-            var b = Sparkles.ForDay(20000, "child_a", 8, false, data.Collection, map.Regions);
+            var terrain = new IslandTerrain(map.Regions, map.Terrain);
+            var a = Sparkles.ForDay(20000, "child_a", 8, false, data.Collection, terrain);
+            var b = Sparkles.ForDay(20000, "child_a", 8, false, data.Collection, terrain);
             Assert.AreEqual(Sparkles.PerDay, a.Count);
+            foreach (var s in a) Assert.IsTrue(terrain.Walkable(s.X, s.Z), "parıltıya yürünebilmeli");
             CollectionAssert.AreEqual(a.Select(s => s.EntryId), b.Select(s => s.EntryId));
             foreach (var s in a)
             {

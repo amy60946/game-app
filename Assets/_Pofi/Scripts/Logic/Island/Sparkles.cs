@@ -30,7 +30,7 @@ namespace Pofi.Logic.Island
         public const string UnlockId = "collection_book";
 
         public static List<Sparkle> ForDay(int day, string childId, int level, bool night,
-            IEnumerable<CollectionEntryDef> all, IReadOnlyList<RegionDef> regions)
+            IEnumerable<CollectionEntryDef> all, IslandTerrain terrain)
         {
             var pool = all.Where(e => e.Category != "fish" && e.Level <= level && (e.Time == "any" || (e.Time == "night") == night))
                 .OrderBy(e => e.Id, StringComparer.Ordinal).ToList();
@@ -38,12 +38,12 @@ namespace Pofi.Logic.Island
             if (pool.Count == 0) return list;
             var rng = new Random(day * 7919 + Hash(childId));
             var tries = 0;
-            while (list.Count < PerDay && tries++ < 200)
+            while (list.Count < PerDay && tries++ < 400)
             {
-                var x = (float)(rng.NextDouble() * 8.0 - 4.0);
-                var z = (float)(rng.NextDouble() * 5.6 - 1.8);
-                if (regions.Any(r => Dist(r.X, r.Z, x, z) < 1.0f) || list.Any(s => Dist(s.X, s.Z, x, z) < 1.0f)) continue;
-                if ((x * x) / 20f + ((z - 1f) * (z - 1f)) / 13f > 1f) continue;   // ada içinde kal
+                var x = (float)(terrain.MinX + rng.NextDouble() * (terrain.MaxX - terrain.MinX));
+                var z = (float)(terrain.MinZ + rng.NextDouble() * (terrain.MaxZ - terrain.MinZ));
+                if (!terrain.Walkable(x, z)) continue;                                   // karada, yürünebilir yerde
+                if (terrain.Regions.Any(r => Dist(r.X, r.Z, x, z) < r.Size * 0.8f + 1f) || list.Any(s => Dist(s.X, s.Z, x, z) < 4f)) continue;
                 list.Add(new Sparkle { Index = list.Count, EntryId = pool[rng.Next(pool.Count)].Id, X = x, Z = z });
             }
             return list;

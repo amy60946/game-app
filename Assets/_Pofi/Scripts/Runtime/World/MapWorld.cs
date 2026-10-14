@@ -4,10 +4,6 @@ using UnityEngine;
 
 namespace Pofi.World
 {
-    /// <summary>
-    /// 3B ada haritası (M5): kum ada, çimen, deniz ve her bölge için yer tutucu yapı. Ana sahneden uzakta
-    /// (x = 200) kurulur; harita ekranı kamerayı buraya taşır. Yapılar dokunma için Collider taşır.
-    /// </summary>
     /// <summary>Yavaş dönen ve hafifçe süzülen nesne.</summary>
     public sealed class Spin : MonoBehaviour
     {
@@ -16,169 +12,260 @@ namespace Pofi.World
         private void Update()
         {
             transform.Rotate(0f, 90f * Time.deltaTime, 0f, Space.World);
-            transform.localPosition = _base + Vector3.up * (Mathf.Sin(Time.time * 2.5f) * 0.06f);
+            transform.localPosition = _base + Vector3.up * (Mathf.Sin(Time.time * 2.5f) * 0.12f);
         }
     }
 
+    /// <summary>
+    /// Gezilebilir 3B ada (M5, köy ölçeği): prosedürel arazi (Pofi.Logic.IslandTerrain) + Meshy yapıları ve süsleri
+    /// + adada yürüyen pet. Ana sahneden uzakta (x = 200) kurulur. Zemin "ground" adlı MeshCollider taşır,
+    /// bölgeler kendi adlarıyla BoxCollider taşır (dokunma).
+    /// </summary>
     public sealed class MapWorld : MonoBehaviour
     {
         public static readonly Vector3 Origin = new Vector3(200f, 0f, 0f);
 
         public readonly Dictionary<string, Transform> Regions = new Dictionary<string, Transform>();
-        /// <summary>Bölge etiketinin yapı tabanından yüksekliği (gerçek modeller daha uzun olabilir).</summary>
+        /// <summary>Bölge etiketinin yapı tabanından yüksekliği.</summary>
         public readonly Dictionary<string, float> LabelHeights = new Dictionary<string, float>();
+        public IslandTerrain Terrain { get; private set; }
+        public PetWalker Walker { get; private set; }
 
-        /// <summary>Bölge → Meshy modeli (Resources/Env) ve haritadaki taban genişliği (m).</summary>
-        private static readonly Dictionary<string, (string asset, float size)> RealRegions = new Dictionary<string, (string, float)>
+        private readonly List<Object> _owned = new List<Object>();
+
+        /// <summary>Bölge → Meshy modeli (Resources/Env). Yoksa yer tutucu.</summary>
+        private static readonly Dictionary<string, string> RegionAssets = new Dictionary<string, string>
         {
-            { "region_home", ("b_home", 1.5f) }, { "region_shop", ("b_shop", 1.5f) }, { "region_task_board", ("b_task_board", 1.2f) },
-            { "region_swim_cove", ("b_swim", 1.6f) }, { "region_surf_beach", ("b_surf", 1.4f) }, { "region_game_hut", ("b_game_hut", 1.5f) },
-            { "region_ski_hill", ("b_ski_hill", 1.7f) }, { "region_garden", ("b_garden", 1.5f) }, { "region_pier", ("b_pier", 1.6f) },
-            { "region_cave", ("b_cave", 1.6f) }, { "region_festival", ("b_festival", 1.45f) }, { "region_mountain", ("b_mountain", 1.8f) },
-            { "region_lighthouse", ("b_lighthouse", 1.3f) },
+            { "region_home", "b_home" }, { "region_shop", "b_shop" }, { "region_task_board", "b_task_board" },
+            { "region_swim_cove", "b_swim" }, { "region_surf_beach", "b_surf" }, { "region_game_hut", "b_game_hut" },
+            { "region_ski_hill", "b_ski_hill" }, { "region_garden", "b_garden" }, { "region_pier", "b_pier" },
+            { "region_cave", "b_cave" }, { "region_festival", "b_festival" }, { "region_mountain", "b_mountain" },
+            { "region_lighthouse", "b_lighthouse" },
         };
 
-        /// <summary>Haritayı süsleyen küçük nesneler: ad, x, z, taban genişliği, dönüş.</summary>
-        private static readonly (string asset, float x, float z, float size, float yaw)[] Props =
-        {
-            ("p_rock", -4.6f, -0.4f, 0.6f, 20f), ("p_rock", 4.7f, 1.6f, 0.5f, 140f), ("p_bush", -1.2f, -1.9f, 0.5f, 0f),
-            ("p_bush", 1.3f, -1.9f, 0.5f, 90f), ("p_flowers", -0.6f, -0.2f, 0.5f, 0f), ("p_flowers", 2.2f, 1.2f, 0.45f, 60f),
-            ("p_lantern", 0.9f, -1.2f, 0.35f, 200f), ("p_lantern", -0.9f, -1.2f, 0.35f, 160f), ("p_crates", 3.3f, -2.4f, 0.5f, 210f),
-            ("p_boat", 5.4f, -2.8f, 0.9f, 120f), ("p_sign", 0.0f, -0.4f, 0.4f, 190f), ("p_fence", 2.0f, -0.1f, 0.6f, 180f),
-            ("palm", -4.4f, 2.0f, 0.9f, 0f), ("palm", 4.6f, -0.5f, 0.9f, 70f), ("palm", 1.9f, 3.5f, 0.8f, 30f),
-        };
-
-        /// <summary>Gerçek model varsa kurar; yoksa false (yer tutucu şekle dönülür).</summary>
-        private bool BuildReal(Transform root, string regionId, bool unlocked)
-        {
-            Transform model = null;
-            if (regionId == "region_coconut_grove")
-            {
-                var a = RealAssets.Env("palm", root, 1.5f);
-                var b = RealAssets.Env("palm", root, 1.15f);
-                if (a == null) return false;
-                a.localPosition = new Vector3(-0.25f, 0f, 0.15f);
-                if (b != null) { b.localPosition = new Vector3(0.3f, 0f, -0.2f); b.localRotation = Quaternion.Euler(0f, 120f, 0f); }
-                model = root;
-            }
-            else if (RealRegions.TryGetValue(regionId, out var info))
-                model = RealAssets.EnvFootprint(info.asset, root, info.size, 205f);   // ön yüz kameraya, hafif çapraz
-            if (model == null) return false;
-            if (!unlocked) RealAssets.Tint(root, new Color(0.62f, 0.64f, 0.72f));
-            return true;
-        }
-
-        private void BuildProps()
-        {
-            foreach (var p in Props)
-            {
-                var t = RealAssets.EnvFootprint(p.asset, transform, p.size, p.yaw);
-                if (t != null) t.localPosition = new Vector3(p.x, -0.02f, p.z);
-            }
-        }
-        private readonly List<Material> _mats = new List<Material>();
-        private Material _lockedMat;
-
-        public static MapWorld Create(IReadOnlyList<RegionView> views)
+        public static MapWorld Create(IReadOnlyList<RegionView> views, IslandTerrain terrain)
         {
             var go = new GameObject("MapWorld");
             go.transform.position = Origin;
             var w = go.AddComponent<MapWorld>();
+            w.Terrain = terrain;
             w.Build(views);
             return w;
         }
 
-        private Material M(Color c, float smooth = 0.35f)
-        {
-            var m = PetModels.NewMaterial(c, smooth);
-            _mats.Add(m);
-            return m;
-        }
+        /// <summary>Ada üzerindeki (yerel x, z) noktanın dünya konumu (zemin yüksekliğinde).</summary>
+        public Vector3 World(float x, float z) => transform.TransformPoint(new Vector3(x, Terrain.Height(x, z), z));
 
-        private static Color Hex(string h) => ColorUtility.TryParseHtmlString(h, out var c) ? c : Color.magenta;
+        public Vector2 Local(Vector3 world)
+        {
+            var p = transform.InverseTransformPoint(world);
+            return new Vector2(p.x, p.z);
+        }
 
         private void Build(IReadOnlyList<RegionView> views)
         {
-            Prim(PrimitiveType.Cylinder, transform, new Vector3(0f, -0.2f, 1f), new Vector3(40f, 0.05f, 40f), M(new Color(0.25f, 0.72f, 0.95f), 0.85f), false);
-            Prim(PrimitiveType.Sphere, transform, new Vector3(0f, -0.36f, 0.9f), new Vector3(11.6f, 0.6f, 9.6f), M(new Color(1f, 0.86f, 0.6f), 0.1f), false);
-            Prim(PrimitiveType.Sphere, transform, new Vector3(0f, -0.25f, 1.0f), new Vector3(10.2f, 0.5f, 8.2f), M(new Color(0.48f, 0.82f, 0.42f), 0.15f), false);
-            _lockedMat = M(new Color(0.72f, 0.74f, 0.8f), 0.2f);
+            BuildGround();
+            BuildWater();
+            foreach (var v in views) BuildRegion(v);
             BuildProps();
+        }
 
-            foreach (var v in views)
+        // ------------------------------------------------------------------ zemin
+
+        // Zemin ağı ve dokusu pahalı: arazi başına bir kez üretilir, sahneler arası saklanır.
+        private static IslandTerrain _cachedFor;
+        private static Mesh _groundMesh;
+        private static Texture2D _groundTex;
+
+        private void BuildGround()
+        {
+            if (_cachedFor != Terrain || _groundMesh == null || _groundTex == null)
             {
-                var r = v.Region;
-                var root = new GameObject(r.Id).transform;
-                root.SetParent(transform, false);
-                root.localPosition = new Vector3(r.X, -0.02f, r.Z);
-                if (!BuildReal(root, r.Id, v.Unlocked))
-                    BuildShape(root, r.Shape, v.Unlocked ? M(Hex(r.Color)) : _lockedMat, v.Unlocked);
-                LabelHeights[r.Id] = Mathf.Max(1.15f, RealAssets.WorldBounds(root).max.y - root.position.y + 0.1f);
-                var col = root.gameObject.AddComponent<BoxCollider>();
-                col.center = new Vector3(0f, 0.5f, 0f);
-                col.size = new Vector3(1.3f, 1.2f, 1.3f);
-                Regions[r.Id] = root;
+                _groundMesh = GroundMesh();
+                _groundTex = PaintGround();
+                _cachedFor = Terrain;
+            }
+            var go = new GameObject("ground");
+            go.transform.SetParent(transform, false);
+            go.AddComponent<MeshFilter>().sharedMesh = _groundMesh;
+            var mr = go.AddComponent<MeshRenderer>();
+            var mat = PetModels.NewMaterial(Color.white, 0.12f);
+            mat.SetTexture("_BaseMap", _groundTex);
+            mr.sharedMaterial = mat;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            mr.receiveShadows = true;
+            _owned.Add(mat);
+            go.AddComponent<MeshCollider>().sharedMesh = _groundMesh;
+        }
+
+        private Mesh GroundMesh()
+        {
+            const float step = 0.5f;
+            var t = Terrain;
+            var nx = Mathf.CeilToInt((t.MaxX - t.MinX) / step) + 1;
+            var nz = Mathf.CeilToInt((t.MaxZ - t.MinZ) / step) + 1;
+            var verts = new Vector3[nx * nz];
+            var uvs = new Vector2[nx * nz];
+            for (var j = 0; j < nz; j++)
+            for (var i = 0; i < nx; i++)
+            {
+                var x = t.MinX + i * step; var z = t.MinZ + j * step;
+                verts[j * nx + i] = new Vector3(x, t.Height(x, z), z);
+                uvs[j * nx + i] = new Vector2(i / (float)(nx - 1), j / (float)(nz - 1));
+            }
+            var tris = new int[(nx - 1) * (nz - 1) * 6];
+            var k = 0;
+            for (var j = 0; j < nz - 1; j++)
+            for (var i = 0; i < nx - 1; i++)
+            {
+                var a = j * nx + i;
+                tris[k++] = a; tris[k++] = a + nx; tris[k++] = a + 1;
+                tris[k++] = a + 1; tris[k++] = a + nx; tris[k++] = a + nx + 1;
+            }
+            var mesh = new Mesh { name = "IslandGround" };
+            if (verts.Length > 65000) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            mesh.vertices = verts; mesh.uv = uvs; mesh.triangles = tris;
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            return mesh;
+        }
+
+        /// <summary>Yüzey türlerinden zemin dokusu (kum, çimen, patika, kaya, kar) + hafif renk dalgası.</summary>
+        private Texture2D PaintGround()
+        {
+            var t = Terrain;
+            const int w = 384;
+            var h = Mathf.RoundToInt(w * (t.MaxZ - t.MinZ) / (t.MaxX - t.MinX));
+            var px = new Color32[w * h];
+            Color sand = Theme(0.97f, 0.87f, 0.63f), grass = Theme(0.49f, 0.79f, 0.33f), grass2 = Theme(0.36f, 0.68f, 0.27f),
+                path = Theme(0.83f, 0.66f, 0.45f), rock = Theme(0.62f, 0.57f, 0.52f), snow = Theme(0.97f, 0.98f, 1f), wet = Theme(0.55f, 0.78f, 0.82f);
+            var rng = new System.Random(5);
+            for (var j = 0; j < h; j++)
+            for (var i = 0; i < w; i++)
+            {
+                var x = t.MinX + (i + 0.5f) / w * (t.MaxX - t.MinX);
+                var z = t.MinZ + (j + 0.5f) / h * (t.MaxZ - t.MinZ);
+                Color c;
+                switch (t.SurfaceAt(x, z))
+                {
+                    case Surface.Water: c = wet; break;
+                    case Surface.Sand: c = sand; break;
+                    case Surface.Path: c = path; break;
+                    case Surface.Rock: c = rock; break;
+                    case Surface.Snow: c = snow; break;
+                    default:
+                        var n = Mathf.PerlinNoise(x * 0.12f + 31f, z * 0.12f + 7f);
+                        c = Color.Lerp(grass2, grass, n);
+                        break;
+                }
+                var v = 0.95f + (float)rng.NextDouble() * 0.08f;
+                px[j * w + i] = new Color(c.r * v, c.g * v, c.b * v, 1f);
+            }
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, true) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, anisoLevel = 4 };
+            tex.SetPixels32(px);
+            tex.Apply(true, true);
+            return tex;
+        }
+
+        private static Color Theme(float r, float g, float b) => new Color(r, g, b);
+
+        private void BuildWater()
+        {
+            var water = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            water.name = "Water";
+            water.transform.SetParent(transform, false);
+            water.transform.localPosition = new Vector3(0f, -0.02f, Terrain.Def.Cz);
+            water.transform.localScale = new Vector3(40f, 1f, 40f);
+            var m = PetModels.NewMaterial(new Color(0.22f, 0.7f, 0.95f), 0.88f);
+            _owned.Add(m);
+            var r = water.GetComponent<Renderer>();
+            r.sharedMaterial = m;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            Destroy(water.GetComponent<Collider>());
+        }
+
+        // ------------------------------------------------------------------ bölgeler
+
+        private void BuildRegion(RegionView v)
+        {
+            var r = v.Region;
+            var root = new GameObject(r.Id).transform;
+            root.SetParent(transform, false);
+            var baseY = r.Water ? 0f : Terrain.PadHeight(r);
+            root.localPosition = new Vector3(r.X, baseY, r.Z);
+
+            if (r.Id == "region_coconut_grove")
+            {
+                var sizes = new[] { 2.8f, 2.3f, 2.0f };
+                var offs = new[] { new Vector2(-1.4f, 0.8f), new Vector2(1.6f, -0.9f), new Vector2(0.3f, 2.1f) };
+                for (var i = 0; i < 3; i++)
+                {
+                    var p = RealAssets.EnvFootprint("palm", root, sizes[i], i * 120f);
+                    if (p == null) break;
+                    p.localPosition = new Vector3(offs[i].x, -0.1f, offs[i].y);
+                }
+            }
+            else if (RegionAssets.TryGetValue(r.Id, out var asset))
+            {
+                var m = RealAssets.EnvFootprint(asset, root, r.Size, 180f + r.Yaw);   // ham önü +z → güneye dön, sonra bölge açısı
+                if (m != null) Sink(m, r.Water ? 0.05f : 0.14f);
+            }
+            if (root.childCount == 0) Placeholder(root, r, v.Unlocked);
+            if (!v.Unlocked) RealAssets.Tint(root, new Color(0.62f, 0.64f, 0.72f));
+
+            var b = RealAssets.WorldBounds(root);
+            var col = root.gameObject.AddComponent<BoxCollider>();
+            col.center = root.InverseTransformPoint(b.center);
+            col.size = new Vector3(Mathf.Max(1f, b.size.x), Mathf.Max(1f, b.size.y), Mathf.Max(1f, b.size.z));
+            Regions[r.Id] = root;
+            LabelHeights[r.Id] = Mathf.Max(1.5f, b.max.y - root.position.y + 0.3f);
+        }
+
+        /// <summary>Diorama tabanını zemine gömer (kare kenarı görünmesin).</summary>
+        private static void Sink(Transform model, float fraction)
+        {
+            var b = RealAssets.WorldBounds(model);
+            model.localPosition -= new Vector3(0f, b.size.y * fraction, 0f);
+        }
+
+        private void Placeholder(Transform root, RegionDef r, bool unlocked)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.transform.SetParent(root, false);
+            go.transform.localScale = new Vector3(r.Size * 0.6f, r.Size * 0.5f, r.Size * 0.6f);
+            go.transform.localPosition = new Vector3(0f, r.Size * 0.25f, 0f);
+            var m = PetModels.NewMaterial(unlocked && ColorUtility.TryParseHtmlString(r.Color, out var c) ? c : Color.gray, 0.3f);
+            _owned.Add(m);
+            go.GetComponent<Renderer>().sharedMaterial = m;
+            Destroy(go.GetComponent<Collider>());
+        }
+
+        private void BuildProps()
+        {
+            var parent = new GameObject("Props").transform;
+            parent.SetParent(transform, false);
+            foreach (var p in Terrain.Props())
+            {
+                var t = RealAssets.EnvFootprint(p.Asset, parent, p.Size, p.Yaw);
+                if (t == null) continue;
+                t.localPosition = new Vector3(p.X, Terrain.Height(p.X, p.Z), p.Z);
+                if (p.Asset != "palm") Sink(t, 0.16f);
             }
         }
 
-        private void BuildShape(Transform t, string shape, Material m, bool unlocked)
+        // ------------------------------------------------------------------ pet ve parıltılar
+
+        /// <summary>Peti adaya koyar (kapı ya da verilen noktada).</summary>
+        public PetWalker PlacePet(Logic.Data.PetSpeciesDef def, float scale, IEnumerable<Logic.Data.ItemDef> items, float x, float z)
         {
-            var white = unlocked ? M(Color.white) : _lockedMat;
-            var dark = unlocked ? M(new Color(0.45f, 0.3f, 0.2f)) : _lockedMat;
-            var green = unlocked ? M(new Color(0.3f, 0.75f, 0.35f)) : _lockedMat;
-            Prim(PrimitiveType.Cylinder, t, new Vector3(0f, 0.02f, 0f), new Vector3(1.2f, 0.04f, 1.2f), unlocked ? M(new Color(1f, 0.92f, 0.75f)) : _lockedMat, true);
-            switch (shape)
-            {
-                case "house":
-                    Prim(PrimitiveType.Cube, t, new Vector3(0f, 0.3f, 0f), new Vector3(0.7f, 0.5f, 0.6f), white, true);
-                    Prim(PrimitiveType.Cube, t, new Vector3(0f, 0.66f, 0f), new Vector3(0.55f, 0.55f, 0.66f), m, true).transform.localRotation = Quaternion.Euler(0f, 0f, 45f);
-                    Prim(PrimitiveType.Cube, t, new Vector3(0f, 0.2f, -0.31f), new Vector3(0.18f, 0.3f, 0.02f), dark, true);
-                    break;
-                case "board":
-                    Prim(PrimitiveType.Cylinder, t, new Vector3(-0.3f, 0.35f, 0f), new Vector3(0.06f, 0.35f, 0.06f), dark, true);
-                    Prim(PrimitiveType.Cylinder, t, new Vector3(0.3f, 0.35f, 0f), new Vector3(0.06f, 0.35f, 0.06f), dark, true);
-                    Prim(PrimitiveType.Cube, t, new Vector3(0f, 0.6f, 0f), new Vector3(0.8f, 0.45f, 0.06f), m, true);
-                    break;
-                case "palm":
-                    for (var i = 0; i < 2; i++)
-                    {
-                        var p = new Vector3(i == 0 ? -0.2f : 0.25f, 0f, i == 0 ? 0.1f : -0.15f);
-                        Prim(PrimitiveType.Cylinder, t, p + new Vector3(0f, 0.45f, 0f), new Vector3(0.08f, 0.45f, 0.08f), dark, true);
-                        Prim(PrimitiveType.Sphere, t, p + new Vector3(0f, 0.95f, 0f), new Vector3(0.6f, 0.18f, 0.6f), m, true);
-                    }
-                    break;
-                case "pool":
-                    Prim(PrimitiveType.Cylinder, t, new Vector3(0f, 0.06f, 0f), new Vector3(1.0f, 0.06f, 1.0f), white, true);
-                    Prim(PrimitiveType.Cylinder, t, new Vector3(0f, 0.08f, 0f), new Vector3(0.85f, 0.06f, 0.85f), m, true);
-                    break;
-                case "hill":
-                    Prim(PrimitiveType.Sphere, t, new Vector3(0f, 0.2f, 0f), new Vector3(1.2f, 1.2f, 1.1f), m, true);
-                    Prim(PrimitiveType.Sphere, t, new Vector3(0f, 0.68f, 0f), new Vector3(0.5f, 0.3f, 0.5f), white, true);
-                    break;
-                case "garden":
-                    for (var i = 0; i < 3; i++)
-                        Prim(PrimitiveType.Cube, t, new Vector3(-0.32f + i * 0.32f, 0.1f, 0f), new Vector3(0.24f, 0.12f, 0.8f), dark, true);
-                    for (var i = 0; i < 3; i++)
-                        Prim(PrimitiveType.Sphere, t, new Vector3(-0.32f + i * 0.32f, 0.25f, 0f), new Vector3(0.18f, 0.18f, 0.18f), green, true);
-                    break;
-                case "pier":
-                    Prim(PrimitiveType.Cube, t, new Vector3(0.25f, 0.12f, 0f), new Vector3(1.0f, 0.06f, 0.4f), dark, true);
-                    Prim(PrimitiveType.Cylinder, t, new Vector3(0.7f, 0.1f, 0.18f), new Vector3(0.06f, 0.2f, 0.06f), dark, true);
-                    Prim(PrimitiveType.Cylinder, t, new Vector3(0.7f, 0.1f, -0.18f), new Vector3(0.06f, 0.2f, 0.06f), dark, true);
-                    break;
-                case "tent":
-                    Prim(PrimitiveType.Cylinder, t, new Vector3(0f, 0.22f, 0f), new Vector3(0.8f, 0.22f, 0.8f), white, true);
-                    Prim(PrimitiveType.Capsule, t, new Vector3(0f, 0.55f, 0f), new Vector3(0.8f, 0.35f, 0.8f), m, true);
-                    break;
-                case "tower":
-                    Prim(PrimitiveType.Cylinder, t, new Vector3(0f, 0.6f, 0f), new Vector3(0.36f, 0.6f, 0.36f), white, true);
-                    Prim(PrimitiveType.Cylinder, t, new Vector3(0f, 0.75f, 0f), new Vector3(0.38f, 0.1f, 0.38f), m, true);
-                    Prim(PrimitiveType.Sphere, t, new Vector3(0f, 1.3f, 0f), new Vector3(0.3f, 0.3f, 0.3f), m, true);
-                    break;
-                default:
-                    Prim(PrimitiveType.Cube, t, new Vector3(0f, 0.3f, 0f), new Vector3(0.6f, 0.6f, 0.6f), m, true);
-                    break;
-            }
+            var holder = new GameObject("MapPet").transform;
+            holder.SetParent(transform, false);
+            var pet = PetModels.Build(def, holder);
+            CosmeticModels.Apply(pet, def, items);
+            holder.localScale = Vector3.one * scale;
+            Walker = holder.gameObject.AddComponent<PetWalker>();
+            Walker.Init(this, pet, x, z);
+            return Walker;
         }
 
         /// <summary>Günlük keşif parıltısı: dönen küçük yıldız; dokunma için "sparkle_N" adlı collider.</summary>
@@ -186,32 +273,121 @@ namespace Pofi.World
         {
             var root = new GameObject("sparkle_" + index).transform;
             root.SetParent(transform, false);
-            root.localPosition = new Vector3(x, 0.35f, z);
-            var gold = M(new Color(1f, 0.85f, 0.2f), 0.9f);
-            Prim(PrimitiveType.Cube, root, Vector3.zero, new Vector3(0.22f, 0.22f, 0.22f), gold, true).transform.localRotation = Quaternion.Euler(45f, 0f, 45f);
-            Prim(PrimitiveType.Sphere, root, Vector3.zero, Vector3.one * 0.16f, M(Color.white, 0.9f), false);
+            root.localPosition = new Vector3(x, Terrain.Height(x, z) + 0.9f, z);
+            var gold = PetModels.NewMaterial(new Color(1f, 0.85f, 0.2f), 0.9f);
+            _owned.Add(gold);
+            var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.transform.SetParent(root, false);
+            cube.transform.localScale = Vector3.one * 0.45f;
+            cube.transform.localRotation = Quaternion.Euler(45f, 0f, 45f);
+            cube.GetComponent<Renderer>().sharedMaterial = gold;
+            Destroy(cube.GetComponent<Collider>());
             var col = root.gameObject.AddComponent<SphereCollider>();
-            col.radius = 0.5f;
+            col.radius = 1.0f;
             root.gameObject.AddComponent<Spin>();
             return root;
         }
 
-        private static GameObject Prim(PrimitiveType type, Transform parent, Vector3 pos, Vector3 scale, Material m, bool shadows)
-        {
-            var go = GameObject.CreatePrimitive(type);
-            go.transform.SetParent(parent, false);
-            go.transform.localPosition = pos;
-            go.transform.localScale = scale;
-            var r = go.GetComponent<Renderer>();
-            r.sharedMaterial = m;
-            if (!shadows) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            Destroy(go.GetComponent<Collider>());
-            return go;
-        }
-
         private void OnDestroy()
         {
-            foreach (var m in _mats) if (m != null) Destroy(m);
+            foreach (var o in _owned) if (o != null) Destroy(o);
+        }
+    }
+
+    /// <summary>
+    /// Adada yürüyen pet: ara noktalar boyunca yürür (uzaksa koşar), zemine oturur, yönünü çevirir; varınca
+    /// "idle"a döner ve <see cref="Arrived"/> çağrılır.
+    /// </summary>
+    public sealed class PetWalker : MonoBehaviour
+    {
+        public const float WalkSpeed = 2.6f, RunSpeed = 5.2f;
+        public System.Action Arrived;
+        public bool Moving => _route.Count > 0;
+        public Vector2 Position => new Vector2(_x, _z);
+
+        private MapWorld _world;
+        private Transform _pet;
+        private readonly List<Vector2> _route = new List<Vector2>();
+        private float _x, _z, _yaw, _speed;
+        private string _clip;
+
+        public void Init(MapWorld world, Transform pet, float x, float z)
+        {
+            _world = world; _pet = pet;
+            Teleport(x, z, 180f);
+        }
+
+        public void Teleport(float x, float z, float yaw)
+        {
+            _route.Clear();
+            _x = x; _z = z; _yaw = yaw;
+            Apply();
+            Play("idle");
+        }
+
+        /// <summary>Hedefe yol bulur ve yürür. Yol yoksa false.</summary>
+        public bool WalkTo(float x, float z, System.Action arrived = null)
+        {
+            var path = _world.Terrain.FindPath(_x, _z, x, z);
+            _route.Clear();
+            Arrived = arrived;
+            if (path.Count == 0) return false;
+            foreach (var p in path) _route.Add(new Vector2(p.x, p.z));
+            var total = 0f; var from = Position;
+            foreach (var p in _route) { total += Vector2.Distance(from, p); from = p; }
+            _speed = total > 14f ? RunSpeed : WalkSpeed;
+            Play(_speed > WalkSpeed ? "run" : "walk", "walk");
+            return true;
+        }
+
+        public void Stop()
+        {
+            _route.Clear();
+            Arrived = null;
+            Play("idle");
+        }
+
+        private void Update()
+        {
+            if (_route.Count == 0) return;
+            var target = _route[0];
+            var pos = Position;
+            var to = target - pos;
+            var step = _speed * Time.deltaTime;
+            if (to.magnitude <= step)
+            {
+                _x = target.x; _z = target.y;
+                _route.RemoveAt(0);
+                if (_route.Count == 0)
+                {
+                    Apply();
+                    Play("idle");
+                    var a = Arrived; Arrived = null;
+                    a?.Invoke();
+                    return;
+                }
+            }
+            else
+            {
+                var dir = to.normalized;
+                _x += dir.x * step; _z += dir.y * step;
+                var want = Mathf.Atan2(dir.x, dir.y) * Mathf.Rad2Deg;
+                _yaw = Mathf.MoveTowardsAngle(_yaw, want, 540f * Time.deltaTime);
+            }
+            Apply();
+        }
+
+        private void Apply()
+        {
+            transform.localPosition = new Vector3(_x, _world.Terrain.Height(_x, _z), _z);
+            // gerçek pet modeli kameraya dönük (180°) kurulu; yürüme yönüne bakması için ön = +z kabul edilir
+            transform.localRotation = Quaternion.Euler(0f, _yaw + 180f, 0f);
+        }
+
+        private void Play(string clip, string fallback = null)
+        {
+            if (_clip == clip) return;
+            if (RealAssets.Play(_pet, clip, false) || (fallback != null && RealAssets.Play(_pet, fallback, false))) _clip = clip;
         }
     }
 }

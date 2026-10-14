@@ -13,6 +13,9 @@ namespace Pofi.Logic.Island
         [JsonProperty("target")] public string Target;
         [JsonProperty("color")] public string Color;
         [JsonProperty("shape")] public string Shape;
+        [JsonProperty("size")] public float Size = 6f;     // yapının taban genişliği (m)
+        [JsonProperty("yaw")] public float Yaw;            // 0: önü güneye (kuşbakışı kameraya)
+        [JsonProperty("water")] public bool Water;         // kıyıdan denize uzanır (iskele): taban düzleştirilmez
 
         public float X => Pos != null && Pos.Length > 0 ? Pos[0] : 0f;
         public float Z => Pos != null && Pos.Length > 1 ? Pos[1] : 0f;
@@ -34,14 +37,21 @@ namespace Pofi.Logic.Island
     /// </summary>
     public sealed class IslandMap
     {
-        private sealed class File { [JsonProperty("regions")] public List<RegionDef> Regions = new List<RegionDef>(); }
+        private sealed class File
+        {
+            [JsonProperty("regions")] public List<RegionDef> Regions = new List<RegionDef>();
+            [JsonProperty("terrain")] public TerrainDef Terrain = new TerrainDef();
+        }
 
         public IReadOnlyList<RegionDef> Regions { get; }
+        public TerrainDef Terrain { get; }
         private readonly LevelTable _levels;
 
         public IslandMap(string json, LevelTable levels)
         {
-            Regions = JsonConvert.DeserializeObject<File>(json).Regions;
+            var f = JsonConvert.DeserializeObject<File>(json);
+            Regions = f.Regions;
+            Terrain = f.Terrain ?? new TerrainDef();
             _levels = levels;
         }
 

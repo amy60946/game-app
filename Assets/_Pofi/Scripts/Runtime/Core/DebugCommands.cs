@@ -10,7 +10,7 @@ namespace Pofi.Core
     /// <summary>
     /// Otomatik test kancası (yalnızca sahte arka uçla): tarayıcıdan
     /// <c>unityInstance.SendMessage("Bootstrap", "PofiDebug", "login A1A1A1")</c> ile çağrılır. Gerçek sunucuda kapalıdır.
-    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss
+    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · region ID
     /// </summary>
     public static class DebugCommands
     {
@@ -42,6 +42,17 @@ namespace Pofi.Core
                         break;
                     case "minigame":
                         app.OpenMiniGame(arg);
+                        break;
+                    case "maptoggle":   // ada: yürü ↔ kuşbakışı
+                        Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugToggle();
+                        break;
+                    case "walk":        // ada: "walk X Z" (metre)
+                        var xz = arg.Split(' ');
+                        Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugWalk(
+                            float.Parse(xz[0], System.Globalization.CultureInfo.InvariantCulture), float.Parse(xz[1], System.Globalization.CultureInfo.InvariantCulture));
+                        break;
+                    case "region":      // ada: bölgeye gir
+                        Object.FindAnyObjectByType<Screens.MapScreen>()?.EnterById(arg);
                         break;
                     case "xp":
                         app.GrantXp(int.Parse(arg), XpSource.Achievement);

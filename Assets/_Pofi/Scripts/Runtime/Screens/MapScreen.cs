@@ -10,37 +10,49 @@ using UnityEngine.UI;
 namespace Pofi.Screens
 {
     /// <summary>
-    /// Ada haritası (M5): parmakla kaydırılır, bölgeye dokununca oraya gidilir. Kilitli bölge gri ve
-    /// "Seviye N'de açılır!" der (havuç etkisi); yeni açılan bölgede "Yeni!" etiketi.
+    /// Gezilebilir ada (M5, 14 Ekim 2026 kararı: dokun-yürü + kuşbakışı).
+    /// Yürü: yere dokun → pet oraya yürür; binaya dokun → kapısına yürür ve girer; parıltıya dokun → gidip toplar.
+    /// Parmakla yana sürüklemek kamerayı petin çevresinde döndürür. Kuşbakışı: tüm ada, kaydırılır; dokunulan yere
+    /// pet hemen gider (hızlı geçiş). Kilitli bölge gri ve "Seviye N'de açılır!" der; yeni açılanda "Yeni!".
     /// </summary>
     public sealed class MapScreen : ScreenBase
     {
+        private static IslandTerrain _terrain;   // oturum boyunca bir kez kurulur
+
         private MapWorld _world;
         private List<RegionView> _views;
         private readonly Dictionary<string, RectTransform> _labels = new Dictionary<string, RectTransform>();
-        private Vector2 _pan;                       // kamera kaydırması (x, z)
+        private bool _overview;
+        private Vector2 _pan;                       // kuşbakışı kaydırma (x, z)
+        private float _camYaw;                      // yürüme kamerasının pet çevresindeki açısı
+        private Vector3 _camPos, _camLook;
         private Vector3 _press, _last;
         private bool _down, _moved;
         private SpeechBubble _toast;
         private RectTransform _labelLayer;
+        private Text _modeText;
         private List<Sparkle> _sparkles = new List<Sparkle>();
         private int Day => Logic.Economy.XpSystem.DayNumber(App.LocalNow);
-
-        private static readonly Vector2 PanMin = new Vector2(-2.6f, -1.2f), PanMax = new Vector2(2.6f, 3.0f);
 
         protected override void Build()
         {
             App.Stage.SetPetVisible(false);
             App.Stage.AllowDrag = false;
+            if (_terrain == null) _terrain = new IslandTerrain(App.Map.Regions, App.Map.Terrain);
             _views = App.Map.View(App.Level, App.State.VisitedRegions);
-            _world = MapWorld.Create(_views);
-            _pan = new Vector2(0f, 0.4f);
-            PlaceCamera();
+            _world = MapWorld.Create(_views, _terrain);
 
-            if (App.Map != null && App.Levels.IsUnlocked(Sparkles.UnlockId, App.Level))
+            // Pet: en son girilen bölgenin kapısında (yoksa evin önünde) belirir
+            var start = _terrain.Regions.FirstOrDefault(r => r.Id == App.State.LastRegion) ?? _terrain.Regions.FirstOrDefault(r => r.Id == "region_home");
+            var (sx, sz) = start != null ? _terrain.Door(start) : (_terrain.PlazaX, _terrain.PlazaZ);
+            var def = App.Data.Pet(App.State.PetId);
+            var items = App.State.Inventory.Equipped.Values.Select(App.Data.Item).Where(i => i != null).ToList();
+            if (def != null) _world.PlacePet(def, PetModels.StageScale(App.Growth), items, sx, sz);
+
+            if (App.Levels.IsUnlocked(Sparkles.UnlockId, App.Level))
             {
                 _sparkles = Sparkles.Open(App.State.Sparkles, Day, Sparkles.ForDay(Day, App.State.ChildId, App.Level,
-                    Logic.Pet.PetCare.IsNight(App.LocalNow), App.Data.Collection, App.Map.Regions));
+                    Logic.Pet.PetCare.IsNight(App.LocalNow), App.Data.Collection, _terrain));
                 foreach (var sp in _sparkles) _world.AddSparkle(sp.Index, sp.X, sp.Z);
             }
 
@@ -58,8 +70,21 @@ namespace Pofi.Screens
                 Ui.Panel(hint, new Color(1f, 1f, 1f, 0.9f), 45f).raycastTarget = false;
                 Ui.Label(hint, T("map.next", next.Region.Name, next.UnlockLevel), Th.Font(36), Th.Text, new Vector2(0.5f, 0.5f), new Vector2(880f, 80f), FontStyle.Bold);
             }
+            var mode = CornerButton(T("map.overview"), ToggleMode, 340f);
+            _modeText = mode.GetComponentInChildren<Text>();
             _toast = Bubble(new Vector2(0.5f, 0.8f));
             NavBar(AppPage.Map);
+
+            SnapCamera();
+            _toast.Say(T("map.hint_walk"));
+        }
+
+        private void ToggleMode()
+        {
+            _overview = !_overview;
+            _modeText.text = T(_overview ? "map.walk" : "map.overview");
+            if (_overview && _world.Walker != null) _pan = _world.Walker.Position;
+            _toast.Say(T(_overview ? "map.hint_overview" : "map.hint_walk"));
         }
 
         private RectTransform Label(RegionView v)
@@ -80,27 +105,62 @@ namespace Pofi.Screens
             return rt;
         }
 
-        private void PlaceCamera()
+        // ------------------------------------------------------------------ kamera
+
+        private void TargetCamera(out Vector3 pos, out Vector3 look, out float fov)
         {
-            var target = MapWorld.Origin + new Vector3(_pan.x, 0f, _pan.y);
-            var pos = target + new Vector3(0f, 7.6f, -6.4f);
-            App.Stage.SetCamera(pos, 50f, 50f);
+            if (_overview || _world.Walker == null)
+            {
+                var c = _overview ? _pan : new Vector2(_terrain.PlazaX, _terrain.PlazaZ + 6f);
+                look = MapWorld.Origin + new Vector3(c.x, 0f, c.y + 4f);
+                pos = look + new Vector3(0f, 44f, -34f);
+                fov = 40f;
+                return;
+            }
+            var p = _world.Walker.transform.position;
+            look = p + Vector3.up * 1.2f;
+            var back = Quaternion.Euler(0f, _camYaw, 0f) * new Vector3(0f, 0f, -11f);
+            pos = look + back + Vector3.up * 8.5f;
+            fov = 42f;
+        }
+
+        private void SnapCamera()
+        {
+            TargetCamera(out _camPos, out _camLook, out var fov);
+            App.Stage.Camera.fieldOfView = fov;
+            ApplyCamera(fov);
+        }
+
+        private void ApplyCamera(float fov)
+        {
+            var cam = App.Stage.Camera;
+            cam.transform.SetPositionAndRotation(_camPos, Quaternion.LookRotation(_camLook - _camPos));
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, fov, 0.15f);
         }
 
         private void Update()
         {
             HandleInput();
-            PlaceCamera();
+            TargetCamera(out var pos, out var look, out var fov);
+            var k = 1f - Mathf.Exp(-6f * Time.deltaTime);
+            _camPos = Vector3.Lerp(_camPos, pos, k);
+            _camLook = Vector3.Lerp(_camLook, look, k);
+            ApplyCamera(fov);
+
             var cam = App.Stage.Camera;
             var scale = Root.rect.width / Mathf.Max(1f, Screen.width);
+            var petPos = _world.Walker != null ? _world.Walker.transform.position : _camLook;
             foreach (var kv in _labels)
             {
                 var t = _world.Regions[kv.Key];
-                var sp = cam.WorldToScreenPoint(t.position + Vector3.up * (_world.LabelHeights.TryGetValue(kv.Key, out var lh) ? lh : 1.15f));
-                kv.Value.gameObject.SetActive(sp.z > 0f);
+                var near = _overview || Vector3.Distance(t.position, petPos) < 22f;
+                var sp = cam.WorldToScreenPoint(t.position + Vector3.up * (_world.LabelHeights.TryGetValue(kv.Key, out var lh) ? lh : 1.5f));
+                kv.Value.gameObject.SetActive(near && sp.z > 0f);
                 kv.Value.anchoredPosition = new Vector2(sp.x * scale, sp.y * scale);
             }
         }
+
+        // ------------------------------------------------------------------ dokunma
 
         private void HandleInput()
         {
@@ -113,9 +173,16 @@ namespace Pofi.Screens
             {
                 var d = Input.mousePosition - _last;
                 if ((Input.mousePosition - _press).magnitude > Screen.width * 0.02f) _moved = true;
-                var k = 9f / Mathf.Max(1f, Screen.width);
-                _pan -= new Vector2(d.x, d.y) * k;
-                _pan = Vector2.Max(PanMin, Vector2.Min(PanMax, _pan));
+                if (_moved)
+                {
+                    if (_overview)
+                    {
+                        var k = 60f / Mathf.Max(1f, Screen.width);
+                        _pan -= new Vector2(d.x, d.y) * k;
+                        _pan = Vector2.Max(new Vector2(_terrain.MinX + 8f, _terrain.MinZ + 6f), Vector2.Min(new Vector2(_terrain.MaxX - 8f, _terrain.MaxZ - 16f), _pan));
+                    }
+                    else _camYaw += d.x * 180f / Mathf.Max(1f, Screen.width);
+                }
                 _last = Input.mousePosition;
             }
             if (_down && Input.GetMouseButtonUp(0))
@@ -136,21 +203,58 @@ namespace Pofi.Screens
         private void Tap(Vector3 screen)
         {
             var ray = App.Stage.Camera.ScreenPointToRay(screen);
-            if (!Physics.Raycast(ray, out var hit, 100f)) return;
-            var id = hit.collider.gameObject.name;
-            if (id.StartsWith("sparkle_"))
+            if (!Physics.Raycast(ray, out var hit, 400f)) return;
+            var go = hit.collider.gameObject;
+            if (go.name.StartsWith("sparkle_"))
             {
-                Collect(hit.collider.gameObject, id);
+                var spot = _world.Local(go.transform.position);
+                GoTo(spot.x, spot.y, () => { if (go != null) Collect(go, go.name); });
                 return;
             }
+            var v = _views.FirstOrDefault(x => x.Region.Id == go.name);
+            if (v != null)
+            {
+                if (!v.Unlocked) _toast.Say(T("map.locked", v.Region.Name, v.UnlockLevel));
+                var (dx, dz) = _terrain.Door(v.Region);
+                GoTo(dx, dz, v.Unlocked ? () => EnterRegion(v) : (System.Action)null);
+                return;
+            }
+            if (go.name == "ground")
+            {
+                var p = _world.Local(hit.point);
+                GoTo(p.x, p.y, null);
+            }
+        }
+
+        /// <summary>Yürü modunda yürür; kuşbakışında hemen oraya geçer (hızlı geçiş) ve yürü moduna döner.</summary>
+        private void GoTo(float x, float z, System.Action arrived)
+        {
+            var walker = _world.Walker;
+            if (walker == null) { arrived?.Invoke(); return; }
+            if (_overview)
+            {
+                var w = _terrain.NearestWalkable(x, z);
+                if (float.IsNaN(w.x)) return;
+                walker.Teleport(w.x, w.z, 180f);
+                ToggleMode();
+                SnapCamera();
+                arrived?.Invoke();
+                return;
+            }
+            if (!walker.WalkTo(x, z, arrived)) arrived?.Invoke();
+        }
+
+        /// <summary>Bölgeye gir (ör. hata ayıklama: "region region_shop").</summary>
+        public void EnterById(string id)
+        {
             var v = _views.FirstOrDefault(x => x.Region.Id == id);
-            if (v == null) return;
-            if (!v.Unlocked)
-            {
-                _toast.Say(T("map.locked", v.Region.Name, v.UnlockLevel));
-                return;
-            }
-            App.State.VisitedRegions.Add(id);
+            if (v != null && v.Unlocked) EnterRegion(v);
+        }
+
+        private void EnterRegion(RegionView v)
+        {
+            App.State.VisitedRegions.Add(v.Region.Id);
+            App.State.LastRegion = v.Region.Id;
             App.Save();
             App.Enter(v.Region, msg => _toast.Say(msg));
         }
@@ -169,6 +273,10 @@ namespace Pofi.Screens
             App.Save();
             App.GrantXp(isNew ? 10 : 3, Logic.Economy.XpSource.Achievement);
         }
+
+        /// <summary>Hata ayıklama/test: kamera modunu değiştir, ada üzerinde bir noktaya yürü.</summary>
+        public void DebugToggle() => ToggleMode();
+        public void DebugWalk(float x, float z) => GoTo(x, z, null);
 
         private void OnDestroy()
         {
