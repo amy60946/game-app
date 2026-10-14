@@ -66,7 +66,9 @@ namespace Pofi.Screens
             for (var i = 0; i < 4; i++)
             {
                 var a = actions[i];
-                var b = Candy.Round(Root, colors[i], icons[i], 140f, new Vector2(1f, 0f), new Vector2(i % 2 == 0 ? -400f : -210f, i < 2 ? 400f : 200f), () => Care(a), T(labels[i]));
+                System.Action act = a == CareAction.Feed ? () => OpenTray(ItemCategory.Food, CareAction.Feed)
+                    : a == CareAction.Wash ? () => OpenTray(ItemCategory.Cleaning, CareAction.Wash) : (System.Action)(() => Care(a));
+                var b = Candy.Round(Root, colors[i], icons[i], 160f, new Vector2(1f, 0f), new Vector2(i % 2 == 0 ? -440f : -230f, i < 2 ? 440f : 220f), act, T(labels[i]));
                 if (a == CareAction.Tidy) _tidyBtn = (RectTransform)b.transform;
                 if (a == CareAction.Feed) _feedCount = Candy.Count(b.transform);
                 if (a == CareAction.Wash) _washCount = Candy.Count(b.transform);
@@ -124,6 +126,62 @@ namespace Pofi.Screens
         private ItemDef First(string category) =>
             App.State.Inventory.Counts.Where(kv => kv.Value > 0).Select(kv => App.Data.Item(kv.Key))
                 .FirstOrDefault(it => it != null && it.Category == category);
+
+        private RectTransform _tray;
+
+        /// <summary>Evde de yiyecek/sabun pete sürüklenir (adayla aynı el becerisi).</summary>
+        private void OpenTray(string category, CareAction action)
+        {
+            if (_tray != null) { Destroy(_tray.gameObject); _tray = null; return; }
+            var items = App.State.Inventory.Counts.Where(kv => kv.Value > 0).Select(kv => App.Data.Item(kv.Key))
+                .Where(it => it != null && it.Category == category).ToList();
+            if (items.Count == 0) { Care(action); return; }   // yoksa: "dükkândan al" mesajı
+            _tray = Ui.Rect(Root, "Tray", new Vector2(1f, 0f), new Vector2(items.Count * 150f + 30f, 170f), new Vector2(0f, 0f));
+            _tray.pivot = new Vector2(1f, 0f);
+            _tray.anchoredPosition = new Vector2(-560f, action == CareAction.Feed ? 400f : 200f);
+            RectTransform first = null;
+            for (var i = 0; i < items.Count; i++)
+            {
+                var it = items[i];
+                var b = Candy.Round(_tray, Candy.White, it.Id, 130f, new Vector2(0f, 0.5f), new Vector2(80f + i * 150f, 0f), null);
+                Candy.Count(b.transform).text = App.State.Inventory.CountOf(it.Id).ToString();
+                var d = b.gameObject.AddComponent<DragItem>();
+                d.IconId = it.Id; d.Layer = Root;
+                d.Dropped = pos =>
+                {
+                    if (Vector2.Distance(pos, PetScreen()) > Screen.height * 0.22f) return false;
+                    if (_tray != null) { Destroy(_tray.gameObject); _tray = null; }
+                    CareWith(action, it);
+                    return true;
+                };
+                d.Tapped = () => _bubble.Say(T(action == CareAction.Feed ? "tip.feed" : "tip.wash", Logic.Core.TurkishSuffix.Genitive(App.State.PetName)));
+                if (first == null) first = (RectTransform)b.transform;
+            }
+            var tip = action == CareAction.Feed ? Onboarding.Feed : Onboarding.Wash;
+            if (_coach == null && Onboarding.Pending(App.State, tip))
+                _coach = Coach.Show(Root, tip, T("tip." + tip, Logic.Core.TurkishSuffix.Genitive(App.State.PetName)), TipGesture.Drag,
+                    () => RectTransformUtility.WorldToScreenPoint(null, first.position), PetScreen);
+        }
+
+        private Vector2 PetScreen() => App.Stage.Camera.WorldToScreenPoint(App.Stage.Pet != null ? App.Stage.Pet.position + Vector3.up * 1.0f : Vector3.zero);
+
+        private void CareWith(CareAction a, ItemDef item)
+        {
+            var st = App.State;
+            var r = a == CareAction.Feed ? PetCare.Feed(st.Stats, st.Inventory, item, App.LocalNow) : PetCare.Wash(st.Stats, st.Inventory, item, App.LocalNow);
+            if (r == CareResult.Ok)
+            {
+                var tip = a == CareAction.Feed ? Onboarding.Feed : Onboarding.Wash;
+                if (Onboarding.Pending(st, tip)) Onboarding.Done(st, tip);
+                if (_coach != null) { _coach.Done(); _coach = null; }
+                App.Stage.Hop();
+                App.Save();
+                App.RecordActivity(a == CareAction.Feed ? "pet_fed" : "pet_washed");
+            }
+            _idle = 0f;
+            _bubble.Say(CareFeedback.Message(App.Loc, a, r, st.PetName));
+            Refresh();
+        }
 
         private void Care(CareAction a)
         {
