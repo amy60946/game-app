@@ -35,9 +35,10 @@ namespace Pofi.World
             if (old != null)
             {
                 foreach (var r in old.GetComponentsInChildren<Renderer>())
-                    foreach (var m in r.sharedMaterials) if (m != null) Object.Destroy(m);
+                    foreach (var m in r.sharedMaterials) if (m != null && !RealAssets.IsShared(m)) Object.Destroy(m);
                 Object.Destroy(old.gameObject);
             }
+            foreach (var tag in pet.GetComponentsInChildren<RealCosmetic>(true)) Object.Destroy(tag.gameObject);   // kemiklere takılı gerçek eşyalar
             var root = new GameObject(RootName).transform;
             root.SetParent(pet, false);
             if (items == null) return;
@@ -51,8 +52,74 @@ namespace Pofi.World
             foreach (var c in root.GetComponentsInChildren<Collider>()) Object.Destroy(c);
         }
 
+        /// <summary>Gerçek eşya yerleşim kuralı: kemik, boy (pet boyuna oran), yukarı/ileri/yan kayma, alttan mı oturur.</summary>
+        private struct Rule
+        {
+            public string Bone; public float Size, Up, Fwd, Side; public bool Bottom;
+            public Rule(string bone, float size, float up = 0f, float fwd = 0f, float side = 0f, bool bottom = false)
+            { Bone = bone; Size = size; Up = up; Fwd = fwd; Side = side; Bottom = bottom; }
+        }
+
+        // art/meshy önizlemesiyle (Blender, 3 farklı pet) ayarlandı; Meshy iskelet kemik adları
+        private static readonly Dictionary<string, Rule> Rules = new Dictionary<string, Rule>
+        {
+            ["head"] = new Rule("head_end", 0.42f, up: -0.07f, bottom: true),
+            ["eyes"] = new Rule("headfront", 0.32f, up: 0.23f, fwd: -0.03f),
+            ["body"] = new Rule("Spine02", 0.44f, up: 0.02f),
+            ["back"] = new Rule("Spine01", 0.30f, up: -0.08f, fwd: -0.12f),
+            ["hand"] = new Rule("RightHand", 0.16f, side: 0.04f),
+        };
+
+        private static Transform FindDeep(Transform t, string name)
+        {
+            if (t.name == name) return t;
+            for (var i = 0; i < t.childCount; i++)
+            {
+                var r = FindDeep(t.GetChild(i), name);
+                if (r != null) return r;
+            }
+            return null;
+        }
+
+        /// <summary>Gerçek pet + gerçek eşya: kemiğe takılır (animasyonla birlikte hareket eder). Olmazsa false.</summary>
+        private static bool BuildReal(Transform pet, Transform root, ItemDef item, string variant)
+        {
+            if (item.Slot == null || !Rules.TryGetValue(item.Slot, out var rule)) return false;
+            var bone = FindDeep(pet, rule.Bone);
+            if (bone == null || !RealAssets.HasItem(item.Id)) return false;
+
+            // petin dünyadaki boyu ve yönü (eşyalar hariç)
+            Bounds pb = default; var any = false;
+            foreach (var r in pet.GetComponentsInChildren<Renderer>())
+            {
+                if (r.transform.IsChildOf(root)) continue;
+                if (!any) { pb = r.bounds; any = true; } else pb.Encapsulate(r.bounds);
+            }
+            if (!any) return false;
+            var h = pb.size.y;
+            var front = pet.TransformDirection(Vector3.back);   // gerçek pet kameraya (−z) dönük kurulu
+            front.y = 0f; front = front.sqrMagnitude > 0.001f ? front.normalized : Vector3.back;
+            var right = Vector3.Cross(Vector3.up, front);
+
+            var t = RealAssets.Item(item.Id, root);
+            t.rotation = Quaternion.LookRotation(front, Vector3.up);   // eşyanın önü (+z) petin önüne
+            var ib = RealAssets.WorldBounds(t);
+            var w = Mathf.Max(ib.size.x, ib.size.z);
+            if (w < 0.0001f) return false;
+            t.localScale *= rule.Size * h / w;
+            ib = RealAssets.WorldBounds(t);
+            var up = rule.Up + (variant == "raised" ? 0.05f : 0f);
+            var target = bone.position + Vector3.up * (up * h) + front * (rule.Fwd * h) + right * (rule.Side * h);
+            var y = rule.Bottom ? target.y - (ib.min.y - t.position.y) : target.y - (ib.center.y - t.position.y);
+            t.position = new Vector3(target.x - (ib.center.x - t.position.x), y, target.z - (ib.center.z - t.position.z));
+            t.SetParent(bone, true);
+            t.gameObject.AddComponent<RealCosmetic>();
+            return true;
+        }
+
         private static void Build(Transform pet, Transform root, ItemDef item, string variant)
         {
+            if (BuildReal(pet, root, item, variant)) return;
             var col = ColorOf(item.Id);
             var m = PetModels.NewMaterial(col, 0.55f);
             switch (item.Slot)
@@ -205,4 +272,7 @@ namespace Pofi.World
             return go;
         }
     }
+
+    /// <summary>Kemiğe takılmış gerçek eşya işareti (yeniden giydirirken bulunup kaldırılır).</summary>
+    public sealed class RealCosmetic : MonoBehaviour { }
 }

@@ -8,6 +8,7 @@ Telefon için dokular 1024 px'e küçültülür.
 import os, sys, bpy
 
 mode, src, outdir, name = sys.argv[1:5]
+TEX = int(sys.argv[5]) if len(sys.argv) > 5 else 1024   # küçük eşyalar için 512
 os.makedirs(outdir, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
@@ -48,8 +49,8 @@ else:
         seen[img.name] = role
         if role.startswith("mr"):
             continue   # Unity'de sabit pürüzlülük kullanılır; depo küçük kalsın
-        if max(img.size) > 1024:
-            img.scale(1024, 1024)
+        if max(img.size) > TEX:
+            img.scale(TEX, TEX)
         path = os.path.join(outdir, f"{name}_{role}.jpg")
         img.filepath_raw = path
         img.file_format = "JPEG"

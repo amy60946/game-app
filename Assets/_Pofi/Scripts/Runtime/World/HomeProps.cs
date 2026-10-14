@@ -10,10 +10,17 @@ namespace Pofi.World
     {
         public const string RootName = "HomeProps";
 
+        /// <summary>Gerçek modelin taban genişliği (m).</summary>
+        private static readonly Dictionary<string, float> Footprints = new Dictionary<string, float>
+        {
+            ["home_bed"] = 1.2f, ["home_rug"] = 1.4f, ["home_lamp"] = 0.6f, ["home_bookshelf"] = 1.0f, ["home_aquarium"] = 0.8f,
+            ["decor_umbrella"] = 1.4f, ["decor_sandcastle"] = 0.9f, ["decor_palm"] = 0.7f, ["decor_lanterns"] = 1.3f,
+        };
+
         public static Vector3 CellToLocal(int x, int y, bool expanded)
         {
             var (w, h) = HomeLayout.Size(expanded);
-            return new Vector3((x - (w - 1) / 2f) * 0.42f, 0f, (y - (h - 1) / 2f) * 0.55f + 0.45f);
+            return new Vector3((x - (w - 1) / 2f) * 0.78f, 0f, (y - (h - 1) / 2f) * 0.72f + 0.7f);   // gerçek pet ~1,75 m
         }
 
         public static void Apply(Transform parent, IEnumerable<Placement> placements, bool expanded)
@@ -22,7 +29,7 @@ namespace Pofi.World
             if (old != null)
             {
                 foreach (var r in old.GetComponentsInChildren<Renderer>())
-                    foreach (var m in r.sharedMaterials) if (m != null) Object.Destroy(m);
+                    foreach (var m in r.sharedMaterials) if (m != null && !RealAssets.IsShared(m)) Object.Destroy(m);
                 Object.Destroy(old.gameObject);
             }
             var root = new GameObject(RootName).transform;
@@ -33,7 +40,8 @@ namespace Pofi.World
                 t.SetParent(root, false);
                 t.localPosition = CellToLocal((int)p.X, (int)p.Y, expanded);
                 t.localRotation = Quaternion.Euler(0f, p.Rotation, 0f);
-                t.localScale = Vector3.one * 0.55f;
+                if (Footprints.TryGetValue(p.ItemId, out var fp) && RealAssets.ItemFootprint(p.ItemId, t, fp, 180f) != null) continue;   // önü kameraya
+                t.localScale = Vector3.one * 0.9f;
                 Build(t, p.ItemId);
             }
             foreach (var c in root.GetComponentsInChildren<Collider>()) Object.Destroy(c);

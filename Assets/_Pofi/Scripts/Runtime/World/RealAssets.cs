@@ -61,18 +61,39 @@ namespace Pofi.World
         }
 
         /// <summary>Çevre modeli, yatay en büyük boyutu <paramref name="footprint"/> olacak şekilde (harita karoları için).</summary>
-        public static Transform EnvFootprint(string name, Transform parent, float footprint, float yaw = 0f)
+        public static Transform EnvFootprint(string name, Transform parent, float footprint, float yaw = 0f) =>
+            Footprint("Env", name, parent, footprint, yaw);
+
+        /// <summary>Ev eşyası modeli, taban genişliğine göre (Resources/Items).</summary>
+        public static Transform ItemFootprint(string id, Transform parent, float footprint, float yaw = 0f) =>
+            Footprint("Items", id, parent, footprint, yaw);
+
+        private static Transform Footprint(string folder, string name, Transform parent, float footprint, float yaw)
         {
-            var prefab = Resources.Load<GameObject>($"Env/{name}/{name}");
+            var prefab = Resources.Load<GameObject>($"{folder}/{name}/{name}");
             if (prefab == null) return null;
             var root = new GameObject(name).transform;
             root.SetParent(parent, false);
             var go = Object.Instantiate(prefab, root, false);
             go.transform.localRotation = Quaternion.Euler(0f, yaw, 0f) * go.transform.localRotation;
-            ApplyMaterial(go, $"Env/{name}/{name}", 0.15f);
+            ApplyMaterial(go, $"{folder}/{name}/{name}", 0.15f);
             var b = Bounds(go.transform);
             var w = Mathf.Max(b.size.x, b.size.z);
             if (w > 0.0001f) Fit(root, go.transform, b.size.y * footprint / w);
+            return root;
+        }
+
+        public static bool HasItem(string id) => Resources.Load<GameObject>($"Items/{id}/{id}") != null;
+
+        /// <summary>Eşya modeli (Resources/Items/&lt;id&gt;), ölçeklenmemiş. Yoksa null.</summary>
+        public static Transform Item(string id, Transform parent)
+        {
+            var prefab = Resources.Load<GameObject>($"Items/{id}/{id}");
+            if (prefab == null) return null;
+            var root = new GameObject(id).transform;
+            root.SetParent(parent, false);
+            var go = Object.Instantiate(prefab, root, false);
+            ApplyMaterial(go, $"Items/{id}/{id}", 0.3f);
             return root;
         }
 

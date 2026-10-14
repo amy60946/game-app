@@ -72,8 +72,8 @@ namespace Pofi.World
 
             _waterMat = PetModels.NewMaterial(new Color(0.25f, 0.75f, 0.95f), 0.9f);
             _islandMat = PetModels.NewMaterial(new Color(1f, 0.86f, 0.6f), 0.15f);
-            var water = Cylinder("Water", new Vector3(0f, -0.12f, 0f), new Vector3(9f, 0.02f, 9f), _waterMat);
-            var island = Cylinder("Island", new Vector3(0f, -0.05f, 0.5f), new Vector3(3.6f, 0.06f, 3.6f), _islandMat);
+            var water = Cylinder("Water", new Vector3(0f, -0.12f, 0f), new Vector3(40f, 0.02f, 40f), _waterMat);
+            var island = Cylinder("Island", new Vector3(0f, -0.05f, 0.9f), new Vector3(6.6f, 0.06f, 6.2f), _islandMat);   // ev eşyaları için geniş
             water.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             island.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 
@@ -99,9 +99,9 @@ namespace Pofi.World
                 if (t != null) t.localPosition = pos;
             }
             Prop("b_home", 2.6f, new Vector3(-3.6f, -0.08f, 6.2f), 215f);
-            Prop("p_flowers", 0.7f, new Vector3(-1.05f, -0.05f, 1.0f), 190f);
-            Prop("p_rock", 0.6f, new Vector3(1.25f, -0.05f, 1.5f), 160f);
-            Prop("p_lantern", 0.45f, new Vector3(0.95f, -0.05f, 2.6f), 200f);
+            Prop("p_flowers", 0.8f, new Vector3(-2.9f, -0.05f, 0.5f), 190f);
+            Prop("p_rock", 0.8f, new Vector3(2.95f, -0.05f, 1.4f), 160f);
+            Prop("p_lantern", 0.5f, new Vector3(2.5f, -0.05f, 3.1f), 200f);
 
             _holder = new GameObject("PetHolder").transform;
             _holder.SetParent(transform, false);
