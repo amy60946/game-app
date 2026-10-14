@@ -1,6 +1,9 @@
 # İlerleme
 
-Son güncelleme: 13 Ekim 2026. M0 tamam. M1–M10 oyun ekranları yazıldı (yer tutucu görsellerle); Unity derlemesi CI'da doğrulanıyor.
+Son güncelleme: 14 Ekim 2026. M0 tamam. M1–M10 oyun ekranları yazıldı; gerçek 3D sanat (Meshy) oyunda.
+14 Ekim kararları: yatay ekran; gezilebilir köy adası (dokun-yürü + joystick + kuşbakışı); panelsiz, alt menüsüz sahne üstü "şeker" arayüz
+(ada ana merkez, Besle/Yıka her yerde, bağlamsal eylem tuşu, dükkân tezgâhında süzülen ürünler, pette giydirme noktaları).
+Açık işler: M4 sunucu (kullanıcı onayı bekliyor), seslendirme (kayıt gerekli), cila/performans/mağaza hazırlığı (M10 sonu).
 Doğrulama: `dotnet test tests-dotnet` → 140 test; `tools/compile-check/run.sh` → Unity katmanının hızlı derleme denetimi (Unity'siz); kesin doğrulama GitHub Actions + GameCI.
 
 ## Unity katmanı (`Assets/_Pofi/Scripts/Runtime`)
