@@ -135,24 +135,35 @@ namespace Pofi.Screens
             var dist = Mathf.Lerp(4.8f, 5.6f, _runBlend) * Mathf.Max(0.85f, scale);
             var pivot = p + Vector3.up * (hgt * 0.9f);
             look = pivot + Vector3.up * (hgt * 0.35f) + fwd * Mathf.Lerp(1.2f, 2.2f, _runBlend);   // pet alt üçte bire düşer, önü görünür
-            // çarpışma (yay-kol): arkada bina/tepe varsa kamera önce yukarı kalkar (çatının üstünden bakar), açık açı yoksa
-            // biraz yaklaşır ama petin içine girmez
-            var dir = Boom(20f, fwd);
-            var clear = false;
-            foreach (var e in BoomPitches)
+            // çarpışma (yay-kol + bıyık): arkada bina/tepe varsa kamera önce yana döner (±30°…±90°) ve açık görüş arar;
+            // yoksa biraz yükselir (30°, 45°); hâlâ kapalıysa yaklaşır ama petin içine girmez. Dönüş ve yükselme yumuşak.
+            float targetPitch = 20f, yawOff = 0f;
+            var found = false;
+            foreach (var pitch in BoomPitches)
             {
-                var d = Boom(e, fwd);
-                if (CameraBlocked(pivot, d, dist, out _)) continue;
-                dir = d; clear = true; break;
+                foreach (var off in WhiskerYaws)
+                {
+                    if (pitch > 30f && off != 0f) continue;                   // yüksek açıda yan arama yok
+                    var f = Quaternion.Euler(0f, _camYaw + off, 0f) * Vector3.forward;
+                    if (CameraBlocked(pivot, Boom(pitch, f), dist, out _)) continue;
+                    targetPitch = pitch; yawOff = off; found = true; break;
+                }
+                if (found) break;
             }
-            if (!clear && CameraBlocked(pivot, dir, dist, out var hitDist)) dist = Mathf.Max(3.2f, hitDist - 0.3f);
+            if (found && yawOff != 0f) _camYaw += yawOff * (1f - Mathf.Exp(-2.5f * Time.deltaTime));
+            _camPitch = Mathf.Lerp(_camPitch, found ? targetPitch : 32f, 1f - Mathf.Exp(-3f * Time.deltaTime));
+            fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
+            var dir = Boom(_camPitch, fwd);
+            if (CameraBlocked(pivot, dir, dist, out var hitDist)) dist = Mathf.Max(2.8f, hitDist - 0.3f);   // dönerken geçici
             pos = pivot + dir * dist;
             var floor = _world.transform.TransformPoint(new Vector3(0f, _terrain.Height(pos.x - MapWorld.Origin.x, pos.z - MapWorld.Origin.z), 0f)).y + 0.8f;
             if (pos.y < floor) pos.y = floor;
             fov = Mathf.Lerp(50f, 55f, _runBlend);
         }
 
-        private static readonly float[] BoomPitches = { 20f, 32f, 45f, 58f };
+        private static readonly float[] BoomPitches = { 20f, 30f, 45f };
+        private static readonly float[] WhiskerYaws = { 0f, 30f, -30f, 60f, -60f, 90f, -90f };
+        private float _camPitch = 20f;
 
         private static Vector3 Boom(float pitchDeg, Vector3 fwd)
         {
