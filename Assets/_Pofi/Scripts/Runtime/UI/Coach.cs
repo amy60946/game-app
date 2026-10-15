@@ -11,7 +11,8 @@ namespace Pofi.UI
     /// </summary>
     public sealed class Coach : MonoBehaviour
     {
-        private RectTransform _root, _finger, _ring;
+        private RectTransform _root, _finger, _ring, _prop;
+        private float _propS;
         private Image _fingerImg, _ringImg;
         private Func<Vector2> _from, _to;
         private Logic.App.TipGesture _gesture;
@@ -19,7 +20,8 @@ namespace Pofi.UI
         private float _t, _life;
         public string Id { get; private set; }
 
-        public static Coach Show(RectTransform root, string id, string caption, Logic.App.TipGesture gesture, Func<Vector2> from, Func<Vector2> to = null, int loops = 3)
+        public static Coach Show(RectTransform root, string id, string caption, Logic.App.TipGesture gesture, Func<Vector2> from, Func<Vector2> to = null, int loops = 3,
+            string step = null, Sprite prop = null)
         {
             var rt = Ui.Fill(root, "Coach " + id);
             var c = rt.gameObject.AddComponent<Coach>();
@@ -31,6 +33,22 @@ namespace Pofi.UI
             var banner = Candy.Banner(rt, Candy.Blue, "ui_hand", new Vector2(0.5f, 1f), new Vector2(0f, -70f), 760f, 36, false);
             banner.SetText(caption);
             banner.Rect.gameObject.AddComponent<PopIn>();
+            if (!string.IsNullOrEmpty(step))
+            {
+                // sıra göstergesi ("3/7"): çocuk kaçıncı adımda olduğunu görür
+                var badge = Ui.Rect(banner.Rect, "Step", new Vector2(1f, 1f), new Vector2(92f, 54f), new Vector2(-6f, 14f));
+                Candy.Shell(badge, Candy.Orange).raycastTarget = false;
+                badge.GetComponent<Image>().raycastTarget = false;
+                Candy.Caption(badge, step, 30, new Vector2(0.5f, 0.5f), new Vector2(92f, 54f), new Vector2(0f, 2f));
+            }
+            if (prop != null)
+            {
+                // canlandırma: dokununca hedefin üstünde beliren eşya (ör. pete dokun → şapka)
+                c._prop = Ui.Rect(rt, "Prop", Vector2.zero, new Vector2(150f, 150f));
+                var pi = c._prop.gameObject.AddComponent<Image>(); pi.sprite = prop; pi.preserveAspect = true; pi.raycastTarget = false;
+                c._prop.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
+                c._prop.localScale = Vector3.zero;
+            }
             // dokunma halkası
             c._ring = Ui.Rect(rt, "Ring", Vector2.zero, new Vector2(150f, 150f));
             c._ringImg = c._ring.gameObject.AddComponent<Image>(); c._ringImg.sprite = Ui.Rounded; c._ringImg.type = Image.Type.Sliced;
@@ -93,6 +111,13 @@ namespace Pofi.UI
             _finger.localScale = Vector3.one * Mathf.Lerp(1.08f, 0.94f, press);
             _ring.localScale = Vector3.one * Mathf.Lerp(0.6f, 1.25f, press);
             _ringImg.color = new Color(1f, 1f, 1f, 0.45f * press);
+            if (_prop != null)
+            {
+                // her basışta eşya hafifçe zıplayarak büyür, hedefin (petin başının) üstünde durur
+                _propS = Mathf.Lerp(_propS, press > 0.6f ? 1.15f : 0.95f, 1f - Mathf.Exp(-10f * Time.unscaledDeltaTime));
+                _prop.localScale = Vector3.one * _propS;
+                _prop.anchoredPosition = a + new Vector2(0f, 170f + Mathf.Sin(_life * 3f) * 8f);
+            }
         }
 
         public void Done() { if (this != null) Destroy(gameObject); }

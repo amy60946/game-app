@@ -82,6 +82,18 @@ namespace Pofi.EditorTools
 
         private void OnPreprocessTexture()
         {
+            if (assetPath.Replace('\\', '/').Contains("/Resources/Games/") || assetPath.Replace('\\', '/').Contains("/Resources/Art/"))
+            {
+                // kodla üretilmiş 3B arayüz görselleri (art/scripts/ui_games.py, keyart.py): şeffaf, mipmapsiz
+                var gi = (TextureImporter)assetImporter;
+                gi.alphaIsTransparency = true;
+                gi.mipmapEnabled = false;
+                gi.maxTextureSize = assetPath.Contains("/Resources/Art/") ? 2048 : 512;
+                gi.npotScale = TextureImporterNPOTScale.None;
+                gi.sRGBTexture = true;
+                gi.textureCompression = TextureImporterCompression.Compressed;
+                return;
+            }
             if (assetPath.Replace('\\', '/').Contains("/Resources/Icons/"))
             {
                 var ti = (TextureImporter)assetImporter;

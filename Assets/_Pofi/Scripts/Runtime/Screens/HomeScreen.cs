@@ -175,6 +175,8 @@ namespace Pofi.Screens
                 if (Onboarding.Pending(st, tip)) Onboarding.Done(st, tip);
                 if (_coach != null) { _coach.Done(); _coach = null; }
                 App.Stage.Hop();
+                if (a == CareAction.Feed) CareFx.Food(Root, Ui.Icon(item.Id), PetScreen);
+                else CareFx.Bubbles(Root, PetScreen);
                 App.Save();
                 App.RecordActivity(a == CareAction.Feed ? "pet_fed" : "pet_washed");
             }

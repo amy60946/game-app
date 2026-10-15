@@ -262,6 +262,7 @@
     "tip.enter": "Yeşil tuşla içeri gir!",
     "tip.play": "Oyun var! Oyna'ya bas.",
     "tip.feed": "Yiyeceği {0} üstüne sürükle!",
+    "tip.feed_open": "Besle'ye dokun, yiyecek seç!",
     "tip.wash": "Sabunu {0} üstüne sürükle!",
     "tip.tasks": "Görev yap, yıldız kazan!",
     "tip.xp": "Yıldız topla, seviye atla!",

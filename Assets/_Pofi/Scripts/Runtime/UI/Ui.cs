@@ -67,6 +67,30 @@ namespace Pofi.UI
             return s;
         }
 
+        private static readonly System.Collections.Generic.Dictionary<string, Sprite> Arts = new System.Collections.Generic.Dictionary<string, Sprite>();
+
+        /// <summary>Resources altındaki görsel (ör. "Games/card_body"); yoksa null.</summary>
+        public static Sprite Art(string path)
+        {
+            if (string.IsNullOrEmpty(path)) return null;
+            if (Arts.TryGetValue(path, out var s)) return s;
+            var tex = Resources.Load<Texture2D>(path);
+            s = tex == null ? null : Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f);
+            Arts[path] = s;
+            return s;
+        }
+
+        /// <summary>Resources görseliyle Image (raycast kapalı); yoksa null.</summary>
+        public static Image ArtImage(Transform parent, string path, Vector2 anchor, Vector2 size, Vector2 offset = default, bool keepAspect = true)
+        {
+            var sp = Art(path);
+            if (sp == null) return null;
+            var rt = Rect(parent, path, anchor, size, offset);
+            var img = rt.gameObject.AddComponent<Image>();
+            img.sprite = sp; img.preserveAspect = keepAspect; img.raycastTarget = false;
+            return img;
+        }
+
         /// <summary>Simge görüntüsü; simge yoksa null (çağıran yer tutucu çizer). tint: gri/siluet için.</summary>
         public static RectTransform IconImage(Transform parent, string id, Vector2 anchor, float size, Vector2 offset = default, Color? tint = null)
         {

@@ -102,7 +102,9 @@ namespace Pofi.Screens
             // Şerit yok: başlık sahne üstünde kenarlı yazı, coin sağ üstte rozet (14 Ekim 2026 arayüz kararı)
             var t = Candy.Caption(Root, title, 64, new Vector2(0f, 1f), new Vector2(900f, 110f), new Vector2(480f, -62f));
             t.alignment = TextAnchor.MiddleLeft;
-            return Candy.Badge(Root, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -20f), 84f, 250f);
+            var coins = Candy.Badge(Root, "ui_coin", App.State.Wallet.Available.ToString(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -20f), 84f, 250f);
+            coins.gameObject.AddComponent<CoinLive>().Init(App, coins);   // coin sayısı her zaman görünür ve güncel (festival vb. ekranlarda boş kalıyordu)
+            return coins;
         }
 
         protected Text CoinPill(Transform parent, Vector2 anchor)
@@ -238,6 +240,21 @@ namespace Pofi.Screens
     }
 
     /// <summary>Pet konuşma baloncuğu: turuncu şeker panel, alt kuyruk, oyun yazı tarzı; genişlik yazıya göre.</summary>
+    /// <summary>Coin rozeti metnini güncel tutar (alışveriş, onay, senkron sonrası).</summary>
+    public sealed class CoinLive : MonoBehaviour
+    {
+        private GameBootstrap _app;
+        private Text _text;
+        private int _shown = -1;
+        public void Init(GameBootstrap app, Text text) { _app = app; _text = text; }
+        private void Update()
+        {
+            if (_app == null || _app.State == null) return;
+            var n = _app.State.Wallet.Available;
+            if (n != _shown) { _shown = n; _text.text = n.ToString(); }
+        }
+    }
+
     public sealed class SpeechBubble : MonoBehaviour
     {
         private CandyBanner _banner;

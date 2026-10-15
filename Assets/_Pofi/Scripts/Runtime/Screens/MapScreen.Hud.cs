@@ -32,6 +32,7 @@ namespace Pofi.Screens
         private float _islandTime;
         private RectTransform _levelBadge, _tasksBtn, _mapBtn;
         private Text _questCount;
+        private RectTransform _feedBtn;
         private float _questT;
         private Image _xpFill;
 
@@ -62,6 +63,7 @@ namespace Pofi.Screens
             // sol kenar: Besle, Yıka
             _leftBar = Ui.Rect(hud, "Care", new Vector2(0f, 0.5f), new Vector2(190f, 430f), new Vector2(130f, -70f));
             var feed = Candy.Round(_leftBar, Candy.Orange, "food_apple", 160f, new Vector2(0.5f, 0.78f), Vector2.zero, OnFeed, T("hud.feed"));
+            _feedBtn = (RectTransform)feed.transform;
             _feedCount = Candy.Count(feed.transform);
             var wash = Candy.Round(_leftBar, Candy.Blue, "clean_soap", 160f, new Vector2(0.5f, 0.2f), Vector2.zero, OnWash, T("hud.wash"));
             _washCount = Candy.Count(wash.transform);
@@ -149,17 +151,25 @@ namespace Pofi.Screens
 
         private string PetGen => Logic.Core.TurkishSuffix.Genitive(App.State.PetName);
 
-        private void Tip(string id, TipGesture g, System.Func<Vector2> from, System.Func<Vector2> to = null, string arg = null)
+        // Tanıtım sırası (kullanıcı isteği, 15 Ekim 2026): hepsi arka arkaya değil, biri tamamlanınca kısa ara, sonra sıradaki;
+        // panelde "adım/toplam" görünür. Bağlamsal olanlar (kapı, oyun yeri, parıltı) uygun anda araya girer.
+        private static readonly string[] TipSeq =
+            { Onboarding.Walk, Onboarding.Look, Onboarding.Jump, Onboarding.Wardrobe, Onboarding.Feed, Onboarding.Tasks, Onboarding.Overview };
+        private float _tipGap = 1.5f;
+
+        private void Tip(string id, TipGesture g, System.Func<Vector2> from, System.Func<Vector2> to = null, string arg = null, Sprite prop = null, string key = null)
         {
             if (_coach != null || !Onboarding.Pending(App.State, id)) return;
-            _coach = Coach.Show(Root, id, T(Onboarding.Get(id).CaptionKey, arg ?? App.State.PetName), g, from, to);
+            var i = System.Array.IndexOf(TipSeq, id);
+            var step = i >= 0 ? (i + 1) + "/" + TipSeq.Length : null;
+            _coach = Coach.Show(Root, id, T(key ?? Onboarding.Get(id).CaptionKey, arg ?? App.State.PetName), g, from, to, 3, step, prop);
         }
 
         /// <summary>İpucu tamamlandı (id null: yalnız ekrandakini kapat).</summary>
         private void TipDone(string id)
         {
             if (id != null && Onboarding.Pending(App.State, id)) { Onboarding.Done(App.State, id); App.Save(); }
-            if (_coach != null && (id == null || _coach.Id == id)) { _coach.Done(); _coach = null; }
+            if (_coach != null && (id == null || _coach.Id == id)) { _coach.Done(); _coach = null; _tipGap = 0f; }
         }
 
         private static Vector2 UiScreen(RectTransform rt) => RectTransformUtility.WorldToScreenPoint(null, rt.position);
@@ -169,36 +179,50 @@ namespace Pofi.Screens
         {
             if (_xpTipT > 0f) { _xpTipT -= Time.deltaTime; if (_xpTipT <= 0f) TipDone(Onboarding.Xp); }
             if (_coach != null || _tray != null) return;
+            _tipGap += Time.deltaTime;
+            if (_tipGap < 2.5f) return;                                     // ipuçları arasında kısa nefes
             var st = App.State;
-            if (Onboarding.Pending(st, Onboarding.Walk))
+            var basicsDone = !Onboarding.Pending(st, Onboarding.Walk) && !Onboarding.Pending(st, Onboarding.Look);
+            if (basicsDone)
             {
-                // sol yarı: joystick
-                Tip(Onboarding.Walk, TipGesture.Slide, () => new Vector2(Screen.width * 0.25f, Screen.height * 0.3f), () => new Vector2(Screen.width * 0.25f, Screen.height * 0.55f));
-                return;
-            }
-            if (Onboarding.Pending(st, Onboarding.Look) && _islandTime > 4f)
-            {
-                // sağ yarı: kamerayı döndür
-                Tip(Onboarding.Look, TipGesture.Slide, () => new Vector2(Screen.width * 0.78f, Screen.height * 0.45f), () => new Vector2(Screen.width * 0.58f, Screen.height * 0.45f));
-                return;
-            }
-            if (_actionKey == "hud.enter") { Tip(Onboarding.Enter, TipGesture.Tap, () => UiScreen(_action)); return; }
-            if (_actionKey == "hud.play") { Tip(Onboarding.Play, TipGesture.Tap, () => UiScreen(_action)); return; }
-            foreach (var kv in _sparkleObjs)
-            {
-                if (kv.Value == null || !Onboarding.Pending(st, Onboarding.Sparkle)) break;
-                if (Vector3.Distance(kv.Value.position, _world.Walker.transform.position) < 14f)
+                if (_actionKey == "hud.enter") { Tip(Onboarding.Enter, TipGesture.Tap, () => UiScreen(_action)); if (_coach != null) return; }
+                if (_actionKey == "hud.play") { Tip(Onboarding.Play, TipGesture.Tap, () => UiScreen(_action)); if (_coach != null) return; }
+                foreach (var kv in _sparkleObjs)
                 {
-                    var tr = kv.Value;
-                    Tip(Onboarding.Sparkle, TipGesture.Tap, () => tr != null ? (Vector2)App.Stage.Camera.WorldToScreenPoint(tr.position) : PetScreen());
-                    return;
+                    if (kv.Value == null || !Onboarding.Pending(st, Onboarding.Sparkle)) break;
+                    if (Vector3.Distance(kv.Value.position, _world.Walker.transform.position) < 14f)
+                    {
+                        var tr = kv.Value;
+                        Tip(Onboarding.Sparkle, TipGesture.Tap, () => tr != null ? (Vector2)App.Stage.Camera.WorldToScreenPoint(tr.position) : PetScreen());
+                        return;
+                    }
                 }
             }
-            if (_actionKey == "hud.jump" && _islandTime > 6f) { Tip(Onboarding.Jump, TipGesture.Tap, () => UiScreen(_action)); if (_coach != null) return; }
-            if (_islandTime > 20f) { Tip(Onboarding.Tasks, TipGesture.Tap, () => UiScreen(_tasksBtn)); if (_coach != null) return; }
-            if (st.Inventory.Owned.Any(id => App.Data.Item(id)?.IsWearable == true))
-            { Tip(Onboarding.Wardrobe, TipGesture.Tap, PetScreen, null, PetGen); if (_coach != null) return; }
-            if (!Onboarding.Pending(st, Onboarding.Tasks) && _islandTime > 45f) Tip(Onboarding.Overview, TipGesture.Tap, () => UiScreen(_mapBtn));
+            var next = TipSeq.FirstOrDefault(id => Onboarding.Pending(st, id));
+            switch (next)
+            {
+                case Onboarding.Walk:      // sol yarı: joystick
+                    Tip(next, TipGesture.Slide, () => new Vector2(Screen.width * 0.25f, Screen.height * 0.3f), () => new Vector2(Screen.width * 0.25f, Screen.height * 0.55f));
+                    break;
+                case Onboarding.Look:      // sağ yarı: kamerayı döndür
+                    Tip(next, TipGesture.Slide, () => new Vector2(Screen.width * 0.78f, Screen.height * 0.45f), () => new Vector2(Screen.width * 0.58f, Screen.height * 0.45f));
+                    break;
+                case Onboarding.Jump:
+                    if (_actionKey == "hud.jump") Tip(next, TipGesture.Tap, () => UiScreen(_action));
+                    break;
+                case Onboarding.Wardrobe:  // pete dokun → giydirme; dokundukça başının üstünde şapka belirir
+                    Tip(next, TipGesture.Tap, PetScreen, null, PetGen, Ui.Icon("hat_straw"));
+                    break;
+                case Onboarding.Feed:      // önce Besle'ye dokun; tepsi açılınca sürükleme ipucu gelir
+                    Tip(next, TipGesture.Tap, () => UiScreen(_feedBtn), null, PetGen, null, "tip.feed_open");
+                    break;
+                case Onboarding.Tasks:
+                    Tip(next, TipGesture.Tap, () => UiScreen(_tasksBtn));
+                    break;
+                case Onboarding.Overview:
+                    Tip(next, TipGesture.Tap, () => UiScreen(_mapBtn));
+                    break;
+            }
         }
 
         // ------------------------------------------------------------------ bağlamsal eylem
@@ -284,8 +308,10 @@ namespace Pofi.Screens
         private void ShowDragTip(string tip, RectTransform from, bool force)
         {
             if (from == null || (!force && !Onboarding.Pending(App.State, tip))) return;
-            if (force && _coach != null) TipDone(null);
-            _coach = Coach.Show(Root, tip, T(Onboarding.Get(tip).CaptionKey, PetGen), TipGesture.Drag, () => UiScreen(from), PetScreen);
+            if (_coach != null) { _coach.Done(); _coach = null; }           // "Besle'ye dokun" adımı → sürükleme adımı
+            var i = System.Array.IndexOf(TipSeq, tip);
+            _coach = Coach.Show(Root, tip, T(Onboarding.Get(tip).CaptionKey, PetGen), TipGesture.Drag, () => UiScreen(from), PetScreen, 3,
+                i >= 0 ? (i + 1) + "/" + TipSeq.Length : null);
         }
 
         /// <summary>Bırakılan nokta petin üstünde mi (ekranda petin çevresi ya da çarpışma kutusu)?</summary>
@@ -307,6 +333,8 @@ namespace Pofi.Screens
             {
                 TipDone(a == CareAction.Feed ? Onboarding.Feed : Onboarding.Wash);
                 _world.Walker?.Jump();
+                if (a == CareAction.Feed) CareFx.Food(Root, Ui.Icon(item.Id), PetScreen);   // 3 ısırıkta biter
+                else CareFx.Bubbles(Root, PetScreen);                                      // sabun baloncukları
                 App.Save();
                 App.RecordActivity(a == CareAction.Feed ? "pet_fed" : "pet_washed");
             }
