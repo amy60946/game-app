@@ -129,6 +129,11 @@ namespace Pofi.World
                 mat.SetFloat("_Smoothness", smoothness);
                 mat.SetFloat("_Metallic", 0f);
                 Materials[texBase] = mat;
+                // görsel stil çalışması: petler/eşyalar "vinyl" (daha parlak), çevre mat; dış çizgi petlerde biraz kalın
+                var pet = texBase.StartsWith("Pets/");
+                var info = new LookInfo { LitSmooth = smoothness, ToonSmooth = pet ? 0.6f : texBase.StartsWith("Items/") ? 0.45f : 0.12f, Outline = pet ? 1.6f : 1.3f };
+                LookInfos[mat] = info;
+                SetLook(mat, info, Look.Stylized);
             }
             foreach (var r in go.GetComponentsInChildren<Renderer>(true))
             {
@@ -137,6 +142,25 @@ namespace Pofi.World
                 r.sharedMaterials = mats;
                 if (r is SkinnedMeshRenderer smr) smr.updateWhenOffscreen = true;
             }
+        }
+
+        private struct LookInfo { public float LitSmooth, ToonSmooth, Outline; }
+        private static readonly Dictionary<Material, LookInfo> LookInfos = new Dictionary<Material, LookInfo>();
+
+        /// <summary>Önbellekteki tüm Meshy malzemelerini yeni stile (Pofi/Toon) ya da eski görünüme (URP Lit) geçirir.</summary>
+        internal static void ApplyLook(bool stylized)
+        {
+            foreach (var kv in LookInfos) SetLook(kv.Key, kv.Value, stylized);
+        }
+
+        private static void SetLook(Material m, LookInfo info, bool stylized)
+        {
+            var sh = stylized ? Look.ToonShader : _base != null ? _base.shader : null;
+            if (m == null || sh == null) return;
+            if (m.shader != sh) m.shader = sh;
+            m.SetFloat("_Smoothness", stylized ? info.ToonSmooth : info.LitSmooth);
+            if (stylized) m.SetFloat("_OutlineWidth", info.Outline);
+            if (m.GetTexture("_BumpMap") != null) m.EnableKeyword("_NORMALMAP");
         }
 
         /// <summary>Modeli hedef yüksekliğe ölçekler, yatayda ortalar, tabanı y = 0'a koyar.</summary>

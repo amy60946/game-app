@@ -96,6 +96,7 @@ namespace Pofi.Core
             Overlay = Ui.CreateCanvas("Overlay", 10);
             Audio.Music.Init(Audio.Music.DefaultVolume);           // arka plan müziği (ilk dokunuşta duyulur)
             MusicButton.Create(Overlay.transform, this);
+            LookToggle.Create(Overlay.transform);                    // görsel stil çalışması: yeni ⇄ eski karşılaştırma
 
             var restored = await Auth.RestoreAsync();
             if (restored != null) OnSignedIn(restored, route: false);

@@ -49,6 +49,7 @@ namespace Pofi.World
             Camera.clearFlags = CameraClearFlags.SolidColor;
             Camera.backgroundColor = sky;
             Camera.fieldOfView = 34f;
+            Look.Init(Camera);   // görsel stil (yeni/eski) + renk ayarı; malzemeler kurulmadan önce
             // Gökyüzü: kodla çizilen geçiş + güneş + bulut tülü (Pofi/Sky); yoksa düz renk
             var skySh = Shader.Find("Pofi/Sky");
             if (skySh != null)

@@ -81,8 +81,24 @@ namespace Pofi.EditorTools
             }
             urp.supportsHDR = false;          // mobil: daha ucuz
             urp.msaaSampleCount = 4;           // yuvarlak "oyuncak" kenarları yumuşak
-            urp.shadowDistance = 12f;
+            // gölgeler (görsel stil 15 Ekim 2026): yumuşak kenarlı ve net; harita kamerasında uzaktaki yapılar da gölge düşürsün
+            urp.shadowDistance = 28f;
+            urp.shadowCascadeCount = 2;
+            urp.cascade2Split = 0.3f;
+            urp.mainLightShadowmapResolution = 2048;
+            urp.softShadowQuality = SoftShadowQuality.Medium;
+            var so = new SerializedObject(urp);
+            var soft = so.FindProperty("m_SoftShadowsSupported");     // ayarlayıcı internal; varsayılanı kapalı (gölgeler sertti)
+            if (soft != null) { soft.boolValue = true; so.ApplyModifiedPropertiesWithoutUndo(); }
+            else Debug.LogWarning("ProjectSetup: m_SoftShadowsSupported bulunamadı");
             EditorUtility.SetDirty(urp);
+            // renk ayarı (Volume) için son işlem kaynakları: CreateInstance ile kurulan çizicide boş kalabiliyor
+            if (renderer.postProcessData == null)
+            {
+                renderer.postProcessData = AssetDatabase.LoadAssetAtPath<PostProcessData>("Packages/com.unity.render-pipelines.universal/Runtime/Data/PostProcessData.asset");
+                if (renderer.postProcessData == null) Debug.LogWarning("ProjectSetup: PostProcessData bulunamadı");
+                EditorUtility.SetDirty(renderer);
+            }
 
             GraphicsSettings.defaultRenderPipeline = urp;
             var current = QualitySettings.GetQualityLevel();

@@ -13,14 +13,16 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 5;
+        public override uint GetVersion() => 6;
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
+        // idle: Meshy klibi 18–80. kareler arasında gövdeyi ±45° sağa sola çeviriyor (dolap/evde pet arkasını dönüyordu, 15 Ekim 2026);
+        // yalnız baştaki sakin kısım döngülenir, nefes alma Stage/PetLife tarafından verilir.
         /// <summary>Klip başına gerçek hareket aralığı (kare, 24 fps; art/meshy/anim_ranges.json ölçümü, 12 petin hepsinde aynı).</summary>
         private static readonly System.Collections.Generic.Dictionary<string, Vector2> ClipFrames = new System.Collections.Generic.Dictionary<string, Vector2>
         {
-            { "walk", new Vector2(2f, 27f) }, { "run", new Vector2(2f, 17f) }, { "idle", new Vector2(2f, 98f) },
+            { "walk", new Vector2(2f, 27f) }, { "run", new Vector2(2f, 17f) }, { "idle", new Vector2(2f, 14f) },
             { "sleep", new Vector2(2f, 139f) }, { "wave", new Vector2(2f, 130f) },
         };
 
