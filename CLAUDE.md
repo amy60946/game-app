@@ -37,4 +37,4 @@
   - Kodla üretilen 3B arayüz görselleri: `art/scripts/ui_games.py` → `Resources/Games/`, `art/scripts/keyart.py` → festival arka planı (`Resources/Art/`) ve yükleme ekranı (`tools/preview/keyart.jpg`).
     ⚠️ HATIRLAT: yükleme ekranı görseli geçici; kullanıcı kontrol edecek.
   - Arka plan müziği kodla bestelendi (`art/scripts/music_island.py`, telifsiz); aç/kapa her ekranda sağ üst ♪.
-  - M4: kullanıcı onayladı. Oyun tarafı hazır (`docs/M4_UYGULAMA.md`); Fidan eklemeleri `/home/user/parent-app` dalında yerel commit (gönderim izni bekliyor). SQL'i kullanıcı uygular.
+  - M4 UYGULANDI (15 Ekim 2026): SQL Supabase'de (iş akışı "Supabase M4 uygula"), Fidan eklemeleri parent-app dalına gönderildi ve Expo Go önizlemesine yayınlandı. Oyun gerçek sunucuya `SUPABASE_PUBLISHABLE_KEY` secret'ı ile bağlanır; deneme kodları sahte arka uçta kalır.
