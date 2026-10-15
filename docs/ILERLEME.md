@@ -57,6 +57,12 @@ Tüm ekranlar koddan kurulur (sahne dosyası yok). Petler ve eşyalar şimdilik 
 - **Cila, performans/bellek ölçümü, mağaza hazırlığı:** M10 sonu.
 - **Sunucu tarafı (Supabase):** öneri hazır ve yerelde testli (`docs/M4_SUNUCU_ONERISI.md`, `supabase/proposed/`, `supabase/test/run.sh` → 38 kontrol). Ortak veritabanına uygulanması kullanıcı onayı bekliyor.
 
+## Geri bildirim 4 (15 Ekim 2026)
+Joystick takılması, yürüme klip kırpma (Meshy klipleri 10 sn, hareket 1 sn), durunca geniş görüş, besleme ısırık / yıkama baloncuk
+efektleri, sıralı tanıtım (adım göstergesi), dolap büyütme + Çıkar, festival 3B meydan + fenerler, kart/domino/kule 3B görseller,
+oyun seçimi görselleri, yükleme ekranı görseli, 3B HUD (pet kartı, coin), pet seçimi/isim tasarımı, kodla bestelenmiş müzik + ♪ düğmesi.
+M4: SQL denemesi Supabase'de başarılı (15 Ekim); gerçek uygulama kullanıcıda.
+
 ## Bekleyen işler (14 Ekim 2026 listesi)
 - **M4 sunucu (Supabase):** öneri hazır, uygulanması kullanıcı onayı bekliyor. Bu olmadan ebeveyn uygulamasındaki gerçek görevler oyuna gelmez (şimdilik sahte ebeveyn).
 - **M9 seslendirme:** tanıtım ipuçları ve pet konuşmaları için ses kaydı/ses kararı (`vo_tip_*`).
