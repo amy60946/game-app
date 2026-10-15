@@ -15,7 +15,7 @@ namespace Pofi.World
         private const string PrefKey = "pofi.look.stylized";
 
         /// <summary>Karşılaştırma düğmesi görünsün mü (yalnız stil çalışması süresince).</summary>
-        public const bool StudyToggle = true;
+        public static readonly bool StudyToggle = true;
 
         public static bool Stylized { get; private set; } = true;
         public static event Action Changed;

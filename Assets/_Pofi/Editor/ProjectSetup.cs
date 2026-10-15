@@ -86,11 +86,13 @@ namespace Pofi.EditorTools
             urp.shadowCascadeCount = 2;
             urp.cascade2Split = 0.3f;
             urp.mainLightShadowmapResolution = 2048;
-            urp.softShadowQuality = SoftShadowQuality.Medium;
             var so = new SerializedObject(urp);
             var soft = so.FindProperty("m_SoftShadowsSupported");     // ayarlayıcı internal; varsayılanı kapalı (gölgeler sertti)
-            if (soft != null) { soft.boolValue = true; so.ApplyModifiedPropertiesWithoutUndo(); }
+            if (soft != null) soft.boolValue = true;
             else Debug.LogWarning("ProjectSetup: m_SoftShadowsSupported bulunamadı");
+            var softQ = so.FindProperty("m_SoftShadowQuality");          // orta kalite (ayarlayıcı herkese açık değil)
+            if (softQ != null) softQ.intValue = (int)SoftShadowQuality.Medium;
+            so.ApplyModifiedPropertiesWithoutUndo();
             EditorUtility.SetDirty(urp);
             // renk ayarı (Volume) için son işlem kaynakları: CreateInstance ile kurulan çizicide boş kalabiliyor
             if (renderer.postProcessData == null)
