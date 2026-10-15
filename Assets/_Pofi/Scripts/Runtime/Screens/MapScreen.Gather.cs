@@ -30,7 +30,7 @@ namespace Pofi.Screens
         private float _respawnT;
         private int _gTarget = int.MinValue;                // en yakın erişilebilir: düğüm indeksi, -1 kulübe yeri, MinValue yok
 
-        private const float Reach = 2.1f, SiteReach = 3.4f, BubbleRange = 11f;
+        private const float Reach = 2.1f, SiteReach = 4.4f, BubbleRange = 11f;
 
         private static string ToolIcon(string tool) => tool == "axe" ? "tool_axe" : tool == "pickaxe" ? "tool_pickaxe" : "tool_hand";
         private static string MatIcon(string m) => m == Gathering.Wood ? "mat_wood" : m == Gathering.Branch ? "mat_branch" : "mat_stone";
@@ -218,7 +218,7 @@ namespace Pofi.Screens
             if (_gTarget == -1) { BuildHut(); return; }
             var p = _world.Walker.Position;
             var c = new Vector2(_sitePos.x, _sitePos.z);
-            var stand = c + (p - c).normalized * 2.4f;
+            var stand = c + (p - c).normalized * 3.8f;   // kulübenin dışında (4.2 m genişlik + veranda)
             GoTo(stand.x, stand.y, BuildHut);
         }
 
@@ -266,7 +266,19 @@ namespace Pofi.Screens
                 Audio.Sfx.Play(Audio.SfxKind.Fail);
                 return;
             }
-            if (_world.Walker != null) { _world.Walker.Face(_sitePos.x, _sitePos.z); _world.Walker.Jump(); }
+            if (_world.Walker != null)
+            {
+                // pet kulübenin içinde kalmasın: meydana bakan tarafa, kulübenin dışına al
+                var c = new Vector2(_sitePos.x, _sitePos.z);
+                var p = _world.Walker.Position;
+                if (Vector2.Distance(p, c) < 3.4f)
+                {
+                    var dir = new Vector2(_terrain.PlazaX, _terrain.PlazaZ) - c;
+                    var q = c + (dir.sqrMagnitude > 0.01f ? dir.normalized : Vector2.up) * 3.8f;
+                    _world.Walker.Teleport(q.x, q.y, 0f);
+                }
+                _world.Walker.Face(_sitePos.x, _sitePos.z); _world.Walker.Jump();
+            }
             _site.BuildHut();
             Audio.Sfx.Play(Audio.SfxKind.Success);
             Audio.Haptics.Medium();

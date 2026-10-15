@@ -269,7 +269,8 @@ namespace Pofi.Screens
                 const int mouse = -1;
                 if (Input.GetMouseButtonDown(0)) FingerDown(mouse, Input.mousePosition, OverUi(mouse));
                 else if (Input.GetMouseButton(0)) FingerMove(mouse, Input.mousePosition);
-                else if (Input.GetMouseButtonUp(0)) FingerUp(mouse, Input.mousePosition, false);
+                // çok hızlı tıklamada basma ve bırakma aynı karede gelebiliyor: bırakmayı da işle (yoksa dokunma kayboluyordu)
+                if (Input.GetMouseButtonUp(0)) FingerUp(mouse, Input.mousePosition, false);
                 if (Input.GetMouseButton(0)) _alive.Add(mouse);
             }
             // iPhone Safari parmak kalkınca "bitti" olayını bazen kaybediyor: ekranda olmayan parmakları bırak
