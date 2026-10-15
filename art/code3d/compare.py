@@ -29,8 +29,17 @@ PAIR = {   # ad: (mevcut, yeni, hedef boy/genişlik, kamera uzaklığı, kamera 
     'pier': ('b_pier', 'c_pier', ('w', 3.4), 5.4, 30),
     'lighthouse': ('b_lighthouse', 'c_lighthouse', ('h', 4.8), 8.0, 14),
     'board': ('b_task_board', 'c_board', ('h', 2.3), 4.0, 14),
+    # parti 2
+    'garden': ('b_garden', 'c_garden', ('w', 3.4), 5.2, 32),
+    'surf': ('b_surf', 'c_surf', ('w', 3.4), 5.4, 22),
+    'swim': ('b_swim', 'c_swim', ('w', 3.6), 5.6, 34),
+    'game_hut': ('b_game_hut', 'c_game_hut', ('w', 3.4), 5.8, 20),
+    'festival': ('b_festival', 'c_festival', ('w', 3.8), 6.4, 20),
+    'cave': ('b_cave', 'c_cave', ('w', 3.8), 6.0, 20),
+    'mountain': ('b_mountain', 'c_mountain', ('w', 3.8), 7.2, 20),
+    'ski': ('b_ski_hill', 'c_ski', ('w', 3.8), 6.4, 24),
 }
-GROUND = {'rock': '#f1d89c', 'boat': '#f1d89c', 'crates': '#f1d89c', 'pier': '#4fb6d8'}
+GROUND = {'rock': '#f1d89c', 'boat': '#f1d89c', 'crates': '#f1d89c', 'pier': '#4fb6d8', 'surf': '#f1d89c', 'ski': '#e8f0fb'}
 
 def toon_mat(name, tex_path=None, color=None):
     """Oyundaki Pofi/Toon'a yakın: L = güneş (gölge dahil); t = yumuşak eşik; renk = doku × karışım(gölge, ışık)."""

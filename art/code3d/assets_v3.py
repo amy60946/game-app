@@ -83,15 +83,16 @@ def m_leaf(base='#3f9a3a', mid='#6cc24a', tip='#b5e26a', vein='#d8f08a', name='l
         l.new(mx3.outputs[2], bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 
-def m_rock():
+def m_rock(moss_th=(1.05, 1.3), grass=None, warm=None, name='rock'):
     """Kaya: sıcak/serin gri dalgalanma, koyu benekler ve ince çatlaklar; üstte gürültüyle bozulmuş yumuşak yosun geçişi
-    (yosunun kendisi iki yeşil + sarımsı uç tonlarıyla dokulu)."""
+    (yosunun kendisi iki yeşil + sarımsı uç tonlarıyla dokulu). moss: yosun eşiği (düşük = daha çok yeşil; tepe için çimen),
+    grass: yosun yerine çimen renkleri, warm: taşın ana tonları (3 renk)."""
     def b(nt, bsdf):
         n = nt.nodes; l = nt.links
         tc = n.new('ShaderNodeTexCoord')
         nz = n.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 2.2; nz.inputs['Detail'].default_value = 6
         l.new(tc.outputs['Object'], nz.inputs['Vector'])
-        rp = ramp(nt, [(0.3, '#77737f'), (0.5, '#8e8994'), (0.72, '#aaa297')]); l.new(nz.outputs['Fac'], rp.inputs['Fac'])
+        rp = ramp(nt, list(zip((0.3, 0.5, 0.72), warm or ('#77737f', '#8e8994', '#aaa297')))); l.new(nz.outputs['Fac'], rp.inputs['Fac'])
         # benek
         vo = n.new('ShaderNodeTexVoronoi'); vo.inputs['Scale'].default_value = 14; l.new(tc.outputs['Object'], vo.inputs['Vector'])
         sp = n.new('ShaderNodeMapRange'); sp.inputs['From Min'].default_value = 0.0; sp.inputs['From Max'].default_value = 0.12
@@ -121,14 +122,14 @@ def m_rock():
         addm = n.new('ShaderNodeMath'); addm.operation = 'MULTIPLY_ADD'; addm.inputs[1].default_value = 0.7
         l.new(nz3.outputs['Fac'], addm.inputs[0]); l.new(sxyz.outputs['Z'], addm.inputs[2])
         mk = n.new('ShaderNodeMapRange'); mk.interpolation_type = 'SMOOTHSTEP'
-        mk.inputs['From Min'].default_value = 1.05; mk.inputs['From Max'].default_value = 1.3; l.new(addm.outputs[0], mk.inputs['Value'])
+        mk.inputs['From Min'].default_value = moss_th[0]; mk.inputs['From Max'].default_value = moss_th[1]; l.new(addm.outputs[0], mk.inputs['Value'])
         nz4 = n.new('ShaderNodeTexNoise'); nz4.inputs['Scale'].default_value = 28; nz4.inputs['Detail'].default_value = 3
         l.new(tc.outputs['Object'], nz4.inputs['Vector'])
-        moss = ramp(nt, [(0.3, '#4f7f2e'), (0.55, '#6f9c3a'), (0.8, '#a8c45a')]); l.new(nz4.outputs['Fac'], moss.inputs['Fac'])
+        moss = ramp(nt, list(zip((0.3, 0.55, 0.8), grass or ('#4f7f2e', '#6f9c3a', '#a8c45a')))); l.new(nz4.outputs['Fac'], moss.inputs['Fac'])
         mm = n.new('ShaderNodeMix'); mm.data_type = 'RGBA'
         l.new(mk.outputs[0], mm.inputs['Factor']); l.new(cm.outputs[2], mm.inputs[6]); l.new(moss.outputs[0], mm.inputs[7])
         l.new(mm.outputs[2], bsdf.inputs['Base Color'])
-    return nodes_mat('rock', b)
+    return nodes_mat(name, b)
 
 def m_flat(hexc, var=0.12, scale=8, name=None):
     """Düz renk + hafif gürültü dalgalanması (ot, çakıl, hindistan cevizi…)."""
