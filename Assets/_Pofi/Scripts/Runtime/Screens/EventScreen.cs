@@ -25,29 +25,54 @@ namespace Pofi.Screens
 
         private void Festival()
         {
-            Header(T("event.festival.title"));
-            var bg = Ui.Area(Root, "Night", Vector2.zero, Vector2.one);
-            bg.gameObject.AddComponent<Image>().color = Theme.Hex("#22306B");
+            // 3B festival meydanı (art/scripts/keyart.py, kredisiz) tam ekran; yoksa gece mavisi
+            var bg = Ui.Area(Root, "Festival", Vector2.zero, Vector2.one);
+            var bgi = bg.gameObject.AddComponent<Image>(); bgi.raycastTarget = false;
+            var art = Ui.Art("Art/festival_bg");
+            if (art != null)
+            {
+                bgi.sprite = art;
+                var fit = bg.gameObject.AddComponent<AspectRatioFitter>();
+                fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; fit.aspectRatio = art.rect.width / art.rect.height;
+            }
+            else bgi.color = Theme.Hex("#22306B");
             bg.SetAsFirstSibling();
+            Header(T("event.festival.title"));
             var claimed = !IslandEvents.CanClaimFestival(App.State.Events, Day);
             _bubble.Say(claimed ? T("event.festival.done") : T("event.festival.howto"), 5f);
             var lit = 0;
+            var colors = new[] { "#FF5A7A", "#FFC83D", "#3DC9FF", "#7BD66B", "#A77BFF", "#FF9F43" };
+            var off = Ui.Art("Games/lantern_off"); var on = Ui.Art("Games/lantern_on");
             for (var i = 0; i < IslandEvents.FestivalLanterns; i++)
             {
-                var col = i % 3;
-                var row = i / 3;
-                var rt = Ui.Rect(Root, "Lantern" + i, new Vector2(0.22f + col * 0.28f, 0.55f - row * 0.2f), new Vector2(180f, 220f));
-                var img = Ui.Panel(rt, claimed ? Theme.Hex("#FFC83D") : new Color(1f, 1f, 1f, 0.25f), 90f);
+                // ipten sarkan kâğıt fenerler: üstte hafif kavis, dokununca yanar
+                var t = IslandEvents.FestivalLanterns > 1 ? i / (float)(IslandEvents.FestivalLanterns - 1) : 0.5f;
+                var x = Mathf.Lerp(0.16f, 0.84f, t);
+                var y = 0.6f - Mathf.Sin(t * Mathf.PI) * 0.06f;
+                var col = Theme.Hex(colors[i % colors.Length]);
+                var rt = Ui.Rect(Root, "Lantern" + i, new Vector2(x, y), new Vector2(200f, 250f));
+                var cord = Ui.Rect(rt, "Cord", new Vector2(0.5f, 1f), new Vector2(5f, 420f), new Vector2(0f, 200f));
+                cord.gameObject.AddComponent<Image>().color = new Color(0.25f, 0.2f, 0.18f, 0.9f);
+                var glow = Ui.Rect(rt, "Glow", new Vector2(0.5f, 0.5f), new Vector2(360f, 360f));
+                var gi = glow.gameObject.AddComponent<Image>(); gi.sprite = CareFx.Dot; gi.raycastTarget = false;
+                gi.color = new Color(col.r, col.g, col.b, 0.35f);
+                glow.gameObject.SetActive(claimed);
+                var img = Ui.Fill(rt, "Lamp").gameObject.AddComponent<Image>();
+                img.sprite = claimed ? on : off; img.preserveAspect = true;
+                if (img.sprite == null) { img.sprite = Ui.Rounded; img.type = Image.Type.Sliced; }
+                img.color = claimed ? col : Color.Lerp(col, Color.gray, 0.6f);
+                rt.gameObject.AddComponent<Sway>().Phase = i * 0.9f;
                 var b = rt.gameObject.AddComponent<Button>();
                 b.targetGraphic = img;
+                rt.gameObject.AddComponent<PressBounce>();
                 if (claimed) { rt.gameObject.AddComponent<Pulse>(); continue; }
-                var colors = new[] { "#FF5A7A", "#FFC83D", "#3DC9FF", "#7BD66B", "#A77BFF", "#FF9F43" };
-                var c = colors[i];
                 b.onClick.AddListener(() =>
                 {
                     if (!b.interactable) return;
                     b.interactable = false;
-                    img.color = Theme.Hex(c);
+                    if (on != null) img.sprite = on;
+                    img.color = col;
+                    glow.gameObject.SetActive(true);
                     rt.gameObject.AddComponent<Pulse>();
                     Audio.Sfx.Play(Audio.SfxKind.Pop);
                     lit++;
@@ -108,5 +133,12 @@ namespace Pofi.Screens
                 }
             }, true, default, 56, false);
         }
+    }
+
+    /// <summary>Rüzgârda hafif sallanma (fenerler).</summary>
+    public sealed class Sway : MonoBehaviour
+    {
+        public float Phase;
+        private void Update() => transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(Time.time * 1.6f + Phase) * 4f);
     }
 }

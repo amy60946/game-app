@@ -19,5 +19,6 @@ n=0; for f in "$OUT"/Build/PofiAdasi.data.part[0-9]; do mv "$f" "$f.wasm"; n=$((
 echo "{\"parts\": $n}" > "$OUT/Build/parts.json"
 cp "$B/PofiAdasi.wasm.unityweb" "$OUT/Build/PofiAdasi.code.wasm"
 cp "$ROOT/tools/preview/index.html" "$OUT/index.html"
+cp "$ROOT/tools/preview/keyart.jpg" "$OUT/keyart.jpg"   # yükleme ekranı tam ekran görseli (art/scripts/keyart.py)
 cat "$TMP/preview.json"; echo
 ls -la "$OUT/Build"

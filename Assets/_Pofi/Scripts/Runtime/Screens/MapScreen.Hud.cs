@@ -319,7 +319,7 @@ namespace Pofi.Screens
         {
             if (_world.Walker == null) return false;
             var cam = App.Stage.Camera;
-            if (Physics.Raycast(cam.ScreenPointToRay(screen), out var hit, 200f) && hit.collider.gameObject.name == "pet") return true;
+            foreach (var h in Physics.RaycastAll(cam.ScreenPointToRay(screen), 200f)) if (h.collider.gameObject.name == "pet") return true;
             return Vector2.Distance(screen, PetScreen()) < Screen.height * 0.16f;
         }
 

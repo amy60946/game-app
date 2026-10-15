@@ -33,7 +33,7 @@ namespace Pofi.Screens
         {
             _pet = App.Data.Pet(App.State.PetId);
             App.Stage.AllowDrag = false;
-            PetCamera(0.4f, 0.06f, 0.82f, World.PetModels.RealHeight * World.PetModels.StageScale(Logic.Progression.GrowthStage.Yetiskin));
+            PetCamera(0.4f, 0.1f, 0.86f, World.PetModels.RealHeight * World.PetModels.StageScale(App.Growth));   // pet ekranın ortasında ve büyük (büyüme evresine göre)
             App.Stage.ShowPet(_pet, App.Growth, App.State.Inventory.Equipped.Values);
 
             Candy.Caption(Root, T("wardrobe.title"), 64, new Vector2(0f, 1f), new Vector2(500f, 90f), new Vector2(290f, -66f));
@@ -43,7 +43,7 @@ namespace Pofi.Screens
             for (var i = 0; i < Slot.All.Length; i++)
             {
                 var slot = Slot.All[i];
-                var b = Candy.Round(Root, Candy.White, SlotIcons[i], 120f, Vector2.zero, Vector2.zero, () => { _slot = slot; SpotsTipDone(); Fill(); });
+                var b = Candy.Round(Root, Candy.White, SlotIcons[i], 136f, Vector2.zero, Vector2.zero, () => { _slot = slot; SpotsTipDone(); Fill(); });
                 _spots[i] = (RectTransform)b.transform;
             }
             _items = Ui.Fill(Root, "Items");
@@ -109,14 +109,22 @@ namespace Pofi.Screens
                 var item = all[n];
                 var have = owned.Contains(item);
                 var on = item.Id == equipped;
-                var pos = new Vector2(-250f - (n % 2) * 190f, 300f - n * 120f);
-                var b = Candy.Round(_items, on ? new Color(1f, 0.93f, 0.6f) : Candy.White, item.Id, on ? 170f : 150f, new Vector2(1f, 0.5f), pos,
+                // iri kıyafet baloncukları: sağda 2 sütun x 3 sıra
+                var pos = new Vector2(-170f - (n % 2) * 240f, 250f - (n / 2) * 230f);
+                var b = Candy.Round(_items, on ? new Color(1f, 0.93f, 0.6f) : Candy.White, item.Id, on ? 225f : 205f, new Vector2(1f, 0.5f), pos,
                     have ? (System.Action)(() => Toggle(item, on)) : () => App.Open(AppPage.Shop));
+                if (on) Ui.IconImage(b.transform, "ui_star", new Vector2(0.86f, 0.86f), 70f);   // takılı işareti
                 var fit = CosmeticFit.Evaluate(_pet, item);
                 if (!have || !fit.Allowed) foreach (var img in b.GetComponentsInChildren<Image>()) img.color *= new Color(1f, 1f, 1f, 0.5f);
                 if (!have) Candy.Badge(b.transform, "ui_coin", item.Price.ToString(), new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, 6f), 52f, 150f);
             }
             if (owned.Count == 0) _bubble.Say(T("wardrobe.empty"));
+            // takılı eşyayı çıkar (açık düğme; eşyaya tekrar dokunmak da çıkarır)
+            if (!string.IsNullOrEmpty(equipped))
+            {
+                var eq = App.Data.Item(equipped);
+                if (eq != null) Candy.Pill(_items, Candy.Pink, T("wardrobe.remove"), new Vector2(1f, 0f), new Vector2(300f, 110f), new Vector2(-290f, 90f), () => Toggle(eq, true));
+            }
         }
 
         private void Toggle(ItemDef item, bool on)

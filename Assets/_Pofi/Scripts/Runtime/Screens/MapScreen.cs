@@ -340,7 +340,14 @@ namespace Pofi.Screens
         private void Tap(Vector3 screen)
         {
             var ray = App.Stage.Camera.ScreenPointToRay(screen);
-            if (!Physics.Raycast(ray, out var hit, 400f)) return;
+            // pet ve parıltı öncelikli: bina dokunma kutuları geniş, pet kapı önündeyken ışını önce onlar yakalıyordu
+            var hits = Physics.RaycastAll(ray, 400f);
+            if (hits.Length == 0) return;
+            System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
+            var hit = hits[0];
+            foreach (var h in hits) if (h.collider.gameObject.name == "pet") { hit = h; break; }
+            if (hit.collider.gameObject.name != "pet")
+                foreach (var h in hits) if (h.collider.gameObject.name.StartsWith("sparkle_")) { hit = h; break; }
             var go = hit.collider.gameObject;
             if (go.name == "pet" && !_overview)
             {

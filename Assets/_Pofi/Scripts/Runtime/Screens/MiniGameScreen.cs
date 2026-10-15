@@ -132,9 +132,14 @@ namespace Pofi.Screens
             Backdrop(Theme.Hex("#8FDBFF"), Theme.Hex("#F6D79A"), 0.16f);
             var basketW = App.Session.AgeBand == AgeBand.A ? 0.28f : App.Session.AgeBand == AgeBand.B ? 0.24f : 0.2f;
             const float BasketY = 0.2f;
-            var basket = Ui.Rect(_area, "Basket", new Vector2(0.5f, BasketY), new Vector2(Width * basketW * 0.6f, 100f));
+            // kıyı manzarası: iki yanda iri palmiyeler (ekranı doldurur)
+            Ui.IconImage(_area, "decor_palm", new Vector2(0.04f, 0.42f), 620f);
+            Ui.IconImage(_area, "decor_palm", new Vector2(0.96f, 0.42f), 560f);
+            var basket = Ui.Rect(_area, "Basket", new Vector2(0.5f, BasketY), new Vector2(Width * basketW * 0.6f, 170f));
             basketW *= 0.6f;   // yatay ekran geniş: sepet oransal olarak daralır
-            Ui.Panel(basket, PetColor, 40f).raycastTarget = false;
+            var bimg = basket.gameObject.AddComponent<Image>(); bimg.raycastTarget = false;
+            bimg.sprite = Ui.Art("Games/basket");                  // örgü sepet (art/scripts/ui_games.py)
+            if (bimg.sprite == null) { bimg.sprite = Ui.Rounded; bimg.type = Image.Type.Sliced; bimg.color = PetColor; }
             var basketX = 0.5f;
             var live = new Dictionary<int, RectTransform>();
             var caught = new List<int>();
@@ -151,7 +156,7 @@ namespace Pofi.Screens
                 {
                     var f = game.Schedule[next];
                     // 3B görünümlü hindistan cevizi (art/scripts/ui_coconut.py); simge yoksa eski renkli daire
-                    live[next] = Ui.IconImage(_area, f.Golden ? "ui_coconut_gold" : "ui_coconut", new Vector2(f.X, 1.02f), f.Golden ? 130f : 118f)
+                    live[next] = Ui.IconImage(_area, f.Golden ? "ui_coconut_gold" : "ui_coconut", new Vector2(f.X, 1.02f), f.Golden ? 170f : 150f)
                                  ?? Dot(_area, new Vector2(f.X, 1.02f), f.Golden ? 100f : 90f, f.Golden ? Theme.Hex("#FFC400") : Theme.Hex("#7A4A26"));
                     next++;
                 }

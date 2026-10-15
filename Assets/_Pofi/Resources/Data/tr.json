@@ -334,6 +334,7 @@
     "wardrobe.slot.hand": "El",
     "wardrobe.equipped": "Giydi",
     "wardrobe.looks_good": "Çok yakıştı!",
+    "wardrobe.remove": "Çıkar",
     "wardrobe.removed": "Çıkardık.",
     "auth.invalid": "Bu kod çalışmadı. Ebeveyninden kodu kontrol etmesini iste.",
     "auth.throttled": "Biraz bekleyelim: {0} saniye sonra tekrar dene.",

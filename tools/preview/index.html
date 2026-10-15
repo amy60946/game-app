@@ -7,11 +7,13 @@ html, body { height: 100%; }
 body { margin: 0; background: var(--sky); color: var(--ink); font-family: -apple-system, "SF Pro Rounded", "Segoe UI", Roboto, sans-serif; overflow: hidden; }
 #stage { position: fixed; inset: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 #unity-canvas { width: 100%; height: 100%; display: block; background: var(--sky); touch-action: none; }
-#loader { position: fixed; inset: 0; display: grid; place-items: center; background: var(--sky); padding-inline: 24px; text-align: center; }
-#loader .box { display: grid; gap: 14px; width: min(320px, 100%); }
-#loader h1 { margin: 0; font-size: 40px; font-weight: 800; color: var(--white); text-shadow: 0 3px 0 rgba(15,43,69,.18); }
-#loader p { margin: 0; font-size: 15px; color: var(--ink); opacity: .8; }
-.bar { height: 14px; border-radius: 999px; background: rgba(255,255,255,.5); overflow: hidden; }
+#loader { position: fixed; inset: 0; display: grid; align-items: end; justify-items: center; background: var(--sky) url('keyart.jpg') center / cover no-repeat; padding: 24px 24px max(22px, env(safe-area-inset-bottom)); text-align: center; }
+#loader::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,40,80,.55), rgba(10,40,80,0) 45%); }
+#loader .box { position: relative; }
+#loader .box { display: grid; gap: 12px; width: min(420px, 100%); }
+#loader h1 { margin: 0; font-size: 44px; font-weight: 900; color: var(--white); letter-spacing: .5px; text-shadow: 0 4px 0 #E8761A, 0 8px 18px rgba(0,0,0,.35); }
+#loader p { margin: 0; font-size: 15px; font-weight: 700; color: var(--white); text-shadow: 0 2px 6px rgba(0,0,0,.45); }
+.bar { height: 16px; border-radius: 999px; background: rgba(255,255,255,.55); overflow: hidden; box-shadow: 0 3px 0 rgba(0,0,0,.15) inset; }
 .bar i { display: block; height: 100%; width: 0%; background: var(--sun); border-radius: 999px; transition: width .2s; }
 #err { display: none; background: var(--white); border-radius: 16px; padding: 16px; font-size: 14px; text-align: left; line-height: 1.5; }
 @media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
