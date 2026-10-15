@@ -47,3 +47,7 @@
   - Müzik ham PCM (`Resources/Audio/music_island_pcm.bytes`): WebGL ses çözücüsüne gerek yok; index.html `navigator.audioSession.type='playback'` (sessiz düğmesi).
   - Ada aksiyonları (`Logic/Island/Gathering`, `MapScreen.Gather`): kütük (balta, 3 vuruş) → odun, çalı (el) → dal, taş (kazma) → taş; "Kulübe yap" (6 odun, 4 dal, 3 taş).
     Nesne üstü alet baloncuğu + eylem düğmesi simgesi değişir; yeni aksiyonlar aynı yapıya eklenecek.
+- Görsel yenileme ONAYLANDI ve uygulandı (15 Ekim 2026): tüm yapı/süs/ev eşyası modelleri kodla (art/code3d: assets_v3, assets_town, assets_items, house_cottage);
+  oyuna `python3 art/code3d/export_game.py [ad]` ile (üçgen bütçesi + pişirilmiş doku, eski Meshy dosyaları silinir). Env modelleri orijinden zemine oturur (RealAssets.Footprint).
+  Ortak eskime: `assets_v3.weather/_G`, ahşap/halat/demir/kumaş (assets_town). Kıyafetler ve petler Meshy'de kalır (iskelet/soket bağlı).
+- iOS/TestFlight hattı: `.github/workflows/ios.yml` (commit mesajında `[ios]` ya da elle), `docs/TESTFLIGHT.md` (kullanıcının eklemesi gereken secret'lar).
