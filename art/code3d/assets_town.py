@@ -15,33 +15,44 @@ from mathutils import Vector as V, noise as mnoise
 
 # ------------------------------------------------------------------ ek malzemeler
 
-def m_rope(hexc='#cfae78', name='rope'):
-    """Halat: boy boyunca eğik burgu çizgileri + lif gürültüsü."""
+def m_rope(hexc='#cfae78', name='rope', age=1.0):
+    """Halat: boy boyunca eğik burgu çizgileri + lif gürültüsü; parça parça ton farkı (her sarım aynı renk olmasın),
+    kir/nem lekeleri, güneşte solmuş açık bölgeler, dipte toprak kiri."""
     def b(nt, bsdf):
-        n = nt.nodes; l = nt.links
+        n = nt.nodes; l = nt.links; G = A._G(nt)
         uv = uv_node(nt); sep = n.new('ShaderNodeSeparateXYZ'); l.new(uv.outputs[0], sep.inputs[0])
         add = n.new('ShaderNodeMath'); add.operation = 'MULTIPLY_ADD'; add.inputs[1].default_value = 3.0
         l.new(sep.outputs['Y'], add.inputs[0]); l.new(sep.outputs['X'], add.inputs[2])
         mul = n.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = 60.0; l.new(add.outputs[0], mul.inputs[0])
         s = n.new('ShaderNodeMath'); s.operation = 'SINE'; l.new(mul.outputs[0], s.inputs[0])
         mr = n.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = -1; l.new(s.outputs[0], mr.inputs['Value'])
-        rp = ramp(nt, [(0.0, _shade(hexc, 0.7)), (0.6, hexc), (1.0, _shade(hexc, 1.15))]); l.new(mr.outputs[0], rp.inputs['Fac'])
-        l.new(rp.outputs[0], bsdf.inputs['Base Color'])
+        rp = ramp(nt, [(0.0, _shade(hexc, 0.62)), (0.6, hexc), (1.0, _shade(hexc, 1.15))]); l.new(mr.outputs[0], rp.inputs['Fac'])
+        o = G.obj()
+        col = G.mix(G.rng(G.noise(o, 2.0, 3), 0.3, 0.7), rp.outputs[0], rp.outputs[0])
+        # parça parça ton: koyu-sıcak ↔ açık-soluk
+        tone = G.noise(o, 1.6, 2)
+        col = G.mix(G.rng(tone, 0.35, 0.5, 0, 0.55), col, _shade('#8a6a44', 1.0), 'MULTIPLY')
+        col = G.mix(G.rng(tone, 0.58, 0.72, 0, 0.5), col, '#efe2c2')
+        # lif tüyleri: çok ince açık benekler
+        col = G.mix(G.rng(G.noise(G.mapping(uv.outputs[0], (60, 20, 1)), 1.0), 0.62, 0.7, 0, 0.35), col, '#f6ead0')
+        col = A.weather(G, col, age, (0.0, 0.25))
+        l.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 
-def m_metal(hexc='#47434d', rust='#a8643a', name='iron'):
-    """Dövme demir: koyu, hafif dalgalı; yer yer turuncu pas lekesi."""
+def m_metal(hexc='#47434d', rust='#a8643a', name='iron', age=1.0):
+    """Dövme demir: koyu, hafif dalgalı; turuncu pas lekeleri, pastan aşağı akan izler (dikey uzatılmış gürültü),
+    kenarlarda parlayan aşınmış metal, oyuk yerlerde koyu kir."""
     def b(nt, bsdf):
-        n = nt.nodes; l = nt.links
-        tc = n.new('ShaderNodeTexCoord')
-        nz = n.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 9; nz.inputs['Detail'].default_value = 5; l.new(tc.outputs['Object'], nz.inputs['Vector'])
-        rp = ramp(nt, [(0.35, _shade(hexc, 0.8)), (0.65, _shade(hexc, 1.25))]); l.new(nz.outputs['Fac'], rp.inputs['Fac'])
-        nz2 = n.new('ShaderNodeTexNoise'); nz2.inputs['Scale'].default_value = 4; nz2.inputs['Detail'].default_value = 6; l.new(tc.outputs['Object'], nz2.inputs['Vector'])
-        rr = n.new('ShaderNodeMapRange'); rr.interpolation_type = 'SMOOTHSTEP'; rr.inputs['From Min'].default_value = 0.6; rr.inputs['From Max'].default_value = 0.72
-        l.new(nz2.outputs['Fac'], rr.inputs['Value'])
-        mx = n.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.inputs[7].default_value = srgb(rust)
-        l.new(rr.outputs[0], mx.inputs['Factor']); l.new(rp.outputs[0], mx.inputs[6])
-        l.new(mx.outputs[2], bsdf.inputs['Base Color'])
+        n = nt.nodes; l = nt.links; G = A._G(nt)
+        o = G.obj()
+        rp = ramp(nt, [(0.35, _shade(hexc, 0.8)), (0.65, _shade(hexc, 1.25))]); l.new(G.noise(o, 9, 5), rp.inputs['Fac'])
+        col = rp.outputs[0]
+        spot = G.rng(G.noise(o, 4, 6), 0.6, 0.7)
+        streak = G.rng(G.noise(G.mapping(o, (16, 16, 1.4)), 1.0, 3), 0.58, 0.72, 0, 0.75 * age)
+        col = G.mix(G.math('MAXIMUM', spot, streak), col, rust)
+        col = G.mix(G.rng(G.noise(o, 22, 3), 0.55, 0.7, 0, 0.5), col, _shade(rust, 0.65))      # pas içinde koyu benek
+        col = G.mix(G.math('MULTIPLY', G.edges(0.6, 0.72), 0.3), col, '#8d8a93')
+        l.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 
 def m_plaster(hexc, stripe=None, period=0.7, z0=0.0, name=None, dirt=0.35):
@@ -76,26 +87,32 @@ def m_plaster(hexc, stripe=None, period=0.7, z0=0.0, name=None, dirt=0.35):
         l.new(dm.outputs[2], bsdf.inputs['Base Color'])
     return nodes_mat(name or ('plaster' + hexc + (stripe or '')), b)
 
-def m_cloth(c1, c2, stripes=6.0, name=None):
-    """Tente kumaşı: grain u boyunca şeritler (yumuşak kenar), dokuma gürültüsü, kenara doğru hafif solma."""
+def m_cloth(c1, c2, stripes=6.0, name=None, age=1.0):
+    """Tente kumaşı: şeritler (yumuşak kenar), dokuma, güneşte solma (üstten ve lekeli), su lekesi halkaları,
+    kenara doğru kir, ince yırtık/aşınma izleri."""
     def b(nt, bsdf):
-        n = nt.nodes; l = nt.links
+        n = nt.nodes; l = nt.links; G = A._G(nt)
         uv = uv_node(nt); sep = n.new('ShaderNodeSeparateXYZ'); l.new(uv.outputs[0], sep.inputs[0])
         mul = n.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = stripes; l.new(sep.outputs['X'], mul.inputs[0])
         fr = n.new('ShaderNodeMath'); fr.operation = 'FRACT'; l.new(mul.outputs[0], fr.inputs[0])
         mk = ramp(nt, [(0.0, '#000000'), (0.03, '#ffffff'), (0.5, '#ffffff'), (0.53, '#000000')]); l.new(fr.outputs[0], mk.inputs['Fac'])
         bw = n.new('ShaderNodeRGBToBW'); l.new(mk.outputs[0], bw.inputs[0])
-        mm = n.new('ShaderNodeMix'); mm.data_type = 'RGBA'; mm.inputs[6].default_value = srgb(c2); mm.inputs[7].default_value = srgb(c1)
-        l.new(bw.outputs[0], mm.inputs['Factor'])
-        mp = n.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (90, 90, 1); l.new(uv.outputs[0], mp.inputs['Vector'])
-        nz = n.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 1.0; nz.inputs['Detail'].default_value = 2; l.new(mp.outputs[0], nz.inputs['Vector'])
-        wv = n.new('ShaderNodeMix'); wv.data_type = 'RGBA'; wv.blend_type = 'OVERLAY'; wv.inputs['Factor'].default_value = 0.18
-        l.new(mm.outputs[2], wv.inputs[6]); l.new(nz.outputs['Color'], wv.inputs[7])
-        tc = n.new('ShaderNodeTexCoord'); nz2 = n.new('ShaderNodeTexNoise'); nz2.inputs['Scale'].default_value = 2.5; l.new(tc.outputs['Object'], nz2.inputs['Vector'])
-        fd = n.new('ShaderNodeMix'); fd.data_type = 'RGBA'; fd.blend_type = 'SCREEN'; fd.inputs[7].default_value = srgb('#fff4dc')
-        frr = n.new('ShaderNodeMapRange'); frr.inputs['From Min'].default_value = 0.5; frr.inputs['From Max'].default_value = 0.8; frr.inputs['To Max'].default_value = 0.25
-        l.new(nz2.outputs['Fac'], frr.inputs['Value']); l.new(frr.outputs[0], fd.inputs['Factor']); l.new(wv.outputs[2], fd.inputs[6])
-        l.new(fd.outputs[2], bsdf.inputs['Base Color'])
+        o = G.obj()
+        # her şeritte ton geçişi (koyudan açığa)
+        c1v = G.mix(G.rng(G.noise(o, 1.5, 3), 0.3, 0.75), _shade(c1, 0.86), _shade(c1, 1.12))
+        c2v = G.mix(G.rng(G.noise(o, 1.5, 3), 0.3, 0.75), _shade(c2, 0.92), _shade(c2, 1.04))
+        col = G.mix(bw.outputs[0], c2v, c1v)
+        col = G.mix(0.16, col, G.noise(G.mapping(uv.outputs[0], (90, 90, 1)), 1.0, 2, out='Color'), 'OVERLAY')
+        # solma: geniş açık lekeler
+        col = G.mix(G.rng(G.noise(o, 1.1, 4), 0.5, 0.78, 0, 0.42 * age), col, '#fff4dc')
+        # su lekesi halkaları (voronoi kenarı, seyrek)
+        ring = G.math('MULTIPLY', G.rng(G.vor(o, 2.2, 'DISTANCE_TO_EDGE'), 0.03, 0.0, 0, 1), G.rng(G.noise(o, 3), 0.55, 0.62))
+        col = G.mix(G.math('MULTIPLY', ring, 0.35 * age), col, '#8a6f50', 'MULTIPLY')
+        # kir lekeleri
+        col = G.mix(G.rng(G.noise(o, 6, 8, 0.65), 0.62, 0.78, 0, 0.35 * age), col, '#7d6a52', 'MULTIPLY')
+        # kenar aşınması (fisto ucu, katlar)
+        col = G.mix(G.math('MULTIPLY', G.edges(0.5, 0.58), 0.5 * age), col, '#f4ead6')
+        l.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name or ('cloth' + c1 + c2), b)
 
 def m_glow(hexc='#ffd56a', name='glow'):
@@ -122,9 +139,20 @@ def wobble(o, amt=0.012, scale=2.5, seed=0):
         v.co += mw.inverted().to_3x3() @ (d * amt)
     return o
 
-def plank(name, loc, size, m, rot=(0, 0, 0), bevel=0.012, seed=None, amt=0.01):
+def plank(name, loc, size, m, rot=(0, 0, 0), bevel=0.012, seed=None, amt=0.01, wear=True):
+    """Tahta: yuvarlatılmış kutu, alt bölümlü (ezik/yamukluk için yeterli köşe), elle yapılmış yamukluk, köşe kırıkları."""
     o = rbox(name, loc, size, m, rot=rot, bevel=bevel, seg=2)
-    return wobble(o, amt, 3.0, seed if seed is not None else random.random() * 50)
+    sd = seed if seed is not None else random.random() * 50
+    if wear and max(size) > 0.25:
+        bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active = o
+        for md in list(o.modifiers): bpy.ops.object.modifier_apply(modifier=md.name)
+        cuts = max(1, int(max(size) / 0.12))
+        bm = bmesh.new(); bm.from_mesh(o.data)
+        long_edges = [e for e in bm.edges if (e.verts[0].co - e.verts[1].co).length > 0.1]
+        if long_edges: bmesh.ops.subdivide_edges(bm, edges=long_edges, cuts=min(cuts, 12), use_grid_fill=True)
+        bm.to_mesh(o.data); bm.free()
+        dent(o, 2, 0.008, int(sd * 13))
+    return wobble(o, amt, 3.0, sd)
 
 def post(name, base, top, r, m, verts=10, taper=0.85, seed=0):
     """Hafif eğri, köşeli-yuvarlak kütük direk (uv: boyuna damar)."""
@@ -133,22 +161,25 @@ def post(name, base, top, r, m, verts=10, taper=0.85, seed=0):
     o.data.bevel_resolution = 2 if verts <= 10 else 3
     return o
 
-def rope_wrap(center, r, z0, z1, turns, m, thick=0.016, axis='z'):
-    """Direğe sarılmış halat (sarmal)."""
-    pts = []; n = int(turns * 10)
+def rope_wrap(center, r, z0, z1, turns, m, thick=0.016, axis='z', seed=0):
+    """Direğe sarılmış halat (sarmal, üç kollu), her sarımın kendi ton farkı halat dokusunda; uçta sarkan kısa kuyruk + lif uçları."""
+    pts = []; n = int(turns * 12)
     for i in range(n + 1):
-        t = i / n; a = t * turns * 2 * math.pi
+        t = i / n; a = t * turns * 2 * math.pi + seed
         p = V((math.cos(a) * r, math.sin(a) * r, z0 + (z1 - z0) * t))
         if axis == 'x': p = V((z0 + (z1 - z0) * t, math.cos(a) * r, math.sin(a) * r))
         elif axis == 'y': p = V((math.cos(a) * r, z0 + (z1 - z0) * t, math.sin(a) * r))
         pts.append(tuple(V(center) + p))
-    return tube('rope', pts, [thick] * len(pts), m, res=2)
+    end = V(pts[-1]); a = turns * 2 * math.pi + seed
+    tail = [tuple(end), tuple(end + V((math.cos(a) * 0.04, math.sin(a) * 0.04, -0.05))), tuple(end + V((math.cos(a) * 0.05, math.sin(a) * 0.05, -0.13)))]
+    o = strand_rope(pts + tail[1:], thick, m)
+    return o
 
-def rope_sag(a, b, sag, m, thick=0.02, n=6):
+def rope_sag(a, b, sag, m, thick=0.02, n=8):
     pts = []
     for i in range(n + 1):
         t = i / n; p = V(a).lerp(V(b), t); p.z -= sag * 4 * t * (1 - t); pts.append(tuple(p))
-    return tube('rope', pts, [thick] * len(pts), m, res=3)
+    return strand_rope(pts, thick, m)
 
 def moss_cap(loc, r, seed=0):
     """Direk tepesine yosun yastığı + birkaç ot."""
@@ -171,9 +202,9 @@ def dress(radius, seed, n_tufts=8, flowers=3, pebbles=3, bushes=(), stone=None, 
         x, y = math.cos(a) * r, math.sin(a) * r
         if ok(x, y): centers.append((x, y))
     for k, (x, y) in enumerate(centers):
-        mesh_from_blades('tuft', tufts((x, y, 0.0), 0.12, 1, seed * 31 + k, h=(0.16, 0.3)), [G1])
-    for k, (x, y) in enumerate(at):                       # dip öbekleri (direk/duvar dibi): sık ve uzun
-        mesh_from_blades('tuft', tufts((x, y, 0.0), 0.16, 3, seed * 17 + k, h=(0.2, 0.38)), [G1])
+        lush((x, y, 0.0), 0.08, 1, seed * 31 + k, h=(0.16, 0.3))
+    for k, (x, y) in enumerate(at):                       # dip öbekleri (direk/duvar dibi): çakıl halkası + sık ot + çiçek
+        base_ring(x, y, 0.16, seed * 17 + k, flowers=1)
     if bushes:
         BL = m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'baseleaf')
         mesh_from_blades('rosette', rosette(list(bushes), R, sizes=(0.22, 0.34), leaves=8), [BL])
@@ -257,23 +288,29 @@ def crate(loc, s, m, m2, yaw=0, open_top=False, seed=0):
 # ------------------------------------------------------------------ süsler
 
 def c_fence():
-    """Çit: üç kalın, hafif eğri kütük direk (tepede yosun yastığı), iki yuvarlak kütük çubuk (biri hafif yamuk),
-    halat bağlar, bir direğe sarılan çiçekli sarmaşık; dipte sık ot öbekleri, çalı ve çiçek."""
-    W = m_wood('#9c6a40', 'fencew'); W2 = m_wood('#b07b4a', 'fencew2'); RP = m_rope()
+    """Çit: üç kalın, hafif eğri kütük direk (tepede yosun yastığı; çatlak, ezik, dipte kir/yosun), iki yuvarlak kütük çubuk,
+    üç kollu halat bağlar (her biri farklı ton, lif uçları, sarkan kuyruk), çiçekli sarmaşık; direk diplerinde çakıl halkası,
+    canlı ot ve çiçek."""
+    W = m_wood('#9c6a40', 'fencew'); W2 = m_wood('#b07b4a', 'fencew2')
+    RPS = [m_rope('#cfae78', 'rope1'), m_rope('#bf9a62', 'rope2'), m_rope('#d9bf8e', 'rope3')]
     xs = (-0.8, 0.0, 0.8)
     for i, x in enumerate(xs):
         top = (x + (0.02 if i == 1 else -0.03), 0.01 * i, 0.95 + 0.07 * (i % 2))
-        post('post', (x, 0, -0.05), top, 0.105, W, seed=i)
+        p = post('post', (x, 0, -0.05), top, 0.105, W, seed=i)
         moss_cap((top[0], top[1], top[2] + 0.01), 0.1, seed=i)
-        for z in (0.7, 0.36):
-            rope_wrap((x, 0, 0), 0.12, z - 0.06, z + 0.06, 2.4, RP, thick=0.016)
+        for j, z in enumerate((0.7, 0.36)):
+            rope_wrap((x, 0, 0), 0.118, z - 0.06, z + 0.06, 2.4, RPS[(i + j) % 3], thick=0.017, seed=i * 2 + j)
+        base_ring(x, 0.0, 0.2, 10 + i, flowers=1 if i != 1 else 2)
     tube('rail', [(-1.0, 0.1, 0.69), (0.0, 0.12, 0.72), (1.0, 0.1, 0.7)], [0.062, 0.066, 0.06], W2, res=6)
     tube('rail', [(-1.0, 0.1, 0.32), (0.0, 0.13, 0.36), (1.0, 0.1, 0.41)], [0.058, 0.062, 0.056], W, res=6)
-    for x in (-1.0, 1.0):                                 # çubuk uçlarında kesik yüzey (açık ahşap)
+    for x in (-1.0, 1.0):
         for z in (0.7, 0.37 + 0.04 * (x > 0)):
             cyl('cut', (x, 0.1, z), 0.058, 0.02, m_wood('#e0b884', 'endgrain'), rot=(0, 90, 0), verts=12)
-    # sarmaşık (orta direk) + çiçekler
-    V1 = m_flat('#3f7f2f', 0.2, 8, 'vine'); LV = m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'vineleaf')
+    # çubuk üstünde çivi + pas izi (direğe tutturma)
+    for x in xs:
+        for z in (0.7, 0.36):
+            nail((x + 0.03, 0.17, z + 0.02), (0, 1, 0))
+    V1 = A.m_flat('#3f7f2f', 0.2, 8, 'vine'); LV = m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'vineleaf')
     pts = []; leafs = []
     for i in range(22):
         t = i / 21; a = t * 2.6 * 2 * math.pi
@@ -288,8 +325,10 @@ def c_fence():
         return out
     mesh_from_blades('vleaves', lv, [LV])
     R = random.Random(1)
-    flower_heads([(0.14, -0.05, 0.55), (-0.08, -0.1, 0.78), (0.1, 0.08, 0.3)], R)
-    dress(1.0, 4, n_tufts=5, flowers=4, pebbles=3, bushes=[(-0.42, -0.2), (0.45, 0.22)], at=[(x, 0.0) for x in xs])
+    flower_heads([(0.14, -0.05, 0.55), (-0.08, -0.1, 0.78)], R)
+    lush((0, 0, 0), 1.0, 7, 4)
+    BL = m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'baseleaf')
+    mesh_from_blades('rosette', rosette([(-0.42, -0.2), (0.45, 0.22)], R, sizes=(0.22, 0.34), leaves=9), [BL])
     return 'çit'
 
 def prism(name, pts2d, depth, m, loc=(0, 0, 0), rot=(0, 0, 0), bevel=0.012):
@@ -309,30 +348,41 @@ def prism(name, pts2d, depth, m, loc=(0, 0, 0), rot=(0, 0, 0), bevel=0.012):
     return o
 
 def c_lantern():
-    """Sokak feneri (tombul oranlar): kalın, hafif eğik kütük direk, kıvrık demir kol, büyük sıcak ışıklı fener
-    (demir kafes, tepe şapkası, halka), direğe sarılan yapraklı sarmaşık; dipte taş çemberi, ot, çiçek."""
-    W = m_wood('#7e5232', 'lampw'); I = m_metal(); GL = m_glow()
+    """Sokak feneri: kalın kütük direk (çatlak, dipte kir/yosun), kıvrık demir kol ve fener kafesi (pas lekeleri, aşağı akan
+    pas izleri, kenarda parlayan aşınmış metal), sıcak ışıklı cam, halat bağ, sarmaşık; dipte çakıl halkası + ot + çiçek."""
+    W = m_wood('#7e5232', 'lampw'); I = m_metal(age=1.2); GL = m_glow()
     post('post', (0, 0, -0.05), (0.03, 0.02, 1.6), 0.115, W, taper=0.8, seed=2)
     moss_cap((0.03, 0.02, 1.62), 0.1, seed=3)
     tube('arm', [(0.05, 0.02, 1.48), (0.3, 0.02, 1.6), (0.5, 0.02, 1.55), (0.56, 0.02, 1.44)], [0.028, 0.026, 0.024, 0.022], I, res=6)
     tube('brace', [(0.08, 0.02, 1.22), (0.25, 0.02, 1.33), (0.38, 0.02, 1.56)], [0.016, 0.016, 0.016], I, res=4)
     blob('curl', (0.12, 0.02, 1.56), (0.04, 0.012, 0.04), I, sub=1, seg=12)
+    # kolun direğe bağlandığı demir kelepçe + cıvatalar
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.118, minor_radius=0.016, location=(0.03, 0.02, 1.47), major_segments=24, minor_segments=6)
+    bpy.context.object.data.materials.append(I)
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.12, minor_radius=0.016, location=(0.025, 0.02, 1.22), major_segments=24, minor_segments=6)
+    bpy.context.object.data.materials.append(I)
+    rope_wrap((0.0, 0.0, 0), 0.122, 0.95, 1.05, 2.0, m_rope('#c4a06a', 'lrope'), thick=0.016, seed=1)
     cx, cz = 0.56, 1.17
     rbox('glass', (cx, 0.02, cz), (0.22, 0.22, 0.3), GL, bevel=0.03)
     for sx in (-1, 1):
         for sy in (-1, 1):
-            rbox('bar', (cx + sx * 0.115, 0.02 + sy * 0.115, cz), (0.032, 0.032, 0.34), I, bevel=0.008)
+            o = rbox('bar', (cx + sx * 0.115, 0.02 + sy * 0.115, cz), (0.032, 0.032, 0.34), I, bevel=0.008)
+    for zz in (cz - 0.06, cz + 0.06):                             # cam önünde ince yatay demir
+        for sy in (-1, 1): rbox('hbar', (cx, 0.02 + sy * 0.118, zz), (0.24, 0.012, 0.012), I, bevel=0.003)
     rbox('base', (cx, 0.02, cz - 0.18), (0.28, 0.28, 0.05), I, bevel=0.012)
     blob('drop', (cx, 0.02, cz - 0.23), (0.05, 0.05, 0.04), I, sub=1, seg=12)
-    lathe('roof', [(0.18, cz + 0.15), (0.185, cz + 0.18), (0.1, cz + 0.27), (0.02, cz + 0.32), (0.001, cz + 0.33)], I, segs=4).location = (cx, 0.02, 0)
+    roof = lathe('roof', [(0.18, cz + 0.15), (0.185, cz + 0.18), (0.1, cz + 0.27), (0.02, cz + 0.32), (0.001, cz + 0.33)], I, segs=4); roof.location = (cx, 0.02, 0)
+    roof.rotation_euler = (0, 0, math.radians(45))
     bpy.ops.mesh.primitive_torus_add(major_radius=0.045, minor_radius=0.011, location=(cx, 0.02, cz + 0.37), rotation=(math.radians(90), 0, 0), major_segments=12, minor_segments=5)
     bpy.context.object.data.materials.append(I)
-    V1 = m_flat('#3f7f2f', 0.2, 8, 'vine'); LV = m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'vineleaf')
+    for (p, nn) in (((0.03, -0.1, 1.47), (0, -1, 0)), ((0.025, -0.1, 1.22), (0, -1, 0))):
+        nail(p, nn, I)
+    V1 = A.m_flat('#3f7f2f', 0.2, 8, 'vine'); LV = m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'vineleaf')
     pts = []; leafs = []
     for i in range(30):
         t = i / 29; a = t * 3.0 * 2 * math.pi
         r = 0.125 - 0.02 * t
-        p = (math.cos(a) * r, math.sin(a) * r, 0.04 + t * 1.15); pts.append(p)
+        p = (math.cos(a) * r, math.sin(a) * r, 0.04 + t * 0.85); pts.append(p)
         if i % 2 == 0 and i > 0: leafs.append((p, a))
     tube('vine', pts, [0.01] * len(pts), V1, res=2)
     def lv(bm):
@@ -343,18 +393,19 @@ def c_lantern():
         return out
     mesh_from_blades('vleaves', lv, [LV])
     R = random.Random(2)
-    flower_heads([(0.1, -0.12, 0.62), (-0.12, 0.05, 0.9)], R)
+    flower_heads([(0.1, -0.12, 0.62), (-0.12, 0.05, 0.8)], R)
     STN = m_rock()
     for k in range(6):
         a = k * 1.05 + 0.3
         pebble((math.cos(a) * 0.22, math.sin(a) * 0.22, 0.04), 0.09 + 0.025 * (k % 2), STN, k)
-    dress(0.6, 9, n_tufts=4, flowers=3, pebbles=1, stone=STN, at=[(0.15, 0.12), (-0.12, -0.15)])
+    lush((0, 0, 0), 0.35, 4, 9)
+    flower_heads([(0.3, 0.1, 0.22), (-0.25, -0.2, 0.2), (0.05, 0.32, 0.24)], R)
     return 'fener'
 
 def c_sign():
-    """Yön tabelası (tombul): kalın kütük direk + küçük kiremit şapka, üç ok tahtası (farklı yönlere, aşınmış boyalı:
-    turkuaz, mercan, krem) üzerinde boyalı büyük simgeler (yazı yok — çocuk okumadan anlasın: ev, yıldız, deniz kabuğu),
-    çivi başları; dipte çiçek ve ot."""
+    """Yön tabelası: kalın kütük direk + kiremit şapka, üç doğal biçimli ok tahtası (dalgalı kenar, yumuşak ok, kırık köşe;
+    aşınmış boya, çatlak, çizik, kenarda boya dökülmesi), üzerlerinde boyalı simgeler, paslı çiviler (aşağı akan pas izi),
+    dipte çakıl halkası + ot + çiçek."""
     W = m_wood('#8a5a36', 'signpost')
     post('post', (0, 0, -0.05), (0.01, 0, 1.55), 0.1, W, taper=0.85, seed=4)
     roof = m_tile('#e0684a', 'signroof')
@@ -362,76 +413,90 @@ def c_sign():
         plank('roof', (0.0, s_ * 0.1, 1.62), (0.36, 0.24, 0.04), roof, rot=(s_ * 32, 0, 0), seed=s_ + 2)
     cyl('ridge', (0, 0, 1.69), 0.035, 0.4, roof, rot=(0, 90, 0), verts=10)
     BOARDS = [('#2fa3a0', 25, 1.28), ('#e86f50', 160, 0.98), ('#f4e6c6', -40, 0.68)]
-    ICON = [m_flat('#fff6e6', 0.05, 8, 'ic_w'), m_flat('#ffd447', 0.08, 8, 'ic_y'), m_flat('#e86f50', 0.08, 8, 'ic_c')]
-    NAIL = m_metal(name='nail')
+    ICON = [A.m_flat('#fff6e6', 0.05, 8, 'ic_w'), A.m_flat('#ffd447', 0.08, 8, 'ic_y'), A.m_flat('#e86f50', 0.08, 8, 'ic_c')]
     L, Hb, T = 0.78, 0.24, 0.06
-    arrow = [(-0.06, -Hb / 2), (L - 0.14, -Hb / 2), (L, 0), (L - 0.14, Hb / 2), (-0.06, Hb / 2)]
     for i, (col, yaw, z) in enumerate(BOARDS):
-        m = m_wood('#b98a5a', f'board{i}', paint=col)
+        m = m_wood('#b98a5a', f'board{i}', paint=col, age=1.2)
         a = math.radians(yaw)
-        prism('board', arrow, T, m, loc=(math.cos(a) * 0.1, math.sin(a) * 0.1, z), rot=(0, R_i(i) * 3, yaw))
-        bpy.context.view_layer.update()
-        mw = bpy.context.scene.objects[-1].matrix_world if False else None
-        # simge: tahtanın ön yüzünde (yerel -y), ortada
+        o = prism('board', board_shape(L, Hb, i * 7), T, m, loc=(math.cos(a) * 0.1, math.sin(a) * 0.1, z), rot=(0, R_i(i) * 3, yaw), bevel=0.018)
+        bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active = o
+        bpy.ops.object.modifier_apply(modifier='bv')
+        bm = bmesh.new(); bm.from_mesh(o.data)
+        bmesh.ops.subdivide_edges(bm, edges=[e for e in bm.edges if (e.verts[0].co - e.verts[1].co).length > 0.05], cuts=2, use_grid_fill=True)
+        bm.to_mesh(o.data); bm.free()
+        dent(o, 3, 0.01, i)
+        wobble(o, 0.006, 6.0, i)
         fw = V((math.cos(a), math.sin(a), 0)); nrm = V((math.sin(a), -math.cos(a), 0))
         c = V((math.cos(a) * 0.1, math.sin(a) * 0.1, z)) + fw * (L * 0.45) + nrm * (T / 2 + 0.006)
         ic = ICON[i]
-        if i == 0:   # ev
+        if i == 0:
             prism('ic', [(-0.07, -0.07), (0.07, -0.07), (0.07, 0.02), (0.0, 0.08), (-0.07, 0.02)], 0.012, ic, loc=tuple(c), rot=(0, 0, yaw), bevel=0.004)
-        elif i == 1:  # yıldız
+        elif i == 1:
             pts = []
             for k in range(10):
                 b_ = math.pi / 2 + k * math.pi / 5; rr = 0.085 if k % 2 == 0 else 0.038
                 pts.append((math.cos(b_) * rr, math.sin(b_) * rr))
             prism('ic', pts, 0.012, ic, loc=tuple(c), rot=(0, 0, yaw), bevel=0.004)
-        else:         # deniz kabuğu (yelpaze)
+        else:
             pts = [(0, -0.07)] + [(math.sin(math.radians(t)) * 0.085, -0.07 + math.cos(math.radians(t)) * 0.13 * (0.92 + 0.08 * math.cos(math.radians(t * 5)))) for t in range(-60, 61, 12)]
             prism('ic', pts, 0.012, ic, loc=tuple(c), rot=(0, 0, yaw), bevel=0.004)
-        for d in (0.02, L - 0.24):
-            p = V((math.cos(a) * 0.1, math.sin(a) * 0.1, z)) + fw * d + nrm * (T / 2 + 0.004)
-            blob('nail', tuple(p), (0.018, 0.018, 0.018), NAIL, sub=0, seg=8)
-    dress(0.65, 12, n_tufts=4, flowers=5, pebbles=3, bushes=[(0.25, -0.22)], at=[(0.12, 0.1), (-0.1, -0.12)])
+        for d in (0.02, L - 0.26):
+            for dz in (-0.06, 0.06):
+                p = V((math.cos(a) * 0.1, math.sin(a) * 0.1, z + dz)) + fw * d + nrm * (T / 2)
+                nail(tuple(p), tuple(nrm))
+    base_ring(0, 0, 0.2, 5, flowers=2)
+    lush((0, 0, 0), 0.6, 5, 12)
+    R = random.Random(3)
+    flower_heads([(0.35, -0.2, 0.22), (-0.3, 0.25, 0.2), (0.28, 0.3, 0.24)], R)
+    BL = m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'baseleaf')
+    mesh_from_blades('rosette', rosette([(0.32, -0.3), (-0.35, -0.1)], R, sizes=(0.2, 0.3), leaves=8), [BL])
     return 'tabela'
 
 def R_i(i): return (-1, 1, -0.5)[i % 3]
 
 def c_crates():
-    """Liman yükü: iki üst üste sandık (üstteki açık, içi meyve dolu), yanda fıçı, bağlı çuval ve kangal halat; dip kumlu."""
-    W = m_wood('#b07b4a', 'cratew'); W2 = m_wood('#8f5d36', 'cratew2')
+    """Liman yükü: iki sandık (eskimiş, dipleri kirli/yosunlu, köşe kırıkları, çatlaklar, paslı çiviler), üstteki açık sandıkta
+    gerçekçi meyveler (gözenekli portakal, yanaklı elma, lifli hindistan cevizi, benekli muz salkımı; bir-ikisi ezik),
+    yanda fıçı (paslı çember), bağlı çuval, üç kollu kangal halat (lifli); altta yıpranmış toprak/kum zemin, canlı ot öbekleri."""
+    W = m_wood('#b07b4a', 'cratew', age=1.3); W2 = m_wood('#8f5d36', 'cratew2', age=1.3)
+    dirt_patch(0.0, 0.0, 1.0, 0.8, 5, sand=True)
+    dirt_patch(-0.15, 0.05, 0.55, 0.5, 9)
     crate((-0.2, 0.05, 0.0), 0.62, W, W2, yaw=8, seed=1)
     crate((-0.15, 0.0, 0.62), 0.5, W, W2, yaw=-14, open_top=True, seed=2)
-    # meyveler (açık sandıkta): portakal, hindistan cevizi, muz demeti
-    OR = m_flat('#f39a2e', 0.2, 14, 'orange'); CO = m_flat('#86662f', 0.35, 9, 'coco'); BA = m_flat('#f4d34c', 0.15, 6, 'banana')
+    a = math.radians(8)
+    for (dx, dz) in ((-0.22, 0.3), (0.22, 0.3), (-0.22, 0.12), (0.22, 0.12)):
+        nail((-0.2 + dx * math.cos(a) + 0.33 * math.sin(a), 0.05 + dx * math.sin(a) - 0.33 * math.cos(a), dz), (math.sin(a), -math.cos(a), 0))
     R = random.Random(3)
+    kinds = ['orange', 'apple', 'orange', 'coconut', 'apple', 'orange', 'apple']
     for k in range(7):
-        a = k * 2.4; r = 0.06 + 0.12 * math.sqrt(k / 7)
-        blob('fruit', (-0.15 + math.cos(a) * r, math.sin(a) * r, 0.62 + 0.42 + R.uniform(0, 0.04)), (0.07, 0.07, 0.065), OR if k % 3 else CO, sub=0, seg=12)
-    for k in range(4):
-        tube('banana', [(-0.05 + k * 0.03, -0.12, 1.08), (0.0 + k * 0.03, -0.05, 1.15), (0.02 + k * 0.03, 0.05, 1.14)], [0.025, 0.03, 0.015], BA, res=4)
-    barrel((0.5, -0.12, 0.27), r=0.2, h=0.52)
-    # çuval: yumuşak, bağlı ağız
-    SK = m_flat('#d9c08e', 0.3, 30, 'sack'); RP = m_rope()
+        ang = k * 2.4; r = 0.05 + 0.13 * math.sqrt(k / 7)
+        fruit(kinds[k], (-0.15 + math.cos(ang) * r, math.sin(ang) * r, 0.62 + 0.43 + R.uniform(0, 0.03)), 0.075 if kinds[k] != 'coconut' else 0.085, seed=k)
+    banana_bunch((-0.05, -0.12, 1.12), 5, seed=2, yaw=30)
+    fruit('orange', (0.15, -0.38, 0.07), 0.07, seed=20)                    # düşmüş meyve
+    barrel((0.5, -0.12, 0.27), r=0.2, h=0.52, wood=m_wood('#a8693d', 'barrelw', age=1.3), iron=m_metal(age=1.3))
+    SK = A.m_flat('#d9c08e', 0.3, 30, 'sack'); RP = m_rope()
     s = blob('sack', (0.42, 0.42, 0.2), (0.22, 0.2, 0.22), SK, sub=2, seg=16); wobble(s, 0.03, 4.0, 2)
     blob('neck', (0.42, 0.42, 0.44), (0.07, 0.07, 0.08), SK, sub=1, seg=12)
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.07, minor_radius=0.013, location=(0.42, 0.42, 0.42), major_segments=16, minor_segments=5)
-    bpy.context.object.data.materials.append(RP)
-    # kangal halat (yerde)
+    rope_wrap((0.42, 0.42, 0), 0.072, 0.4, 0.44, 1.3, RP, thick=0.014, seed=3)
     pts = []
-    for i in range(60):
-        t = i / 59; a = t * 3 * 2 * math.pi; r = 0.17 - 0.02 * math.floor(t * 3)
-        pts.append((-0.55 + math.cos(a) * r, -0.45 + math.sin(a) * r, 0.025 + 0.03 * math.floor(t * 3)))
-    tube('coil', pts, [0.022] * len(pts), RP, res=3)
-    dress(0.95, 21, n_tufts=5, flowers=1, pebbles=3, exclude=lambda x, y: abs(x) < 0.7 and abs(y) < 0.6)
+    for i in range(80):
+        t = i / 79; ang = t * 3 * 2 * math.pi; r = 0.18 - 0.025 * (t * 3)
+        pts.append((-0.55 + math.cos(ang) * r, -0.45 + math.sin(ang) * r, 0.03 + 0.035 * (t * 3) * 0.6))
+    pts += [(-0.4, -0.62, 0.03), (-0.2, -0.75, 0.025), (0.05, -0.7, 0.025)]
+    strand_rope(pts, 0.026, RP)
+    lush((0, 0, 0), 1.0, 6, 21, h=(0.22, 0.38))
+    base_ring(0.85, 0.35, 0.16, 8, flowers=2)
+    BL = m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'baseleaf')
+    mesh_from_blades('rosette', rosette([(-0.75, 0.45), (0.8, -0.45)], R, sizes=(0.25, 0.36), leaves=9), [BL])
     return 'sandık'
 
 def hull_mesh(name, L, Wd, Hh, m, strakes=5):
     """Kayık gövdesi: boyuna kesitlerden örülen bindirme tahtaları (her sıra hafif dışa taşar). grain: u boy, v sıra."""
     bm = bmesh.new(); uvl = bm.loops.layers.uv.new('grain')
-    NS = 22
+    NS = 30
     def sec(s, t):
-        """s: -1..1 boy, t: 0 (omurga) .. 1 (küpeşte) → nokta (sağ yarı)."""
         w = Wd / 2 * (1 - abs(s) ** 2.4) ** 0.6
-        sheer = Hh * (1 + 0.35 * s ** 2)                    # uçlar yukarı kalkık
+        sheer = Hh * (1 + 0.35 * s ** 2)
         keel = Hh * 0.08 * abs(s) ** 3
         ang = t * math.pi / 2
         y = w * math.sin(ang) ** 0.8
@@ -458,83 +523,108 @@ def hull_mesh(name, L, Wd, Hh, m, strakes=5):
     return o, sec
 
 def c_boat():
-    """Kayık: bindirme tahtalı gövde (dışı aşınmış turkuaz boya + krem şerit, içi doğal ahşap), oturak tahtaları,
-    iki kürek (biri içeride, biri kuma dayalı), pruvada kangal halat ve küçük fener; kumda deniz kabukları."""
+    """Kayık: bindirme tahtalı gövde (her tahta sırasında aşınmış turkuaz boya, pul pul dökülme, çatlak, çizik, kenarda
+    aşınma; tahta sıraları boyunca çivi başları + pas izleri), krem küpeşte, oturaklar, ayrıntılı iki kürek (sap, topuz,
+    halat sargı, boyalı-dökülmüş pala), pruva halkası ve üç kollu halat; ıslak kum, kıyı yosunu, deniz otu, kabuk, deniz yıldızı."""
     L, Wd, Hh = 2.0, 0.85, 0.42
-    OUT = m_wood('#b98a5a', 'hullout', paint='#2f9fa8')
+    OUT = m_wood('#b98a5a', 'hullout', paint='#2f9fa8', age=1.4, grime=(0.05, 0.3))
     hull, sec = hull_mesh('hull', L, Wd, Hh, OUT)
     hull.location.z = 0.06
-    INW = m_wood('#c08d5b', 'hullin')
-    # iç kaplama: biraz içeride ikinci yüzey
+    INW = m_wood('#c08d5b', 'hullin', age=1.2)
     inner, _ = hull_mesh('inner', L * 0.97, Wd * 0.9, Hh * 0.95, INW, strakes=4)
     inner.location.z = 0.075
     for m in inner.modifiers: m.thickness = 0.01
-    # küpeşte (krem boyalı) — iki yanda eğri tüp
-    TR = m_wood('#c9a77a', 'gunwale', paint='#f4e6c6')
+    # çiviler: tahta sırası bindirme çizgileri boyunca
+    NM = m_metal('#6a646e', name='boatnail', age=1.3)
+    for side in (1, -1):
+        for k in range(1, 5):
+            t = k / 5 + 0.02
+            for i in range(9):
+                s = -0.8 + 1.6 * i / 8
+                p = sec(s, t); lap = 0.012 * (k + 1)
+                q = V((p.x, side * (p.y + lap + 0.012), p.z + 0.06))
+                nrm = V((0, side, -0.3 + 0.6 * t)).normalized()
+                nail(tuple(q), tuple(nrm), NM, streak=(i % 3 == 0))
+    TR = m_wood('#c9a77a', 'gunwale', paint='#f4e6c6', age=1.3)
     for side in (1, -1):
         pts = []
         for i in range(9):
             s = -0.97 + 1.94 * i / 8; p = sec(s, 1.0); pts.append((p.x, side * (p.y + 0.05), p.z + 0.075))
         tube('gunwale', pts, [0.03] * len(pts), TR, res=4)
-    # oturaklar + omurga içi döşeme
+        # ıskarmoz (kürek yuvası)
+        p = sec(0.0, 1.0)
+        bpy.ops.mesh.primitive_torus_add(major_radius=0.035, minor_radius=0.01, location=(0.05, side * (p.y + 0.06), p.z + 0.13), rotation=(math.radians(90), 0, 0), major_segments=12, minor_segments=4)
+        bpy.context.object.data.materials.append(NM)
     for x in (-0.45, 0.35):
         w = sec(x / (L / 2), 0.85).y * 2 + 0.06
         plank('seat', (x, 0, Hh * 0.72), (0.24, w, 0.04), INW, seed=int(x * 10))
     for k in range(3):
         plank('floor', (0, -0.14 + k * 0.14, 0.1), (L * 0.7, 0.12, 0.025), m_wood('#a8693d', 'floorb'), seed=k + 40)
-    # kürekler
-    OAR = m_wood('#c48a57', 'oar')
-    tube('oar', [(-0.7, 0.18, 0.4), (0.0, 0.08, 0.38), (0.5, -0.05, 0.36)], [0.022, 0.022, 0.02], OAR, res=3)
-    blob('blade', (0.68, -0.09, 0.36), (0.22, 0.07, 0.015), m_wood('#c48a57', 'oarb', paint='#e86f50'), rot=(0, 0, -8), sub=1, seg=12)
-    tube('oar2', [(0.6, 0.62, 0.0), (0.2, 0.55, 0.32), (-0.2, 0.48, 0.62)], [0.022, 0.022, 0.02], OAR, res=3)
-    blob('blade2', (0.75, 0.66, 0.02), (0.2, 0.065, 0.015), m_wood('#c48a57', 'oarb', paint='#e86f50'), rot=(0, -35, 10), sub=1, seg=12)
-    # pruva halkası + halat
+    # biraz su birikintisi (dipte)
+    blob('puddle', (-0.2, 0.0, 0.118), (0.3, 0.12, 0.004), A.m_flat('#5fa8b0', 0.15, 6, 'puddle'), sub=0, seg=16)
+    oar((-0.75, 0.2, 0.42), (0.95, -0.12, 0.34), '#e86f50', seed=1)
+    oar((-0.35, 0.62, 0.66), (0.95, 0.7, 0.02), '#e86f50', seed=2)
     RP = m_rope()
     bpy.ops.mesh.primitive_torus_add(major_radius=0.05, minor_radius=0.012, location=(L / 2 + 0.02, 0, Hh * 1.3), rotation=(math.radians(90), 0, 0), major_segments=14, minor_segments=5)
-    bpy.context.object.data.materials.append(m_metal())
-    tube('line', [(L / 2 + 0.05, 0, Hh * 1.25), (L / 2 + 0.25, 0.05, 0.25), (L / 2 + 0.4, 0.2, 0.03), (L / 2 + 0.55, 0.45, 0.03)], [0.016] * 4, RP, res=4)
-    # kumda kabuklar ve deniz yıldızı
-    SH = [m_flat('#f7d9c4', 0.1, 10, 'shell1'), m_flat('#ffb6a0', 0.1, 10, 'shell2')]
+    bpy.context.object.data.materials.append(NM)
+    strand_rope([(L / 2 + 0.05, 0, Hh * 1.25), (L / 2 + 0.25, 0.05, 0.25), (L / 2 + 0.4, 0.2, 0.03), (L / 2 + 0.55, 0.45, 0.03), (L / 2 + 0.35, 0.62, 0.03)], 0.02, RP)
+    # zemin: ıslak kum + kıyı yosunu + deniz otu
+    blob('wetsand', (0.1, 0, 0.0), (1.35, 0.7, 0.008), A.m_flat('#c9a76c', 0.25, 14, 'wetsand'), sub=1, seg=24)
+    MS = A.m_flat('#5f8f3a', 0.35, 22, 'shoremoss')
+    for k, (x, y, r) in enumerate(((-0.95, 0.42, 0.16), (0.7, -0.45, 0.14), (-0.3, -0.48, 0.1), (1.1, 0.3, 0.12))):
+        o = blob('moss', (x, y, 0.01), (r, r * 0.8, 0.025), MS, sub=1, seg=12); wobble(o, r * 0.25, 6.0, k)
+    seaweed(-0.8, -0.55, 3, 7); seaweed(1.2, -0.2, 5, 6); seaweed(0.2, 0.6, 7, 5)
+    SH = [A.m_flat('#f7d9c4', 0.1, 10, 'shell1'), A.m_flat('#ffb6a0', 0.1, 10, 'shell2')]
     for k, (x, y) in enumerate(((-0.95, 0.55), (0.3, -0.6), (-0.4, -0.62))):
         for j in range(5):
             b = math.radians(-50 + j * 25)
             blob('shell', (x + math.sin(b) * 0.04, y + math.cos(b) * 0.04, 0.012), (0.018, 0.05, 0.012), SH[k % 2], rot=(0, 0, -math.degrees(b)), sub=0, seg=8)
-    ST = m_flat('#ff8a5c', 0.15, 12, 'starfish')
+    ST = A.m_flat('#ff8a5c', 0.15, 12, 'starfish')
     for j in range(5):
         b = j * 2 * math.pi / 5
         blob('arm', (0.95 + math.cos(b) * 0.06, -0.45 + math.sin(b) * 0.06, 0.015), (0.075, 0.028, 0.015), ST, rot=(0, 0, math.degrees(b)), sub=0, seg=8)
-    G1 = m_leaf('#5f9a3d', '#86b85a', '#c7dd8a', '#dbe9a8', 'dunegrass')
-    mesh_from_blades('tuft', tufts((-0.9, -0.5, 0.0), 0.12, 1, 5, h=(0.2, 0.34)), [G1])
-    mesh_from_blades('tuft', tufts((1.0, 0.55, 0.0), 0.12, 1, 6, h=(0.2, 0.34)), [G1])
+    G1 = m_leaf('#4f8a35', '#7cb04f', '#c2db84', '#dbe9a8', 'dunegrass')
+    for k, (x, y) in enumerate(((-0.95, -0.35), (1.05, 0.55), (-1.15, 0.2))):
+        mesh_from_blades('tuft', tufts((x, y, 0.0), 0.14, 2, 5 + k, h=(0.22, 0.38)), [G1])
     return 'kayık'
 
-# ------------------------------------------------------------------ yapılar
-
 def c_shop():
-    """Pazar tezgâhı (dükkân): dört direk, önünde ürün rafları olan tezgâh, şeritli ve fistolu tente (hafif sarkık),
-    tezgâhta kavanozlar/meyve sepetleri, asılı fenerler, tepede boyalı tabela (simge: torba); yanda sandık ve saksı."""
-    W = m_wood('#9c6a40', 'shopw'); W2 = m_wood('#b98552', 'shopw2'); TOPW = m_wood('#c99a66', 'shoptop')
-    PAINT = m_wood('#b98a5a', 'shoppaint', paint='#2fa3a0')
+    """Pazar tezgâhı: eskimiş direkler ve boyalı tahtalar, şeritli fistolu tente (solmuş, lekeli, kenarı aşınmış, ton geçişli),
+    tezgâhta gerçekçi meyve-sebze (portakal, elma, domates, havuç demeti, karpuz, muz salkımı), kavanozlar, asılı fenerler,
+    tabela; önde açık meyve kasaları; arkada palmiye ve çalılar; dipte yıpranmış toprak, ot ve çiçek."""
+    W = m_wood('#9c6a40', 'shopw', age=1.2); W2 = m_wood('#b98552', 'shopw2', age=1.2); TOPW = m_wood('#c99a66', 'shoptop', age=1.2)
+    PAINT = m_wood('#b98a5a', 'shoppaint', paint='#2fa3a0', age=1.3)
     Wd, Dp = 2.2, 1.1
+    dirt_patch(0, -0.2, 1.6, 1.0, 11)
+    # arka plan: palmiye + çalılar (assets_v3 palmiyesi küçültülüp arkaya)
+    before = set(bpy.context.scene.objects)
+    A.c_palm()
+    for o in set(bpy.context.scene.objects) - before:
+        o.scale = (o.scale[0] * 0.72, o.scale[1] * 0.72, o.scale[2] * 0.72)
+        o.location = (o.location[0] * 0.72 - 1.25, o.location[1] * 0.72 + 1.0, o.location[2] * 0.72)
+        o.rotation_euler[2] += 0.0
+    R = random.Random(5)
+    BL = m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'baseleaf')
+    mesh_from_blades('backbush', rosette([(0.6, 1.0), (1.2, 0.85), (-0.2, 1.05), (1.55, 0.3)], R, sizes=(0.35, 0.55), leaves=11), [BL])
+    flower_heads([(0.7, 1.15, 0.4), (1.3, 0.95, 0.45), (-0.1, 1.2, 0.38)], R)
     for sx in (-1, 1):
         for sy in (-1, 1):
             post('post', (sx * Wd / 2, sy * Dp / 2, -0.03), (sx * Wd / 2, sy * Dp / 2, 2.0 if sy > 0 else 1.75), 0.06, W, seed=sx * 3 + sy)
-    # tezgâh gövdesi: dikey boyalı tahtalar
     n = 11
     for i in range(n):
         x = -Wd / 2 + 0.1 + i * (Wd - 0.2) / (n - 1)
         plank('front', (x, -Dp / 2 + 0.04, 0.45), (0.18, 0.04, 0.88), PAINT, seed=i, amt=0.006)
+        for z in (0.2, 0.75): nail((x, -Dp / 2 + 0.015, z), (0, -1, 0), streak=(i % 2 == 0))
     for sx in (-1, 1):
         plank('side', (sx * (Wd / 2 - 0.03), 0, 0.45), (0.04, Dp - 0.1, 0.88), PAINT, seed=sx + 30)
     plank('top', (0, -0.02, 0.92), (Wd + 0.16, Dp * 0.75, 0.06), TOPW, seed=7)
     plank('trim', (0, -Dp / 2 + 0.01, 0.12), (Wd, 0.06, 0.08), W2, seed=8)
-    # arka raf
     for z in (1.15, 1.45):
         plank('shelf', (0, Dp / 2 - 0.1, z), (Wd - 0.1, 0.22, 0.04), W2, seed=int(z * 10))
-    # tente: kumaş yüzey (eğik, ön kenarda fisto), şeritler grain u boyunca
-    CL = m_cloth('#f05d5e', '#fff4e2', stripes=7.0, name='awning')
+    # tente (kumaş: solma, leke, aşınma)
+    CL = m_cloth('#f05d5e', '#fff4e2', stripes=7.0, name='awning', age=1.3)
     bm = bmesh.new(); uvl = bm.loops.layers.uv.new('grain'); ds = bm.faces.layers.int.new('ds')
-    NX, NY = 28, 6
+    NX, NY = 36, 8
     grid = []
     for j in range(NY + 1):
         t = j / NY
@@ -543,81 +633,88 @@ def c_shop():
             s = i / NX
             x = -Wd / 2 - 0.15 + s * (Wd + 0.3)
             y = Dp / 2 + 0.05 - t * (Dp + 0.45)
-            z = 2.06 - t * 0.42 - 0.05 * math.sin(math.pi * t) - 0.04 * (math.sin(s * math.pi * 3) ** 2) * t
+            z = 2.06 - t * 0.42 - 0.05 * math.sin(math.pi * t) - 0.04 * (math.sin(s * math.pi * 3) ** 2) * t + 0.008 * mnoise.noise(V((x * 6, y * 6, 0)))
             row.append(bm.verts.new((x, y, z)))
         grid.append(row)
     for j in range(NY):
         for i in range(NX):
             f = bm.faces.new((grid[j][i], grid[j][i + 1], grid[j + 1][i + 1], grid[j + 1][i])); f[ds] = 1
             for lp, (ii, jj) in zip(f.loops, ((i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1))): lp[uvl].uv = (ii / NX, jj / NY)
-    # fisto: ön kenarda sarkan yarım daireler (şerit rengiyle)
-    scal = []
     nsc = 7
     for k in range(nsc):
         s0, s1 = k / nsc, (k + 1) / nsc
-        pts = []
-        for q in range(7):
-            s = s0 + (s1 - s0) * q / 6
-            x = -Wd / 2 - 0.15 + s * (Wd + 0.3)
-            pts.append((x, s))
         top = []; bot = []
-        for (x, s) in pts:
+        for q in range(9):
+            s = s0 + (s1 - s0) * q / 8
+            x = -Wd / 2 - 0.15 + s * (Wd + 0.3)
             y = Dp / 2 + 0.05 - (Dp + 0.45); z = 2.06 - 0.42
             d = math.sin(math.pi * (s - s0) / (s1 - s0))
-            top.append((bm.verts.new((x, y, z)), s)); bot.append((bm.verts.new((x, y - 0.01, z - 0.04 - 0.13 * d ** 0.7)), s))
-        for q in range(6):
+            fray_ = 0.012 * mnoise.noise(V((x * 40, 0, k)))             # aşınmış, hafif tırtıklı kenar
+            top.append((bm.verts.new((x, y, z)), s)); bot.append((bm.verts.new((x, y - 0.01, z - 0.04 - 0.13 * d ** 0.7 + fray_)), s))
+        for q in range(8):
             f = bm.faces.new((top[q][0], top[q + 1][0], bot[q + 1][0], bot[q][0])); f[ds] = 1
             for lp, uu in zip(f.loops, (top[q][1], top[q + 1][1], bot[q + 1][1], bot[q][1])): lp[uvl].uv = (uu, 1.0)
     awn = link_mesh('awning', bm, [CL]); smooth(awn)
-    # tezgâhta ürünler
-    R = random.Random(5)
-    JAR = [m_flat('#ffb347', 0.15, 10, 'jar1'), m_flat('#ff7aa8', 0.15, 10, 'jar2'), m_flat('#8fd06a', 0.15, 10, 'jar3')]
-    LID = m_flat('#e0684a', 0.15, 10, 'lid')
-    for k, x in enumerate((-0.85, -0.65, 0.55, 0.75, 0.95)):
-        blob('jar', (x, -0.1, 1.06), (0.09, 0.09, 0.13), JAR[k % 3], sub=1, seg=12)
-        cyl('lid', (x, -0.1, 1.19), 0.075, 0.04, LID, verts=12)
+    # yamalı bir köşe (dikilmiş kare yama)
+    rbox('patch', (0.55, -0.3, 1.86), (0.2, 0.18, 0.006), A.m_flat('#e9d7b0', 0.2, 30, 'patchc'), rot=(-22, 0, 8), bevel=0.003)
+    # tezgâhta ürünler: sepetler + kasalar + kavanoz
     BS = m_wood('#c8955d', 'basket')
-    for (x, fruit) in ((-0.2, '#f39a2e'), (0.18, '#e8463c')):
+    for (x, kind) in ((-0.62, 'orange'), (-0.18, 'apple'), (0.26, 'tomato')):
         lathe('basket', [(0.001, 0.95), (0.16, 0.95), (0.2, 1.08), (0.21, 1.1)], BS, segs=16).location.x = x
-        FR = m_flat(fruit, 0.2, 12, 'fr' + fruit)
-        for j in range(6):
-            a = j * 1.05; blob('fruit', (x + math.cos(a) * 0.09, math.sin(a) * 0.09, 1.12 + 0.03 * (j % 2)), (0.065, 0.065, 0.06), FR, sub=0, seg=12)
-    # raf üstü: şişeler ve küçük kutular
+        for j in range(7):
+            ang = j * 2.4; r = 0.03 + 0.11 * math.sqrt(j / 7)
+            fruit(kind, (x + math.cos(ang) * r, math.sin(ang) * r - 0.02, 1.13 + 0.03 * (j % 2)), 0.06, seed=j + int(x * 10))
+    fruit('melon', (0.72, 0.05, 1.07), 0.13, seed=1)
+    fruit('melon', (0.92, 0.12, 1.06), 0.12, seed=2)
+    banana_bunch((-0.95, 0.05, 1.0), 6, seed=5, yaw=-20)
+    for k in range(4):
+        fruit('carrot', (0.5 + k * 0.03, -0.18, 0.96), 0.03, seed=k)
+    LEAFC = m_leaf('#3d8f35', '#5fb446', '#a3d862', '#c8ea86', 'carrotleaf')
+    def ctops(bm):
+        out = []
+        for k in range(4):
+            base = V((0.5 + k * 0.03 + 0.027, -0.18, 0.96 + 0.078))
+            for j in range(4):
+                a = j * 1.6 + k; d = V((math.cos(a) * 0.3, math.sin(a) * 0.3, 1)).normalized(); side = V((-math.sin(a), math.cos(a), 0))
+                for f in blade(bm, base, d, side, 0.16, 0.025, 0.6, segs=3): out.append((f, 0))
+        return out
+    mesh_from_blades('ctops', ctops, [LEAFC])
+    JAR = [A.m_flat('#ffb347', 0.15, 10, 'jar1'), A.m_flat('#ff7aa8', 0.15, 10, 'jar2'), A.m_flat('#8fd06a', 0.15, 10, 'jar3')]
+    LID = m_metal('#c9524a', name='lid', age=0.8)
     for k in range(7):
         x = -0.9 + k * 0.3; z = 1.18 if k % 2 else 1.48
-        blob('bottle', (x, Dp / 2 - 0.1, z + 0.08), (0.05, 0.05, 0.08), JAR[(k + 1) % 3], sub=1, seg=12)
-    # asılı fenerler (tente altında)
+        blob('jar', (x, Dp / 2 - 0.1, z + 0.08), (0.06, 0.06, 0.09), JAR[(k + 1) % 3], sub=1, seg=12)
+        cyl('lid', (x, Dp / 2 - 0.1, z + 0.17), 0.05, 0.025, LID, verts=12)
     GL = m_glow(); I = m_metal()
     for x in (-0.75, 0.75):
-        rope_sag((x, -0.25, 1.86), (x, -0.25, 1.68), 0.0, m_rope(), thick=0.008, n=2)
+        strand_rope([(x, -0.25, 1.86), (x, -0.25, 1.7)], 0.01, m_rope())
         blob('lamp', (x, -0.25, 1.6), (0.08, 0.08, 0.1), GL, sub=1, seg=12)
         cyl('lcap', (x, -0.25, 1.69), 0.06, 0.03, I, verts=10)
-    # tabela: tente üstünde, boyalı tahta + torba simgesi
-    SB = m_wood('#b98a5a', 'shopsign', paint='#f4e6c6')
+    SB = m_wood('#b98a5a', 'shopsign', paint='#f4e6c6', age=1.3)
     plank('sign', (0, -0.2, 2.22), (0.9, 0.05, 0.3), SB, rot=(12, 0, 0), seed=11)
-    BAG = m_flat('#e86f50', 0.08, 8, 'bagicon')
+    BAG = A.m_flat('#e86f50', 0.08, 8, 'bagicon')
     rbox('bag', (0, -0.235, 2.2), (0.16, 0.02, 0.14), BAG, rot=(12, 0, 0), bevel=0.02)
     bpy.ops.mesh.primitive_torus_add(major_radius=0.045, minor_radius=0.01, location=(0, -0.22, 2.3), rotation=(math.radians(102), 0, 0), major_segments=12, minor_segments=4)
     bpy.context.object.data.materials.append(BAG)
     for sx in (-0.35, 0.35):
         tube('signpost', [(sx, -0.12, 2.0), (sx, -0.16, 2.1)], [0.02, 0.02], W, res=2)
-    # tezgâh önünde açık meyve kasaları (yerde, öne eğik)
-    for (x, fruit, yaw) in ((-0.55, '#f39a2e', 6), (0.5, '#ffd447', -8)):
+        nail((sx, -0.24, 2.22), (0, -1, 0))
+    for (x, kind, yaw) in ((-0.55, 'orange', 6), (0.5, 'apple', -8)):
         crate((x, -Dp / 2 - 0.32, 0.0), 0.38, W2, W, yaw=yaw, open_top=True, seed=int(x * 10) + 20)
-        FR = m_flat(fruit, 0.2, 12, 'frc' + fruit)
         for j in range(7):
-            a = j * 2.4; r = 0.03 + 0.1 * math.sqrt(j / 7)
-            blob('fruit', (x + math.cos(a) * r, -Dp / 2 - 0.32 + math.sin(a) * r, 0.3 + 0.02 * (j % 2)), (0.07, 0.07, 0.065), FR, sub=0, seg=12)
-    # yanda sandık + saksı çiçek
+            ang = j * 2.4; r = 0.03 + 0.1 * math.sqrt(j / 7)
+            fruit(kind, (x + math.cos(ang) * r, -Dp / 2 - 0.32 + math.sin(ang) * r, 0.31 + 0.02 * (j % 2)), 0.065, seed=j + 30)
     crate((1.45, -0.2, 0.0), 0.42, W2, W, yaw=-10, seed=4)
-    POT = m_plaster('#d9774f', name='pot', dirt=0.1)
+    POT = m_plaster('#d9774f', name='pot', dirt=0.25)
     lathe('pot', [(0.001, 0.0), (0.12, 0.0), (0.17, 0.26), (0.19, 0.28)], POT, segs=16).location = (-1.45, -0.35, 0)
     LF = m_leaf('#2f8a3a', '#56b64a', '#a6dc6a', '#cdee92', 'fleaf')
     mesh_from_blades('potplant', rosette([(-1.45, -0.35)], R, sizes=(0.25, 0.35), leaves=9), [LF])
     for o in bpy.context.scene.objects:
         if o.name.startswith('potplant'): o.location.z = 0.24
     flower_heads([(-1.4, -0.3, 0.5), (-1.52, -0.4, 0.46)], R)
-    dress(1.5, 6, n_tufts=10, flowers=2, pebbles=4, exclude=lambda x, y: abs(x) < 1.3 and abs(y) < 0.7)
+    for (x, y) in ((-Wd / 2, -Dp / 2), (Wd / 2, -Dp / 2)):
+        base_ring(x, y, 0.14, int(x * 10) + 40, flowers=1)
+    lush((0, -0.3, 0), 1.6, 8, 6)
     return 'dükkân'
 
 def c_pier():
@@ -639,6 +736,8 @@ def c_pier():
     while x < L / 2 - 0.05:
         w = 0.17
         plank('deck', (x + w / 2, R_j(k) * 0.03, 0.44), (w - 0.012, Wd + R_j(k + 1) * 0.04, 0.05), DK[k % 3], rot=(0, 0, R_j(k) * 1.2), seed=k + 60)
+        for yy in (-Wd / 2 + 0.06, 0.0, Wd / 2 - 0.06):
+            if k % 2 == 0 or yy == 0.0: nail((x + w / 2, yy, 0.47), (0, 0, 1), streak=False)
         x += w; k += 1
     # korkuluk: bir yanda halat iki kazık arasında sarkık
     for (a, b) in ((-L / 2 + 0.15, 0), (0, L / 2 - 0.15)):
@@ -790,6 +889,9 @@ def c_board():
     star((0, 0, 2.3), 0.13, 0.05, pitch=90)
     # raf + kalem kutusu
     plank('ledge', (0, -0.08, 0.68), (0.9, 0.16, 0.035), FR, seed=77)
+    for (x, z) in ((-0.6, 1.55), (0.6, 1.55), (-0.6, 0.75), (0.6, 0.75)):
+        nail((x, -0.07, z), (0, -1, 0))
+    for sx in (-1, 1): base_ring(sx * 0.62, 0.0, 0.17, 60 + sx, flowers=1)
     CUP = m_wood('#b98a5a', 'cup', paint='#2fa3a0')
     lathe('cup', [(0.001, 0.7), (0.06, 0.7), (0.065, 0.82)], CUP, segs=12).location = (0.3, -0.08, 0)
     for k, c in enumerate(('#e8463c', '#ffc93a', '#2f8adf')):
@@ -1448,6 +1550,280 @@ def c_ski():
     for k in range(5):
         o = blob('mound', (R.uniform(-1.4, 1.4), R.uniform(-1.6, -1.0), 0.0), (R.uniform(0.15, 0.3), R.uniform(0.15, 0.3), 0.08), SN, sub=1, seg=12)
     return 'kayak'
+
+def m_fiber_rope():
+    return m_leaf('#a8865a', '#c9a874', '#e2c99a', '#efdcb4', 'ropefray')
+
+def frays(pts, count, seed, length=0.05):
+    """Halattan dışarı taşan lif uçları (kısa, açık renkli iki yüzlü şeritler)."""
+    R = random.Random(seed)
+    def build(bm):
+        out = []
+        for k in range(count):
+            p = V(R.choice(pts)); a = R.uniform(0, 6.28)
+            d = V((math.cos(a), math.sin(a), R.uniform(-0.6, 0.6))).normalized(); side = V((-math.sin(a), math.cos(a), 0))
+            for f in blade(bm, p, d, side, R.uniform(length * 0.5, length), 0.006, 0.2, segs=2): out.append((f, 0))
+        return out
+    mesh_from_blades('fray', build, [m_fiber_rope()])
+
+def strand_rope(pts, thick, m, twist=7.0, name='rope', res=2):
+    """Gerçek halat: merkez çizgi etrafında birbirine sarılmış üç kol (çok sarmal). pts: kaba çizgi; kendi içinde sıklaştırılır."""
+    P = [V(p) for p in pts]
+    dense = []
+    for i in range(len(P) - 1):
+        L = (P[i + 1] - P[i]).length; nseg = max(2, int(L / (thick * 1.8)))
+        for k in range(nseg): dense.append(P[i].lerp(P[i + 1], k / nseg))
+    dense.append(P[-1])
+    # yumuşat (köşeleri yuvarla)
+    for _ in range(2):
+        dense = [dense[0]] + [(dense[i - 1] + dense[i] * 2 + dense[i + 1]) / 4 for i in range(1, len(dense) - 1)] + [dense[-1]]
+    total = 0.0; acc = [0.0]
+    for i in range(1, len(dense)): total += (dense[i] - dense[i - 1]).length; acc.append(total)
+    up = V((0, 0, 1))
+    objs = []
+    for sidx in range(3):
+        sp = []
+        for i, c in enumerate(dense):
+            t = (dense[min(i + 1, len(dense) - 1)] - dense[max(i - 1, 0)]).normalized()
+            nx = t.cross(up); nx = nx.normalized() if nx.length > 1e-4 else t.cross(V((1, 0, 0))).normalized()
+            ny = t.cross(nx).normalized()
+            a = acc[i] / thick * (2 * math.pi / twist) * 2.2 + sidx * 2 * math.pi / 3
+            sp.append(tuple(c + (nx * math.cos(a) + ny * math.sin(a)) * thick * 0.42))
+        o = tube(name, sp, [thick * 0.6] * len(sp), m, res=1); o.data.bevel_resolution = 1; objs.append(o)
+    frays([tuple(p) for p in dense], max(2, len(dense) // 6), int(total * 100))
+    return objs
+
+def lush(center, radius, clumps, seed, h=(0.2, 0.36), bright=True):
+    """Canlı ot öbekleri: her öbekte 12-18 yaprak (iki ton: koyu dip + açık uç), farklı boy ve kıvrım, araya geniş yapraklı
+    yabani ot ve yonca. mesh_from_blades yüzeyi döner."""
+    R = random.Random(seed)
+    G1 = m_leaf('#2b7a2c', '#4fb341', '#a8df5c', '#cdeea0', 'lushA')
+    G2 = m_leaf('#3a8a30', '#6cc24a', '#c4e872', '#e2f5b0', 'lushB')
+    CL = m_leaf('#2f8a3a', '#5cbf4f', '#97d86b', '#bfe98e', 'clover')
+    def build(bm):
+        out = []
+        for k in range(clumps):
+            a = R.uniform(0, 6.28); rr = R.uniform(0, radius)
+            base = V(center) + V((math.cos(a) * rr, math.sin(a) * rr, 0))
+            for j in range(R.randint(12, 18)):
+                b_ = R.uniform(0, 6.28); up = R.uniform(0.62, 0.98)
+                d = V((math.cos(b_) * (1 - up) * 1.3, math.sin(b_) * (1 - up) * 1.3, up)).normalized()
+                side = V((-math.sin(b_), math.cos(b_), 0))
+                off = V((math.cos(b_), math.sin(b_), 0)) * R.uniform(0, 0.04)
+                for f in blade(bm, base + off, d, side, R.uniform(*h) * (0.6 + 0.4 * up), R.uniform(0.022, 0.034), R.uniform(0.2, 0.7), segs=3):
+                    out.append((f, j % 2))
+            if R.random() < 0.6:                      # yonca / yabani ot: 3-5 yuvarlak yaprak
+                c = base + V((R.uniform(-0.06, 0.06), R.uniform(-0.06, 0.06), 0))
+                for q in range(R.randint(3, 5)):
+                    b_ = q * 2 * math.pi / 4 + R.uniform(0, 0.5)
+                    d = V((math.cos(b_), math.sin(b_), 0.35)).normalized(); side = V((-math.sin(b_), math.cos(b_), 0))
+                    for f in blade(bm, c + V((0, 0, 0.03)), d, side, 0.06, 0.035, 0.1, segs=3, lift=0.1): out.append((f, 2))
+        return out
+    return mesh_from_blades('lush', build, [G1, G2, CL])
+
+def base_ring(cx, cy, r, seed, flowers=2, stone=None):
+    """Direk/ayak dibi süsü (fenerin dibindeki gibi): çakıl halkası + canlı ot + çiçek."""
+    R = random.Random(seed); STN = stone or m_rock()
+    n = 5
+    for k in range(n):
+        a = k * 2 * math.pi / n + R.uniform(-0.3, 0.3)
+        pebble((cx + math.cos(a) * r, cy + math.sin(a) * r, 0.03), R.uniform(0.06, 0.09), STN, seed * 7 + k)
+    lush((cx, cy, 0), r * 0.9, 2, seed + 3, h=(0.18, 0.32))
+    if flowers:
+        flower_heads([(cx + math.cos(a) * r * 1.1, cy + math.sin(a) * r * 1.1, R.uniform(0.16, 0.26)) for a in [R.uniform(0, 6.28) for _ in range(flowers)]], R)
+
+def dirt_patch(cx, cy, rx, ry, seed, name='wornground', sand=False):
+    """Yıpranmış zemin: yere yapışık düzensiz toprak/kum lekesi (kenarı yırtık), üstünde kırıntı çakıllar."""
+    R = random.Random(seed)
+    M = m_dirt() if not sand else A.m_flat('#d8bb84', 0.25, 20, 'wornsand')
+    bm = bmesh.new(); c0 = bm.verts.new((cx, cy, 0.006)); ring = []
+    N = 36
+    for i in range(N):
+        a = i / N * 2 * math.pi; k = 1 + 0.22 * mnoise.noise(V((math.cos(a) * 1.7, math.sin(a) * 1.7, seed))) + 0.08 * mnoise.noise(V((math.cos(a) * 5, math.sin(a) * 5, seed + 3)))
+        ring.append(bm.verts.new((cx + math.cos(a) * rx * k, cy + math.sin(a) * ry * k, 0.006)))
+    for i in range(N): bm.faces.new((c0, ring[i], ring[(i + 1) % N]))
+    o = link_mesh(name, bm, [M])
+    STN = m_rock()
+    for k in range(6):
+        a = R.uniform(0, 6.28); r = R.uniform(0.3, 0.95)
+        pebble((cx + math.cos(a) * rx * r, cy + math.sin(a) * ry * r, 0.015), R.uniform(0.025, 0.045), STN, seed + k)
+    return o
+
+def nail(p, nrm, m=None, streak=True):
+    """Çivi başı (yassı yuvarlak) + altında pas akıntısı izi (ince, aşağı uzanan koyu-turuncu leke)."""
+    I = m or m_metal('#5a5560', name='nailm')
+    q = V(nrm).to_track_quat('Z', 'Y').to_euler()
+    o = blob('nail', tuple(V(p) + V(nrm) * 0.004), (0.014, 0.014, 0.006), I, sub=0, seg=8); o.rotation_euler = q
+    if streak and abs(V(nrm).z) < 0.5:
+        RS = A.m_flat('#8a4a28', 0.3, 30, 'ruststreak')
+        s = blob('streak', tuple(V(p) + V(nrm) * 0.002 - V((0, 0, 0.035))), (0.008, 0.002, 0.03), RS, sub=0, seg=8)
+        s.rotation_euler = (0, 0, math.atan2(nrm[1], nrm[0]) + math.pi / 2)
+    return o
+
+def dent(o, n=3, depth=0.012, seed=0):
+    """Ezik/kırık: parçanın birkaç noktasında yüzeyi içeri bastır (köşe kırığı, darbe izi)."""
+    bpy.context.view_layer.update()
+    R = random.Random(seed); me = o.data
+    if len(me.vertices) < 20: return o
+    for _ in range(n):
+        c = me.vertices[R.randrange(len(me.vertices))].co.copy(); rad = R.uniform(0.03, 0.06)
+        for v in me.vertices:
+            d = (v.co - c).length
+            if d < rad: v.co -= v.normal * depth * (1 - d / rad) ** 2
+    return o
+
+def m_fruit(kind):
+    """Gerçekçi meyve/sebze dokuları: portakal (gözenekli kabuk, sap tarafı yeşilimsi, ezik leke), elma (yanaklı kırmızı-sarı
+    geçiş, benek), hindistan cevizi (lifli), muz (sarı + kahve benek, uçlar koyu), domates, havuç (halka çizgili)."""
+    def b(nt, bsdf):
+        n = nt.nodes; l = nt.links; G = A._G(nt); o = G.obj()
+        if kind == 'orange':
+            col = G.mix(G.rng(G.noise(o, 3, 3), 0.3, 0.7), '#e9801f', '#f8a73a')
+            col = G.mix(G.rng(G.vor(o, 90), 0.0, 0.18, 0.25, 0), col, '#b85f12')
+            col = G.mix(G.rng(G.noise(o, 5, 6), 0.68, 0.75, 0, 0.6), col, '#8a5a2a')
+        elif kind == 'apple':
+            col = G.mix(G.rng(G.noise(o, 1.2, 2), 0.35, 0.65), '#d63a2c', '#f2b43c')
+            col = G.mix(G.rng(G.vor(o, 60), 0.0, 0.08, 0.5, 0), col, '#fff0b0')
+            col = G.mix(G.rng(G.noise(o, 6, 6), 0.7, 0.76, 0, 0.5), col, '#7a3a20')
+        elif kind == 'coconut':
+            col = G.mix(G.rng(G.noise(G.mapping(o, (3, 3, 30)), 1.5, 6), 0.3, 0.7), '#5c3d1d', '#a07a45')
+            col = G.mix(G.rng(G.noise(o, 18, 4), 0.6, 0.7, 0, 0.5), col, '#d1b17a')
+        elif kind == 'banana':
+            col = G.mix(G.rng(G.noise(o, 2, 3), 0.3, 0.7), '#e9c43a', '#f7de6a')
+            col = G.mix(G.rng(G.vor(o, 40), 0.0, 0.1, 0.8, 0), col, '#6a4a22')
+        elif kind == 'tomato':
+            col = G.mix(G.rng(G.noise(o, 2, 3), 0.3, 0.7), '#c8281f', '#f0503a')
+            col = G.mix(G.rng(G.noise(o, 7, 6), 0.7, 0.78, 0, 0.4), col, '#f2a04a')
+        elif kind == 'carrot':
+            sp = n.new('ShaderNodeSeparateXYZ'); l.new(o, sp.inputs[0])
+            rings = G.math('SINE', G.math('MULTIPLY', sp.outputs['Z'], 160.0))
+            col = G.mix(G.rng(rings, 0.75, 1.0, 0, 0.45), '#f07a2a', '#a8471a')
+        elif kind == 'melon':
+            sp = n.new('ShaderNodeSeparateXYZ'); l.new(o, sp.inputs[0])
+            ang = G.math('ARCTAN2', sp.outputs['Y'], sp.outputs['X'])
+            stripe = G.math('SINE', G.math('ADD', G.math('MULTIPLY', ang, 9.0), G.math('MULTIPLY', G.noise(o, 6), 3.0)))
+            col = G.mix(G.rng(stripe, 0.0, 0.5), '#2f7d2e', '#1d4f1e')
+            col = G.mix(G.rng(G.noise(o, 12, 4), 0.55, 0.7, 0, 0.3), col, '#8fc76a')
+        else:
+            col = G.mix(0.5, '#ffffff', '#ffffff')
+        l.new(col, bsdf.inputs['Base Color'])
+    return nodes_mat('fruit_' + kind, b)
+
+def fruit(kind, loc, r, seed=0, rot=(0, 0, 0)):
+    """Tek meyve/sebze: biçim + doku + sap/yaprak (meyveye göre)."""
+    R = random.Random(seed); x, y, z = loc
+    M = m_fruit(kind)
+    STEM = A.m_flat('#5a3a1e', 0.2, 6, 'stemb'); LF = m_leaf('#2f7d35', '#4fb041', '#8fd06a', '#b5e28a', 'fruitleaf')
+    if kind in ('orange', 'tomato', 'apple'):
+        sq = (1.0, 1.0, 0.88 if kind != 'apple' else 0.92)
+        o = blob(kind, loc, (r * sq[0], r * sq[1], r * sq[2]), M, sub=1, seg=14)
+        wobble(o, r * 0.05, 6.0, seed)
+        tube('stem', [(x, y, z + r * 0.8), (x + 0.005, y, z + r * 1.1)], [r * 0.08, r * 0.06], STEM, res=2)
+        if R.random() < 0.6 or kind == 'tomato':
+            def lv(bm):
+                out = []
+                for k in range(5 if kind == 'tomato' else 1):
+                    a = k * 1.256 + R.uniform(0, 0.4); d = V((math.cos(a), math.sin(a), 0.3 if kind != 'tomato' else -0.2)).normalized()
+                    side = V((-math.sin(a), math.cos(a), 0))
+                    for f in blade(bm, V((x, y, z + r * 0.92)), d, side, r * (0.9 if kind != 'tomato' else 0.55), r * 0.3, 0.3, segs=3): out.append((f, 0))
+                return out
+            mesh_from_blades('fleaf', lv, [LF])
+    elif kind == 'coconut':
+        o = blob(kind, loc, (r, r, r * 1.08), M, sub=1, seg=14); wobble(o, r * 0.06, 5.0, seed)
+        for k in range(3):
+            a = k * 2.09
+            blob('eye', (x + math.cos(a) * r * 0.22, y + math.sin(a) * r * 0.22, z + r * 1.03), (r * 0.09, r * 0.09, r * 0.04), STEM, sub=0, seg=8)
+    elif kind == 'melon':
+        o = blob(kind, loc, (r * 1.25, r, r * 0.95), M, sub=1, seg=16); wobble(o, r * 0.04, 4.0, seed)
+    elif kind == 'carrot':
+        o = tube('carrot', [(x, y, z), (x + r * 0.4, y, z + r * 1.2), (x + r * 0.9, y, z + r * 2.6)], [r * 0.45, r * 0.32, r * 0.05], M, res=4)
+    return o
+
+def banana_bunch(loc, n, seed=0, yaw=0.0):
+    """Muz salkımı: ortak sap + kavisli, köşeli (5 kenar), uçları koyu muzlar."""
+    R = random.Random(seed); M = m_fruit('banana'); TIP = A.m_flat('#4a3418', 0.2, 6, 'bantip')
+    x, y, z = loc; a0 = math.radians(yaw)
+    tube('bstem', [(x, y, z), (x, y, z + 0.05)], [0.018, 0.015], A.m_flat('#7d8a3a', 0.2, 6, 'bstemm'), res=2)
+    for k in range(n):
+        a = a0 + (k - (n - 1) / 2) * 0.28
+        d = V((math.cos(a), math.sin(a), 0))
+        pts = [tuple(V(loc) + d * 0.02), tuple(V(loc) + d * 0.1 + V((0, 0, -0.03))), tuple(V(loc) + d * 0.2 + V((0, 0, 0.02))), tuple(V(loc) + d * 0.26 + V((0, 0, 0.08)))]
+        o = tube('banana', pts, [0.012, 0.026, 0.024, 0.008], M, res=5); o.data.bevel_resolution = 1
+        blob('btip', pts[-1], (0.01, 0.01, 0.012), TIP, sub=0, seg=6)
+
+def board_shape(L, H, seed, arrow=True):
+    """Doğal, kesik olmayan tahta biçimi: kenarlar hafif dalgalı, köşeler yuvarlatılmış, ok ucu yumuşak; bir köşede kırık."""
+    R = random.Random(seed); pts = []
+    def jit(v): return v + R.uniform(-0.008, 0.008)
+    n = 10
+    for i in range(n + 1):                                     # alt kenar
+        pts.append((-0.06 + (L - 0.2) * i / n, jit(-H / 2)))
+    if arrow:
+        for k in range(1, 6):                                  # ok ucu: yay
+            t = k / 6; a = -math.pi / 2 + t * math.pi
+            pts.append((L - 0.14 + 0.14 * math.cos(a) * (1 - 0.1 * abs(math.sin(a))) , H / 2 * math.sin(a) * 1.0))
+    for i in range(n + 1):                                     # üst kenar
+        pts.append((L - 0.2 - 0.06 - (L - 0.2) * i / n + 0.06 - 0.06, jit(H / 2)))
+    # sol uç: kırık köşe (çentik)
+    pts.append((-0.075, H * 0.25)); pts.append((-0.05, H * 0.05)); pts.append((-0.075, -H * 0.3))
+    return pts
+
+def oar(handle, blade_end, paint, seed=0):
+    """Kürek: ince sap (elle yontulmuş, hafif yamuk), ucunda tutma topuzu, ortada halat sargı (ıskarmoz yeri),
+    geniş-yassı, uca doğru incelen pala; palanın ucu boyalı ve dökülmüş, kenarı ezik."""
+    WD = m_wood('#c48a57', 'oarw', age=1.2); PW = m_wood('#c48a57', 'oarp' + paint, paint=paint, age=1.4)
+    h = V(handle); e = V(blade_end); d = (e - h).normalized(); Lt = (e - h).length
+    mid = h.lerp(e, 0.62)
+    tube('oarshaft', [tuple(h), tuple(h.lerp(e, 0.3) + V((0, 0, 0.005))), tuple(mid)], [0.02, 0.022, 0.024], WD, res=4)
+    blob('grip', tuple(h - d * 0.03), (0.03, 0.03, 0.03), WD, sub=1, seg=10)
+    # sargı: sapın etrafında kısa sarmal
+    up = V((0, 0, 1)); nx = d.cross(up).normalized(); ny = d.cross(nx).normalized()
+    c0 = h.lerp(e, 0.45); pts = []
+    for i in range(30):
+        t = i / 29; a = t * 5 * 2 * math.pi
+        pts.append(tuple(c0 + d * (t * 0.1) + (nx * math.cos(a) + ny * math.sin(a)) * 0.026))
+    tube('oarwrap', pts, [0.009] * len(pts), m_rope('#c9a46e', 'oarrope'), res=2)
+    # pala: yassı, damla biçimli
+    bL = Lt * 0.38
+    bm_ = bmesh.new(); uvl = bm_.loops.layers.uv.new('grain')
+    prof = []
+    for i in range(9):
+        t = i / 8; w = 0.035 + 0.075 * math.sin(min(1.0, t * 1.3) * math.pi / 2) * (1 - 0.15 * t)
+        prof.append((t, w))
+    top = []; bot = []
+    for (t, w) in prof:
+        c = mid + d * (t * bL)
+        for sgn, arr in ((1, top), (-1, bot)):
+            row = [bm_.verts.new(c + nx * (w * j / 2) + ny * (sgn * 0.012 * (1 - abs(j) / 2.2))) for j in (-2, -1, 0, 1, 2)]
+            arr.append(row)
+    for i in range(len(prof) - 1):
+        for j in range(4):
+            bm_.faces.new((top[i][j], top[i + 1][j], top[i + 1][j + 1], top[i][j + 1]))
+            bm_.faces.new((bot[i][j + 1], bot[i + 1][j + 1], bot[i + 1][j], bot[i][j]))
+        for j in (0, 4):
+            q = (top[i][j], bot[i][j], bot[i + 1][j], top[i + 1][j])
+            bm_.faces.new(q if j == 0 else tuple(reversed(q)))
+    bm_.faces.new(tuple(top[-1]) + tuple(reversed(bot[-1])))
+    bmesh.ops.recalc_face_normals(bm_, faces=bm_.faces)
+    for f in bm_.faces:
+        for lp in f.loops:
+            rel = lp.vert.co - mid; lp[uvl].uv = (rel.dot(d), rel.dot(nx))
+    o = link_mesh('oarblade', bm_, [PW]); smooth(o)
+    sm = o.modifiers.new('sub', 'SUBSURF'); sm.levels = 1
+    return o
+
+def seaweed(cx, cy, seed, n=6):
+    """Kıyıya vurmuş yosun/deniz otu: kuma serilmiş dalgalı koyu yeşil-kahve şeritler."""
+    R = random.Random(seed)
+    SW = m_leaf('#2f4a22', '#4d6a2a', '#7a8a3a', '#9aa04a', 'seaweed')
+    def build(bm):
+        out = []
+        for k in range(n):
+            a = R.uniform(0, 6.28); base = V((cx + R.uniform(-0.08, 0.08), cy + R.uniform(-0.08, 0.08), 0.008))
+            d = V((math.cos(a), math.sin(a), 0.02)).normalized(); side = V((-math.sin(a), math.cos(a), 0))
+            for f in blade(bm, base, d, side, R.uniform(0.18, 0.32), 0.035, -0.02, segs=5): out.append((f, 0))
+        return out
+    mesh_from_blades('seaweed', build, [SW])
 
 BUILDERS = {
     'c_fence': (c_fence, 512, None), 'c_lantern': (c_lantern, 512, None), 'c_sign': (c_sign, 512, None),

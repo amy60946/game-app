@@ -149,11 +149,78 @@ def _shade(hexc, k):
     r, g, b = colorsys.hls_to_rgb(hh, ll, ss)
     return '#%02x%02x%02x' % (int(r * 255), int(g * 255), int(b * 255))
 
-def m_wood(hexc, name=None, paint=None):
-    """Ahşap: tahta boyunca (grain u) dalgalı yıllık halka bantları + ince lifler + düğüm lekeleri; paint verilirse üstünde
-    aşınmış boya (kenarlara doğru ahşap görünür)."""
+class _G:
+    """Düğüm kurmayı kısaltan yardımcı (malzeme ağacı içinde)."""
+    def __init__(self, nt): self.nt = nt; self.n = nt.nodes; self.l = nt.links
+    def math(self, op, a, b=None, clamp=False):
+        m = self.n.new('ShaderNodeMath'); m.operation = op; m.use_clamp = clamp
+        for i, x in enumerate((a, b)):
+            if x is None: continue
+            if isinstance(x, (int, float)): m.inputs[i].default_value = x
+            else: self.l.new(x, m.inputs[i])
+        return m.outputs[0]
+    def rng(self, x, f0, f1, t0=0.0, t1=1.0, smooth=True):
+        r = self.n.new('ShaderNodeMapRange'); r.clamp = True
+        if smooth: r.interpolation_type = 'SMOOTHSTEP'
+        r.inputs['From Min'].default_value = f0; r.inputs['From Max'].default_value = f1
+        r.inputs['To Min'].default_value = t0; r.inputs['To Max'].default_value = t1
+        self.l.new(x, r.inputs['Value']); return r.outputs[0]
+    def mix(self, fac, a, b, blend='MIX'):
+        m = self.n.new('ShaderNodeMix'); m.data_type = 'RGBA'; m.blend_type = blend
+        for idx, x in ((0, fac), (6, a), (7, b)):
+            if isinstance(x, (int, float)): m.inputs[idx if idx else 'Factor'].default_value = x
+            elif isinstance(x, str): m.inputs[idx].default_value = srgb(x)
+            else: self.l.new(x, m.inputs[idx if idx else 'Factor'])
+        return m.outputs[2]
+    def noise(self, vec, scale, detail=4, rough=0.5, out='Fac'):
+        z = self.n.new('ShaderNodeTexNoise'); z.inputs['Scale'].default_value = scale; z.inputs['Detail'].default_value = detail
+        z.inputs['Roughness'].default_value = rough; self.l.new(vec, z.inputs['Vector']); return z.outputs[out]
+    def vor(self, vec, scale, feature='F1', out='Distance'):
+        v = self.n.new('ShaderNodeTexVoronoi'); v.feature = feature; v.inputs['Scale'].default_value = scale
+        self.l.new(vec, v.inputs['Vector']); return v.outputs[out]
+    def mapping(self, vec, scale):
+        m = self.n.new('ShaderNodeMapping'); m.inputs['Scale'].default_value = scale; self.l.new(vec, m.inputs['Vector']); return m.outputs[0]
+    def obj(self):
+        t = self.n.new('ShaderNodeTexCoord'); return t.outputs['Object']
+    def z(self):
+        sp = self.n.new('ShaderNodeSeparateXYZ'); self.l.new(self.obj(), sp.inputs[0]); return sp.outputs['Z']
+    def nz(self):
+        g = self.n.new('ShaderNodeNewGeometry'); sp = self.n.new('ShaderNodeSeparateXYZ'); self.l.new(g.outputs['Normal'], sp.inputs[0]); return sp.outputs['Z']
+    def edges(self, lo=0.52, hi=0.6):
+        """Dış kenar maskesi (Cycles 'Pointiness'; pişirmede çalışır): köşeler aşınır."""
+        g = self.n.new('ShaderNodeNewGeometry'); return self.rng(g.outputs['Pointiness'], lo, hi)
+
+def weather(G, col, amt=1.0, grime_z=(0.0, 0.4), crack_uv=None):
+    """Ortak eskime katmanları (ahşap/boya/halat…): güneşte gümüşi solma lekeleri, ince çizikler, kenar aşınması (açık),
+    dipte toprak kiri + yosun izi (nesne Z, gürültüyle yırtık sınır), yer yer koyu nem lekesi."""
+    o = G.obj()
+    # gümüşi solma (güneş): geniş, yumuşak lekeler
+    sil = G.rng(G.noise(o, 1.4, 6, 0.6), 0.56, 0.74, 0, 0.18 * amt)
+    col = G.mix(sil, col, '#9c958a')
+    # nem/leke: koyu, düzensiz
+    wet = G.rng(G.noise(o, 3.2, 8, 0.65), 0.6, 0.75, 0, 0.3 * amt)
+    col = G.mix(wet, col, col, 'MULTIPLY')
+    # çizikler: ince, rastgele yönlü açık çizgiler (bükülmüş voronoi kenarı), seyrek
+    sc = G.vor(G.mapping(o, (9, 2.5, 9)), 3.0, 'DISTANCE_TO_EDGE')
+    scm = G.math('MULTIPLY', G.rng(sc, 0.012, 0.0, 0, 1), G.rng(G.noise(o, 4.0), 0.55, 0.62))
+    col = G.mix(G.math('MULTIPLY', scm, 0.3 * amt), col, '#d9c8a8')
+    # kenar aşınması
+    col = G.mix(G.math('MULTIPLY', G.edges(0.56, 0.66), 0.22 * amt), col, '#e8d9bc')
+    # dip kiri + yosun
+    zn = G.math('ADD', G.z(), G.math('MULTIPLY', G.noise(o, 5, 6), 0.22))
+    grime = G.rng(zn, grime_z[1], grime_z[0], 0, 0.55 * amt)
+    col = G.mix(grime, col, '#4b3a26')
+    moss = G.math('MULTIPLY', G.rng(zn, grime_z[0] + (grime_z[1] - grime_z[0]) * 0.55, grime_z[0], 0, 0.55 * amt),
+                  G.rng(G.noise(o, 9, 4), 0.5, 0.62))
+    col = G.mix(moss, col, '#5d7f34')
+    return col
+
+def m_wood(hexc, name=None, paint=None, age=1.0, grime=(0.0, 0.4)):
+    """Ahşap: tahta boyunca (grain u) dalgalı yıllık halka bantları + ince lifler + düğüm lekeleri + boyuna ince çatlaklar;
+    eskime (weather): gümüşi solma, çizik, kenar aşınması, dipte kir/yosun. paint verilirse üstünde aşınmış boya
+    (kenarlardan ve rastgele pullardan ahşap görünür; boya güneşte solar, çatlak içinde kir birikir)."""
     def b(nt, bsdf):
-        n = nt.nodes; l = nt.links
+        n = nt.nodes; l = nt.links; G = _G(nt)
         uv = uv_node(nt)
         mp = n.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (1.0, 7.0, 1.0); l.new(uv.outputs[0], mp.inputs['Vector'])
         wv = n.new('ShaderNodeTexWave'); wv.wave_type = 'BANDS'; wv.bands_direction = 'Y'
@@ -169,18 +236,26 @@ def m_wood(hexc, name=None, paint=None):
         kn.inputs['To Min'].default_value = 0.6; kn.inputs['To Max'].default_value = 0; l.new(vo.outputs['Distance'], kn.inputs['Value'])
         knm = n.new('ShaderNodeMix'); knm.data_type = 'RGBA'; knm.inputs[7].default_value = srgb(_shade(hexc, 0.55))
         l.new(kn.outputs[0], knm.inputs['Factor']); l.new(fib.outputs[2], knm.inputs[6])
-        out = knm.outputs[2]
+        wood = knm.outputs[2]
+        # boyuna çatlaklar: boyca uzatılmış hücre kenarları, seyrek ve kesik
+        ck = G.vor(G.mapping(uv.outputs[0], (0.5, 9.0, 1.0)), 2.0, 'DISTANCE_TO_EDGE')
+        crack = G.math('MULTIPLY', G.rng(ck, 0.03, 0.0, 0, 1), G.rng(G.noise(uv.outputs[0], 2.2), 0.5, 0.6))
+        out = wood
         if paint:
-            pn = n.new('ShaderNodeTexNoise'); pn.inputs['Scale'].default_value = 4.0; pn.inputs['Detail'].default_value = 6
-            tcp = n.new('ShaderNodeTexCoord'); l.new(tcp.outputs['Object'], pn.inputs['Vector'])
-            wear = n.new('ShaderNodeMapRange'); wear.interpolation_type = 'SMOOTHSTEP'
-            wear.inputs['From Min'].default_value = 0.68; wear.inputs['From Max'].default_value = 0.74
-            wear.inputs['To Min'].default_value = 1; wear.inputs['To Max'].default_value = 0; l.new(pn.outputs['Fac'], wear.inputs['Value'])
-            pc = n.new('ShaderNodeMix'); pc.data_type = 'RGBA'; pc.blend_type = 'MULTIPLY'; pc.inputs['Factor'].default_value = 0.25
-            pc.inputs[6].default_value = srgb(paint); l.new(nz.outputs['Color'], pc.inputs[7])
-            pm = n.new('ShaderNodeMix'); pm.data_type = 'RGBA'
-            l.new(wear.outputs[0], pm.inputs['Factor']); l.new(out, pm.inputs[6]); l.new(pc.outputs[2], pm.inputs[7])
-            out = pm.outputs[2]
+            o = G.obj()
+            # boya: güneşte solma (ton dalgalanması) + fırça izi (grain yönünde)
+            pcol = G.mix(G.rng(G.noise(o, 1.2, 4), 0.35, 0.75, 0, 0.35), paint, _shade(paint, 1.25))
+            pcol = G.mix(0.18, pcol, nz.outputs['Color'], 'OVERLAY')
+            # pul pul dökülme: gürültü + kenarlar + çizikler
+            chips = G.math('ADD', G.noise(o, 5.0, 8, 0.6), G.math('MULTIPLY', G.edges(0.55, 0.65), 0.18))
+            chips = G.math('ADD', chips, G.math('MULTIPLY', G.rng(G.noise(G.mapping(uv.outputs[0], (1, 18, 1)), 2.5), 0.62, 0.7), 0.1 * age))
+            keep = G.rng(chips, 0.71 - 0.03 * age, 0.685 - 0.03 * age)       # 1 = boya duruyor
+            # dökülen boyanın kenarında koyu çizgi (pul kenarı)
+            rim = G.math('MULTIPLY', G.rng(chips, 0.665 - 0.03 * age, 0.685 - 0.03 * age), G.rng(chips, 0.73 - 0.03 * age, 0.71 - 0.03 * age))
+            out = G.mix(keep, wood, pcol)
+            out = G.mix(G.math('MULTIPLY', rim, 0.35), out, out, 'MULTIPLY')
+        out = G.mix(G.math('MULTIPLY', crack, 0.75), out, '#2e2015')
+        out = weather(G, out, age, grime)
         l.new(out, bsdf.inputs['Base Color'])
     return nodes_mat(name or ('wood' + hexc + (paint or '')), b)
 

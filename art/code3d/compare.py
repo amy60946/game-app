@@ -25,10 +25,16 @@ PAIR = {   # ad: (mevcut, yeni, hedef boy/genişlik, kamera uzaklığı, kamera 
     'sign': ('p_sign', 'c_sign', ('h', 1.9), 3.2, 16),
     'crates': ('p_crates', 'c_crates', ('w', 1.8), 3.6, 22),
     'boat': ('p_boat', 'c_boat', ('w', 2.4), 3.8, 30),
-    'shop': ('b_shop', 'c_shop', ('w', 3.4), 5.6, 20),
+    'shop': ('b_shop', 'c_shop', ('w', 3.4), 5.0, 20),
     'pier': ('b_pier', 'c_pier', ('w', 3.4), 5.4, 30),
     'lighthouse': ('b_lighthouse', 'c_lighthouse', ('h', 4.8), 8.0, 14),
     'board': ('b_task_board', 'c_board', ('h', 2.3), 4.0, 14),
+    'fence_close': ('p_fence', 'c_fence', ('w', 1.9), 1.5, 14),
+    'lantern_close': ('p_lantern', 'c_lantern', ('h', 2.0), 1.5, 10),
+    'sign_close': ('p_sign', 'c_sign', ('h', 1.9), 1.7, 8),
+    'crates_close': ('p_crates', 'c_crates', ('w', 1.8), 1.7, 22),
+    'boat_close': ('p_boat', 'c_boat', ('w', 2.4), 2.0, 28),
+    'shop_close': ('b_shop', 'c_shop', ('w', 3.4), 2.6, 12),
     # parti 2
     'garden': ('b_garden', 'c_garden', ('w', 3.4), 5.2, 32),
     'surf': ('b_surf', 'c_surf', ('w', 3.4), 5.4, 22),
@@ -39,7 +45,7 @@ PAIR = {   # ad: (mevcut, yeni, hedef boy/genişlik, kamera uzaklığı, kamera 
     'mountain': ('b_mountain', 'c_mountain', ('w', 3.8), 7.2, 20),
     'ski': ('b_ski_hill', 'c_ski', ('w', 3.8), 6.4, 24),
 }
-GROUND = {'rock': '#f1d89c', 'boat': '#f1d89c', 'crates': '#f1d89c', 'pier': '#4fb6d8', 'surf': '#f1d89c', 'ski': '#e8f0fb'}
+GROUND = {'rock': '#f1d89c', 'boat': '#f1d89c', 'crates': '#f1d89c', 'boat_close': '#f1d89c', 'crates_close': '#f1d89c', 'pier': '#4fb6d8', 'surf': '#f1d89c', 'ski': '#e8f0fb'}
 
 def toon_mat(name, tex_path=None, color=None):
     """Oyundaki Pofi/Toon'a yakın: L = güneş (gölge dahil); t = yumuşak eşik; renk = doku × karışım(gölge, ışık)."""
@@ -168,7 +174,7 @@ for name in PAIRS:
             g.data.materials.append(toon_mat('ground', None, srgb(GROUND.get(name, '#7cc24e'))))   # kayalar oyunda kumsalda
         cam = bpy.data.cameras.new('c'); cam.sensor_fit = 'VERTICAL'; cam.angle = math.radians(52 if name != 'cloud' else 40)
         co = bpy.data.objects.new('c', cam); sc.collection.objects.link(co); sc.camera = co
-        tgt = mathutils.Vector((0, 0, size.z * (0.32 if name == 'home_close' else 0.45)))
+        tgt = mathutils.Vector((0, 0, size.z * (0.32 if name == 'home_close' else 0.62 if name in ('lantern_close', 'sign_close') else 0.45)))
         p = math.radians(pitch); y = math.radians(-25)
         co.location = tgt + mathutils.Vector((math.sin(y) * math.cos(p), -math.cos(y) * math.cos(p), math.sin(p))) * dist
         co.rotation_euler = (tgt - co.location).to_track_quat('-Z', 'Y').to_euler()
