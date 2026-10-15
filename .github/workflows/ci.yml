@@ -114,6 +114,7 @@ jobs:
           targetPlatform: WebGL
           buildMethod: Pofi.EditorTools.BuildScript.Build
           buildName: PofiAdasi
+          allowDirtyBuild: true   # server.json / build_number.txt derleme öncesi yazılıyor (gerçek sunucu anahtarı gelince "kirli dal" hatası)
       - name: Önizleme bilgisini yaz
         run: |
           sudo chown -R "$(id -u)" build
@@ -158,6 +159,7 @@ jobs:
           targetPlatform: Android
           buildMethod: Pofi.EditorTools.BuildScript.Build
           buildName: PofiAdasi
+          allowDirtyBuild: true   # server.json / build_number.txt derleme öncesi yazılıyor (gerçek sunucu anahtarı gelince "kirli dal" hatası)
       - uses: actions/upload-artifact@v4
         with:
           name: pofi-adasi-android
