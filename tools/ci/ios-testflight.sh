@@ -4,9 +4,17 @@
 # Gerekli: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (p8 dosyasının metni), APPLE_TEAM_ID. Kullanım: ios-testflight.sh <xcode_proje_klasörü>
 set -euo pipefail
 proj="$1"
-for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do
-  if [ -z "${!v:-}" ]; then echo "::warning::$v secret yok: TestFlight yüklemesi atlandı (docs/TESTFLIGHT.md)."; exit 0; fi
-done
+missing=""
+for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do [ -z "${!v:-}" ] && missing="$missing $v"; done
+if [ -n "$missing" ]; then
+  # secret'lar yokken de Xcode derlemesini imzasız doğrula (yerel eklenti, Unity çerçevesi derleniyor mu?)
+  echo "::warning::Eksik secret:$missing — TestFlight yüklemesi atlandı (docs/TESTFLIGHT.md). İmzasız derleme denetimi yapılıyor."
+  cd "$proj"
+  xcodebuild -project Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release \
+    -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO -quiet build
+  echo "İmzasız iOS derlemesi başarılı."
+  exit 0
+fi
 keydir="$RUNNER_TEMP/asc"; mkdir -p "$keydir"; chmod 700 "$keydir"
 key="$keydir/AuthKey_${ASC_KEY_ID}.p8"
 printf '%s\n' "$ASC_KEY_P8" > "$key"; chmod 600 "$key"
