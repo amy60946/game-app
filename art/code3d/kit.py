@@ -204,3 +204,121 @@ def export_palette_fbx(path_noext, objs, cell=8, cells=16):
     bpy.ops.export_scene.fbx(filepath=path_noext + '.fbx', use_selection=True, apply_scale_options='FBX_SCALE_ALL',
                              axis_forward='-Z', axis_up='Y', bake_space_transform=True, mesh_smooth_type='FACE', add_leaf_bones=False)
     return sum(len(p.vertices) - 2 for p in ob.data.polygons), len(colors)
+
+
+# ------------------------------------------------------------------ doku pişirme (v3: doğal yüzey)
+# Parçalar prosedürel malzemelerle (ahşap damarı, kabuk lifi, yosun, yaprak damarı…) boyanır; hepsi tek meshe birleşir,
+# otomatik UV açılır, Cycles ile RENK + ORTAM GÖLGESİ (AO) tek dokuya pişirilir → Unity'de tek doku + tek malzeme.
+# AO: girinti ve dip kısımlar yumuşakça koyulaşır (keskin değil, geçişli) — oyundaki toon ışığın altında da kalır.
+
+def nodes_mat(name, build):
+    """Düğümlü malzeme: build(nt, bsdf) içinde Base Color'a bağlanacak düğümleri kurar."""
+    m = bpy.data.materials.new(name); m.use_nodes = True
+    nt = m.node_tree; b = nt.nodes['Principled BSDF']
+    b.inputs['Roughness'].default_value = 0.8
+    build(nt, b)
+    return m
+
+def ramp(nt, stops, interp='LINEAR'):
+    r = nt.nodes.new('ShaderNodeValToRGB'); r.color_ramp.interpolation = interp
+    el = r.color_ramp.elements
+    while len(el) < len(stops): el.new(0.5)
+    for e, (pos, hexc) in zip(el, stops): e.position = pos; e.color = srgb(hexc)
+    return r
+
+def export_baked_fbx(path_noext, objs, size=1024, ao_strength=0.6, ao_dist=0.35, margin=6, decimate=None):
+    import numpy as np
+    sc = bpy.context.scene
+    prev_engine = sc.render.engine
+    sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = 48
+    # birleştir (değiştiricileri uygula)
+    dg = bpy.context.evaluated_depsgraph_get()
+    meshes = []
+    for o in objs:
+        if o.type not in ('MESH', 'CURVE'): continue
+        e = o.evaluated_get(dg)
+        me = bpy.data.meshes.new_from_object(e, depsgraph=dg); me.transform(o.matrix_world)
+        for l in [l for l in me.uv_layers if l.name != 'grain']: me.uv_layers.remove(l)
+        if 'grain' not in me.uv_layers: me.uv_layers.new(name='grain')
+        o2 = bpy.data.objects.new('p', me); sc.collection.objects.link(o2); meshes.append(o2)
+    for o in objs:
+        try: bpy.data.objects.remove(o)
+        except Exception: pass
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in meshes: o.select_set(True)
+    bpy.context.view_layer.objects.active = meshes[0]
+    if len(meshes) > 1: bpy.ops.object.join()
+    ob = bpy.context.object; ob.name = 'model'
+    if decimate:
+        d = ob.modifiers.new('dec', 'DECIMATE'); d.ratio = decimate; bpy.ops.object.modifier_apply(modifier='dec')
+    # UV
+    uvm = ob.data.uv_layers.new(name='UVMap'); ob.data.uv_layers.active = uvm
+    bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.uv.smart_project(angle_limit=math.radians(85), island_margin=0.004, area_weight=0.0, scale_to_bounds=True)   # yüksek açı: her yaprak tek ada (küçük adalarda kenar sızması dama deseni yapıyordu)
+    bpy.ops.object.mode_set(mode='OBJECT')
+    # pişir: renk ve AO ayrı görüntülere
+    def bake(kind):
+        img = bpy.data.images.new(kind, size, size, alpha=False)
+        for m in ob.data.materials:
+            if m is None or not m.use_nodes: continue
+            n = m.node_tree.nodes.new('ShaderNodeTexImage'); n.image = img; n.name = 'bake_target'
+            m.node_tree.nodes.active = n
+        if kind == 'col':
+            sc.render.bake.use_pass_direct = False; sc.render.bake.use_pass_indirect = False; sc.render.bake.use_pass_color = True
+            bpy.ops.object.bake(type='DIFFUSE', pass_filter={'COLOR'}, margin=margin, use_clear=True)
+        else:
+            sc.world.light_settings.distance = ao_dist
+            bpy.ops.object.bake(type='AO', margin=margin, use_clear=True)
+        for m in ob.data.materials:
+            if m and m.use_nodes and 'bake_target' in m.node_tree.nodes: m.node_tree.nodes.remove(m.node_tree.nodes['bake_target'])
+        return np.array(img.pixels[:]).reshape(size, size, 4)
+    if sc.world is None: sc.world = bpy.data.worlds.new('w')
+    col = bake('col'); ao = bake('ao')
+    a = ao[..., :1]
+    a = 1.0 - ao_strength * (1.0 - a)            # yumuşak: tam siyaha inmez
+    out = col.copy(); out[..., :3] = col[..., :3] * a
+    rgb = out[..., :3]   # bayt görüntü pikselleri zaten sRGB kodlu (ikinci dönüşüm soluklaştırıyordu)
+    from PIL import Image
+    im = (np.clip(rgb, 0, 1) * 255).astype(np.uint8)[::-1]
+    Image.fromarray(im).save(path_noext + '_basecolor.png')
+    ob.data.materials.clear()
+    if 'grain' in ob.data.uv_layers: ob.data.uv_layers.remove(ob.data.uv_layers['grain'])
+    # iki yüzlü parçalar ('ds' = 1: yaprak, ot, lif): arka yüz aynı UV ile ters çevrilip eklenir (pişirmeyi bozmaz)
+    if 'ds' in ob.data.attributes:
+        bm = bmesh.new(); bm.from_mesh(ob.data)
+        lay = bm.faces.layers.int.get('ds')
+        faces = [f for f in bm.faces if f[lay] == 1]
+        if faces:
+            res = bmesh.ops.duplicate(bm, geom=faces)
+            nf = [g for g in res['geom'] if isinstance(g, bmesh.types.BMFace)]
+            nv = [g for g in res['geom'] if isinstance(g, bmesh.types.BMVert)]
+            bmesh.ops.reverse_faces(bm, faces=nf)
+            bm.normal_update()
+            for v in nv: v.co += v.normal * 0.004
+        bm.to_mesh(ob.data); bm.free()
+        ob.data.attributes.remove(ob.data.attributes['ds'])
+    bpy.ops.object.select_all(action='DESELECT'); ob.select_set(True)
+    bpy.ops.export_scene.fbx(filepath=path_noext + '.fbx', use_selection=True, apply_scale_options='FBX_SCALE_ALL',
+                             axis_forward='-Z', axis_up='Y', bake_space_transform=True, mesh_smooth_type='FACE', add_leaf_bones=False)
+    sc.render.engine = prev_engine
+    return sum(len(p.vertices) - 2 for p in ob.data.polygons)
+
+
+def grain_uv(o, scale=1.0, along=None):
+    """Parçanın KENDİ eksenlerinde damar koordinatı ('grain' UV): u = en uzun eksen boyunca (metre·scale), v = ikinci eksen.
+    Birleştirmeden sonra da her tahta kendi yönünde damar taşır."""
+    me = o.data
+    if 'grain' in me.uv_layers: me.uv_layers.remove(me.uv_layers['grain'])
+    lay = me.uv_layers.new(name='grain')
+    xs = [v.co for v in me.vertices]
+    size = [max(c[i] for c in xs) - min(c[i] for c in xs) for i in range(3)]
+    order = sorted(range(3), key=lambda i: -size[i]) if along is None else [along] + [i for i in sorted(range(3), key=lambda i: -size[i]) if i != along]
+    a, b = order[0], order[1]
+    for poly in me.polygons:
+        for li in poly.loop_indices:
+            co = me.vertices[me.loops[li].vertex_index].co
+            lay.data[li].uv = (co[a] * scale, co[b] * scale + (sum(map(ord, o.name)) % 97) * 0.37)
+    return lay
+
+def uv_node(nt, name='grain'):
+    n = nt.nodes.new('ShaderNodeUVMap'); n.uv_map = name; return n

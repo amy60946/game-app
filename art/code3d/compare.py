@@ -12,17 +12,19 @@ args = sys.argv[sys.argv.index('--') + 1:]
 NEW, OUTP, PAIRS = args[0], args[1], args[2:]
 
 PAIR = {   # ad: (mevcut, yeni, hedef boy/genişlik, kamera uzaklığı, kamera yüksekliği açısı)
-    'palm': ('palm', 'g_palm', ('h', 4.6), 9.0, 18),
-    'rock': ('p_rock', 'g_rock', ('w', 1.6), 3.8, 24),
-    'bush': ('p_bush', 'g_bush', ('w', 1.5), 3.8, 24),
-    'flowers': ('p_flowers', 'g_flowers', ('w', 1.1), 2.8, 28),
-    'home': ('b_home', 'g_hut', ('w', 4.8), 11.0, 22),
+    'palm': ('palm', 'c_palm', ('h', 4.6), 9.0, 18),
+    'rock': ('p_rock', 'c_rock', ('w', 1.8), 4.0, 24),
+    'bush': ('p_bush', 'c_bush', ('w', 1.5), 3.8, 24),
+    'flowers': ('p_flowers', 'c_flowers', ('w', 1.1), 2.8, 28),
+    'home': ('b_home', 'c_house', ('w', 5.2), 10.5, 22),
+    'home_close': ('b_home', 'c_house', ('w', 5.2), 5.2, 14),
     'cloud': ('*cloud', 'g_cloud', ('w', 5.0), 12.0, 4),
 }
 
 def toon_mat(name, tex_path=None, color=None):
     """Oyundaki Pofi/Toon'a yakın: L = güneş (gölge dahil); t = yumuşak eşik; renk = doku × karışım(gölge, ışık)."""
     m = bpy.data.materials.new(name); m.use_nodes = True
+    m.use_backface_culling = True          # oyundaki gibi (Unity: arkaya bakan yüz çizilmez)
     nt = m.node_tree; n = nt.nodes; l = nt.links
     for x in list(n): n.remove(x)
     out = n.new('ShaderNodeOutputMaterial')
@@ -30,7 +32,7 @@ def toon_mat(name, tex_path=None, color=None):
     s2r = n.new('ShaderNodeShaderToRGB'); l.new(dif.outputs[0], s2r.inputs[0])
     bw = n.new('ShaderNodeRGBToBW'); l.new(s2r.outputs['Color'], bw.inputs[0])
     ramp = n.new('ShaderNodeMapRange'); ramp.interpolation_type = 'SMOOTHSTEP'
-    ramp.inputs['From Min'].default_value = 0.025; ramp.inputs['From Max'].default_value = 0.075   # güneş 1 W: aydınlık ≈ 0.32·cos
+    ramp.inputs['From Min'].default_value = 0.0; ramp.inputs['From Max'].default_value = 0.16   # güneş 1 W: aydınlık ≈ 0.32·cos; geniş, yumuşak geçiş
     l.new(bw.outputs[0], ramp.inputs['Value'])
     if tex_path:
         tex = n.new('ShaderNodeTexImage'); tex.image = bpy.data.images.load(tex_path); tex.interpolation = 'Closest' if '/g_' in tex_path or os.path.basename(tex_path).startswith('g_') else 'Linear'
@@ -134,7 +136,7 @@ for name in PAIRS:
     for side, label in ((cur, 'Mevcut'), (new, 'Yeni (kodla)')):
         sc = scene()
         if side == '*cloud': objs = cur_cloud()
-        elif side.startswith('g_') and os.path.exists(f'{NEW}/{side}.fbx'): objs = load_fbx(f'{NEW}/{side}.fbx', f'{NEW}/{side}_basecolor.png')
+        elif side.startswith(('g_', 'c_')) and os.path.exists(f'{NEW}/{side}.fbx'): objs = load_fbx(f'{NEW}/{side}.fbx', f'{NEW}/{side}_basecolor.png')
         elif side.startswith('g_'): objs = load_fbx(f'{ENV}/{side}/{side}.fbx', f'{ENV}/{side}/{side}_basecolor.png')
         else:
             tex = f'{ENV}/{side}/{side}_basecolor.jpg'
@@ -146,7 +148,7 @@ for name in PAIRS:
             g.data.materials.append(toon_mat('ground', None, srgb('#f1d89c' if name == 'rock' else '#7cc24e')))   # kayalar oyunda kumsalda
         cam = bpy.data.cameras.new('c'); cam.sensor_fit = 'VERTICAL'; cam.angle = math.radians(52 if name != 'cloud' else 40)
         co = bpy.data.objects.new('c', cam); sc.collection.objects.link(co); sc.camera = co
-        tgt = mathutils.Vector((0, 0, size.z * 0.45))
+        tgt = mathutils.Vector((0, 0, size.z * (0.32 if name == 'home_close' else 0.45)))
         p = math.radians(pitch); y = math.radians(-25)
         co.location = tgt + mathutils.Vector((math.sin(y) * math.cos(p), -math.cos(y) * math.cos(p), math.sin(p))) * dist
         co.rotation_euler = (tgt - co.location).to_track_quat('-Z', 'Y').to_euler()

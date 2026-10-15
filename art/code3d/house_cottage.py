@@ -5,7 +5,7 @@
 import sys, os, math, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kit import *
-ARGS = sys.argv[sys.argv.index('--') + 1:]; OUT = ARGS[0]; UNITY = 'unity' in ARGS; os.makedirs(OUT, exist_ok=True)
+ARGS = sys.argv[sys.argv.index('--') + 1:]; OUT = ARGS[0]; UNITY = 'unity' in ARGS; V3 = 'v3' in ARGS; os.makedirs(OUT, exist_ok=True)
 import kit
 kit.LOW = UNITY
 R = random.Random(7)
@@ -23,6 +23,17 @@ GOLD = mat('gold', '#f2c14e', rough=0.3, coat=0.5)
 LAMP = mat('lamp', '#ffd36b', rough=0.3, coat=0, emit=3.0)
 LEAF = mat('leaf', '#4caf50', rough=0.6, coat=0)
 FLW = [mat('fpink', '#ff7aa8', 0.5, 0), mat('fyel', '#ffd23f', 0.5, 0), mat('fwht', '#ffffff', 0.5, 0)]
+
+if V3:
+    # v3 (15 Ekim yorumları): dokulu malzemeler — ahşap damarı, aşınmış boya, kiremit tonları, dokulu taş
+    import assets_v3 as A3
+    WOOD = [A3.m_wood(c, f'wood{i}') for i, c in enumerate(['#b9794a', '#a8693d', '#c48a57', '#9c6239', '#b27247'])]
+    DARK = A3.m_wood('#6e4528', 'darkwood')
+    DECK = [A3.m_wood(c, f'deck{i}') for i, c in enumerate(['#c99a66', '#bb8b58', '#d3a873'])]
+    TEAL = A3.m_wood('#b98a5a', 'teal', paint='#2fa3a0')
+    CREAM = A3.m_wood('#c9a77a', 'trim', paint='#f4e6c6')
+    ROOF = [A3.m_tile(c, f'roof{i}') for i, c in enumerate(['#e0684a', '#d45b3f', '#ea7b58', '#cf6a4d'])]
+    STONE = [A3.m_rock()]
 
 W, D, H = 2.6, 2.2, 1.7          # duvar genişliği (x), derinlik (y), yükseklik
 Z0 = 0.38                        # döşeme üstü
@@ -176,7 +187,28 @@ objs.append(rbox('crate', (-1.25, -1.55, Z0 + 0.2), (0.4, 0.4, 0.4), WOOD[2], ro
 for d in (-0.13, 0, 0.13):
     objs.append(rbox('slat', (-1.25 + d * math.cos(math.radians(12)), -1.55 - 0.205 + d * math.sin(math.radians(12)), Z0 + 0.2), (0.08, 0.02, 0.42), WOOD[3], rot=(0, 0, 12), bevel=0.01))
 
+if V3:
+    # evin dibi: kazık diplerinde taş temel, kapıya toprak patika, ot öbekleri, çiçekler, çakıl
+    R3 = random.Random(31)
+    for x in (-1.5, 0, 1.5):
+        for y in (-1.75, 0, 1.25):
+            for k in range(3):
+                a = k * 2.1 + R3.uniform(0, 1)
+                A3.pebble((x + math.cos(a) * 0.14, y + math.sin(a) * 0.14, 0.04), R3.uniform(0.07, 0.1), STONE[0], k + int(x * 10 + y * 7))
+    for k, (x, y) in enumerate(((0.05, -2.75), (-0.12, -3.25), (0.1, -3.75))):   # basamak taşları
+        st = A3.pebble((x, y, 0.02), 0.2, STONE[0], 40 + k); st.scale = (1.0, 0.8, 0.35)
+    G1 = A3.m_leaf('#3d8f35', '#5fb446', '#a3d862', '#c8ea86', 'grass')
+    A3.mesh_from_blades('tufts', A3.tufts((0.0, 0.0, 0.0), 2.4, 26, 5, h=(0.2, 0.36)), [G1])
+    BL = A3.m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'baseleaf')
+    A3.mesh_from_blades('basebush', A3.rosette([(1.9, -1.0), (-1.95, -0.8), (1.85, 1.1), (-1.9, 1.2)], R3, sizes=(0.3, 0.45), leaves=10), [BL])
+    A3.flower_heads([(1.95, -1.25, 0.32), (-2.0, -1.0, 0.28), (1.7, 1.35, 0.3), (-0.75, -2.35, 0.22), (0.8, -2.4, 0.24)], R3)
+
 parts = [o for o in sc.objects if o.type == 'MESH']
+if V3:
+    for o in parts:
+        if 'grain' not in o.data.uv_layers: kit.grain_uv(o)
+    tris = kit.export_baked_fbx(f'{OUT}/c_house', parts, size=2048, ao_strength=0.65, ao_dist=0.5)
+    print('c_house üçgen', tris, flush=True); sys.exit(0)
 if UNITY:
     tris, ncol = export_palette_fbx(f'{OUT}/g_hut', parts)
     print('g_hut üçgen', tris, 'renk', ncol, flush=True); sys.exit(0)
