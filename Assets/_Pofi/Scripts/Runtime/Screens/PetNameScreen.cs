@@ -19,8 +19,8 @@ namespace Pofi.Screens
             PetCamera(0.3f, 0.12f, 0.8f);   // yatay: pet solda, isim kartı sağda
             App.Stage.ShowPet(def, GrowthStage.Genc);
 
-            Ui.Label(Root, T("pet.name_title"), Th.Font(64), Color.white, new Vector2(0.72f, 0.82f), new Vector2(900f, 180f), FontStyle.Bold)
-                .gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -5f);
+            Candy.Caption(Root, T("pet.name_title"), 72, new Vector2(0.72f, 0.84f), new Vector2(1000f, 180f), new Vector2(0f, 0f), Candy.Deep(Candy.Orange));
+            StarSparkles.Around(Root, new Vector2(0.3f, 0.48f), new Vector2(0.14f, 0.3f), 8, 5);
             Ui.Button(Root, Th, "<", new Vector2(0.04f, 0.93f), new Vector2(110f, 100f), () =>
             {
                 App.State.PetId = null;
@@ -29,13 +29,13 @@ namespace Pofi.Screens
             }, false, default, 60);
 
             var card = Ui.Rect(Root, "Card", new Vector2(0.72f, 0.42f), new Vector2(820f, 520f));
-            Ui.Panel(card, Th.Panel, Th.Radius);
+            Candy.Shell(card, Candy.White).raycastTarget = false;
             _field = Ui.Input(card, Th, T("pet.name_placeholder"), new Vector2(0.5f, 0.76f), new Vector2(680f, 140f), PetNameRules.Max,
                 InputField.ContentType.Name, 70);
             _field.text = def.Name;
             _field.onValueChanged.AddListener(_ => _error.text = "");
             _error = Ui.Label(card, "", Th.Font(36), Th.Danger, new Vector2(0.5f, 0.48f), new Vector2(880f, 110f), FontStyle.Bold);
-            Ui.Button(card, Th, T("pet.name_button"), new Vector2(0.5f, 0.2f), new Vector2(640f, 140f), Submit);
+            Candy.Pill(card, Candy.Green, T("pet.name_button"), new Vector2(0.5f, 0.2f), new Vector2(640f, 140f), Vector2.zero, Submit, null, 54).gameObject.AddComponent<Pulse>();
             Footer();
         }
 

@@ -228,4 +228,37 @@ namespace Pofi.UI
             if (_t > Spawn + Life) Destroy(gameObject);
         }
     }
+
+    /// <summary>Parıldayan yıldız (pet seçimi/isim ekranında petin çevresinde): yavaşça büyüyüp söner, döner.</summary>
+    public sealed class Twinkle : MonoBehaviour
+    {
+        public float Phase, Speed = 1.3f;
+        private Image _img;
+        private void Awake() => _img = GetComponent<Image>();
+        private void Update()
+        {
+            var k = Mathf.Sin(Time.unscaledTime * Speed + Phase) * 0.5f + 0.5f;
+            transform.localScale = Vector3.one * Mathf.Lerp(0.55f, 1.15f, k);
+            transform.localRotation = Quaternion.Euler(0f, 0f, Time.unscaledTime * 25f + Phase * 40f);
+            if (_img != null) { var c = _img.color; c.a = Mathf.Lerp(0.25f, 1f, k); _img.color = c; }
+        }
+    }
+
+    public static class StarSparkles
+    {
+        /// <summary>Petin çevresine (ekran oranı merkez, yarıçap) birkaç parıldayan yıldız serper.</summary>
+        public static void Around(Transform parent, Vector2 center01, Vector2 radius, int count, int seed)
+        {
+            var rnd = new System.Random(seed);
+            for (var i = 0; i < count; i++)
+            {
+                var a = (i + (float)rnd.NextDouble() * 0.5f) / count * Mathf.PI * 2f;
+                var p = center01 + new Vector2(Mathf.Cos(a) * radius.x, Mathf.Sin(a) * radius.y);
+                var rt = Ui.IconImage(parent, "ui_star", p, 40f + (float)rnd.NextDouble() * 34f);
+                if (rt == null) return;
+                rt.GetComponent<Image>().raycastTarget = false;
+                var tw = rt.gameObject.AddComponent<Twinkle>(); tw.Phase = (float)rnd.NextDouble() * 6f; tw.Speed = 1f + (float)rnd.NextDouble();
+            }
+        }
+    }
 }

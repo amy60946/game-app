@@ -172,6 +172,63 @@ namespace Pofi.UI
             return t;
         }
 
+        public static readonly Color Gold = new Color(1f, 0.74f, 0.16f), Night = new Color(0.1f, 0.2f, 0.42f, 0.88f);
+
+        /// <summary>
+        /// Oyun HUD'u sol üst "pet kartı" (kullanıcı isteği 15 Ekim 2026: heyecan verici, 3B): altın halkalı portre madalyonu,
+        /// mavi şeker isim plakası, madalyonun köşesinde 3B yıldız + seviye sayısı, plakanın altında parlak XP kapsülü.
+        /// Döndürür: kök (dokunma hedefi). name/level/xp güncellenecek öğeler.
+        /// </summary>
+        public static RectTransform PetPlate(Transform parent, string petId, Color petColor, Vector2 offset, out Text name, out Text level, out Image xp)
+        {
+            var root = Ui.Rect(parent, "PetPlate", new Vector2(0f, 1f), new Vector2(560f, 170f), offset);
+            root.pivot = new Vector2(0f, 1f);
+            // isim plakası (madalyonun arkasından çıkar)
+            var plate = Ui.Rect(root, "Plate", new Vector2(0f, 1f), new Vector2(400f, 82f), new Vector2(330f, -44f));
+            Shell(plate, Blue).raycastTarget = false; plate.GetComponent<Image>().raycastTarget = false;
+            name = Caption(plate, "", 40, new Vector2(0.5f, 0.5f), new Vector2(330f, 80f), new Vector2(26f, 2f), Deep(Blue));
+            // XP kapsülü: koyu iz + altın dolgu + parlama
+            var track = Ui.Rect(root, "Xp", new Vector2(0f, 1f), new Vector2(360f, 34f), new Vector2(330f, -118f));
+            var ti = track.gameObject.AddComponent<Image>(); ti.sprite = Body; ti.type = Image.Type.Sliced; ti.color = Night; ti.raycastTarget = false;
+            track.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.8f);
+            var fillRt = Ui.Rect(track, "Fill", new Vector2(0f, 0.5f), new Vector2(352f, 26f), new Vector2(180f, 0f));
+            xp = fillRt.gameObject.AddComponent<Image>(); xp.sprite = Body; xp.type = Image.Type.Filled; xp.fillMethod = Image.FillMethod.Horizontal;
+            xp.color = Gold; xp.raycastTarget = false;
+            Img(fillRt, "Gloss", Gloss, new Color(1f, 1f, 1f, 0.9f), true);
+            Caption(track, "XP", 24, new Vector2(1f, 0.5f), new Vector2(60f, 34f), new Vector2(-34f, 1f), Deep(Gold));
+            // madalyon: altın halka + pet portresi
+            var med = Ui.Rect(root, "Medal", new Vector2(0f, 1f), new Vector2(164f, 164f), new Vector2(82f, -82f));
+            Shell(med, Gold).raycastTarget = false; med.GetComponent<Image>().raycastTarget = false;
+            var inner = Ui.Rect(med, "In", new Vector2(0.5f, 0.5f), new Vector2(128f, 128f));
+            var ii = inner.gameObject.AddComponent<Image>(); ii.sprite = Body; ii.type = Image.Type.Sliced; ii.color = Color.Lerp(petColor, Color.white, 0.55f); ii.raycastTarget = false;
+            var pic = Ui.Portrait(petId);
+            if (pic != null)
+            {
+                inner.gameObject.AddComponent<Mask>().showMaskGraphic = true;
+                var p = Ui.Rect(inner, "Pic", new Vector2(0.5f, 0.5f), new Vector2(150f, 150f), new Vector2(0f, 8f));
+                var pi = p.gameObject.AddComponent<Image>(); pi.sprite = pic; pi.preserveAspect = true; pi.raycastTarget = false;
+            }
+            // seviye yıldızı (madalyonun sağ altı)
+            var star = Ui.IconImage(root, "ui_star", new Vector2(0f, 1f), 92f, new Vector2(150f, -134f));
+            if (star != null) star.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -5f);
+            level = Caption(root, "", 38, new Vector2(0f, 1f), new Vector2(92f, 92f), new Vector2(150f, -132f), new Color(0.45f, 0.24f, 0f, 1f));
+            return root;
+        }
+
+        /// <summary>Sağ üst coin göstergesi: koyu cam kapsül, soldan taşan iri 3B coin, kalın beyaz sayı.</summary>
+        public static Text CoinPlate(Transform parent, Vector2 offset, float width = 280f)
+        {
+            var root = Ui.Rect(parent, "CoinPlate", new Vector2(1f, 1f), new Vector2(width, 92f), offset);
+            root.pivot = new Vector2(1f, 1f);
+            var bg = root.gameObject.AddComponent<Image>(); bg.sprite = Body; bg.type = Image.Type.Sliced; bg.color = Night; bg.raycastTarget = false;
+            var o = root.gameObject.AddComponent<Outline>(); o.effectColor = new Color(1f, 0.85f, 0.4f, 0.95f); o.effectDistance = new Vector2(3f, -3f);
+            root.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
+            Img(root, "Gloss", Gloss, new Color(1f, 1f, 1f, 0.35f), true);
+            var coin = Ui.IconImage(root, "ui_coin", new Vector2(0f, 0.5f), 118f, new Vector2(8f, 0f));
+            if (coin != null) coin.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -5f);
+            return Caption(root, "", 50, new Vector2(0.5f, 0.5f), new Vector2(width - 90f, 92f), new Vector2(34f, 2f), new Color(0.05f, 0.1f, 0.25f, 1f));
+        }
+
         /// <summary>Koyu ton (yazı konturu, kuyruk): panel renginin %45'i.</summary>
         public static Color Deep(Color c) => new Color(c.r * 0.45f, c.g * 0.45f, c.b * 0.45f, 1f);
 

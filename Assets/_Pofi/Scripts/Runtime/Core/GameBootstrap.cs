@@ -94,6 +94,8 @@ namespace Pofi.Core
             Ui.EnsureEventSystem();
             Canvas = Ui.CreateCanvas("Canvas", 0);
             Overlay = Ui.CreateCanvas("Overlay", 10);
+            Audio.Music.Init(Audio.Music.DefaultVolume);           // arka plan müziği (ilk dokunuşta duyulur)
+            MusicButton.Create(Overlay.transform, this);
 
             var restored = await Auth.RestoreAsync();
             if (restored != null) OnSignedIn(restored, route: false);

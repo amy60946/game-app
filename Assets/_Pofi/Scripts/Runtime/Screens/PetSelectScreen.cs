@@ -27,35 +27,41 @@ namespace Pofi.Screens
             PetCamera(0.42f, 0.24f, 0.9f);   // yatay: pet sol-ortada ve büyük (çocuğun odağı), bilgi kartı sağda
             App.Stage.Swiped = dir => { if (dir < 0) _picker.Next(); else _picker.Prev(); Show(); };
 
-            var white = Color.white;
-            Ui.Label(Root, T("pet.pick_title"), Th.Font(72), white, new Vector2(0.42f, 0.94f), new Vector2(1000f, 100f), FontStyle.Bold)
-                .gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -5f);
-            Ui.Label(Root, T("pet.pick_hint"), Th.Font(34), white, new Vector2(0.42f, 0.885f), new Vector2(1000f, 50f));
+            // oyun yazı tarzında başlık; petin çevresinde parıldayan yıldızlar
+            Candy.Caption(Root, T("pet.pick_title"), 84, new Vector2(0.42f, 0.93f), new Vector2(1100f, 110f), new Vector2(0f, 0f), Candy.Deep(Candy.Orange));
+            Candy.Caption(Root, T("pet.pick_hint"), 34, new Vector2(0.42f, 0.865f), new Vector2(1000f, 50f));
+            StarSparkles.Around(Root, new Vector2(0.42f, 0.56f), new Vector2(0.17f, 0.27f), 9, 3);
 
-            Ui.Button(Root, Th, "<", new Vector2(0.16f, 0.55f), new Vector2(130f, 180f), () => { _picker.Prev(); Show(); }, false, default, 80);
-            Ui.Button(Root, Th, ">", new Vector2(0.68f, 0.55f), new Vector2(130f, 180f), () => { _picker.Next(); Show(); }, false, default, 80);
+            var prev = Candy.Round(Root, Candy.Orange, null, 140f, new Vector2(0.16f, 0.55f), Vector2.zero, () => { _picker.Prev(); Show(); });
+            Candy.Caption(prev.transform, "<", 80, new Vector2(0.5f, 0.52f), new Vector2(140f, 140f));
+            var next = Candy.Round(Root, Candy.Orange, null, 140f, new Vector2(0.68f, 0.55f), Vector2.zero, () => { _picker.Next(); Show(); });
+            Candy.Caption(next.transform, ">", 80, new Vector2(0.5f, 0.52f), new Vector2(140f, 140f));
 
             var card = Ui.Rect(Root, "Info", new Vector2(0.84f, 0.64f), new Vector2(560f, 400f));
-            Ui.Panel(card, Th.Panel, Th.Radius);
+            Candy.Shell(card, Candy.White).raycastTarget = false;
             _name = Ui.Label(card, "", Th.Font(72), Th.Text, new Vector2(0.5f, 0.82f), new Vector2(520f, 100f), FontStyle.Bold);
             _species = Ui.Label(card, "", Th.Font(38), Th.SubtleText, new Vector2(0.5f, 0.62f), new Vector2(520f, 60f));
             _feature = Ui.Label(card, "", Th.Font(32), Th.SubtleText, new Vector2(0.5f, 0.32f), new Vector2(500f, 160f), FontStyle.Italic);
 
             _dots = new Image[_picker.Count];
+            // iri şeker çerçeveli küçük resimler (ekran genişliğine göre en çok 170): çocuk kolayca seçer
+            var step = Mathf.Min(176f, (Width - 60f) / _picker.Count);
+            var size = step - 14f;
             for (var i = 0; i < _picker.Count; i++)
             {
                 var def = App.Data.Pets[i];
-                var x = (i - (_picker.Count - 1) / 2f) * 140f;   // iri küçük resimler: çocuk kolayca seçer
-                var dot = Ui.PortraitIcon(Root, def.Id, Color.Lerp(Theme.Hex(def.MainColor), Color.white, 0.55f), new Vector2(0.5f, 0.1f), 124f, new Vector2(x, 0f));
-                _dots[i] = dot.GetComponent<Image>();
-                var btn = dot.gameObject.AddComponent<Button>();
+                var x = (i - (_picker.Count - 1) / 2f) * step;
+                var frame = Ui.Rect(Root, "Pick " + def.Id, new Vector2(0.5f, 0.11f), new Vector2(size, size), new Vector2(x, 0f));
+                _dots[i] = Candy.Shell(frame, Color.Lerp(Theme.Hex(def.MainColor), Color.white, 0.45f));
+                Ui.PortraitIcon(frame, def.Id, new Color(1f, 1f, 1f, 0f), new Vector2(0.5f, 0.5f), size * 0.86f);
+                var btn = frame.gameObject.AddComponent<Button>();
                 btn.targetGraphic = _dots[i];
+                frame.gameObject.AddComponent<PressBounce>();
                 var id = def.Id;
                 btn.onClick.AddListener(() => { _picker.JumpTo(id); Show(); });
-                dot.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.9f);
             }
 
-            Ui.Button(Root, Th, T("pet.pick_button"), new Vector2(0.84f, 0.3f), new Vector2(520f, 130f), AskConfirm);
+            Candy.Pill(Root, Candy.Green, T("pet.pick_button"), new Vector2(0.84f, 0.3f), new Vector2(540f, 140f), Vector2.zero, AskConfirm, null, 52).gameObject.AddComponent<Pulse>();
             Show();
         }
 
@@ -67,7 +73,11 @@ namespace Pofi.Screens
             _species.text = def.Species;
             _feature.text = def.Feature;
             for (var i = 0; i < _dots.Length; i++)
-                _dots[i].rectTransform.localScale = Vector3.one * (i == _picker.Index ? 1.18f : 0.95f);
+            {
+                var on = i == _picker.Index;
+                _dots[i].transform.parent.localScale = Vector3.one * (on ? 1.2f : 0.94f);
+                _dots[i].color = on ? Candy.Gold : Color.Lerp(Theme.Hex(App.Data.Pets[i].MainColor), Color.white, 0.45f);
+            }
         }
 
         private void AskConfirm()

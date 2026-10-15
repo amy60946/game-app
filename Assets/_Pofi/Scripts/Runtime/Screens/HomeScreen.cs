@@ -29,7 +29,8 @@ namespace Pofi.Screens
         private RectTransform _tidyBtn;
         private Coach _coach;
         private static readonly string[] GaugeIcons = { "food_apple", "clean_soap", "ui_heart", "home_bed" };
-        private Text _coins, _title, _feedCount, _washCount;
+        private Text _coins, _title, _levelNum, _feedCount, _washCount;
+        private Image _xpFill;
         private Image _xpBar;
         private SpeechBubble _bubble;
         private float _tick, _idle;
@@ -45,10 +46,12 @@ namespace Pofi.Screens
             App.Stage.SetAmbient(true);
 
             // Sahne üstü (14 Ekim 2026 kararı): sol üst rozet + gösterge halkaları, sağ üst coin ve evin düğmeleri, sağ alt bakım
-            _title = Candy.Badge(Root, "ui_star", "", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -24f), 84f, 440f);
+            // adayla aynı 3B pet kartı ve coin göstergesi
+            var pet = App.Data.Pet(App.State.PetId);
+            Candy.PetPlate(Root, App.State.PetId, Theme.Hex(pet.MainColor), new Vector2(24f, -16f), out _title, out _levelNum, out _xpFill);
             for (var i = 0; i < 4; i++)
-                _gaugeFills[i] = Candy.Gauge(Root, StatColors[i], GaugeIcons[i], 112f, new Vector2(0f, 1f), new Vector2(30f + 56f + i * 128f, -176f));
-            _coins = Candy.Badge(Root, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -24f), 84f, 250f);
+                _gaugeFills[i] = Candy.Gauge(Root, StatColors[i], GaugeIcons[i], 112f, new Vector2(0f, 1f), new Vector2(30f + 56f + i * 128f, -250f));
+            _coins = Candy.CoinPlate(Root, new Vector2(-30f, -22f));
 
             var row = new List<(string key, System.Action act)> { ("home.daily", () => QuestPanel()), ("album.button", () => App.Open(AppPage.Album)) };
             if (App.Levels.IsUnlocked("home_decor", App.Level)) row.Add(("decor.button", () => App.Open(AppPage.Decorate)));
@@ -115,7 +118,9 @@ namespace Pofi.Screens
             var st = App.State;
             for (var i = 0; i < 4; i++) _gaugeFills[i].fillAmount = st.Stats[Kinds[i]] / 100f;
             _coins.text = st.Wallet.Available.ToString();
-            _title.text = $"{st.PetName} · {T("home.level", App.Level)}";
+            _title.text = st.PetName;
+            _levelNum.text = App.Level.ToString();
+            Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
             _feedCount.text = Count(ItemCategory.Food).ToString();
             _washCount.text = Count(ItemCategory.Cleaning).ToString();
         }

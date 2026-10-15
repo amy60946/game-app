@@ -22,7 +22,7 @@ namespace Pofi.Screens
         private static readonly string[] HudIcons = { "food_apple", "clean_soap", "ui_heart", "home_bed" };
 
         private readonly Image[] _gauges = new Image[4];
-        private Text _levelText, _coinText, _feedCount, _washCount, _actionText;
+        private Text _levelText, _levelNum, _coinText, _feedCount, _washCount, _actionText;
         private RectTransform _action, _stickBase, _stickKnob, _tray, _leftBar;
         private System.Action _actionDo;
         private string _actionKey;
@@ -40,16 +40,15 @@ namespace Pofi.Screens
         {
             var hud = Ui.Fill(Root, "Hud");
             // sol üst
-            _levelText = Candy.Badge(hud, "ui_star", "", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -22f), 104f, 520f);
-            _levelBadge = (RectTransform)_levelText.transform.parent;
-            // XP çubuğu: rozetin altında; dolunca seviye atlanır (madde 11)
-            _xpFill = Ui.Bar(hud, new Vector2(0f, 1f), new Vector2(480f, 22f), new Color(1f, 1f, 1f, 0.45f), new Color(1f, 0.78f, 0.1f), 11f, new Vector2(290f, -146f));
+            // pet kartı: madalyon + isim plakası + seviye yıldızı + XP kapsülü (Candy.PetPlate)
+            var pet = App.Data.Pet(App.State.PetId);
+            _levelBadge = Candy.PetPlate(hud, App.State.PetId, Theme.Hex(pet.MainColor), new Vector2(24f, -16f), out _levelText, out _levelNum, out _xpFill);
             Color[] cols = { new Color(1f, 0.62f, 0.26f), new Color(0.24f, 0.79f, 1f), new Color(1f, 0.44f, 0.68f), new Color(0.48f, 0.84f, 0.42f) };
             for (var i = 0; i < 4; i++)
-                _gauges[i] = Candy.Gauge(hud, cols[i], HudIcons[i], 138f, new Vector2(0f, 1f), new Vector2(30f + 69f + i * 156f, -240f));
+                _gauges[i] = Candy.Gauge(hud, cols[i], HudIcons[i], 128f, new Vector2(0f, 1f), new Vector2(30f + 64f + i * 144f, -262f));
 
             // sağ üst
-            _coinText = Candy.Badge(hud, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -22f), 104f, 300f);
+            _coinText = Candy.CoinPlate(hud, new Vector2(-30f, -22f));
             var map = Candy.Pill(hud, Candy.Blue, T("map.overview"), new Vector2(1f, 1f), new Vector2(300f, 116f), new Vector2(-180f, -206f), ToggleMode, null, 48);
             _modeText = map.transform.Find("Label").GetComponent<Text>();
             _mapBtn = (RectTransform)map.transform;
@@ -114,7 +113,8 @@ namespace Pofi.Screens
         {
             var st = App.State;
             for (var i = 0; i < 4; i++) _gauges[i].fillAmount = st.Stats[HudKinds[i]] / 100f;
-            _levelText.text = $"{st.PetName} · {T("home.level", App.Level)}";
+            _levelText.text = st.PetName;
+            _levelNum.text = App.Level.ToString();
             _coinText.text = st.Wallet.Available.ToString();
             Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
             if ((_questT -= Time.deltaTime) <= 0f) { _questT = 1f; SetCount(_questCount, OpenQuests()); }
