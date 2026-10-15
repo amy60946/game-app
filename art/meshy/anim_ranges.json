@@ -1,0 +1,506 @@
+{
+ "pet_01@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 242,
+  "loopErr": 0.01,
+  "fps": 24
+ },
+ "pet_01@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.012,
+  "fps": 24
+ },
+ "pet_01@run": {
+  "first": 2,
+  "last": 17,
+  "loopEnd": 17,
+  "loopErr": 0.121,
+  "fps": 24
+ },
+ "pet_01@sleep": {
+  "first": 2,
+  "last": 139,
+  "loopEnd": 17,
+  "loopErr": 0.486,
+  "fps": 24
+ },
+ "pet_01@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.053,
+  "fps": 24
+ },
+ "pet_01@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.01,
+  "fps": 24
+ },
+ "pet_02@happy": {
+  "first": 2,
+  "last": 238,
+  "loopEnd": 238,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_02@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.013,
+  "fps": 24
+ },
+ "pet_02@run": {
+  "first": 2,
+  "last": 17,
+  "loopEnd": 17,
+  "loopErr": 0.139,
+  "fps": 24
+ },
+ "pet_02@sleep": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 18,
+  "loopErr": 0.468,
+  "fps": 24
+ },
+ "pet_02@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.06,
+  "fps": 24
+ },
+ "pet_02@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.012,
+  "fps": 24
+ },
+ "pet_03@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 243,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_03@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.009,
+  "fps": 24
+ },
+ "pet_03@run": {
+  "first": 2,
+  "last": 17,
+  "loopEnd": 17,
+  "loopErr": 0.135,
+  "fps": 24
+ },
+ "pet_03@sleep": {
+  "first": 2,
+  "last": 139,
+  "loopEnd": 26,
+  "loopErr": 0.472,
+  "fps": 24
+ },
+ "pet_03@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.059,
+  "fps": 24
+ },
+ "pet_03@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.012,
+  "fps": 24
+ },
+ "pet_04@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 238,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_04@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.01,
+  "fps": 24
+ },
+ "pet_04@run": {
+  "first": 2,
+  "last": 17,
+  "loopEnd": 17,
+  "loopErr": 0.135,
+  "fps": 24
+ },
+ "pet_04@sleep": {
+  "first": 2,
+  "last": 139,
+  "loopEnd": 17,
+  "loopErr": 0.486,
+  "fps": 24
+ },
+ "pet_04@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.058,
+  "fps": 24
+ },
+ "pet_04@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.012,
+  "fps": 24
+ },
+ "pet_05@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 238,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_05@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.008,
+  "fps": 24
+ },
+ "pet_05@run": {
+  "first": 2,
+  "last": 17,
+  "loopEnd": 17,
+  "loopErr": 0.114,
+  "fps": 24
+ },
+ "pet_05@sleep": {
+  "first": 2,
+  "last": 139,
+  "loopEnd": 21,
+  "loopErr": 0.418,
+  "fps": 24
+ },
+ "pet_05@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.048,
+  "fps": 24
+ },
+ "pet_05@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.01,
+  "fps": 24
+ },
+ "pet_06@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 244,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_06@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.013,
+  "fps": 24
+ },
+ "pet_06@run": {
+  "first": 2,
+  "last": 17,
+  "loopEnd": 17,
+  "loopErr": 0.148,
+  "fps": 24
+ },
+ "pet_06@sleep": {
+  "first": 2,
+  "last": 139,
+  "loopEnd": 17,
+  "loopErr": 0.486,
+  "fps": 24
+ },
+ "pet_06@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.063,
+  "fps": 24
+ },
+ "pet_06@wave": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 199,
+  "loopErr": 0.012,
+  "fps": 24
+ },
+ "pet_07@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 244,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_07@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_07@run": {
+  "first": 2,
+  "last": 17,
+  "loopEnd": 17,
+  "loopErr": 0.149,
+  "fps": 24
+ },
+ "pet_07@sleep": {
+  "first": 2,
+  "last": 139,
+  "loopEnd": 18,
+  "loopErr": 0.476,
+  "fps": 24
+ },
+ "pet_07@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.062,
+  "fps": 24
+ },
+ "pet_07@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.013,
+  "fps": 24
+ },
+ "pet_08@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 243,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_08@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.009,
+  "fps": 24
+ },
+ "pet_08@run": {
+  "first": 2,
+  "last": 17,
+  "loopEnd": 17,
+  "loopErr": 0.127,
+  "fps": 24
+ },
+ "pet_08@sleep": {
+  "first": 2,
+  "last": 139,
+  "loopEnd": 17,
+  "loopErr": 0.486,
+  "fps": 24
+ },
+ "pet_08@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.056,
+  "fps": 24
+ },
+ "pet_08@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_09@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 241,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_09@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.01,
+  "fps": 24
+ },
+ "pet_09@run": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 251,
+  "loopErr": 0.142,
+  "fps": 24
+ },
+ "pet_09@sleep": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 19,
+  "loopErr": 0.448,
+  "fps": 24
+ },
+ "pet_09@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.061,
+  "fps": 24
+ },
+ "pet_09@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.012,
+  "fps": 24
+ },
+ "pet_10@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 243,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_10@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.01,
+  "fps": 24
+ },
+ "pet_10@run": {
+  "first": 2,
+  "last": 17,
+  "loopEnd": 17,
+  "loopErr": 0.137,
+  "fps": 24
+ },
+ "pet_10@sleep": {
+  "first": 2,
+  "last": 139,
+  "loopEnd": 17,
+  "loopErr": 0.486,
+  "fps": 24
+ },
+ "pet_10@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.057,
+  "fps": 24
+ },
+ "pet_10@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.012,
+  "fps": 24
+ },
+ "pet_11@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 238,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_11@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.013,
+  "fps": 24
+ },
+ "pet_11@run": {
+  "first": 2,
+  "last": 17,
+  "loopEnd": 17,
+  "loopErr": 0.138,
+  "fps": 24
+ },
+ "pet_11@sleep": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 20,
+  "loopErr": 0.421,
+  "fps": 24
+ },
+ "pet_11@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.058,
+  "fps": 24
+ },
+ "pet_11@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.018,
+  "fps": 24
+ },
+ "pet_12@happy": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 241,
+  "loopErr": 0.011,
+  "fps": 24
+ },
+ "pet_12@idle": {
+  "first": 2,
+  "last": 98,
+  "loopEnd": 98,
+  "loopErr": 0.01,
+  "fps": 24
+ },
+ "pet_12@run": {
+  "first": 2,
+  "last": 251,
+  "loopEnd": 214,
+  "loopErr": 0.137,
+  "fps": 24
+ },
+ "pet_12@sleep": {
+  "first": 2,
+  "last": 139,
+  "loopEnd": 17,
+  "loopErr": 0.486,
+  "fps": 24
+ },
+ "pet_12@walk": {
+  "first": 2,
+  "last": 27,
+  "loopEnd": 27,
+  "loopErr": 0.061,
+  "fps": 24
+ },
+ "pet_12@wave": {
+  "first": 2,
+  "last": 130,
+  "loopEnd": 130,
+  "loopErr": 0.012,
+  "fps": 24
+ }
+}

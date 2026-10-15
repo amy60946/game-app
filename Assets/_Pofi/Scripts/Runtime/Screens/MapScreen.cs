@@ -33,6 +33,8 @@ namespace Pofi.Screens
         private sealed class Finger { public Vector2 Press, Last; public bool Moved; public Role Role; }
         private readonly Dictionary<int, Finger> _fingers = new Dictionary<int, Finger>();
         private int _stickFinger = int.MinValue;
+        private readonly HashSet<int> _alive = new HashSet<int>();
+        private readonly List<int> _stale = new List<int>();
         private Vector2 _press;                    // joystick merkezi (ekran pikseli)
         private bool _moved;                       // joystick sürüklendi mi
         private float _lastTouch = -10f;           // dokunma sonrası taklit fare olaylarını yok saymak için
@@ -145,9 +147,9 @@ namespace Pofi.Screens
             }
             _runBlend = Mathf.MoveTowards(_runBlend, running ? 1f : 0f, Time.deltaTime * 1.5f);
             var fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
-            var dist = Mathf.Lerp(3.9f, 4.6f, _runBlend) * Mathf.Max(0.85f, scale);   // pet kadrajda büyük (çocuğun odağı)
+            var dist = Mathf.Lerp(4.3f, 4.6f, _runBlend) * Mathf.Max(0.85f, scale);   // pet kadrajda büyük (çocuğun odağı); durunca da geniş görüş
             var pivot = p + Vector3.up * (hgt * 0.9f);
-            look = p + Vector3.up * (hgt * 0.55f) + fwd * Mathf.Lerp(0.6f, 1.4f, _runBlend);   // pet baştan ayağa ekranın alt-ortasında (yakın kamerada ayaklar kesilmesin), önü görünür
+            look = p + Vector3.up * (hgt * 0.55f) + fwd * Mathf.Lerp(1.3f, 1.5f, _runBlend);   // pet baştan ayağa ekranın alt-ortasında (yakın kamerada ayaklar kesilmesin), önü görünür
             // çarpışma (yay-kol + bıyık): arkada bina/tepe varsa kamera önce yana döner (±30°…±90°) ve açık görüş arar;
             // yoksa biraz yükselir (30°, 45°); hâlâ kapalıysa yaklaşır ama petin içine girmez. Dönüş ve yükselme yumuşak.
             float targetPitch = _userPitch, yawOff = 0f;
@@ -172,7 +174,7 @@ namespace Pofi.Screens
             pos = pivot + dir * dist;
             var floor = _world.transform.TransformPoint(new Vector3(0f, _terrain.Height(pos.x - MapWorld.Origin.x, pos.z - MapWorld.Origin.z), 0f)).y + 0.8f;
             if (pos.y < floor) pos.y = floor;
-            fov = Mathf.Lerp(48f, 53f, _runBlend);
+            fov = Mathf.Lerp(52f, 54f, _runBlend);   // durunca görüş daralmasın (kullanıcı geri bildirimi)
         }
 
         private static readonly float[] BoomPitches = { 20f, 30f, 45f };
@@ -244,6 +246,7 @@ namespace Pofi.Screens
 
         private void HandleInput()
         {
+            _alive.Clear();
             if (Input.touchCount > 0)
             {
                 _lastTouch = Time.unscaledTime;
@@ -252,15 +255,27 @@ namespace Pofi.Screens
                     var t = Input.GetTouch(i);
                     if (t.phase == TouchPhase.Began) FingerDown(t.fingerId, t.position, OverUi(t.fingerId));
                     else if (t.phase == TouchPhase.Moved || t.phase == TouchPhase.Stationary) FingerMove(t.fingerId, t.position);
-                    else FingerUp(t.fingerId, t.position, t.phase == TouchPhase.Canceled);
+                    else { FingerUp(t.fingerId, t.position, t.phase == TouchPhase.Canceled); continue; }
+                    _alive.Add(t.fingerId);
                 }
-                return;
             }
-            if (Time.unscaledTime - _lastTouch < 0.5f) return;   // dokunmatikte tarayıcının taklit fare olayları
-            const int mouse = -1;
-            if (Input.GetMouseButtonDown(0)) FingerDown(mouse, Input.mousePosition, OverUi(mouse));
-            else if (Input.GetMouseButton(0)) FingerMove(mouse, Input.mousePosition);
-            else if (Input.GetMouseButtonUp(0)) FingerUp(mouse, Input.mousePosition, false);
+            else if (Time.unscaledTime - _lastTouch >= 0.5f)       // dokunmatikte tarayıcının taklit fare olaylarını yok say
+            {
+                const int mouse = -1;
+                if (Input.GetMouseButtonDown(0)) FingerDown(mouse, Input.mousePosition, OverUi(mouse));
+                else if (Input.GetMouseButton(0)) FingerMove(mouse, Input.mousePosition);
+                else if (Input.GetMouseButtonUp(0)) FingerUp(mouse, Input.mousePosition, false);
+                if (Input.GetMouseButton(0)) _alive.Add(mouse);
+            }
+            // iPhone Safari parmak kalkınca "bitti" olayını bazen kaybediyor: ekranda olmayan parmakları bırak
+            // (yoksa joystick takılı kalıp pet haritanın sonuna kadar yürüyordu)
+            if (_fingers.Count > _alive.Count)
+            {
+                _stale.Clear();
+                foreach (var id in _fingers.Keys) if (!_alive.Contains(id)) _stale.Add(id);
+                foreach (var id in _stale) FingerUp(id, _fingers[id].Last, true);
+            }
+            if (_stickFinger == int.MinValue && _world.Walker != null && _world.Walker.Steering) EndStick();
         }
 
         private void FingerDown(int id, Vector2 pos, bool overUi)

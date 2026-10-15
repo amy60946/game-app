@@ -13,9 +13,16 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 4;
+        public override uint GetVersion() => 5;
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
+
+        /// <summary>Klip başına gerçek hareket aralığı (kare, 24 fps; art/meshy/anim_ranges.json ölçümü, 12 petin hepsinde aynı).</summary>
+        private static readonly System.Collections.Generic.Dictionary<string, Vector2> ClipFrames = new System.Collections.Generic.Dictionary<string, Vector2>
+        {
+            { "walk", new Vector2(2f, 27f) }, { "run", new Vector2(2f, 17f) }, { "idle", new Vector2(2f, 98f) },
+            { "sleep", new Vector2(2f, 139f) }, { "wave", new Vector2(2f, 130f) },
+        };
 
         private bool IsPet => assetPath.Replace('\\', '/').Contains("/Resources/Pets/");
         private bool IsArt => IsPet || assetPath.Replace('\\', '/').Contains("/Resources/Env/") || assetPath.Replace('\\', '/').Contains("/Resources/Items/");
@@ -62,6 +69,13 @@ namespace Pofi.EditorTools
                 clips[i].name = clipName;
                 clips[i].loopTime = loop;
                 clips[i].wrapMode = loop ? WrapMode.Loop : WrapMode.Once;
+                // Meshy klipleri 10 sn uzunluğunda ama hareket yalnız baştaki kısımda (yürüme 2–27. kare); geri kalanı donuk.
+                // Kırpılmazsa döngü 10 sn sürer: pet iki adım atıp kayıyormuş gibi görünüyordu. Ölçüm: art/scripts/anim_ranges.py
+                if (ClipFrames.TryGetValue(clipName, out var fr))
+                {
+                    clips[i].firstFrame = Mathf.Max(clips[i].firstFrame, fr.x);
+                    clips[i].lastFrame = Mathf.Min(clips[i].lastFrame, fr.y);
+                }
             }
             m.clipAnimations = clips;
         }
