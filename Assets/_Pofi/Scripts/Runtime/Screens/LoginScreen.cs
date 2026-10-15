@@ -39,7 +39,7 @@ namespace Pofi.Screens
             _go.interactable = false;
 
             // Önizleme Mock arka uçla çalışır: deneme kodlarını göster.
-            if (App.Auth is MockAuthService)
+            if (App.Router.DemoCodesEnabled)
                 Ui.Label(Root, T("auth.demo_hint"), Th.Font(28), white, new Vector2(0.72f, 0.1f), new Vector2(900f, 80f));
             Footer();
         }
@@ -79,7 +79,7 @@ namespace Pofi.Screens
             switch (e)
             {
                 case AuthErrorKind.Throttled:
-                    var secs = App.Auth is MockAuthService m ? (int)Math.Ceiling(m.Throttle.Remaining(DateTime.UtcNow).TotalSeconds) : 30;
+                    var secs = (int)Math.Ceiling(App.Router.ThrottleRemaining(DateTime.UtcNow).TotalSeconds);
                     return T("auth.throttled", Math.Max(1, secs));
                 case AuthErrorKind.Revoked: return T("auth.revoked");
                 case AuthErrorKind.Network: return T("auth.offline");

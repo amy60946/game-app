@@ -1,6 +1,6 @@
 # M4 – Oyun ile Fidan'ı bağlama (sunucu önerisi)
 
-**Durum: öneri, uygulanmadı.** Fidan (ebeveyn uygulaması) ile aynı Supabase veritabanını kullandığı için senin onayın olmadan dokunulmayacak.
+**Durum: onaylandı (15 Ekim 2026), henüz uygulanmadı.** Uygulama adımları: `docs/M4_UYGULAMA.md` (GitHub Actions "Supabase M4 uygula": önce deneme, sonra gerçek).
 
 ## Ne sağlar?
 1. **Yaş bandı:** Çocuğun doğum gününden otomatik önerilir (6–9 → A, 10–12 → B, 13–15 → C). Ebeveyn değiştirebilir.
@@ -11,7 +11,7 @@
 6. **Cihaz bağlantısını kaldırma:** Ebeveyn Fidan'dan çocuğun cihaz bağlantısını kapatabilir; oyun "Bağlantın kapatıldı, yeni kod iste" der.
 
 ## Nasıl denendi?
-- `supabase/test/run.sh`: Bu makinede gerçek PostgreSQL 16 üzerinde Fidan'ın mevcut şeması + bu öneri + 38 kontrol (giriş kodu, haftalık/aylık görevler, yetkisiz erişim denemeleri, coin hilesi denemesi, çift harcama, başka ailenin erişimi…). Hepsi geçti. Dosya iki kez çalıştırılınca da sorun çıkmıyor.
+- `supabase/test/run.sh`: Bu makinede gerçek PostgreSQL 16 üzerinde Fidan'ın mevcut şeması + bu öneri + 41 kontrol (giriş kodu, haftalık/aylık görevler, yetkisiz erişim denemeleri, coin hilesi denemesi, çift harcama, başka ailenin erişimi…). Hepsi geçti. Dosya iki kez çalıştırılınca da sorun çıkmıyor.
 - Oyun tarafı istemcisi: `Assets/_Pofi/Scripts/Logic/Services/Supabase/SupabaseGameService.cs` (+4 test).
 
 ## Onaylarsan yapılacaklar (sırayla)

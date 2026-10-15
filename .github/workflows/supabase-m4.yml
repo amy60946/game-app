@@ -1,0 +1,71 @@
+name: Supabase M4 uygula
+
+# Elle çalıştırılır (Actions > Supabase M4 uygula > Run workflow). Adımlar: docs/M4_UYGULAMA.md
+# supabase/proposed/*.sql dosyalarını ortak Supabase veritabanına uygular.
+# "deneme" açıkken (varsayılan) her şey BEGIN … ROLLBACK içinde çalışır: hata var mı görülür, hiçbir şey kalıcı olmaz.
+# Bağlantı adresi yalnızca SUPABASE_DB_URL secret'ından okunur; ekrana yazılmaz.
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Deneme (değişiklikleri geri al). Gerçek uygulama için işareti kaldır."
+        type: boolean
+        default: true
+
+concurrency:
+  group: supabase-m4
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PostgreSQL istemcisi
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client >/dev/null
+          psql --version
+
+      - name: Secret var mı?
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL secret'ı yok. Bkz. docs/M4_UYGULAMA.md (1. adım)."
+            exit 1
+          fi
+
+      - name: SQL'i uygula (${{ inputs.dry_run && 'DENEME – geri alınacak' || 'GERÇEK' }})
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          script="$RUNNER_TEMP/m4.sql"
+          {
+            echo '\set ON_ERROR_STOP on'
+            echo 'begin;'
+            for f in supabase/proposed/*.sql; do
+              echo "\\echo '>>> $f'"
+              echo "\\i $f"
+            done
+            echo "select 'children.age_band' as kontrol, count(*) as var from information_schema.columns where table_schema = 'public' and table_name = 'children' and column_name = 'age_band'"
+            echo "union all select 'coin_ledger', count(*) from information_schema.tables where table_schema = 'public' and table_name = 'coin_ledger'"
+            echo "union all select 'game_items', count(*) from public.game_items"
+            echo "union all select 'child_me()', count(*) from pg_proc where proname = 'child_me';"
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "\\echo 'DENEME: tüm değişiklikler geri alınıyor (rollback).'"
+              echo 'rollback;'
+            else
+              echo 'commit;'
+              echo "\\echo 'UYGULANDI (commit).'"
+            fi
+          } > "$script"
+          # Adres komut satırına değil ortam değişkeninden psql'e verilir; GitHub secret'ı loglarda zaten *** ile gizler.
+          psql "$SUPABASE_DB_URL" -X -q -v ON_ERROR_STOP=1 -f "$script"

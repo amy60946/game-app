@@ -51,6 +51,13 @@ insert into public.task_assignments (task_id, child_id, family_id, difficulty, c
   ('00000000-0000-0000-0000-000000007a52', '00000000-0000-0000-0000-00000000c0de', public.my_family_id(), 'easy', 5),
   ('00000000-0000-0000-0000-000000007a53', '00000000-0000-0000-0000-00000000c0de', public.my_family_id(), 'easy', 5);
 
+-- yaş bandı doğrudan yazılabilir (Fidan: çocuk eklerken / düzenlerken)
+insert into public.children (id, family_id, name, avatar, age_band)
+  values ('00000000-0000-0000-0000-00000000c0d2', public.my_family_id(), 'Efe', 'kedi', 'A');
+update public.children set age_band = 'B' where id = '00000000-0000-0000-0000-00000000c0d2';
+select tst.check((select age_band from public.children where id = '00000000-0000-0000-0000-00000000c0d2') = 'B', 'ebeveyn yaş bandını doğrudan yazar');
+select tst.fails($$update public.children set age_band = 'Z' where id = '00000000-0000-0000-0000-00000000c0d2'$$, 'geçersiz bant reddedilir');
+
 create temp table codes as select * from public.create_invite_code('child', '00000000-0000-0000-0000-00000000c0de');
 grant select on codes to authenticated;
 
@@ -83,6 +90,8 @@ select tst.fails($$select public.child_set_status('00000000-0000-0000-0000-00000
 select tst.fails($$select public.child_set_status('00000000-0000-0000-0000-000000007a51', current_date, 'approved')$$, 'çocuk kendini onaylayamaz');
 -- çocuk defteri doğrudan yazamaz
 select tst.fails($$insert into public.coin_ledger (family_id, child_id, amount, reason, ref) values (public.my_any_family_id(), public.my_child_id(), 999, 'adjust', 'hile')$$, 'çocuk coin ekleyemez');
+update public.children set age_band = 'C' where user_id = auth.uid();   -- RLS: çocuk kendi kaydını güncelleyemez → 0 satır
+select tst.check((select age_band from public.children where user_id = auth.uid()) is null, 'çocuk yaş bandını değiştiremez');
 update public.completions set status = 'approved' where child_id = public.my_child_id();   -- RLS: güncelleme politikası yok → 0 satır
 select tst.check((select count(*) from public.completions where status = 'approved' and task_id = '00000000-0000-0000-0000-000000007a51') = 0, 'RLS: güncelleme etkisiz');
 

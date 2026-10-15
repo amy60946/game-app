@@ -41,6 +41,10 @@ namespace Pofi.Logic.Services.Supabase
         public string AccessToken { get; private set; }
         public string UserId { get; private set; }
         public ChildSession Current { get; private set; }
+        public LoginThrottle Throttle => _throttle;
+
+        /// <summary>Erişim anahtarının bitiş zamanı (UTC). Bilinmiyorsa DateTime.MinValue.</summary>
+        public DateTime AccessExpiresUtc { get; private set; }
 
         public SupabaseAuthService(string url, string anonKey, IHttp http, ISecureStore store, Func<DateTime> utcClock = null)
         {
@@ -62,6 +66,10 @@ namespace Pofi.Logic.Services.Supabase
         {
             AccessToken = (string)s["access_token"];
             UserId = (string)s["user"]?["id"];
+            var expiresAt = (long?)s["expires_at"];
+            var expiresIn = (long?)s["expires_in"];
+            AccessExpiresUtc = expiresAt.HasValue ? DateTimeOffset.FromUnixTimeSeconds(expiresAt.Value).UtcDateTime
+                : expiresIn.HasValue ? _clock().AddSeconds(expiresIn.Value) : _clock().AddMinutes(50);
             var refresh = (string)s["refresh_token"];
             if (!string.IsNullOrEmpty(refresh)) _store.Set(RefreshKey, refresh);
         }
@@ -74,10 +82,27 @@ namespace Pofi.Logic.Services.Supabase
             var r = await _http.SendAsync("POST", _url + "/auth/v1/token?grant_type=refresh_token", Headers(false),
                 JsonConvert.SerializeObject(new { refresh_token = refresh }), ct);
             Current = JsonConvert.DeserializeObject<StoredChild>(child)?.ToSession();
-            if (r.Status == 0) return Current;            // çevrimdışı: yerel oturumla devam (FR-AUTH-2, çevrimdışı dayanıklılık)
+            if (r.Status == 0 || r.Status >= 500) return Current;   // çevrimdışı ya da geçici sunucu hatası: yerel oturumla devam (FR-AUTH-2, çevrimdışı dayanıklılık)
             if (r.Status >= 400) { Current = null; return null; }
             TakeSession(JObject.Parse(r.Body));
             return Current;
+        }
+
+        /// <summary>
+        /// Erişim anahtarı (1 saat geçerli) bitmek üzereyse ya da hiç yoksa (çevrimdışı açılış) yeniler.
+        /// Senkrondan önce çağrılır. Ağ yoksa false; sunucu yenilemeyi reddederse false (oturum ValidateAsync ile denetlenir).
+        /// </summary>
+        public async Task<bool> EnsureFreshAsync(CancellationToken ct = default)
+        {
+            if (Current == null) return false;
+            if (AccessToken != null && _clock() < AccessExpiresUtc - TimeSpan.FromMinutes(5)) return true;
+            var refresh = _store.Get(RefreshKey);
+            if (string.IsNullOrEmpty(refresh)) return false;
+            var r = await _http.SendAsync("POST", _url + "/auth/v1/token?grant_type=refresh_token", Headers(false),
+                JsonConvert.SerializeObject(new { refresh_token = refresh }), ct);
+            if (r.Status < 200 || r.Status >= 300) return false;
+            TakeSession(JObject.Parse(r.Body));
+            return true;
         }
 
         public async Task<AuthResult> SignInWithCodeAsync(string code, CancellationToken ct = default)
@@ -118,14 +143,14 @@ namespace Pofi.Logic.Services.Supabase
             // RLS: çocuk yalnızca user_id'si kendisine bağlı kaydı görür. Ebeveyn bağlantıyı kaldırınca boş liste döner.
             var r = await _http.SendAsync("GET", $"{_url}/rest/v1/children?select=id&user_id=eq.{UserId}", Headers(), null, ct);
             if (r.Status == 0) return AuthErrorKind.Network;
-            if (r.Status == 401) return AuthErrorKind.Revoked;
+            // 401 = erişim anahtarı geçersiz/eskimiş (yenilenince düzelir); bağlantı kaldırma değildir.
             if (r.Status >= 400) return AuthErrorKind.Unknown;
             return JArray.Parse(r.Body).Count == 0 ? AuthErrorKind.Revoked : AuthErrorKind.None;
         }
 
         public Task SignOutAsync(CancellationToken ct = default)
         {
-            AccessToken = null; UserId = null; Current = null;
+            AccessToken = null; UserId = null; Current = null; AccessExpiresUtc = DateTime.MinValue;
             _store.Delete(RefreshKey);
             _store.Delete(ChildKey);
             return Task.CompletedTask; // oyun kaydı silinmez (FR-AUTH-4)

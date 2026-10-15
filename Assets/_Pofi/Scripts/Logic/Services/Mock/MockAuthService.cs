@@ -36,6 +36,9 @@ namespace Pofi.Logic.Services.Mock
 
         public LoginThrottle Throttle => _throttle;
 
+        /// <summary>Bu (normalize edilmiş) kod deneme kodlarından biri mi?</summary>
+        public bool IsDemoCode(string normalized) => normalized != null && _codes.ContainsKey(normalized);
+
         /// <summary>Test/geliştirme: ebeveynin kodu iptal etmesini taklit eder (FR-AUTH-4).</summary>
         public void Revoke(string childId) => _revokedChildIds.Add(childId);
 

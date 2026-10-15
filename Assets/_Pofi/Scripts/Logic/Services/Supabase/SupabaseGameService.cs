@@ -149,10 +149,13 @@ namespace Pofi.Logic.Services.Supabase
             return Task.CompletedTask;
         }
 
+        /// <summary>Sunucudaki yedek; yedek yoksa null. Ağ/sunucu hatasında <see cref="OperationCanceledException"/>
+        /// (çağıran "yedek yok" ile "ulaşılamadı"yı ayırır: ulaşılamazsa yerel kayıt sunucudakinin üstüne yazılmaz).</summary>
         public async Task<string> LoadRemoteAsync(CancellationToken ct = default)
         {
             var r = await Rpc("game_save_get", null, ct);
-            if (!Ok(r) || string.IsNullOrWhiteSpace(r.Body) || r.Body.Trim() == "null") return null;
+            if (!Ok(r)) throw new OperationCanceledException(r.Status == 0 ? "çevrimdışı" : "sunucu: " + r.Status);
+            if (string.IsNullOrWhiteSpace(r.Body) || r.Body.Trim() == "null") return null;
             return r.Body;
         }
 

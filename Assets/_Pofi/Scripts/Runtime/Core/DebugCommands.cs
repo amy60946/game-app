@@ -16,7 +16,7 @@ namespace Pofi.Core
     {
         public static async void Run(GameBootstrap app, string line)
         {
-            if (!(app.Auth is MockAuthService)) return;
+            if (!app.Router.DemoCodesEnabled || app.OnServer) return;   // gerçek sunucu oturumunda kapalı
             var parts = (line ?? "").Trim().Split(new[] { ' ' }, 2);
             var cmd = parts[0];
             var arg = parts.Length > 1 ? parts[1] : "";

@@ -1,8 +1,8 @@
 -- =====================================================================
 -- Pofi Adası – oyun için sunucu eklemeleri (M4)
 --
--- DURUM: ÖNERİ. Ortak Supabase projesine UYGULANMADI. Ebeveyn uygulamasıyla
--- (Fidan) aynı veritabanını kullandığı için kullanıcı onayı gerekir.
+-- DURUM: ONAYLANDI (15 Ekim 2026). Uygulama: docs/M4_UYGULAMA.md. Ebeveyn uygulamasıyla
+-- (Fidan) aynı veritabanını kullanır.
 -- Yerelde denendi: supabase/test/run.sh (ebeveyn şeması + bu dosya + testler).
 --
 -- Uygulama: Supabase panelinde SQL Editor > New query > bu dosyanın tamamını
@@ -28,6 +28,10 @@ begin
     alter table public.children add constraint children_age_band_check check (age_band in ('A', 'B', 'C'));
   end if;
 end $$;
+
+-- Ebeveyn bandı çocuk eklerken/düzenlerken doğrudan yazabilir ("çocuk: ebeveyn" politikası korur;
+-- çocuk kendi kaydını yalnız okur). set_child_age_band fonksiyonu da aynı işi yapar.
+grant insert (age_band), update (age_band) on public.children to authenticated;
 
 -- Doğum gününden önerilen bant: <10 → A, 10–12 → B, 13+ → C. Doğum günü yoksa en güvenli bant A.
 create or replace function public.suggest_age_band(p_birthday date)

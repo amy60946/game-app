@@ -9,6 +9,7 @@ using Pofi.Logic.Pet;
 using Pofi.Logic.Progression;
 using Pofi.Logic.Services;
 using Pofi.Logic.Services.Mock;
+using Pofi.Logic.Services.Supabase;
 using Pofi.Logic.State;
 using Pofi.Screens;
 using Pofi.UI;
@@ -36,7 +37,12 @@ namespace Pofi.Core
         /// <summary>Açık mini oyunun kimliği (coconut, help_pet, swim, surf, ski).</summary>
         public string MiniGameId { get; private set; }
         public StatDecayConfig Decay { get; } = StatDecayConfig.Default;
-        public IAuthService Auth { get; private set; }
+        public IAuthService Auth => Router;
+        /// <summary>Giriş: deneme kodları sahte arka uca, diğer kodlar gerçek sunucuya (Resources/Data/server.json).</summary>
+        public RoutedAuthService Router { get; private set; }
+        public ServerConfig Server { get; private set; }
+        /// <summary>Gerçek sunucuya bağlı oturum mu? (değilse sahte arka uç: önizleme, deneme kodları, test erişimi)</summary>
+        public bool OnServer => Router != null && Router.IsServer;
         public ISecureStore Store { get; private set; }
         public ChildSession Session { get; private set; }
         public GameState State { get; private set; }
@@ -46,7 +52,7 @@ namespace Pofi.Core
         public Canvas Overlay { get; private set; }
         public string BuildLabel { get; private set; }
 
-        /// <summary>Sahte sunucu (M4'te Supabase servisleriyle değişecek). Ebeveyn rolü: <see cref="DemoParent"/>.</summary>
+        /// <summary>Sahte sunucu (deneme kodlarıyla girişte). Gerçek sunucu oturumunda null. Ebeveyn rolü: <see cref="DemoParent"/>.</summary>
         public MockBackend Backend { get; private set; }
         public SyncCoordinator Sync { get; private set; }
         public AppPage Page { get; private set; } = AppPage.Map;   // ana merkez ada (14 Ekim 2026)
@@ -57,6 +63,9 @@ namespace Pofi.Core
         private ScreenBase _screen;
         private float _autosave, _autosync;
         private bool _syncing;
+        private SupabaseGameService _remote;      // gerçek sunucu oturumunda
+        private bool _remoteChecked;              // sunucu yedeğine bakıldı mı (bakılmadan senkron/yedekleme yok)
+        private IHttp _http;
 
         private static string SaveKey(string childId) => "pofi.save." + childId;
         private static string ServerKey(string childId) => "pofi.mockserver." + childId;
@@ -73,7 +82,10 @@ namespace Pofi.Core
             Levels = new LevelTable(Data.Levels);
             Map = new IslandMap(ReadData("regions.json"), Levels);
             Store = new PrefsStore();
-            Auth = new MockAuthService(Store);   // M4'te SupabaseAuthService ile değişecek
+            Server = ServerConfig.Parse(ReadOptional("server.json"));
+            _http = new UnityHttp();
+            var server = Server.IsConfigured ? new SupabaseAuthService(Server.Url, Server.PublishableKey, _http, Store) : null;
+            Router = new RoutedAuthService(new MockAuthService(Store), server, Store, Server.DemoCodes);
             var build = Resources.Load<TextAsset>("build_number");
             BuildLabel = GameVersion.Display(build != null ? build.text.Trim() : null);
 
@@ -95,6 +107,12 @@ namespace Pofi.Core
             return asset.text;
         }
 
+        private static string ReadOptional(string file)
+        {
+            var asset = Resources.Load<TextAsset>("Data/" + System.IO.Path.GetFileNameWithoutExtension(file));
+            return asset != null ? asset.text : null;
+        }
+
         public DateTime UtcNow => DateTime.UtcNow;
         public DateTime LocalNow => DateTime.Now;
 
@@ -107,21 +125,72 @@ namespace Pofi.Core
             Session = session;
             Theme = Theme.For(session.AgeBand);
             var saved = SaveCodec.Deserialize(Store.Get(SaveKey(session.ChildId)));
-            State = AppFlow.BelongsTo(saved, session) ? saved : GameState.NewFor(session.ChildId, UtcNow);
+            Adopt(AppFlow.BelongsTo(saved, session) ? saved : GameState.NewFor(session.ChildId, UtcNow));
+
+            if (OnServer)
+            {
+                Backend = null;
+                _remote = new SupabaseGameService(Server.Url, Server.PublishableKey, _http, () => Router.Server.AccessToken, Store);
+                _remoteChecked = false;
+                Sync = new SyncCoordinator(_remote, _remote, _remote, Data);
+            }
+            else
+            {
+                _remote = null;
+                _remoteChecked = true;
+                Backend = new MockBackend(Data);
+                Backend.Import(Store.Get(ServerKey(session.ChildId)));
+                DemoParent.EnsureToday(Backend, LocalNow);
+                Sync = new SyncCoordinator(Backend, Backend, Backend, Data);
+            }
+            Page = AppPage.Map;
+            _ = SyncNow();
+            if (route) Route();
+        }
+
+        private void Adopt(GameState state)
+        {
+            State = state;
             State.Stats ??= PetStats.New(UtcNow);
             Theme.TextScale = State.Settings.TextScale;
             Theme.ReduceMotion = State.Settings.ReduceMotion;
             Audio.Sfx.Volume = State.Settings.SfxVolume;
             Stage.SetSky(Theme.Sky);
             State.Stats.Tick(UtcNow, Decay);
+        }
 
-            Backend = new MockBackend(Data);
-            Backend.Import(Store.Get(ServerKey(session.ChildId)));
-            DemoParent.EnsureToday(Backend, LocalNow);
-            Sync = new SyncCoordinator(Backend, Backend, Backend, Data);
-            Page = AppPage.Map;
-            _ = SyncNow();
-            if (route) Route();
+        /// <summary>
+        /// Gerçek sunucu: erişim anahtarını tazele; ilk kez ise sunucudaki kayıt yedeğine bak (telefon değiştiyse onu al).
+        /// false = sunucuya ulaşılamadı, bu tur senkron yapılmaz (yerel kayıt sunucudakinin üstüne yazılmasın).
+        /// </summary>
+        private async Task<bool> PrepareServer()
+        {
+            if (!OnServer || _remote == null) return true;
+            var session = Session;
+            await Router.Server.EnsureFreshAsync();
+            if (_remoteChecked) return true;
+            var r = await SaveRestore.CheckAsync(_remote, session.ChildId, State.HasPet, State.LastSavedUtcTicks);
+            if (!r.Reached || Session != session || State == null) return false;
+            _remoteChecked = true;
+            if (r.Adopt != null)
+            {
+                Adopt(r.Adopt);
+                Save();
+                Route();
+            }
+            return true;
+        }
+
+        /// <summary>Senkron sunucuya ulaşamadıysa: ebeveyn cihaz bağlantısını kaldırmış olabilir (FR-AUTH-4).</summary>
+        private async Task<bool> CheckRevoked()
+        {
+            if (!OnServer) return false;
+            try { if (await Auth.ValidateAsync() != AuthErrorKind.Revoked) return false; }
+            catch (Exception e) { Debug.LogException(e); return false; }
+            if (!OnServer) return false;
+            Toast.Post(Overlay.transform, Theme, Loc.Get("auth.revoked"));
+            SignOut();
+            return true;
         }
 
         /// <summary>Görevleri, harcamaları ve bakiyeyi sunucuyla eşitler. Aynı anda tek senkron.</summary>
@@ -130,12 +199,16 @@ namespace Pofi.Core
             if (Sync == null || State == null || _syncing) return null;
             _syncing = true;
             SyncReport report;
-            try { report = await Sync.SyncAsync(State, LocalNow, UtcNow); }
+            try
+            {
+                report = await PrepareServer() ? await Sync.SyncAsync(State, LocalNow, UtcNow) : new SyncReport { Offline = true };
+            }
             catch (Exception e) { Debug.LogException(e); report = null; }
             finally { _syncing = false; }
             _autosync = 0f;
             if (report == null || State == null) return report;
-            if (Session != null) Store.Set(ServerKey(Session.ChildId), Backend.Export());
+            if (report.Offline && await CheckRevoked()) return report;
+            if (Session != null && Backend != null) Store.Set(ServerKey(Session.ChildId), Backend.Export());
             Save();
             if (report.CoinsEarned > 0) CoinBurst.Play(Overlay.transform, Theme, Loc.Get("tasks.earned", report.CoinsEarned));
             var approved = 0;
@@ -217,6 +290,7 @@ namespace Pofi.Core
             State = null;
             Backend = null;
             Sync = null;
+            _remote = null;
             Theme = Theme.Default;
             Stage.SetSky(Theme.Sky);
             Route();
