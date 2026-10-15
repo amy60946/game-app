@@ -19,7 +19,18 @@ PAIR = {   # ad: (mevcut, yeni, hedef boy/genişlik, kamera uzaklığı, kamera 
     'home': ('b_home', 'c_house', ('w', 5.2), 10.5, 22),
     'home_close': ('b_home', 'c_house', ('w', 5.2), 5.2, 14),
     'cloud': ('*cloud', 'g_cloud', ('w', 5.0), 12.0, 4),
+    # parti 1 (yapılar ve süsler)
+    'fence': ('p_fence', 'c_fence', ('w', 1.9), 3.0, 20),
+    'lantern': ('p_lantern', 'c_lantern', ('h', 2.0), 3.2, 16),
+    'sign': ('p_sign', 'c_sign', ('h', 1.9), 3.2, 16),
+    'crates': ('p_crates', 'c_crates', ('w', 1.8), 3.6, 22),
+    'boat': ('p_boat', 'c_boat', ('w', 2.4), 3.8, 30),
+    'shop': ('b_shop', 'c_shop', ('w', 3.4), 5.6, 20),
+    'pier': ('b_pier', 'c_pier', ('w', 3.4), 5.4, 30),
+    'lighthouse': ('b_lighthouse', 'c_lighthouse', ('h', 4.8), 8.0, 14),
+    'board': ('b_task_board', 'c_board', ('h', 2.3), 4.0, 14),
 }
+GROUND = {'rock': '#f1d89c', 'boat': '#f1d89c', 'crates': '#f1d89c', 'pier': '#4fb6d8'}
 
 def toon_mat(name, tex_path=None, color=None):
     """Oyundaki Pofi/Toon'a yakın: L = güneş (gölge dahil); t = yumuşak eşik; renk = doku × karışım(gölge, ışık)."""
@@ -145,7 +156,7 @@ for name in PAIRS:
         size = fit(objs, target, 0)
         if name != 'cloud':
             bpy.ops.mesh.primitive_circle_add(vertices=48, radius=60, fill_type='NGON'); g = bpy.context.object
-            g.data.materials.append(toon_mat('ground', None, srgb('#f1d89c' if name == 'rock' else '#7cc24e')))   # kayalar oyunda kumsalda
+            g.data.materials.append(toon_mat('ground', None, srgb(GROUND.get(name, '#7cc24e'))))   # kayalar oyunda kumsalda
         cam = bpy.data.cameras.new('c'); cam.sensor_fit = 'VERTICAL'; cam.angle = math.radians(52 if name != 'cloud' else 40)
         co = bpy.data.objects.new('c', cam); sc.collection.objects.link(co); sc.camera = co
         tgt = mathutils.Vector((0, 0, size.z * (0.32 if name == 'home_close' else 0.45)))
@@ -155,8 +166,9 @@ for name in PAIRS:
         path = f'/tmp/claude-0/-home-user/627c1edb-353e-56ac-a5e6-566ce82843ea/scratchpad/cmp_{name}_{label[:2]}.png'
         sc.render.filepath = path; bpy.ops.render.render(write_still=True)
         im = Image.open(path).convert('RGB'); d = ImageDraw.Draw(im)
-        d.rounded_rectangle((12, 12, 12 + 26 * len(label) * 0.62 + 170, 54), 12, fill=(255, 255, 255))
-        d.text((24, 18), f'{label} · {t} üçgen', font=font, fill=(30, 50, 80))
+        txt = f'{label} · {t} üçgen'
+        d.rounded_rectangle((12, 12, 36 + d.textlength(txt, font=font), 54), 12, fill=(255, 255, 255))
+        d.text((24, 18), txt, font=font, fill=(30, 50, 80))
         panels.append(im)
         print(name, label, t, flush=True)
     row = Image.new('RGB', (1920, 640), 'white'); row.paste(panels[0], (0, 0)); row.paste(panels[1], (960, 0)); rows.append(row)

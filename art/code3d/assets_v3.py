@@ -173,7 +173,7 @@ def m_wood(hexc, name=None, paint=None):
             pn = n.new('ShaderNodeTexNoise'); pn.inputs['Scale'].default_value = 4.0; pn.inputs['Detail'].default_value = 6
             tcp = n.new('ShaderNodeTexCoord'); l.new(tcp.outputs['Object'], pn.inputs['Vector'])
             wear = n.new('ShaderNodeMapRange'); wear.interpolation_type = 'SMOOTHSTEP'
-            wear.inputs['From Min'].default_value = 0.62; wear.inputs['From Max'].default_value = 0.7
+            wear.inputs['From Min'].default_value = 0.68; wear.inputs['From Max'].default_value = 0.74
             wear.inputs['To Min'].default_value = 1; wear.inputs['To Max'].default_value = 0; l.new(pn.outputs['Fac'], wear.inputs['Value'])
             pc = n.new('ShaderNodeMix'); pc.data_type = 'RGBA'; pc.blend_type = 'MULTIPLY'; pc.inputs['Factor'].default_value = 0.25
             pc.inputs[6].default_value = srgb(paint); l.new(nz.outputs['Color'], pc.inputs[7])
