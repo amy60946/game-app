@@ -25,6 +25,7 @@ namespace Pofi.Screens
         private Text _levelText, _levelNum, _coinText, _feedCount, _washCount, _actionText;
         private RectTransform _action, _stickBase, _stickKnob, _tray, _leftBar;
         private System.Action _actionDo;
+        private Image _actionIcon;
         private string _actionKey;
         private float _hudTick, _statTick;
         private readonly Dictionary<int, Transform> _sparkleObjs = new Dictionary<int, Transform>();
@@ -68,9 +69,13 @@ namespace Pofi.Screens
             _washCount = Candy.Count(wash.transform);
 
             // sağ alt: bağlamsal eylem
-            var act = Candy.Pill(hud, Candy.Green, T("hud.jump"), new Vector2(1f, 0f), new Vector2(360f, 180f), new Vector2(-230f, 160f), () => _actionDo?.Invoke(), null, 66);
+            // simgesi o anki eyleme göre değişir (balta, el, kazma, çekiç, zıpla, kapı, oyna); altında kısa yazı
+            var act = Candy.Round(hud, Candy.White, "act_jump", 230f, new Vector2(1f, 0f), new Vector2(-190f, 230f), () => _actionDo?.Invoke(), T("hud.jump"));
             _action = (RectTransform)act.transform;
-            _actionText = act.transform.Find("Label").GetComponent<Text>();
+            _actionText = act.GetComponentInChildren<Text>();
+            var ai = act.transform.Find("Icon act_jump");
+            _actionIcon = ai != null ? ai.GetComponent<Image>() : null;
+            BuildTracker(hud);
 
             // sol alt: yüzen joystick (parmak değince belirir)
             _stickBase = Ui.Rect(hud, "Stick", Vector2.zero, new Vector2(250f, 250f));
@@ -230,18 +235,20 @@ namespace Pofi.Screens
         private void UpdateAction()
         {
             var p = _world.Walker.Position;
-            string key = "hud.jump";
+            string key = "hud.jump", icon = "act_jump";
             System.Action act = () => _world.Walker.Jump();
+            if (GatherAction(out var gk, out var gicon, out var gact)) { key = gk; icon = gicon; act = gact; }
 
-            // yakında parıltı → Topla
+            // yakında parıltı → Topla (ada aksiyonu yoksa)
             foreach (var kv in _sparkleObjs)
             {
+                if (key != "hud.jump") break;
                 if (kv.Value == null) continue;
                 var sp = _world.Local(kv.Value.position);
                 if (Vector2.Distance(sp, p) < 2.6f)
                 {
                     var go = kv.Value.gameObject;
-                    key = "hud.collect"; act = () => Collect(go, go.name);
+                    key = "hud.collect"; icon = "tool_hand"; act = () => Collect(go, go.name);
                     break;
                 }
             }
@@ -260,12 +267,19 @@ namespace Pofi.Screens
                 {
                     var v = best;
                     key = IsPlayPlace(v.Region) ? "hud.play" : "hud.enter";
+                    icon = key == "hud.play" ? "act_play" : "act_enter";
                     act = () => EnterRegion(v);
                 }
             }
             var k2 = key;
             _actionDo = () => { TipDone(k2 == "hud.jump" ? Onboarding.Jump : k2 == "hud.play" ? Onboarding.Play : k2 == "hud.enter" ? Onboarding.Enter : null); act(); };
-            if (_actionKey != key) { _actionKey = key; _actionText.text = T(key); }
+            if (_actionKey != key)
+            {
+                _actionKey = key; _actionText.text = T(key);
+                if (_actionIcon != null) { var sp = Ui.Icon(icon); if (sp != null) _actionIcon.sprite = sp; }
+                _action.localScale = Vector3.one * 1.12f;   // değişince küçük "pop"
+            }
+            _action.localScale = Vector3.Lerp(_action.localScale, Vector3.one, Time.deltaTime * 8f);
         }
 
         /// <summary>Mini oyun ya da masa oyunu bölgesi mi (üstünde "Oyna!" çağrısı gösterilir)?</summary>

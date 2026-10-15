@@ -101,8 +101,9 @@ namespace Pofi.Screens
             inv.Equipped.TryGetValue(_slot, out var equipped);
             var owned = inv.Owned.Select(App.Data.Item).Where(i => i != null && i.IsWearable && i.Slot == _slot).ToList();
             // sahip olunmayanlar soluk ve fiyatlı: dokununca dükkân
-            var more = App.Data.Items.Where(i => i.IsWearable && i.Slot == _slot && !i.Premium && !inv.Owns(i.Id) && i.Level <= App.Level)
-                .OrderBy(i => i.Price).Take(Mathf.Max(0, 6 - owned.Count)).ToList();
+            // düşük seviyede de dolap boş görünmesin: seviyesi gelmeyenler kilitli gösterilir (önce açık olanlar)
+            var more = App.Data.Items.Where(i => i.IsWearable && i.Slot == _slot && !i.Premium && !inv.Owns(i.Id))
+                .OrderBy(i => i.Level > App.Level ? 1 : 0).ThenBy(i => i.Price).Take(Mathf.Max(0, 6 - owned.Count)).ToList();
             var all = owned.Concat(more).Take(6).ToList();
             for (var n = 0; n < all.Count; n++)
             {
@@ -111,12 +112,15 @@ namespace Pofi.Screens
                 var on = item.Id == equipped;
                 // iri kıyafet baloncukları: sağda 2 sütun x 3 sıra
                 var pos = new Vector2(-170f - (n % 2) * 240f, 250f - (n / 2) * 230f);
+                var locked = !have && item.Level > App.Level;
                 var b = Candy.Round(_items, on ? new Color(1f, 0.93f, 0.6f) : Candy.White, item.Id, on ? 225f : 205f, new Vector2(1f, 0.5f), pos,
-                    have ? (System.Action)(() => Toggle(item, on)) : () => App.Open(AppPage.Shop));
+                    have ? (System.Action)(() => Toggle(item, on))
+                    : locked ? () => _bubble.Say(T("wardrobe.locked", item.Level)) : (System.Action)(() => App.Open(AppPage.Shop)));
                 if (on) Ui.IconImage(b.transform, "ui_star", new Vector2(0.86f, 0.86f), 70f);   // takılı işareti
                 var fit = CosmeticFit.Evaluate(_pet, item);
                 if (!have || !fit.Allowed) foreach (var img in b.GetComponentsInChildren<Image>()) img.color *= new Color(1f, 1f, 1f, 0.5f);
-                if (!have) Candy.Badge(b.transform, "ui_coin", item.Price.ToString(), new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, 6f), 52f, 150f);
+                if (locked) Candy.Badge(b.transform, "ui_star", T("wardrobe.level", item.Level), new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, 6f), 52f, 150f);
+                else if (!have) Candy.Badge(b.transform, "ui_coin", item.Price.ToString(), new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, 6f), 52f, 150f);
             }
             if (owned.Count == 0) _bubble.Say(T("wardrobe.empty"));
             // takılı eşyayı çıkar (açık düğme; eşyaya tekrar dokunmak da çıkarır)

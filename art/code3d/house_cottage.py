@@ -1,10 +1,13 @@
 # Orijinal ada kulübesi (Pofi'nin evi için deneme), tamamen kodla: kazıklar üstünde ahşap güverte, yatay tahta duvarlar,
 # kiremit kiremit mercan çatı, taş baca, turkuaz kapı ve panjurlar, çiçek kasası, fener, korkuluk, fıçı ve sandık.
-# Kullanım: python -I house_cottage.py -- <çıktı_klasörü>
+# Kullanım: python -I house_cottage.py -- <çıktı_klasörü> [unity]
+#   unity: düşük çokgen + palet dokusu ile FBX (Resources/Env/g_hut) — oyundaki "Kulübe" inşası
 import sys, os, math, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kit import *
-OUT = sys.argv[sys.argv.index('--') + 1]; os.makedirs(OUT, exist_ok=True)
+ARGS = sys.argv[sys.argv.index('--') + 1:]; OUT = ARGS[0]; UNITY = 'unity' in ARGS; os.makedirs(OUT, exist_ok=True)
+import kit
+kit.LOW = UNITY
 R = random.Random(7)
 sc = reset()
 
@@ -137,7 +140,7 @@ for sx in (-1, 1):
         hh = RISE * (1 - abs(yy) / (D / 2))
         if hh > 0.05: objs.append(rbox('gable', (sx * W / 2, yy, TOP + hh / 2), (0.07, 0.18, hh), WOOD[k % 5], bevel=0.015))
         yy += 0.19; k += 1
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.17, minor_radius=0.04, location=(sx * (W / 2 + 0.05), 0, TOP + 0.35), rotation=(0, math.radians(90), 0))
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.17, minor_radius=0.04, location=(sx * (W / 2 + 0.05), 0, TOP + 0.35), rotation=(0, math.radians(90), 0), major_segments=20 if UNITY else 48, minor_segments=6 if UNITY else 12)
     t = bpy.context.object; t.data.materials.append(CREAM); [setattr(p, 'use_smooth', True) for p in t.data.polygons]; objs.append(t)
     objs.append(cyl('attic', (sx * (W / 2 + 0.03), 0, TOP + 0.35), 0.15, 0.03, GLASS, rot=(0, 90, 0), verts=20))
 # taş baca (arka eğim)
@@ -152,9 +155,9 @@ objs.append(rbox('chcap', (0.75, 0.55, cz + 0.02), (0.56, 0.5, 0.08), DARK, beve
 objs.append(rbox('arm', (-0.7, -D / 2 - 0.12, Z0 + 1.35), (0.05, 0.25, 0.05), DARK, bevel=0.01))
 objs.append(rbox('lamp', (-0.7, -D / 2 - 0.22, Z0 + 1.2), (0.14, 0.14, 0.2), LAMP, bevel=0.02))
 objs.append(rbox('lamptop', (-0.7, -D / 2 - 0.22, Z0 + 1.32), (0.2, 0.2, 0.05), DARK, bevel=0.015))
-objs.append(cyl('sign', (0, -D / 2 - 0.06, TOP - 0.12), 0.2, 0.05, CREAM, rot=(90, 0, 0), verts=24))
+objs.append(cyl('sign', (0, -D / 2 - 0.06, TOP - 0.3), 0.15, 0.05, CREAM, rot=(90, 0, 0), verts=24))
 for (dx, dz, r) in ((0, -0.03, 0.06), (-0.07, 0.05, 0.028), (-0.025, 0.08, 0.028), (0.025, 0.08, 0.028), (0.07, 0.05, 0.028)):   # pati izi
-    objs.append(blob('paw', (dx, -D / 2 - 0.095, TOP - 0.12 + dz), (r, 0.015, r * 0.9), mat('pawm', '#e0684a', 0.5, 0), sub=1, seg=12))
+    objs.append(blob('paw', (dx * 0.75, -D / 2 - 0.095, TOP - 0.3 + dz * 0.75), (r * 0.75, 0.015, r * 0.68), mat('pawm', '#e0684a', 0.5, 0), sub=1, seg=12))
 for sx in (-1, 1):
     for yy in (-1.8, -1.45):
         objs.append(rbox('rpost', (sx * 1.65, yy, Z0 + 0.3), (0.08, 0.08, 0.6), DARK, bevel=0.015))
@@ -167,13 +170,16 @@ for v in bm.verts:
     k = 1 + 0.18 * (1 - (v.co.z / 0.25) ** 2); v.co.x *= k; v.co.y *= k
 bm.to_mesh(bar.data); bm.free(); [setattr(p, 'use_smooth', True) for p in bar.data.polygons]; objs.append(bar)
 for zz in (Z0 + 0.08, Z0 + 0.42):
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.235, minor_radius=0.015, location=(1.2, -1.6, zz)); t = bpy.context.object
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.235, minor_radius=0.015, location=(1.2, -1.6, zz), major_segments=20 if UNITY else 48, minor_segments=5 if UNITY else 12); t = bpy.context.object
     t.data.materials.append(DARK); objs.append(t)
 objs.append(rbox('crate', (-1.25, -1.55, Z0 + 0.2), (0.4, 0.4, 0.4), WOOD[2], rot=(0, 0, 12), bevel=0.03))
 for d in (-0.13, 0, 0.13):
     objs.append(rbox('slat', (-1.25 + d * math.cos(math.radians(12)), -1.55 - 0.205 + d * math.sin(math.radians(12)), Z0 + 0.2), (0.08, 0.02, 0.42), WOOD[3], rot=(0, 0, 12), bevel=0.01))
 
 parts = [o for o in sc.objects if o.type == 'MESH']
+if UNITY:
+    tris, ncol = export_palette_fbx(f'{OUT}/g_hut', parts)
+    print('g_hut üçgen', tris, 'renk', ncol, flush=True); sys.exit(0)
 tris = tri_count(parts)
 export_glb(f'{OUT}/house_cottage.glb', parts)
 outline(parts, width=0.018)

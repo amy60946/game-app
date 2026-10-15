@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 6;
+        public override uint GetVersion() => 7;
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -108,6 +108,17 @@ namespace Pofi.EditorTools
             }
             if (!IsArt) return;
             var t = (TextureImporter)assetImporter;
+            if (Path.GetFileName(assetPath).StartsWith("g_"))
+            {
+                // kodla üretilmiş modellerin palet dokusu (art/code3d/kit.py export_palette_fbx): her renk 8 px'lik kare,
+                // UV kare ortasında → mipmap/sıkıştırma renkleri karıştırmasın
+                t.mipmapEnabled = false;
+                t.textureCompression = TextureImporterCompression.Uncompressed;
+                t.filterMode = FilterMode.Point;
+                t.sRGBTexture = true;
+                t.maxTextureSize = 256;
+                return;
+            }
             var normal = Path.GetFileNameWithoutExtension(assetPath).EndsWith("_normal");
             // Telefon/WebGL boyutu (14 Ekim 2026: veri 88 MB'tı): pet rengi 1024, diğer her şey 512.
             // Crunch kapalı: CI kapsayıcısında crnlib iş parçacığı (sem_wait) Unity'yi çökertti (derleme 46).

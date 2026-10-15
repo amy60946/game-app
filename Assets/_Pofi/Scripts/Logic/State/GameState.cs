@@ -67,6 +67,7 @@ namespace Pofi.Logic.State
         public Dictionary<string, Cards.DifficultyAdapter> CardDifficulty = new Dictionary<string, Cards.DifficultyAdapter>(); // oyun → uyarlanan bot zorluğu
         public Island.SparkleState Sparkles = new Island.SparkleState();
         public Island.EventState Events = new Island.EventState();
+        public Island.GatherState Gather = new Island.GatherState();   // kütük/çalı/taş toplama + kulübe (Island/Gathering)
         public HashSet<string> HomeEffectsApplied = new HashSet<string>(); // ev eşyası etkisi bir kez (ilk yerleştirme)
         public bool StarterGiven;        // hoş geldin hediyesi verildi mi (App/StarterKit)
 

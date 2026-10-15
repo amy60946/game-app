@@ -15,7 +15,7 @@ namespace Pofi.UI
             var b = Candy.Round(overlay, Candy.Blue, null, 92f, new Vector2(1f, 1f), new Vector2(-386f, -66f), null);
             var mb = b.gameObject.AddComponent<MusicButton>();
             mb._app = app;
-            Candy.Caption(b.transform, "♪", 60, new Vector2(0.5f, 0.52f), new Vector2(92f, 92f));
+            Ui.IconImage(b.transform, "ui_music", new Vector2(0.5f, 0.5f), 64f);   // ♪ yazı tipinde yoktu: düğme boş mavi küre görünüyordu
             var slash = Ui.Rect(b.transform, "Off", new Vector2(0.5f, 0.5f), new Vector2(84f, 12f));
             slash.localRotation = Quaternion.Euler(0f, 0f, 45f);
             var si = slash.gameObject.AddComponent<Image>(); si.sprite = Ui.Rounded; si.type = Image.Type.Sliced; si.color = Candy.Pink; si.raycastTarget = false;

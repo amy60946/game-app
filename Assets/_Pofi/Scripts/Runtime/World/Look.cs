@@ -7,7 +7,7 @@ namespace Pofi.World
 {
     /// <summary>
     /// Görsel stil (15 Ekim 2026 çalışması, docs: CLAUDE.md "Görsel stil kararı"):
-    /// yeni stil = Pofi/Toon malzemeleri (yumuşak iki ton, vinyl parlaması, ince dış çizgi) + hafif renk ayarı.
+    /// yeni stil = Pofi/Toon malzemeleri (yumuşak iki ton, vinyl parlaması; dış çizgi kapalı) + hafif renk ayarı.
     /// Eski stil = URP Lit + ayarsız görüntü. Çalışma süresince ekrandaki "Stil" düğmesiyle karşılaştırılır; seçim cihazda kalır.
     /// </summary>
     public static class Look

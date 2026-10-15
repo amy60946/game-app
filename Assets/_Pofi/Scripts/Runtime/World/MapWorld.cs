@@ -387,6 +387,24 @@ namespace Pofi.World
         private bool _steering;
         private string _clip;
 
+        /// <summary>Ek engeller (kütük, taş, kulübe): joystickle yürürken içinden geçilmez.</summary>
+        public System.Func<float, float, bool> Blocked;
+        private float _swing;
+
+        private bool Free(float x, float z) => _world.Terrain.Walkable(x, z) && (Blocked == null || !Blocked(x, z));
+
+        /// <summary>Hedefe dön (aksiyondan önce).</summary>
+        public void Face(float x, float z)
+        {
+            _route.Clear(); Arrived = null; _direct = Vector2.zero;
+            _yaw = Mathf.Atan2(x - _x, z - _z) * Mathf.Rad2Deg;
+            Play("idle");
+            Apply();
+        }
+
+        /// <summary>Aksiyon hareketi (balta/kazma vuruşu): kısa ileri-geri eğilme.</summary>
+        public void Swing() { _swing = 1f; }
+
         /// <summary>Joystick: dünya düzleminde yön (uzunluk 0..1). Sıfır verilince durur.</summary>
         public void Steer(Vector2 dir)
         {
@@ -442,21 +460,23 @@ namespace Pofi.World
         private void Update()
         {
             if (_jump > 0f) { _jump = Mathf.Max(0f, _jump - Time.deltaTime / 0.75f); Apply(); }
+            if (_swing > 0f) { _swing = Mathf.Max(0f, _swing - Time.deltaTime / 0.35f); Apply(); }
             if (_direct.sqrMagnitude > 0.0004f)
             {
                 _steering = true;
                 var sp = Mathf.Lerp(WalkSpeed * 0.6f, RunSpeed, _direct.magnitude);
                 var nx = _x + _direct.x * sp * Time.deltaTime; var nz = _z + _direct.y * sp * Time.deltaTime;
                 var moved = true;
-                if (_world.Terrain.Walkable(nx, nz)) { _x = nx; _z = nz; }
-                else if (_world.Terrain.Walkable(nx, _z)) _x = nx;          // engelde kayarak ilerle
-                else if (_world.Terrain.Walkable(_x, nz)) _z = nz;
+                if (Free(nx, nz)) { _x = nx; _z = nz; }
+                else if (Free(nx, _z)) _x = nx;          // engelde kayarak ilerle
+                else if (Free(_x, nz)) _z = nz;
                 else moved = false;
                 var want = Mathf.Atan2(_direct.x, _direct.y) * Mathf.Rad2Deg;
                 _yaw = Mathf.MoveTowardsAngle(_yaw, want, 480f * Time.deltaTime);   // doğal dönüş (ani savrulma yok)
                 // kıyıya/duvara dayanınca yerinde koşmasın: durur
                 if (moved) Play(_direct.magnitude > 0.7f ? "run" : "walk", "walk"); else Play("idle");
                 Apply();
+                Footsteps();
                 return;
             }
             if (_steering) { _steering = false; if (_route.Count == 0) Play("idle"); }
@@ -486,14 +506,37 @@ namespace Pofi.World
                 _yaw = Mathf.MoveTowardsAngle(_yaw, want, 540f * Time.deltaTime);
             }
             Apply();
+            Footsteps();
         }
+
+        // ------------------------------------------------------------------ adım sesleri
+        // Meshy yürüme/koşu kliplerinde ayağın yere değdiği anlar (döngü içinde 0..1; art/scripts ölçümü, ayak kemiği en alçakta):
+        // yürüme 2–27. kare: sol 0.22, sağ 0.72 · koşu 2–17. kare: sol 0.40, sağ 0.90. Ses klibin kendi zamanına bağlı: hız değişse de senkron.
+        private static readonly float[] WalkContacts = { 0.22f, 0.72f }, RunContacts = { 0.40f, 0.90f };
+        private float _lastPhase = -1f;
+        private string _phaseClip;
+
+        private void Footsteps()
+        {
+            var clip = _clip == "run" || _clip == "walk" ? _clip : null;
+            var ph = clip == null || _jump > 0f ? -1f : RealAssets.Phase(_pet, clip);
+            if (ph < 0f && clip == "run") { clip = "walk"; ph = RealAssets.Phase(_pet, clip); }   // koşu klibi yoksa yürüme oynar
+            if (ph < 0f || clip != _phaseClip) { _lastPhase = ph; _phaseClip = clip; return; }
+            var contacts = clip == "run" ? RunContacts : WalkContacts;
+            foreach (var c in contacts)
+                if (Crossed(_lastPhase, ph, c)) { Audio.Sfx.Step(clip == "run"); break; }
+            _lastPhase = ph;
+        }
+
+        private static bool Crossed(float from, float to, float t) => from <= to ? from < t && to >= t : from < t || to >= t;
 
         private void Apply()
         {
             var hop = _jump > 0f ? Mathf.Sin((1f - _jump) * Mathf.PI) * 0.9f : 0f;
             transform.localPosition = new Vector3(_x, _world.Terrain.Height(_x, _z) + hop, _z);
             // gerçek pet modeli kameraya dönük (180°) kurulu; yürüme yönüne bakması için ön = +z kabul edilir
-            transform.localRotation = Quaternion.Euler(0f, _yaw + 180f, 0f);
+            var lean = _swing > 0f ? Mathf.Sin((1f - _swing) * Mathf.PI * 2f) * 12f : 0f;
+            transform.localRotation = Quaternion.Euler(0f, _yaw + 180f, 0f) * Quaternion.Euler(lean, 0f, 0f);
         }
 
         private void Play(string clip, string fallback = null)

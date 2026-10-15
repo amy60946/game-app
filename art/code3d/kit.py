@@ -8,6 +8,7 @@ def srgb(h):
     h = h.lstrip('#'); c = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
     return tuple(((x / 12.92) if x <= 0.04045 else ((x + 0.055) / 1.055) ** 2.4) for x in c) + (1.0,)
 
+LOW = False   # True: oyun için düşük çokgen (yuvarlatma 1 kademe, alt bölme 1)
 _mats = {}
 def mat(name, hexcol, rough=0.35, coat=0.25, emit=0.0, sheen=0.0):
     key = (name, hexcol, rough, coat, emit)
@@ -25,6 +26,7 @@ def mat(name, hexcol, rough=0.35, coat=0.25, emit=0.0, sheen=0.0):
     return m
 
 def _finish(o, m, sub=2, smooth=True):
+    if LOW and sub: sub = 0 if seg_hint_small[0] else 1
     if m: o.data.materials.append(m)
     if smooth:
         for p in o.data.polygons: p.use_smooth = True
@@ -32,8 +34,10 @@ def _finish(o, m, sub=2, smooth=True):
         s = o.modifiers.new('sub', 'SUBSURF'); s.levels = sub; s.render_levels = sub
     return o
 
+seg_hint_small = [False]
 def blob(name, loc, radii, m, rot=(0, 0, 0), sub=2, seg=24):
-    """Elipsoit parça (vinyl oyuncak parçası)."""
+    """Elipsoit parça (vinyl oyuncak parçası). Oyun sürümünde küçük küreler (seg ≤ 12) alt bölünmez."""
+    seg_hint_small[0] = seg <= 12
     bpy.ops.mesh.primitive_uv_sphere_add(segments=seg, ring_count=seg // 2, radius=1, location=loc)
     o = bpy.context.object; o.name = name
     o.scale = radii; o.rotation_euler = [math.radians(a) for a in rot]
@@ -45,16 +49,16 @@ def rbox(name, loc, size, m, rot=(0, 0, 0), bevel=0.02, seg=2):
     o = bpy.context.object; o.name = name
     o.scale = size; o.rotation_euler = [math.radians(a) for a in rot]
     bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    if bevel:
-        bv = o.modifiers.new('bv', 'BEVEL'); bv.width = bevel; bv.segments = seg; bv.limit_method = 'ANGLE'
+    if bevel and (not LOW or max(size) >= 0.9):     # oyun sürümünde küçük parçalar (kiremit, taş) köşeli: çokgen bütçesi
+        bv = o.modifiers.new('bv', 'BEVEL'); bv.width = bevel; bv.segments = 1 if LOW else seg; bv.limit_method = 'ANGLE'
     o.data.materials.append(m)
-    for p in o.data.polygons: p.use_smooth = True
+    for p in o.data.polygons: p.use_smooth = not LOW
     return o
 
 def cyl(name, loc, r, depth, m, rot=(0, 0, 0), verts=16, bevel=0.01):
     bpy.ops.mesh.primitive_cylinder_add(vertices=verts, radius=r, depth=depth, location=loc)
     o = bpy.context.object; o.name = name; o.rotation_euler = [math.radians(a) for a in rot]
-    if bevel:
+    if bevel and (not LOW or depth >= 0.9):
         bv = o.modifiers.new('bv', 'BEVEL'); bv.width = bevel; bv.segments = 2; bv.limit_method = 'ANGLE'
     o.data.materials.append(m)
     for p in o.data.polygons: p.use_smooth = True
@@ -144,3 +148,56 @@ def export_glb(path, objs):
     bpy.ops.object.select_all(action='DESELECT')
     for o in objs: o.select_set(True)
     bpy.ops.export_scene.gltf(filepath=path, use_selection=True, export_apply=True)
+
+
+def export_palette_fbx(path_noext, objs, cell=8, cells=16):
+    """Oyun için dışa aktarım: tüm parçalar tek meshe birleşir, her malzemenin rengi küçük bir palet dokusunda
+    bir kareye yazılır ve o yüzlerin UV'si o karenin ortasına konur → Unity'de tek doku + tek malzeme (RealAssets).
+    path_noext + '.fbx' ve path_noext + '_basecolor.png' yazar."""
+    import numpy as np
+    dg = bpy.context.evaluated_depsgraph_get()
+    colors = []; meshes = []
+    for o in objs:
+        if o.type not in ('MESH', 'CURVE'): continue
+        e = o.evaluated_get(dg)
+        me = bpy.data.meshes.new_from_object(e, depsgraph=dg)
+        me.transform(o.matrix_world)
+        mats = [ms for ms in me.materials]
+        idx = []
+        for m in mats:
+            c = tuple(round(x, 4) for x in m.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value[:3]) if m and m.use_nodes and 'Principled BSDF' in m.node_tree.nodes else (0.5, 0.5, 0.5)
+            if c not in colors: colors.append(c)
+            idx.append(colors.index(c))
+        if not me.uv_layers: me.uv_layers.new(name='uv')
+        uv = me.uv_layers.active.data
+        for poly in me.polygons:
+            ci = idx[poly.material_index] if idx else 0
+            u = ((ci % cells) + 0.5) / cells; v = 1.0 - ((ci // cells) + 0.5) / cells
+            for li in poly.loop_indices: uv[li].uv = (u, v)
+        me.materials.clear()
+        meshes.append(me)
+    assert len(colors) <= cells * cells, 'palet dolu'
+    # birleştir
+    ob = bpy.data.objects.new('model', meshes[0]); bpy.context.scene.collection.objects.link(ob)
+    others = []
+    for me in meshes[1:]:
+        o2 = bpy.data.objects.new('p', me); bpy.context.scene.collection.objects.link(o2); others.append(o2)
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in [ob] + others: o.select_set(True)
+    bpy.context.view_layer.objects.active = ob
+    if others: bpy.ops.object.join()
+    for o in objs:
+        try: bpy.data.objects.remove(o)
+        except Exception: pass
+    # palet dokusu (sRGB)
+    img = np.zeros((cells * cell, cells * cell, 4), dtype=np.uint8); img[..., 3] = 255
+    def to_srgb(x): return 255 * (x * 12.92 if x <= 0.0031308 else 1.055 * x ** (1 / 2.4) - 0.055)
+    for i, c in enumerate(colors):
+        r, cidx = divmod(i, cells)
+        img[r * cell:(r + 1) * cell, cidx * cell:(cidx + 1) * cell, :3] = [int(min(255, max(0, to_srgb(x)))) for x in c]
+    from PIL import Image
+    Image.fromarray(img).save(path_noext + '_basecolor.png')
+    bpy.ops.object.select_all(action='DESELECT'); ob.select_set(True)
+    bpy.ops.export_scene.fbx(filepath=path_noext + '.fbx', use_selection=True, apply_scale_options='FBX_SCALE_ALL',
+                             axis_forward='-Z', axis_up='Y', bake_space_transform=True, mesh_smooth_type='FACE', add_leaf_bones=False)
+    return sum(len(p.vertices) - 2 for p in ob.data.polygons), len(colors)

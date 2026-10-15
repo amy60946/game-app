@@ -160,6 +160,8 @@ namespace Pofi.World
             if (m.shader != sh) m.shader = sh;
             m.SetFloat("_Smoothness", stylized ? info.ToonSmooth : info.LitSmooth);
             if (stylized) m.SetFloat("_OutlineWidth", info.Outline);
+            // dış çizgi kapalı (kullanıcı kararı 15 Ekim 2026: yeni tasarımda nesne/karakter çevresinde çizgi olmayacak)
+            m.SetShaderPassEnabled("SRPDefaultUnlit", false);
             if (m.GetTexture("_BumpMap") != null) m.EnableKeyword("_NORMALMAP");
         }
 
@@ -211,6 +213,15 @@ namespace Pofi.World
         private static readonly string[] LoopClips = { "idle", "walk", "run", "sleep", "swim" };
 
         /// <summary>Animasyon oynat (varsa); yoksa false.</summary>
+        /// <summary>Oynayan döngüsel klibin döngü içindeki konumu (0..1); oynamıyorsa -1 (adım sesleri için).</summary>
+        public static float Phase(Transform pet, string clip)
+        {
+            if (pet == null) return -1f;
+            var anim = pet.GetComponentInChildren<Animation>();
+            if (anim == null || anim.GetClip(clip) == null || !anim.IsPlaying(clip)) return -1f;
+            return Mathf.Repeat(anim[clip].normalizedTime, 1f);
+        }
+
         public static bool Play(Transform pet, string clip, bool returnToIdle = true)
         {
             if (pet == null) return false;

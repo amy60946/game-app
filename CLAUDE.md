@@ -38,5 +38,12 @@
     ⚠️ HATIRLAT: yükleme ekranı görseli geçici; kullanıcı kontrol edecek.
   - Arka plan müziği kodla bestelendi (`art/scripts/music_island.py`, telifsiz); aç/kapa her ekranda sağ üst ♪.
   - M4 UYGULANDI (15 Ekim 2026): SQL Supabase'de (iş akışı "Supabase M4 uygula"), Fidan eklemeleri parent-app dalına gönderildi ve Expo Go önizlemesine yayınlandı. Oyun gerçek sunucuya `SUPABASE_PUBLISHABLE_KEY` secret'ı ile bağlanır; deneme kodları sahte arka uçta kalır.
-- Görsel stil kararı (15 Ekim 2026): hedef = boyalı/maket hissi veren ada (yumuşak toon ışık, **ince dış çizgi**, kıyı köpüğü, ışık hüzmesi, çiçekli çimen) + yumuşak "vinyl oyuncak" karakter/eşya. Referanslar (I Just Wanted to Fish ekranları, Behance vinyl) yalnız stil/teknik ilham; hiçbir şey kopyalanmaz, yapay zekâya yüklenmez.
-  Üretim **bulutta betikle** (Blender bpy + Unity C#/CI); Blender MCP / Unity MCP kurulmaz (gereksiz + güvenlik açığı). Kamera şimdilik mevcut haliyle kalır. Dikey dilim henüz yapılmaz; aksiyon planı kullanıcı onayı bekliyor.
+- Görsel stil kararı (15 Ekim 2026): hedef = boyalı/maket hissi veren ada (yumuşak toon ışık, dış çizgi yok, kıyı köpüğü, ışık hüzmesi, çiçekli çimen) + yumuşak "vinyl oyuncak" karakter/eşya. Referanslar (I Just Wanted to Fish ekranları, Behance vinyl) yalnız stil/teknik ilham; hiçbir şey kopyalanmaz, yapay zekâya yüklenmez.
+  Üretim **bulutta betikle** (Blender bpy + Unity C#/CI); Blender MCP / Unity MCP kurulmaz (gereksiz + güvenlik açığı). Kamera şimdilik mevcut haliyle kalır.
+  **Dış çizgi YOK** (kullanıcı, 15 Ekim): karakter/nesne çevresinde çizgi kullanılmaz (Pofi/Toon'un çizgi geçişi kapalı).
+  Kodla 3D: `art/code3d/` (kit.py ortak araçlar; `export_palette_fbx` → tek mesh + palet dokusu, Unity'de `Resources/Env/g_*`; LOW = oyun çokgen bütçesi).
+- Geri bildirim 5 (15 Ekim 2026) — hedef: yeni büyük özellik değil, tasarım + mevcut işlevleri iyileştirme:
+  - Adım sesi yürüyüşe senkron (`PetWalker.Footsteps`, temas: yürüme 0.22/0.72, koşu 0.40/0.90); titreşim `Audio.Haptics` (jslib; iOS 18 switch hilesi).
+  - Müzik ham PCM (`Resources/Audio/music_island_pcm.bytes`): WebGL ses çözücüsüne gerek yok; index.html `navigator.audioSession.type='playback'` (sessiz düğmesi).
+  - Ada aksiyonları (`Logic/Island/Gathering`, `MapScreen.Gather`): kütük (balta, 3 vuruş) → odun, çalı (el) → dal, taş (kazma) → taş; "Kulübe yap" (6 odun, 4 dal, 3 taş).
+    Nesne üstü alet baloncuğu + eylem düğmesi simgesi değişir; yeni aksiyonlar aynı yapıya eklenecek.

@@ -70,6 +70,7 @@ namespace Pofi.Screens
 
             _labelLayer = Ui.Fill(Root, "Labels");
             foreach (var v in _views) _labels[v.Region.Id] = Label(v);
+            BuildGather();   // kütük/çalı/taş + kulübe yeri, nesne üstü baloncuklar
 
             BuildHud();
             _toast = Bubble(new Vector2(0.5f, 0.66f));   // petin başının üstünde
@@ -83,6 +84,7 @@ namespace Pofi.Screens
             _overview = !_overview;
             if (_overview) TipDone(Onboarding.Overview); else TipDone(null);
             if (_modeText != null) _modeText.text = T(_overview ? "map.walk" : "map.overview");
+            RefreshTracker();
             if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
             if (_overview) _pan = new Vector2(0f, _terrain.Def.Cz - 6f);   // kuşbakışı: adanın ortası
             _toast.Say(T(_overview ? "map.hint_overview" : "map.hint_walk"));
@@ -220,6 +222,9 @@ namespace Pofi.Screens
         private void Update()
         {
             HandleInput();
+            // dokunma başka ekran açtıysa (ör. pete dokun → Dolap) bu karede kamerayı geri çekme: dolapta pet görünmüyordu
+            if (!gameObject.activeInHierarchy) return;
+            UpdateGather();
             UpdateHud();
             TargetCamera(out var pos, out var look, out var fov);
             var lag = _overview ? 0.25f : 0.16f;
@@ -356,6 +361,8 @@ namespace Pofi.Screens
                 App.Open(AppPage.Wardrobe);   // giydirme: pete dokununca
                 return;
             }
+            if (go.name == "gather_site") { TapSite(); return; }
+            if (go.name.StartsWith("gather_") && int.TryParse(go.name.Substring("gather_".Length), out var gi)) { TapNode(gi); return; }
             if (go.name.StartsWith("sparkle_"))
             {
                 var spot = _world.Local(go.transform.position);
@@ -430,6 +437,12 @@ namespace Pofi.Screens
         /// <summary>Hata ayıklama/test: kamera modunu değiştir, ada üzerinde bir noktaya yürü.</summary>
         public void DebugToggle() => ToggleMode();
         public void DebugWalk(float x, float z) => GoTo(x, z, null);
+        public string DebugPetScreen()
+        {
+            if (_world.Walker == null) return "yok";
+            var sp = App.Stage.Camera.WorldToScreenPoint(_world.Walker.transform.position + Vector3.up * 0.7f);
+            return $"{sp.x:0} {sp.y:0} {Screen.width} {Screen.height}";
+        }
 
         private void OnDestroy()
         {

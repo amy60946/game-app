@@ -1,7 +1,7 @@
 # Pofi Adası arka plan müziği — tamamen kodla bestelenmiş, telifsiz, döngüye uygun (kullanıcı isteği 15 Ekim 2026).
 # Tarz: huzurlu tropik oyun müziği (sıcak ukulele tıngırtısı, marimba melodisi, yumuşak bas, hafif shaker/tık);
 # 104 BPM, Do majör, "tresillo" (3+3+2) ritmi. Hiçbir mevcut eserden alıntı yoktur; melodi sabit tohumla bu betikte üretilir.
-# Kullanım: python3 music_island.py çıktı.wav   (ffmpeg varsa .ogg da yazılır)
+# Kullanım: python3 music_island.py çıktı.wav → oyuna: 22050 Hz 16 bit ham PCM olarak Resources/Audio/music_island_pcm.bytes (Music.cs; WebGL çözücüsüne gerek yok)
 import sys, math, subprocess, numpy as np
 
 SR = 32000

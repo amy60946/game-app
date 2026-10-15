@@ -10,7 +10,7 @@ namespace Pofi.Core
     /// <summary>
     /// Otomatik test kancası (yalnızca sahte arka uçla): tarayıcıdan
     /// <c>unityInstance.SendMessage("Bootstrap", "PofiDebug", "login A1A1A1")</c> ile çağrılır. Gerçek sunucuda kapalıdır.
-    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · region ID · wear ID… · place ID…
+    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · region ID · wear ID… · place ID… · gather [near|site|give|state] · audio · petpos
     /// </summary>
     public static class DebugCommands
     {
@@ -91,6 +91,15 @@ namespace Pofi.Core
                             var t = b.GetComponentInChildren<UnityEngine.UI.Text>();
                             if (b.isActiveAndEnabled && b.interactable && t != null && t.text == arg) { b.onClick.Invoke(); break; }
                         }
+                        break;
+                    case "gather":      // ada aksiyonları: gather [near|site|give|state] (boş: eylem düğmesine bas)
+                        Debug.Log("[PofiDebug] gather " + Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugGather(arg));
+                        break;
+                    case "audio":       // müzik durumu, adım sesi ve titreşim sayısı
+                        Debug.Log($"[PofiDebug] audio {Audio.Music.Describe()} adım={Audio.Sfx.Steps} titreşim={Audio.Haptics.Count}");
+                        break;
+                    case "petpos":      // adadaki petin ekran konumu (piksel, sol alt köken) — gerçek dokunma testi için
+                        Debug.Log("[PofiDebug] petpos " + Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugPetScreen());
                         break;
                     case "dismiss":
                         for (var i = app.Overlay.transform.childCount - 1; i >= 0; i--)
