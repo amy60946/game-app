@@ -6,7 +6,7 @@ namespace Pofi.World
     /// <summary>
     /// Adadaki toplama noktası (kütük / çalı / taş) ya da kulübe yeri: modeli taşır, vuruşta sallanır ve yonga saçar,
     /// bitince küçülüp kaybolur, yeniden çıkınca büyüyerek belirir. Dokunma için "gather_N" / "gather_site" adlı çarpıştırıcı.
-    /// Modeller: g_log (kodla, art/code3d/gather_art.py), p_bush, p_rock (Meshy), g_site / g_hut (art/code3d/house_cottage.py).
+    /// Modeller (kodla, art/code3d/assets_town.py + export_game.py): p_log, p_bush, p_rock, p_site, b_hut.
     /// </summary>
     public sealed class GatherSpot : MonoBehaviour
     {
@@ -34,7 +34,7 @@ namespace Pofi.World
             s.Index = n.Index; s.Kind = n.Kind;
             switch (n.Kind)
             {
-                case GatherKind.Log: s._model = RealAssets.EnvFootprint("g_log", root, 1.6f, n.Yaw); s.Radius = 0.75f; s._chip = new Color(0.86f, 0.62f, 0.36f); break;
+                case GatherKind.Log: s._model = RealAssets.EnvFootprint("p_log", root, 1.6f, n.Yaw); s.Radius = 0.75f; s._chip = new Color(0.86f, 0.62f, 0.36f); break;
                 case GatherKind.Bush: s._model = RealAssets.EnvFootprint("p_bush", root, 1.3f, n.Yaw); s.Radius = 0.6f; s._chip = new Color(0.36f, 0.72f, 0.3f); break;
                 default: s._model = RealAssets.EnvFootprint("p_rock", root, 1.1f, n.Yaw); s.Radius = 0.55f; s._chip = new Color(0.62f, 0.6f, 0.56f); break;
             }
@@ -59,7 +59,7 @@ namespace Pofi.World
         private void SetSiteModel(bool built)
         {
             if (_model != null) Destroy(_model.gameObject);
-            _model = RealAssets.EnvFootprint(built ? "g_hut" : "g_site", transform, built ? 4.2f : 3.2f, 0f);
+            _model = RealAssets.EnvFootprint(built ? "b_hut" : "p_site", transform, built ? 4.2f : 3.2f, 0f);
             if (_model == null) _model = Placeholder(transform, GatherKind.Log);
             Radius = built ? 2.1f : 0f;          // inşaat alanından geçilebilir, kulübeden geçilmez
             Fit();

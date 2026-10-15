@@ -71,6 +71,22 @@ Shader "Pofi/Water"
                 return o;
             }
 
+            float hash21(float2 p) { p = frac(p * float2(123.34, 456.21)); p += dot(p, p + 45.32); return frac(p.x * p.y); }
+
+            // ucuz hücre deseni (kostik / parıltı için): en yakın nokta uzaklığı, 3x3 komşu
+            float Cells(float2 p, float t)
+            {
+                float2 c = floor(p), f = frac(p); float d = 1.0;
+                [unroll] for (int y = -1; y <= 1; y++)
+                [unroll] for (int x = -1; x <= 1; x++)
+                {
+                    float2 g = float2(x, y); float h = hash21(c + g);
+                    float2 o = 0.5 + 0.4 * sin(t * (0.6 + h) + h * 6.28 + float2(0, 1.7));
+                    d = min(d, length(g + o - f));
+                }
+                return d;
+            }
+
             half4 frag(Varyings i) : SV_Target
             {
                 float t = _Time.y;
@@ -82,23 +98,39 @@ Shader "Pofi/Water"
                 Light light = GetMainLight();
 
                 float shallow = i.shore.r;
-                float3 col = lerp(_Deep.rgb, _Shallow.rgb, shallow);
+                // derinlik geçişi: lacivert → turkuaz → kıyıda açık camgöbeği (kum görünür gibi)
+                float3 col = lerp(_Deep.rgb, _Shallow.rgb, smoothstep(0.0, 0.8, shallow));
+                col = lerp(col, float3(0.55, 0.9, 0.86), smoothstep(0.75, 1.0, shallow) * 0.55);
+                // sığda kostik ışık ağı (yavaş kıpırdar), derinde kaybolur
+                float cst = Cells(p * 1.3, t * 0.8);
+                col += smoothstep(0.18, 0.02, cst) * 0.12 * smoothstep(0.35, 0.9, shallow);
+
                 float fres = pow(1.0 - saturate(dot(n, viewDir)), 4.0);
                 col = lerp(col, _Sky.rgb, fres * 0.45);
-                col *= 0.82 + 0.18 * saturate(dot(n, light.direction));
+                // güneş tarafı / gölge tarafı: güneşe karşı bakarken dalga ayrıntısı ve parıltı belirgin, sırtı güneşe dönükken sakin
+                float facingSun = saturate(dot(normalize(float3(-viewDir.x, 0, -viewDir.z)), normalize(float3(light.direction.x, 0, light.direction.z))) * 0.5 + 0.5);
+                float lam = saturate(dot(n, light.direction));
+                col *= 0.84 + 0.16 * lerp(0.6, 1.0, facingSun) * lam;
 
-                // kıyı köpüğü: kıyıya yakın şerit, içe-dışa nefes alır
+                // kıyı köpüğü: kıyıya koşan ince köpük şeritleri + kıyı çizgisinde yırtık köpük; içe-dışa nefes alır
                 float band = i.shore.g;
                 float pulse = 0.5 + 0.5 * sin(t * 1.4 - band * 5.0);
                 float noise = 0.5 + 0.5 * sin(p.x * 4.3 + sin(p.y * 3.1) * 2.0 + t * 0.7);
-                float foam = saturate(band * (0.55 + 0.45 * pulse) - noise * 0.35) * 1.4;
-                col = lerp(col, _Foam.rgb, saturate(foam));
+                float lace = Cells(p * 2.6 + float2(t * 0.15, 0), t * 0.5);
+                float foam = saturate(band * (0.55 + 0.45 * pulse) - noise * 0.3 - lace * 0.35) * 1.6;
+                float lines = frac(shallow * 3.0 - t * 0.22);
+                float wl = smoothstep(0.0, 0.05, lines) * smoothstep(0.14, 0.05, lines) * smoothstep(0.45, 0.85, shallow) * (1.0 - band) * smoothstep(0.25, 0.6, noise);
+                col = lerp(col, _Foam.rgb, saturate(foam + wl * 0.55));
 
-                // güneş parıltısı (ölçülü)
+                // güneş parıltısı (ölçülü) + seyrek göz kırpan pırıltılar (yalnız güneş tarafında)
                 float3 hv = normalize(light.direction + viewDir);
-                float spec = pow(saturate(dot(n, hv)), _Gloss) * _SpecStrength;
-                col += spec * light.color;
-                return half4(col, 1);
+                float nh = saturate(dot(n, hv));
+                float spec = pow(nh, _Gloss) * _SpecStrength;
+                float2 gc = floor(p * 6.0);
+                float tw = hash21(gc + floor(t * 2.0));
+                float glint = step(0.985, tw) * step(0.9, pow(nh, 8.0) + 0.6) * facingSun * (1.0 - shallow * 0.5);
+                col += (spec + glint * 0.35) * light.color;
+                return half4(min(col, 1.0), 1);
             }
             ENDHLSL
         }

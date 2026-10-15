@@ -124,6 +124,7 @@ namespace Pofi.Logic.Island
             switch (p.Asset)
             {
                 case "palm": return 0.45f;
+                case "p_tree": return 0.5f;
                 case "p_lantern": case "p_sign": return 0.3f;
                 case "p_flowers": return p.Size * 0.3f;
                 default: return p.Size * 0.42f;   // kaya, çalı, çit, sandık
@@ -446,12 +447,15 @@ namespace Pofi.Logic.Island
                 if (Height(lx, lz) > 0.2f && Regions.All(r => Dist(lx, lz, r.X, r.Z) > r.Size * 0.75f) && list.All(q => Dist(q.X, q.Z, lx, lz) > 4f))
                     list.Add(new PropSpot { Asset = "p_lantern", X = lx, Z = lz, Yaw = 0f, Size = 0.7f });
             }
-            Scatter("palm", 16, 2.2f, Beach, 2.5f);
-            Scatter("palm", 8, 2.0f, Inland, 3f);
-            Scatter("p_rock", 10, 1.4f, (x, z) => Beach(x, z) || SurfaceAt(x, z) == Surface.Rock);
-            Scatter("p_bush", 14, 1.2f, Inland);
-            Scatter("p_flowers", 14, 1.0f, Inland);
-            Scatter("p_fence", 4, 1.6f, Inland, 2f);
+            // yoğunluk (kullanıcı isteği 15 Ekim 2026: daha çok ağaç, palmiye ve süs; modeller iPhone bütçesine göre hafif)
+            Scatter("palm", 26, 2.2f, Beach, 2.2f);
+            Scatter("palm", 12, 2.0f, Inland, 2.6f);
+            Scatter("p_tree", 14, 2.4f, Inland, 2.6f);
+            Scatter("p_rock", 16, 1.4f, (x, z) => Beach(x, z) || SurfaceAt(x, z) == Surface.Rock);
+            Scatter("p_bush", 24, 1.2f, Inland);
+            Scatter("p_flowers", 26, 1.0f, Inland, 0.6f);
+            Scatter("p_fence", 6, 1.6f, Inland, 2f);
+            Scatter("p_boat", 2, 2.0f, (x, z) => { var c = Coast(x, z); return c > 0.9f && c < 0.97f && Height(x, z) > 0.05f; }, 4f);
             var pier = Regions.FirstOrDefault(r => r.Water);
             if (pier != null)
             {

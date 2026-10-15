@@ -61,7 +61,22 @@ namespace Pofi.EditorTools
             PlayerSettings.WebGL.dataCaching = true;
             PlayerSettings.Android.minSdkVersion = AndroidSdkVersions.AndroidApiLevel26;
             PlayerSettings.iOS.targetOSVersionString = "15.0";
+            // iOS / TestFlight (15 Ekim 2026): tam ekran, durum çubuğu gizli, sürüm; imza Xcode'da otomatik (CI: tools/ci/ios-testflight.sh)
+            PlayerSettings.bundleVersion = AppVersion;
+            PlayerSettings.iOS.requiresFullScreen = true;
+            PlayerSettings.statusBarHidden = true;
+            PlayerSettings.iOS.appleEnableAutomaticSigning = true;
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
+            PlayerSettings.SetArchitecture(NamedBuildTarget.iOS, 1);   // ARM64
+            // uygulama simgesi (art/scripts/app_icon.py): tüm boyutlar bu 1024 px görselden üretilir
+            AssetDatabase.ImportAsset(Root + "/Art/AppIcon.png");
+            var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(Root + "/Art/AppIcon.png");
+            if (icon != null) PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
+            else Debug.LogWarning("ProjectSetup: AppIcon.png bulunamadı");
         }
+
+        /// <summary>Mağaza sürümü (CFBundleShortVersionString); derleme numarası CI çalışma numarasıdır.</summary>
+        public const string AppVersion = "0.9.0";
 
         private static void ConfigureUrp()
         {

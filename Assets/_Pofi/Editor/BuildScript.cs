@@ -26,6 +26,16 @@ namespace Pofi.EditorTools
 
             ProjectSetup.Run();
 
+            if (target == BuildTarget.iOS)
+            {
+                // Bundle ID: -iosBundleId (CI secret IOS_BUNDLE_ID; yoksa varsayılan), derleme no: CI çalışma numarası
+                var bundle = Arg("-iosBundleId", "");
+                if (!string.IsNullOrWhiteSpace(bundle)) PlayerSettings.SetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.iOS, bundle.Trim());
+                var buildNo = System.IO.File.Exists("Assets/_Pofi/Resources/build_number.txt") ? System.IO.File.ReadAllText("Assets/_Pofi/Resources/build_number.txt").Trim() : "1";
+                PlayerSettings.iOS.buildNumber = int.TryParse(buildNo, out _) ? buildNo : "1";
+                Debug.Log($"[Pofi] iOS: {PlayerSettings.GetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.iOS)} {PlayerSettings.bundleVersion} ({PlayerSettings.iOS.buildNumber})");
+            }
+
             if (target == BuildTarget.Android)
             {
                 // M0: imzasız/debug APK yeterli (kullanıcı şimdilik yalnızca iPhone kullanıyor).

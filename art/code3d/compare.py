@@ -35,6 +35,11 @@ PAIR = {   # ad: (mevcut, yeni, hedef boy/genişlik, kamera uzaklığı, kamera 
     'crates_close': ('p_crates', 'c_crates', ('w', 1.8), 1.7, 22),
     'boat_close': ('p_boat', 'c_boat', ('w', 2.4), 2.0, 28),
     'shop_close': ('b_shop', 'c_shop', ('w', 3.4), 2.6, 12),
+    'tree': ('palm', 'c_tree', ('h', 3.4), 6.5, 14),
+    'log': ('g_log', 'c_log', ('w', 1.6), 2.6, 26),
+    'site': ('g_site', 'c_site', ('w', 2.8), 4.4, 30),
+    'hut': ('g_hut', 'c_hut', ('w', 3.0), 5.0, 20),
+    'chunk': ('island_chunk', 'c_chunk', ('w', 2.8), 5.0, 18),
     # parti 2
     'garden': ('b_garden', 'c_garden', ('w', 3.4), 5.2, 32),
     'surf': ('b_surf', 'c_surf', ('w', 3.4), 5.4, 22),

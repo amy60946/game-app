@@ -1,0 +1,89 @@
+name: iOS (TestFlight)
+
+# iPhone uygulaması: Unity → Xcode projesi (Linux), sonra macOS'ta arşiv + otomatik imza + TestFlight yüklemesi.
+# Elle: Actions → "iOS (TestFlight)" → Run workflow. Otomatik: commit mesajında [ios] geçerse.
+# Gerekli secret'lar: docs/TESTFLIGHT.md (Unity lisansı + App Store Connect API anahtarı + Team ID).
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/zen-noether-nlt3wm, main]
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  xcode-project:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[ios]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Diskte yer aç (Unity imajı ~15 GB)
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-iOS-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt') }}
+          restore-keys: Library-iOS-
+      - name: Derleme numarasını oyuna yaz
+        run: echo "${GITHUB_RUN_NUMBER}" > Assets/_Pofi/Resources/build_number.txt
+      - name: Sunucu ayarını yaz (SUPABASE_PUBLISHABLE_KEY varsa gerçek sunucu açılır)
+        env:
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: bash tools/ci/server-config.sh
+      - name: Bundle ID
+        id: bid
+        env:
+          IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
+        run: echo "id=${IOS_BUNDLE_ID:-com.fidan.pofi}" >> "$GITHUB_OUTPUT"
+      - uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: iOS
+          buildMethod: Pofi.EditorTools.BuildScript.Build
+          buildName: PofiAdasi
+          customParameters: -iosBundleId ${{ steps.bid.outputs.id }}
+          allowDirtyBuild: true
+      - name: Xcode projesini paketle
+        run: |
+          sudo chown -R "$(id -u)" build
+          cd build/iOS && tar -czf "$GITHUB_WORKSPACE/xcode.tgz" PofiAdasi
+          du -sh "$GITHUB_WORKSPACE/xcode.tgz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pofi-ios-xcode
+          path: xcode.tgz
+          retention-days: 3
+
+  testflight:
+    needs: xcode-project
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: tools
+      - uses: actions/download-artifact@v4
+        with:
+          name: pofi-ios-xcode
+      - name: Aç
+        run: mkdir -p xc && tar -xzf xcode.tgz -C xc && ls xc/PofiAdasi | head
+      - name: Arşivle, imzala, TestFlight'a yükle
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: bash tools/ci/ios-testflight.sh xc/PofiAdasi

@@ -39,9 +39,15 @@ Shader "Pofi/Cloud"
                 float3 n = normalize(i.normalWS);
                 float up = n.y * 0.5 + 0.5;
                 float sun = dot(n, _MainLightPosition.xyz) * 0.5 + 0.5;
-                float3 col = lerp(_Shade.rgb, _Lit.rgb, saturate(up * 0.65 + sun * 0.45));
+                // yumuşak üç ton: alt serin lavanta-mavi, orta beyaz, güneşe bakan üst sıcak krem
+                float k = saturate(up * 0.6 + sun * 0.5);
+                float3 col = lerp(_Shade.rgb, _Lit.rgb, smoothstep(0.15, 0.85, k));
+                col = lerp(col, float3(1.0, 0.97, 0.9), smoothstep(0.75, 1.0, sun) * 0.35);
                 float3 v = normalize(GetCameraPositionWS() - i.positionWS);
-                col += pow(1.0 - saturate(dot(n, v)), 3.0) * 0.08;   // yumuşak kenar
+                float rim = pow(1.0 - saturate(dot(n, v)), 3.0);
+                // güneşe karşı bakınca gümüş kenar (ışık bulutun kenarından süzülür)
+                float back = saturate(dot(-v, _MainLightPosition.xyz));
+                col += rim * (0.06 + 0.18 * back);
                 return half4(min(col, 1.0), 1);
             }
             ENDHLSL

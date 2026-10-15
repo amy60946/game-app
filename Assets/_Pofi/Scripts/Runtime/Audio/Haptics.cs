@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_WEBGL && !UNITY_EDITOR
+#if (UNITY_WEBGL || UNITY_IOS) && !UNITY_EDITOR
 using System.Runtime.InteropServices;
 #endif
 
@@ -8,7 +8,7 @@ namespace Pofi.Audio
     /// <summary>
     /// Aksiyonlarda telefonun kısa, hafif titreşimi (kullanıcı isteği 15 Ekim 2026). WebGL: Plugins/WebGL/PofiHaptics.jslib
     /// (Android: vibrate; iPhone: iOS 18+ sistem dokunsal hissi). Çok sık tetiklenmez (60 ms aralık).
-    /// Yerel (TestFlight) derlemede iOS hafif darbe API'si ile değiştirilecek; şimdilik yalnız WebGL.
+    /// iOS (TestFlight) derlemesi: Plugins/iOS/PofiNative.mm (UIImpactFeedbackGenerator).
     /// </summary>
     public static class Haptics
     {
@@ -19,6 +19,14 @@ namespace Pofi.Audio
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")] private static extern void PofiHaptic(int ms);
+#elif UNITY_IOS && !UNITY_EDITOR
+        [DllImport("__Internal")] private static extern void PofiHapticIOS(int strength);
+        [DllImport("__Internal")] private static extern void PofiAudioPlayback();
+        /// <summary>iOS: ses oturumunu "playback" yap (sessiz düğmesine rağmen ses duyulsun). Açılışta bir kez.</summary>
+        public static void InitAudioSession() { try { PofiAudioPlayback(); } catch { } }
+#endif
+#if !(UNITY_IOS && !UNITY_EDITOR)
+        public static void InitAudioSession() { }
 #endif
 
         public static void Light() => Pulse(10);
@@ -31,6 +39,8 @@ namespace Pofi.Audio
             Count++;
 #if UNITY_WEBGL && !UNITY_EDITOR
             PofiHaptic(ms);
+#elif UNITY_IOS && !UNITY_EDITOR
+            PofiHapticIOS(ms);
 #endif
         }
     }

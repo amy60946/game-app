@@ -1825,12 +1825,274 @@ def seaweed(cx, cy, seed, n=6):
         return out
     mesh_from_blades('seaweed', build, [SW])
 
+def m_endgrain(name='endgrain'):
+    """Kesik kütük yüzü: merkezden dışa yıllık halkalar (gürültüyle dalgalı), ortası koyu öz, kenarda kabuk koyusu,
+    birkaç radyal çatlak."""
+    def b(nt, bsdf):
+        n = nt.nodes; l = nt.links; G = A._G(nt); o = G.obj()
+        sp = n.new('ShaderNodeSeparateXYZ'); l.new(o, sp.inputs[0])
+        rr = G.math('SQRT', G.math('ADD', G.math('MULTIPLY', sp.outputs['X'], sp.outputs['X']), G.math('MULTIPLY', sp.outputs['Y'], sp.outputs['Y'])))
+        rn = G.math('ADD', rr, G.math('MULTIPLY', G.noise(o, 3.0, 3), 0.04))
+        ring = G.math('SINE', G.math('MULTIPLY', rn, 140.0))
+        col = G.mix(G.rng(ring, 0.4, 1.0, 0, 0.55), '#e2b67e', '#a8743f')
+        col = G.mix(G.rng(rn, 0.06, 0.0, 0, 0.6), col, '#8a5a2c')
+        ang = G.math('ARCTAN2', sp.outputs['Y'], sp.outputs['X'])
+        crack = G.math('MULTIPLY', G.rng(G.math('ABSOLUTE', G.math('SINE', G.math('MULTIPLY', ang, 3.0))), 0.04, 0.0, 0, 1), G.rng(rr, 0.03, 0.08))
+        col = G.mix(G.math('MULTIPLY', crack, 0.8), col, '#3a2414')
+        l.new(col, bsdf.inputs['Base Color'])
+    return nodes_mat(name, b)
+
+def m_treebark(name='treebark'):
+    """Ağaç kabuğu: boyuna derin oluklar (dikey uzatılmış voronoi), sıcak kahve-gri, yer yer yosun (kuzey/alt)."""
+    def b(nt, bsdf):
+        n = nt.nodes; l = nt.links; G = A._G(nt); o = G.obj()
+        groove = G.vor(G.mapping(o, (9, 9, 1.6)), 2.0, 'DISTANCE_TO_EDGE')
+        col = G.mix(G.rng(G.noise(o, 3, 4), 0.3, 0.7), '#6b4a30', '#8f6a48')
+        col = G.mix(G.rng(groove, 0.06, 0.0, 0, 0.7), col, '#3b2617')
+        col = G.mix(G.rng(G.noise(o, 1.5, 4), 0.55, 0.7, 0, 0.25), col, '#9a948a')
+        col = A.weather(G, col, 0.8, (0.0, 0.6))
+        l.new(col, bsdf.inputs['Base Color'])
+    return nodes_mat(name, b)
+
+def canopy(clusters, R, leaf_len=(0.22, 0.32), per=55, mats=None, name='canopy'):
+    """Taç: her küme merkezinin yüzeyine dışa bakan yaprak kartları (iç yapraklar koyu, dış/üst açık malzeme).
+    İçi dolu top yok; aralarından gölge ve ışık geçer."""
+    LA = m_leaf('#2c7a2e', '#4fae3e', '#93d45e', '#bfe98a', 'treeleafA')
+    LB = m_leaf('#3a8a34', '#62bf48', '#aee070', '#d4f19e', 'treeleafB')
+    LC = m_leaf('#245f27', '#3d8f35', '#6fb64c', '#93cc6a', 'treeleafC')
+    def build(bm):
+        out = []
+        for (c, rad) in clusters:
+            c = V(c)
+            for k in range(per):
+                # altın açılı küre dağılımı
+                t = (k + 0.5) / per; z = 1 - 2 * t; rr = math.sqrt(max(0.0, 1 - z * z)); a = k * 2.39996 + R.uniform(-0.2, 0.2)
+                nrm = V((math.cos(a) * rr, math.sin(a) * rr, z))
+                if nrm.z < -0.75: continue
+                p = c + nrm * rad * R.uniform(0.82, 1.02)
+                d = (nrm + V((R.uniform(-0.4, 0.4), R.uniform(-0.4, 0.4), 0.25))).normalized()
+                side = d.cross(V((0, 0, 1)))
+                side = side.normalized() if side.length > 1e-3 else V((1, 0, 0))
+                mi = 2 if nrm.z < -0.2 else (1 if nrm.z > 0.35 else 0)
+                for f in blade(bm, p - d * 0.08, d, side, R.uniform(*leaf_len), 0.1, 0.25, segs=3, lift=0.08):
+                    out.append((f, mi))
+        return out
+    mesh_from_blades(name, build, mats or [LA, LB, LC])
+
+def c_tree():
+    """Masal ağacı: kıvrımlı, kökleri yere yayılan kalın gövde (oluklu kabuk, dipte yosun), iki-üç ana dal,
+    yaprak yaprak kümelerden taç (yuvarlak ama içi dolu değil), arada küçük turuncu meyveler ve pembe çiçekler;
+    dipte kök çıkıntıları, çakıl halkası, ot ve çiçek."""
+    R = random.Random(71)
+    BK = m_treebark()
+    trunk = [(0, 0, -0.05), (0.06, 0.02, 0.8), (-0.04, 0.05, 1.5), (0.05, 0.0, 2.1)]
+    tube('trunk', trunk, [0.3, 0.21, 0.17, 0.13], BK, res=6)
+    branches = [[(0.0, 0.03, 1.45), (0.45, 0.1, 1.95), (0.8, 0.15, 2.25)], [(0.0, 0.03, 1.6), (-0.5, -0.1, 2.05), (-0.85, -0.12, 2.3)],
+                [(0.03, 0.0, 1.9), (0.05, -0.45, 2.4), (0.1, -0.7, 2.6)], [(0.03, 0.0, 2.0), (-0.1, 0.5, 2.5)]]
+    for br in branches: tube('branch', br, [0.09, 0.06, 0.035][:len(br)], BK, res=4)
+    for k in range(6):                                         # kök çıkıntıları
+        a = k * 1.05 + 0.3
+        tube('root', [(math.cos(a) * 0.12, math.sin(a) * 0.12, 0.22), (math.cos(a) * 0.38, math.sin(a) * 0.38, 0.06), (math.cos(a) * 0.55, math.sin(a) * 0.55, 0.0)], [0.12, 0.07, 0.03], BK, res=3)
+    clusters = [((0.0, 0.0, 2.8), 0.85), ((0.8, 0.15, 2.45), 0.65), ((-0.85, -0.12, 2.5), 0.65), ((0.1, -0.75, 2.6), 0.6), ((-0.1, 0.7, 2.6), 0.6),
+                ((0.4, 0.35, 3.25), 0.55), ((-0.4, -0.3, 3.2), 0.55), ((0.55, -0.45, 2.95), 0.5), ((-0.55, 0.45, 3.0), 0.5)]
+    canopy(clusters, R, leaf_len=(0.3, 0.44), per=85)
+    FR = m_fruit('orange')
+    for k in range(9):
+        c, rad = clusters[k % len(clusters)]; a = R.uniform(0, 6.28); z = R.uniform(-0.6, 0.2)
+        p = V(c) + V((math.cos(a), math.sin(a), z)).normalized() * rad * 0.95
+        blob('fruit', tuple(p), (0.055, 0.055, 0.06), FR, sub=0, seg=10)
+    spots = []
+    for k in range(10):
+        c, rad = clusters[(k * 3) % len(clusters)]; a = R.uniform(0, 6.28)
+        p = V(c) + V((math.cos(a), math.sin(a), R.uniform(0.1, 0.8))).normalized() * rad * 1.02
+        spots.append((p.x, p.y, p.z))
+    PET = A.m_flat('#ff9ec0', 0.1, 9, 'blossom')
+    for (x, y, z) in spots:
+        for j in range(5):
+            b_ = j * 2 * math.pi / 5
+            blob('bl', (x + math.cos(b_) * 0.035, y + math.sin(b_) * 0.035, z), (0.03, 0.02, 0.008), PET, rot=(0, 0, math.degrees(b_)), sub=0, seg=6)
+        blob('bc', (x, y, z + 0.005), (0.015, 0.015, 0.01), A.m_flat('#ffd447', 0.1, 6, 'bcenter'), sub=0, seg=6)
+    base_ring(0, 0, 0.5, 72, flowers=3)
+    lush((0, 0, 0), 0.8, 4, 73)
+    return 'ağaç'
+
+def c_log():
+    """Kesilecek kütük: yere oturmuş kalın kesik gövde (üstte yıllık halkalı kesik yüz, kenarda kabuk, yan dalda kesik izi),
+    yanında devrilmiş kısa kütük; çevresinde yonga, mantar, yosun ve ot."""
+    R = random.Random(81)
+    BK = m_treebark('logbark'); EG = m_endgrain()
+    st = lathe('stump', [(0.001, 0.0), (0.4, 0.0), (0.36, 0.06), (0.31, 0.25), (0.3, 0.5), (0.001, 0.5)], BK, segs=20, noise_amt=0.06, seed=3)
+    blob('cut', (0, 0, 0.5), (0.3, 0.3, 0.012), EG, sub=0, seg=20)
+    for k in range(5):
+        a = k * 1.26 + 0.2
+        tube('root', [(math.cos(a) * 0.25, math.sin(a) * 0.25, 0.18), (math.cos(a) * 0.48, math.sin(a) * 0.48, 0.03)], [0.09, 0.03], BK, res=3)
+    # devrilmiş kütük
+    lg = lathe('logb', [(0.001, -0.35), (0.17, -0.35), (0.18, 0.0), (0.17, 0.35), (0.001, 0.35)], BK, segs=16, noise_amt=0.04, seed=5)
+    lg.rotation_euler = (math.radians(90), 0, math.radians(30)); lg.location = (0.55, -0.45, 0.17)
+    for sgn in (-1, 1):
+        e = blob('lend', (0, 0, 0), (0.168, 0.168, 0.01), EG, sub=0, seg=16)
+        e.rotation_euler = lg.rotation_euler.copy(); bpy.context.view_layer.update()
+        e.location = V((0.55, -0.45, 0.17)) + (lg.matrix_world.to_3x3() @ V((0, 0, sgn * 0.352)))
+    # yongalar
+    CH = m_wood('#d9a86a', 'chip', age=0.4)
+    for k in range(12):
+        a = R.uniform(0, 6.28); r = R.uniform(0.45, 0.85)
+        rbox('chip', (math.cos(a) * r, math.sin(a) * r, 0.012), (R.uniform(0.04, 0.08), 0.025, 0.012), CH, rot=(0, 0, math.degrees(a) + R.uniform(-40, 40)), bevel=0.004)
+    # mantarlar
+    CAP = A.m_flat('#e8463c', 0.12, 10, 'mushcap'); STEM = A.m_flat('#f4ead6', 0.1, 8, 'mushstem'); DOT = A.m_flat('#fff6e6', 0.05, 6, 'mushdot')
+    for k, (x, y, s) in enumerate(((-0.35, 0.2, 1.0), (-0.42, 0.05, 0.75), (0.3, 0.3, 0.85))):
+        tube('mstem', [(x, y, 0.0), (x, y, 0.09 * s)], [0.022 * s, 0.018 * s], STEM, res=2)
+        blob('mcap', (x, y, 0.1 * s), (0.065 * s, 0.065 * s, 0.04 * s), CAP, sub=1, seg=12)
+        for j in range(3): blob('md', (x + math.cos(j * 2.1) * 0.035 * s, y + math.sin(j * 2.1) * 0.035 * s, 0.13 * s), (0.011 * s, 0.011 * s, 0.005), DOT, sub=0, seg=6)
+    moss_cap((0.15, 0.1, 0.49), 0.1, seed=2)
+    lush((0, 0, 0), 0.7, 5, 82)
+    flower_heads([(0.6, 0.35, 0.2), (-0.55, -0.4, 0.18)], R)
+    return 'kütük'
+
+def c_site():
+    """İnşaat alanı (kulübe yeri): dört köşede kazık ve aralarında sarkan halat, ortada düzlenmiş toprak, köşede istiflenmiş
+    tahtalar, taş yığını, yere saplanmış küçük tabela (çekiç simgesi); çevrede ot ve çiçek."""
+    R = random.Random(91)
+    W = m_wood('#a8693d', 'sitew'); RP = m_rope()
+    dirt_patch(0, 0, 1.25, 1.1, 92)
+    pts = [(-1.0, -0.9), (1.0, -0.9), (1.0, 0.9), (-1.0, 0.9)]
+    for i, (x, y) in enumerate(pts):
+        post('stake', (x, y, -0.05), (x, y, 0.42), 0.035, W, seed=i)
+        blob('tip', (x, y, 0.43), (0.04, 0.04, 0.03), A.m_flat('#ff7a59', 0.1, 6, 'flagtip'), sub=0, seg=8)
+    for i in range(4):
+        a, b = pts[i], pts[(i + 1) % 4]
+        rope_sag((a[0], a[1], 0.36), (b[0], b[1], 0.36), 0.07, RP, thick=0.012)
+    for k in range(5):                                         # tahta yığını
+        plank('lumber', (0.45, 0.45, 0.04 + k * 0.05), (0.9, 0.12, 0.045), m_wood('#c48a57', 'lumber'), rot=(0, 0, 8 + R.uniform(-4, 4)), seed=k)
+    STN = m_rock()
+    for k in range(7):
+        a = k * 0.9; r = 0.1 + 0.08 * (k % 3)
+        pebble((-0.5 + math.cos(a) * r, 0.45 + math.sin(a) * r, 0.06 + 0.05 * (k % 2)), 0.1, STN, k)
+    SB = m_wood('#b98a5a', 'sitesign', paint='#f4e6c6')
+    post('signp', (0, -0.95, -0.05), (0, -0.95, 0.55), 0.025, W, seed=7)
+    plank('sign', (0, -0.98, 0.55), (0.42, 0.04, 0.28), SB, seed=8)
+    HM = A.m_flat('#7a5232', 0.1, 6, 'hammer'); HH = m_metal(name='hammerhead')
+    rbox('handle', (0.02, -1.005, 0.52), (0.04, 0.01, 0.2), HM, rot=(0, 30, 0), bevel=0.004)
+    rbox('head', (-0.03, -1.008, 0.62), (0.14, 0.012, 0.05), HH, rot=(0, 30, 0), bevel=0.006)
+    lush((0, 0, 0), 1.4, 7, 93)
+    for (x, y) in pts: base_ring(x, y, 0.12, int(x * 10 + y * 3) + 95, flowers=1)
+    return 'inşaat'
+
+def c_hut():
+    """Kulübe (çocuğun inşa ettiği): üst üste yatay kütüklerden duvar (köşelerde çapraz taşan uçlar, kesik yüzler),
+    tahta kapı, küçük kare pencere (panjurlu), saz çatı, yan duvarda asılı balta, önünde odun yığını; dipte çakıl, ot, çiçek."""
+    R = random.Random(101)
+    BK = m_treebark('hutlog'); EG = m_endgrain('hutend')
+    Wd, Dp, H = 1.8, 1.5, 1.15
+    n = 7; r = H / n / 2
+    for k in range(n):
+        z = r + k * 2 * r
+        for (axis, off) in (('x', -Dp / 2), ('x', Dp / 2), ('y', -Wd / 2), ('y', Wd / 2)):
+            if axis == 'x' and off < 0 and k <= 4:            # ön duvar: kapı açıklığı (ortada, yerden)
+                for (a0, a1) in ((-Wd / 2 - 0.15, -0.3), (0.3, Wd / 2 + 0.15)):
+                    tube('log', [(a0, off, z), (a1, off, z)], [r * 0.98, r * 0.98], BK, res=2)
+                continue
+            if axis == 'x': tube('log', [(-Wd / 2 - 0.15, off, z), (Wd / 2 + 0.15, off, z)], [r * 0.98, r], BK, res=2)
+            else: tube('log', [(off, -Dp / 2 - 0.15, z + r), (off, Dp / 2 + 0.15, z + r)], [r * 0.98, r], BK, res=2)
+    for (x, y) in ((-Wd / 2 - 0.15, -Dp / 2), (Wd / 2 + 0.15, -Dp / 2), (-Wd / 2 - 0.15, Dp / 2), (Wd / 2 + 0.15, Dp / 2)):
+        for k in range(n):
+            e = cyl('end', (x + (0.005 if x > 0 else -0.005), y, r + k * 2 * r), r * 0.9, 0.012, EG, rot=(0, 90, 0), verts=10)
+    cyl('inner', (0, 0, H / 2), 0.1, 0.1, A.m_flat('#3a2818', 0.1, 6, 'hutin'), verts=6).scale = (Wd * 4.6, Dp * 4.6, H * 9.5)
+    # kapı
+    DR = m_wood('#b98a5a', 'hutdoor', paint='#2fa3a0', age=1.1)
+    for k in range(3): plank('door', (-0.17 + k * 0.17, -Dp / 2 - 0.02, 0.45), (0.16, 0.05, 0.86), DR, seed=k)
+    plank('brace', (0, -Dp / 2 - 0.055, 0.25), (0.5, 0.025, 0.07), DR, seed=5); plank('brace', (0, -Dp / 2 - 0.055, 0.68), (0.5, 0.025, 0.07), DR, seed=6)
+    blob('knob', (0.15, -Dp / 2 - 0.08, 0.47), (0.025, 0.02, 0.025), m_metal(name='knobm'), sub=0, seg=8)
+    # pencere (yan duvar)
+    WIN = A.m_flat('#2f4a6a', 0.15, 6, 'darkglass'); SH = m_wood('#b98a5a', 'hutshut', paint='#e86f50', age=1.1)
+    rbox('win', (Wd / 2 + 0.11, 0, 0.7), (0.03, 0.36, 0.32), WIN, bevel=0.01)
+    for s_ in (-1, 1): plank('shutter', (Wd / 2 + 0.14, s_ * 0.27, 0.7), (0.03, 0.17, 0.36), SH, seed=s_ + 10)
+    thatch(0, 0, H + 0.1, H + 0.9, 1.25, 0.16, 103, layers=7)
+    blob('knot', (0, 0, H + 0.95), (0.1, 0.1, 0.08), m_leaf('#b98a3e', '#d4a855', '#e8c674', '#f0d58e', 'straw'), sub=1, seg=12)
+    # asılı balta + odun yığını
+    tube('axeh', [(-Wd / 2 - 0.2, 0.25, 0.4), (-Wd / 2 - 0.2, 0.32, 0.85)], [0.018, 0.018], m_wood('#c48a57', 'axehandle'), res=2)
+    rbox('axeb', (-Wd / 2 - 0.2, 0.36, 0.85), (0.02, 0.14, 0.1), m_metal(name='axeblade'), bevel=0.01)
+    for k in range(6):
+        row = 0 if k < 3 else 1
+        x = 0.55 + (k % 3) * 0.17 + row * 0.08
+        lg = lathe('wood', [(0.001, -0.25), (0.075, -0.25), (0.075, 0.25), (0.001, 0.25)], BK, segs=10)
+        lg.rotation_euler = (math.radians(90), 0, 0); lg.location = (x, -Dp / 2 - 0.45, 0.075 + row * 0.14)
+        e = cyl('wend', (x, -Dp / 2 - 0.71, 0.075 + row * 0.14), 0.07, 0.01, EG, rot=(90, 0, 0), verts=10)
+    for (x, y) in ((-Wd / 2, -Dp / 2), (Wd / 2, -Dp / 2), (-Wd / 2, Dp / 2), (Wd / 2, Dp / 2)):
+        base_ring(x * 1.1, y * 1.2, 0.15, int(x * 7 + y * 5) + 110, flowers=1)
+    lush((0, 0, 0), 1.6, 6, 111)
+    return 'kulübe'
+
+def m_cliff(name='cliff'):
+    """Adacık yamacı: yatay toprak katmanları (sıcak kahveden kuma), aralarda taş bantları, üstte çimen (yukarı bakan yüz)."""
+    def b(nt, bsdf):
+        n = nt.nodes; l = nt.links; G = A._G(nt); o = G.obj()
+        zz = G.math('ADD', G.z(), G.math('MULTIPLY', G.noise(o, 2.0, 4), 0.12))
+        band = G.math('FRACT', G.math('MULTIPLY', zz, 3.2))
+        rp = ramp(nt, [(0.0, '#8a5a36'), (0.35, '#a87444'), (0.55, '#c9955c'), (0.75, '#9a6a40'), (1.0, '#7a4e30')]); l.new(band, rp.inputs['Fac'])
+        col = G.mix(0.25, rp.outputs[0], G.noise(o, 12, 6, out='Color'), 'OVERLAY')
+        col = G.mix(G.rng(G.noise(o, 6, 4), 0.62, 0.72, 0, 0.6), col, '#9a9488')
+        grass = G.rng(G.math('ADD', G.nz(), G.math('MULTIPLY', G.noise(o, 4, 4), 0.35)), 0.72, 0.9)
+        gc = G.mix(G.rng(G.noise(o, 8, 4), 0.3, 0.7), '#4fa83a', '#86cc52')
+        col = G.mix(grass, col, gc)
+        l.new(col, bsdf.inputs['Base Color'])
+    return nodes_mat(name, b)
+
+def c_chunk():
+    """Ana ekranın adacık parçası: düzensiz kenarlı, yamaçları katmanlı toprak (yer yer taş), üstü çimenli yüzer kara parçası;
+    yamaçtan sarkan kökler, gömülü kayalar, üstte ot, çiçek ve çalı."""
+    R = random.Random(121)
+    bm = bmesh.new(); N = 28
+    rings = [(1.0, 0.0), (1.0, -0.15), (0.92, -0.45), (0.75, -0.75), (0.5, -1.0), (0.22, -1.15)]
+    def rad(a, k): return 1.0 + 0.16 * mnoise.noise(V((math.cos(a) * 1.6, math.sin(a) * 1.6, k * 0.3))) + 0.06 * math.sin(a * 5)
+    vs = []
+    top_c = bm.verts.new((0, 0, 0.02))
+    for k, (rf, z) in enumerate(rings):
+        row = []
+        for i in range(N):
+            a = i / N * 2 * math.pi; r = rf * rad(a, k) * 1.3
+            row.append(bm.verts.new((math.cos(a) * r, math.sin(a) * r * 0.85, z + (0.03 * mnoise.noise(V((math.cos(a) * 3, math.sin(a) * 3, 1))) if k == 0 else 0))))
+        vs.append(row)
+    bot = bm.verts.new((0, 0, -1.25))
+    for i in range(N): bm.faces.new((top_c, vs[0][i], vs[0][(i + 1) % N]))
+    for k in range(len(rings) - 1):
+        for i in range(N):
+            j = (i + 1) % N; bm.faces.new((vs[k][i], vs[k + 1][i], vs[k + 1][j], vs[k][j]))
+    for i in range(N): bm.faces.new((vs[-1][(i + 1) % N], vs[-1][i], bot))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    o = link_mesh('chunk', bm, [m_cliff()])
+    sm = o.modifiers.new('sub', 'SUBSURF'); sm.levels = 2
+    bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active = o
+    bpy.ops.object.modifier_apply(modifier='sub')
+    for v in o.data.vertices:
+        if v.co.z < -0.05: v.co += v.normal * 0.05 * mnoise.noise(v.co * 4)
+    smooth(o)
+    STN = m_rock()
+    for k in range(7):
+        a = R.uniform(0, 6.28); z = R.uniform(-0.8, -0.2); rr = 1.15 * (1 + z * 0.4)
+        rock((math.cos(a) * rr, math.sin(a) * rr * 0.85, z), R.uniform(0.15, 0.25), STN, k, sq=(1.0, 1.0, 0.8))
+    RT = m_treebark('rootb')
+    for k in range(6):
+        a = R.uniform(0, 6.28); rr = 1.05
+        p0 = (math.cos(a) * rr, math.sin(a) * rr * 0.85, -0.25)
+        tube('hroot', [p0, (p0[0] * 1.06, p0[1] * 1.06, -0.5), (p0[0] * 1.02, p0[1] * 1.02, -0.75)], [0.03, 0.02, 0.008], RT, res=2)
+    lush((0, 0, 0.02), 1.0, 10, 122)
+    BL = m_leaf('#2f8a3a', '#4fb24a', '#9ad667', '#c2ea8e', 'baseleaf')
+    mesh_from_blades('rosette', rosette([(0.7, 0.3), (-0.8, -0.2), (0.1, 0.75)], R, sizes=(0.25, 0.38), leaves=9), [BL])
+    for ob in bpy.context.scene.objects:
+        if ob.name.startswith('rosette'): ob.location.z += 0.02
+    flower_heads([(0.5, -0.4, 0.22), (-0.4, 0.45, 0.2), (0.85, 0.05, 0.24), (-0.9, 0.2, 0.2), (0.2, 0.6, 0.22)], R)
+    for k in range(4):
+        pebble((R.uniform(-0.9, 0.9), R.uniform(-0.6, 0.6), 0.04), R.uniform(0.06, 0.1), STN, 30 + k)
+    return 'adacık'
+
 BUILDERS = {
     'c_fence': (c_fence, 512, None), 'c_lantern': (c_lantern, 512, None), 'c_sign': (c_sign, 512, None),
     'c_crates': (c_crates, 1024, None), 'c_boat': (c_boat, 1024, None),
     'c_shop': (c_shop, 1024, None), 'c_pier': (c_pier, 1024, None), 'c_lighthouse': (c_lighthouse, 1024, None), 'c_board': (c_board, 1024, None),
     'c_garden': (c_garden, 1024, None), 'c_surf': (c_surf, 1024, None), 'c_swim': (c_swim, 1024, None), 'c_game_hut': (c_game_hut, 1024, None),
     'c_festival': (c_festival, 1024, None), 'c_cave': (c_cave, 1024, 0.5), 'c_mountain': (c_mountain, 1024, 0.5), 'c_ski': (c_ski, 1024, None),
+    'c_tree': (c_tree, 1024, None), 'c_log': (c_log, 512, None), 'c_site': (c_site, 1024, None), 'c_hut': (c_hut, 1024, None), 'c_chunk': (c_chunk, 1024, None),
 }
 AO = float(os.environ.get('POFI_AO', '0.6'))
 

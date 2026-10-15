@@ -42,18 +42,65 @@ def mat(name, rgb, rough=0.4, metal=0.0, emit=0.0, coat=0.0):
     if emit: b.inputs['Emission Color'].default_value = (*rgb, 1); b.inputs['Emission Strength'].default_value = emit
     return m
 
+sys.path.insert(0, __import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)), '..', 'code3d'))
+import assets_v3 as A3                                     # ortak düğüm yardımcıları (_G): kodla 3B tasarım diliyle aynı ahşap
+
+def _hex(rgb): return '#%02x%02x%02x' % tuple(int(max(0, min(1, c)) ** (1 / 2.2) * 255) for c in rgb)
+
 def wood(name, base=(0.78, 0.55, 0.3), dark=(0.55, 0.34, 0.16)):
-    m = bpy.data.materials.new(name); m.use_nodes = True; n = m.node_tree.nodes; l = m.node_tree.links
-    b = n['Principled BSDF']; b.inputs['Roughness'].default_value = 0.55
-    # damar: boyuna (yerel X) uzamış gürültü — her yüzde çizgili görünür
-    tc = n.new('ShaderNodeTexCoord'); mp = n.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (0.35, 9.0, 9.0)
-    wv = n.new('ShaderNodeTexNoise'); wv.inputs['Scale'].default_value = 1.2; wv.inputs['Detail'].default_value = 6.0
-    wv.inputs['Distortion'].default_value = 0.6
-    rp = n.new('ShaderNodeValToRGB'); rp.color_ramp.elements[0].color = (*dark, 1); rp.color_ramp.elements[1].color = (*base, 1)
-    l.new(tc.outputs['Object'], mp.inputs['Vector']); l.new(mp.outputs['Vector'], wv.inputs['Vector'])
-    l.new(wv.outputs['Fac'], rp.inputs['Fac']); l.new(rp.outputs['Color'], b.inputs['Base Color'])
-    bump = n.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.15
-    l.new(wv.outputs['Fac'], bump.inputs['Height']); l.new(bump.outputs['Normal'], b.inputs['Normal'])
+    """Ahşap (kodla 3B tasarım dili): boyuna yıllık halka bantları ve lifler, düğüm, ince boyuna çatlak, çizik,
+    güneşte solma, kenarlarda aşınma (açık); hafif kabartı."""
+    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; n = nt.nodes; l = nt.links
+    b = n['Principled BSDF']; b.inputs['Roughness'].default_value = 0.6
+    G = A3._G(nt); o = G.obj()
+    wv = n.new('ShaderNodeTexWave'); wv.wave_type = 'BANDS'; wv.bands_direction = 'Y'
+    wv.inputs['Scale'].default_value = 1.3; wv.inputs['Distortion'].default_value = 7; wv.inputs['Detail'].default_value = 3
+    l.new(G.mapping(o, (0.35, 6.0, 6.0)), wv.inputs['Vector'])
+    col = G.mix(G.rng(wv.outputs['Fac'], 0.1, 0.9), _hex(dark), _hex(base))
+    fib = G.noise(G.mapping(o, (0.6, 30.0, 30.0)), 3.0, 5)
+    col = G.mix(0.3, col, G.noise(G.mapping(o, (0.6, 30.0, 30.0)), 3.0, 5, out='Color'), 'OVERLAY')
+    col = G.mix(G.rng(G.vor(G.mapping(o, (0.8, 2.5, 2.5)), 1.2), 0.07, 0.0, 0, 0.7), col, _hex(tuple(c * 0.55 for c in dark)))
+    crack = G.math('MULTIPLY', G.rng(G.vor(G.mapping(o, (0.25, 6.0, 6.0)), 2.0, 'DISTANCE_TO_EDGE'), 0.03, 0.0, 0, 1), G.rng(G.noise(o, 2.2), 0.52, 0.62))
+    col = G.mix(G.math('MULTIPLY', crack, 0.7), col, '#3a2414')
+    col = G.mix(G.rng(G.noise(o, 1.2, 5), 0.58, 0.76, 0, 0.18), col, '#a59d90')
+    sc = G.vor(G.mapping(o, (6, 2, 6)), 3.0, 'DISTANCE_TO_EDGE')
+    col = G.mix(G.math('MULTIPLY', G.math('MULTIPLY', G.rng(sc, 0.012, 0.0, 0, 1), G.rng(G.noise(o, 4.0), 0.55, 0.62)), 0.3), col, '#e3cfaa')
+    col = G.mix(G.math('MULTIPLY', G.edges(0.53, 0.62), 0.35), col, '#f0dcb8')
+    l.new(col, b.inputs['Base Color'])
+    bump = n.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.18
+    l.new(G.math('ADD', fib, G.math('MULTIPLY', crack, -0.8)), bump.inputs['Height']); l.new(bump.outputs['Normal'], b.inputs['Normal'])
+    return m
+
+def wicker(name='wicker'):
+    """Hasır örgü: yatay ve dikey şeritlerin altlı-üstlü dokuması (dama düzeni), şerit kenarlarında koyu çizgi, kabartı."""
+    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; n = nt.nodes; l = nt.links
+    b = n['Principled BSDF']; b.inputs['Roughness'].default_value = 0.7
+    G = A3._G(nt); o = G.obj()
+    sp = n.new('ShaderNodeSeparateXYZ'); l.new(o, sp.inputs[0])
+    ang = G.math('ARCTAN2', sp.outputs['Y'], sp.outputs['X'])
+    u = G.math('MULTIPLY', ang, 30.0); v = G.math('MULTIPLY', sp.outputs['Z'], 26.0)
+    cu = G.math('SINE', u); cv = G.math('SINE', v)
+    weave = G.math('MULTIPLY', cu, cv)                       # >0: yatay şerit üstte, <0: dikey
+    lineu = G.math('ABSOLUTE', G.math('COSINE', u)); linev = G.math('ABSOLUTE', G.math('COSINE', v))
+    edge = G.math('MAXIMUM', G.rng(linev, 0.92, 1.0), G.rng(lineu, 0.92, 1.0))
+    col = G.mix(G.rng(weave, -0.2, 0.2), '#b0782f', '#e2b066')
+    col = G.mix(0.25, col, G.noise(G.mapping(o, (12, 12, 40)), 2.0, 4, out='Color'), 'OVERLAY')
+    col = G.mix(G.math('MULTIPLY', edge, 0.55), col, '#5e3a16')
+    l.new(col, b.inputs['Base Color'])
+    bump = n.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.5
+    l.new(G.math('ABSOLUTE', weave), bump.inputs['Height']); l.new(bump.outputs['Normal'], b.inputs['Normal'])
+    return m
+
+def coco_mat(name='coco'):
+    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; n = nt.nodes; l = nt.links
+    b = n['Principled BSDF']; b.inputs['Roughness'].default_value = 0.9
+    G = A3._G(nt); o = G.obj()
+    fib = G.noise(G.mapping(o, (4, 4, 40)), 1.5, 6)
+    col = G.mix(G.rng(fib, 0.3, 0.7), '#3a2410', '#8a6234')
+    col = G.mix(G.rng(G.noise(o, 18, 4), 0.62, 0.72, 0, 0.5), col, '#c9a26a')
+    l.new(col, b.inputs['Base Color'])
+    bump = n.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.45
+    l.new(fib, bump.inputs['Height']); l.new(bump.outputs['Normal'], b.inputs['Normal'])
     return m
 
 def slab(w, h, d, r, m, loc=(0, 0, 0), name='slab', segs=6):
@@ -121,7 +168,7 @@ if want('block_wood'):
 
 # ---------------------------------------------------------------- sepet (512 x 320)
 def basket(loc=(0, 0, 0), s=1.0):
-    m = wood('wicker', (0.86, 0.62, 0.3), (0.5, 0.3, 0.12))
+    m = wicker()
     bpy.ops.mesh.primitive_cylinder_add(vertices=48, radius=1.6 * s, depth=1.1 * s, location=loc)
     b = bpy.context.object; b.name = 'basket'
     bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='DESELECT'); bpy.ops.object.mode_set(mode='OBJECT')
@@ -139,7 +186,7 @@ def basket(loc=(0, 0, 0), s=1.0):
 def coconut(loc, s=0.5, gold=False):
     bpy.ops.mesh.primitive_uv_sphere_add(segments=48, ring_count=32, radius=s, location=loc)
     c = bpy.context.object; c.scale = (0.95, 0.95, 1.05)
-    c.data.materials.append(mat('gc' if gold else 'cc', (1.0, 0.72, 0.15) if gold else (0.25, 0.13, 0.05), 0.35 if gold else 0.85, metal=0.45 if gold else 0))
+    c.data.materials.append(mat('gc', (1.0, 0.72, 0.15), 0.35, metal=0.45) if gold else coco_mat())
     bpy.ops.object.shade_smooth(); return c
 
 if want('basket'):

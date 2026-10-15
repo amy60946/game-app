@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 7;
+        public override uint GetVersion() => 8;
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -122,7 +122,10 @@ namespace Pofi.EditorTools
             var normal = Path.GetFileNameWithoutExtension(assetPath).EndsWith("_normal");
             // Telefon/WebGL boyutu (14 Ekim 2026: veri 88 MB'tı): pet rengi 1024, diğer her şey 512.
             // Crunch kapalı: CI kapsayıcısında crnlib iş parçacığı (sem_wait) Unity'yi çökertti (derleme 46).
-            t.maxTextureSize = IsPet && !normal ? 1024 : 512;
+            // kodla yenilenen yapılar (b_*, adacık; art/code3d/export_game.py): pişirilmiş ayrıntı 1024'te korunur
+            var file = Path.GetFileName(assetPath);
+            var building = assetPath.Replace('\\', '/').Contains("/Resources/Env/") && (file.StartsWith("b_") || file.StartsWith("island_chunk"));
+            t.maxTextureSize = (IsPet && !normal) || building ? 1024 : 512;
             t.mipmapEnabled = true;
             t.textureCompression = TextureImporterCompression.Compressed;
             t.crunchedCompression = false;

@@ -94,9 +94,12 @@ namespace Pofi.Core
             Ui.EnsureEventSystem();
             Canvas = Ui.CreateCanvas("Canvas", 0);
             Overlay = Ui.CreateCanvas("Overlay", 10);
+            Audio.Haptics.InitAudioSession();                        // iOS: sessiz düğmesine rağmen ses (WebGL'de index.html yapar)
             Audio.Music.Init(Audio.Music.DefaultVolume);           // arka plan müziği (ilk dokunuşta duyulur)
-            MusicButton.Create(Overlay.transform, this);
-            LookToggle.Create(Overlay.transform);                    // görsel stil çalışması: yeni ⇄ eski karşılaştırma
+            var safeOverlay = Ui.Fill(Overlay.transform, "Safe");     // iPhone çentiği: köşe düğmeleri güvenli alanda
+            safeOverlay.gameObject.AddComponent<SafeArea>();
+            MusicButton.Create(safeOverlay, this);
+            LookToggle.Create(safeOverlay);                          // görsel stil çalışması (kapalı: Look.StudyToggle)
 
             var restored = await Auth.RestoreAsync();
             if (restored != null) OnSignedIn(restored, route: false);
@@ -321,6 +324,7 @@ namespace Pofi.Core
             Stage.SetBackdrop(null);
             Stage.Swiped = null;
             var root = Ui.Fill(Canvas.transform, "Screen " + next);
+            root.gameObject.AddComponent<SafeArea>();                // iPhone çentiği / ev çubuğu
             switch (next)
             {
                 case AppScreen.Login: _screen = root.gameObject.AddComponent<LoginScreen>(); break;

@@ -12,6 +12,9 @@ namespace Pofi.World
         private static Material _mat;
         private Vector3 _drift, _start;
         private bool _started;
+        private Mesh _mesh;
+
+        private void OnDestroy() { if (_mesh != null) Destroy(_mesh); }
 
         /// <summary>Merkez çevresinde (yay açısı içinde) <paramref name="count"/> küme kurar.</summary>
         public static Transform Spawn(Transform parent, Vector3 center, float radius, int count, float yMin, float yMax, float size, int seed,
@@ -37,22 +40,25 @@ namespace Pofi.World
                 cl.localRotation = Quaternion.Euler(0f, (float)rnd.NextDouble() * 360f, 0f);
                 var s = size * (0.7f + (float)rnd.NextDouble() * 0.6f);
                 var puffs = 9 + rnd.Next(6);
+                // pufları tek ağa birleştir: bulut başına 1 çizim çağrısı (iPhone'da 10+ puf × bulut yerine)
+                var parts = new CombineInstance[puffs];
                 for (var k = 0; k < puffs; k++)
                 {
-                    var p = new GameObject("puf").transform;
-                    p.SetParent(cl, false);
                     var pr = s * (0.32f + (float)rnd.NextDouble() * 0.38f);
-                    p.localPosition = new Vector3(((float)rnd.NextDouble() * 2f - 1f) * s * 1.5f, (float)rnd.NextDouble() * s * 0.45f, ((float)rnd.NextDouble() * 2f - 1f) * s * 0.6f);
-                    p.localScale = new Vector3(pr, pr * 0.8f, pr);
-                    p.localRotation = Quaternion.Euler(0f, (float)rnd.NextDouble() * 360f, 0f);
-                    p.gameObject.AddComponent<MeshFilter>().sharedMesh = _puff;
-                    var mr = p.gameObject.AddComponent<MeshRenderer>();
-                    mr.sharedMaterial = _mat;
-                    mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-                    mr.receiveShadows = false;
+                    var pos = new Vector3(((float)rnd.NextDouble() * 2f - 1f) * s * 1.5f, (float)rnd.NextDouble() * s * 0.45f, ((float)rnd.NextDouble() * 2f - 1f) * s * 0.6f);
+                    var rot = Quaternion.Euler(0f, (float)rnd.NextDouble() * 360f, 0f);
+                    parts[k] = new CombineInstance { mesh = _puff, transform = Matrix4x4.TRS(pos, rot, new Vector3(pr, pr * 0.8f, pr)) };
                 }
+                var mesh = new Mesh { name = "Cloud" };
+                mesh.CombineMeshes(parts, true, true);
+                cl.gameObject.AddComponent<MeshFilter>().sharedMesh = mesh;
+                var mr = cl.gameObject.AddComponent<MeshRenderer>();
+                mr.sharedMaterial = _mat;
+                mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                mr.receiveShadows = false;
                 var drift = cl.gameObject.AddComponent<Clouds>();
                 drift._drift = new Vector3(0.35f + (float)rnd.NextDouble() * 0.25f, 0f, 0.12f);
+                drift._mesh = mesh;
             }
             return root;
         }

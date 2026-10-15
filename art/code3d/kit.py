@@ -1,3 +1,4 @@
+import os
 # Kodla 3D üretim için ortak araçlar (Blender bpy). Tüm varlıklar orijinal; referanslardan kopya yok.
 # Stil: yumuşak "vinyl oyuncak" karakterler + boyalı/maket ada yapıları, ince koyu dış çizgi (oyundaki Pofi/Toon ile aynı fikir).
 import bpy, bmesh, math, random, mathutils
@@ -227,6 +228,7 @@ def ramp(nt, stops, interp='LINEAR'):
     return r
 
 def export_baked_fbx(path_noext, objs, size=1024, ao_strength=0.6, ao_dist=0.35, margin=6, decimate=None):
+    size = int(os.environ.get('POFI_TEX', '0') or 0) or size
     import numpy as np
     sc = bpy.context.scene
     prev_engine = sc.render.engine
@@ -249,8 +251,13 @@ def export_baked_fbx(path_noext, objs, size=1024, ao_strength=0.6, ao_dist=0.35,
     bpy.context.view_layer.objects.active = meshes[0]
     if len(meshes) > 1: bpy.ops.object.join()
     ob = bpy.context.object; ob.name = 'model'
+    tgt = int(os.environ.get('POFI_TARGET', '0') or 0)          # oyun sürümü: üçgen bütçesi (export_game.py)
+    if tgt:
+        cur = sum(len(p.vertices) - 2 for p in ob.data.polygons)
+        decimate = min(1.0, tgt / max(1, cur)) if cur > tgt else None
     if decimate:
-        d = ob.modifiers.new('dec', 'DECIMATE'); d.ratio = decimate; bpy.ops.object.modifier_apply(modifier='dec')
+        d = ob.modifiers.new('dec', 'DECIMATE'); d.ratio = decimate; d.use_collapse_triangulate = True
+        bpy.ops.object.modifier_apply(modifier='dec')
     # UV
     uvm = ob.data.uv_layers.new(name='UVMap'); ob.data.uv_layers.active = uvm
     bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')

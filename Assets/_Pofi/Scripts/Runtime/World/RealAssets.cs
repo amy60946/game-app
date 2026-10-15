@@ -82,7 +82,15 @@ namespace Pofi.World
             ApplyMaterial(go, $"{folder}/{name}/{name}", 0.15f);
             var b = Bounds(go.transform);
             var w = Mathf.Max(b.size.x, b.size.z);
-            if (w > 0.0001f) Fit(root, go.transform, b.size.y * footprint / w);
+            if (w <= 0.0001f) return root;
+            if (folder == "Env")
+            {
+                // kodla yenilenen çevre modelleri (art/code3d, 15 Ekim 2026): zemin = modelin orijini (diorama tabanı yok;
+                // iskele kazıkları suyun altına iner), yalnız ölçeklenir
+                var s = footprint * Mathf.Abs(root.lossyScale.x) / w;
+                go.transform.localScale *= s;
+            }
+            else Fit(root, go.transform, b.size.y * footprint / w);
             return root;
         }
 

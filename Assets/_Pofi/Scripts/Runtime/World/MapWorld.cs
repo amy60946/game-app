@@ -275,7 +275,6 @@ namespace Pofi.World
             else if (RegionAssets.TryGetValue(r.Id, out var asset))
             {
                 var m = RealAssets.EnvFootprint(asset, root, r.Size, 180f + r.Yaw);   // ham önü +z → güneye dön, sonra bölge açısı
-                if (m != null) Sink(m, r.Water ? 0.05f : 0.14f);
             }
             if (root.childCount == 0) Placeholder(root, r, v.Unlocked);
             if (!v.Unlocked) RealAssets.Tint(root, new Color(0.62f, 0.64f, 0.72f));
@@ -286,13 +285,6 @@ namespace Pofi.World
             col.size = new Vector3(Mathf.Max(1f, b.size.x), Mathf.Max(1f, b.size.y), Mathf.Max(1f, b.size.z));
             Regions[r.Id] = root;
             LabelHeights[r.Id] = Mathf.Max(1.5f, b.max.y - root.position.y + 0.3f);
-        }
-
-        /// <summary>Diorama tabanını zemine gömer (kare kenarı görünmesin).</summary>
-        private static void Sink(Transform model, float fraction)
-        {
-            var b = RealAssets.WorldBounds(model);
-            model.localPosition -= new Vector3(0f, b.size.y * fraction, 0f);
         }
 
         private void Placeholder(Transform root, RegionDef r, bool unlocked)
@@ -316,7 +308,6 @@ namespace Pofi.World
                 var t = RealAssets.EnvFootprint(p.Asset, parent, p.Size, p.Yaw);
                 if (t == null) continue;
                 t.localPosition = new Vector3(p.X, Terrain.Height(p.X, p.Z), p.Z);
-                if (p.Asset != "palm") Sink(t, 0.16f);
             }
         }
 
