@@ -38,3 +38,5 @@
     ⚠️ HATIRLAT: yükleme ekranı görseli geçici; kullanıcı kontrol edecek.
   - Arka plan müziği kodla bestelendi (`art/scripts/music_island.py`, telifsiz); aç/kapa her ekranda sağ üst ♪.
   - M4 UYGULANDI (15 Ekim 2026): SQL Supabase'de (iş akışı "Supabase M4 uygula"), Fidan eklemeleri parent-app dalına gönderildi ve Expo Go önizlemesine yayınlandı. Oyun gerçek sunucuya `SUPABASE_PUBLISHABLE_KEY` secret'ı ile bağlanır; deneme kodları sahte arka uçta kalır.
+- Görsel stil kararı (15 Ekim 2026): hedef = boyalı/maket hissi veren ada (yumuşak toon ışık, **ince dış çizgi**, kıyı köpüğü, ışık hüzmesi, çiçekli çimen) + yumuşak "vinyl oyuncak" karakter/eşya. Referanslar (I Just Wanted to Fish ekranları, Behance vinyl) yalnız stil/teknik ilham; hiçbir şey kopyalanmaz, yapay zekâya yüklenmez.
+  Üretim **bulutta betikle** (Blender bpy + Unity C#/CI); Blender MCP / Unity MCP kurulmaz (gereksiz + güvenlik açığı). Kamera şimdilik mevcut haliyle kalır. Dikey dilim henüz yapılmaz; aksiyon planı kullanıcı onayı bekliyor.
