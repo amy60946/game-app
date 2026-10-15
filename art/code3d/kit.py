@@ -168,7 +168,10 @@ def export_palette_fbx(path_noext, objs, cell=8, cells=16):
             c = tuple(round(x, 4) for x in m.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value[:3]) if m and m.use_nodes and 'Principled BSDF' in m.node_tree.nodes else (0.5, 0.5, 0.5)
             if c not in colors: colors.append(c)
             idx.append(colors.index(c))
-        if not me.uv_layers: me.uv_layers.new(name='uv')
+        # tek UV katmanı, adı herkes için aynı ('UVMap'): birleştirmede ad farklıysa UV kaybolur (yüz siyah görünür)
+        if not me.uv_layers: me.uv_layers.new(name='UVMap')
+        while len(me.uv_layers) > 1: me.uv_layers.remove(me.uv_layers[-1])
+        me.uv_layers[0].name = 'UVMap'; me.uv_layers.active = me.uv_layers[0]
         uv = me.uv_layers.active.data
         for poly in me.polygons:
             ci = idx[poly.material_index] if idx else 0
