@@ -4,6 +4,11 @@
 # Gerekli: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_P8 (p8 dosyasının metni), APPLE_TEAM_ID. Kullanım: ios-testflight.sh <xcode_proje_klasörü>
 set -euo pipefail
 proj="$1"
+# App Store yüklemesi iOS 26 SDK (Xcode 26+) ister: kurulu en yeni kararlı Xcode seçilir
+xc=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -v -i beta | sort -V | tail -1 || true)
+[ -n "$xc" ] && sudo xcode-select -s "$xc/Contents/Developer"
+v=$(xcodebuild -version | head -1 | awk '{print $2}' | cut -d. -f1)
+[ "${v:-0}" -ge 26 ] || { echo "::error::Xcode $v kurulu; App Store Xcode 26+ istiyor (runs-on: macos-26)"; exit 1; }
 missing=""
 for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do [ -z "${!v:-}" ] && missing="$missing $v"; done
 if [ -n "$missing" ]; then
