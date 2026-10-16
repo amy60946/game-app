@@ -27,6 +27,11 @@ auth=(-allowProvisioningUpdates -authenticationKeyPath "$key" -authenticationKey
 
 # Arşiv otomatik geliştirme imzasıyla alınır (en az bir kayıtlı cihaz gerekir → asc_device.py); dışa aktarma App Store
 # dağıtım imzasıyla yeniden imzalar (sertifika Apple bulutunda, API anahtarı Admin).
+# Apple ara sertifikaları (WWDR G3/G6): imza zincirinin tamamı gömülsün, yoksa App Store "Invalid Signature" der
+for c in AppleWWDRCAG3 AppleWWDRCAG6; do
+  curl -fsSL -o "$RUNNER_TEMP/$c.cer" "https://www.apple.com/certificateauthority/$c.cer" \
+    && security import "$RUNNER_TEMP/$c.cer" -k ~/Library/Keychains/login.keychain-db -A >/dev/null 2>&1 || true
+done
 python3 -m pip install -q --disable-pip-version-check "pyjwt[crypto]" 2>/dev/null || python3 -m pip install -q --break-system-packages "pyjwt[crypto]"
 python3 "$(dirname "$0")/asc_device.py" "$key"
 archive="$RUNNER_TEMP/Pofi.xcarchive"
@@ -37,6 +42,7 @@ xcodebuild -project Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration R
   DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
   "${auth[@]}" -quiet archive
 [ -d "$archive" ] || { echo "::error::Arşiv oluşmadı"; exit 1; }
+codesign -dvv "$(ls -d "$archive"/Products/Applications/*.app | head -1)" 2>&1 | grep -E "Authority|TeamIdentifier" || true
 
 cat > "$RUNNER_TEMP/ExportOptions.plist" <<PL
 <?xml version="1.0" encoding="UTF-8"?>
