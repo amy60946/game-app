@@ -25,15 +25,17 @@ chmod 600 "$key"
 openssl pkey -in "$key" -noout 2>/dev/null || echo "::warning::ASC_KEY_P8 geçerli bir özel anahtar gibi görünmüyor (.p8 dosyasının tüm metnini yapıştır)."
 auth=(-allowProvisioningUpdates -authenticationKeyPath "$key" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
 
-# Arşiv imzasız alınır (geliştirme imzası kayıtlı cihaz ister); imzayı dışa aktarma yapar: App Store dağıtım sertifikası
-# Apple bulutunda (API anahtarı Admin) ve App Store profili otomatik. Uygulamanın özel yetkisi (entitlement) yok.
+# Arşiv otomatik geliştirme imzasıyla alınır (en az bir kayıtlı cihaz gerekir → asc_device.py); dışa aktarma App Store
+# dağıtım imzasıyla yeniden imzalar (sertifika Apple bulutunda, API anahtarı Admin).
+python3 -m pip install -q --disable-pip-version-check "pyjwt[crypto]" 2>/dev/null || python3 -m pip install -q --break-system-packages "pyjwt[crypto]"
+python3 "$(dirname "$0")/asc_device.py" "$key"
 archive="$RUNNER_TEMP/Pofi.xcarchive"
 cd "$proj"
 xcodebuild -version
 xcodebuild -project Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release \
   -destination 'generic/platform=iOS' -archivePath "$archive" \
-  DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
-  -quiet archive
+  DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+  "${auth[@]}" -quiet archive
 [ -d "$archive" ] || { echo "::error::Arşiv oluşmadı"; exit 1; }
 
 cat > "$RUNNER_TEMP/ExportOptions.plist" <<PL
