@@ -51,3 +51,4 @@
   oyuna `python3 art/code3d/export_game.py [ad]` ile (üçgen bütçesi + pişirilmiş doku, eski Meshy dosyaları silinir). Env modelleri orijinden zemine oturur (RealAssets.Footprint).
   Ortak eskime: `assets_v3.weather/_G`, ahşap/halat/demir/kumaş (assets_town). Kıyafetler ve petler Meshy'de kalır (iskelet/soket bağlı).
 - iOS/TestFlight hattı: `.github/workflows/ios.yml` (commit mesajında `[ios]` ya da elle), `docs/TESTFLIGHT.md` (kullanıcının eklemesi gereken secret'lar).
+- İki ayrı uygulama (16 Ekim 2026): **Pofi Adası** (çocuk, `com.fidan.pofi`) ve **Fidan** (yalnız ebeveyn, `com.fidan.ebeveyn`; çocuk kod ekranı kaldırıldı). Sunucu/işlevler aynı. Fidan TestFlight: `parent-app/.github/workflows/ios-testflight.yml` (EAS), `parent-app/docs/TESTFLIGHT.md`.

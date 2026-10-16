@@ -6,7 +6,9 @@ Oyun GitHub Actions'ta iki adımda TestFlight'a gider (`.github/workflows/ios.ym
 2. **TestFlight (macOS):** `tools/ci/ios-testflight.sh` → `xcodebuild archive` (otomatik imza, App Store Connect API anahtarıyla
    sertifika/profil bulutta yönetilir) → `-exportArchive` (`destination: upload`) ile App Store Connect'e yükleme.
 
-Çalıştırma: GitHub → **Actions** → **iOS (TestFlight)** → **Run workflow**. Ya da commit mesajında `[ios]` geçerse kendiliğinden.
+Çalıştırma: commit mesajında `[ios]` geçerse kendiliğinden (Claude başlatır). "Run workflow" düğmesi GitHub'da yalnızca iş akışı varsayılan dalda (main) olunca görünür.
+
+Ebeveyn uygulaması **Fidan** ayrı bir uygulamadır (bundle `com.fidan.ebeveyn`, depo `amy60946/parent-app`, kendi TestFlight iş akışı: `parent-app/docs/TESTFLIGHT.md`). Çocuk giriş kodunu yalnızca bu oyuna yazar; Fidan'da çocuk girişi yoktur.
 
 ## Bir kez yapılacaklar (kullanıcı)
 
