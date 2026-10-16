@@ -51,7 +51,7 @@ insert into public.task_assignments (task_id, child_id, family_id, difficulty, c
   ('00000000-0000-0000-0000-000000007a52', '00000000-0000-0000-0000-00000000c0de', public.my_family_id(), 'easy', 5),
   ('00000000-0000-0000-0000-000000007a53', '00000000-0000-0000-0000-00000000c0de', public.my_family_id(), 'easy', 5);
 
--- yaş bandı doğrudan yazılabilir (Fidan: çocuk eklerken / düzenlerken)
+-- yaş bandı doğrudan yazılabilir (ParentApp: çocuk eklerken / düzenlerken)
 insert into public.children (id, family_id, name, avatar, age_band)
   values ('00000000-0000-0000-0000-00000000c0d2', public.my_family_id(), 'Efe', 'kedi', 'A');
 update public.children set age_band = 'B' where id = '00000000-0000-0000-0000-00000000c0d2';

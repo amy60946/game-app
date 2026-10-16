@@ -2,7 +2,7 @@
 
 - Kullanıcı yazılımcı değil. Türkçe, sade dille, adım adım ve nereye tıklayacağını söyleyerek anlat. Şifre/anahtar/lisansı sohbete yapıştırmasını ASLA isteme; GitHub Secrets'a eklenir.
 - Plan ve kararlar: `docs/PLAN.md` (onaylandı, 13 Ekim 2026). Kapsam dışına çıkma; öneriler not olarak yazılır ve sorulur. Belirsiz kararda tahmin etme, kısa soru sor.
-- Ebeveyn uygulaması (Fidan, Expo) ayrı depoda: `amy60946/parent-app` (`docs/DURUM.md`). Arka uç ortak Supabase projesi.
+- Ebeveyn uygulaması (ParentApp, Expo) ayrı depoda: `amy60946/parent-app` (`docs/DURUM.md`). Arka uç ortak Supabase projesi.
 - Unity 6 LTS `6000.3.26f1`, URP. Unity Editor bu bulut ortamında çalışmaz (indirme engelli). Doğrulama:
   - `dotnet test tests-dotnet` → `Assets/_Pofi/Scripts/Logic` (Unity'siz saf C#, `noEngineReferences`) + `Assets/Tests/EditMode/Logic`. C# 9 ile sınırlı yaz (Unity ile aynı).
   - Unity derleme/test: GitHub Actions + GameCI (`.github/workflows/ci.yml`). WebGL çıktısı `webgl-preview` dalına yazılır; Claude bunu çekip Artifact olarak yayınlar (kullanıcı iPhone Safari'de açar).
@@ -37,7 +37,7 @@
   - Kodla üretilen 3B arayüz görselleri: `art/scripts/ui_games.py` → `Resources/Games/`, `art/scripts/keyart.py` → festival arka planı (`Resources/Art/`) ve yükleme ekranı (`tools/preview/keyart.jpg`).
     ⚠️ HATIRLAT: yükleme ekranı görseli geçici; kullanıcı kontrol edecek.
   - Arka plan müziği kodla bestelendi (`art/scripts/music_island.py`, telifsiz); aç/kapa her ekranda sağ üst ♪.
-  - M4 UYGULANDI (15 Ekim 2026): SQL Supabase'de (iş akışı "Supabase M4 uygula"), Fidan eklemeleri parent-app dalına gönderildi ve Expo Go önizlemesine yayınlandı. Oyun gerçek sunucuya `SUPABASE_PUBLISHABLE_KEY` secret'ı ile bağlanır; deneme kodları sahte arka uçta kalır.
+  - M4 UYGULANDI (15 Ekim 2026): SQL Supabase'de (iş akışı "Supabase M4 uygula"), ParentApp eklemeleri parent-app dalına gönderildi ve Expo Go önizlemesine yayınlandı. Oyun gerçek sunucuya `SUPABASE_PUBLISHABLE_KEY` secret'ı ile bağlanır; deneme kodları sahte arka uçta kalır.
 - Görsel stil kararı (15 Ekim 2026): hedef = boyalı/maket hissi veren ada (yumuşak toon ışık, dış çizgi yok, kıyı köpüğü, ışık hüzmesi, çiçekli çimen) + yumuşak "vinyl oyuncak" karakter/eşya. Referanslar (I Just Wanted to Fish ekranları, Behance vinyl) yalnız stil/teknik ilham; hiçbir şey kopyalanmaz, yapay zekâya yüklenmez.
   Üretim **bulutta betikle** (Blender bpy + Unity C#/CI); Blender MCP / Unity MCP kurulmaz (gereksiz + güvenlik açığı). Kamera şimdilik mevcut haliyle kalır.
   **Dış çizgi YOK** (kullanıcı, 15 Ekim): karakter/nesne çevresinde çizgi kullanılmaz (Pofi/Toon'un çizgi geçişi kapalı).
@@ -51,5 +51,5 @@
   oyuna `python3 art/code3d/export_game.py [ad]` ile (üçgen bütçesi + pişirilmiş doku, eski Meshy dosyaları silinir). Env modelleri orijinden zemine oturur (RealAssets.Footprint).
   Ortak eskime: `assets_v3.weather/_G`, ahşap/halat/demir/kumaş (assets_town). Kıyafetler ve petler Meshy'de kalır (iskelet/soket bağlı).
 - iOS/TestFlight hattı: `.github/workflows/ios.yml` (commit mesajında `[ios]` ya da elle), `docs/TESTFLIGHT.md` (kullanıcının eklemesi gereken secret'lar).
-- İki ayrı uygulama (16 Ekim 2026): **Pofi Adası** (çocuk, `com.fidan.gameapp`) ve **Fidan** (yalnız ebeveyn, `com.fidan.parentapp`; çocuk kod ekranı kaldırıldı). Sunucu/işlevler aynı. Fidan TestFlight: `parent-app/.github/workflows/ios-testflight.yml` (EAS), `parent-app/docs/TESTFLIGHT.md`.
-- Adlandırma (kullanıcı, 16 Ekim 2026): kullanıcıyla konuşurken Fidan = **ParentApp**, Pofi Adası = **GameApp**. Bundle ID: GameApp `com.fidan.gameapp`, ParentApp `com.fidan.parentapp`; SKU: `gameapp`, `parentapp`.
+- İki ayrı uygulama (16 Ekim 2026): **Pofi Adası** (çocuk, `com.gameapp.ios`) ve **ParentApp** (yalnız ebeveyn, `com.parentapp.ios`; çocuk kod ekranı kaldırıldı). Sunucu/işlevler aynı. ParentApp TestFlight: `parent-app/.github/workflows/ios-testflight.yml` (EAS), `parent-app/docs/TESTFLIGHT.md`.
+- Adlandırma (kullanıcı, 16 Ekim 2026): **"Fidan" adı hiçbir yerde kullanılmaz** (taslak addı). Ebeveyn uygulaması = **ParentApp**, oyun = **GameApp** (mağaza adı Pofi Adası). Bundle ID: GameApp `com.gameapp.ios`, ParentApp `com.parentapp.ios`; SKU `gameapp`, `parentapp`; ParentApp şeması `parentapp://`, Expo projesi `parentapp`.

@@ -1,6 +1,6 @@
 # Pofi Adası
 
-6–15 yaş için 3D sanal pet oyunu (Unity 6 LTS, URP, iOS + Android). Fidan ebeveyn uygulamasının çocuk tarafı:
+6–15 yaş için 3D sanal pet oyunu (Unity 6 LTS, URP, iOS + Android). ParentApp ebeveyn uygulamasının çocuk tarafı:
 çocuk gerçek hayattaki görevini yapar, ebeveyn onaylar, çocuk **coin** kazanır ve adasında pet'ine harcar.
 
 - Plan, mimari, riskler, milestone'lar: [docs/PLAN.md](docs/PLAN.md)

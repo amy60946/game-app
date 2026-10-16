@@ -1,6 +1,6 @@
 # M4 – Sunucuyu açma rehberi (adım adım)
 
-Bu rehber, oyun ile Fidan'ı aynı sunucuya bağlayan eklemeyi (`supabase/proposed/20261015000000_pofi_game.sql`) Supabase'e uygulamak içindir. Yaklaşık 10 dakika sürer.
+Bu rehber, oyun ile ParentApp'i aynı sunucuya bağlayan eklemeyi (`supabase/proposed/20261015000000_pofi_game.sql`) Supabase'e uygulamak içindir. Yaklaşık 10 dakika sürer.
 
 > **Önemli:** Şifreyi, bağlantı adresini ya da anahtarları **sohbete asla yapıştırma.** Hepsi yalnızca GitHub'daki "Secrets" bölümüne yazılır. Orada kimse (Claude dahil) değerini göremez.
 
@@ -8,13 +8,13 @@ Bu rehber, oyun ile Fidan'ı aynı sunucuya bağlayan eklemeyi (`supabase/propos
 
 ## 1. Bağlantı adresini Supabase'den al
 
-1. https://supabase.com/dashboard adresine gir ve Fidan projesini aç (`uhelhxqgpcjemadhsifx`).
+1. https://supabase.com/dashboard adresine gir ve ParentApp projesini aç (`uhelhxqgpcjemadhsifx`).
 2. Sayfanın üstündeki **Connect** düğmesine tıkla.
 3. Açılan pencerede **Connection String** sekmesini seç, tür olarak **URI**'yi bırak.
 4. **Session pooler** başlıklı kutudaki adresi kopyala. (Direct connection olanı değil: GitHub o adrese ulaşamıyor.)
    Adres şuna benzer: `postgresql://postgres.uhelhxqgpcjemadhsifx:[YOUR-PASSWORD]@aws-0-....pooler.supabase.com:5432/postgres`
 5. Adresi telefondaki/bilgisayardaki bir not uygulamasına yapıştır ve `[YOUR-PASSWORD]` kısmını (köşeli parantezler dahil) veritabanı şifrenle değiştir.
-   - Şifreyi hatırlamıyorsan: sol menüde **Project Settings → Database → Reset database password** → **Generate a password** → kopyala → **Reset password**. Bu işlem Fidan'ı bozmaz (Fidan bu şifreyi kullanmıyor).
+   - Şifreyi hatırlamıyorsan: sol menüde **Project Settings → Database → Reset database password** → **Generate a password** → kopyala → **Reset password**. Bu işlem ParentApp'i bozmaz (ParentApp bu şifreyi kullanmıyor).
    - Şifrede `@ # / ? %` gibi işaretler varsa adres bozulabilir. En kolayı: yukarıdaki gibi yeni bir şifre üretmek (yalnız harf ve rakam olur).
 
 ## 2. Adresi GitHub'a gizli olarak ekle
@@ -52,7 +52,7 @@ Bu rehber, oyun ile Fidan'ı aynı sunucuya bağlayan eklemeyi (`supabase/propos
    - GitHub → pofi-adasi → **Settings → Secrets and variables → Actions → New repository secret** → Name: `SUPABASE_PUBLISHABLE_KEY` → Secret: yapıştır → **Add secret**.
    - Bundan sonraki her oyun derlemesi gerçek kodları sunucuya gönderir. Deneme kodları (A1A1A1, B2B2B2, C3C3C3) ve "Test: her şeyi aç" önizlemede eskisi gibi çalışır.
 
-Bunlar bitince Claude'a "M4 uygulandı" yaz; Fidan'ın yeni sürümünü (yaş grubu, notla ret, coin bakiyesi, cihaz bağlantısını kaldır) Claude yayınlar.
+Bunlar bitince Claude'a "M4 uygulandı" yaz; ParentApp'in yeni sürümünü (yaş grubu, notla ret, coin bakiyesi, cihaz bağlantısını kaldır) Claude yayınlar.
 
 ---
 
@@ -66,4 +66,4 @@ GitHub adımlarıyla uğraşmak istemezsen:
 4. Boş alana yapıştır → sağ altta **Run**.
 5. `Success. No rows returned` yazarsa tamam. Kırmızı hata çıkarsa mesajı Claude'a ilet (dosya düzeltilip tekrar çalıştırılabilir).
 
-Bu yolda deneme modu yoktur; ama dosya yerelde Fidan'ın güncel şemasıyla 41 kontrolden geçti ve tekrar çalıştırılması zarar vermez.
+Bu yolda deneme modu yoktur; ama dosya yerelde ParentApp'in güncel şemasıyla 41 kontrolden geçti ve tekrar çalıştırılması zarar vermez.

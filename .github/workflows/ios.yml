@@ -45,7 +45,7 @@ jobs:
         id: bid
         env:
           IOS_BUNDLE_ID: ${{ secrets.IOS_BUNDLE_ID }}
-        run: echo "id=${IOS_BUNDLE_ID:-com.fidan.gameapp}" >> "$GITHUB_OUTPUT"
+        run: echo "id=${IOS_BUNDLE_ID:-com.gameapp.ios}" >> "$GITHUB_OUTPUT"
       - uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}

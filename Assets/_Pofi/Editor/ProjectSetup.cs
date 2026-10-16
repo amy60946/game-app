@@ -18,7 +18,7 @@ namespace Pofi.EditorTools
     /// </summary>
     public static class ProjectSetup
     {
-        public const string BundleId = "com.fidan.gameapp";
+        public const string BundleId = "com.gameapp.ios";
         private const string Root = "Assets/_Pofi";
         private const string SettingsDir = Root + "/Settings";
         private const string ResourcesDir = Root + "/Resources";
@@ -44,7 +44,7 @@ namespace Pofi.EditorTools
 
         private static void ConfigurePlayer()
         {
-            PlayerSettings.companyName = "Fidan";
+            PlayerSettings.companyName = "GameApp";
             PlayerSettings.productName = "Pofi Adası";
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Android, BundleId);
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, BundleId);

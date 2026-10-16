@@ -305,7 +305,7 @@
     "tasks.earned": "+{0}!",
     "demo.parent_button": "Ebeveyn (deneme)",
     "demo.title": "Deneme ebeveyn paneli",
-    "demo.info": "Gerçek bağlantı Fidan uygulamasıyla kurulunca bu panel kalkacak.",
+    "demo.info": "Bu deneme paneli yalnız deneme kodlarında görünür; gerçek görevler ParentApp’ten gelir.",
     "demo.pending": "Onay bekleyen görev: {0}",
     "demo.approve_all": "Hepsini onayla",
     "demo.new_tasks": "Bugünün görevlerini ekle",

@@ -13,7 +13,7 @@ Tarih: 13 Ekim 2026. Kaynak: kullanıcının oyun brief'i + 3D varlık brief'i +
 
 ## 0. Kısa özet
 
-- Çocuk oyunu, **ayrı bir Unity uygulaması** olarak yapılır (Unity 6 LTS, URP, C#, iOS + Android). Ebeveyn uygulaması (Fidan, Expo) olduğu gibi kalır.
+- Çocuk oyunu, **ayrı bir Unity uygulaması** olarak yapılır (Unity 6 LTS, URP, C#, iOS + Android). Ebeveyn uygulaması (ParentApp, Expo) olduğu gibi kalır.
 - Arka uç olarak **mevcut Supabase projesi** kullanılır. Brief'teki REST sözleşmesi (§6), Supabase RPC fonksiyonlarına çevrilir. Oyun kodu bunu bilmez; her şey `I*Service` arayüzlerinin arkasındadır. Önce `Mock*` servislerle çalışılır.
 - Brief'teki M1–M10'un önüne bir **M0 (boru hattı)** ekliyorum. M0, boş bir Unity yapısının otomatik derlenip senin telefonunda açıldığını kanıtlar. Bu adım olmadan hiçbir şeyi gerçekten test edemeyiz (bkz. §1).
 - 3D: Önce **Aşama 0A (ortak şablon)** ve **0B (konsept)** yapılır. Blender'ı betikle bu ortamda çalıştırıp önizleme render'ı alabilirim. Nihai kahraman modeller için dürüst kalite değerlendirmesi §6.4'te.
@@ -97,7 +97,7 @@ Brief'teki sözleşme → mevcut sistemle uyumlu hâli:
 | Remote config | `game_config` tablosu (yalnızca okuma) | |
 | Bildirim (FR-TASK-4) | Oyun içi: Realtime/periyodik çekme. Uzak push: altyapı hazır, kapalı. | |
 
-**Ebeveyn uygulamasına (Fidan) gereken küçük eklemeler** (park edilmiş tarafa dokunur, sırası gelince sorarım):
+**Ebeveyn uygulamasına (ParentApp) gereken küçük eklemeler** (park edilmiş tarafa dokunur, sırası gelince sorarım):
 1. Çocuk eklerken **yaş bandı** (A/B/C). Doğum gününden önerilir, ebeveyn değiştirebilir.
 2. İnceleme ekranında **reddet + not** (`rejected_by_parent`, `parent_note`).
 3. Çocuğun coin bakiyesini görme.
@@ -115,7 +115,7 @@ Her milestone sonunda: çalışan build (Android APK + WebGL önizleme; Apple ha
 | M1 | İskelet, EventBus, GameState, Kayıt/Yükleme, Mock servisler, kodla giriş (Mock + Supabase), yaş bandı teması, Addressables altyapısı, Localization tablosu, ParentGate | Kod girip giriş, yaş bandına göre farklı arayüz |
 | M2 | `PetSpeciesSO`, 12 yer tutucu pet (renkli primitif + soket hiyerarşisi), karusel (portre + odakta canlı 3D, 360° döndürme), son onay, isim (filtre), 4 gösterge + azalma, ev, büyüme evreleri | Pet seçip isim verme, göstergeler |
 | M3 | Ekonomi, dükkan, envanter, giydirme, `CosmeticFitSystem` + otomatik uyum ekran görüntüsü betiği | Coin ile alışveriş, giydirme |
-| M4 | Görev panosu, durum geçişleri, senkron + çevrimdışı kuyruk, coin kazanma sahnesi, Supabase göçleri (§3), ebeveyn uygulaması eklemeleri | Fidan'da onaylanan görev oyunda coin olur |
+| M4 | Görev panosu, durum geçişleri, senkron + çevrimdışı kuyruk, coin kazanma sahnesi, Supabase göçleri (§3), ebeveyn uygulaması eklemeleri | ParentApp'te onaylanan görev oyunda coin olur |
 | M5 | Ada haritası, bölge geçişi, gün/gece, seviye/açılış tablosu, havuç etkisi, seviye kutlaması | Adayı gezme, kilitli bölgeler |
 | M6 | Hindistan cevizi, Pet'e yardım, Yüzme, Sörf, Kayak | 5 mini oyun |
 | M7 | Bahçe, Balık tutma, Koleksiyon, Rozetler, Günlük görevler, Seri | |
@@ -191,7 +191,7 @@ Pembe ayı/kedi ve mor yaratık referansları da var; Mimi ve Boncuk'un silüeti
 | Telif benzerliği | Hukuki risk | §6.3 kontrolleri, referansla yan yana karşılaştırma, lisans kaydı |
 | 12 pet × kıyafet uyumu | Görsel hatalar | `CosmeticFitSystem` kuralları + otomatik uyum render raporu (kabul ölçütü 8) |
 | Uygulama boyutu (≤ 70 MB pet) | Mağaza/indirme sorunu | Addressables + bütçe raporu CI'da; gerekirse sonradan indirme (remote catalog) |
-| Çocuk verisi mevzuatı | Yayın engeli | §9 kontrol listesi, ebeveyn onay akışı Fidan'da |
+| Çocuk verisi mevzuatı | Yayın engeli | §9 kontrol listesi, ebeveyn onay akışı ParentApp'te |
 | Supabase anonim oturumu cihaz silinince kaybolur | Çocuk girişi kopar | Kod yeniden girilince ilerleme sunucudan (`child_game_state`) geri gelir |
 | Sürüm uyumsuzlukları (Unity, URP, paketler) | Build kırılır | Sürümler sabitlenir; güncellemeler ayrı commit ve CI ile yapılır |
 
@@ -231,7 +231,7 @@ Pembe ayı/kedi ve mor yaratık referansları da var; Mimi ve Boncuk'un silüeti
 - ~~S3~~ → yalnızca iPhone.
 - ~~S4~~ → yapay zekâ ile 3D üretim + temizlik.
 - ~~S5~~ → şimdilik sessiz, sonra stüdyo.
-- **S6 Fidan'daki çocuk giriş ekranı:** Çocuklar artık Pofi Adası'na girecek. Fidan'daki masalsı kod ekranı kaldırılsın mı (Fidan yalnızca ebeveyn uygulaması olur)?
+- **S6 ParentApp'teki çocuk giriş ekranı:** Çocuklar artık Pofi Adası'na girecek. ParentApp'teki masalsı kod ekranı kaldırılsın mı (ParentApp yalnızca ebeveyn uygulaması olur)?
 - **S7 Yaş bandı:** Doğum gününden otomatik önerilip ebeveyn mi değiştirsin, yoksa her zaman elle mi seçilsin?
 - **S8 Mağaza stratejisi:** §9 Seçenek A mı, B mi?
 - **S9 Pofi tasarımı:** §6.3'teki telif önlemleri (tavşan kulakları, tulum yok) uygun mu?
@@ -241,4 +241,4 @@ Pembe ayı/kedi ve mor yaratık referansları da var; Mimi ve Boncuk'un silüeti
 - M0 + dikey dilim önce (§4).
 - Görev tekrarlarının sunucuda açılması (§3): iki uygulamada ayrı mantık tutmamak için.
 - Coin harcamasında fiyatın sunucudan okunması (§3): hileye karşı.
-- Oyunun adı ile ebeveyn uygulamasının adı (Fidan) arasındaki marka ilişkisinin netleştirilmesi (mağazada "Fidan Ebeveyn" + "Pofi Adası" gibi).
+- Oyunun adı ile ebeveyn uygulamasının adı (ParentApp) arasındaki marka ilişkisinin netleştirilmesi (mağazada "ParentApp" + "Pofi Adası" gibi).

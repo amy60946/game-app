@@ -61,7 +61,7 @@ Tüm ekranlar koddan kurulur (sahne dosyası yok). Petler ve eşyalar şimdilik 
 Joystick takılması, yürüme klip kırpma (Meshy klipleri 10 sn, hareket 1 sn), durunca geniş görüş, besleme ısırık / yıkama baloncuk
 efektleri, sıralı tanıtım (adım göstergesi), dolap büyütme + Çıkar, festival 3B meydan + fenerler, kart/domino/kule 3B görseller,
 oyun seçimi görselleri, yükleme ekranı görseli, 3B HUD (pet kartı, coin), pet seçimi/isim tasarımı, kodla bestelenmiş müzik + ♪ düğmesi.
-M4 uygulandı (15 Ekim): SQL Supabase'de kalıcı, Fidan eklemeleri yayında (Expo Go preview). Oyun gerçek sunucuya publishable key secret'ı ile bağlanır.
+M4 uygulandı (15 Ekim): SQL Supabase'de kalıcı, ParentApp eklemeleri yayında (Expo Go preview). Oyun gerçek sunucuya publishable key secret'ı ile bağlanır.
 
 ## Bekleyen işler (14 Ekim 2026 listesi)
 - **M4 sunucu (Supabase):** ✅ uygulandı (15 Ekim 2026).

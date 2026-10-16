@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Pofi.Screens
 {
-    /// <summary>Kodla giriş (FR-AUTH-1): ebeveynin Fidan'da ürettiği 6 karakterlik kod. Hatalı denemede bekleme süresi artar.</summary>
+    /// <summary>Kodla giriş (FR-AUTH-1): ebeveynin ParentApp'te ürettiği 6 karakterlik kod. Hatalı denemede bekleme süresi artar.</summary>
     public sealed class LoginScreen : ScreenBase
     {
         private InputField _code;

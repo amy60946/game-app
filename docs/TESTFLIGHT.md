@@ -8,7 +8,7 @@ Oyun GitHub Actions'ta iki adımda TestFlight'a gider (`.github/workflows/ios.ym
 
 Çalıştırma: commit mesajında `[ios]` geçerse kendiliğinden (Claude başlatır). "Run workflow" düğmesi GitHub'da yalnızca iş akışı varsayılan dalda (main) olunca görünür.
 
-Ebeveyn uygulaması **Fidan** ayrı bir uygulamadır (bundle `com.fidan.parentapp`, depo `amy60946/parent-app`, kendi TestFlight iş akışı: `parent-app/docs/TESTFLIGHT.md`). Çocuk giriş kodunu yalnızca bu oyuna yazar; Fidan'da çocuk girişi yoktur.
+Ebeveyn uygulaması **ParentApp** ayrı bir uygulamadır (bundle `com.parentapp.ios`, depo `amy60946/parent-app`, kendi TestFlight iş akışı: `parent-app/docs/TESTFLIGHT.md`). Çocuk giriş kodunu yalnızca bu oyuna yazar; ParentApp'te çocuk girişi yoktur.
 
 ## Bir kez yapılacaklar (kullanıcı)
 
@@ -16,7 +16,7 @@ Ebeveyn uygulaması **Fidan** ayrı bir uygulamadır (bundle `com.fidan.parentap
 
 1. Apple Developer Program üyeliği etkin olmalı.
 2. developer.apple.com → Certificates, IDs & Profiles → **Identifiers** → **+** → App IDs → App →
-   Bundle ID (Explicit): `com.fidan.gameapp` (doluysa başka bir ad, örn. `com.fidan.gameapp2` → `IOS_BUNDLE_ID` secret'ına yaz).
+   Bundle ID (Explicit): `com.gameapp.ios` (doluysa başka bir ad, örn. `com.gameapp.ios2` → `IOS_BUNDLE_ID` secret'ına yaz).
 3. appstoreconnect.apple.com → **Apps** → **+** → **New App**: iOS, ad "Pofi Adası", dil Türkçe, 2. adımdaki Bundle ID, SKU `gameapp`.
 4. App Store Connect → **Users and Access** → **Integrations** → **App Store Connect API** → **Team Keys** → **+**:
    ad `GitHub`, erişim **Admin** (bulut imzası için gerekli). Key ID, Issuer ID ve `.p8` dosyası (yalnız bir kez inebilir).
@@ -28,7 +28,7 @@ Ebeveyn uygulaması **Fidan** ayrı bir uygulamadır (bundle `com.fidan.parentap
 | `ASC_ISSUER_ID` | Issuer ID |
 | `ASC_KEY_P8` | `.p8` dosyasının tüm metni (BEGIN/END satırları dahil) |
 | `APPLE_TEAM_ID` | developer.apple.com → Account → Membership details → Team ID |
-| `IOS_BUNDLE_ID` | (isteğe bağlı) `com.fidan.gameapp` dışında bir kimlik kaydedildiyse |
+| `IOS_BUNDLE_ID` | (isteğe bağlı) `com.gameapp.ios` dışında bir kimlik kaydedildiyse |
 
 Secret'lar yoksa Xcode projesi yine üretilir (Actions → Artifacts → `pofi-ios-xcode`), yalnız yükleme adımı uyarıyla atlanır.
 

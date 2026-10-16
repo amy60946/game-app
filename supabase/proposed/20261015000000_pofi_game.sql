@@ -2,7 +2,7 @@
 -- Pofi Adası – oyun için sunucu eklemeleri (M4)
 --
 -- DURUM: ONAYLANDI (15 Ekim 2026). Uygulama: docs/M4_UYGULAMA.md. Ebeveyn uygulamasıyla
--- (Fidan) aynı veritabanını kullanır.
+-- (ParentApp) aynı veritabanını kullanır.
 -- Yerelde denendi: supabase/test/run.sh (ebeveyn şeması + bu dosya + testler).
 --
 -- Uygulama: Supabase panelinde SQL Editor > New query > bu dosyanın tamamını
@@ -98,7 +98,7 @@ begin
   end if;
 end $$;
 
--- Çocuğun doğrudan tablo yazımı (Fidan'daki çocuk ekranı) için: "yapamam" da serbest.
+-- Çocuğun doğrudan tablo yazımı (ParentApp'teki çocuk ekranı) için: "yapamam" da serbest.
 create or replace function public.child_may_complete(p_task_id uuid, p_status text)
 returns boolean language sql stable security definer set search_path = '' as $$
   select public.task_assigned_to_me(p_task_id)

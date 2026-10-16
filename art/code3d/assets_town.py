@@ -1117,7 +1117,7 @@ def surfboard(loc, L, wdt, c1, c2, rot, name):
 
 def c_surf():
     """Sörf kulübesi: kazıklar üstünde küçük ahşap kulübe (boyalı yatay tahtalar, açık tezgâh penceresi), saz çatı,
-    yanına yaslanmış üç renkli sörf tahtası, dalga simgeli tabela, kumda kabuklar, yanında küçük palmiye fidanı ve ot."""
+    yanına yaslanmış üç renkli sörf tahtası, dalga simgeli tabela, kumda kabuklar, yanında küçük palmiye filizi ve ot."""
     W = [m_wood(c, f'surfw{i}', paint=p) for i, (c, p) in enumerate((('#b98a5a', '#7fd0d8'), ('#b98a5a', '#f6e6c4')))]
     DK = m_wood('#7a5232', 'surfdark'); FL = m_wood('#c99a66', 'surffloor')
     SW, SD, SH, Z0 = 1.7, 1.3, 1.2, 0.25
@@ -1147,7 +1147,7 @@ def c_surf():
     WV = m_flat('#fff6e6', 0.05, 8, 'waveic')
     pts = [(-0.25 + i * 0.025, -0.05 + 0.06 * math.sin(i * 0.42) + (0.06 if i > 16 else 0) * math.sin((i - 16) * 0.8)) for i in range(21)]
     tube('wave', [(x, -SD / 2 - 0.07, Z0 + SH + z) for x, z in pts], [0.018] * len(pts), WV, res=2)
-    # kumda kabuklar, deniz yıldızı, fidan
+    # kumda kabuklar, deniz yıldızı, filiz
     SHL = m_flat('#f7d9c4', 0.1, 10, 'shell1')
     for k, (x, y) in enumerate(((0.6, -1.15), (-0.4, -1.2), (1.3, 0.6))):
         for j in range(5):
