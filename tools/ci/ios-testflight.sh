@@ -25,14 +25,15 @@ chmod 600 "$key"
 openssl pkey -in "$key" -noout 2>/dev/null || echo "::warning::ASC_KEY_P8 geçerli bir özel anahtar gibi görünmüyor (.p8 dosyasının tüm metnini yapıştır)."
 auth=(-allowProvisioningUpdates -authenticationKeyPath "$key" -authenticationKeyID "$ASC_KEY_ID" -authenticationKeyIssuerID "$ASC_ISSUER_ID")
 
-# Arşiv doğrudan dağıtım kimliğiyle imzalanır: geliştirme profili kayıtlı cihaz ister, App Store profili istemez.
+# Arşiv imzasız alınır (geliştirme imzası kayıtlı cihaz ister); imzayı dışa aktarma yapar: App Store dağıtım sertifikası
+# Apple bulutunda (API anahtarı Admin) ve App Store profili otomatik. Uygulamanın özel yetkisi (entitlement) yok.
 archive="$RUNNER_TEMP/Pofi.xcarchive"
 cd "$proj"
 xcodebuild -version
 xcodebuild -project Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release \
   -destination 'generic/platform=iOS' -archivePath "$archive" \
-  DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic CODE_SIGN_IDENTITY="Apple Distribution" \
-  "${auth[@]}" -quiet archive
+  DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+  -quiet archive
 [ -d "$archive" ] || { echo "::error::Arşiv oluşmadı"; exit 1; }
 
 cat > "$RUNNER_TEMP/ExportOptions.plist" <<PL
