@@ -18,7 +18,7 @@ namespace Pofi.EditorTools
     /// </summary>
     public static class ProjectSetup
     {
-        public const string BundleId = "com.fidan.pofi";
+        public const string BundleId = "com.fidan.gameapp";
         private const string Root = "Assets/_Pofi";
         private const string SettingsDir = Root + "/Settings";
         private const string ResourcesDir = Root + "/Resources";
