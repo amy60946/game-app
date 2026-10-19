@@ -56,7 +56,7 @@ namespace Pofi.Screens
             var tasks = Candy.Round(hud, Candy.Orange, "hand_flag", 132f, new Vector2(1f, 1f), new Vector2(-430f, -206f), GoTasks, T("hud.tasks"));
             _tasksBtn = (RectTransform)tasks.transform;
             _questCount = Candy.Count(tasks.transform);   // bugün açık oyun içi görev sayısı
-            var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions);
+            var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             if (next != null)
                 Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
 
@@ -165,6 +165,7 @@ namespace Pofi.Screens
         private void Tip(string id, TipGesture g, System.Func<Vector2> from, System.Func<Vector2> to = null, string arg = null, Sprite prop = null, string key = null)
         {
             if (_coach != null || !Onboarding.Pending(App.State, id)) return;
+            if (!FirstDay.AllowsTip(FirstDayNow, id)) return;   // ilk gün: yalnız ilk gün ipuçları (Ö5)
             var i = System.Array.IndexOf(TipSeq, id);
             var step = i >= 0 ? (i + 1) + "/" + TipSeq.Length : null;
             _coach = Coach.Show(Root, id, T(key ?? Onboarding.Get(id).CaptionKey, arg ?? App.State.PetName), g, from, to, 3, step, prop);
@@ -175,6 +176,16 @@ namespace Pofi.Screens
         {
             if (id != null && Onboarding.Pending(App.State, id)) { Onboarding.Done(App.State, id); App.Save(); }
             if (_coach != null && (id == null || _coach.Id == id)) { _coach.Done(); _coach = null; _tipGap = 0f; }
+        }
+
+        private FirstDayStep FirstDayNow => FirstDay.Current(App.State, App.LocalNow, App.UtcNow);
+
+        /// <summary>Haritadaki bölgenin ekran noktası (yapının biraz üstü).</summary>
+        private Vector2 RegionScreen(string id)
+        {
+            var r = App.Map.Find(id);
+            if (r == null) return PetScreen();
+            return App.Stage.Camera.WorldToScreenPoint(_world.World(r.X, r.Z) + Vector3.up * 3f);
         }
 
         private static Vector2 UiScreen(RectTransform rt) => RectTransformUtility.WorldToScreenPoint(null, rt.position);
@@ -203,7 +214,12 @@ namespace Pofi.Screens
                     }
                 }
             }
-            var next = TipSeq.FirstOrDefault(id => Onboarding.Pending(st, id));
+            // ilk gün (Ö5): yürü → besle → Ev Görevleri panosu (görev işaretle / taşı yerleştir orada)
+            var day = FirstDayNow;
+            if (day == FirstDayStep.Board) { Tip(Onboarding.Board, TipGesture.Tap, () => RegionScreen("region_task_board")); return; }
+            if (day == FirstDayStep.Mark) { Tip(Onboarding.Mark, TipGesture.Tap, () => RegionScreen("region_task_board"), null, null, null, "tip.board"); return; }
+            if (day == FirstDayStep.Stone) { Tip(Onboarding.Stone, TipGesture.Tap, () => RegionScreen("region_task_board")); return; }
+            var next = TipSeq.FirstOrDefault(id => Onboarding.Pending(st, id) && FirstDay.AllowsTip(day, id));
             switch (next)
             {
                 case Onboarding.Walk:      // sol yarı: joystick

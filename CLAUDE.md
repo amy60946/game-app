@@ -27,8 +27,7 @@
 - Geri bildirim 3 kararları (14 Ekim 2026):
   - **Gece döngüsü kapalı** (`PetCare.NightCycle = false`): gökyüzü hep gündüz, "uyuyor" engeli yok; gece/gündüz koleksiyonları her zaman bulunur.
   - Kontrol: **sol yarı joystick, sağ yarı görünmez kamera döndürme** (iki başparmak aynı anda); otomatik kamera takibi yavaş, yalnız ileri giderken.
-  - **Görev (sağ üst) = oyun içi seviye görevleri** (yıldız/XP). Ebeveynin gerçek görevleri adadaki panoda, geçici adı **"Quests"**.
-    ⚠️ HATIRLAT: "Quests" yerine Türkçe bir ad bulunacak (kullanıcıyla).
+  - **Görev (sağ üst) = oyun içi seviye görevleri** (yıldız/XP). Ebeveynin gerçek görevleri adadaki panoda: **"Ev Görevleri"** (19 Ekim 2026, kullanıcı; eski geçici ad "Quests").
   - Önizlemede **Test erişimi**: Evim → Ayarlar → "Test: her şeyi aç" (en üst seviye, tüm eşyalar, 5000 coin; yalnız sahte arka uçta).
   - İpucu paneli üst şeritte, cümleler kısa.
 - Geri bildirim 4 (15 Ekim 2026):
@@ -58,3 +57,8 @@
 - Adlandırma (kullanıcı, 16 Ekim 2026): **"Fidan" adı hiçbir yerde kullanılmaz** (taslak addı). Ebeveyn uygulaması = **ParentApp**, oyun = **GameApp** (mağaza adı Pofi Adası). Bundle ID: GameApp `com.gameapp.ios`, ParentApp `com.parentapp.ios`; SKU `gameapp`, `parentapp`; ParentApp şeması `parentapp://`, Expo projesi `parentapp`.
 - İş modeli kararı (19 Ekim 2026, "Joon iş modeli kanvası" dokümanı): gelir **hem aile aboneliği hem klinik/uzman kanalı**. Üç ürün canlıya alınacak: Pofi Adası (çocuk, ücretsiz "çekiş motoru"), ParentApp (aile aboneliği), klinik SaaS (web + ayrı uygulama, klinisyen başına ücret; ParentApp'in sade tasarım dilini izler). Üçü aynı Supabase'e bağlı. Raporlama iki okuyucuya (ebeveyn + uzman) yazılır; gizlilik onayı buna göre kapsanır.
   Referans dokümanlar (Claude Docs, kullanıcının projesinde, takip ediliyor): Joon iş modeli kanvası https://claude.ai/code/artifact/df7eafa7-1e1e-4014-8a5f-7d88cb985485 · Pofi Adası oyun omurgası analizi https://claude.ai/code/artifact/3c82704c-e120-4d73-ba9f-a7ffdc75eeac. Ürün geliştirme bu çıktılar ışığında; Joon yalnız iş modeli/rakip referansı (içerik, karakter, metin kopyalanmaz).
+- Yaş bantları (19 Ekim 2026, kullanıcı): **A 6–8 / B 9–12 / C 13–15** (ortak/sozlesme/durumlar.md §4). Bant yalnız zorluk/arayüz; raporlar gerçek yaşı (ebeveynin girdiği doğum günü) kullanır. Mağaza: Kids Category dışı, 4+, çocuk kurallarına gönüllü uyum; yaş çocuktan sorulmaz.
+- Omurga Ö1 + Ö2 + Ö5 onaylandı (19 Ekim 2026): **Güneş Taşı** (yalnız ebeveyn onayıyla; kolay 1 / orta 2 / zor 3; harcanmaz, `Resources/Data/sun_spots.json` onarım noktalarına sırayla yerleştirilir ve o bölge/oyun seviye yerine taşla açılır; `Logic/Island/SunStones.cs`), gerçek görev XP'si 20/35/50 + beceri yıldızı (`Logic/Tasks/RealTaskRewards.cs`, 6 beceri), ilk gün akışı (`Logic/App/FirstDay.cs`: hikâye → pet → yürü → besle → Ev Görevleri → Yaptım → onay → ilk sis; en geç 24 saat, eski oyuncu görmez). Sunucu tarafı ortak'ta `proposed/20261019030000_sun_stones.sql` (uygulanana kadar oyun taşı bilmez, yerel değer korunur).
+  Sıradaki (onay bekleyen): Ö3 bakım, Ö4 hikâye bölümleri, Ö6 posta kutusu, Ö7 gerçek ödül dükkânı, Ö8 ölçüm/rapor. Sis/onarım noktalarının 3B görseli henüz yok (kilitli bölge gri + "N Güneş Taşı" etiketi).
+- Araştırma belgelerinin takibi bu pencerede (19 Ekim 2026): Joon iş modeli kanvası + oyun omurgası analizi; güncelleme ve Claude'a gönderilen yorumlar bu oturumu uyandırır.
+

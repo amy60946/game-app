@@ -48,6 +48,7 @@ namespace Pofi.Screens
                 {
                     var added = Logic.App.TestAccess.GiveAllItems(App.Data, App.State.Inventory);
                     App.Backend.TestGrantCoins(Logic.App.TestAccess.Coins);
+                    App.Backend.TestGrantStones(Logic.App.TestAccess.SunStones);   // tüm onarım noktaları için yeterli taş
                     var xp = Logic.App.TestAccess.XpToMax(App.Levels, App.State.Xp.TotalXp);
                     if (xp > 0) App.GrantXp(xp, Logic.Economy.XpSource.Achievement);
                     App.Save();

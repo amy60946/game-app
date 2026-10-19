@@ -29,6 +29,21 @@ Kullanıcı isteği (14 Ekim 2026, geri bildirim madde 7 ve 11): çocuk her işl
 
 `{0}` yerine petin adı gelir (gerekirse ek ile: "Pofi'nin").
 
+## İlk gün akışı (Ö5, 19 Ekim 2026)
+
+`Logic/App/FirstDay.cs`. Yeni oyuncu ilk gün yalnız şu sırayı görür; diğer ipuçları (bak, zıpla, giydir, Görev, kuşbakışı, parıltı) akış bitince kendi yerlerinde açılır.
+
+1. **Hikâye kartı** (pet seçiminden önce): ada sisle kaplı, görevler Güneş Taşı kazandırır.
+2. Pet seç ve isim ver.
+3. **Yürü** → **Besle**.
+4. **Ev Görevleri panosuna git** (pano üstünde parmak).
+5. Panoda **Yaptım** (ilk yapılacak görevde parmak).
+6. Beklerken: "Posta güvercini yolda… Beklerken Hindistan Cevizi oyna!".
+7. Onay gelince taş gelir → panodaki **Yerleştir** → ilk sis kalkar, Yüzme Koyu açılır.
+
+Akış biter: ilk taş yerleşince, panoda görev yoksa ya da ilk açılıştan 24 saat geçince. Pet'i olan eski oyuncular akışı görmez.
+ParentApp tarafı (öneri, ParentApp penceresi): kurulumda yaşa göre "ilk gün paketi" (3 görev) ve ilk "Yaptım"da ebeveyne anında bildirim.
+
 ## XP (yıldız) nasıl anlatılıyor (madde 11)
 - Sol üstte seviye rozetinin altında **XP çubuğu**: dolunca seviye atlanır.
 - XP kazanılınca rozetin yanında **"+N ★"** yukarı süzülür.

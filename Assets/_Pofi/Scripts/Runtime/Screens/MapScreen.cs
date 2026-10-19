@@ -51,7 +51,7 @@ namespace Pofi.Screens
             App.Stage.SetPetVisible(false);
             App.Stage.AllowDrag = false;
             if (_terrain == null) _terrain = new IslandTerrain(App.Map.Regions, App.Map.Terrain);
-            _views = App.Map.View(App.Level, App.State.VisitedRegions);
+            _views = App.Map.View(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             _world = MapWorld.Create(_views, _terrain);
 
             // Pet: en son girilen bölgenin kapısında (yoksa evin önünde) belirir
@@ -95,7 +95,9 @@ namespace Pofi.Screens
             var rt = Ui.Rect(_labelLayer, v.Region.Id, new Vector2(0f, 0f), new Vector2(300f, 64f));
             rt.pivot = new Vector2(0.5f, 0f);
             // yer adı: yarı saydam şeker etiket (açık: deniz mavisi, kilitli: gri), oyun yazı tarzı
-            var text = v.Unlocked ? v.Region.Name : v.Region.Name + " · Sv " + v.UnlockLevel;
+            var text = v.Unlocked ? v.Region.Name
+                : v.Spot != null ? v.Region.Name + " · " + T("map.stones_short", v.StonesLeft)   // Güneş Taşı ile açılır
+                : v.Region.Name + " · Sv " + v.UnlockLevel;
             Candy.Tag(rt, text, v.Unlocked ? new Color(0.1f, 0.36f, 0.68f, 0.86f) : new Color(0.3f, 0.32f, 0.42f, 0.82f), 30, 64f);
             if (v.Unlocked && IsPlayPlace(v.Region))
             {
@@ -373,7 +375,7 @@ namespace Pofi.Screens
             var v = _views.FirstOrDefault(x => x.Region.Id == go.name);
             if (v != null)
             {
-                if (!v.Unlocked) _toast.Say(T("map.locked", v.Region.Name, v.UnlockLevel));
+                if (!v.Unlocked) _toast.Say(v.Spot != null ? T("map.locked_stones", v.Region.Name, v.StonesLeft) : T("map.locked", v.Region.Name, v.UnlockLevel));
                 var (dx, dz) = _terrain.Door(v.Region);
                 GoTo(dx, dz, v.Unlocked ? () => EnterRegion(v) : (System.Action)null);
                 return;

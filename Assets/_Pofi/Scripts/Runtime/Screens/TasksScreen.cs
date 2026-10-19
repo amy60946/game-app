@@ -1,5 +1,6 @@
 using System.Linq;
 using Pofi.Logic.App;
+using Pofi.Logic.Island;
 using Pofi.Logic.State;
 using Pofi.Logic.Tasks;
 using Pofi.UI;
@@ -9,13 +10,16 @@ using UnityEngine.UI;
 namespace Pofi.Screens
 {
     /// <summary>
-    /// Görev panosu (FR-TASK-2..5): ebeveynin verdiği gerçek görevler. Çocuk "Yaptım" / "Yapamam" der, ebeveyn onaylar,
+    /// Ev Görevleri panosu (FR-TASK-2..5): ebeveynin verdiği gerçek görevler. Çocuk "Yaptım" / "Yapamam" der, ebeveyn onaylar,
     /// coin yalnızca onaydan sonra gelir. Değişiklik önce yerelde görünür, sonra senkronla gönderilir (çevrimdışı kuyruk).
+    /// Üstte Güneş Taşı şeridi (Ö1): onayla gelen taş buradan adadaki sıradaki onarım noktasına yerleştirilir.
     /// </summary>
     public sealed class TasksScreen : ScreenBase
     {
         private RectTransform _list;
         private Text _coins;
+        private Coach _coach;
+        private RectTransform _firstDone;   // ilk "Yaptım" düğmesi (ilk gün ipucu)
 
         protected override void Build()
         {
@@ -26,6 +30,7 @@ namespace Pofi.Screens
 
             if (App.Backend != null) CornerButton(T("demo.parent_button"), () => ParentGate(OpenDemoPanel));
             NavBar(AppPage.Tasks);
+            if (Onboarding.Pending(App.State, Onboarding.Board)) { Onboarding.Done(App.State, Onboarding.Board); App.Save(); }
             App.Synced += OnSynced;
             Fill();
             _ = App.SyncNow();
@@ -40,10 +45,14 @@ namespace Pofi.Screens
         private void Fill()
         {
             _coins.text = App.State.Wallet.Available.ToString();
+            if (_coach != null) { _coach.Done(); _coach = null; }
+            _firstDone = null;
             Ui.Clear(_list);
+            StonesRow();
             var local = App.LocalNow;
             var today = DemoParent.Day(local);
             var tasks = App.State.Tasks.ForDisplay(local).Where(t => t.Date == today).ToList();
+            if (tasks.Any(t => t.Status == ChildTaskStatus.ChildDone)) InfoRow("Pigeon", T("task.waiting_pigeon"));
             if (tasks.Count == 0)
             {
                 var row = Ui.Row(_list, "Empty", 220f);
@@ -53,6 +62,60 @@ namespace Pofi.Screens
                 return;
             }
             foreach (var task in tasks) Card(task, local);
+            var day = FirstDay.Current(App.State, local, App.UtcNow);
+            if (_coach == null && _firstDone != null && day == FirstDayStep.Mark && Onboarding.Pending(App.State, Onboarding.Mark))
+            {
+                var b = _firstDone;
+                _coach = Coach.Show(Root, Onboarding.Mark, T("tip.mark"), TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, b.position));
+            }
+        }
+
+        // ---- Güneş Taşı (Ö1) ----
+        private void StonesRow()
+        {
+            var st = App.State.SunStones;
+            var book = App.Data.SunBook;
+            var have = SunStoneBook.Available(st);
+            var next = book.Next(st);
+            var row = Ui.Row(_list, "SunStones", 230f);
+            Ui.Panel(row, Theme.Hex("#FFF4C9"), Th.Radius);
+            var title = Ui.Label(row, T("stones.title") + ": " + have, Th.Font(46), Theme.Hex("#8A5A00"), new Vector2(0f, 1f), new Vector2(700f, 80f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            title.rectTransform.pivot = new Vector2(0f, 1f);
+            title.rectTransform.anchoredPosition = new Vector2(36f, -18f);
+
+            var info = next == null ? T("stones.all_done")
+                : have == 0 && SunStoneBook.PlacedIn(st, next.Id) == 0 ? T("stones.none")
+                : T("stones.next", next.Name, SunStoneBook.PlacedIn(st, next.Id), next.Cost);
+            var stars = string.Join(", ", RealTaskRewards.Ranked(App.State.Skills).Take(3).Select(kv => SkillCatalog.Label(kv.Key) + " " + kv.Value));
+            if (stars.Length > 0) info += "\n" + T("skill.summary", stars);
+            var sub = Ui.Label(row, info, Th.Font(32), Th.SubtleText, new Vector2(0f, 0f), new Vector2(780f, 120f), FontStyle.Normal, TextAnchor.MiddleLeft);
+            sub.rectTransform.pivot = new Vector2(0f, 0f);
+            sub.rectTransform.anchoredPosition = new Vector2(36f, 16f);
+
+            if (next == null || have <= 0) return;
+            var place = Btn(row, T("stones.place"), true, new Vector2(-28f, 60f), new Vector2(320f, 110f), () => Place(next));
+            if (Onboarding.Pending(App.State, Onboarding.Stone))
+                _coach = Coach.Show(Root, Onboarding.Stone, T("tip.stone"), TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, place.position));
+        }
+
+        private void Place(SunSpotDef spot)
+        {
+            var r = App.Data.SunBook.PlaceOne(App.State.SunStones, spot.Id);
+            if (r == PlaceResult.Ok || r == PlaceResult.Repaired)
+            {
+                if (Onboarding.Pending(App.State, Onboarding.Stone)) Onboarding.Done(App.State, Onboarding.Stone);
+                if (r == PlaceResult.Repaired) Toast.Post(App.Overlay.transform, Th, string.IsNullOrEmpty(spot.Say) ? T("stones.all_done") : spot.Say);
+                App.Save();
+            }
+            Fill();
+        }
+
+        private void InfoRow(string name, string text)
+        {
+            var row = Ui.Row(_list, name, 150f);
+            Ui.Panel(row, new Color(1f, 1f, 1f, 0.85f), Th.Radius);
+            var t = Ui.Label(row, text, Th.Font(34), Th.Primary, new Vector2(0.5f, 0.5f), new Vector2(1100f, 140f), FontStyle.Bold);
+            Ui.Stretch(t.rectTransform);
         }
 
         private void Card(ChildTask task, System.DateTime local)
@@ -83,7 +146,8 @@ namespace Pofi.Screens
                 switch (task.Status)
                 {
                     case ChildTaskStatus.Assigned:
-                        Btn(row, T("task.done"), true, new Vector2(-28f, 22f), new Vector2(330f, 100f), () => Mark(task, ChildTaskStatus.ChildDone));
+                        var done = Btn(row, T("task.done"), true, new Vector2(-28f, 22f), new Vector2(330f, 100f), () => Mark(task, ChildTaskStatus.ChildDone));
+                        if (_firstDone == null) _firstDone = done;
                         Btn(row, T("task.decline"), false, new Vector2(-380f, 22f), new Vector2(250f, 100f), () => Mark(task, ChildTaskStatus.DeclinedByChild));
                         break;
                     case ChildTaskStatus.ChildDone:
@@ -115,18 +179,20 @@ namespace Pofi.Screens
             }
         }
 
-        private void Btn(RectTransform row, string text, bool primary, Vector2 offsetFromBottomRight, Vector2 size, System.Action onClick)
+        private RectTransform Btn(RectTransform row, string text, bool primary, Vector2 offsetFromBottomRight, Vector2 size, System.Action onClick)
         {
             var b = Ui.Button(row, Th, text, new Vector2(1f, 0f), size, onClick, primary, default, 40, false);
             var rt = (RectTransform)b.transform;
             rt.pivot = new Vector2(1f, 0f);
             rt.anchoredPosition = offsetFromBottomRight;
+            return rt;
         }
 
         private void Mark(ChildTask task, ChildTaskStatus to)
         {
             var r = App.State.Tasks.Mark(task.Key, to, App.LocalNow, App.UtcNow);
             if (r != ChangeResult.Ok) { Fill(); return; }
+            if (to == ChildTaskStatus.ChildDone && Onboarding.Pending(App.State, Onboarding.Mark)) Onboarding.Done(App.State, Onboarding.Mark);
             App.Save();
             Fill();
             _ = App.SyncNow();

@@ -69,7 +69,7 @@ M4 uygulandı (15 Ekim): SQL Supabase'de kalıcı, ParentApp eklemeleri yayında
 - **M10 cila:** performans/bellek ölçümü (telefonda), mağaza hazırlığı (App Store / Google Play), gizlilik metinleri.
 - **Sanat:** kumsal objeleri simge ön çalışması (~18 kredi) → onay → lite 3D (~260–320 kredi); kıyafet/ev eşyası 3D (P2); Tosbi sırt kabuğu (kredi kalırsa).
 - **Tanıtım:** bahçe, balık tutma, mini oyunlar ve masa oyunları için ipuçları.
-- **"Quests" için Türkçe ad** (kullanıcıyla).
+- ~~"Quests" için Türkçe ad~~ → **Ev Görevleri** (19 Ekim 2026).
 - **Kurulabilir önizleme:** karar (14 Ekim 2026): şimdilik Safari önizlemesi yeterli; TestFlight/Android M10 mağaza hazırlığında.
 
 ## Kullanıcıya sorulacaklar

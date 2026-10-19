@@ -292,6 +292,7 @@
     "skill.tier.1": "{0}: Bronz rozet!",
     "skill.tier.2": "{0}: Gümüş rozet!",
     "skill.tier.3": "{0}: Altın rozet!",
+    "skill.summary": "Beceri yıldızları: {0}",
     "xp.star": "+{0}",
     "hud.feed": "Besle",
     "hud.wash": "Yıka",

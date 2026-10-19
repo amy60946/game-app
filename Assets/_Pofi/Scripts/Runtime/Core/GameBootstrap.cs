@@ -163,6 +163,7 @@ namespace Pofi.Core
             Audio.Sfx.Volume = State.Settings.SfxVolume;
             Stage.SetSky(Theme.Sky);
             State.Stats.Tick(UtcNow, Decay);
+            FirstDay.Start(State, UtcNow);   // ilk gün akışı (Ö5); pet'i olan eski oyuncuda kapanır
         }
 
         /// <summary>
@@ -217,6 +218,16 @@ namespace Pofi.Core
             if (Session != null && Backend != null) Store.Set(ServerKey(Session.ChildId), Backend.Export());
             Save();
             if (report.CoinsEarned > 0) CoinBurst.Play(Overlay.transform, Theme, Loc.Get("tasks.earned", report.CoinsEarned));
+            if (report.SunStonesEarned > 0) Toast.Post(Overlay.transform, Theme, Loc.Get("stones.earned", report.SunStonesEarned));
+            var shown = 0;
+            foreach (var rw in report.RealTaskRewards)
+            {
+                if (rw.Skill == null || shown++ >= 3) continue;   // çok onay birden gelirse ekran dolmasın
+                var skill = Logic.Tasks.SkillCatalog.Label(rw.Skill);
+                Toast.Post(Overlay.transform, Theme, rw.NewTier > 0 ? Loc.Get("skill.tier." + rw.NewTier, skill) : Loc.Get("skill.star", skill, rw.Stars));
+            }
+            if (report.RealTaskXp > 0) XpGained?.Invoke(report.RealTaskXp);
+            if (report.LevelUp != null) { Data.SunBook.FilterLevelUp(report.LevelUp); LevelUpCelebration.Show(this, report.LevelUp); }
             var approved = 0;
             foreach (var ev in report.TaskEvents) if (ev.Kind == Logic.Tasks.TaskEventKind.Approved) approved++;
             if (approved > 0) RecordActivity("tasks_approved", approved);
@@ -263,6 +274,7 @@ namespace Pofi.Core
             var r = Progress.Grant(State, Levels, Session.AgeBand, amount, source, LocalNow);
             Save();
             if (r.Grant.Granted > 0) XpGained?.Invoke(r.Grant.Granted);
+            Data.SunBook.FilterLevelUp(r.LevelUp);   // Güneş Taşı ile açılan içerik seviye kutlamasında yer almaz
             if (r.LevelUp != null) LevelUpCelebration.Show(this, r.LevelUp);
             return r;
         }

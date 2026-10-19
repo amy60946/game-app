@@ -11,7 +11,7 @@ namespace Pofi.Logic.App
     /// </summary>
     public static class TestAccess
     {
-        public const int Coins = 5000, Consumables = 20;
+        public const int Coins = 5000, Consumables = 20, SunStones = 30;
 
         /// <summary>En üst seviyeye ulaşmak için gereken XP (zaten oradaysa 0).</summary>
         public static int XpToMax(LevelTable levels, int totalXp) => Math.Max(0, levels.TotalXpFor(levels.MaxLevel) - totalXp);
