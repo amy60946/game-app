@@ -207,10 +207,12 @@ for x_ in list(fn): fn.remove(x_)
 o_ = fn.new('ShaderNodeOutputMaterial'); mx_ = fn.new('ShaderNodeMixShader'); tr = fn.new('ShaderNodeBsdfTransparent')
 em = fn.new('ShaderNodeBsdfPrincipled'); em.inputs['Base Color'].default_value = (0.97, 0.98, 1.0, 1); em.inputs['Roughness'].default_value = 1.0
 em.inputs['Emission Color'].default_value = (0.9, 0.93, 0.97, 1); em.inputs['Emission Strength'].default_value = 0.2
-lw = fn.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.55
-pw = fn.new('ShaderNodeMath'); pw.operation = 'POWER'; pw.inputs[1].default_value = 2.6
-fl.new(lw.outputs['Facing'], pw.inputs[0]); fl.new(pw.outputs[0], mx_.inputs['Fac'])
-fl.new(em.outputs[0], mx_.inputs[1]); fl.new(tr.outputs[0], mx_.inputs[2]); fl.new(mx_.outputs[0], o_.inputs['Surface'])
+lw = fn.new('ShaderNodeLayerWeight'); lw.inputs['Blend'].default_value = 0.35
+pw = fn.new('ShaderNodeMath'); pw.operation = 'POWER'; pw.inputs[1].default_value = 0.8
+# kameraya bakan orta kısım beyaz, kenarlar saydam (yumuşak bulut kenarı); en koyu yerde bile hafif saydam
+mul = fn.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; mul.inputs[1].default_value = 0.9
+fl.new(lw.outputs['Facing'], pw.inputs[0]); fl.new(pw.outputs[0], mul.inputs[0]); fl.new(mul.outputs[0], mx_.inputs['Fac'])
+fl.new(tr.outputs[0], mx_.inputs[1]); fl.new(em.outputs[0], mx_.inputs[2]); fl.new(mx_.outputs[0], o_.inputs['Surface'])
 fog.blend_method = 'BLEND'
 def fogbank(cx, cy, n, spread):
     for _ in range(n):

@@ -163,7 +163,53 @@ def music():
     tube('stem', [(0.02, 0, -0.5), (0.02, 0, 0.8)], [0.1, 0.1], w)
     tube('flag', [(0.02, 0, 0.76), (0.38, 0, 0.52), (0.46, 0, 0.16)], [0.11, 0.11, 0.08], w)
 
+@icon
+def sunstone():
+    core = mat('sun', '#ffb21f', 0.25, 0.5, emit=0.25); rim = M('#ff7a1a', 0.3, 0.4); glow = mat('sg', '#fff1a8', 0.2, 0.3, emit=0.6)
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=0.72, location=(0, 0, 0))
+    o = bpy.context.object; o.scale = (1.0, 0.6, 1.05); o.data.materials.append(core)
+    bv = o.modifiers.new('b', 'BEVEL'); bv.width = 0.06; bv.segments = 3
+    for k in range(8):
+        a = k / 8 * math.tau
+        r_ = blob('ray', (math.cos(a) * 0.86, 0.05, math.sin(a) * 0.86), (0.13, 0.08, 0.22), rim)
+        r_.rotation_euler = (0, -a + math.pi / 2, 0)
+    blob('hl', (-0.22, -0.42, 0.25), (0.16, 0.05, 0.1), glow)
+
+@icon
+def log():
+    bark = M('#9a6234', 0.6); cut = M('#f2c98a', 0.55); ring = M('#c78f52', 0.5)
+    for (x, z) in ((-0.42, -0.25), (0.42, -0.25), (0.0, 0.35)):
+        c = cyl('l', (x, 0, z), 0.4, 1.1, bark, rot=(90, 0, 0), verts=24, bevel=0.06)
+        cyl('c', (x, -0.56, z), 0.33, 0.04, cut, rot=(90, 0, 0), verts=24, bevel=0.01)
+        cyl('r', (x, -0.58, z), 0.16, 0.02, ring, rot=(90, 0, 0), verts=24, bevel=0.0)
+
+@icon
+def twig():
+    w = M('#8a5a2e', 0.6); g = M('#5fcf6a')
+    tube('t', [(-0.85, 0, -0.75), (-0.1, 0, 0.0), (0.8, 0, 0.8)], [0.11, 0.09, 0.07], w)
+    tube('b', [(0.0, 0, 0.08), (0.25, 0, 0.5), (0.2, 0, 0.82)], [0.07, 0.06, 0.05], w)
+    blob('lf', (0.32, 0, 0.92), (0.2, 0.06, 0.11), g, rot=(0, -40, 0))
+
+@icon
+def rocks():
+    rr = [M('#a9a59c', 0.7, 0.05), M('#8f8b83', 0.7, 0.05)]
+    for i, (x, z, sx, sz) in enumerate(((-0.4, -0.3, 0.55, 0.42), (0.38, -0.36, 0.48, 0.36), (0.0, 0.25, 0.5, 0.4))):
+        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, radius=1, location=(x, 0, z))
+        o = bpy.context.object; o.scale = (sx, 0.4, sz); o.data.materials.append(rr[i % 2])
+        import random as _r; rn = _r.Random(i)
+        for v in o.data.vertices: v.co *= rn.uniform(0.9, 1.08)
+        sd = o.modifiers.new('s', 'SUBSURF'); sd.levels = sd.render_levels = 1
+        for pl in o.data.polygons: pl.use_smooth = True
+
+@icon
+def hammer():
+    w = M('#c98a4f', 0.6); s = M('#8f9aa6', 0.35)
+    tube('h', [(0.0, 0, -0.95), (0.0, 0, 0.0), (0.0, 0, 0.45)], [0.11, 0.1, 0.11], w)
+    rbox('head', (0.05, 0, 0.6), (1.1, 0.42, 0.42), s, bevel=0.12, seg=4)
+
+only = sys.argv[sys.argv.index('--') + 2:] if len(sys.argv) > sys.argv.index('--') + 2 else None
 for name, build in ICONS.items():
+    if only and name not in only: continue
     scene(); build()
     render(name)
     print('ok', name, flush=True)
