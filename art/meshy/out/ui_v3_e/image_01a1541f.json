@@ -1,0 +1,16 @@
+{
+ "id": "01a1541f-5642-7639-9781-3800bd9a3009",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game icons for a cozy children's tropical island pet game, three rows of three, reading order left to right then top to bottom: a brown hairy coconut, a shiny golden coconut with sparkles, a soft grey settings gear cog, a cozy small cottage house with a red roof, a wooden clothes hanger with a little shirt, a small photo album book with a star on the cover, a golden trophy cup, a wooden fishing rod with a red bobber, a green watering can. Each item is a single object centered in its own equal square cell with wide empty space between items, nothing touching or overlapping. Premium mobile game UI icon art, AAA casual farming adventure game quality: chunky soft rounded shapes, glossy highlights, rich saturated warm colors, subtle darker edge shading for depth, clean readable silhouette, slight three-quarter view, consistent lighting from top left. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792412702293,
+ "started_at": 1792412702299,
+ "finished_at": 1792412731431,
+ "expires_at": 1792671931431,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1541f-5642-7639-9781-3800bd9a3009_0.png?Expires=1792671931&Signature=OP5L8DLq0DmJrdsfkPEef3AaGgZ8wyNjyvDP8bg1Z9Cxy3SKonaqR-Y9xYp9cumZi3IYCsHD-WNqzEwQw0nOG8v8ujxv9ET007wIPjteffIllKzwYDrl9RvPo6uiD6suXaiiGaNL9ocNGLw6bj7Z7F3wtr0feWlreiFO6T47~SziQPHZhMFO24dzKmefnYHLgcFQuUBBEQP6kdQ29-XieCknACMH4LW~Dv58c8bEWhOw9SDgHFgYInTFLDYeqFj8O95rFCiXUdBBwDFp6HPee3hoHG4Ylt1lQ~BBcaW9u10cJvcTAOnzREthVjFYmA5A3zvdm6O5Yp~QDJ1fEFnCIA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

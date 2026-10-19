@@ -14,7 +14,11 @@ namespace Pofi.UI
         private static Font _font;
         private static Sprite _rounded;
 
-        public static Font Font => _font != null ? _font : (_font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
+        /// <summary>Oyun yazı tipi: Baloo 2 ExtraBold (OFL, Resources/Fonts; v3 kararı 19 Ekim 2026). Yoksa Unity'nin yerleşik yazı tipi.</summary>
+        public static Font Font => _font != null ? _font : (_font = Resources.Load<Font>("Fonts/Baloo2-ExtraBold") ?? Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf"));
+
+        /// <summary>Özel yazı tipi zaten kalın: Unity'nin yapay kalınlığı uygulanmaz (harfler topaklanmasın).</summary>
+        public static FontStyle StyleFor(FontStyle s) => Font != null && Font.name != "LegacyRuntime" && s == FontStyle.Bold ? FontStyle.Normal : s;
 
         /// <summary>Yuvarlak köşeli, 9 dilimli beyaz sprite (renk Image.color ile verilir).</summary>
         public static Sprite Rounded
@@ -185,7 +189,7 @@ namespace Pofi.UI
             t.font = Font;
             t.text = text;
             t.fontSize = size;
-            t.fontStyle = style;
+            t.fontStyle = StyleFor(style);
             t.color = color;
             t.alignment = align;
             t.horizontalOverflow = HorizontalWrapMode.Wrap;

@@ -79,6 +79,16 @@ namespace Pofi.UI
         /// </summary>
         internal static Image Shell(RectTransform rt, Color c)
         {
+            var skin = Skin.ButtonFor(c, out var isCard);
+            if (skin != null)
+            {
+                // v3 (Meshy parçası): renge en yakın parlak düğme ya da krem kart; 9 dilimli, öğe yüksekliğine ölçekli
+                var h0 = rt.gameObject.AddComponent<Image>(); h0.color = new Color(1f, 1f, 1f, 0f);
+                var b0 = Img(rt, "Body", skin, Color.white, true);
+                Skin.Apply(b0, skin, rt.sizeDelta.y > 1f ? rt.sizeDelta.y : 120f);
+                if (!isCard) { var ds = b0.gameObject.AddComponent<Shadow>(); ds.effectColor = new Color(0f, 0f, 0f, 0.25f); ds.effectDistance = new Vector2(0f, -6f); }
+                return b0;
+            }
             var hit = rt.gameObject.AddComponent<Image>();               // tıklama alanı (görünmez)
             hit.color = new Color(1f, 1f, 1f, 0f);
             var lip = Ui.Rect(rt, "Lip", Vector2.zero, Vector2.zero);
@@ -95,6 +105,17 @@ namespace Pofi.UI
             return body;
         }
 
+        /// <summary>Yuvarlak düğme gövdesi: v3 beyaz halkalı krem disk (yoksa eski şeker gövde).</summary>
+        internal static Image RoundShell(RectTransform rt, Color c)
+        {
+            var round = Skin.RoundButton;
+            if (round == null) return Shell(rt, c);
+            var hit = rt.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0f);
+            var body = Img(rt, "Body", round, Color.white, false); body.preserveAspect = true;
+            var ds = body.gameObject.AddComponent<Shadow>(); ds.effectColor = new Color(0f, 0f, 0f, 0.28f); ds.effectDistance = new Vector2(0f, -7f);
+            return body;
+        }
+
         private static Button Clickable(RectTransform rt, Image body, Action onClick)
         {
             var btn = rt.gameObject.AddComponent<Button>();
@@ -108,7 +129,7 @@ namespace Pofi.UI
 
         /// <summary>Kalın beyaz kenarlı, gölgeli yazı (sahne üstünde okunur).</summary>
         public static Text Caption(Transform parent, string text, int size, Vector2 anchor, Vector2 box, Vector2 offset = default) =>
-            Caption(parent, text, size, anchor, box, offset, new Color(0.35f, 0.18f, 0f, 0.95f));
+            Caption(parent, text, size, anchor, box, offset, new Color(0.2f, 0.15f, 0.11f, 0.95f));
 
         /// <summary>Kalın beyaz yazı, verilen renkte kontur (panelin koyu tonu: yazı panelle bütünleşir).</summary>
         public static Text Caption(Transform parent, string text, int size, Vector2 anchor, Vector2 box, Vector2 offset, Color outline)
@@ -124,8 +145,8 @@ namespace Pofi.UI
         public static Button Round(Transform parent, Color c, string icon, float size, Vector2 anchor, Vector2 offset, Action onClick, string label = null)
         {
             var rt = Ui.Rect(parent, "Candy " + (label ?? icon), anchor, new Vector2(size, size), offset);
-            var body = Shell(rt, c);
-            var ic = Ui.IconImage(rt, icon, new Vector2(0.5f, 0.52f), size * 0.66f);
+            var body = RoundShell(rt, c);
+            var ic = Ui.IconImage(rt, icon, new Vector2(0.5f, 0.52f), size * (Skin.RoundButton != null ? 0.62f : 0.66f));
             if (ic != null) ic.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.25f);
             if (label != null) Caption(rt, label, Mathf.RoundToInt(size * 0.3f), new Vector2(0.5f, 0f), new Vector2(size * 2.4f, size * 0.42f), new Vector2(0f, -size * 0.2f));
             return Clickable(rt, body, onClick);
@@ -154,7 +175,9 @@ namespace Pofi.UI
             var fill = Img(rt, "Fill", Ring, c, false);
             fill.type = Image.Type.Filled; fill.fillMethod = Image.FillMethod.Radial360; fill.fillOrigin = (int)Image.Origin360.Top; fill.fillClockwise = true;
             var disc = Ui.Rect(rt, "Disc", new Vector2(0.5f, 0.5f), new Vector2(size * 0.74f, size * 0.74f));
-            var di = disc.gameObject.AddComponent<Image>(); di.sprite = Body; di.type = Image.Type.Sliced; di.color = White; di.raycastTarget = false;
+            var di = disc.gameObject.AddComponent<Image>(); di.raycastTarget = false;
+            if (Skin.RoundButton != null) { di.sprite = Skin.RoundButton; di.preserveAspect = true; di.color = Color.white; }
+            else { di.sprite = Body; di.type = Image.Type.Sliced; di.color = White; }
             Ui.IconImage(rt, icon, new Vector2(0.5f, 0.5f), size * 0.58f);
             return fill;
         }
@@ -164,9 +187,13 @@ namespace Pofi.UI
         {
             var rt = Ui.Rect(parent, "Badge " + icon, anchor, new Vector2(width, height), offset);
             rt.pivot = pivot;
-            var bg = rt.gameObject.AddComponent<Image>();
-            bg.sprite = Body; bg.type = Image.Type.Sliced; bg.color = new Color(1f, 1f, 1f, 0.38f); bg.raycastTarget = false;
-            var o = rt.gameObject.AddComponent<Outline>(); o.effectColor = new Color(1f, 1f, 1f, 0.8f); o.effectDistance = new Vector2(3f, -3f);
+            var bg = rt.gameObject.AddComponent<Image>(); bg.raycastTarget = false;
+            if (Skin.Track != null) { Skin.Apply(bg, Skin.Track, height); bg.color = new Color(1f, 1f, 1f, 0.94f); }
+            else
+            {
+                bg.sprite = Body; bg.type = Image.Type.Sliced; bg.color = new Color(1f, 1f, 1f, 0.38f);
+                var o = rt.gameObject.AddComponent<Outline>(); o.effectColor = new Color(1f, 1f, 1f, 0.8f); o.effectDistance = new Vector2(3f, -3f);
+            }
             Ui.IconImage(rt, icon, new Vector2(0f, 0.5f), height * 0.86f, new Vector2(height * 0.5f, 0f));
             var t = Caption(rt, text, Mathf.RoundToInt(height * 0.5f), new Vector2(0.5f, 0.5f), new Vector2(width - height * 0.9f, height), new Vector2(height * 0.4f, 0f));
             return t;
@@ -191,18 +218,24 @@ namespace Pofi.UI
             // Dolgu izin içinde kenar boşluklu gerilir; Ui.SetBar sağ ucu (anchorMax.x) oynatır. Önceden dolgu sabit boyutlu
             // ve ortadan bağlıydı: SetBar'ın çapası onu sağa doğru uzatıyordu (kullanıcı: "XP uzamış görünüyor", 19 Ekim 2026).
             var track = Ui.Rect(root, "Xp", new Vector2(0f, 1f), new Vector2(300f, 36f), new Vector2(330f - 30f, -118f));
-            var ti = track.gameObject.AddComponent<Image>(); ti.sprite = Body; ti.type = Image.Type.Sliced; ti.color = Night; ti.raycastTarget = false;
-            track.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.8f);
+            var ti = track.gameObject.AddComponent<Image>(); ti.raycastTarget = false;
+            var v3 = Skin.Track != null && Skin.FillOrange != null;
+            if (v3) { Skin.Apply(ti, Skin.Track, 36f); ti.color = Color.white; }
+            else { ti.sprite = Body; ti.type = Image.Type.Sliced; ti.color = Night; track.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.8f); }
             var fillRt = Ui.Rect(track, "Fill", Vector2.zero, Vector2.zero);
             fillRt.anchorMin = Vector2.zero; fillRt.anchorMax = Vector2.one; fillRt.pivot = new Vector2(0f, 0.5f);
             fillRt.offsetMin = new Vector2(4f, 4f); fillRt.offsetMax = new Vector2(-4f, -4f);
-            xp = fillRt.gameObject.AddComponent<Image>(); xp.sprite = Body; xp.type = Image.Type.Sliced;
-            xp.color = Gold; xp.raycastTarget = false;
-            Img(fillRt, "Gloss", Gloss, new Color(1f, 1f, 1f, 0.9f), true);
+            xp = fillRt.gameObject.AddComponent<Image>(); xp.raycastTarget = false;
+            if (v3) { Skin.Apply(xp, Skin.FillOrange, 28f); xp.color = Color.white; }
+            else
+            {
+                xp.sprite = Body; xp.type = Image.Type.Sliced; xp.color = Gold;
+                Img(fillRt, "Gloss", Gloss, new Color(1f, 1f, 1f, 0.9f), true);
+            }
             Caption(track, "XP", 24, new Vector2(1f, 0.5f), new Vector2(60f, 36f), new Vector2(-34f, 1f), Deep(Gold));
             // madalyon: altın halka + pet portresi
             var med = Ui.Rect(root, "Medal", new Vector2(0f, 1f), new Vector2(164f, 164f), new Vector2(82f, -82f));
-            Shell(med, Gold).raycastTarget = false; med.GetComponent<Image>().raycastTarget = false;
+            RoundShell(med, Gold).raycastTarget = false; med.GetComponent<Image>().raycastTarget = false;
             var inner = Ui.Rect(med, "In", new Vector2(0.5f, 0.5f), new Vector2(128f, 128f));
             var ii = inner.gameObject.AddComponent<Image>(); ii.sprite = Body; ii.type = Image.Type.Sliced; ii.color = Color.Lerp(petColor, Color.white, 0.55f); ii.raycastTarget = false;
             var pic = Ui.Portrait(petId);
@@ -220,15 +253,23 @@ namespace Pofi.UI
         }
 
         /// <summary>Sağ üst coin göstergesi: koyu cam kapsül, soldan taşan iri 3B coin, kalın beyaz sayı.</summary>
-        public static Text CoinPlate(Transform parent, Vector2 offset, float width = 280f)
+        public static Text CoinPlate(Transform parent, Vector2 offset, float width = 280f) => ResourcePlate(parent, "ui_coin", offset, width);
+
+        /// <summary>Sağ üst kaynak göstergesi (coin, Güneş Taşı): koyu kapsül, soldan taşan iri simge, kalın beyaz sayı.</summary>
+        public static Text ResourcePlate(Transform parent, string icon, Vector2 offset, float width = 280f)
         {
-            var root = Ui.Rect(parent, "CoinPlate", new Vector2(1f, 1f), new Vector2(width, 92f), offset);
+            var root = Ui.Rect(parent, "Plate " + icon, new Vector2(1f, 1f), new Vector2(width, 92f), offset);
             root.pivot = new Vector2(1f, 1f);
-            var bg = root.gameObject.AddComponent<Image>(); bg.sprite = Body; bg.type = Image.Type.Sliced; bg.color = Night; bg.raycastTarget = false;
-            var o = root.gameObject.AddComponent<Outline>(); o.effectColor = new Color(1f, 0.85f, 0.4f, 0.95f); o.effectDistance = new Vector2(3f, -3f);
-            root.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
-            Img(root, "Gloss", Gloss, new Color(1f, 1f, 1f, 0.35f), true);
-            var coin = Ui.IconImage(root, "ui_coin", new Vector2(0f, 0.5f), 118f, new Vector2(8f, 0f));
+            var bg = root.gameObject.AddComponent<Image>(); bg.raycastTarget = false;
+            if (Skin.Track != null) { Skin.Apply(bg, Skin.Track, 92f); bg.color = Color.white; root.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f); }
+            else
+            {
+                bg.sprite = Body; bg.type = Image.Type.Sliced; bg.color = Night;
+                var o = root.gameObject.AddComponent<Outline>(); o.effectColor = new Color(1f, 0.85f, 0.4f, 0.95f); o.effectDistance = new Vector2(3f, -3f);
+                root.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
+                Img(root, "Gloss", Gloss, new Color(1f, 1f, 1f, 0.35f), true);
+            }
+            var coin = Ui.IconImage(root, icon, new Vector2(0f, 0.5f), 118f, new Vector2(8f, 0f));
             if (coin != null) coin.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -5f);
             return Caption(root, "", 50, new Vector2(0.5f, 0.5f), new Vector2(width - 90f, 92f), new Vector2(34f, 2f), new Color(0.05f, 0.1f, 0.25f, 1f));
         }

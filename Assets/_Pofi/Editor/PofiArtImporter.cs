@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 9;   // 9: idle 2–98
+        public override uint GetVersion() => 10;   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -86,7 +86,7 @@ namespace Pofi.EditorTools
 
         private void OnPreprocessTexture()
         {
-            if (assetPath.Replace('\\', '/').Contains("/Resources/Games/") || assetPath.Replace('\\', '/').Contains("/Resources/Art/"))
+            if (assetPath.Replace('\\', '/').Contains("/Resources/Games/") || assetPath.Replace('\\', '/').Contains("/Resources/Art/") || assetPath.Replace('\\', '/').Contains("/Resources/UI/"))
             {
                 // kodla üretilmiş 3B arayüz görselleri (art/scripts/ui_games.py, keyart.py): şeffaf, mipmapsiz
                 var gi = (TextureImporter)assetImporter;

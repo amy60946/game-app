@@ -59,7 +59,7 @@ namespace Pofi.UI
             c._fingerImg = c._finger.gameObject.AddComponent<Image>();
             if (hand != null)
             {
-                c._finger.pivot = new Vector2(0.36f, 0.86f);
+                c._finger.pivot = new Vector2(0.21f, 0.93f);   // v3 eldiven (art/meshy/install_ui_v3.py ölçer)
                 c._fingerImg.sprite = hand; c._fingerImg.preserveAspect = true; c._fingerImg.raycastTarget = false;
             }
             else

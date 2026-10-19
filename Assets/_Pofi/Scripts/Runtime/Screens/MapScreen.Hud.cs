@@ -22,7 +22,7 @@ namespace Pofi.Screens
         private static readonly string[] HudIcons = { "food_apple", "clean_soap", "ui_heart", "home_bed" };
 
         private readonly Image[] _gauges = new Image[4];
-        private Text _levelText, _levelNum, _coinText, _feedCount, _washCount, _actionText;
+        private Text _levelText, _levelNum, _coinText, _stoneText, _feedCount, _washCount, _actionText;
         private RectTransform _action, _stickBase, _stickKnob, _tray, _leftBar;
         private System.Action _actionDo;
         private Image _actionIcon;
@@ -50,10 +50,11 @@ namespace Pofi.Screens
 
             // sağ üst
             _coinText = Candy.CoinPlate(hud, new Vector2(-30f, -22f));
+            _stoneText = Candy.ResourcePlate(hud, "ui_sunstone", new Vector2(-340f, -22f), 240f);   // Güneş Taşı (yerleştirilebilir)
             var map = Candy.Pill(hud, Candy.Blue, T("map.overview"), new Vector2(1f, 1f), new Vector2(300f, 116f), new Vector2(-180f, -206f), ToggleMode, null, 48);
             _modeText = map.transform.Find("Label").GetComponent<Text>();
             _mapBtn = (RectTransform)map.transform;
-            var tasks = Candy.Round(hud, Candy.Orange, "hand_flag", 132f, new Vector2(1f, 1f), new Vector2(-430f, -206f), GoTasks, T("hud.tasks"));
+            var tasks = Candy.Round(hud, Candy.Orange, "ui_star", 132f, new Vector2(1f, 1f), new Vector2(-430f, -206f), GoTasks, T("hud.tasks"));
             _tasksBtn = (RectTransform)tasks.transform;
             _questCount = Candy.Count(tasks.transform);   // bugün açık oyun içi görev sayısı
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
@@ -121,6 +122,7 @@ namespace Pofi.Screens
             _levelText.text = st.PetName;
             _levelNum.text = App.Level.ToString();
             _coinText.text = st.Wallet.Available.ToString();
+            _stoneText.text = Logic.Island.SunStoneBook.Available(st.SunStones).ToString();
             Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
             if ((_questT -= Time.deltaTime) <= 0f) { _questT = 1f; SetCount(_questCount, OpenQuests()); }
             SetCount(_feedCount, Count(ItemCategory.Food));
