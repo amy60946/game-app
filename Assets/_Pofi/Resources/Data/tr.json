@@ -74,7 +74,7 @@
     "auth.title": "Pofi Adası",
     "auth.button": "Adaya gir",
     "auth.placeholder": "ABC123",
-    "auth.demo_hint": "Deneme kodları: A1A1A1 (6-9 yaş) · B2B2B2 (10-12) · C3C3C3 (13-15)",
+    "auth.demo_hint": "Deneme kodları: A1A1A1 (6-8 yaş) · B2B2B2 (9-12) · C3C3C3 (13-15)",
     "auth.hello": "Merhaba {0}!",
     "settings.sign_out": "Çıkış",
     "common.ok": "Tamam",

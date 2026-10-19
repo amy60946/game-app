@@ -2,7 +2,10 @@ using System;
 
 namespace Pofi.Logic.Profile
 {
-    /// <summary>Yaş bandı: ebeveyn çocuk oluştururken seçer, giriş yanıtında gelir.</summary>
+    /// <summary>
+    /// Yaş bandı (A 6–8 / B 9–12 / C 13–15; sözleşme: ortak/sozlesme/durumlar.md §4): ebeveyn seçer ya da doğum
+    /// gününden önerilir, giriş yanıtında gelir. Yalnız zorluk/arayüz ayarıdır; raporlar gerçek yaşı kullanır.
+    /// </summary>
     public enum AgeBand { A, B, C }
 
     /// <summary>

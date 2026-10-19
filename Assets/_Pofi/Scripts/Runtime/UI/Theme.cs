@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Pofi.UI
 {
     /// <summary>
-    /// Yaş bandına göre görünüm: A (6–9) iri, yuvarlak, sıcak renkli; B (10–12) dengeli; C (13–15) sade ve kompakt.
+    /// Yaş bandına göre görünüm: A (6–8) iri, yuvarlak, sıcak renkli; B (9–12) dengeli; C (13–15) sade ve kompakt.
     /// Sayılar <see cref="AgeBandProfile"/>'dan, renkler buradan gelir.
     /// </summary>
     public sealed class Theme

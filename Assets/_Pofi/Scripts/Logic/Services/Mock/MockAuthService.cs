@@ -9,7 +9,7 @@ namespace Pofi.Logic.Services.Mock
 {
     /// <summary>
     /// Sahte arka uç: geliştirme ve testler için. Tanımlı kodlar tek kullanımlık değildir (deneme kolaylığı).
-    /// Varsayılan kodlar: A1A1A1 (6–9), B2B2B2 (10–12), C3C3C3 (13–15).
+    /// Varsayılan kodlar: A1A1A1 (6–8), B2B2B2 (9–12), C3C3C3 (13–15).
     /// </summary>
     public sealed class MockAuthService : IAuthService
     {
