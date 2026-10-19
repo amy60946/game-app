@@ -188,14 +188,18 @@ namespace Pofi.UI
             Shell(plate, Blue).raycastTarget = false; plate.GetComponent<Image>().raycastTarget = false;
             name = Caption(plate, "", 40, new Vector2(0.5f, 0.5f), new Vector2(330f, 80f), new Vector2(26f, 2f), Deep(Blue));
             // XP kapsülü: koyu iz + altın dolgu + parlama
-            var track = Ui.Rect(root, "Xp", new Vector2(0f, 1f), new Vector2(360f, 34f), new Vector2(330f, -118f));
+            // Dolgu izin içinde kenar boşluklu gerilir; Ui.SetBar sağ ucu (anchorMax.x) oynatır. Önceden dolgu sabit boyutlu
+            // ve ortadan bağlıydı: SetBar'ın çapası onu sağa doğru uzatıyordu (kullanıcı: "XP uzamış görünüyor", 19 Ekim 2026).
+            var track = Ui.Rect(root, "Xp", new Vector2(0f, 1f), new Vector2(300f, 36f), new Vector2(330f - 30f, -118f));
             var ti = track.gameObject.AddComponent<Image>(); ti.sprite = Body; ti.type = Image.Type.Sliced; ti.color = Night; ti.raycastTarget = false;
             track.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.8f);
-            var fillRt = Ui.Rect(track, "Fill", new Vector2(0f, 0.5f), new Vector2(352f, 26f), new Vector2(180f, 0f));
-            xp = fillRt.gameObject.AddComponent<Image>(); xp.sprite = Body; xp.type = Image.Type.Filled; xp.fillMethod = Image.FillMethod.Horizontal;
+            var fillRt = Ui.Rect(track, "Fill", Vector2.zero, Vector2.zero);
+            fillRt.anchorMin = Vector2.zero; fillRt.anchorMax = Vector2.one; fillRt.pivot = new Vector2(0f, 0.5f);
+            fillRt.offsetMin = new Vector2(4f, 4f); fillRt.offsetMax = new Vector2(-4f, -4f);
+            xp = fillRt.gameObject.AddComponent<Image>(); xp.sprite = Body; xp.type = Image.Type.Sliced;
             xp.color = Gold; xp.raycastTarget = false;
             Img(fillRt, "Gloss", Gloss, new Color(1f, 1f, 1f, 0.9f), true);
-            Caption(track, "XP", 24, new Vector2(1f, 0.5f), new Vector2(60f, 34f), new Vector2(-34f, 1f), Deep(Gold));
+            Caption(track, "XP", 24, new Vector2(1f, 0.5f), new Vector2(60f, 36f), new Vector2(-34f, 1f), Deep(Gold));
             // madalyon: altın halka + pet portresi
             var med = Ui.Rect(root, "Medal", new Vector2(0f, 1f), new Vector2(164f, 164f), new Vector2(82f, -82f));
             Shell(med, Gold).raycastTarget = false; med.GetComponent<Image>().raycastTarget = false;

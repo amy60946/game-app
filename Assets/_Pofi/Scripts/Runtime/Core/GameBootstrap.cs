@@ -378,7 +378,12 @@ namespace Pofi.Core
         /// <summary>Tarayıcıdan otomatik test komutu (SendMessage). Bkz. <see cref="DebugCommands"/>.</summary>
         public void PofiDebug(string line) => DebugCommands.Run(this, line);
 
-        private void OnApplicationPause(bool paused) { if (paused) Save(); }
+        private void OnApplicationPause(bool paused)
+        {
+            if (paused) { Save(); return; }
+            Audio.Haptics.InitAudioSession();   // iOS: Unity öne gelince oturumu "ambient"e çeviriyor; playback'e geri al
+            Audio.Music.Resume();
+        }
         private void OnApplicationQuit() => Save();
     }
 }

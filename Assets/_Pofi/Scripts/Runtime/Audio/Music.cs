@@ -49,6 +49,13 @@ namespace Pofi.Audio
             return clip;
         }
 
+        /// <summary>Ses oturumu yeniden kurulunca (iOS) ya da uygulamaya dönünce: açıksa çalmaya devam et.</summary>
+        public static void Resume()
+        {
+            if (_src == null || _src.volume <= 0.001f || _src.isPlaying) return;
+            _src.Play();
+        }
+
         public static void SetVolume(float volume)
         {
             if (_src == null) { Init(volume); return; }

@@ -123,11 +123,14 @@ namespace Pofi.Screens
                 else if (!have) Candy.Badge(b.transform, "ui_coin", item.Price.ToString(), new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, 6f), 52f, 150f);
             }
             if (owned.Count == 0) _bubble.Say(T("wardrobe.empty"));
+            // dükkâna kısa yol: her zaman sağ altta; bu bölümde eşya yoksa dikkat çeker (kullanıcı geri bildirimi, 19 Ekim 2026)
+            var shop = Candy.Pill(_items, Candy.Green, T("wardrobe.to_shop"), new Vector2(1f, 0f), new Vector2(320f, 110f), new Vector2(-290f, 90f), () => App.Open(AppPage.Shop));
+            if (owned.Count == 0) shop.gameObject.AddComponent<Pulse>();
             // takılı eşyayı çıkar (açık düğme; eşyaya tekrar dokunmak da çıkarır)
             if (!string.IsNullOrEmpty(equipped))
             {
                 var eq = App.Data.Item(equipped);
-                if (eq != null) Candy.Pill(_items, Candy.Pink, T("wardrobe.remove"), new Vector2(1f, 0f), new Vector2(300f, 110f), new Vector2(-290f, 90f), () => Toggle(eq, true));
+                if (eq != null) Candy.Pill(_items, Candy.Pink, T("wardrobe.remove"), new Vector2(1f, 0f), new Vector2(300f, 110f), new Vector2(-630f, 90f), () => Toggle(eq, true));
             }
         }
 

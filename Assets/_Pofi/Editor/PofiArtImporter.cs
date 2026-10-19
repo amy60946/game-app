@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 8;
+        public override uint GetVersion() => 9;   // 9: idle 2–98
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -22,7 +22,9 @@ namespace Pofi.EditorTools
         /// <summary>Klip başına gerçek hareket aralığı (kare, 24 fps; art/meshy/anim_ranges.json ölçümü, 12 petin hepsinde aynı).</summary>
         private static readonly System.Collections.Generic.Dictionary<string, Vector2> ClipFrames = new System.Collections.Generic.Dictionary<string, Vector2>
         {
-            { "walk", new Vector2(2f, 27f) }, { "run", new Vector2(2f, 17f) }, { "idle", new Vector2(2f, 14f) },
+            // idle: ölçülen hareket 2–98. kare (4 sn, döngü hatası 0.01). Önceki 2–14 kesimi yarım saniyelik, başa uymayan bir
+            // döngüydü: pet seçme ekranında "takılıp sıçrıyor" gibi görünüyordu (kullanıcı geri bildirimi, 19 Ekim 2026).
+            { "walk", new Vector2(2f, 27f) }, { "run", new Vector2(2f, 17f) }, { "idle", new Vector2(2f, 98f) },
             { "sleep", new Vector2(2f, 139f) }, { "wave", new Vector2(2f, 130f) },
         };
 

@@ -22,8 +22,18 @@ namespace Pofi.Audio
 #elif UNITY_IOS && !UNITY_EDITOR
         [DllImport("__Internal")] private static extern void PofiHapticIOS(int strength);
         [DllImport("__Internal")] private static extern void PofiAudioPlayback();
-        /// <summary>iOS: ses oturumunu "playback" yap (sessiz düğmesine rağmen ses duyulsun). Açılışta bir kez.</summary>
-        public static void InitAudioSession() { try { PofiAudioPlayback(); } catch { } }
+        /// <summary>
+        /// iOS: ses oturumunu "playback" yap (sessiz düğmesine rağmen ses duyulsun). Açılışta ve uygulamaya her dönüşte.
+        /// Unity kendi oturumunu (ambient) açılışta ve öne gelince yeniden kurar; kategori değişince Unity'nin ses çıkışı
+        /// sessiz kalabiliyordu (TestFlight'ta müzik/adım sesi yoktu, 19 Ekim 2026). Bu yüzden kategori ayarlanınca Unity sesi
+        /// yeniden başlatılır (AudioSettings.Reset) ve müzik kaldığı yerden sürer.
+        /// </summary>
+        public static void InitAudioSession()
+        {
+            try { PofiAudioPlayback(); } catch { return; }
+            AudioSettings.Reset(AudioSettings.GetConfiguration());
+            Music.Resume();
+        }
 #endif
 #if !(UNITY_IOS && !UNITY_EDITOR)
         public static void InitAudioSession() { }
