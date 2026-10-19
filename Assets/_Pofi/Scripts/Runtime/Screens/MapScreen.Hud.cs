@@ -44,32 +44,41 @@ namespace Pofi.Screens
             // pet kartı: madalyon + isim plakası + seviye yıldızı + XP kapsülü (Candy.PetPlate)
             var pet = App.Data.Pet(App.State.PetId);
             _levelBadge = Candy.PetPlate(hud, App.State.PetId, Theme.Hex(pet.MainColor), new Vector2(24f, -16f), out _levelText, out _levelNum, out _xpFill);
+            // Yerleşim v3 taslağına göre (kullanıcı onayı, 19 Ekim 2026): halkalar küçük, rozetin altında; sol sütun Görev + Ev Görevleri;
+            // üst orta Güneş Taşı + coin; sağ üst yuvarlak Harita ve Ayarlar; sol alt Besle/Yıka; sağ alt eylem.
             Color[] cols = { new Color(1f, 0.62f, 0.26f), new Color(0.24f, 0.79f, 1f), new Color(1f, 0.44f, 0.68f), new Color(0.48f, 0.84f, 0.42f) };
             for (var i = 0; i < 4; i++)
-                _gauges[i] = Candy.Gauge(hud, cols[i], HudIcons[i], 128f, new Vector2(0f, 1f), new Vector2(30f + 64f + i * 144f, -262f));
+                _gauges[i] = Candy.Gauge(hud, cols[i], HudIcons[i], 96f, new Vector2(0f, 1f), new Vector2(30f + 48f + i * 110f, -250f));
 
-            // sağ üst
-            _coinText = Candy.CoinPlate(hud, new Vector2(-30f, -22f));
-            _stoneText = Candy.ResourcePlate(hud, "ui_sunstone", new Vector2(-340f, -22f), 240f);   // Güneş Taşı (yerleştirilebilir)
-            var map = Candy.Pill(hud, Candy.Blue, T("map.overview"), new Vector2(1f, 1f), new Vector2(300f, 116f), new Vector2(-180f, -206f), ToggleMode, null, 48);
-            _modeText = map.transform.Find("Label").GetComponent<Text>();
+            // üst orta: Güneş Taşı ve coin
+            _stoneText = Candy.ResourcePlate(hud, "ui_sunstone", Vector2.zero, 300f);   // Güneş Taşı (yerleştirilebilir)
+            TopCenter(_stoneText, -170f);
+            _coinText = Candy.CoinPlate(hud, Vector2.zero, 300f);
+            TopCenter(_coinText, 170f);
+
+            // sağ üst: Harita (kuşbakışı / yürü) ve Ayarlar
+            var map = Candy.Round(hud, Candy.White, "ui_map", 160f, new Vector2(1f, 1f), new Vector2(-120f, -110f), ToggleMode, T("map.overview"));
+            _modeText = map.GetComponentInChildren<Text>();
             _mapBtn = (RectTransform)map.transform;
-            var tasks = Candy.Round(hud, Candy.Orange, "ui_star", 132f, new Vector2(1f, 1f), new Vector2(-430f, -206f), GoTasks, T("hud.tasks"));
+            // Ayarlar (kullanıcı, 19 Ekim 2026: "oyundan çıkamıyorum"): ses, pet değiştir, çıkış; Evim'e gitmeden. Ebeveyn sorusuyla açılır.
+            Candy.Round(hud, Candy.White, "ui_settings", 110f, new Vector2(1f, 1f), new Vector2(-120f, -330f),
+                () => ParentGate(() => App.Open(AppPage.Settings), msg => _toast.Say(msg)), T("settings.title"));
+
+            // sol sütun: oyun içi görevler ve ebeveynin Ev Görevleri
+            var tasks = Candy.Round(hud, Candy.White, "ui_star", 150f, new Vector2(0f, 1f), new Vector2(150f, -400f), GoTasks, T("hud.tasks"));
             _tasksBtn = (RectTransform)tasks.transform;
             _questCount = Candy.Count(tasks.transform);   // bugün açık oyun içi görev sayısı
-            // Ayarlar (kullanıcı, 19 Ekim 2026: "oyundan çıkamıyorum"): ses, pet değiştir, çıkış; Evim'e gitmeden. Ebeveyn sorusuyla açılır.
-            Candy.Round(hud, Candy.White, "ui_settings", 104f, new Vector2(1f, 1f), new Vector2(-110f, -372f),
-                () => ParentGate(() => App.Open(AppPage.Settings), msg => _toast.Say(msg)), T("settings.title"));
+            Candy.Round(hud, Candy.White, "ui_board", 150f, new Vector2(0f, 1f), new Vector2(150f, -605f), () => App.Open(AppPage.Tasks), T("tasks.title"));
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             if (next != null)
                 Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
 
             // sol kenar: Besle, Yıka
-            _leftBar = Ui.Rect(hud, "Care", new Vector2(0f, 0.5f), new Vector2(190f, 430f), new Vector2(130f, -70f));
-            var feed = Candy.Round(_leftBar, Candy.Orange, "food_apple", 160f, new Vector2(0.5f, 0.78f), Vector2.zero, OnFeed, T("hud.feed"));
+            _leftBar = Ui.Rect(hud, "Care", Vector2.zero, new Vector2(420f, 260f), new Vector2(240f, 190f));
+            var feed = Candy.Round(_leftBar, Candy.White, "food_apple", 150f, new Vector2(0.3f, 0.6f), Vector2.zero, OnFeed, T("hud.feed"));
             _feedBtn = (RectTransform)feed.transform;
             _feedCount = Candy.Count(feed.transform);
-            var wash = Candy.Round(_leftBar, Candy.Blue, "clean_soap", 160f, new Vector2(0.5f, 0.2f), Vector2.zero, OnWash, T("hud.wash"));
+            var wash = Candy.Round(_leftBar, Candy.White, "clean_soap", 124f, new Vector2(0.75f, 0.42f), Vector2.zero, OnWash, T("hud.wash"));
             _washCount = Candy.Count(wash.transform);
 
             // sağ alt: bağlamsal eylem
@@ -92,6 +101,15 @@ namespace Pofi.Screens
 
             App.XpGained += OnXp;
             RefreshHud();
+        }
+
+        /// <summary>Kaynak göstergesini (Candy.ResourcePlate) üst ortaya taşır: x merkeze göre.</summary>
+        private static void TopCenter(Text plateText, float x)
+        {
+            var rt = (RectTransform)plateText.transform.parent;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
+            rt.pivot = new Vector2(0.5f, 1f);
+            rt.anchoredPosition = new Vector2(x, -30f);
         }
 
         private void HudDestroy()
