@@ -49,7 +49,13 @@ namespace Pofi.Logic.State
                     s.Tasks.Acknowledge(change.Key); // kabul ya da kalıcı ret: tekrar gönderme; birleştirme düzeltir
                 }
 
-                // 2) Bekleyen harcamalar
+                // 2) Bekleyen harcamalar. Sunucu seviye kilidini kayıttaki XP'den denetler: önce kayıt yedeklenir
+                //    (yeni seviyede açılan eşya, eski yedek yüzünden reddedilmesin).
+                if (s.Wallet.Pending.Count > 0)
+                {
+                    var pre = await _save.SaveRemoteAsync(SaveCodec.Serialize(s, nowUtc), ct);
+                    if (pre == ServiceError.Network) { report.Offline = true; return report; }
+                }
                 foreach (var p in s.Wallet.Pending.ToList())
                 {
                     var r = await _wallet.SpendAsync(p.TxId, p.ItemId, p.Quantity, ct);

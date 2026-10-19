@@ -130,5 +130,28 @@ namespace Pofi.Tests.Logic
             var rep2 = await new SyncCoordinator(offline, offline, offline, data).SyncAsync(s, local, DateTime.UtcNow);
             Assert.IsTrue(rep2.Offline);
         }
+
+        [Test]
+        public async Task Bekleyen_harcamadan_once_kayit_yedeklenir()
+        {
+            // Sunucu seviye kilidini yedekteki XP'den denetler: yeni seviyede alınan eşya eski yedekle reddedilmesin.
+            var http = new FakeHttp
+            {
+                Handler = (fn, a) => fn == "spend_coins" ? R(200, "{\"ok\":true,\"error\":null,\"balance\":0}")
+                    : fn == "child_tasks" ? R(200, "[]")
+                    : fn == "child_me" ? R(200, "{\"balance\":0}")
+                    : R(200, "null"),
+            };
+            var svc = Svc(http);
+            var data = TestData.Load();
+            var s = GameState.NewFor("c", new DateTime(2026, 10, 19, 9, 0, 0, DateTimeKind.Utc));
+            s.Wallet.ServerCoins = 5;
+            s.Xp.TotalXp = 100;
+            Assert.AreEqual(Pofi.Logic.Economy.SpendResult.Ok, s.Wallet.TrySpend("food_watermelon", 1, 5, "tx-0000001", DateTime.UtcNow, out _));
+            await new SyncCoordinator(svc, svc, svc, data).SyncAsync(s, new DateTime(2026, 10, 19, 12, 0, 0), DateTime.UtcNow);
+            var fns = http.Calls.Select(c => c.url.Substring(c.url.LastIndexOf('/') + 1)).ToList();
+            Assert.Less(fns.IndexOf("game_save_put"), fns.IndexOf("spend_coins"));
+            StringAssert.Contains("\"TotalXp\":100", http.Calls[fns.IndexOf("game_save_put")].body);
+        }
     }
 }

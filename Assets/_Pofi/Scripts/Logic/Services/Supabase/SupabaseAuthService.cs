@@ -123,6 +123,7 @@ namespace Pofi.Logic.Services.Supabase
             var r = await _http.SendAsync("POST", _url + "/rest/v1/rpc/redeem_child_code", Headers(),
                 JsonConvert.SerializeObject(new { p_code = normalized }), ct);
             if (r.Status == 0) return AuthResult.Fail(AuthErrorKind.Network);
+            if (r.Status == 429) return AuthResult.Fail(AuthErrorKind.Throttled);   // sunucu deneme sınırı (15 dk'da 10 hata)
             if (r.Status >= 400) { _throttle.RecordFailure(now); return AuthResult.Fail(AuthErrorKind.InvalidCode); }
 
             _throttle.RecordSuccess();

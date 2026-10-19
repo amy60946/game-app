@@ -65,6 +65,8 @@ namespace Pofi.Tests.Logic
             var auth = new SupabaseAuthService("https://x", "K", http, new MemorySecureStore());
             Assert.AreEqual(AuthErrorKind.InvalidCode, auth.SignInWithCodeAsync("ZZZZZZ").Result.Error);
             Assert.AreEqual(AuthErrorKind.InvalidCode, auth.SignInWithCodeAsync("ZZ").Result.Error, "biçim hatası sunucuya gitmez");
+            var limited = new SupabaseAuthService("https://x", "K", new FakeHttp { Handler = (m, u) => u.EndsWith("/signup") ? new HttpReply { Status = 200, Body = Session } : new HttpReply { Status = 429, Body = "{\"error\":\"too_many_attempts\"}" } }, new MemorySecureStore());
+            Assert.AreEqual(AuthErrorKind.Throttled, limited.SignInWithCodeAsync("ABCDEF").Result.Error, "sunucu deneme sınırı");
             var offline = new SupabaseAuthService("https://x", "K", new FakeHttp { Handler = (m, u) => new HttpReply { Status = 0 } }, new MemorySecureStore());
             Assert.AreEqual(AuthErrorKind.Network, offline.SignInWithCodeAsync("ABCDEF").Result.Error);
         }

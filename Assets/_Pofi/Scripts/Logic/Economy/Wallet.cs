@@ -31,10 +31,13 @@ namespace Pofi.Logic.Economy
         /// <summary>Arayüzde gösterilen harcanabilir bakiye.</summary>
         public int Available => Math.Max(0, ServerCoins - PendingTotal);
 
+        /// <summary>Bir harcamadaki en fazla adet (sunucu spend_coins ile aynı: 1–20).</summary>
+        public const int MaxQuantity = 20;
+
         public SpendResult TrySpend(string itemId, int quantity, int unitPrice, string txId, DateTime nowUtc, out PendingSpend spend)
         {
             spend = null;
-            if (quantity <= 0 || unitPrice <= 0 || string.IsNullOrEmpty(txId)) return SpendResult.InvalidAmount;
+            if (quantity <= 0 || quantity > MaxQuantity || unitPrice <= 0 || string.IsNullOrEmpty(txId)) return SpendResult.InvalidAmount;
             var amount = checked(quantity * unitPrice);
             if (amount > Available) return SpendResult.NotEnoughCoins;
             spend = new PendingSpend { TxId = txId, ItemId = itemId, Quantity = quantity, Amount = amount, CreatedUtcTicks = nowUtc.Ticks };

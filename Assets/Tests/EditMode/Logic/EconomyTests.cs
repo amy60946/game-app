@@ -27,6 +27,7 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual(SpendResult.Ok, w.TrySpend("food_fish", 1, 6, "a", Now, out _));
             Assert.AreEqual(SpendResult.NotEnoughCoins, w.TrySpend("food_fish", 1, 6, "b", Now, out _));
             Assert.AreEqual(SpendResult.InvalidAmount, w.TrySpend("x", 0, 6, "c", Now, out _));
+            Assert.AreEqual(SpendResult.InvalidAmount, w.TrySpend("x", Wallet.MaxQuantity + 1, 1, "d", Now, out _), "sunucuyla aynı: en fazla 20 adet");
         }
 
         [Test]
