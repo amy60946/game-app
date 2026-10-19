@@ -46,6 +46,7 @@ namespace Pofi.World
             camGo.tag = "MainCamera";
             camGo.transform.SetParent(transform, false);
             Camera = camGo.AddComponent<Camera>();
+            camGo.AddComponent<AudioListener>();   // sahnedeki tek dinleyici: yoksa Unity hiçbir sesi çalmaz (iPhone'da ses yoktu)
             Camera.clearFlags = CameraClearFlags.SolidColor;
             Camera.backgroundColor = sky;
             Camera.fieldOfView = 34f;

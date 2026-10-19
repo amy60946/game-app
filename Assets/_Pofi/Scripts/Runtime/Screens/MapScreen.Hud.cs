@@ -57,6 +57,9 @@ namespace Pofi.Screens
             var tasks = Candy.Round(hud, Candy.Orange, "ui_star", 132f, new Vector2(1f, 1f), new Vector2(-430f, -206f), GoTasks, T("hud.tasks"));
             _tasksBtn = (RectTransform)tasks.transform;
             _questCount = Candy.Count(tasks.transform);   // bugün açık oyun içi görev sayısı
+            // Ayarlar (kullanıcı, 19 Ekim 2026: "oyundan çıkamıyorum"): ses, pet değiştir, çıkış; Evim'e gitmeden. Ebeveyn sorusuyla açılır.
+            Candy.Round(hud, Candy.White, "ui_settings", 104f, new Vector2(1f, 1f), new Vector2(-110f, -372f),
+                () => ParentGate(() => App.Open(AppPage.Settings), msg => _toast.Say(msg)), T("settings.title"));
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             if (next != null)
                 Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
