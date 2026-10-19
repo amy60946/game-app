@@ -18,7 +18,7 @@ Dosyanın adı `Unity_lic.ulf`:
 `Unity_lic.ulf` dosyasına sağ tıkla → **Not Defteri / TextEdit ile aç** → tümünü seç (Ctrl+A / ⌘A) → kopyala.
 
 ## 3. GitHub'a gizli değer olarak ekle
-1. https://github.com/amy60946/pofi-adasi → üstte **Settings** → solda **Secrets and variables** → **Actions**.
+1. https://github.com/amy60946/game-app → üstte **Settings** → solda **Secrets and variables** → **Actions**.
 2. **New repository secret** ile şu üçünü tek tek ekle:
 
 | Name | Secret (değer) |
