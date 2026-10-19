@@ -10,7 +10,7 @@ proj="$1"
 ls -d /Applications/Xcode*.app
 xc=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -v -i beta | sort -V | tail -1 || true)
 [ -n "$xc" ] && sudo xcode-select -s "$xc/Contents/Developer"
-v=$(xcodebuild -version | head -1 | awk '{print $2}' | cut -d. -f1)
+v=$(xcodebuild -version | awk 'NR==1{split($2,a,"."); print a[1]}')
 [ "${v:-0}" -ge 26 ] || { echo "::error::Xcode $v kurulu; App Store Xcode 26+ istiyor (macos-15 imajında Xcode_26 yok)"; exit 1; }
 missing=""
 for v in ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_P8 APPLE_TEAM_ID; do [ -z "${!v:-}" ] && missing="$missing $v"; done
