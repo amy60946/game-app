@@ -65,3 +65,11 @@
   Resources/Icons (eski adlarla, kod değişmeden) + Resources/UI (çubuk, düğme renkleri, krem kart, yuvarlak düğme, şerit, tahta; `UI/Skin.cs` 9 dilimli, yoksa eski kodla çizim). Yazı tipi Baloo 2 ExtraBold (OFL, Resources/Fonts). Eşya simgeleri zaten aynı kalitede: yeniden üretilmedi (kredi korundu).
   Kalan Meshy kredisi: 889 (yeni simge gerekirse sayfa başına 9). Ada sahnesi/sis taslağı `art/mockups/` (oyuna henüz girmedi).
 
+- Rehberli zincir + iyileştirmeler (19 Ekim 2026, kullanıcı onayı; omurga analizi §11): `Logic/App/Guide.cs` — Sv1–3 için 12 adım
+  (besle, yıka, Evim'e gir, evi topla, aksesuar tak, Ev Görevleri panosu, malzeme topla, kulübe, hindistan cevizi oyunu, dükkândan al,
+  Güneş Taşı yerleştir, kart oyunu). Adımlar `RecordActivity` sayaçlarıyla ilerler; ödül yalnız canlı yapılan adıma. Belgedeki bahçe/balık
+  adımları Sv6/Sv7 içerik olduğu için ilk 3 seviyede hindistan cevizi/dükkân/kart oyunu ile değiştirildi.
+  İpucu paneli artık ALT şeritte; "Kuşbakışı" düğmesi = "Harita"; bölge düğmesi (Gir/Oyna) yapının her kenarından açılır;
+  Güneş Taşı bölgelerinde yer sisi (`Clouds.Spawn(..., fog:true)`); bahçe ekranı v3 görünüm; zemin/çim tonları sakin.
+  ⚠️ HATIRLAT: kullanıcı "filtreleme sistemi" için ek geri bildirim verecek (19 Ekim 2026) — gelince sor/uygula.
+  Seedance/Higgsfield kullanılmadı (bu ortamda erişim/anahtar yok); animasyonlar kodla. Meshy kredisi en az 100 kalmalı (kullanıcı kuralı).

@@ -19,11 +19,17 @@ namespace Pofi.Screens
         protected override void Build()
         {
             App.Stage.SetPetVisible(false);
+            App.Stage.SetBackdrop("b_garden", 6f, 3.4f);   // bahçe yapısı arka planda (dükkân gibi)
             Header(T("garden.title"));
             _bubble = Bubble(new Vector2(0.5f, 0.9f));
             _grid = ContentArea("Plots");
             NavBar(AppPage.Map);
             Fill();
+        }
+
+        private void OnDestroy()
+        {
+            if (App != null && App.Stage != null) App.Stage.SetBackdrop(null);
         }
 
         private void Update()
@@ -47,15 +53,40 @@ namespace Pofi.Screens
                 var row = i / 3;
                 var cell = Ui.Rect(_grid, "Plot" + i, new Vector2(0.5f, 0.5f), new Vector2(440f, 360f),
                     new Vector2((col - 1) * 480f, row == 0 ? 195f : -195f));
-                var soil = Ui.Panel(cell, Theme.Hex(state == PlotState.NeedsWater || state == PlotState.Empty ? "#A9744A" : "#7A4F2E"), Th.Radius);
+                // v3 görünüm (kullanıcı, 19 Ekim 2026: bahçede görseller görünmüyordu): krem kart, içinde toprak yatağı; ekili
+                // tohumun simgesi büyüdükçe büyür, hasada hazır ürün zıplar; boş yatakta silik "+"
+                var card = cell.gameObject.AddComponent<Image>(); card.raycastTarget = false;
+                if (Skin.Card != null) { Skin.Apply(card, Skin.Card, 360f); card.color = Color.white; }
+                else { card.sprite = Ui.Rounded; card.type = Image.Type.Sliced; card.color = new Color(1f, 0.96f, 0.86f); }
+                cell.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -8f);
+                var bed = Ui.Rect(cell, "Soil", new Vector2(0.5f, 0.56f), new Vector2(380f, 190f));
+                var bedImg = bed.gameObject.AddComponent<Image>(); bedImg.sprite = Ui.Rounded; bedImg.type = Image.Type.Sliced; bedImg.raycastTarget = false;
+                bedImg.color = Theme.Hex(state == PlotState.NeedsWater || state == PlotState.Empty ? "#B07A4C" : "#6E4527");   // sulanınca koyu, nemli toprak
+                for (var f = 0; f < 3; f++)   // toprak sıraları
+                {
+                    var furrow = Ui.Rect(bed, "Row" + f, new Vector2(0.5f, 0.25f + f * 0.25f), new Vector2(330f, 10f));
+                    var fi = furrow.gameObject.AddComponent<Image>(); fi.sprite = Ui.Rounded; fi.type = Image.Type.Sliced; fi.raycastTarget = false;
+                    fi.color = new Color(0f, 0f, 0f, 0.14f);
+                }
                 if (seed != null)
                 {
                     var produce = App.Data.Item(seed.Grows);
-                    var size = state == PlotState.Ready ? 200f : state == PlotState.Growing ? 120f : 60f;
-                    var plant = Ui.Rect(cell, "Plant", new Vector2(0.5f, 0.6f), new Vector2(size, size));
-                    if (state != PlotState.Ready || produce == null || Ui.IconImage(plant, produce.Id, new Vector2(0.5f, 0.5f), size) == null)
-                        Ui.Panel(plant, state == PlotState.Ready ? Theme.Hex("#FF9F43") : Theme.Hex("#46D063"), size / 2f).raycastTarget = false;
-                    Ui.Label(cell, produce != null ? produce.Name : seed.Name, Th.Font(34), Color.white, new Vector2(0.5f, 0.88f), new Vector2(440f, 60f), FontStyle.Bold);
+                    var size = state == PlotState.Ready ? 190f : state == PlotState.Growing ? 130f : 90f;
+                    var icon = state == PlotState.Ready && produce != null ? produce.Id : seed.Id;
+                    var img = Ui.IconImage(cell, icon, new Vector2(0.5f, 0.6f), size);
+                    if (img == null)
+                        Ui.Panel(Ui.Rect(cell, "Plant", new Vector2(0.5f, 0.6f), new Vector2(size, size)), state == PlotState.Ready ? Theme.Hex("#FF9F43") : Theme.Hex("#46D063"), size / 2f).raycastTarget = false;
+                    else
+                    {
+                        img.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
+                        if (state == PlotState.Ready) img.gameObject.AddComponent<Pulse>();
+                    }
+                    if (state == PlotState.NeedsWater) Ui.IconImage(cell, "clean_soap", new Vector2(0.82f, 0.74f), 70f);   // su damlası yerine köpük: "sula" ipucu
+                    Candy.Caption(cell, produce != null ? produce.Name : seed.Name, 34, new Vector2(0.5f, 0.92f), new Vector2(420f, 56f));
+                }
+                else
+                {
+                    Ui.IconImage(cell, "ui_plus", new Vector2(0.5f, 0.58f), 110f, default, new Color(1f, 1f, 1f, 0.75f));
                 }
                 string label;
                 switch (state)

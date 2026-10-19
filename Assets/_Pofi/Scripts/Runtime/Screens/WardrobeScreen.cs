@@ -152,6 +152,7 @@ namespace Pofi.Screens
                 }
                 App.Stage.Hop();
                 _bubble.Say(T("wardrobe.looks_good"));
+                App.RecordActivity("item_equipped");
             }
             App.Save();
             App.Stage.SetCosmetics(inv.Equipped.Values);

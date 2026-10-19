@@ -31,6 +31,7 @@ namespace Pofi.Screens
             if (App.Backend != null) CornerButton(T("demo.parent_button"), () => ParentGate(OpenDemoPanel));
             NavBar(AppPage.Tasks);
             if (Onboarding.Pending(App.State, Onboarding.Board)) { Onboarding.Done(App.State, Onboarding.Board); App.Save(); }
+            App.RecordActivity("board_opened");
             App.Synced += OnSynced;
             Fill();
             _ = App.SyncNow();
@@ -106,6 +107,7 @@ namespace Pofi.Screens
                 if (Onboarding.Pending(App.State, Onboarding.Stone)) Onboarding.Done(App.State, Onboarding.Stone);
                 if (r == PlaceResult.Repaired) Toast.Post(App.Overlay.transform, Th, string.IsNullOrEmpty(spot.Say) ? T("stones.all_done") : spot.Say);
                 App.Save();
+                App.RecordActivity("stone_placed");
             }
             Fill();
         }

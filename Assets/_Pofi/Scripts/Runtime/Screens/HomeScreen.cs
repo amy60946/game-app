@@ -43,6 +43,7 @@ namespace Pofi.Screens
             PetCamera(0.5f, 0.18f, 0.86f, World.PetModels.RealHeight * World.PetModels.StageScale(Logic.Progression.GrowthStage.Yetiskin));   // yatay: pet ortada; çerçeve yetişkine göre, yavru daha küçük görünür
             App.Stage.ShowPet(def, App.Growth, App.State.Inventory.Equipped.Values);
             App.Stage.SetHomeItems(App.State.Home, App.Levels.IsUnlocked("home_expansion", App.Level));
+            App.RecordActivity("home_entered");
             App.Stage.SetAmbient(true);
 
             // Sahne üstü (14 Ekim 2026 kararı): sol üst rozet + gösterge halkaları, sağ üst coin ve evin düğmeleri, sağ alt bakım
@@ -82,6 +83,9 @@ namespace Pofi.Screens
             Refresh();
             if (Onboarding.Pending(App.State, Onboarding.Home))
                 _coach = Coach.Show(Root, Onboarding.Home, T("tip.home"), TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, _tidyBtn.position));
+            else if (Guide.Current(App.State, App.Level)?.Id == "tidy")   // rehberli zincir: evi topla adımı
+                _coach = Coach.Show(Root, "guide_tidy", T("guide.tidy") + "  " + T("guide.reward", Guide.Get("tidy").Xp), TipGesture.Tap,
+                    () => RectTransformUtility.WorldToScreenPoint(null, _tidyBtn.position), null, 3, (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count);
             else _bubble.Say(T("pet.welcome", App.State.PetName), 4f);
             ApplyNight(true);
         }

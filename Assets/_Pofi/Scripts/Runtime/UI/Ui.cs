@@ -369,4 +369,28 @@ namespace Pofi.UI
             transform.localScale = new Vector3(s, s, 1f);
         }
     }
+
+    /// <summary>
+    /// Değer değişince kısa "zıplama" (coin, Güneş Taşı, gösterge dolunca; kullanıcı, 19 Ekim 2026: süreçlere küçük animasyonlar).
+    /// Basma tepkisi (PressBounce) taşımayan öğelerde kullanılır.
+    /// </summary>
+    public sealed class Bump : MonoBehaviour
+    {
+        private float _t = 1f, _amount;
+
+        public static void Play(Transform t, float amount = 0.22f)
+        {
+            if (t == null || Theme.ReduceMotion) return;
+            var b = t.GetComponent<Bump>() ?? t.gameObject.AddComponent<Bump>();
+            b._t = 0f; b._amount = amount;
+        }
+
+        private void Update()
+        {
+            if (_t >= 1f) return;
+            _t = Mathf.Min(1f, _t + Time.unscaledDeltaTime / 0.38f);
+            var s = 1f + _amount * Mathf.Sin(_t * Mathf.PI) * (1f - 0.4f * _t);
+            transform.localScale = new Vector3(s, s, 1f);
+        }
+    }
 }

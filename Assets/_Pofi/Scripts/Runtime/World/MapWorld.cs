@@ -142,7 +142,9 @@ namespace Pofi.World
             const int w = 384;
             var h = Mathf.RoundToInt(w * (t.MaxZ - t.MinZ) / (t.MaxX - t.MinX));
             var px = new Color32[w * h];
-            Color sand = Theme(0.97f, 0.87f, 0.63f), grass = Theme(0.49f, 0.79f, 0.33f), grass2 = Theme(0.36f, 0.68f, 0.27f),
+            // çimen tonları sakin (kullanıcı, 19 Ekim 2026: "çok yeşil ve parlak olmasın"): zeytin ve kuru ot dalgası, çimsiz açıklıklar toprak
+            Color sand = Theme(0.97f, 0.87f, 0.63f), grass = Theme(0.45f, 0.63f, 0.31f), grass2 = Theme(0.34f, 0.52f, 0.25f), dry = Theme(0.58f, 0.6f, 0.36f),
+                bare = Theme(0.56f, 0.5f, 0.35f),
                 path = Theme(0.83f, 0.66f, 0.45f), rock = Theme(0.62f, 0.57f, 0.52f), snow = Theme(0.97f, 0.98f, 1f), wet = Theme(0.55f, 0.78f, 0.82f);
             var rng = new System.Random(5);
             for (var j = 0; j < h; j++)
@@ -152,6 +154,8 @@ namespace Pofi.World
                 var z = t.MinZ + (j + 0.5f) / h * (t.MaxZ - t.MinZ);
                 var mix = t.MixAt(x, z);
                 var c = Color.Lerp(grass2, grass, Mathf.PerlinNoise(x * 0.12f + 31f, z * 0.12f + 7f));
+                c = Color.Lerp(c, dry, Mathf.Clamp01(Mathf.PerlinNoise(x * 0.05f + 3f, z * 0.05f + 91f) * 1.6f - 0.75f));   // yer yer kuru ot
+                c = Color.Lerp(c, bare, Mathf.Clamp01((0.3f - GrassField.Noise(x * 0.42f, z * 0.42f)) / 0.08f) * 0.8f);  // çim telinin olmadığı açıklıklar
                 c = Color.Lerp(c, sand, mix.Sand);
                 c = Color.Lerp(c, rock, mix.Rock);
                 c = Color.Lerp(c, snow, mix.Snow);
@@ -280,6 +284,11 @@ namespace Pofi.World
             }
             if (root.childCount == 0) Placeholder(root, r, v.Unlocked);
             if (!v.Unlocked) RealAssets.Tint(root, new Color(0.62f, 0.64f, 0.72f));
+            // Güneş Taşı ile açılan kilitli bölge: yere yakın, yapıyı saran yoğun sis (kullanıcı, 19 Ekim 2026: gökyüzündeki
+            // bulutlar sis gibi okunmuyordu; sis bölgenin üstünde, kamera hizasında olmalı). Taş yerleşince bölge yeniden kurulur, sis kalkar.
+            if (!v.Unlocked && v.Spot != null)
+                Clouds.Spawn(transform, new Vector3(r.X, Terrain.Height(r.X, r.Z) + 0.4f, r.Z), r.Size * 0.42f, 7, 0f, r.Size * 0.25f, r.Size * 0.32f,
+                    r.Id.GetHashCode(), 0f, 360f, true);
 
             var b = RealAssets.WorldBounds(root);
             var col = root.gameObject.AddComponent<BoxCollider>();

@@ -33,7 +33,8 @@ namespace Pofi.Screens
         private float _islandTime;
         private RectTransform _levelBadge, _tasksBtn, _mapBtn;
         private Text _questCount;
-        private RectTransform _feedBtn;
+        private RectTransform _feedBtn, _washBtn;
+        private int _lastCoins = -1, _lastStones = -1;
         private float _questT;
         private Image _xpFill;
 
@@ -79,6 +80,7 @@ namespace Pofi.Screens
             _feedBtn = (RectTransform)feed.transform;
             _feedCount = Candy.Count(feed.transform);
             var wash = Candy.Round(_leftBar, Candy.White, "clean_soap", 124f, new Vector2(0.75f, 0.42f), Vector2.zero, OnWash, T("hud.wash"));
+            _washBtn = (RectTransform)wash.transform;
             _washCount = Candy.Count(wash.transform);
 
             // sağ alt: bağlamsal eylem
@@ -139,7 +141,16 @@ namespace Pofi.Screens
         private void RefreshHud()
         {
             var st = App.State;
-            for (var i = 0; i < 4; i++) _gauges[i].fillAmount = st.Stats[HudKinds[i]] / 100f;
+            for (var i = 0; i < 4; i++)
+            {
+                var f = st.Stats[HudKinds[i]] / 100f;
+                if (f > _gauges[i].fillAmount + 0.02f) Bump.Play(_gauges[i].transform.parent, 0.18f);   // besleyince/yıkayınca halka zıplar
+                _gauges[i].fillAmount = f;
+            }
+            var coins = st.Wallet.Available; var stones = Logic.Island.SunStoneBook.Available(st.SunStones);
+            if (_lastCoins >= 0 && coins != _lastCoins) Bump.Play(_coinText.transform.parent);
+            if (_lastStones >= 0 && stones != _lastStones) Bump.Play(_stoneText.transform.parent, 0.3f);
+            _lastCoins = coins; _lastStones = stones;
             _levelText.text = st.PetName;
             _levelNum.text = App.Level.ToString();
             _coinText.text = st.Wallet.Available.ToString();
@@ -217,6 +228,8 @@ namespace Pofi.Screens
         private void UpdateTips()
         {
             if (_xpTipT > 0f) { _xpTipT -= Time.deltaTime; if (_xpTipT <= 0f) TipDone(Onboarding.Xp); }
+            var guide = Guide.Current(App.State, App.Level);
+            if (_coach != null && _coach.Id.StartsWith("guide_") && (guide == null || _coach.Id != "guide_" + guide.Id)) { _coach.Done(); _coach = null; _tipGap = 1f; }   // adım bitti
             if (_coach != null || _tray != null) return;
             _tipGap += Time.deltaTime;
             if (_tipGap < 2.5f) return;                                     // ipuçları arasında kısa nefes
@@ -237,6 +250,8 @@ namespace Pofi.Screens
                     }
                 }
             }
+            // rehberli zincir (Sv1–3): sıradaki adım, işaret eli hedefini gösterir; ilk gün pano/taş ipuçlarının yerine geçer
+            if (basicsDone && guide != null && !_overview) { GuideTip(guide); return; }
             // ilk gün (Ö5): yürü → besle → Ev Görevleri panosu (görev işaretle / taşı yerleştir orada)
             var day = FirstDayNow;
             if (day == FirstDayStep.Board) { Tip(Onboarding.Board, TipGesture.Tap, () => RegionScreen("region_task_board")); return; }
@@ -269,6 +284,46 @@ namespace Pofi.Screens
             }
         }
 
+        /// <summary>Rehber adımı paneli (alt şerit): "3/12", kısa cümle ve ödül; el hedefe 3 kez dokunur, sonra kısa ara.</summary>
+        private void GuideTip(GuideStep g)
+        {
+            var step = (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count;
+            _coach = Coach.Show(Root, "guide_" + g.Id, T(g.TextKey, App.State.PetName) + "  " + T("guide.reward", g.Xp), TipGesture.Tap, GuideTarget(g), null, 3, step);
+            _tipGap = -4f;   // panel kapanınca birkaç saniye nefes
+        }
+
+        private System.Func<Vector2> GuideTarget(GuideStep g)
+        {
+            switch (g.Id)
+            {
+                case "feed": return () => UiScreen(_feedBtn);
+                case "wash": return () => UiScreen(_washBtn);
+                case "home": case "tidy": return () => RegionScreen("region_home");
+                case "wear": return PetScreen;
+                case "board": case "stone": return () => RegionScreen("region_task_board");
+                case "gather": return NearestGatherScreen;
+                case "hut": return () => App.Stage.Camera.WorldToScreenPoint(_world.World(_sitePos.x, _sitePos.z) + Vector3.up * 1.5f);
+                case "coconut": return () => RegionScreen("region_coconut_grove");
+                case "shop": return () => RegionScreen("region_shop");
+                case "cards": return () => RegionScreen("region_game_hut");
+                default: return PetScreen;
+            }
+        }
+
+        /// <summary>En yakın toplanabilir kütük/çalı/taş (ekran noktası); yoksa pet.</summary>
+        private Vector2 NearestGatherScreen()
+        {
+            var p = _world.Walker.Position;
+            GatherNode best = null; var bd = float.MaxValue;
+            foreach (var n in _gNodes)
+            {
+                var d = Vector2.Distance(p, new Vector2(n.X, n.Z));
+                if (d < bd) { bd = d; best = n; }
+            }
+            if (best == null) return PetScreen();
+            return App.Stage.Camera.WorldToScreenPoint(_world.World(best.X, best.Z) + Vector3.up * 1.2f);
+        }
+
         // ------------------------------------------------------------------ bağlamsal eylem
 
         private void UpdateAction()
@@ -293,13 +348,16 @@ namespace Pofi.Screens
             }
             if (key == "hud.jump")
             {
-                // kapı önünde → Gir / Oyna
+                // kapı önünde ya da yapının herhangi bir kenarına yakın → Gir / Oyna (kullanıcı, 19 Ekim 2026: illa kapıya
+                // gitmesin; bahçe, oyun kulübesi, dükkân, sörf plajı gibi yerlerin her yanından açılır)
                 RegionView best = null; var bd = 3.4f;
                 foreach (var v in _views)
                 {
                     if (!v.Unlocked) continue;
                     var (dx, dz) = _terrain.Door(v.Region);
                     var d = Vector2.Distance(p, new Vector2(dx, dz));
+                    var edge = Vector2.Distance(p, new Vector2(v.Region.X, v.Region.Z)) - v.Region.Size * 0.55f;   // tabana uzaklık
+                    d = Mathf.Min(d, Mathf.Max(0f, edge) + 1.2f);   // kenarda ≈ 1,2 (kapı 3,4'ün içinde)
                     if (d < bd) { bd = d; best = v; }
                 }
                 if (best != null)

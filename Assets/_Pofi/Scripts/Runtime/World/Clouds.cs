@@ -11,14 +11,15 @@ namespace Pofi.World
         private static Mesh _puff;
         private static Material _mat;
         private Vector3 _drift, _start;
-        private bool _started;
+        private bool _started, _fog;
+        private float _phase;
         private Mesh _mesh;
 
         private void OnDestroy() { if (_mesh != null) Destroy(_mesh); }
 
         /// <summary>Merkez çevresinde (yay açısı içinde) <paramref name="count"/> küme kurar.</summary>
         public static Transform Spawn(Transform parent, Vector3 center, float radius, int count, float yMin, float yMax, float size, int seed,
-            float arcFrom = 0f, float arcTo = 360f)
+            float arcFrom = 0f, float arcTo = 360f, bool fog = false)
         {
             if (_mat == null)
             {
@@ -58,6 +59,8 @@ namespace Pofi.World
                 mr.receiveShadows = false;
                 var drift = cl.gameObject.AddComponent<Clouds>();
                 drift._drift = new Vector3(0.35f + (float)rnd.NextDouble() * 0.25f, 0f, 0.12f);
+                drift._fog = fog;   // yer sisi: yerinde hafifçe salınır, uzaklaşmaz
+                drift._phase = (float)rnd.NextDouble() * 6.28f;
                 drift._mesh = mesh;
             }
             return root;
@@ -88,6 +91,12 @@ namespace Pofi.World
         private void Update()
         {
             if (!_started) { _start = transform.localPosition; _started = true; }
+            if (_fog)
+            {
+                var t = Time.time * 0.25f + _phase;
+                transform.localPosition = _start + new Vector3(Mathf.Sin(t) * 0.8f, Mathf.Sin(t * 1.7f) * 0.15f, Mathf.Cos(t * 0.8f) * 0.5f);
+                return;
+            }
             transform.localPosition += _drift * Time.deltaTime;
             if ((transform.localPosition - _start).magnitude > 30f) transform.localPosition -= _drift.normalized * 60f;   // sonsuz süzülme
         }

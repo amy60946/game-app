@@ -3,8 +3,8 @@ Shader "Pofi/Grass"
 {
     Properties
     {
-        _Root ("Kök", Color) = (0.16, 0.42, 0.1, 1)
-        _Tip ("Uç", Color) = (0.55, 0.82, 0.3, 1)
+        _Root ("Kök", Color) = (0.2, 0.35, 0.13, 1)
+        _Tip ("Uç", Color) = (0.54, 0.67, 0.31, 1)
         _Wind ("Rüzgâr", Float) = 0.12
     }
     SubShader

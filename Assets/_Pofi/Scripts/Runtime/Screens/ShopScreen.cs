@@ -156,6 +156,7 @@ namespace Pofi.Screens
                 Audio.Sfx.Play(Audio.SfxKind.Coin);
                 _bubble.Say(v.Item.IsWearable ? T("shop.bought_wear", v.Item.Name) : T("shop.bought", v.Item.Name));
                 if (v.Item.IsWearable) { App.State.Inventory.TryEquip(pet, v.Item); App.Save(); }
+                App.RecordActivity("item_bought");
                 Fill();
                 _ = App.SyncNow();
             }

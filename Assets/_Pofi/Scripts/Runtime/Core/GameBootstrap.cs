@@ -164,6 +164,7 @@ namespace Pofi.Core
             Stage.SetSky(Theme.Sky);
             State.Stats.Tick(UtcNow, Decay);
             FirstDay.Start(State, UtcNow);   // ilk gün akışı (Ö5); pet'i olan eski oyuncuda kapanır
+            Guide.Start(State, Level);       // Sv1–3 rehberli zincir; Sv3'ü geçmiş oyuncuda kapanır
         }
 
         /// <summary>
@@ -290,6 +291,14 @@ namespace Pofi.Core
             foreach (var q in r.QuestsDone) Toast.Post(Overlay.transform, Theme, q.Text + "  " + Loc.Get("xp.gain", q.Xp));
             if (r.BadgeXp > 0) GrantXp(r.BadgeXp, XpSource.Achievement);
             if (r.QuestXp > 0) GrantXp(r.QuestXp, XpSource.DailyQuest);
+            // rehberli zincir (Sv1–3): sırası gelen adım bu eylemle bittiyse kısa kutlama + XP
+            foreach (var g in Guide.OnActivity(State, Level, counter))
+            {
+                Toast.Post(Overlay.transform, Theme, Loc.Get("guide.done", g.Xp));
+                Audio.Sfx.Play(Audio.SfxKind.Success);
+                StarSparkles.Around(Overlay.transform, new Vector2(0.5f, 0.55f), new Vector2(0.18f, 0.2f), 10, g.Id.Length * 7);   // küçük kutlama
+                GrantXp(g.Xp, XpSource.Achievement);
+            }
             Save();
         }
 

@@ -239,7 +239,7 @@ namespace Pofi.World
         }
 
         /// <summary>Yumuşak değer gürültüsü (0..1): ızgara köşelerindeki sabit tohumlu değerlerin pürüzsüz karışımı.</summary>
-        private static float Noise(float x, float z)
+        internal static float Noise(float x, float z)
         {
             var ix = Mathf.Floor(x); var iz = Mathf.Floor(z);
             var fx = x - ix; var fz = z - iz;
