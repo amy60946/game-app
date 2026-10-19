@@ -1,0 +1,16 @@
+{
+ "id": "01a15412-76fd-7602-ae59-bfe9a0893f50",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game resource and HUD icons for a cozy children's tropical island pet game, three rows of three, reading order left to right then top to bottom: a small stack of three cut wooden logs, a single forked wooden twig with one green leaf, a small pile of three grey stones, a glossy red heart, a small straw-roof island hut, a wrapped gift box with a ribbon bow, a small striped market stall with awning, a golden padlock, a wooden magnifying glass. Each item is a single object centered in its own equal square cell with wide empty space between items, nothing touching or overlapping. Premium mobile game UI icon art, AAA casual farming adventure game quality: chunky soft rounded shapes, glossy highlights, rich saturated warm colors, subtle darker edge shading for depth, clean readable silhouette, slight three-quarter view, consistent lighting from top left. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792411858696,
+ "started_at": 1792411858702,
+ "finished_at": 1792411883004,
+ "expires_at": 1792671083004,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a15412-76fd-7602-ae59-bfe9a0893f50_0.png?Expires=1792671083&Signature=Bj~F3ZSTiwIk0NfIuhvH1pqeKTiR6p6TaTVtnjvU3AEH-JGCnPAPBfnCEr7Kjgm5dbBnk6M3hsg3QaSCvGSXQhqtqQj8Gfg0W4yLrmGeqkR2HeK8ArLaGTZMg8hZJMjciWkm~rHnTHsQ~834Whn-kofQf39pzdVCIk7NaV0WV3gVB4Wpg9l6gk7ISA2hRlImS3RM006AAEBogUHFRfXSRHZY1LTPrNp-beC6WQZrN8c-m4mrZfcqoQRbM6VDAUPiuTb~od90sArnhNjoC1NMiWWILymmXSrvxeOvrt9NG64ZRCIOSvPxsVrZXMQzRAjy8pl2fAmeBEOH1wavV2m3cw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

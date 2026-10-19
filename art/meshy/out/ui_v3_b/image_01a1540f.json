@@ -1,0 +1,16 @@
+{
+ "id": "01a1540f-fc7c-70ef-b977-c8e09e49ee6b",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate game HUD icons for a cozy children's tropical island pet game, three rows of three, reading order left to right then top to bottom: a green rounded play triangle button, a rolled parchment treasure map, a small wooden notice board with a pinned paper checklist, a round green plus badge with white plus sign, a thick glossy green check mark, a wooden-handled pickaxe with steel head, a wooden-handled hammer with steel head, a white music note, a white cartoon glove hand pointing with the index finger. Each item is a single object centered in its own equal square cell with wide empty space between items, nothing touching or overlapping. Premium mobile game UI icon art, AAA casual farming adventure game quality: chunky soft rounded shapes, glossy highlights, rich saturated warm colors, subtle darker edge shading for depth, clean readable silhouette, slight three-quarter view, consistent lighting from top left. Solid flat pure white background everywhere, no shadows on the background, no frames, no cells drawn, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792411696274,
+ "started_at": 1792411696281,
+ "finished_at": 1792411720904,
+ "expires_at": 1792670920904,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1540f-fc7c-70ef-b977-c8e09e49ee6b_0.png?Expires=1792670920&Signature=QwquwxfVml4w8mHuv0z3V2EvmxQjfFoDYtlCWtgFgbNYJgLORRriJ7J0qDfsI81AdgR29Rf8b9qLktM3-T8ZjnszNY809TwI909SGsMsXn24vVM6kkqZGM7z2eFlE0gzvHrT8Ej0~1uIJndKXCP8BJOMdwUabM~Tz0yBClnfvj9D4Ow-PnyK2N4M9ip2OLpf0bYOj2jgYbAaKx7n-YYXSnqe5G6EXtjEZi6lOgYu07QXYzI8KP46WzFq2GVktXQja3W8Qzw6ZUieV~cqP-1wqby3tmkaHxLzOD~HTjqT5mw8Mpp-4UfgRBHsLSFs5tjIEgx7DSC6YOIPm1upbg9ziQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

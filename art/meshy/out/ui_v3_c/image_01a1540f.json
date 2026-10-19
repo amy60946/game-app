@@ -1,0 +1,16 @@
+{
+ "id": "01a1540f-fcca-74d0-9692-41ff022a2c56",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid of nine separate mobile game user interface elements for a cozy children's tropical island game, three rows of three, reading order left to right then top to bottom: an empty horizontal resource bar with a thick dark charcoal rounded frame and glossy orange fill at half, an empty horizontal resource bar with a thick dark charcoal rounded frame and glossy sky blue fill, a glossy lime green rounded rectangle button with a darker green bottom lip and no text, a cream parchment card with rounded corners and soft spotted texture, a blue fabric ribbon banner with forked ends and empty center, a round white button with a thick white rim and soft inner cream face, an orange wooden header plank with rounded ends and no text, a big golden glossy star badge, a white thick close X button with soft shadow. Each element centered in its own cell with wide spacing. Premium AAA casual mobile game UI art, glossy, chunky, soft rounded, rich colors. Solid flat pure white background everywhere, no text, no letters, no numbers.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792411696347,
+ "started_at": 1792411696351,
+ "finished_at": 1792411721662,
+ "expires_at": 1792670921662,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1540f-fcca-74d0-9692-41ff022a2c56_0.png?Expires=1792670921&Signature=BPI~G2KujFzwa~g7iniqjA3MGZSXscA-6fNzpryyTQOonpTuKzmGZcfKRaZVaPdmB2gXverWDAowqMlphK8OossJC70Edb-P82YydX7ycSMo8r8oLFozG4wUIHTvkQPeLxZ0U8ywEMQZjGHrbQZZrme7Ubsr~Dm03evVl-R3jsH424ODq8ysHliDLpP02IwPAXL5YLe8KZhoP1RuLWtJ2OeDBi5DQvGxoRyRma2rOxXxCd7-SpJqIXib5zudEh9A1fl8sTeTe0u9vtpXMqtltdFUwNVEHHX-2fOCr2d5G41iI3Ovd4~MEzMyyBBuliNZf3CRhVtPb9YvESZeEzYYLQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
