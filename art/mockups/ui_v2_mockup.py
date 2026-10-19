@@ -97,8 +97,30 @@ def glove(img, tip, size=170, rot=0):
     sh = layer(); sh.alpha_composite(g, (int(tip[0] - g.width * 0.42), int(tip[1] - g.height * 0.06)))
     img.alpha_composite(shadow(sh, 10, (6, 10), 110))
 
+def fog_layer(seed=3):
+    """Kenarlarda yumuşak sis: üst üste binen beyaz bulut kümeleri, kenarı bulanık, gövdesi hafif gölgeli."""
+    import random
+    rnd = random.Random(seed)
+    base = Image.new('L', (W, H), 0); d = ImageDraw.Draw(base)
+    def cluster(cx, cy, n, sx, sy, rmin, rmax):
+        for _ in range(n):
+            x, y, r = cx + rnd.uniform(-sx, sx), cy + rnd.uniform(-sy, sy), rnd.uniform(rmin, rmax)
+            d.ellipse((x - r * 1.3, y - r, x + r * 1.3, y + r), fill=255)
+    cluster(260, 20, 26, 280, 60, 50, 110); cluster(800, -30, 20, 260, 40, 60, 110)
+    cluster(1430, 90, 30, 200, 120, 60, 120); cluster(1590, 380, 18, 60, 160, 60, 110)
+    a = base.filter(ImageFilter.GaussianBlur(22))
+    shade = base.filter(ImageFilter.GaussianBlur(40))
+    fog = Image.new('RGBA', (W, H), (255, 255, 255, 0))
+    body = Image.new('RGBA', (W, H), (248, 250, 252, 255))
+    # alt kenarda hafif gri-mavi gölge (bulut hacmi)
+    sh = Image.new('RGBA', (W, H), (205, 214, 226, 255)); smask = Image.eval(shade, lambda v: max(0, min(255, int((255 - v) * 0.9)) if v > 40 else 0))
+    body.paste(sh, (0, 0), smask)
+    body.putalpha(a.point(lambda v: min(255, int(v * 1.05))))
+    fog.alpha_composite(body); return fog
+
 def scene():
-    return Image.open(f'{S}/scene_v2.png').convert('RGBA').resize((W, H))
+    im = Image.open(f'{S}/scene_v2.png').convert('RGBA').resize((W, H))
+    im.alpha_composite(fog_layer()); return im
 
 # ======================================================================== 1) Ada + HUD
 img = scene()
