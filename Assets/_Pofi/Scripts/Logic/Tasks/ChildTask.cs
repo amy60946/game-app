@@ -22,6 +22,8 @@ namespace Pofi.Logic.Tasks
         public long DueLocalTicks;     // bu saatten sonra "kaçırıldı" (varsayılan: günün sonu)
         public ChildTaskStatus Status;
         public string ParentNote;      // ret/onay notu
+        public string Skill;           // sunucudaki beceri metni (ParentApp etiketi; SkillCatalog eşler)
+        public string Difficulty;      // "easy" | "medium" | "hard" (XP ve Güneş Taşı buna göre)
 
         public string Key => TaskId + "|" + Date;
 

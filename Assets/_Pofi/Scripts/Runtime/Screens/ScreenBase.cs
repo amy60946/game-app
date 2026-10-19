@@ -130,7 +130,7 @@ namespace Pofi.Screens
 
         /// <summary>
         /// Oyun içi görevler (sağ üst "Görev"; kullanıcı kararı 14 Ekim 2026): seviyeye göre açılan günlük görevler, her biri yıldız (XP) verir.
-        /// Ebeveynin gerçek hayat görevleri ayrı: adadaki panoda ("Quests", geçici ad).
+        /// Ebeveynin gerçek hayat görevleri ayrı: adadaki "Ev Görevleri" panosunda.
         /// </summary>
         protected void QuestPanel()
         {

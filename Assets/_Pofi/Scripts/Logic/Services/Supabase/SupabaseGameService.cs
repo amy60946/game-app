@@ -53,6 +53,14 @@ namespace Pofi.Logic.Services.Supabase
             return (int?)JObject.Parse(r.Body)["balance"] ?? 0;
         }
 
+        public async Task<BalanceSnapshot> GetBalancesAsync(CancellationToken ct = default)
+        {
+            var r = await Rpc("child_me", null, ct);
+            if (!Ok(r)) throw new OperationCanceledException(r.Status == 0 ? "çevrimdışı" : "sunucu: " + r.Status);
+            var o = JObject.Parse(r.Body);
+            return new BalanceSnapshot { Coins = (int?)o["balance"] ?? 0, SunStones = (int?)o["sun_stones"] };
+        }
+
         public async Task<SpendResponse> SpendAsync(string txId, string itemId, int quantity, CancellationToken ct = default)
         {
             var r = await Rpc("spend_coins", new { p_tx = txId, p_item_id = itemId, p_quantity = quantity }, ct);
@@ -121,6 +129,8 @@ namespace Pofi.Logic.Services.Supabase
                     DueLocalTicks = d.AddDays(1).AddTicks(-1).Ticks,
                     Status = ParseStatus((string)o["status"]),
                     ParentNote = (string)o["parent_note"],
+                    Skill = (string)o["skill"],
+                    Difficulty = (string)o["difficulty"],
                 });
             }
             return list;

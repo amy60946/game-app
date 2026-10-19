@@ -26,7 +26,8 @@ namespace Pofi.Logic.App
     {
         public const string Walk = "walk", Look = "look", Jump = "jump", Enter = "enter", Play = "play", Feed = "feed", Wash = "wash",
             Tasks = "tasks", Xp = "xp", Wardrobe = "wardrobe", Sparkle = "sparkle", Overview = "overview",
-            Shop = "shop", WardrobeSpots = "wardrobe_spots", Home = "home";
+            Shop = "shop", WardrobeSpots = "wardrobe_spots", Home = "home",
+            Story = "story", Board = "board", Mark = "mark", Stone = "stone";   // ilk gün akışı (App/FirstDay, Ö5)
 
         public static readonly IReadOnlyList<TipDef> All = new List<TipDef>
         {
@@ -45,6 +46,10 @@ namespace Pofi.Logic.App
             new TipDef { Id = Shop, Gesture = TipGesture.Tap, Where = "shop", Trigger = "dükkân ilk açılış", DoneWhen = "bir ürün seçildi" },
             new TipDef { Id = WardrobeSpots, Gesture = TipGesture.Tap, Where = "wardrobe", Trigger = "giydirme ilk açılış", DoneWhen = "bir yuva noktası seçildi" },
             new TipDef { Id = Home, Gesture = TipGesture.Tap, Where = "home", Trigger = "Evim ilk açılış", DoneWhen = "Topla'ya basıldı" },
+            new TipDef { Id = Story, Gesture = TipGesture.Tap, Where = "pet_select", Trigger = "ilk açılış, pet seçmeden önce", DoneWhen = "hikâye kartı kapatıldı" },
+            new TipDef { Id = Board, Gesture = TipGesture.Tap, Where = "island", Trigger = "ilk gün: yürüme ve besleme bitti", DoneWhen = "Ev Görevleri panosu açıldı" },
+            new TipDef { Id = Mark, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "ilk gün: panoda yapılacak görev var", DoneWhen = "Yaptım'a basıldı" },
+            new TipDef { Id = Stone, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "yerleştirilecek Güneş Taşı var", DoneWhen = "ilk taş yerleştirildi" },
         };
 
         public static TipDef Get(string id) => All.FirstOrDefault(t => t.Id == id);

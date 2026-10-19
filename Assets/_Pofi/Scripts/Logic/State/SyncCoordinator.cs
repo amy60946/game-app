@@ -17,6 +17,10 @@ namespace Pofi.Logic.State
         public int CoinsEarned;
         public int StreakBonusXp;
         public List<PendingSpend> RejectedSpends = new List<PendingSpend>();
+        public List<RealTaskReward> RealTaskRewards = new List<RealTaskReward>();   // onaylı gerçek görevin XP'si + beceri yıldızı (Ö2)
+        public int RealTaskXp;
+        public int SunStonesEarned;      // bu senkronda yeni gelen Güneş Taşı (Ö1)
+        public Progression.LevelUp LevelUp;   // görev XP'siyle seviye atlandıysa (kutlama)
     }
 
     /// <summary>
@@ -30,10 +34,12 @@ namespace Pofi.Logic.State
         private readonly IWalletService _wallet;
         private readonly ISaveService _save;
         private readonly GameData _data;
+        private readonly Progression.LevelTable _levels;
 
         public SyncCoordinator(ITaskService tasks, IWalletService wallet, ISaveService save, GameData data)
         {
             _tasks = tasks; _wallet = wallet; _save = save; _data = data;
+            _levels = new Progression.LevelTable(data.Levels);
         }
 
         public async Task<SyncReport> SyncAsync(GameState s, DateTime local, DateTime nowUtc, CancellationToken ct = default)
@@ -75,15 +81,22 @@ namespace Pofi.Logic.State
                 var to = local.Date.AddDays(7).ToString("yyyy-MM-dd");
                 var server = await _tasks.FetchAsync(from, to, ct);
                 report.TaskEvents = s.Tasks.Merge(server);
+                var xpBefore = s.Xp.TotalXp;
                 foreach (var ev in report.TaskEvents.Where(e => e.Kind == TaskEventKind.Approved))
                 {
                     var bonus = s.Streak.Record(local);
                     if (bonus > 0) report.StreakBonusXp += s.Xp.Add(bonus, XpSource.TaskStreak, local, int.MaxValue).Granted;
+                    var reward = RealTaskRewards.Apply(s.Skills, ev.Task);
+                    if (reward == null) continue;
+                    report.RealTaskXp += s.Xp.Add(reward.Xp, XpSource.RealTask, local, int.MaxValue).Granted;
+                    report.RealTaskRewards.Add(reward);
                 }
+                report.LevelUp = _levels.Check(xpBefore, s.Xp.TotalXp);
 
-                // 4) Bakiye (sunucu esastır)
-                var balance = await _wallet.GetBalanceAsync(ct);
-                report.CoinsEarned = s.Wallet.ApplyServerSnapshot(balance, Array.Empty<string>());
+                // 4) Bakiye ve Güneş Taşı (sunucu esastır)
+                var balances = await _wallet.GetBalancesAsync(ct);
+                report.CoinsEarned = s.Wallet.ApplyServerSnapshot(balances.Coins, Array.Empty<string>());
+                report.SunStonesEarned = Island.SunStoneBook.ApplyServerTotal(s.SunStones, balances.SunStones);
 
                 // 5) Yedek
                 s.LastSyncUtcTicks = nowUtc.Ticks;

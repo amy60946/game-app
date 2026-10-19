@@ -11,13 +11,13 @@ namespace Pofi.Logic.App
     /// </summary>
     public static class DemoParent
     {
-        public static readonly (string Id, string Title, int Coins)[] Samples =
+        public static readonly (string Id, string Title, int Coins, string Skill, string Difficulty)[] Samples =
         {
-            ("demo_teeth", "Dişlerini fırçala", 5),
-            ("demo_room", "Odanı topla", 10),
-            ("demo_read", "15 dakika kitap oku", 10),
-            ("demo_table", "Sofrayı kurmaya yardım et", 5),
-            ("demo_homework", "Ödevini bitir", 20),
+            ("demo_teeth", "Dişlerini fırçala", 5, "Öz Bakım", "easy"),
+            ("demo_room", "Odanı topla", 10, "Sorumluluk", "medium"),
+            ("demo_read", "15 dakika kitap oku", 10, "Odaklanma", "medium"),
+            ("demo_table", "Sofrayı kurmaya yardım et", 5, "Takım Çalışması", "easy"),
+            ("demo_homework", "Ödevini bitir", 20, "Sorumluluk", "hard"),
         };
 
         public static string Day(DateTime local) => local.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
@@ -27,7 +27,7 @@ namespace Pofi.Logic.App
         {
             var day = Day(local);
             if (backend.AllTasks.Any(t => t.Date == day)) return 0;
-            foreach (var s in Samples) backend.ParentAssign(s.Id, day, s.Title, s.Coins, Recurrence.Daily);
+            foreach (var s in Samples) backend.ParentAssign(s.Id, day, s.Title, s.Coins, Recurrence.Daily, s.Skill, s.Difficulty);
             return Samples.Length;
         }
 

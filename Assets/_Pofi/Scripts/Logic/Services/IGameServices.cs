@@ -13,10 +13,20 @@ namespace Pofi.Logic.Services
         public int Balance;            // sunucunun güncel bakiyesi (hata olsa da)
     }
 
+    /// <summary>Sunucudaki bakiyeler: coin ve Güneş Taşı toplamı (sunucu taşı bilmiyorsa null).</summary>
+    public sealed class BalanceSnapshot
+    {
+        public int Coins;
+        public int? SunStones;
+    }
+
     /// <summary>Coin cüzdanı (sunucu). İstemci coin ekleyemez; yalnızca harcar.</summary>
     public interface IWalletService
     {
         Task<int> GetBalanceAsync(CancellationToken ct = default);
+
+        /// <summary>Coin + Güneş Taşı tek istekte (child_me).</summary>
+        Task<BalanceSnapshot> GetBalancesAsync(CancellationToken ct = default);
 
         /// <summary>txId tekrar gönderilirse sunucu yeniden düşmez (idempotent). Fiyatı sunucu belirler.</summary>
         Task<SpendResponse> SpendAsync(string txId, string itemId, int quantity, CancellationToken ct = default);

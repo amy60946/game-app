@@ -374,7 +374,7 @@ namespace Pofi.Screens
             GoTo(dx, dz, () => EnterRegion(shop));
         }
 
-        // Görev: oyun içi seviye görevleri (yıldız). Ebeveyn görevleri adadaki "Quests" panosunda.
+        // Görev: oyun içi seviye görevleri (yıldız). Ebeveyn görevleri adadaki "Ev Görevleri" panosunda.
         private void GoTasks() { TipDone(Onboarding.Tasks); QuestPanel(); }
 
         // ------------------------------------------------------------------ joystick

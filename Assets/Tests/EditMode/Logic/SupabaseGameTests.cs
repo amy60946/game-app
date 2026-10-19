@@ -153,5 +153,25 @@ namespace Pofi.Tests.Logic
             Assert.Less(fns.IndexOf("game_save_put"), fns.IndexOf("spend_coins"));
             StringAssert.Contains("\"TotalXp\":100", http.Calls[fns.IndexOf("game_save_put")].body);
         }
+
+        [Test]
+        public async Task Beceri_zorluk_ve_gunes_tasi_okunur()
+        {
+            var http = new FakeHttp
+            {
+                Handler = (fn, a) => fn == "child_tasks"
+                    ? R(200, @"[{""task_id"":""t1"",""date"":""2026-10-19"",""title"":""Dişler"",""coins"":5,""recurring"":false,""repeat_kind"":""daily"",""status"":""approved"",""skill"":""Öz Bakım"",""difficulty"":""medium""}]")
+                    : R(200, "{\"balance\":7,\"sun_stones\":4}"),
+            };
+            var svc = Svc(http);
+            var t = (await svc.FetchAsync("2026-10-18", "2026-10-26")).Single();
+            Assert.AreEqual("Öz Bakım", t.Skill);
+            Assert.AreEqual("medium", t.Difficulty);
+            var b = await svc.GetBalancesAsync();
+            Assert.AreEqual(7, b.Coins);
+            Assert.AreEqual(4, b.SunStones);
+            var old = await Svc(new FakeHttp { Handler = (fn, a) => R(200, "{\"balance\":7}") }).GetBalancesAsync();
+            Assert.IsNull(old.SunStones, "sunucu taşı bilmiyorsa null (öneri uygulanmadan önce)");
+        }
     }
 }

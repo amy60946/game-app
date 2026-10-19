@@ -18,6 +18,7 @@ namespace Pofi.Logic.Data
         public IReadOnlyList<BadgeDef> Badges { get; private set; } = new List<BadgeDef>();
         public IReadOnlyList<DailyQuestDef> DailyQuests { get; private set; } = new List<DailyQuestDef>();
         public int DailyQuestsPerDay { get; private set; } = 3;
+        public Island.SunStoneBook SunBook { get; private set; } = new Island.SunStoneBook(null);   // Güneş Taşı onarım noktaları
 
         private readonly Dictionary<string, PetSpeciesDef> _pets;
         private readonly Dictionary<string, ItemDef> _items;
@@ -38,7 +39,8 @@ namespace Pofi.Logic.Data
             var col = JsonConvert.DeserializeObject<CollectionFile>(readText("collection.json")).Entries;
             var badges = JsonConvert.DeserializeObject<BadgesFile>(readText("badges.json")).Badges;
             var dq = JsonConvert.DeserializeObject<DailyQuestsFile>(readText("daily_quests.json"));
-            return new GameData(pets, items, levels) { Collection = col, Badges = badges, DailyQuests = dq.Quests, DailyQuestsPerDay = dq.PerDay };
+            var sun = Island.SunStoneBook.Parse(readText("sun_spots.json"));
+            return new GameData(pets, items, levels) { Collection = col, Badges = badges, DailyQuests = dq.Quests, DailyQuestsPerDay = dq.PerDay, SunBook = sun };
         }
 
         public PetSpeciesDef Pet(string id) => _pets.TryGetValue(id, out var p) ? p : null;
@@ -99,6 +101,13 @@ namespace Pofi.Logic.Data
             var fishBadge = Badges.FirstOrDefault(b => b.Counter == "fish_species");
             if (fishBadge != null && fishBadge.Target != fishCount) errors.Add($"'Bütün balıklar' rozeti {fishBadge.Target} diyor, {fishCount} balık var");
             if (DailyQuests.Count(q => q.Unlock == "region_home") < DailyQuestsPerDay) errors.Add("Sv1'de günlük görev havuzu yetersiz");
+            Dup(SunBook.Spots, sp => sp.Id, "onarım noktası");
+            foreach (var sp in SunBook.Spots)
+            {
+                if (sp.Cost < 1) errors.Add($"{sp.Id}: taş sayısı en az 1 olmalı");
+                if (sp.Opens.Count == 0) errors.Add($"{sp.Id}: hiçbir şey açmıyor");
+                foreach (var id in sp.Opens) if (!allUnlocks.Contains(id)) errors.Add($"{sp.Id}: bilinmeyen açılış kimliği {id}");
+            }
             return errors;
         }
     }

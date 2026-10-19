@@ -39,7 +39,7 @@ namespace Pofi.Logic.App
         public static void EnsureQuests(GameState s, GameData data, LevelTable levels, DateTime local)
         {
             var level = levels.LevelFor(s.Xp.TotalXp);
-            DailyQuests.EnsureForToday(s.DailyQuests, data, id => string.IsNullOrEmpty(id) || levels.IsUnlocked(id, level), s.ChildId ?? "", local);
+            DailyQuests.EnsureForToday(s.DailyQuests, data, id => string.IsNullOrEmpty(id) || data.SunBook.IsOpen(id, level, levels, s.SunStones), s.ChildId ?? "", local);
         }
     }
 }

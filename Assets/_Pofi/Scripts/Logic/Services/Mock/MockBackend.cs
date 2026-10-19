@@ -22,6 +22,7 @@ namespace Pofi.Logic.Services.Mock
         private string _localSave;
 
         public int Coins { get; private set; }
+        public int SunStones { get; private set; }
         public bool Offline { get; set; }
 
         public MockBackend(GameData data, int startCoins = 0)
@@ -34,13 +35,15 @@ namespace Pofi.Logic.Services.Mock
 
         // ---------- "ebeveyn" tarafı (geliştirme) ----------
 
-        public ChildTask ParentAssign(string taskId, string date, string title, int coins, Recurrence rec = Recurrence.Once)
+        public ChildTask ParentAssign(string taskId, string date, string title, int coins, Recurrence rec = Recurrence.Once,
+            string skill = null, string difficulty = "easy")
         {
             var d = DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             var t = new ChildTask
             {
                 TaskId = taskId, Date = date, Title = title, RewardCoins = Math.Max(1, Math.Min(50, coins)), Recurrence = rec,
                 DueLocalTicks = d.AddDays(1).AddTicks(-1).Ticks, Status = ChildTaskStatus.Assigned,
+                Skill = skill, Difficulty = difficulty ?? "easy",
             };
             _tasks.Add(t);
             return t;
@@ -56,7 +59,13 @@ namespace Pofi.Logic.Services.Mock
             t.Status = ChildTaskStatus.Approved;
             t.ParentNote = note;
             Coins += t.RewardCoins; // coin YALNIZCA burada artar
+            SunStones += StonesFor(t.Difficulty);   // Güneş Taşı da (sunucu: stones_for_difficulty)
         }
+
+        public static int StonesFor(string difficulty) => difficulty == "hard" ? 3 : difficulty == "medium" ? 2 : 1;
+
+        /// <summary>Yalnız önizleme test erişimi: sahte arka uçta Güneş Taşı ekler.</summary>
+        public void TestGrantStones(int n) => SunStones += Math.Max(0, n);
 
         public void ParentReject(string key, string note)
         {
@@ -73,12 +82,18 @@ namespace Pofi.Logic.Services.Mock
             return Task.FromResult(Coins);
         }
 
+        public Task<BalanceSnapshot> GetBalancesAsync(CancellationToken ct = default)
+        {
+            if (Offline) throw new OperationCanceledException("çevrimdışı");
+            return Task.FromResult(new BalanceSnapshot { Coins = Coins, SunStones = SunStones });
+        }
+
         public Task<SpendResponse> SpendAsync(string txId, string itemId, int quantity, CancellationToken ct = default)
         {
             if (Offline) return Task.FromResult(new SpendResponse { Error = ServiceError.Network, Balance = Coins });
             if (_processedTx.ContainsKey(txId)) return Task.FromResult(new SpendResponse { Balance = Coins });
             var item = _data.Item(itemId);
-            if (item == null || quantity <= 0) return Task.FromResult(new SpendResponse { Error = ServiceError.UnknownItem, Balance = Coins });
+            if (item == null || quantity <= 0 || quantity > 20) return Task.FromResult(new SpendResponse { Error = ServiceError.UnknownItem, Balance = Coins });
             var amount = item.Price * quantity;
             if (amount > Coins) return Task.FromResult(new SpendResponse { Error = ServiceError.NotEnoughCoins, Balance = Coins });
             Coins -= amount;
@@ -124,6 +139,7 @@ namespace Pofi.Logic.Services.Mock
         private sealed class Snapshot
         {
             public int Coins;
+            public int SunStones;
             public List<ChildTask> Tasks = new List<ChildTask>();
             public Dictionary<string, int> Tx = new Dictionary<string, int>();
             public string Remote;
@@ -131,7 +147,7 @@ namespace Pofi.Logic.Services.Mock
 
         public string Export() => Newtonsoft.Json.JsonConvert.SerializeObject(new Snapshot
         {
-            Coins = Coins, Tasks = _tasks.Select(Clone).ToList(), Tx = new Dictionary<string, int>(_processedTx), Remote = _remoteSave,
+            Coins = Coins, SunStones = SunStones, Tasks = _tasks.Select(Clone).ToList(), Tx = new Dictionary<string, int>(_processedTx), Remote = _remoteSave,
         });
 
         /// <summary>Önceki <see cref="Export"/> çıktısını yükler. Bozuk veri yok sayılır (boş sunucu).</summary>
@@ -143,6 +159,7 @@ namespace Pofi.Logic.Services.Mock
             catch (Newtonsoft.Json.JsonException) { return; }
             if (snap == null) return;
             Coins = snap.Coins;
+            SunStones = snap.SunStones;
             _tasks.Clear();
             if (snap.Tasks != null) _tasks.AddRange(snap.Tasks);
             _processedTx.Clear();
@@ -157,6 +174,7 @@ namespace Pofi.Logic.Services.Mock
         {
             TaskId = t.TaskId, Date = t.Date, Title = t.Title, Description = t.Description, RewardCoins = t.RewardCoins,
             Recurrence = t.Recurrence, DueLocalTicks = t.DueLocalTicks, Status = t.Status, ParentNote = t.ParentNote,
+            Skill = t.Skill, Difficulty = t.Difficulty,
         };
     }
 }

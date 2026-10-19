@@ -2,7 +2,7 @@ using System;
 
 namespace Pofi.Logic.Economy
 {
-    public enum XpSource { MiniGame, CardGame, Fishing, Garden, DailyQuest, TaskStreak, Achievement }
+    public enum XpSource { MiniGame, CardGame, Fishing, Garden, DailyQuest, TaskStreak, Achievement, RealTask }
 
     public struct XpGrant
     {
@@ -24,7 +24,7 @@ namespace Pofi.Logic.Economy
 
         public static int DayNumber(DateTime local) => (int)(local.Date.Ticks / TimeSpan.TicksPerDay);
 
-        public static bool CountsTowardCap(XpSource s) => s != XpSource.TaskStreak && s != XpSource.Achievement;
+        public static bool CountsTowardCap(XpSource s) => s != XpSource.TaskStreak && s != XpSource.Achievement && s != XpSource.RealTask;
 
         public int RemainingToday(DateTime local, int dailyCap)
         {

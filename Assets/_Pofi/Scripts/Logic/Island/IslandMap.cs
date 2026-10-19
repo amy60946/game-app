@@ -29,6 +29,8 @@ namespace Pofi.Logic.Island
         public bool Unlocked;
         public int UnlockLevel;
         public bool IsNew;           // açıldı ama henüz ziyaret edilmedi (havuç etkisi / parıltı)
+        public SunSpotDef Spot;      // null değilse seviye yerine Güneş Taşı ile açılır
+        public int StonesLeft;       // Spot için kalan taş
     }
 
     /// <summary>
@@ -57,19 +59,26 @@ namespace Pofi.Logic.Island
 
         public RegionDef Find(string id) => Regions.FirstOrDefault(r => r.Id == id);
 
-        public List<RegionView> View(int level, ICollection<string> visited)
+        /// <param name="book">verilirse taşla açılan bölgeler (Güneş Taşı) seviye yerine onarımla açılır</param>
+        public List<RegionView> View(int level, ICollection<string> visited, SunStoneBook book = null, SunStoneState stones = null)
         {
             return Regions.Select(r =>
             {
                 var at = _levels.UnlockLevel(r.Id);
-                var open = level >= at;
-                return new RegionView { Region = r, Unlocked = open, UnlockLevel = at, IsNew = open && at > 1 && !visited.Contains(r.Id) };
+                var spot = book?.GateOf(r.Id);
+                var open = spot != null && stones != null ? book.IsRepaired(stones, spot.Id) : level >= at;
+                var left = spot != null && stones != null ? System.Math.Max(0, spot.Cost - SunStoneBook.PlacedIn(stones, spot.Id)) : 0;
+                return new RegionView
+                {
+                    Region = r, Unlocked = open, UnlockLevel = at, Spot = stones != null ? spot : null, StonesLeft = left,
+                    IsNew = open && (at > 1 || spot != null) && !visited.Contains(r.Id),
+                };
             }).ToList();
         }
 
         /// <summary>Kilitli bölgeler arasında en yakın açılacak olan (havuç: "Seviye N'de açılır").</summary>
-        public RegionView NextToUnlock(int level, ICollection<string> visited) =>
-            View(level, visited).Where(v => !v.Unlocked).OrderBy(v => v.UnlockLevel).FirstOrDefault();
+        public RegionView NextToUnlock(int level, ICollection<string> visited, SunStoneBook book = null, SunStoneState stones = null) =>
+            View(level, visited, book, stones).Where(v => !v.Unlocked && v.Spot == null).OrderBy(v => v.UnlockLevel).FirstOrDefault();
 
         public static RegionTargetKind KindOf(string target, out string arg)
         {
