@@ -30,6 +30,8 @@ namespace Pofi.World
         public readonly Dictionary<string, float> LabelHeights = new Dictionary<string, float>();
         public IslandTerrain Terrain { get; private set; }
         public PetWalker Walker { get; private set; }
+        /// <summary>Patika ve kumda solan ayak izleri (PetWalker adım temasında ekler).</summary>
+        public Footprints Prints { get; private set; }
 
         private readonly List<Object> _owned = new List<Object>();
 
@@ -327,6 +329,8 @@ namespace Pofi.World
             Walker = holder.gameObject.AddComponent<PetWalker>();
             Walker.Init(this, pet, x, z);
             gameObject.AddComponent<GrassField>().Init(this);
+            Prints = gameObject.AddComponent<Footprints>();
+            Prints.Init(this);
             return Walker;
         }
 
@@ -515,7 +519,7 @@ namespace Pofi.World
             if (ph < 0f || clip != _phaseClip) { _lastPhase = ph; _phaseClip = clip; return; }
             var contacts = clip == "run" ? RunContacts : WalkContacts;
             foreach (var c in contacts)
-                if (Crossed(_lastPhase, ph, c)) { Audio.Sfx.Step(clip == "run"); break; }
+                if (Crossed(_lastPhase, ph, c)) { Audio.Sfx.Step(clip == "run"); _world.Prints?.Step(_x, _z, _yaw, c == contacts[0]); break; }
             _lastPhase = ph;
         }
 

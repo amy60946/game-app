@@ -1,4 +1,4 @@
-// Çim telleri (URP, GPU instancing): kökten uca koyudan açığa, rüzgârda sallanma (uca doğru artar).
+// Çim telleri (URP): kökten uca koyudan açığa, öbek tonu köşe renginden, rüzgârda sallanma (uca doğru artar).
 Shader "Pofi/Grass"
 {
     Properties
@@ -28,8 +28,8 @@ Shader "Pofi/Grass"
                 float _Wind;
             CBUFFER_END
 
-            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; UNITY_VERTEX_INPUT_INSTANCE_ID };
-            struct Varyings { float4 positionCS : SV_POSITION; float3 positionWS : TEXCOORD0; float h : TEXCOORD1; };
+            struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; float4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
+            struct Varyings { float4 positionCS : SV_POSITION; float3 positionWS : TEXCOORD0; float h : TEXCOORD1; float3 tint : TEXCOORD2; };
 
             Varyings vert(Attributes v)
             {
@@ -42,12 +42,13 @@ Shader "Pofi/Grass"
                 o.positionWS = w;
                 o.positionCS = TransformWorldToHClip(w);
                 o.h = h;
+                o.tint = v.color.rgb;   // öbek başına ton farkı (GrassField köşe rengi)
                 return o;
             }
 
             half4 frag(Varyings i) : SV_Target
             {
-                float3 albedo = lerp(_Root.rgb, _Tip.rgb, i.h);
+                float3 albedo = lerp(_Root.rgb, _Tip.rgb, i.h) * i.tint;
                 Light light = GetMainLight(TransformWorldToShadowCoord(i.positionWS));
                 float3 col = albedo * (SampleSH(float3(0, 1, 0)) + light.color * 0.75 * light.shadowAttenuation);
                 return half4(col, 1);
