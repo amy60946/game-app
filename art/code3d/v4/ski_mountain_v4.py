@@ -110,20 +110,20 @@ def pine_v4(loc, h, seed, snow=False, lod=1.0):
     Kar: dalın üst yüzüne uzun yastıklar (alt yüz yeşil kalır). lod < 1: oyun sürümü için yaprakçık sayısı azalır."""
     R = random.Random(seed); x, y, z = loc
     tube('trunk', [(x, y, z - 0.1), (x, y, z + h * 0.5), (x, y, z + h * 0.97)], [0.045 * h, 0.032 * h, 0.01 * h], m_bark(), res=3)
-    ND = m_leaf('#173f2c', '#24593a', '#3c7a49', '#5d9a5d', 'needle_v4')
-    ND2 = m_leaf('#1c4a33', '#2e6b44', '#4f8e55', '#6fae68', 'needle_v4b')
+    ND = m_leaf('#163a2a', '#22543a', '#356f45', '#3d7a4b', 'needle_v4')
+    ND2 = m_leaf('#1a4430', '#2a6342', '#43834f', '#4b8c55', 'needle_v4b')
     TW = m_flat('#4a3626', 0.2, 12, 'twig')
-    tiers = 10; branches_out = []
+    tiers = 14; branches_out = []
     def build(bm):
         out = []
         for t in range(tiers):
             k = t / (tiers - 1)
-            zt = z + h * (0.14 + 0.8 * k); L = h * (0.46 - 0.38 * k ** 0.9) * R.uniform(0.88, 1.1)
-            nb = max(6, int((13 - 6 * k) * (0.6 + 0.4 * lod)))
+            zt = z + h * (0.12 + 0.83 * k); L = h * (0.44 - 0.37 * k ** 0.85) * R.uniform(0.88, 1.1)
+            nb = max(6, int((12 - 5 * k) * (0.6 + 0.4 * lod)))
             for i in range(nb):
                 az = i * 2 * math.pi / nb + R.uniform(-0.25, 0.25) + t * 0.9
                 d = V((math.cos(az), math.sin(az), 0)); side = V((-d.y, d.x, 0))
-                droop = R.uniform(0.3, 0.55) * (1.2 - 0.6 * k); rise = -0.15 + 0.35 * k
+                droop = R.uniform(0.18, 0.32) * (1.15 - 0.7 * k); rise = -0.18 + 0.38 * k
                 def C(s, d=d, L=L, zt=zt, droop=droop, rise=rise): return V((x, y, zt)) + d * (L * s) + V((0, 0, rise * L * s - droop * L * s * s))
                 branches_out.append((C, L))
                 for f in blade(bm, C(0), (C(1) - C(0)).normalized(), side, L, 0.012 * h, 0.0, segs=1): out.append((f, 2))
@@ -144,11 +144,11 @@ def pine_v4(loc, h, seed, snow=False, lod=1.0):
     if snow:
         SN = m_snow('snow_v4')
         for (C, L) in branches_out:
-            if R.random() < 0.3: continue
-            for s0 in (0.3, 0.65):
-                p = C(s0) + V((0, 0, 0.03 * h)); d = (C(s0 + 0.12) - C(s0))
-                o = blob('snowpad', tuple(p), (L * 0.17, 0.045 * h, 0.022 * h), SN, sub=1, seg=10)
-                o.rotation_euler = (0, -math.atan2(d.z, math.hypot(d.x, d.y)), math.atan2(d.y, d.x))
+            if R.random() < 0.35: continue
+            s0 = R.uniform(0.35, 0.55); p = C(s0) + V((0, 0, 0.02 * h)); d = (C(s0 + 0.15) - C(s0 - 0.15))
+            o = blob('snowpad', tuple(p), (L * 0.38, 0.05 * h, 0.014 * h), SN, sub=1, seg=12)
+            o.rotation_euler = (0, -math.atan2(d.z, math.hypot(d.x, d.y)), math.atan2(d.y, d.x))
+            T.wobble(o, 0.012 * h, 6.0, int(p.x * 50 + p.y * 30))
         blob('snowtip', (x, y, z + h * 1.0), (0.04 * h, 0.04 * h, 0.03 * h), SN, sub=1, seg=10)
 
 # ------------------------------------------------------------------ kayak askısı + kayaklar + batonlar
@@ -419,7 +419,7 @@ def scene_mountain(out):
     kit.shoot(sc, os.path.join(out, 'after_mountain.png'), (0.0, 1.8, 3.2), 31, -18, 33, lens=40, size=(1280, 800))
 
 def scene_pine(out):
-    sc = kit.reset(); sc.cycles.samples = 48; light(sc)
+    sc = kit.reset(); sc.cycles.samples = 32; light(sc)
     tr = Terrain([(0, 0, 0.2, 3, True)], 8, 0, 0, res=60); tr.build()
     pine_v4((-1.2, 0, tr.h(-1.2, 0)), 2.6, 3, snow=False)
     pine_v4((1.2, 0.3, tr.h(1.2, 0.3)), 2.6, 4, snow=True)

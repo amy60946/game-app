@@ -20,7 +20,7 @@ os.makedirs(OUT, exist_ok=True)
 R = random.Random(7)
 
 MOUTH_W, MOUTH_H, DEPTH = 0.62, 0.78, 2.2      # ağız yarı genişlik, yükseklik, tünel derinliği (m)
-MOUTH_Y = -1.05                                 # ağız düzlemi (önü -Y; oyunda adanın merkezine döner)
+MOUTH_Y = -0.8                                  # ağız düzlemi (önü -Y; oyunda adanın merkezine döner)
 
 
 def shade_by_attr(m, attr='shade'):
@@ -42,7 +42,7 @@ def depth_shade(y, x=0.0, z=0.3):
     t = (y - (MOUTH_Y + 0.15)) / (DEPTH * 0.75)
     t = max(0.0, min(1.0, t))
     t = t * t * (3 - 2 * t)
-    return 1.0 - 0.88 * t
+    return 1.0 - 0.78 * t
 
 
 def paint_shade(o, fn):
@@ -57,7 +57,7 @@ def paint_shade(o, fn):
 
 # ------------------------------------------------------------------ zemin: tümsekli, kayanın dibine doğru yükselen
 def terrain(size=9.0, n=90):
-    G = A.m_flat('#6fae46', 0.18, 6, 'turf')
+    G = A.m_flat('#78ab4e', 0.2, 5, 'turf')
     bm = bmesh.new(); grid = []
     for j in range(n + 1):
         row = []
@@ -67,6 +67,7 @@ def terrain(size=9.0, n=90):
             d = math.hypot(x / 1.6, (y - 0.4) / 1.3)
             z = 0.42 * math.exp(-d * d * 0.9) + 0.06 * mnoise.noise(V((x * 0.6, y * 0.6, 2)))
             if y < MOUTH_Y + 0.2 and abs(x) < 0.8: z -= 0.04 * math.exp(-x * x * 4)
+            if y > MOUTH_Y - 0.25 and abs(x) < MOUTH_W * 1.5: z = min(z, 0.0)   # tünel tabanı: zemin kayanın altında kalsın (patika görünsün)
             row.append(bm.verts.new((x, y, z)))
         grid.append(row)
     for j in range(n):
@@ -112,6 +113,7 @@ def mass():
         for i in range(NS):
             bm.faces.new((rings[j][i], rings[j][(i + 1) % NS], rings[j + 1][(i + 1) % NS], rings[j + 1][i]))
     bm.faces.new(rings[0][::-1]); bm.faces.new(rings[-1])
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     cut = link_mesh('cut', bm, [])
     bo = M.modifiers.new('bo', 'BOOLEAN'); bo.object = cut; bo.operation = 'DIFFERENCE'; bo.solver = 'EXACT'
     bpy.context.view_layer.objects.active = M; bpy.ops.object.modifier_apply(modifier='bo')
@@ -123,7 +125,8 @@ def mass():
         if v.co.z < 0.05: v.co.z = 0.05 + (v.co.z - 0.05) * 0.15
     smooth(M)
     paint_shade(M, lambda w: depth_shade(w.y, w.x, w.z) if (abs(w.x) < MOUTH_W * 1.6 and w.z < MOUTH_H * 1.4 and w.y > MOUTH_Y - 0.1) else 1.0)
-    return M, STN
+    PEB = m_rock(moss_th=(1.2, 1.5), warm=('#827b88', '#9a929d', '#b7ae a3'.replace(' ', '')), name='pebblerock')   # gölgesiz kopya (çakıl, yan taş)
+    return M, PEB
 
 
 # ------------------------------------------------------------------ içeri giden patika (koyulaşan)
@@ -151,7 +154,7 @@ def path_in(dg):
     yb = MOUTH_Y + DEPTH - 0.1
     for (x, z) in ((-0.7, 0.0), (0.7, 0.0), (0.7, 0.9), (-0.7, 0.9)): vs.append(bm.verts.new((x + 0.18 * math.sin(2.2), yb, z)))
     bm.faces.new(vs)
-    back = link_mesh('deep', bm, [A.m_flat('#1c1828', 0.05, 4, 'deep')])
+    back = link_mesh('deep', bm, [A.m_flat('#2a2340', 0.05, 4, 'deep')])
     return o
 
 
@@ -209,11 +212,12 @@ def dressing(dg, STN):
                   ((-1.0, MOUTH_Y - 0.6), (1.05, MOUTH_Y - 0.65), (-1.6, MOUTH_Y - 0.7), (1.7, MOUTH_Y - 0.55), (-0.7, MOUTH_Y - 1.7), (0.8, MOUTH_Y - 1.75))], R)
     # girişte biriken çakıllar: ağza yakın sık, uzaklaştıkça seyrek; kenarlara doğru yığılır
     for k in range(70):
-        y = MOUTH_Y - R.random() ** 1.6 * 1.9 + 0.25
+        y = MOUTH_Y - R.random() ** 1.6 * 1.9 + 0.35
         x = R.choice((-1, 1)) * (0.25 + R.random() * 0.55) * (1.2 - 0.3 * (MOUTH_Y - y))
         if MOUTH_Y < y: x *= 0.8
         r = R.uniform(0.022, 0.06) * (1.25 if abs(x) > 0.5 else 1.0)
-        o = pebble((x, y, ground_z(dg, x, y) + r * 0.25), r, STN, 500 + k)
+        gz = 0.06 if y > MOUTH_Y - 0.05 else ground_z(dg, x, y)   # ağız içinde patika hizası (tavana çarpmasın)
+        o = pebble((x, y, gz + r * 0.25), r, STN, 500 + k)
     for k in range(5):   # büyük yan taşlar
         s = (-1, 1)[k % 2]
         rock((s * R.uniform(0.75, 1.0), MOUTH_Y - R.uniform(0.0, 0.5), 0.08), R.uniform(0.12, 0.2), STN, 40 + k, sq=(1.1, 0.9, 0.7), sub=2, amt=0.18)
@@ -224,7 +228,7 @@ def dressing(dg, STN):
 
 
 def scene_setup():
-    sc = kit.reset(); sc.cycles.samples = 48; sc.view_settings.exposure = -0.3
+    sc = kit.reset(); sc.cycles.samples = int(os.environ.get('CAVE_SAMPLES', '48')); sc.view_settings.exposure = -0.3
     return sc
 
 
@@ -245,7 +249,9 @@ if __name__ == '__main__':
     objs = [o for o in bpy.context.scene.objects if o.type == 'MESH']
     print('ucgen_toplam', kit.tri_count(objs), 'zemin_haric', kit.tri_count([o for o in objs if o.name != 'terrain']))
     tgt = (0, MOUTH_Y + 0.3, 0.55)
-    shoot(sc, f'{OUT}/cave_v4_genel.png', tgt, 7.5, 28, 30, lens=50, size=(1280, 800))
+    if not os.environ.get('CAVE_QUICK'): shoot(sc, f'{OUT}/cave_v4_genel.png', tgt, 7.5, 28, 30, lens=50, size=(1280, 800))
+    if os.environ.get('CAVE_QUICK'):
+        shoot(sc, f'{OUT}/q_agiz.png', (0, MOUTH_Y + 0.4, 0.4), 3.6, 4, 9, lens=45, size=(640, 400)); sys.exit(0)
     shoot(sc, f'{OUT}/cave_v4_agiz.png', (0, MOUTH_Y + 0.4, 0.4), 3.6, 4, 9, lens=45, size=(1280, 800))
     shoot(sc, f'{OUT}/cave_v4_sarmasik.png', (-0.35, MOUTH_Y - 0.02, MOUTH_H + 0.05), 1.35, -18, 4, lens=55, size=(1280, 800))
     shoot(sc, f'{OUT}/cave_v4_ust.png', (0, MOUTH_Y + 0.4, 0.4), 9.5, 0, 55, lens=50, size=(1280, 800))

@@ -94,8 +94,8 @@ def build(variant):
         vol = bpy.context.object; vol.scale = (140, 74, 1.96); bpy.ops.object.transform_apply(scale=True)
         vm = bpy.data.materials.new('vol'); vm.use_nodes = True; vt = vm.node_tree
         vt.nodes.remove(vt.nodes['Principled BSDF'])
-        va = vt.nodes.new('ShaderNodeVolumeAbsorption'); va.inputs['Color'].default_value = srgb('#1f9fb8'); va.inputs['Density'].default_value = 0.85
-        vs = vt.nodes.new('ShaderNodeVolumeScatter'); vs.inputs['Color'].default_value = srgb('#7fe0e6'); vs.inputs['Density'].default_value = 0.06
+        va = vt.nodes.new('ShaderNodeVolumeAbsorption'); va.inputs['Color'].default_value = srgb('#1f9fb8'); va.inputs['Density'].default_value = 0.32
+        vs = vt.nodes.new('ShaderNodeVolumeScatter'); vs.inputs['Color'].default_value = srgb('#7fe0e6'); vs.inputs['Density'].default_value = 0.035
         ad = vt.nodes.new('ShaderNodeAddShader')
         vt.links.new(va.outputs[0], ad.inputs[0]); vt.links.new(vs.outputs[0], ad.inputs[1])
         vt.links.new(ad.outputs[0], vt.nodes['Material Output'].inputs['Volume'])
@@ -103,6 +103,10 @@ def build(variant):
     else:
         wb.inputs['Base Color'].default_value = srgb('#2aa6c4'); wb.inputs['Roughness'].default_value = 0.12
     w.data.materials.append(wm)
+    # deniz tabanı (ızgaranın ötesi): koyu kum, derin suda lacivertleşir
+    bpy.ops.mesh.primitive_plane_add(size=1, location=(0, -40, -1.62))
+    sb = bpy.context.object; sb.scale = (160, 64, 1); bpy.ops.object.transform_apply(scale=True)
+    sb.data.materials.append(mat('seabed', '#b49a6c', 0.9, 0))
 
     # ---------------------------------------------------------------- kıyı köpüğü: su çizgisini izleyen yırtık beyaz şerit
     def waterline(x):
@@ -202,8 +206,8 @@ def build(variant):
         for k in range(40):
             x = rnd.uniform(-W / 2, W / 2); y = waterline(x) + rnd.uniform(0.35, 0.9)
             blob('pb', (x, y, H(coast(x, y)) + 0.01), (0.04, 0.03, 0.015), mat('pebble', '#b9ad98', 0.7, 0.1), sub=0, seg=8)
-    # kamera: oyundaki gibi arkadan-yukarıdan, karadan denize bakar
-    kit.shoot(sc, os.path.join(OUT, 'shore_%s.png' % variant), (0, waterline(0) + 0.6, 0), 15, 180, 40, lens=30, size=(1280, 800))
+    # kamera: oyundaki gibi yukarıdan; pet kıyıda yürürken: sudan kumsala ve palmiyelere çapraz bakış
+    kit.shoot(sc, os.path.join(OUT, 'shore_%s.png' % variant), (0, waterline(0) + 2.2, 0.3), 15.5, 24, 30, lens=30, size=(1280, 800))
 
 for v in (['before', 'after'] if WHICH == 'both' else [WHICH]):
     build(v)

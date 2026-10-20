@@ -63,7 +63,7 @@ def m_terrain(levels, name='terrain'):
         n = nt.nodes; l = nt.links
         tc = n.new('ShaderNodeTexCoord'); sep = n.new('ShaderNodeSeparateXYZ'); l.new(tc.outputs['Object'], sep.inputs[0])
         nz = n.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 1.6; nz.inputs['Detail'].default_value = 6; l.new(tc.outputs['Object'], nz.inputs['Vector'])
-        jit = n.new('ShaderNodeMath'); jit.operation = 'MULTIPLY_ADD'; jit.inputs[1].default_value = 0.09
+        jit = n.new('ShaderNodeMath'); jit.operation = 'MULTIPLY_ADD'; jit.inputs[1].default_value = 0.13
         l.new(nz.outputs['Fac'], jit.inputs[0]); l.new(sep.outputs['Z'], jit.inputs[2])
         def band(a, b_):
             mr = n.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = a; mr.inputs['From Max'].default_value = b_
@@ -384,17 +384,18 @@ def build_pier():
     bb.location = (-0.35, -3.25, deck_z(-3.25) + 0.03)
     tube('moor', [(-0.35, -3.25, 0.62), (-0.55, -3.5, 0.5), (-0.85, -3.75, 0.1), (-1.15, -3.9, -0.02)], [0.02] * 4, RP, res=4)
     LB = m_cloth('#ffffff', '#f05d5e', stripes=4.0, name='lifering')
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.17, minor_radius=0.055, location=(-side - 0.17, -2.95, 0.5), rotation=(0, math.radians(90), 0), major_segments=28, minor_segments=10)
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.17, minor_radius=0.055, location=(-side, -3.55 - 0.19, 0.5), rotation=(math.radians(90), 0, 0), major_segments=28, minor_segments=10)
     t = bpy.context.object; t.data.materials.append(LB)
     me = t.data; lay = me.uv_layers.new(name='grain')
     for poly in me.polygons:
         for li in poly.loop_indices:
             co = me.vertices[me.loops[li].vertex_index].co
-            lay.data[li].uv = ((math.atan2(co.z, co.y) / (2 * math.pi)) % 1.0, 0)
+            lay.data[li].uv = ((math.atan2(co.y, co.x) / (2 * math.pi)) % 1.0, 0)
     GL = m_glow()
     post('lamppost', (side, -3.55, 0.78), (side, -3.55, 1.45), 0.045, PL, seed=9)
-    tube('arm', [(side, -3.55, 1.4), (side - 0.2, -3.55, 1.45), (side - 0.28, -3.55, 1.38)], [0.014] * 3, I, res=4)
-    blob('lamp', (side - 0.28, -3.55, 1.26), (0.07, 0.07, 0.09), GL, sub=1, seg=12)
+    tube('arm', [(side, -3.55, 1.4), (side, -3.75, 1.45), (side, -3.83, 1.38)], [0.014] * 3, I, res=4)
+    blob('lamp', (side, -3.83, 1.26), (0.07, 0.07, 0.09), GL, sub=1, seg=12)
+    cyl('lcap', (side, -3.83, 1.35), 0.06, 0.03, I, verts=10)
     crate((-0.3, -1.3, deck_z(-1.3) + 0.03), 0.36, DK[1], PL, yaw=14, seed=6)
     BK = m_wood('#a8693d', 'bucket')
     lathe('bucket', [(0.001, 0.0), (0.1, 0.0), (0.13, 0.22), (0.135, 0.24)], BK, segs=16).location = (0.3, -2.4, deck_z(-2.4) + 0.03)
