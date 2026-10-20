@@ -73,3 +73,10 @@
   Güneş Taşı bölgelerinde yer sisi (`Clouds.Spawn(..., fog:true)`); bahçe ekranı v3 görünüm; zemin/çim tonları sakin.
   ⚠️ HATIRLAT: kullanıcı "filtreleme sistemi" için ek geri bildirim verecek (19 Ekim 2026) — gelince sor/uygula.
   Seedance/Higgsfield kullanılmadı (bu ortamda erişim/anahtar yok); animasyonlar kodla. Meshy kredisi en az 100 kalmalı (kullanıcı kuralı).
+- **Tek pet Okti** (20 Ekim 2026, kullanıcı): ahtapot `pet_13`, üç evre ayrı Meshy modeli (web sitesinden: çocuk → `Pets/pet_13_yavru`, ergen → `_genc`,
+  yetişkin → `_yetiskin`; `RealAssets.StageModel`). Dönüştürme: `art/meshy/scripts/prepare_stages.py <glb> Assets/_Pofi/Resources/Pets <ad>`
+  (7 klip: idle, walk, run, happy, wave, sleep, jump; kırpılmaz; ayak temasları `PetWalker.ModelContacts`). Diğer 12 pet `retired`
+  (pets.json): seçimde yok, eski kayıt Okti'ye geçer (`Logic/App/PetRoster`), kart oyununda rakip olarak kalır.
+  Meshy web dosyaları: kullanıcı indirme bağlantısını (assets.meshy.ai) sohbete yapıştırır, Claude indirir; GitHub tarayıcı yüklemesi 25 MB sınırına takıldı.
+- Güneş Taşı adada yerleştirilir (20 Ekim 2026, kullanıcı): sisli bölgeye (köprü, mağara yolu, fener…) yaklaşınca eylem tuşu "Taşı koy";
+  Ev Görevleri panosunda yalnız "Adaya götür". Ayarlar düğmesi müzik düğmesinin solunda, aynı boyda; yan düğmeler kenara yakın.
