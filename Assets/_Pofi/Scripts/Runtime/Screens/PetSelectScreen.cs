@@ -21,7 +21,7 @@ namespace Pofi.Screens
 
         protected override void Build()
         {
-            _picker = new PetPicker(App.Data.Pets.Select(p => p.Id).ToList());
+            _picker = new PetPicker(App.Data.ActivePets.Select(p => p.Id).ToList());
             if (!string.IsNullOrEmpty(App.State.PetId)) _picker.JumpTo(App.State.PetId);
             App.Stage.AllowDrag = true;
             PetCamera(0.42f, 0.24f, 0.9f);   // yatay: pet sol-ortada ve büyük (çocuğun odağı), bilgi kartı sağda
@@ -49,7 +49,7 @@ namespace Pofi.Screens
             var size = step - 14f;
             for (var i = 0; i < _picker.Count; i++)
             {
-                var def = App.Data.Pets[i];
+                var def = App.Data.ActivePets[i];
                 var x = (i - (_picker.Count - 1) / 2f) * step;
                 var frame = Ui.Rect(Root, "Pick " + def.Id, new Vector2(0.5f, 0.11f), new Vector2(size, size), new Vector2(x, 0f));
                 _dots[i] = Candy.Shell(frame, Color.Lerp(Theme.Hex(def.MainColor), Color.white, 0.45f));
@@ -91,7 +91,7 @@ namespace Pofi.Screens
             {
                 var on = i == _picker.Index;
                 _dots[i].transform.parent.localScale = Vector3.one * (on ? 1.2f : 0.94f);
-                _dots[i].color = on ? Candy.Gold : Color.Lerp(Theme.Hex(App.Data.Pets[i].MainColor), Color.white, 0.45f);
+                _dots[i].color = on ? Candy.Gold : Color.Lerp(Theme.Hex(App.Data.ActivePets[i].MainColor), Color.white, 0.45f);
             }
         }
 

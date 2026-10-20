@@ -21,7 +21,7 @@ namespace Pofi.Screens
             App.Stage.AllowDrag = true;
             // Yatay: solda pet, sağda kod kartı
             PetCamera(0.3f, 0.1f, 0.78f);
-            App.Stage.ShowPet(App.Data.Pet("pet_01"), Logic.Progression.GrowthStage.Genc);
+            App.Stage.ShowPet(App.Data.ActivePets[0], Logic.Progression.GrowthStage.Genc);
 
             var white = Color.white;
             var title = Ui.Label(Root, T("auth.title"), Th.Font(110), white, new Vector2(0.72f, 0.86f), new Vector2(900f, 150f), FontStyle.Bold);

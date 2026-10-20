@@ -12,6 +12,8 @@ namespace Pofi.Logic.Data
     public sealed class GameData
     {
         public IReadOnlyList<PetSpeciesDef> Pets { get; }
+        /// <summary>Pet seçme ekranında görünenler (emekli olmayanlar).</summary>
+        public IReadOnlyList<PetSpeciesDef> ActivePets => Pets.Where(p => !p.Retired).ToList();
         public IReadOnlyList<ItemDef> Items { get; }
         public LevelTableDef Levels { get; }
         public IReadOnlyList<CollectionEntryDef> Collection { get; private set; } = new List<CollectionEntryDef>();
@@ -56,7 +58,7 @@ namespace Pofi.Logic.Data
             }
             Dup(Pets, p => p.Id, "pet");
             Dup(Items, i => i.Id, "eşya");
-            if (Pets.Count != 12) errors.Add($"12 pet bekleniyordu, {Pets.Count} var");
+            if (!Pets.Any(p => !p.Retired)) errors.Add("seçilebilir pet yok");
 
             string[] hats = { "normal", "ear_holes", "center_hole", "antenna_holes", "mane_fit", "raised" };
             string[] backs = { "normal", "tail_hole", "on_shell", "flat_only", "none" };

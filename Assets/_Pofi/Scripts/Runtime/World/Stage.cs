@@ -176,7 +176,7 @@ namespace Pofi.World
         {
             ClearPet();
             _petDef = def;
-            Pet = PetModels.Build(def, _holder);
+            Pet = PetModels.Build(def, _holder, stage);
             _life = Pet.gameObject.AddComponent<PetLife>();
             _life.Sleeping = _sleeping;
             SetCosmetics(equipped);

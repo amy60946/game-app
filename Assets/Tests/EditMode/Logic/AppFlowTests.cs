@@ -39,7 +39,7 @@ namespace Pofi.Tests.Logic
         [Test]
         public void Karusel_iki_yonde_doner()
         {
-            var ids = TestData.Load().Pets.Select(p => p.Id).ToList();
+            var ids = TestData.Load().Pets.Select(p => p.Id).Take(12).ToList();   // karusel mekaniği (12 öğe)
             var picker = new PetPicker(ids);
             Assert.AreEqual("pet_01", picker.Current);
             Assert.AreEqual("pet_12", picker.Prev());

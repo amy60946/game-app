@@ -1,29 +1,274 @@
 {
-  "_doc": "12 pet türü. fit: kıyafet uyum kuralları (docs/art/0A_ortak_sablon.md §5). hat: şapka varyantı, glasses: normal|clip, body: full|apron_only, back: normal|on_shell|flat_only|none|tail_hole, hands: paw|flipper.",
-  "pets": [
-    { "id": "pet_01", "name": "Pofi",   "species": "tilki-tavşan",       "mainColor": "#FF7A2A", "accentColor": "#FFE9CC", "feature": "uzun tavşan kulakları, krem uçlu kabarık kuyruk", "voiceId": "pofi",   "personalityAnims": ["ear_flop", "tail_swish"],
-      "fit": { "hat": "ear_holes", "glasses": "normal", "body": "full", "back": "tail_hole", "hands": "paw" } },
-    { "id": "pet_02", "name": "Mavi",   "species": "penguen",            "mainColor": "#1F6FE8", "accentColor": "#F4F8FF", "feature": "yumurta gövde, beyaz yüz, turuncu gaga, yüzgeçler", "voiceId": "mavi",   "personalityAnims": ["waddle", "flipper_flap"],
-      "fit": { "hat": "normal", "glasses": "clip", "body": "full", "back": "normal", "hands": "flipper" } },
-    { "id": "pet_03", "name": "Kurbi",  "species": "minik dino",         "mainColor": "#46D063", "accentColor": "#D5F7B0", "feature": "sarı sırt plakaları, kalın kıvrık kuyruk", "voiceId": "kurbi",  "personalityAnims": ["tail_thump", "tiny_roar"],
-      "fit": { "hat": "center_hole", "glasses": "normal", "body": "full", "back": "flat_only", "hands": "paw" } },
-    { "id": "pet_04", "name": "Mimi",   "species": "kedi",               "mainColor": "#FF86C2", "accentColor": "#FFE0EF", "feature": "üçgen kulaklar, uzun bıyıklar, ince kuyruk", "voiceId": "mimi",   "personalityAnims": ["paw_lick", "stretch"],
-      "fit": { "hat": "ear_holes", "glasses": "normal", "body": "full", "back": "normal", "hands": "paw" } },
-    { "id": "pet_05", "name": "Pıtı",   "species": "civciv",             "mainColor": "#FFEA5C", "accentColor": "#FFF6C2", "feature": "top gövde, turuncu tepe püskülü", "voiceId": "piti",   "personalityAnims": ["chirp", "hop"],
-      "fit": { "hat": "center_hole", "glasses": "clip", "body": "apron_only", "back": "normal", "hands": "flipper" } },
-    { "id": "pet_06", "name": "Boncuk", "species": "ayı",                "mainColor": "#A77BFF", "accentColor": "#ECDFFF", "feature": "büyük yuvarlak kulaklar, tombul göbek", "voiceId": "boncuk", "personalityAnims": ["belly_pat", "yawn"],
-      "fit": { "hat": "normal", "glasses": "normal", "body": "full", "back": "normal", "hands": "paw" } },
-    { "id": "pet_07", "name": "Tosbi",  "species": "deniz kaplumbağası", "mainColor": "#00A693", "accentColor": "#CFF7EE", "feature": "kubbe kabuk, yüzgeç el ve ayaklar", "voiceId": "tosbi",  "personalityAnims": ["shell_hide", "slow_wave"],
-      "fit": { "hat": "normal", "glasses": "normal", "body": "apron_only", "back": "on_shell", "hands": "flipper" } },
-    { "id": "pet_08", "name": "Piko",   "species": "kirpi",              "mainColor": "#8C5A3C", "accentColor": "#FFE6C2", "feature": "yuvarlak uçlu yumuşak dikenler, krem yüz", "voiceId": "piko",   "personalityAnims": ["curl_ball", "sniff"],
-      "fit": { "hat": "raised", "glasses": "normal", "body": "full", "back": "flat_only", "hands": "paw" } },
-    { "id": "pet_09", "name": "Fifi",   "species": "yavru fil",          "mainColor": "#8EDCFF", "accentColor": "#E6F7FF", "feature": "yelpaze kulaklar (içi sarı), kıvrık hortum", "voiceId": "fifi",   "personalityAnims": ["trunk_toot", "ear_fan"],
-      "fit": { "hat": "normal", "glasses": "clip", "body": "full", "back": "normal", "hands": "paw" } },
-    { "id": "pet_10", "name": "Arlo",   "species": "aslan yavrusu",      "mainColor": "#FFAE1A", "accentColor": "#FFE7B0", "feature": "kırmızı-turuncu yele, püsküllü kuyruk", "voiceId": "arlo",   "personalityAnims": ["cute_roar", "mane_shake"],
-      "fit": { "hat": "mane_fit", "glasses": "normal", "body": "full", "back": "tail_hole", "hands": "paw" } },
-    { "id": "pet_11", "name": "Lolo",   "species": "lama",               "mainColor": "#FFF1D6", "accentColor": "#FF9B54", "feature": "turuncu uzun kulaklar, boyunda renkli püsküller", "voiceId": "lolo",   "personalityAnims": ["head_tilt", "tassel_wiggle"],
-      "fit": { "hat": "ear_holes", "glasses": "normal", "body": "apron_only", "back": "normal", "hands": "paw" } },
-    { "id": "pet_12", "name": "Benli",  "species": "uğur böceği",        "mainColor": "#E8202E", "accentColor": "#FFE9D6", "feature": "siyah benekli kanat kapakları, antenler", "voiceId": "benli",  "personalityAnims": ["wing_open", "antenna_wave"],
-      "fit": { "hat": "antenna_holes", "glasses": "normal", "body": "apron_only", "back": "none", "hands": "paw" } }
-  ]
+ "_doc": "12 pet türü. fit: kıyafet uyum kuralları (docs/art/0A_ortak_sablon.md §5). hat: şapka varyantı, glasses: normal|clip, body: full|apron_only, back: normal|on_shell|flat_only|none|tail_hole, hands: paw|flipper. Okti (pet_13, 20 Ekim 2026, kullanıcı): oyundaki tek seçilebilir pet; diğerleri retired (eski kayıtlar Okti'ye geçer, modelleri kart oyununda rakip olarak kalır).",
+ "pets": [
+  {
+   "id": "pet_01",
+   "name": "Pofi",
+   "species": "tilki-tavşan",
+   "mainColor": "#FF7A2A",
+   "accentColor": "#FFE9CC",
+   "feature": "uzun tavşan kulakları, krem uçlu kabarık kuyruk",
+   "voiceId": "pofi",
+   "personalityAnims": [
+    "ear_flop",
+    "tail_swish"
+   ],
+   "fit": {
+    "hat": "ear_holes",
+    "glasses": "normal",
+    "body": "full",
+    "back": "tail_hole",
+    "hands": "paw"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_02",
+   "name": "Mavi",
+   "species": "penguen",
+   "mainColor": "#1F6FE8",
+   "accentColor": "#F4F8FF",
+   "feature": "yumurta gövde, beyaz yüz, turuncu gaga, yüzgeçler",
+   "voiceId": "mavi",
+   "personalityAnims": [
+    "waddle",
+    "flipper_flap"
+   ],
+   "fit": {
+    "hat": "normal",
+    "glasses": "clip",
+    "body": "full",
+    "back": "normal",
+    "hands": "flipper"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_03",
+   "name": "Kurbi",
+   "species": "minik dino",
+   "mainColor": "#46D063",
+   "accentColor": "#D5F7B0",
+   "feature": "sarı sırt plakaları, kalın kıvrık kuyruk",
+   "voiceId": "kurbi",
+   "personalityAnims": [
+    "tail_thump",
+    "tiny_roar"
+   ],
+   "fit": {
+    "hat": "center_hole",
+    "glasses": "normal",
+    "body": "full",
+    "back": "flat_only",
+    "hands": "paw"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_04",
+   "name": "Mimi",
+   "species": "kedi",
+   "mainColor": "#FF86C2",
+   "accentColor": "#FFE0EF",
+   "feature": "üçgen kulaklar, uzun bıyıklar, ince kuyruk",
+   "voiceId": "mimi",
+   "personalityAnims": [
+    "paw_lick",
+    "stretch"
+   ],
+   "fit": {
+    "hat": "ear_holes",
+    "glasses": "normal",
+    "body": "full",
+    "back": "normal",
+    "hands": "paw"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_05",
+   "name": "Pıtı",
+   "species": "civciv",
+   "mainColor": "#FFEA5C",
+   "accentColor": "#FFF6C2",
+   "feature": "top gövde, turuncu tepe püskülü",
+   "voiceId": "piti",
+   "personalityAnims": [
+    "chirp",
+    "hop"
+   ],
+   "fit": {
+    "hat": "center_hole",
+    "glasses": "clip",
+    "body": "apron_only",
+    "back": "normal",
+    "hands": "flipper"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_06",
+   "name": "Boncuk",
+   "species": "ayı",
+   "mainColor": "#A77BFF",
+   "accentColor": "#ECDFFF",
+   "feature": "büyük yuvarlak kulaklar, tombul göbek",
+   "voiceId": "boncuk",
+   "personalityAnims": [
+    "belly_pat",
+    "yawn"
+   ],
+   "fit": {
+    "hat": "normal",
+    "glasses": "normal",
+    "body": "full",
+    "back": "normal",
+    "hands": "paw"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_07",
+   "name": "Tosbi",
+   "species": "deniz kaplumbağası",
+   "mainColor": "#00A693",
+   "accentColor": "#CFF7EE",
+   "feature": "kubbe kabuk, yüzgeç el ve ayaklar",
+   "voiceId": "tosbi",
+   "personalityAnims": [
+    "shell_hide",
+    "slow_wave"
+   ],
+   "fit": {
+    "hat": "normal",
+    "glasses": "normal",
+    "body": "apron_only",
+    "back": "on_shell",
+    "hands": "flipper"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_08",
+   "name": "Piko",
+   "species": "kirpi",
+   "mainColor": "#8C5A3C",
+   "accentColor": "#FFE6C2",
+   "feature": "yuvarlak uçlu yumuşak dikenler, krem yüz",
+   "voiceId": "piko",
+   "personalityAnims": [
+    "curl_ball",
+    "sniff"
+   ],
+   "fit": {
+    "hat": "raised",
+    "glasses": "normal",
+    "body": "full",
+    "back": "flat_only",
+    "hands": "paw"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_09",
+   "name": "Fifi",
+   "species": "yavru fil",
+   "mainColor": "#8EDCFF",
+   "accentColor": "#E6F7FF",
+   "feature": "yelpaze kulaklar (içi sarı), kıvrık hortum",
+   "voiceId": "fifi",
+   "personalityAnims": [
+    "trunk_toot",
+    "ear_fan"
+   ],
+   "fit": {
+    "hat": "normal",
+    "glasses": "clip",
+    "body": "full",
+    "back": "normal",
+    "hands": "paw"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_10",
+   "name": "Arlo",
+   "species": "aslan yavrusu",
+   "mainColor": "#FFAE1A",
+   "accentColor": "#FFE7B0",
+   "feature": "kırmızı-turuncu yele, püsküllü kuyruk",
+   "voiceId": "arlo",
+   "personalityAnims": [
+    "cute_roar",
+    "mane_shake"
+   ],
+   "fit": {
+    "hat": "mane_fit",
+    "glasses": "normal",
+    "body": "full",
+    "back": "tail_hole",
+    "hands": "paw"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_11",
+   "name": "Lolo",
+   "species": "lama",
+   "mainColor": "#FFF1D6",
+   "accentColor": "#FF9B54",
+   "feature": "turuncu uzun kulaklar, boyunda renkli püsküller",
+   "voiceId": "lolo",
+   "personalityAnims": [
+    "head_tilt",
+    "tassel_wiggle"
+   ],
+   "fit": {
+    "hat": "ear_holes",
+    "glasses": "normal",
+    "body": "apron_only",
+    "back": "normal",
+    "hands": "paw"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_12",
+   "name": "Benli",
+   "species": "uğur böceği",
+   "mainColor": "#E8202E",
+   "accentColor": "#FFE9D6",
+   "feature": "siyah benekli kanat kapakları, antenler",
+   "voiceId": "benli",
+   "personalityAnims": [
+    "wing_open",
+    "antenna_wave"
+   ],
+   "fit": {
+    "hat": "antenna_holes",
+    "glasses": "normal",
+    "body": "apron_only",
+    "back": "none",
+    "hands": "paw"
+   },
+   "retired": true
+  },
+  {
+   "id": "pet_13",
+   "name": "Okti",
+   "species": "ahtapot",
+   "mainColor": "#4DA6F2",
+   "accentColor": "#E8F6FF",
+   "feature": "yumuşak dokunaçları, kapüşonlu mavi kıyafeti; çocuk, ergen ve yetişkin evreleri ayrı model",
+   "voiceId": "pofi",
+   "personalityAnims": [],
+   "fit": {
+    "hat": "normal",
+    "glasses": "normal",
+    "body": "full",
+    "back": "normal",
+    "hands": "paw"
+   }
+  }
+ ]
 }

@@ -18,6 +18,16 @@ namespace Pofi.World
 
         public static bool HasPet(string petId) => Resources.Load<GameObject>($"Pets/{petId}/{petId}") != null;
 
+        /// <summary>
+        /// Büyüme evresine özel model (Okti, 20 Ekim 2026: çocuk / ergen / yetişkin ayrı Meshy modelleri): Pets/&lt;id&gt;_yavru|genc|yetiskin.
+        /// Yoksa tek model (eski petler; evre yalnız ölçekle gösterilir).
+        /// </summary>
+        public static string StageModel(string petId, Logic.Progression.GrowthStage stage)
+        {
+            var id = petId + "_" + stage.ToString().ToLowerInvariant();
+            return HasPet(id) ? id : petId;
+        }
+
         /// <summary>Gerçek pet modeli + animasyonlar. Yoksa null.</summary>
         public static Transform Pet(string petId, Transform parent, float height)
         {
@@ -198,9 +208,13 @@ namespace Pofi.World
         /// <summary>Kıyafet soketleri: iskelet kemiklerine bağlı boş nesneler (ad sözleşmesi PetModels ile aynı).</summary>
         private static void AddSockets(Transform root, Transform model)
         {
-            Transform Bone(string n)
+            // kemik adı: Meshy eski iskeleti ("Spine01", "LeftHand") ya da Mixamo adları ("mixamorig:Spine1", "mixamorig:LeftHand")
+            Transform Bone(params string[] names)
             {
-                foreach (var t in model.GetComponentsInChildren<Transform>(true)) if (t.name == n) return t;
+                var all = model.GetComponentsInChildren<Transform>(true);
+                foreach (var n in names)
+                    foreach (var t in all)
+                        if (t.name == n || t.name.EndsWith(":" + n)) return t;
                 return null;
             }
             void Socket(string name, Transform bone, Vector3 fallback)
@@ -210,9 +224,18 @@ namespace Pofi.World
                 if (bone == null) s.localPosition = fallback;
             }
             var b = Bounds(model);
-            Socket("socket_head", Bone("head_end"), new Vector3(0f, b.max.y, 0f));
+            var headEnd = Bone("head_end", "HeadTop_End");
+            var head = headEnd == null ? Bone("Head") : null;
+            if (head != null)
+            {
+                // uç kemiği yok (Mixamo iskeleti): şapka soketi baş kemiğine bağlı, modelin tepesinde
+                var s = new GameObject("socket_head").transform;
+                s.SetParent(head, false);
+                s.position = new Vector3(head.position.x, b.max.y, head.position.z);
+            }
+            else Socket("socket_head", headEnd, new Vector3(0f, b.max.y, 0f));
             Socket("socket_eyes", Bone("headfront"), new Vector3(0f, b.max.y * 0.7f, -0.3f));
-            Socket("socket_body", Bone("Spine01"), new Vector3(0f, b.max.y * 0.3f, -0.2f));
+            Socket("socket_body", Bone("Spine01", "Spine1"), new Vector3(0f, b.max.y * 0.3f, -0.2f));
             Socket("socket_back", Bone("Spine"), new Vector3(0f, b.max.y * 0.35f, 0.2f));
             Socket("socket_hand_L", Bone("LeftHand"), new Vector3(-0.3f, 0.4f, 0f));
             Socket("socket_hand_R", Bone("RightHand"), new Vector3(0.3f, 0.4f, 0f));

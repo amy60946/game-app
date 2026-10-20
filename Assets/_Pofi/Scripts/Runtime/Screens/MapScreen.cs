@@ -59,7 +59,7 @@ namespace Pofi.Screens
             var (sx, sz) = start != null ? _terrain.Door(start) : (_terrain.PlazaX, _terrain.PlazaZ);
             var def = App.Data.Pet(App.State.PetId);
             var items = App.State.Inventory.Equipped.Values.Select(App.Data.Item).Where(i => i != null).ToList();
-            if (def != null) { _world.PlacePet(def, PetModels.StageScale(App.Growth), items, sx, sz); _world.Walker.Teleport(sx, sz, 0f); _camYaw = 0f; }
+            if (def != null) { _world.PlacePet(def, App.Growth, items, sx, sz); _world.Walker.Teleport(sx, sz, 0f); _camYaw = 0f; }
 
             if (App.Levels.IsUnlocked(Sparkles.UnlockId, App.Level))
             {

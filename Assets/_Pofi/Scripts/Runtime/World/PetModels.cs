@@ -20,9 +20,9 @@ namespace Pofi.World
         /// <summary>Gerçek modelin hedef boyu (kulak/anten dahil), yer tutucuyla aynı çerçeve.</summary>
         public const float RealHeight = 1.75f;
 
-        public static Transform Build(PetSpeciesDef def, Transform parent)
+        public static Transform Build(PetSpeciesDef def, Transform parent, GrowthStage stage = GrowthStage.Genc)
         {
-            var real = RealAssets.Pet(def.Id, parent, RealHeight);
+            var real = RealAssets.Pet(RealAssets.StageModel(def.Id, stage), parent, RealHeight);
             if (real != null) return real;
 
             var root = new GameObject(def.Id + "_placeholder").transform;

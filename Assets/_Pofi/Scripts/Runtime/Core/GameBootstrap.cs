@@ -164,6 +164,7 @@ namespace Pofi.Core
             Stage.SetSky(Theme.Sky);
             State.Stats.Tick(UtcNow, Decay);
             FirstDay.Start(State, UtcNow);   // ilk gün akışı (Ö5); pet'i olan eski oyuncuda kapanır
+            if (PetRoster.Migrate(State, Data)) Save();   // emekli pet → Okti (ad ve ilerleme korunur)
             Guide.Start(State, Level);       // Sv1–3 rehberli zincir; Sv3'ü geçmiş oyuncuda kapanır
         }
 

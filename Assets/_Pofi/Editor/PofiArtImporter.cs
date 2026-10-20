@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 10;   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
+        public override uint GetVersion() => 11;   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -27,6 +27,15 @@ namespace Pofi.EditorTools
             { "walk", new Vector2(2f, 27f) }, { "run", new Vector2(2f, 17f) }, { "idle", new Vector2(2f, 98f) },
             { "sleep", new Vector2(2f, 139f) }, { "wave", new Vector2(2f, 130f) },
         };
+
+        private bool IsStagePet
+        {
+            get
+            {
+                var dir = Path.GetFileName(Path.GetDirectoryName(assetPath) ?? "");
+                return dir.EndsWith("_yavru") || dir.EndsWith("_genc") || dir.EndsWith("_yetiskin");
+            }
+        }
 
         private bool IsPet => assetPath.Replace('\\', '/').Contains("/Resources/Pets/");
         private bool IsArt => IsPet || assetPath.Replace('\\', '/').Contains("/Resources/Env/") || assetPath.Replace('\\', '/').Contains("/Resources/Items/");
@@ -75,7 +84,8 @@ namespace Pofi.EditorTools
                 clips[i].wrapMode = loop ? WrapMode.Loop : WrapMode.Once;
                 // Meshy klipleri 10 sn uzunluğunda ama hareket yalnız baştaki kısımda (yürüme 2–27. kare); geri kalanı donuk.
                 // Kırpılmazsa döngü 10 sn sürer: pet iki adım atıp kayıyormuş gibi görünüyordu. Ölçüm: art/scripts/anim_ranges.py
-                if (ClipFrames.TryGetValue(clipName, out var fr))
+                // Meshy web sitesinin "All Animations" klipleri (Okti, evre klasörleri) zaten tam döngü: kırpılmaz
+                if (!IsStagePet && ClipFrames.TryGetValue(clipName, out var fr))
                 {
                     clips[i].firstFrame = Mathf.Max(clips[i].firstFrame, fr.x);
                     clips[i].lastFrame = Mathf.Min(clips[i].lastFrame, fr.y);

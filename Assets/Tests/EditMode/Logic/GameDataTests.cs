@@ -13,10 +13,24 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
-        public void Twelve_pets_with_expected_ids()
+        public void Okti_tek_secilebilir_pet_eski_on_iki_emekli()
         {
-            var ids = TestData.Load().Pets.Select(p => p.Id).ToArray();
-            CollectionAssert.AreEqual(Enumerable.Range(1, 12).Select(i => $"pet_{i:00}").ToArray(), ids);
+            var d = TestData.Load();
+            CollectionAssert.AreEqual(Enumerable.Range(1, 13).Select(i => $"pet_{i:00}").ToArray(), d.Pets.Select(p => p.Id).ToArray());
+            Assert.AreEqual(new[] { "pet_13" }, d.ActivePets.Select(p => p.Id).ToArray());
+            Assert.AreEqual("Okti", d.ActivePets[0].Name);
+        }
+
+        [Test]
+        public void Emekli_petli_kayit_Oktiye_gecer_ad_korunur()
+        {
+            var d = TestData.Load();
+            var s = new Pofi.Logic.State.GameState { PetId = "pet_04", PetName = "Mimi" };
+            Assert.IsTrue(Pofi.Logic.App.PetRoster.Migrate(s, d));
+            Assert.AreEqual("pet_13", s.PetId);
+            Assert.AreEqual("Mimi", s.PetName);
+            Assert.IsFalse(Pofi.Logic.App.PetRoster.Migrate(s, d), "ikinci kez değişmez");
+            Assert.IsFalse(Pofi.Logic.App.PetRoster.Migrate(new Pofi.Logic.State.GameState(), d), "pet seçilmemiş kayıt");
         }
     }
 }

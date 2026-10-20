@@ -26,6 +26,8 @@ namespace Pofi.Logic.Data
         [JsonProperty("voiceId")] public string VoiceId;
         [JsonProperty("personalityAnims")] public List<string> PersonalityAnims = new List<string>();
         [JsonProperty("fit")] public PetFit Fit = new PetFit();
+        /// <summary>Seçimden kaldırıldı (20 Ekim 2026: tek pet Okti); eski kayıtlar ilk seçilebilir pete geçer.</summary>
+        [JsonProperty("retired")] public bool Retired;
     }
 
     public static class ItemCategory

@@ -325,11 +325,12 @@ namespace Pofi.World
         // ------------------------------------------------------------------ pet ve parıltılar
 
         /// <summary>Peti adaya koyar (kapı ya da verilen noktada).</summary>
-        public PetWalker PlacePet(Logic.Data.PetSpeciesDef def, float scale, IEnumerable<Logic.Data.ItemDef> items, float x, float z)
+        public PetWalker PlacePet(Logic.Data.PetSpeciesDef def, Logic.Progression.GrowthStage stage, IEnumerable<Logic.Data.ItemDef> items, float x, float z)
         {
+            var scale = PetModels.StageScale(stage);
             var holder = new GameObject("MapPet").transform;
             holder.SetParent(transform, false);
-            var pet = PetModels.Build(def, holder);
+            var pet = PetModels.Build(def, holder, stage);
             CosmeticModels.Apply(pet, def, items);
             holder.localScale = Vector3.one * scale;
             var col = holder.gameObject.AddComponent<CapsuleCollider>();   // pete dokununca giydirme
@@ -517,6 +518,21 @@ namespace Pofi.World
         // Meshy yürüme/koşu kliplerinde ayağın yere değdiği anlar (döngü içinde 0..1; art/scripts ölçümü, ayak kemiği en alçakta):
         // yürüme 2–27. kare: sol 0.22, sağ 0.72 · koşu 2–17. kare: sol 0.40, sağ 0.90. Ses klibin kendi zamanına bağlı: hız değişse de senkron.
         private static readonly float[] WalkContacts = { 0.22f, 0.72f }, RunContacts = { 0.40f, 0.90f };
+        // Okti evreleri (Meshy web "All Animations", prepare_stages.py ölçümü): model başına sol/sağ temas
+        private static readonly Dictionary<string, float[][]> ModelContacts = new Dictionary<string, float[][]>
+        {
+            { "pet_13_yavru", new[] { new[] { 0.52f, 0.96f }, new[] { 0.38f, 0.88f } } },
+            { "pet_13_genc", new[] { new[] { 0.40f, 0.92f }, new[] { 0.38f, 0.88f } } },
+            { "pet_13_yetiskin", new[] { new[] { 0.20f, 0.64f }, new[] { 0.01f, 0.44f } } },
+        };
+
+        private float[] Contacts(string clip)
+        {
+            var model = _pet != null ? _pet.name.Replace("_real", "") : "";
+            if (ModelContacts.TryGetValue(model, out var c)) return clip == "run" ? c[1] : c[0];
+            return clip == "run" ? RunContacts : WalkContacts;
+        }
+
         private float _lastPhase = -1f;
         private string _phaseClip;
 
@@ -526,7 +542,7 @@ namespace Pofi.World
             var ph = clip == null || _jump > 0f ? -1f : RealAssets.Phase(_pet, clip);
             if (ph < 0f && clip == "run") { clip = "walk"; ph = RealAssets.Phase(_pet, clip); }   // koşu klibi yoksa yürüme oynar
             if (ph < 0f || clip != _phaseClip) { _lastPhase = ph; _phaseClip = clip; return; }
-            var contacts = clip == "run" ? RunContacts : WalkContacts;
+            var contacts = Contacts(clip);
             foreach (var c in contacts)
                 if (Crossed(_lastPhase, ph, c)) { Audio.Sfx.Step(clip == "run"); _world.Prints?.Step(_x, _z, _yaw, c == contacts[0]); break; }
             _lastPhase = ph;
