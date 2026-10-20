@@ -44,12 +44,12 @@ namespace Pofi.Screens
             // sol üst
             // pet kartı: madalyon + isim plakası + seviye yıldızı + XP kapsülü (Candy.PetPlate)
             var pet = App.Data.Pet(App.State.PetId);
-            _levelBadge = Candy.PetPlate(hud, App.State.PetId, Theme.Hex(pet.MainColor), new Vector2(24f, -16f), out _levelText, out _levelNum, out _xpFill);
+            _levelBadge = Candy.PetPlate(hud, App.State.PetId, Theme.Hex(pet.MainColor), new Vector2(10f, -10f), out _levelText, out _levelNum, out _xpFill);
             // Yerleşim v3 taslağına göre (kullanıcı onayı, 19 Ekim 2026): halkalar küçük, rozetin altında; sol sütun Görev + Ev Görevleri;
             // üst orta Güneş Taşı + coin; sağ üst yuvarlak Harita ve Ayarlar; sol alt Besle/Yıka; sağ alt eylem.
             Color[] cols = { new Color(1f, 0.62f, 0.26f), new Color(0.24f, 0.79f, 1f), new Color(1f, 0.44f, 0.68f), new Color(0.48f, 0.84f, 0.42f) };
             for (var i = 0; i < 4; i++)
-                _gauges[i] = Candy.Gauge(hud, cols[i], HudIcons[i], 96f, new Vector2(0f, 1f), new Vector2(30f + 48f + i * 110f, -250f));
+                _gauges[i] = Candy.Gauge(hud, cols[i], HudIcons[i], 96f, new Vector2(0f, 1f), new Vector2(16f + 48f + i * 110f, -244f));
 
             // üst orta: Güneş Taşı ve coin
             _stoneText = Candy.ResourcePlate(hud, "ui_sunstone", Vector2.zero, 300f);   // Güneş Taşı (yerleştirilebilir)
@@ -58,24 +58,26 @@ namespace Pofi.Screens
             TopCenter(_coinText, 170f);
 
             // sağ üst: Harita (kuşbakışı / yürü) ve Ayarlar
-            var map = Candy.Round(hud, Candy.White, "ui_map", 160f, new Vector2(1f, 1f), new Vector2(-120f, -110f), ToggleMode, T("map.overview"));
+            // kenarlara yakın (kullanıcı, 20 Ekim 2026)
+            var map = Candy.Round(hud, Candy.White, "ui_map", 160f, new Vector2(1f, 1f), new Vector2(-92f, -100f), ToggleMode, T("map.overview"));
             _modeText = map.GetComponentInChildren<Text>();
             _mapBtn = (RectTransform)map.transform;
             // Ayarlar (kullanıcı, 19 Ekim 2026: "oyundan çıkamıyorum"): ses, pet değiştir, çıkış; Evim'e gitmeden. Ebeveyn sorusuyla açılır.
-            Candy.Round(hud, Candy.White, "ui_settings", 110f, new Vector2(1f, 1f), new Vector2(-120f, -330f),
-                () => ParentGate(() => App.Open(AppPage.Settings), msg => _toast.Say(msg)), T("settings.title"));
+            // müzik düğmesinin (UI.MusicButton: sağ üst −386, −66, 92 birim) solunda, aynı boyda ve yazısız
+            Candy.Round(hud, Candy.White, "ui_settings", 92f, new Vector2(1f, 1f), new Vector2(-496f, -66f),
+                () => ParentGate(() => App.Open(AppPage.Settings), msg => _toast.Say(msg)));
 
             // sol sütun: oyun içi görevler ve ebeveynin Ev Görevleri
-            var tasks = Candy.Round(hud, Candy.White, "ui_star", 150f, new Vector2(0f, 1f), new Vector2(150f, -400f), GoTasks, T("hud.tasks"));
+            var tasks = Candy.Round(hud, Candy.White, "ui_star", 150f, new Vector2(0f, 1f), new Vector2(98f, -400f), GoTasks, T("hud.tasks"));
             _tasksBtn = (RectTransform)tasks.transform;
             _questCount = Candy.Count(tasks.transform);   // bugün açık oyun içi görev sayısı
-            Candy.Round(hud, Candy.White, "ui_board", 150f, new Vector2(0f, 1f), new Vector2(150f, -605f), () => App.Open(AppPage.Tasks), T("tasks.title"));
+            Candy.Round(hud, Candy.White, "ui_board", 150f, new Vector2(0f, 1f), new Vector2(98f, -605f), () => App.Open(AppPage.Tasks), T("tasks.title"));
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             if (next != null)
                 Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
 
             // sol kenar: Besle, Yıka
-            _leftBar = Ui.Rect(hud, "Care", Vector2.zero, new Vector2(420f, 260f), new Vector2(240f, 190f));
+            _leftBar = Ui.Rect(hud, "Care", Vector2.zero, new Vector2(420f, 260f), new Vector2(196f, 172f));
             var feed = Candy.Round(_leftBar, Candy.White, "food_apple", 150f, new Vector2(0.3f, 0.6f), Vector2.zero, OnFeed, T("hud.feed"));
             _feedBtn = (RectTransform)feed.transform;
             _feedCount = Candy.Count(feed.transform);
@@ -85,7 +87,7 @@ namespace Pofi.Screens
 
             // sağ alt: bağlamsal eylem
             // simgesi o anki eyleme göre değişir (balta, el, kazma, çekiç, zıpla, kapı, oyna); altında kısa yazı
-            var act = Candy.Round(hud, Candy.White, "act_jump", 230f, new Vector2(1f, 0f), new Vector2(-190f, 230f), () => _actionDo?.Invoke(), T("hud.jump"));
+            var act = Candy.Round(hud, Candy.White, "act_jump", 230f, new Vector2(1f, 0f), new Vector2(-150f, 205f), () => _actionDo?.Invoke(), T("hud.jump"));
             _action = (RectTransform)act.transform;
             _actionText = act.GetComponentInChildren<Text>();
             var ai = act.transform.Find("Icon act_jump");
@@ -256,7 +258,7 @@ namespace Pofi.Screens
             var day = FirstDayNow;
             if (day == FirstDayStep.Board) { Tip(Onboarding.Board, TipGesture.Tap, () => RegionScreen("region_task_board")); return; }
             if (day == FirstDayStep.Mark) { Tip(Onboarding.Mark, TipGesture.Tap, () => RegionScreen("region_task_board"), null, null, null, "tip.board"); return; }
-            if (day == FirstDayStep.Stone) { Tip(Onboarding.Stone, TipGesture.Tap, () => RegionScreen("region_task_board")); return; }
+            if (day == FirstDayStep.Stone) { Tip(Onboarding.Stone, TipGesture.Tap, () => RegionScreen(App.Data.SunBook.Next(App.State.SunStones)?.Region ?? "region_task_board"), null, null, null, "tip.stone_spot"); return; }
             var next = TipSeq.FirstOrDefault(id => Onboarding.Pending(st, id) && FirstDay.AllowsTip(day, id));
             switch (next)
             {
@@ -300,7 +302,8 @@ namespace Pofi.Screens
                 case "wash": return () => UiScreen(_washBtn);
                 case "home": case "tidy": return () => RegionScreen("region_home");
                 case "wear": return PetScreen;
-                case "board": case "stone": return () => RegionScreen("region_task_board");
+                case "board": return () => RegionScreen("region_task_board");
+                case "stone": return () => RegionScreen(App.Data.SunBook.Next(App.State.SunStones)?.Region ?? "region_task_board");
                 case "gather": return NearestGatherScreen;
                 case "hut": return () => App.Stage.Camera.WorldToScreenPoint(_world.World(_sitePos.x, _sitePos.z) + Vector3.up * 1.5f);
                 case "coconut": return () => RegionScreen("region_coconut_grove");
@@ -346,6 +349,7 @@ namespace Pofi.Screens
                     break;
                 }
             }
+            if (key == "hud.jump" && SpotAction(p, out var sact)) { key = "hud.place"; icon = "ui_sunstone"; act = sact; }
             if (key == "hud.jump")
             {
                 // kapı önünde ya da yapının herhangi bir kenarına yakın → Gir / Oyna (kullanıcı, 19 Ekim 2026: illa kapıya
@@ -377,6 +381,58 @@ namespace Pofi.Screens
                 _action.localScale = Vector3.one * 1.12f;   // değişince küçük "pop"
             }
             _action.localScale = Vector3.Lerp(_action.localScale, Vector3.one, Time.deltaTime * 8f);
+        }
+
+        /// <summary>
+        /// Güneş Taşı onarım noktası (sisli kilitli bölge) yakınında mı (kullanıcı, 20 Ekim 2026: taş panoda değil, adada ilgili yere
+        /// götürülerek konur)? Eylem: taş varsa ve sıradaki noktaysa yerleştir; yoksa nedenini söyle.
+        /// </summary>
+        private bool SpotAction(Vector2 p, out System.Action act)
+        {
+            act = null;
+            foreach (var v in _views)
+            {
+                if (v.Unlocked || v.Spot == null) continue;
+                var edge = Vector2.Distance(p, new Vector2(v.Region.X, v.Region.Z)) - v.Region.Size * 0.55f;
+                if (edge > 2.6f) continue;
+                var spot = v.Spot;
+                act = () => PlaceStone(spot);
+                return true;
+            }
+            return false;
+        }
+
+        private void PlaceStone(SunSpotDef spot)
+        {
+            var st = App.State.SunStones;
+            var r = App.Data.SunBook.PlaceOne(st, spot.Id);
+            switch (r)
+            {
+                case PlaceResult.NoStones:
+                    _toast.Say(T("map.locked_stones", App.Map.Find(spot.Region)?.Name ?? spot.Name, spot.Cost - SunStoneBook.PlacedIn(st, spot.Id)));
+                    Audio.Sfx.Play(Audio.SfxKind.Fail);
+                    return;
+                case PlaceResult.NotNext:
+                    _toast.Say(T("stones.not_next", App.Data.SunBook.Next(st)?.Name ?? ""));
+                    Audio.Sfx.Play(Audio.SfxKind.Fail);
+                    return;
+                case PlaceResult.AlreadyRepaired:
+                    return;
+            }
+            if (Onboarding.Pending(App.State, Onboarding.Stone)) Onboarding.Done(App.State, Onboarding.Stone);
+            Audio.Sfx.Play(Audio.SfxKind.Success);
+            Audio.Haptics.Medium();
+            _world.Walker?.Jump();
+            var sp = PetScreen();
+            StarSparkles.Around(Root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.14f, 0.2f), 10, 11);
+            App.Save();
+            App.RecordActivity("stone_placed");
+            if (r == PlaceResult.Repaired)
+            {
+                Toast.Post(App.Overlay.transform, Th, string.IsNullOrEmpty(spot.Say) ? T("stones.all_done") : spot.Say);
+                App.Route();   // sis kalkar, bölge açılır (ada yeniden kurulur)
+            }
+            else _toast.Say(T("stones.placed_more", spot.Cost - SunStoneBook.PlacedIn(st, spot.Id)));
         }
 
         /// <summary>Mini oyun ya da masa oyunu bölgesi mi (üstünde "Oyna!" çağrısı gösterilir)?</summary>

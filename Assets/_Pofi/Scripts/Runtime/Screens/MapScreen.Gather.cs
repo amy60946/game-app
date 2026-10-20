@@ -83,7 +83,7 @@ namespace Pofi.Screens
         /// <summary>Malzeme listesi (sağda, Görev/Kuşbakışı altında): kulübe yapılana kadar görünür.</summary>
         private void BuildTracker(RectTransform hud)
         {
-            _tracker = Ui.Rect(hud, "Tracker", new Vector2(1f, 1f), new Vector2(330f, 420f), new Vector2(-195f, -490f));
+            _tracker = Ui.Rect(hud, "Tracker", new Vector2(1f, 1f), new Vector2(330f, 420f), new Vector2(-172f, -480f));
             var title = Ui.Rect(_tracker, "Title", new Vector2(0.5f, 1f), new Vector2(330f, 70f), new Vector2(0f, -35f));
             Candy.Tag(title, T("gather.hut"), new Color(0.1f, 0.36f, 0.68f, 0.9f), 34, 64f);
             Ui.IconImage(title, "tool_hammer", new Vector2(0f, 0.5f), 78f, new Vector2(4f, 0f));

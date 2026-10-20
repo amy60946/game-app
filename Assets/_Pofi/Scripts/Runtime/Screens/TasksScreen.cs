@@ -94,22 +94,10 @@ namespace Pofi.Screens
             sub.rectTransform.anchoredPosition = new Vector2(36f, 16f);
 
             if (next == null || have <= 0) return;
-            var place = Btn(row, T("stones.place"), true, new Vector2(-28f, 60f), new Vector2(320f, 110f), () => Place(next));
+            // yerleştirme adada (kullanıcı, 20 Ekim 2026): çocuk taşı sisli yere (köprü, mağara yolu, fener…) götürür
+            var place = Btn(row, T("stones.go"), true, new Vector2(-28f, 60f), new Vector2(320f, 110f), () => App.Open(AppPage.Map));
             if (Onboarding.Pending(App.State, Onboarding.Stone))
-                _coach = Coach.Show(Root, Onboarding.Stone, T("tip.stone"), TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, place.position));
-        }
-
-        private void Place(SunSpotDef spot)
-        {
-            var r = App.Data.SunBook.PlaceOne(App.State.SunStones, spot.Id);
-            if (r == PlaceResult.Ok || r == PlaceResult.Repaired)
-            {
-                if (Onboarding.Pending(App.State, Onboarding.Stone)) Onboarding.Done(App.State, Onboarding.Stone);
-                if (r == PlaceResult.Repaired) Toast.Post(App.Overlay.transform, Th, string.IsNullOrEmpty(spot.Say) ? T("stones.all_done") : spot.Say);
-                App.Save();
-                App.RecordActivity("stone_placed");
-            }
-            Fill();
+                _coach = Coach.Show(Root, Onboarding.Stone, T("tip.stone_go", next.Name), TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, place.position));
         }
 
         private void InfoRow(string name, string text)
