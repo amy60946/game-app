@@ -92,11 +92,16 @@ def hut(level):
         rbox('lampcap', (0.55, -Dp / 2 - 0.62, ph - 0.13), (0.13, 0.13, 0.03), m_metal(name='lampm'), bevel=0.01)
     if level >= 3:
         # taş baca (sol arka) + duman bulutu
-        for k in range(10):
-            pebble((-Wd / 2 + 0.25 + R.uniform(-0.03, 0.03), Dp / 2 - 0.15, H - 0.2 + k * 0.17), R.uniform(0.11, 0.14), STN, 300 + k)
+        # dış duvara yaslanan taş baca: yerden çatının üstüne kesintisiz taş sütun (iki taş yan yana)
+        cx, cy = -Wd / 2 - 0.32, Dp / 2 - 0.35
+        nst = int((H + 1.35) / 0.15)
+        for k in range(nst):
+            for j, dy in enumerate((-0.11, 0.11)):
+                pebble((cx + R.uniform(-0.02, 0.02), cy + dy, 0.1 + k * 0.15), R.uniform(0.1, 0.13), STN, 300 + k * 2 + j)
+        ctop = 0.1 + nst * 0.15
         for k in range(3):
-            blob('smoke', (-Wd / 2 + 0.3 + k * 0.12, Dp / 2 - 0.1, H + 2.0 + k * 0.28), (0.16 + k * 0.05,) * 3, mat('smoke', '#f2f4f7', rough=0.9, coat=0), sub=2, seg=12)
-        top = max(top, H + 2.6)
+            blob('smoke', (cx + 0.05 + k * 0.1, cy, ctop + 0.2 + k * 0.3), (0.13 + k * 0.05,) * 3, mat('smoke', '#f2f4f7', rough=0.9, coat=0), sub=2, seg=12)
+        top = max(top, ctop + 1.0)
         # balkon (ön, çatı katı penceresinin altında): tahta zemin + halat korkuluk
         BL = m_wood('#b0835a', 'balc', age=1.3)
         plank('balc', (0, -Dp / 2 - 0.3, H - 0.05), (1.0, 0.5, 0.05), BL, seed=70)
@@ -141,17 +146,18 @@ if __name__ == '__main__':
             objs = [o for o in bpy.context.scene.objects if o.type == 'MESH']
             print('b_hut%d' % lv, 'üçgen', export_baked_fbx(f'{OUT}/b_hut_lv{lv}', objs, size=1024), flush=True)
         sys.exit(0)
+    only = [int(x) for x in os.environ.get('HUT_LV', '1,2,3').split(',') if x]
     # tek tek
-    for lv in (1, 2, 3):
+    for lv in only:
         sc = reset(); sc.cycles.samples = 48
         g = ground(4.5, '#7fbf5a'); top = hut(lv); finish()
         objs = [o for o in sc.objects if o.type == 'MESH' and o.name != 'ground']
         print('seviye', lv, 'üçgen', tri_count(objs), 'yükseklik', round(top, 2), flush=True)
-        shoot(sc, f'{OUT}/hut_lv{lv}.png', (0, -0.3, 1.25), 7.2, 30, 22, lens=50, size=(900, 900))
+        shoot(sc, f'{OUT}/hut_lv{lv}.png', (0, -0.3, 1.25 + 0.35 * (lv - 1)), 7.2 + 1.1 * (lv - 1), 30, 22, lens=50, size=(900, 900))
     # yan yana
     sc = reset(); sc.cycles.samples = 48
     ground(9, '#7fbf5a')
     for lv, ox in ((1, -3.6), (2, 0.0), (3, 3.6)): build_at(lv, ox)
     finish()
-    shoot(sc, f'{OUT}/hut_levels.png', (0, -0.4, 1.4), 13.5, 18, 16, lens=50, size=(1800, 900))
+    shoot(sc, f'{OUT}/hut_levels.png', (0.3, -0.4, 1.9), 16.5, 16, 15, lens=50, size=(1800, 900))
     print('ok')

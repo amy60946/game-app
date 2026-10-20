@@ -56,8 +56,56 @@ def paint_shade(o, fn):
 
 
 # ------------------------------------------------------------------ zemin: tümsekli, kayanın dibine doğru yükselen
+def path_mask(x, y):
+    """Toprak/çakıl maskesi (0..1): ağızdan dışarı uzanan patika + ağız önünde yelpaze; kenarı gürültüyle yırtık."""
+    cx = 0.06 * math.sin(y * 1.3)
+    w = 0.42 + 0.1 * mnoise.noise(V((0, y * 1.4, 4)))
+    k = max(0.0, 1.0 - abs(x - cx) / w)
+    if y > MOUTH_Y - 0.1: k = 1.0 if abs(x) < MOUTH_W * 1.3 else k
+    fan = max(0.0, 1.0 - math.hypot(x / 1.25, (y - MOUTH_Y) / 0.75))
+    k = max(k, fan)
+    k += 0.35 * mnoise.noise(V((x * 2.6, y * 2.6, 9)))
+    if y < MOUTH_Y - 2.6: k *= max(0.0, 1 - (MOUTH_Y - 2.6 - y) / 0.8)
+    return max(0.0, min(1.0, k * 1.4 - 0.2))
+
+
+def m_turf_blend(name='turfblend'):
+    """Çim ↔ toprak/çakıl: 'dirt' özniteliği + iki ölçekli gürültü; geçişte ezilmiş açık-sarımsı ot şeridi."""
+    def b(nt, bsdf):
+        n = nt.nodes; l = nt.links
+        tc = n.new('ShaderNodeTexCoord')
+        at = n.new('ShaderNodeAttribute'); at.attribute_name = 'dirt'
+        nz = n.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 9; nz.inputs['Detail'].default_value = 6; l.new(tc.outputs['Object'], nz.inputs['Vector'])
+        ad = n.new('ShaderNodeMath'); ad.operation = 'MULTIPLY_ADD'; ad.inputs[1].default_value = 0.45
+        l.new(nz.outputs['Fac'], ad.inputs[0]); l.new(at.outputs['Fac'], ad.inputs[2])
+        mk = n.new('ShaderNodeMapRange'); mk.interpolation_type = 'SMOOTHSTEP'; mk.inputs['From Min'].default_value = 0.55; mk.inputs['From Max'].default_value = 0.85
+        l.new(ad.outputs[0], mk.inputs['Value'])
+        g2 = n.new('ShaderNodeTexNoise'); g2.inputs['Scale'].default_value = 4; l.new(tc.outputs['Object'], g2.inputs['Vector'])
+        grass = ramp(nt, [(0.3, '#5f9a3e'), (0.55, '#78ad4e'), (0.75, '#93bf5c')]); l.new(g2.outputs['Fac'], grass.inputs['Fac'])
+        dn = n.new('ShaderNodeTexNoise'); dn.inputs['Scale'].default_value = 22; dn.inputs['Detail'].default_value = 8; l.new(tc.outputs['Object'], dn.inputs['Vector'])
+        dirt = ramp(nt, [(0.3, '#7a5a3a'), (0.5, '#9c7a52'), (0.7, '#b89a70')]); l.new(dn.outputs['Fac'], dirt.inputs['Fac'])
+        # çakıl benekleri toprağın içinde
+        vo = n.new('ShaderNodeTexVoronoi'); vo.inputs['Scale'].default_value = 38; l.new(tc.outputs['Object'], vo.inputs['Vector'])
+        gv = n.new('ShaderNodeMapRange'); gv.inputs['From Min'].default_value = 0.0; gv.inputs['From Max'].default_value = 0.18
+        gv.inputs['To Min'].default_value = 0.8; gv.inputs['To Max'].default_value = 0.0; l.new(vo.outputs['Distance'], gv.inputs['Value'])
+        dm = n.new('ShaderNodeMix'); dm.data_type = 'RGBA'; dm.inputs[7].default_value = srgb('#c9c0b4')
+        l.new(gv.outputs[0], dm.inputs['Factor']); l.new(dirt.outputs[0], dm.inputs[6])
+        # geçiş şeridi: ezilmiş kuru ot
+        ed = n.new('ShaderNodeMapRange'); ed.inputs['From Min'].default_value = 0.35; ed.inputs['From Max'].default_value = 0.6
+        l.new(ad.outputs[0], ed.inputs['Value'])
+        ed2 = n.new('ShaderNodeMath'); ed2.operation = 'PINGPONG'; ed2.inputs[1].default_value = 0.5; l.new(ed.outputs[0], ed2.inputs[0])
+        gm = n.new('ShaderNodeMix'); gm.data_type = 'RGBA'; gm.inputs[7].default_value = srgb('#b3b866')
+        e3 = n.new('ShaderNodeMath'); e3.operation = 'MULTIPLY'; e3.inputs[1].default_value = 1.1; l.new(ed2.outputs[0], e3.inputs[0])
+        l.new(e3.outputs[0], gm.inputs['Factor']); l.new(grass.outputs[0], gm.inputs[6])
+        mx = n.new('ShaderNodeMix'); mx.data_type = 'RGBA'
+        l.new(mk.outputs[0], mx.inputs['Factor']); l.new(gm.outputs[2], mx.inputs[6]); l.new(dm.outputs[2], mx.inputs[7])
+        l.new(mx.outputs[2], bsdf.inputs['Base Color'])
+        bsdf.inputs['Roughness'].default_value = 0.9
+    return nodes_mat(name, b)
+
+
 def terrain(size=9.0, n=90):
-    G = A.m_flat('#78ab4e', 0.2, 5, 'turf')
+    G = m_turf_blend()
     bm = bmesh.new(); grid = []
     for j in range(n + 1):
         row = []
@@ -67,13 +115,17 @@ def terrain(size=9.0, n=90):
             d = math.hypot(x / 1.6, (y - 0.4) / 1.3)
             z = 0.42 * math.exp(-d * d * 0.9) + 0.06 * mnoise.noise(V((x * 0.6, y * 0.6, 2)))
             if y < MOUTH_Y + 0.2 and abs(x) < 0.8: z -= 0.04 * math.exp(-x * x * 4)
-            if y > MOUTH_Y - 0.25 and abs(x) < MOUTH_W * 1.5: z = min(z, 0.0)   # tünel tabanı: zemin kayanın altında kalsın (patika görünsün)
+            if abs(x) < MOUTH_W * 1.5 and y > MOUTH_Y - 0.7:   # tünel tabanı: zemin ağza doğru yumuşakça iner, içeride patikanın altında kalır
+                t = min(1.0, (y - (MOUTH_Y - 0.7)) / 0.7); edge = min(1.0, (MOUTH_W * 1.5 - abs(x)) / 0.3)
+                z = min(z, z * (1 - t * edge) + (0.0 - 0.1 * max(0.0, (y - MOUTH_Y) / 0.3)) * t * edge)
             row.append(bm.verts.new((x, y, z)))
         grid.append(row)
     for j in range(n):
         for i in range(n):
             bm.faces.new((grid[j][i], grid[j][i + 1], grid[j + 1][i + 1], grid[j + 1][i]))
     o = link_mesh('terrain', bm, [G]); smooth(o)
+    me = o.data; ca = me.color_attributes.new('dirt', 'FLOAT', 'POINT')
+    for v in me.vertices: ca.data[v.index].value = path_mask(v.co.x, v.co.y)
     return o
 
 
@@ -106,7 +158,7 @@ def mass():
         for i in range(NS):
             a = i / NS * 2 * math.pi
             rr = 1 + 0.1 * mnoise.noise(V((math.cos(a) * 2, math.sin(a) * 2, s * 3)))
-            x = cx + math.cos(a) * w * rr; z = 0.05 + (math.sin(a) * 0.5 + 0.5) * h * rr * (1.0 if math.sin(a) > 0 else 0.35)
+            x = cx + math.cos(a) * w * rr; z = -0.2 + (math.sin(a) * 0.5 + 0.5) * (h + 0.25) * rr * (1.0 if math.sin(a) > 0 else 0.35)
             ring.append(bm.verts.new((x, y, z - 0.25 * (1 - s) * 0)))
         rings.append(ring)
     for j in range(NR):
@@ -131,17 +183,17 @@ def mass():
 
 # ------------------------------------------------------------------ içeri giden patika (koyulaşan)
 def path_in(dg):
-    D = shade_by_attr(m_dirt('cavepath'))
+    D = shade_by_attr(m_turf_blend('cavepath'))   # zeminle aynı toprak: dikiş görünmesin
     bm = bmesh.new(); rows = []
     for j in range(26):
-        s = j / 25; y = MOUTH_Y - 1.7 + s * (DEPTH + 1.6)
-        w = (0.42 + 0.12 * math.sin(s * 9)) * (1.25 - 0.5 * s)
+        s = j / 25; y = MOUTH_Y - 0.08 + s * (DEPTH - 0.02)
+        w = MOUTH_W * (1.25 - 0.4 * s) * (1 + 0.05 * math.sin(s * 9))   # tünel tabanını kenardan kenara örter
         cx = 0.18 * math.sin(max(0.0, (y - MOUTH_Y)) / (DEPTH + 0.6) * 2.2)
         row = []
         for i in range(7):
             u = i / 6 * 2 - 1
             x = cx + u * w * (1 + 0.12 * mnoise.noise(V((u * 3, y * 2, 5))))
-            z = (ground_z(dg, x, y) if y < MOUTH_Y + 0.05 else 0.06) + 0.012
+            z = (ground_z(dg, x, y) if y < MOUTH_Y + 0.02 else 0.0) + 0.012   # dışarıda zemine yapışık, içeride düz taban
             row.append(bm.verts.new((x, y, z)))
         rows.append(row)
     for j in range(25):
@@ -149,6 +201,8 @@ def path_in(dg):
             bm.faces.new((rows[j][i], rows[j][i + 1], rows[j + 1][i + 1], rows[j + 1][i]))
     o = link_mesh('path', bm, [D]); smooth(o)
     paint_shade(o, lambda w: depth_shade(w.y))
+    ca = o.data.color_attributes.new('dirt', 'FLOAT', 'POINT')
+    for v in o.data.vertices: ca.data[v.index].value = 1.0
     # iç uç: tünelin sonunu kapatan, ışığı yutan koyu "derinlik" perdesi (gradyanlı, tam siyah değil)
     bm = bmesh.new(); vs = []
     yb = MOUTH_Y + DEPTH - 0.1
@@ -218,6 +272,9 @@ def dressing(dg, STN):
         r = R.uniform(0.022, 0.06) * (1.25 if abs(x) > 0.5 else 1.0)
         gz = 0.06 if y > MOUTH_Y - 0.05 else ground_z(dg, x, y)   # ağız içinde patika hizası (tavana çarpmasın)
         o = pebble((x, y, gz + r * 0.25), r, STN, 500 + k)
+    for k in range(26):   # eşikte biriken ince çakıl şeridi (ağız dudağı boyunca)
+        x = -MOUTH_W * 1.25 + k * (MOUTH_W * 2.5 / 25) + R.uniform(-0.03, 0.03); y = MOUTH_Y - 0.08 + R.uniform(-0.06, 0.06)
+        r = R.uniform(0.02, 0.045); pebble((x, y, ground_z(dg, x, y) + r * 0.2), r, STN, 800 + k)
     for k in range(5):   # büyük yan taşlar
         s = (-1, 1)[k % 2]
         rock((s * R.uniform(0.75, 1.0), MOUTH_Y - R.uniform(0.0, 0.5), 0.08), R.uniform(0.12, 0.2), STN, 40 + k, sq=(1.1, 0.9, 0.7), sub=2, amt=0.18)
@@ -225,6 +282,28 @@ def dressing(dg, STN):
     for (x, y, h, tilt) in ((-0.7, MOUTH_Y + 0.15, 0.36, 18), (-0.56, MOUTH_Y + 0.05, 0.22, -12), (0.68, MOUTH_Y + 0.18, 0.32, -16), (0.8, MOUTH_Y + 0.25, 0.2, 22)):
         bpy.ops.mesh.primitive_cone_add(vertices=6, radius1=0.07, radius2=0.0, depth=h, location=(x, y, h / 2 + 0.03), rotation=(0, math.radians(tilt), 0))
         bpy.context.object.data.materials.append(CR)
+
+
+def ferns(dg, spots):
+    FL = [m_leaf('#2a6f2c', '#3f9a3a', '#86c95a', '#c6ea94', 'fernA'), m_leaf('#326f28', '#4f9e36', '#9ccf5e', '#d2ee9e', 'fernB')]
+    def build(bm):
+        out = []
+        for k, (x, y, sc_) in enumerate(spots):
+            base = V((x, y, ground_z(dg, x, y) + 0.01)); Rr = random.Random(900 + k)
+            for f in range(Rr.randint(6, 9)):
+                a = f / 7 * 6.28 + Rr.uniform(-0.3, 0.3); up = Rr.uniform(0.35, 0.7)
+                d = V((math.cos(a) * (1 - up), math.sin(a) * (1 - up), up)).normalized(); side = V((-math.sin(a), math.cos(a), 0))
+                L = Rr.uniform(0.32, 0.5) * sc_
+                for f2 in blade(bm, base, d, side, L, 0.012, 0.9, segs=4, lift=0.2): out.append((f2, 0))    # orta damar (sap)
+                nl = 9
+                for q in range(1, nl):                                                                # yaprakçık çiftleri
+                    s_ = q / nl; p = base + d * (L * s_) + V((0, 0, (0.2 - 0.9 * s_) * L * s_))
+                    ln = 0.075 * sc_ * (1 - s_ * 0.75)
+                    for sg in (1, -1):
+                        dd = (side * sg + d * 0.45).normalized()
+                        for f3 in blade(bm, p, dd, d.cross(dd).normalized() if d.cross(dd).length > 0 else side, ln, ln * 0.32, 0.4, segs=2): out.append((f3, q % 2))
+        return out
+    mesh_from_blades('fern', build, FL)
 
 
 def scene_setup():
@@ -240,6 +319,9 @@ if __name__ == '__main__':
     path_in(dg)
     vines(M)
     dressing(dg, STN)
+    ferns(dg, [(-0.95, MOUTH_Y - 0.05, 1.1), (0.98, MOUTH_Y - 0.02, 1.15), (-1.35, MOUTH_Y + 0.1, 1.2), (1.4, MOUTH_Y + 0.15, 1.2),
+               (-0.72, MOUTH_Y - 0.45, 0.9), (0.78, MOUTH_Y - 0.5, 0.9), (-1.9, MOUTH_Y + 0.3, 1.0), (1.95, MOUTH_Y + 0.35, 1.0),
+               (-1.15, MOUTH_Y - 0.75, 0.85), (1.2, MOUTH_Y - 0.8, 0.85), (-2.3, MOUTH_Y - 0.2, 0.9), (2.3, MOUTH_Y - 0.1, 0.9)])
     # tepe otları
     for k in range(10):
         x, y = R.uniform(-1.2, 1.2), R.uniform(0.0, 1.4)

@@ -66,7 +66,7 @@ put(img, icon('close', 70) if os.path.exists(os.path.join(RES, 'Icons', 'close.p
 cx = (px0 + px1) / 2
 put(img, icon('food_carrot', 120), (cx - 95, py0 + 125))
 text(img, (cx + 40, py0 + 100), 'Büyüyor', 34, fill=(110, 75, 40, 255), stroke=(255, 255, 255, 255), sw=4)
-bar = nine(ui('track_dark'), 190, 36, 16); fill = nine(ui('fill_orange'), 120, 28, 12)
+bar = ui('track_dark').resize((190, 36), Image.LANCZOS); fill = ui('fill_orange').resize((120, 28), Image.LANCZOS)
 img.alpha_composite(bar, (int(cx - 55), py0 + 128)); img.alpha_composite(fill, (int(cx - 51), py0 + 132))
 text(img, (cx + 40, py0 + 182), '3 dk kaldı', 26, fill=(140, 110, 80, 255), stroke=(255, 255, 255, 255), sw=3)
 # tohum seçimi
@@ -95,7 +95,7 @@ d = ImageDraw.Draw(f)
 for i in range(3): d.ellipse((spot[0] - 6, spot[1] - 90 + i * 22, spot[0] + 6, spot[1] - 78 + i * 22), fill=(120, 80, 40, 160 - i * 40))
 put(f, icon('ui_hand', 90), (spot[0] + 90, spot[1] - 40)); frames.append((f, '1. Tohum düşer, toprak kabarır'))
 # 2 su kavisi + ıslak toprak
-f = frame(1); wet = Image.new('RGBA', f.size, (0, 0, 0, 0)); ImageDraw.Draw(wet).ellipse((spot[0] - 120, spot[1] - 40, spot[0] + 120, spot[1] + 50), fill=(20, 12, 6, 120))
+f = frame(1); wet = Image.new('RGBA', f.size, (0, 0, 0, 0)); ImageDraw.Draw(wet).ellipse((spot[0] - 120, spot[1] - 40, spot[0] + 120, spot[1] + 50), fill=(20, 12, 6, 175))
 f.alpha_composite(wet.filter(ImageFilter.GaussianBlur(14)))
 if can is not None: put(f, icon('can_icon', 150).rotate(-28, expand=True, resample=Image.BICUBIC), (spot[0] - 150, spot[1] - 150))
 d = ImageDraw.Draw(f)
@@ -118,7 +118,7 @@ for i in range(6):
     t = i / 5; d.ellipse((spot[0] + 40 + t * 200 - 4, spot[1] - 90 - math.sin(t * 3.1) * 70 - 4, spot[0] + 40 + t * 200 + 4, spot[1] - 90 - math.sin(t * 3.1) * 70 + 4), fill=(255, 220, 120, 220))
 put(f, icon('food_carrot', 54), (spot[0] + 250, spot[1] - 100)); text(f, (spot[0] + 250, spot[1] - 40), '+2', 34)
 frames.append((f, '4. Hasat zıplar, envantere uçar'))
-SB = Image.new('RGBA', (fw * 2 + 60, fh * 2 + 210), (246, 240, 226, 255))
+SB = Image.new('RGBA', (fw * 2 + 60, fh * 2 + 250), (246, 240, 226, 255))
 for i, (fr, cap) in enumerate(frames):
     x = 20 + (i % 2) * (fw + 20); y = 70 + (i // 2) * (fh + 60)
     SB.alpha_composite(fr, (x, y)); text(SB, (x + fw / 2, y + fh + 26), cap, 28, fill=(90, 60, 35, 255), stroke=(255, 255, 255, 255), sw=3)

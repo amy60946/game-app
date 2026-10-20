@@ -43,19 +43,32 @@ class Terrain:
     def normal(self, x, y):
         e = 0.15
         return V((self.h(x - e, y) - self.h(x + e, y), self.h(x, y - e) - self.h(x, y + e), 2 * e)).normalized()
+    def snow_raw(self, x, y):
+        w = 0.0
+        for (hx, hy, hh, hr, snow) in self.hills:
+            if snow: w = max(w, math.exp(-((x - hx) ** 2 + (y - hy) ** 2) / (2 * hr * hr)))
+        return w
+    def zones(self, x, y):
+        """Biyom ağırlıkları (kar, kaya, soğuk çim, çim): yumuşak, gürültülü geçiş — sert sınır yok."""
+        s = self.snow_w(x, y); nz = self.normal(x, y).z
+        n = mnoise.noise(V((x * 0.6, y * 0.6, 4.0)))
+        edge = math.exp(-((s - 0.35) / 0.22) ** 2)                      # kar kenarı bandı
+        rock = max(smoothstep(0.86, 0.7, nz) * 0.85, edge * smoothstep(-0.2, 0.4, n) * 0.55) * (1 - smoothstep(0.7, 1.0, s))
+        cool = smoothstep(0.02, 0.35, self.snow_raw(x, y)) * (1 - s)      # kara yakın çim: soğuk, mavimsi yeşil
+        return s, rock, cool
     def color(self, x, y):
         g1, g2, dry = V(srgb('#5f8f3a')[:3]), V(srgb('#7aa646')[:3]), V(srgb('#9aa45a')[:3])
         k = 0.5 + 0.5 * mnoise.noise(V((x * 0.25, y * 0.25, 2.0)))
         c = g1.lerp(g2, k).lerp(dry, max(0.0, mnoise.noise(V((x * 0.08, y * 0.08, 9.0)))) * 0.5)
+        s, rockw, cool = self.zones(x, y)
+        c = c.lerp(V(srgb('#5e8a6c')[:3]).lerp(V(srgb('#7c9c86')[:3]), k), cool * 0.85)     # soğuk çim tonu
+        c = c.lerp(V(srgb('#8a8174')[:3]).lerp(V(srgb('#a89c8a')[:3]), k), rockw)          # kaya bandı / dik yamaç
         nz = self.normal(x, y).z
-        rockw = smoothstep(0.86, 0.72, nz) * 0.85                  # dik yamaçta kaya
-        c = c.lerp(V(srgb('#8c8274')[:3]).lerp(V(srgb('#a69a88')[:3]), k), rockw)
-        s = self.snow_w(x, y)
-        frost = V(srgb('#b9c9b0')[:3])                                # kırağılı çim: yeşilden kara köprü
-        c = c.lerp(frost, smoothstep(0.0, 0.55, s) * 0.7)
-        snow = V(srgb('#e9f0fa')[:3]).lerp(V(srgb('#cfdcf0')[:3]), 1 - nz)
-        c = c.lerp(snow, smoothstep(0.45, 1.0, s))
+        c = c.lerp(V(srgb('#c4d0c4')[:3]), smoothstep(0.15, 0.5, s) * 0.45)               # kırağı
+        snow = V(srgb('#ebf1fa')[:3]).lerp(V(srgb('#cddbf0')[:3]), (1 - nz) * 1.5)
+        c = c.lerp(snow, smoothstep(0.42, 0.95, s))
         return c, s, rockw
+
     def build(self):
         n = self.res; S = self.size
         bm = bmesh.new(); col = bm.loops.layers.color.new('Col')
@@ -231,7 +244,7 @@ def snowman(loc, s=1.0):
     blob('sm2', (x, y, z + 0.7 * s), (0.21 * s,) * 3, SN, sub=2, seg=16)
     blob('sm3', (x, y, z + 1.0 * s), (0.15 * s,) * 3, SN, sub=2, seg=16)
     blob('nose', (x - 0.16 * s, y, z + 1.0 * s), (0.08 * s, 0.025 * s, 0.025 * s), mat('carrot', '#f08a2a', 0.4, 0.1), sub=1, seg=10)
-    for dy in (-0.05, 0.05): blob('eye', (x - 0.13 * s, y + dy * s, z + 1.06 * s), (0.02 * s,) * 3, mat('coal', '#222', 0.6, 0), sub=0, seg=8)
+    for dy in (-0.05, 0.05): blob('eye', (x - 0.13 * s, y + dy * s, z + 1.06 * s), (0.02 * s,) * 3, mat('coal', '#222222', 0.6, 0), sub=0, seg=8)
     tube('scarf', [(x, y - 0.17 * s, z + 0.86 * s), (x - 0.12 * s, y, z + 0.87 * s), (x, y + 0.17 * s, z + 0.86 * s)], [0.04 * s] * 3, mat('scarf', '#e8463c', 0.6, 0), res=6)
 
 def signpost(x, y, z, yaw, arrows, tr=None):
@@ -271,6 +284,73 @@ def lift_new(tr, before):
     for o in bpy.context.selected_objects:
         for v in o.data.vertices: v.co.z += tr.h(v.co.x, v.co.y)
 
+def heather(x, y, z, seed):
+    """Kar kenarı: seyrek kuru ot + funda (kahve-zeytin yapraklar, minik mor çiçek)."""
+    R = random.Random(seed)
+    DRY = m_leaf('#6b5a32', '#8f7c45', '#b8a464', '#c9b77a', 'dryg')
+    def build(bm):
+        out = []
+        for j in range(R.randint(9, 14)):
+            b_ = R.uniform(0, 6.28); up = R.uniform(0.55, 0.95)
+            d = V((math.cos(b_) * (1 - up), math.sin(b_) * (1 - up), up)).normalized(); side = V((-math.sin(b_), math.cos(b_), 0))
+            for f in blade(bm, V((x, y, z)), d, side, R.uniform(0.14, 0.26), 0.012, 0.5, segs=2): out.append((f, 0))
+        return out
+    mesh_from_blades('heather', build, [DRY])
+    PU = m_flat('#9a6fb0', 0.15, 10, 'heathf')
+    for q in range(R.randint(2, 5)):
+        blob('hf', (x + R.uniform(-0.08, 0.08), y + R.uniform(-0.08, 0.08), z + R.uniform(0.08, 0.16)), (0.025, 0.025, 0.04), PU, sub=0, seg=6)
+
+def fern(x, y, z, seed, size=0.55):
+    """Yamaç: eğrelti — kemerli yapraklar, iki yanda küçük yaprakçıklar (palmiye yaprağının küçüğü)."""
+    R = random.Random(seed)
+    FL = m_leaf('#2a6b34', '#3f8f40', '#78bf5a', '#9cd474', 'fern')
+    def build(bm):
+        out = []
+        for q in range(R.randint(6, 9)):
+            a = q * 6.28 / 7 + R.uniform(-0.3, 0.3); d = V((math.cos(a), math.sin(a), 0)); side = V((-d.y, d.x, 0)); L = size * R.uniform(0.8, 1.15)
+            def C(s, d=d, L=L): return V((x, y, z)) + d * (L * s * 0.8) + V((0, 0, L * (0.9 * s - 0.95 * s * s)))
+            for j in range(9):
+                s_ = 0.12 + 0.86 * j / 9; c = C(s_); tan = (C(min(1, s_ + 0.04)) - c).normalized()
+                for sgn in (-1, 1):
+                    dd = (tan * 0.4 + side * sgn).normalized()
+                    for f in blade(bm, c, dd, V((0, 0, 1)).cross(dd).normalized(), L * 0.2 * (1 - 0.6 * s_), 0.03 * size, 0.2, segs=2): out.append((f, 0))
+        return out
+    mesh_from_blades('fern', build, [FL])
+
+def biome_scatter(tr, area, seed, step=0.9, avoid=None):
+    """Bölgeye göre bitki grupları: kar kenarı (seyrek kuru ot/funda), soğuk çim (seyrek ot), yamaç (sık eğrelti + ot), düz çim (ot öbeği)."""
+    R = random.Random(seed); n = 0
+    x0, x1, y0, y1 = area
+    yy = y0
+    while yy < y1:
+        xx = x0
+        while xx < x1:
+            x = xx + R.uniform(-0.4, 0.4) * step; y = yy + R.uniform(-0.4, 0.4) * step; xx += step
+            if avoid and avoid(x, y): continue
+            s, rock, cool = tr.zones(x, y); z = tr.h(x, y) - 0.01; slope = 1 - tr.normal(x, y).z
+            r = R.random()
+            if s > 0.55: continue
+            if 0.12 < s <= 0.55:
+                if r < 0.22: heather(x, y, z, seed + n); n += 1
+            elif rock > 0.5:
+                if r < 0.1: pebble((x, y, z + 0.04), R.uniform(0.08, 0.16), m_rock(), seed + n); n += 1
+            elif slope > 0.08:
+                if r < 0.28: fern(x, y, z, seed + n, R.uniform(0.4, 0.7)); n += 1
+                elif r < 0.5: lush((x, y, z), 0.1, 1, seed + n, h=(0.16, 0.3)); n += 1
+            else:
+                if r < (0.18 if cool > 0.3 else 0.32): lush((x, y, z), 0.12, 1, seed + n, h=(0.16, 0.32)); n += 1
+        yy += step
+    return n
+
+def snowflakes(area, z0, z1, count, seed):
+    """Uçuşan küçük kar taneleri (yumuşak parlak noktalar)."""
+    R = random.Random(seed); FL = mat('flake', '#ffffff', 0.4, 0.0, emit=0.6)
+    bm = bmesh.new()
+    for k in range(count):
+        c = V((R.uniform(area[0], area[1]), R.uniform(area[2], area[3]), R.uniform(z0, z1))); r = R.uniform(0.018, 0.04)
+        bmesh.ops.create_icosphere(bm, subdivisions=1, radius=r, matrix=__import__('mathutils').Matrix.Translation(c))
+    link_mesh('flakes', bm, [FL])
+
 def scatter_grass(tr, n, seed, area, avoid=None, snow_max=0.15):
     R = random.Random(seed); placed = 0; tries = 0
     while placed < n and tries < n * 20:
@@ -288,7 +368,7 @@ def light(sc, sun_yaw=-35, exp=-0.45):
 # ------------------------------------------------------------------ sahneler
 
 def scene_ski(out):
-    sc = kit.reset(); sc.cycles.samples = 48; light(sc)
+    sc = kit.reset(); sc.cycles.samples = 40; light(sc)
     # oyundaki karlı tepe (regions.json hills: x −23.8, z 28.8, h 6, r 5.2) yerel koordinatta (0, 4); kayak tepesi yamacına taşınır
     tr = Terrain([(0.0, 4.0, 6.0, 5.2, True), (9.5, -6.0, 1.2, 4.0, False)], 30, 0, 0, res=170)
     tr.build()
@@ -335,7 +415,9 @@ def scene_ski(out):
     for (x, y, h) in spots:
         s = tr.snow_w(x, y)
         pine_v4((x, y, tr.h(x, y) - 0.05), h, int(x * 13 + y * 7), snow=s > 0.25)
-    scatter_grass(tr, 60, 31, (-13, 13, -14, -3), snow_max=0.12)
+    near_pist = lambda x, y: min(math.hypot(x - px, y - py) for (px, py) in pts[::2]) < 1.6
+    print('biyom bitkileri', biome_scatter(tr, (-13, 13, -14, 9), 31, step=0.85, avoid=lambda x, y: near_pist(x, y) or math.hypot(x - 3.2, y + 5.6) < 1.6))
+    snowflakes((-9, 9, -10, 10), 0.6, 8, 380, 3)
     for k in range(8):
         x, y = R.uniform(-10, 10), R.uniform(-13, -6)
         if tr.snow_w(x, y) < 0.1: pebble((x, y, tr.h(x, y) + 0.03), R.uniform(0.08, 0.16), m_rock(), 70 + k)
@@ -344,7 +426,7 @@ def scene_ski(out):
     kit.shoot(sc, os.path.join(out, 'after_ski.png'), (0.6, -1.0, 2.2), 27, -24, 34, lens=40, size=(1280, 800))
 
 def scene_mountain(out):
-    sc = kit.reset(); sc.cycles.samples = 48; light(sc, -30)
+    sc = kit.reset(); sc.cycles.samples = 40; light(sc, -30)
     # oyundaki dağ tepesi (x 5, z 37, h 8, r 6.3) yerel (0, 5); dağ oyunu girişi güney eteğinde, patika tepeye sarmal çıkar
     tr = Terrain([(0.0, 5.0, 8.0, 6.3, False), (-6.0, 9.0, 3.5, 3.5, False), (7.0, 8.0, 2.8, 3.2, False)], 34, 0, 1.5, res=180)
     tr.build()
@@ -413,7 +495,7 @@ def scene_mountain(out):
     mesh_from_blades('bushes', rosette(bushes, R, sizes=(0.3, 0.5), leaves=9), [BL])
     flower_heads([(x / 0.9, y / 0.9, R.uniform(0.15, 0.25)) for (x, y) in [(R.uniform(-8, 8), R.uniform(-6, 2)) for _ in range(14)] if not near_trail(x, y)], R)
     lift_new(tr, before)
-    scatter_grass(tr, 80, 77, (-12, 12, -8, 16), avoid=lambda x, y: near_trail(x, y) and random.random() < 0.6)
+    print('biyom bitkileri', biome_scatter(tr, (-13, 13, -9, 16), 77, step=0.8, avoid=lambda x, y: near_trail(x, y) or (abs(x - bx) < 1.6 and abs(y - by) < 1.2)))
     add_okti((0.6, -3.6, tr.h(0.6, -3.6)), 190)
     print('tris', kit.tri_count([o for o in sc.objects if o.type == 'MESH']))
     kit.shoot(sc, os.path.join(out, 'after_mountain.png'), (0.0, 1.8, 3.2), 31, -18, 33, lens=40, size=(1280, 800))

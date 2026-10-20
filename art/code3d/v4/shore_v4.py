@@ -46,11 +46,18 @@ def build(variant):
     def ground_col(x, y, h, c):
         n = 0.5 + 0.5 * math.sin(x * 0.7 + math.cos(y * 0.9) * 1.7) * math.cos(y * 0.5 - x * 0.2)
         grass = g1.lerp(g2, n)
-        sand_w = max(ss(0.6, 0.3, h), ss(0.88, 0.93, c))
+        if variant == 'after':
+            # biyom geçişi: kum ↔ çim sınırı gürültülü, iki ölçekte (düz çizgi yok); kumda yer yer çim lekesi
+            nn = (math.sin(x * 0.9 + 1.7) * math.cos(y * 1.1) + 0.6 * math.sin(x * 2.7 - y * 2.1) + 0.35 * math.sin(x * 6.1 + y * 5.3)) / 1.95
+            sand_w = ss(0.875 + 0.03 * nn, 0.92 + 0.03 * nn, c)
+        else:
+            sand_w = max(ss(0.6, 0.3, h), ss(0.88, 0.93, c))
         k = grass.lerp(sand, sand_w)
         if variant == 'after':
-            k = k.lerp(wet, ss(0.12, -0.02, h))           # ıslak kum şeridi (dalga ıslatır)
+            wn = 0.03 * math.sin(x * 1.9 + 0.5) + 0.02 * math.sin(x * 5.3)
+            k = k.lerp(wet, ss(0.14 + wn, -0.02, h))      # ıslak kum şeridi (dalga ıslatır), kenarı dalgalı
             k = k.lerp(under, ss(-0.02, -0.25, h))        # su altı kum (biraz koyu)
+            k = k.lerp(V(srgb('#6fa7a8')[:3]), ss(-0.35, -1.2, h))   # derinde kum yerine mavimsi taban
             # ince kum benekleri
             k *= 0.96 + 0.06 * (0.5 + 0.5 * math.sin(x * 9.1) * math.sin(y * 8.3))
         else:
@@ -87,15 +94,15 @@ def build(variant):
     wm = bpy.data.materials.new('water'); wm.use_nodes = True; wt = wm.node_tree; wb = wt.nodes['Principled BSDF']
     if variant == 'after':
         # sığda kum görünür: cam gibi geçirgen yüzey + derinlikle koyulaşan hacim (oyunda: arazi yüksekliğinden renk, aşağıya bak)
-        wb.inputs['Base Color'].default_value = srgb('#bfeef0')
+        wb.inputs['Base Color'].default_value = srgb('#e2fcff')
         wb.inputs['Transmission Weight'].default_value = 1.0
         wb.inputs['Roughness'].default_value = 0.06; wb.inputs['IOR'].default_value = 1.33
         bpy.ops.mesh.primitive_cube_add(size=1, location=(0, -30, -1.0))
         vol = bpy.context.object; vol.scale = (140, 74, 1.96); bpy.ops.object.transform_apply(scale=True)
         vm = bpy.data.materials.new('vol'); vm.use_nodes = True; vt = vm.node_tree
         vt.nodes.remove(vt.nodes['Principled BSDF'])
-        va = vt.nodes.new('ShaderNodeVolumeAbsorption'); va.inputs['Color'].default_value = srgb('#1f9fb8'); va.inputs['Density'].default_value = 0.32
-        vs = vt.nodes.new('ShaderNodeVolumeScatter'); vs.inputs['Color'].default_value = srgb('#7fe0e6'); vs.inputs['Density'].default_value = 0.035
+        va = vt.nodes.new('ShaderNodeVolumeAbsorption'); va.inputs['Color'].default_value = srgb('#22b8d8'); va.inputs['Density'].default_value = 1.35
+        vs = vt.nodes.new('ShaderNodeVolumeScatter'); vs.inputs['Color'].default_value = srgb('#8fe8ee'); vs.inputs['Density'].default_value = 0.012
         ad = vt.nodes.new('ShaderNodeAddShader')
         vt.links.new(va.outputs[0], ad.inputs[0]); vt.links.new(vs.outputs[0], ad.inputs[1])
         vt.links.new(ad.outputs[0], vt.nodes['Material Output'].inputs['Volume'])
@@ -106,7 +113,7 @@ def build(variant):
     # deniz tabanı (ızgaranın ötesi): koyu kum, derin suda lacivertleşir
     bpy.ops.mesh.primitive_plane_add(size=1, location=(0, -40, -1.62))
     sb = bpy.context.object; sb.scale = (160, 64, 1); bpy.ops.object.transform_apply(scale=True)
-    sb.data.materials.append(mat('seabed', '#b49a6c', 0.9, 0))
+    sb.data.materials.append(mat('seabed', '#4f93a6', 0.9, 0))
 
     # ---------------------------------------------------------------- kıyı köpüğü: su çizgisini izleyen yırtık beyaz şerit
     def waterline(x):
@@ -117,7 +124,7 @@ def build(variant):
             else: lo = m
         return (lo + hi) / 2
     if variant == 'after':
-        for band, (off_in, off_out, alpha_k, sd) in enumerate(((0.05, 0.55, 1.0, 3), (0.9, 1.35, 0.55, 9))):
+        for band, (off_in, off_out, alpha_k, sd) in enumerate(((0.05, 0.6, 1.0, 3), (0.9, 1.25, 0.3, 9))):
             bm = bmesh.new(); uv = bm.loops.layers.uv.new('uv'); rows = []
             xs = [-W / 2 + k * 0.25 for k in range(int(W / 0.25) + 1)]
             for x in xs:
@@ -133,13 +140,13 @@ def build(variant):
             fo.location.z = 0.035
             m = bpy.data.materials.new('foam%d' % band); m.use_nodes = True; t = m.node_tree; N = t.nodes; Lk = t.links
             pb = N['Principled BSDF']; pb.inputs['Base Color'].default_value = srgb('#fbfdff'); pb.inputs['Roughness'].default_value = 0.6
-            tc = N.new('ShaderNodeTexCoord'); nz = N.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 7.0; nz.inputs['Detail'].default_value = 6
+            tc = N.new('ShaderNodeTexCoord'); nz = N.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 3.6; nz.inputs['Detail'].default_value = 9; nz.inputs['Roughness'].default_value = 0.62
             Lk.new(tc.outputs['Object'], nz.inputs['Vector'])
             grad = N.new('ShaderNodeSeparateXYZ'); Lk.new(tc.outputs['UV'], grad.inputs[0])
             fall = N.new('ShaderNodeMapRange'); fall.inputs['From Min'].default_value = 0.0; fall.inputs['From Max'].default_value = 1.0
             fall.inputs['To Min'].default_value = 0.95; fall.inputs['To Max'].default_value = -0.3
             Lk.new(grad.outputs['Y'], fall.inputs['Value'])
-            ramp = N.new('ShaderNodeMapRange'); ramp.inputs['From Min'].default_value = 0.42; ramp.inputs['From Max'].default_value = 0.6
+            ramp = N.new('ShaderNodeMapRange'); ramp.inputs['From Min'].default_value = 0.47; ramp.inputs['From Max'].default_value = 0.62
             Lk.new(nz.outputs['Fac'], ramp.inputs['Value'])
             mul = N.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'; Lk.new(ramp.outputs['Result'], mul.inputs[0]); Lk.new(fall.outputs['Result'], mul.inputs[1])
             mul2 = N.new('ShaderNodeMath'); mul2.operation = 'MULTIPLY'; mul2.use_clamp = True; mul2.inputs[1].default_value = alpha_k
@@ -189,19 +196,26 @@ def build(variant):
             z = H(coast(x, y)); m = mat('shell%d' % (k % 5), shell_cols[k % 5], 0.4, 0.3)
             if k % 3 == 0:
                 # salyangoz kabuğu: kıvrık koni
-                bpy.ops.mesh.primitive_cone_add(vertices=14, radius1=0.07, depth=0.16, location=(x, y, z + 0.04))
+                bpy.ops.mesh.primitive_cone_add(vertices=14, radius1=0.11, depth=0.25, location=(x, y, z + 0.04))
                 o = bpy.context.object; o.rotation_euler = (math.radians(80), 0, rnd.uniform(0, 6.28))
                 tw = o.modifiers.new('tw', 'SIMPLE_DEFORM'); tw.deform_method = 'TWIST'; tw.angle = math.radians(220)
                 o.data.materials.append(m)
                 for p in o.data.polygons: p.use_smooth = True
             else:
                 # tarak kabuğu: yelpaze, ince kaburgalar
-                bpy.ops.mesh.primitive_uv_sphere_add(segments=18, ring_count=8, radius=0.08, location=(x, y, z + 0.015))
+                bpy.ops.mesh.primitive_uv_sphere_add(segments=18, ring_count=8, radius=0.13, location=(x, y, z + 0.02))
                 o = bpy.context.object; o.scale = (1.0, 0.85, 0.28); o.rotation_euler = (0, 0, rnd.uniform(0, 6.28))
                 for v in o.data.vertices:
                     ang = math.atan2(v.co.y, v.co.x); v.co.z *= 1.0 + 0.35 * abs(math.sin(ang * 6))
                 o.data.materials.append(m)
                 for p in o.data.polygons: p.use_smooth = True
+        # kumsal bitki kümeleri: kum ile çim sınırında ve üst kumda (oyundaki ot öbekleri + çalı)
+        G1 = assets_v3.m_leaf('#3d8f35', '#5fb446', '#a3d862', '#c8ea86', 'grass')
+        G2 = assets_v3.m_leaf('#5b8f2e', '#86b04a', '#c9d77a', '#e2e8a0', 'dunegrass')
+        for k in range(22):
+            x = -W / 2 + 1 + k * (W - 2) / 21 + rnd.uniform(-0.6, 0.6)
+            y = waterline(x) + rnd.uniform(3.0, 5.0)
+            assets_v3.mesh_from_blades('tuft%d' % k, assets_v3.tufts((x, y, H(coast(x, y))), rnd.uniform(0.35, 0.7), rnd.randint(4, 8), k + 3, h=(0.25, 0.5)), [G1 if k % 2 else G2])
         # küçük çakıl ve deniz yosunu çizgisi (su bırakmış)
         for k in range(40):
             x = rnd.uniform(-W / 2, W / 2); y = waterline(x) + rnd.uniform(0.35, 0.9)

@@ -36,7 +36,7 @@ def m_endgrain(hexc, name, axes=('X', 'Y'), rings=9.0, r=0.1):
         l.new(nz.outputs['Fac'], wob.inputs[0]); l.new(ln.outputs['Value'], wob.inputs[2])
         fr = n.new('ShaderNodeMath'); fr.operation = 'MULTIPLY'; fr.inputs[1].default_value = rings * 2 * math.pi / r; l.new(wob.outputs[0], fr.inputs[0])
         si = n.new('ShaderNodeMath'); si.operation = 'SINE'; l.new(fr.outputs[0], si.inputs[0])
-        rp = ramp(nt, [(0.0, _shade(hexc, 0.62)), (0.45, _shade(hexc, 0.95)), (1.0, _shade(hexc, 1.2))])
+        rp = ramp(nt, [(0.0, _shade(hexc, 0.74)), (0.45, _shade(hexc, 0.97)), (1.0, _shade(hexc, 1.12))])
         mr = n.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = -1; l.new(si.outputs[0], mr.inputs['Value']); l.new(mr.outputs[0], rp.inputs['Fac'])
         col = rp.outputs[0]
         # öz (merkez) ve kabuk bandı
@@ -131,13 +131,15 @@ def plank_end_caps(loc, size, axis, cap):
             rbox('pend', (x, y + s * (sy / 2 + 0.002), z), (sx * 0.96, 0.004, sz * 0.9), cap, bevel=0)
 
 def barnacles(c, r, z0, z1, seed, n=14):
-    """Su çizgisi civarında kazığa yapışık küçük kabuklar (açık gri-beyaz, ağzı koyu)."""
-    R = random.Random(seed); SH = A.m_flat('#e6e1d4', 0.2, 30, 'barnacle'); MO = A.m_flat('#3d3a36', 0.1, 10, 'barnmouth')
+    """Su çizgisi civarında kazığa yapışık küçük kabuk öbekleri: kirli beyaz-gri, alçak koni (göz gibi görünmesin: koyu ağız yok)."""
+    R = random.Random(seed); SH = A.m_flat('#cfc8b8', 0.25, 30, 'barnacle')
     for k in range(n):
-        a = R.uniform(0, 6.28); z = R.uniform(z0, z1); rr = R.uniform(0.012, 0.022)
-        p = V((c[0] + math.cos(a) * r, c[1] + math.sin(a) * r, z))
-        o = blob('barn', tuple(p), (rr, rr, rr * 0.7), SH, sub=0, seg=8); o.rotation_euler = (0, math.radians(90), a)
-        blob('barnm', tuple(p + V((math.cos(a), math.sin(a), 0)) * rr * 0.6), (rr * 0.35, rr * 0.35, rr * 0.2), MO, sub=0, seg=6).rotation_euler = (0, math.radians(90), a)
+        a = R.uniform(0, 6.28); z = R.uniform(z0, z1)
+        for q in range(R.randint(2, 4)):                         # 2-4 kabuk yan yana
+            aa = a + R.uniform(-0.12, 0.12); zz = z + R.uniform(-0.03, 0.03); rr = R.uniform(0.008, 0.016)
+            p = V((c[0] + math.cos(aa) * r, c[1] + math.sin(aa) * r, zz))
+            o = lathe('barn', [(rr, 0.0), (rr * 0.8, rr * 0.6), (rr * 0.45, rr * 0.9), (0.001, rr * 0.85)], SH, segs=8)
+            o.location = p; o.rotation_euler = (0, math.radians(90), aa)
 
 def shell(loc, s, seed, kind=0):
     """Deniz kabuğu: tarak (yelpaze, kaburgalı) ya da salyangoz (sarmal koni)."""
@@ -216,10 +218,14 @@ def build_swim():
         base = 0.3 + 0.05 * nz2(x, y, 0.6) + 0.12 * max(0.0, y - 1.2) * 0.4          # arkası hafif yükselir
         beach = max(0.0, -math.sin(a)) ** 2                                             # önde (−y) geniş kumsal, yumuşak eğim
         edge = 1.25 + 0.55 * beach
+        if edge <= d < edge + 1.4 and beach > 0.1:                                    # önde kum apronu: çime doğru yumuşak yükselir
+            t2 = ((edge + 1.4 - d) / 1.4) ** 1.2 * min(1.0, beach * 1.6)
+            base = base * (1 - t2) + (0.13 + 0.02 * nz2(x, y, 2)) * t2
         if d < edge:
             t = max(0.0, (edge - d) / edge)
             depth = 0.62 * (t ** (0.9 if beach < 0.3 else 1.6))
-            base -= depth + (0.26 if d < 1.0 else 0.26 * (edge - d) / max(0.01, edge - 1.0))
+            base = (0.13 + 0.02 * nz2(x, y, 2)) * min(1.0, beach * 1.6) + base * (1 - min(1.0, beach * 1.6))
+            base -= depth + (0.12 if d < 1.0 else 0.12 * (edge - d) / max(0.01, edge - 1.0))
         return base
     TM = m_terrain((WZ, WZ + 0.035, WZ + 0.12, WZ + 0.2), 'swimground')
     g = terrain('ground', 7.5, 6.5, 220, H, TM)
@@ -260,7 +266,7 @@ def build_swim():
     # atlama iskelesi: kayalığın üstünden suya (yıpranmış, halkalı uçlar, halat korkuluk)
     PL = m_wood('#7a5232', 'divepile', age=1.4); CAP = m_endgrain('#b98a5a', 'divecap', r=0.05)
     DK = [m_wood(c, 'dived%d' % i, age=1.3) for i, c in enumerate(('#c99a66', '#b8875a', '#d3a873'))]
-    PCAP = m_endgrain('#c49763', 'plankend', axes=('Y', 'Z'), r=0.03, rings=5)
+    PCAP = m_endgrain('#c49763', 'plankend', axes=('Y', 'Z'), r=0.06, rings=6)
     bx, by = 0.55, 1.05                                               # arka kenar
     for (px, py) in ((bx - 0.22, by + 0.45), (bx + 0.22, by + 0.45), (bx - 0.22, by - 0.15), (bx + 0.22, by - 0.15)):
         log_post('dpost', (px, py, H(px, py) - 0.25), (px, py, 0.42), 0.045, PL, CAP, seed=int(px * 10 + py * 7), tilt_cap=4)
@@ -304,12 +310,24 @@ def build_swim():
         x, y = math.cos(a) * r0 * 1.15, math.sin(a) * r0 * 0.85
         if H(x, y) < WZ + 0.2: continue
         lush((x, y, H(x, y) - 0.01), 0.12, 2, 300 + k, h=(0.14, 0.28))
+    BG = m_leaf('#6a8a3a', '#93ad55', '#c9cf86', '#e2dfaa', 'beachgrass')
+    def beachgrass(bm):
+        out = []
+        for k in range(28):
+            a = R.uniform(math.radians(205), math.radians(335)); r0 = R.uniform(1.9, 2.8)
+            x, y = math.cos(a) * r0 * 1.15, math.sin(a) * r0 * 0.85
+            z = H(x, y)
+            if not (WZ + 0.08 < z < WZ + 0.2): continue
+            for j in range(R.randint(7, 12)):
+                b_ = R.uniform(0, 6.28); up = R.uniform(0.7, 0.95)
+                d = V((math.cos(b_) * (1 - up), math.sin(b_) * (1 - up), up)).normalized(); side = V((-math.sin(b_), math.cos(b_), 0))
+                for f in blade(bm, V((x, y, z - 0.01)), d, side, R.uniform(0.18, 0.34), 0.012, R.uniform(0.3, 0.8), segs=3): out.append((f, 0))
+        return out
+    mesh_from_blades('beachgrass', beachgrass, [BG])
     flower_heads([(1.7 + R.uniform(-0.3, 0.3), 1.0 + R.uniform(-0.3, 0.3), H(1.7, 1.0) + 0.2) for _ in range(4)], R)
     to_mesh_all()
     count('yuzme_koyu', [o for o in bpy.context.scene.objects if o.type == 'MESH' and o.name not in ('ground', 'water')])
     shoot(sc, f'{OUT}/yeni_yuzme_koyu.png', (0, -0.1, 0.1), 7.2, 18, 42, lens=45, size=(1280, 800))
-    shoot(sc, f'{OUT}/yeni_yuzme_koyu_yakin.png', (0.5, 0.75, 0.35), 2.4, 30, 26, lens=50, size=(1280, 800))
-    shoot(sc, f'{OUT}/yeni_yuzme_koyu_kumsal.png', (0.0, -1.5, 0.05), 2.2, -15, 30, lens=50, size=(1280, 800))
 
 # ------------------------------------------------------------------ İskele
 
@@ -339,8 +357,8 @@ def build_pier():
     # iskele: kumsaldan suya, −y yönünde
     PL = m_wood('#6f4a2c', 'pile', age=1.5); CAP = m_endgrain('#a37a4e', 'pilecap', r=0.12)
     DK = [m_wood(c, 'pdeck%d' % i, age=1.35) for i, c in enumerate(('#c99a66', '#b08052', '#d3a873', '#a77a4e'))]
-    PCAP = m_endgrain('#c49763', 'deckend', axes=('X', 'Z'), r=0.035, rings=5)
-    BCAP = m_endgrain('#9a6f45', 'beamend', axes=('X', 'Z'), r=0.06, rings=7)
+    PCAP = m_endgrain('#c49763', 'deckend', axes=('Y', 'Z'), r=0.06, rings=6)
+    BCAP = m_endgrain('#9a6f45', 'beamend', axes=('Y', 'Z'), r=0.07, rings=7)
     MOSS = m_plaster('#4f6a40', stripe=None, name='wetpile', dirt=0.0)
     RP = m_rope(); I = m_metal()
     Wd = 1.25; y0, y1 = 1.05, -3.6                                 # kara ucu → deniz ucu
@@ -358,7 +376,7 @@ def build_pier():
                 for k in range(4): pebble((x + R.uniform(-0.2, 0.2), yy + R.uniform(-0.2, 0.2), H(x, yy) + 0.01), R.uniform(0.04, 0.07), m_rock(moss_th=(1.6, 1.9), name='pierpeb'), k + 90)
             piles.append((x, yy))
     for yy in (0.35, -0.75, -1.85, -2.95, -3.55):                     # kiriş: uçlarında halka
-        loc = (0, yy, deck_z(yy) - 0.09); sz = (Wd + 0.32, 0.12, 0.1)
+        loc = (0, yy, deck_z(yy) - 0.09); sz = (Wd + 0.62, 0.12, 0.1)   # uçlar kazıkların dışına taşar
         plank('beam', loc, sz, PL, seed=int(yy * 10) + 50)
         plank_end_caps(loc, sz, 'x', BCAP)
     k = 0; y = y0
@@ -428,14 +446,25 @@ def build_pier():
     tube('drift', [(dx - 0.5, dy, H(dx, dy) + 0.05), (dx, dy + 0.05, H(dx, dy) + 0.07), (dx + 0.45, dy - 0.04, H(dx, dy) + 0.05)], [0.07, 0.075, 0.06], DW, res=4)
     for ex, er in ((dx - 0.5, 0.07), (dx + 0.45, 0.06)):
         c = cyl('dcap', (ex + (0.001 if ex > dx else -0.001), dy, H(dx, dy) + 0.05), er * 0.97, 0.01, DWC, rot=(0, 90, 0), verts=16, bevel=0)
+    BG = m_leaf('#6a8a3a', '#93ad55', '#c9cf86', '#e2dfaa', 'beachgrass')
+    def beachgrass(bm):
+        out = []
+        for k in range(36):
+            x = R.uniform(-4.2, 4.2); yy = shoreline(x) + R.uniform(0.45, 0.95); z = H(x, yy)
+            for j in range(R.randint(7, 12)):
+                b_ = R.uniform(0, 6.28); up = R.uniform(0.7, 0.95)
+                d = V((math.cos(b_) * (1 - up), math.sin(b_) * (1 - up), up)).normalized(); side = V((-math.sin(b_), math.cos(b_), 0))
+                for f in blade(bm, V((x, yy, z - 0.01)), d, side, R.uniform(0.18, 0.36), 0.012, R.uniform(0.3, 0.8), segs=3): out.append((f, 0))
+        return out
+    mesh_from_blades('beachgrass', beachgrass, [BG])
+    reeds((-2.6, shoreline(-2.6) + 0.05, H(-2.6, shoreline(-2.6) + 0.05) - 0.03), 0.25, 14, 12)
     for j in range(16):
-        x = R.uniform(-4, 4); yy = shoreline(x) + R.uniform(0.55, 1.4)
+        x = R.uniform(-4, 4); yy = shoreline(x) + R.uniform(0.95, 1.6)
         lush((x, yy, H(x, yy) - 0.01), 0.1, 2, 400 + j, h=(0.18, 0.34))
     to_mesh_all()
     count('iskele', [o for o in bpy.context.scene.objects if o.type == 'MESH' and o.name not in ('ground', 'water')])
     shoot(sc, f'{OUT}/yeni_iskele.png', (0, -1.0, 0.2), 8.2, 35, 34, lens=45, size=(1280, 800))
     shoot(sc, f'{OUT}/yeni_iskele_kazik.png', (0.65, -2.95, 0.2), 2.0, 60, 12, lens=50, size=(1280, 800))
-    shoot(sc, f'{OUT}/yeni_iskele_kiyi.png', (0.3, 0.9, 0.2), 2.6, -30, 30, lens=50, size=(1280, 800))
 
 if WHAT in ('swim', 'all'): build_swim()
 if WHAT in ('pier', 'all'): build_pier()
