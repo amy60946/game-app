@@ -28,3 +28,5 @@ Assets/_Pofi/Resources/Audio/*.ogg -filter -diff -merge binary
 # Not: PNG'ler LFS'te DEĞİL (konsept/önizleme görselleri GitHub'da doğrudan görünsün).
 # Oyun yazı tipi küçük (~0,5 MB) ve CI her derlemede indirir: LFS yok
 Assets/_Pofi/Resources/Fonts/*.ttf -filter -diff -merge binary
+# Kullanıcının Meshy web sitesinden indirip GitHub'a tarayıcıyla yüklediği dosyalar (19 Ekim 2026): web yükleme LFS'e yazamaz
+art/meshy/inbox/** -filter -diff -merge binary
