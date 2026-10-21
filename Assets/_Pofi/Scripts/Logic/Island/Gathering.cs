@@ -71,7 +71,7 @@ namespace Pofi.Logic.Island
                 if (!t.Walkable(x, z) || t.BuildingAt(x, z) != null) return false;
                 if (t.PathDistance(x, z) < IslandTerrain.PathHalfWidth + 0.9f) return false;
                 if (t.Regions.Any(r => IslandTerrain.Dist(x, z, r.X, r.Z) < r.Size * 0.8f + 1.5f)) return false;
-                if (props.Any(p => IslandTerrain.Dist(x, z, p.X, p.Z) < p.Size + 1.2f)) return false;
+                if (props.Any(p => IslandTerrain.Dist(x, z, p.X, p.Z) < IslandTerrain.Footprint(p) + 1.2f)) return false;
                 if (IslandTerrain.Dist(x, z, site.x, site.z) < 4.5f) return false;
                 return list.All(n => IslandTerrain.Dist(x, z, n.X, n.Z) > 3.2f);
             }
@@ -111,7 +111,7 @@ namespace Pofi.Logic.Island
                     if (t.SurfaceAt(x, z) != Surface.Grass || !t.Walkable(x, z) || t.BuildingAt(x, z) != null) continue;
                     if (t.PathDistance(x, z) < IslandTerrain.PathHalfWidth + 2.6f) continue;
                     if (t.Regions.Any(r => IslandTerrain.Dist(x, z, r.X, r.Z) < r.Size * 0.8f + 3f)) continue;
-                    if (props.Any(p => IslandTerrain.Dist(x, z, p.X, p.Z) < p.Size + 2.4f)) continue;
+                    if (props.Any(p => IslandTerrain.Dist(x, z, p.X, p.Z) < IslandTerrain.Footprint(p) + 2.4f)) continue;
                     // düzlük: çevredeki yükseklik farkı az olsun
                     var h = t.Height(x, z); var slope = 0f;
                     for (var k = 0; k < 8; k++)

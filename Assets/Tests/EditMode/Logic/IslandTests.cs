@@ -157,8 +157,7 @@ namespace Pofi.Tests.Logic
         public void Gunluk_parilti_deterministik_uygun_ve_alininca_kaybolur()
         {
             var data = TestData.Load();
-            var map = new IslandMap(TestData.ReadText("regions.json"), new LevelTable(data.Levels));
-            var terrain = new IslandTerrain(map.Regions, map.Terrain);
+            var terrain = TestData.Terrain();
             var a = Sparkles.ForDay(20000, "child_a", 8, false, data.Collection, terrain);
             var b = Sparkles.ForDay(20000, "child_a", 8, false, data.Collection, terrain);
             Assert.AreEqual(Sparkles.PerDay, a.Count);

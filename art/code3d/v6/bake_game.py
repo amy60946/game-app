@@ -1,7 +1,7 @@
 # Ada v6 → oyun (22 Ekim 2026; kullanıcı: "tasarımların son versiyonlarını onayladığımı varsayarak oyuna göm").
 # Onaylı taslağın (island_v6.py) aynı arazisi, aynı boyası ve aynı süs yerleşimi oyun verisine pişirilir (görünüm 1:1):
 #   Resources/Data/island_v6.bytes   yükseklik + yüzey ızgarası (0,5 m): Logic/Island/BakedField
-#   Resources/Data/island_v6.json    bölgeler, meydan, patikalar, göl, süsler (tür, x, z, y, dönüş, ölçek)
+#   Resources/Data/island_v6_layout.json    bölgeler, meydan, patikalar, göl, süsler (tür, x, z, y, dönüş, ölçek)
 #   Resources/Env/ground_v6/ground_v6.png   zemin dokusu: taslağın zemin malzemesi (tabaka, çatlak, boyalı kenar) üstten pişirilir; alfa = kum
 # Kullanım: /tmp/claude-0/bpyenv/bin/python -I bake_game.py -- <terr.npz> [doku_boyu=2048]
 import sys, os, json, math, random, struct
@@ -53,7 +53,7 @@ def stub_protos():
     """Taslaktaki örnek türleri → oyun varlık adları (Resources/Env). Çeşitler oyunda ayrı model olarak gelir."""
     return {
         'round': ['t_round%d' % k for k in range(4)] * 2, 'cypress': ['t_cypress'] * 3, 'birch': ['t_birch'] * 3,
-        'pine': ['t_pine%d' % k for k in range(3)] * 2, 'pine_snow': ['t_pine_snow'] * 2, 'bush': ['p_bush'] * 4,
+        'pine': ['t_pine%d' % k for k in range(3)] * 2, 'pine_snow': ['t_pine_snow'] * 2, 'bush': ['t_bush'] * 4,
         'boulder': ['r_boulder'] * 5, 'boulderB': ['r_boulder_b'] * 4, 'pebW': ['r_pebble'] * 3, 'palm2': ['t_palm_tall%d' % k for k in range(3)] * 3,
         'palm': 'palm', 'rmA': None, 'rmB': None,
     }
@@ -103,12 +103,15 @@ def place_props(L, B):
         for i in range(max(1, int(Ln / 3.5))):
             for sg in (-1, 1):
                 px = ax + dx * Ln * (i + 0.5) / max(1, int(Ln / 3.5)) + sx * sg * 2.25; pz = az + dz * Ln * (i + 0.5) / max(1, int(Ln / 3.5)) + sz * sg * 2.25
+                if math.hypot(px + 38.0, pz - 40.0) < 6.5: continue       # kayak alanı yapısının içinde direk olmaz
                 record('p_trail_pole', px, pz, L.height(px, pz) - 0.2, 0.0, 1.0)
         for i in range(int(Ln / 0.9)):
             for sg in (-1, 1):
                 if Rn.random() < 0.4: continue
                 off = Rn.uniform(1.6, 2.6); px = ax + dx * (i * 0.9 + Rn.uniform(0, 0.6)) + sx * sg * off; pz = az + dz * (i * 0.9) + sz * sg * off
-                s_ = Rn.uniform(0.18, 0.5); record('p_snow_lump', px, pz, L.height(px, pz) - s_ * 0.3, Rn.uniform(0, 6.3), s_)
+                s_ = Rn.uniform(0.18, 0.5)
+                if math.hypot(px + 38.0, pz - 40.0) < 6.5: continue
+                record('p_snow_lump', px, pz, L.height(px, pz) - s_ * 0.3, Rn.uniform(0, 6.3), s_)
 
 # ------------------------------------------------------------------ zemin dokusu: taslağın zemin malzemesi üstten pişirilir
 
@@ -168,7 +171,7 @@ def main():
     lay = TV.layout_json()
     lay['props'] = PROPS
     lay['islet'] = list(TV.ISLET); lay['snow_path'] = [list(p) for p in TV.SNOW_PATH]
-    json.dump(lay, open(os.path.join(DATA, 'island_v6.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
+    json.dump(lay, open(os.path.join(DATA, 'island_v6_layout.json'), 'w'), ensure_ascii=False, separators=(',', ':'))
     from collections import Counter
     IV.log('süsler', len(PROPS), dict(Counter(p['a'] for p in PROPS)))
     if os.environ.get('NO_TEX') != '1': bake_ground(L, cols, rw, size); IV.log('doku')

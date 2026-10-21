@@ -131,6 +131,20 @@ namespace Pofi.EditorTools
                 t.maxTextureSize = 256;
                 return;
             }
+            if (Path.GetFileName(assetPath).StartsWith("ground_"))
+            {
+                // v6 ada zemini (art/code3d/v6/bake_game.py): 200 m'ye 2048 px (10 cm/px); alfa = kum ağırlığı (gölgelendirici)
+                t.maxTextureSize = 2048;
+                t.mipmapEnabled = true;
+                t.sRGBTexture = true;
+                t.alphaSource = TextureImporterAlphaSource.FromInput;
+                t.alphaIsTransparency = false;
+                t.wrapMode = TextureWrapMode.Clamp;
+                t.anisoLevel = 4;
+                t.textureCompression = TextureImporterCompression.Compressed;
+                t.crunchedCompression = false;
+                return;
+            }
             var normal = Path.GetFileNameWithoutExtension(assetPath).EndsWith("_normal");
             // Telefon/WebGL boyutu (14 Ekim 2026: veri 88 MB'tı): pet rengi 1024, diğer her şey 512.
             // Crunch kapalı: CI kapsayıcısında crnlib iş parçacığı (sem_wait) Unity'yi çökertti (derleme 46).

@@ -77,6 +77,43 @@ namespace Pofi.World
         public static Transform EnvFootprint(string name, Transform parent, float footprint, float yaw = 0f) =>
             Footprint("Env", name, parent, footprint, yaw);
 
+        /// <summary>
+        /// v6 ada modeli (art/code3d/v6/assets_v6_game.py): gerçek ölçüde dışa aktarılmış; yalnız <paramref name="scale"/> ile büyütülür,
+        /// taban = modelin orijini (taslaktaki yerleşimle birebir).
+        /// </summary>
+        public static Transform EnvScaled(string name, Transform parent, float scale, float yaw = 0f)
+        {
+            var prefab = Resources.Load<GameObject>($"Env/{name}/{name}");
+            if (prefab == null) return null;
+            var root = new GameObject(name).transform;
+            root.SetParent(parent, false);
+            var go = Object.Instantiate(prefab, root, false);
+            go.transform.localRotation = Quaternion.Euler(0f, yaw, 0f) * go.transform.localRotation;
+            // FBX birim ölçeği içe aktarmada farklı yorumlanabilir: gerçek boy tablosuna (Data/env_v6_sizes.json) göre düzelt
+            var fix = 1f;
+            if (V6Sizes().TryGetValue(name, out var real) && real > 0.0001f)
+            {
+                var b = Bounds(go.transform);
+                var h = b.size.y / Mathf.Max(0.0001f, Mathf.Abs(root.lossyScale.y));
+                if (h > 0.0001f) fix = real / h;
+            }
+            go.transform.localScale *= scale * fix;
+            ApplyMaterial(go, $"Env/{name}/{name}", 0.15f);
+            return root;
+        }
+
+        private static Dictionary<string, float> _v6Sizes;
+
+        private static Dictionary<string, float> V6Sizes()
+        {
+            if (_v6Sizes != null) return _v6Sizes;
+            _v6Sizes = new Dictionary<string, float>();
+            var ta = Resources.Load<TextAsset>("Data/env_v6_sizes");
+            if (ta == null) return _v6Sizes;
+            _v6Sizes = Logic.Island.EnvSizes.Parse(ta.text);
+            return _v6Sizes;
+        }
+
         /// <summary>Ev eşyası modeli, taban genişliğine göre (Resources/Items).</summary>
         public static Transform ItemFootprint(string id, Transform parent, float footprint, float yaw = 0f) =>
             Footprint("Items", id, parent, footprint, yaw);

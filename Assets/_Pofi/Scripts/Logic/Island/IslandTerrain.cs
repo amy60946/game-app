@@ -35,6 +35,8 @@ namespace Pofi.Logic.Island
     {
         public string Asset;
         public float X, Z, Yaw, Size;
+        public float Y = float.NaN;    // pişmiş adada taban yüksekliği (NaN: zeminden)
+        public bool Scaled;            // true: Size = model ölçeği (v6 modelleri gerçek ölçüde); false: Size = taban genişliği
     }
 
     /// <summary>
@@ -49,17 +51,29 @@ namespace Pofi.Logic.Island
         public readonly float MinX, MaxX, MinZ, MaxZ;
         public IReadOnlyList<RegionDef> Regions { get; }
         public TerrainDef Def { get; }
+        /// <summary>Pişmiş v6 adası (null: eski prosedürel ada). Yükseklik, yüzey, patika ve süsler buradan gelir.</summary>
+        public BakedIsland Baked { get; }
+        private readonly BakedField _field;
 
         private readonly List<(float ax, float az, float bx, float bz)> _paths = new List<(float, float, float, float)>();
         private readonly int _nx, _nz;
         private readonly bool[] _walk;
 
-        public IslandTerrain(IReadOnlyList<RegionDef> regions, TerrainDef def)
+        public IslandTerrain(IReadOnlyList<RegionDef> regions, TerrainDef def, BakedIsland baked = null)
         {
             Regions = regions;
             Def = def ?? new TerrainDef();
-            MinX = -Def.Rx - 9f; MaxX = Def.Rx + 9f;
-            MinZ = Def.Cz - Def.Rz - 9f; MaxZ = Def.Cz + Def.Rz + 9f;
+            Baked = baked;
+            _field = baked?.Field;
+            if (_field != null)
+            {
+                MinX = _field.X0; MaxX = _field.X1; MinZ = _field.Z0; MaxZ = _field.Z1;
+            }
+            else
+            {
+                MinX = -Def.Rx - 9f; MaxX = Def.Rx + 9f;
+                MinZ = Def.Cz - Def.Rz - 9f; MaxZ = Def.Cz + Def.Rz + 9f;
+            }
             _nx = (int)Math.Ceiling((MaxX - MinX) / Cell) + 1;
             _nz = (int)Math.Ceiling((MaxZ - MinZ) / Cell) + 1;
             _walk = new bool[_nx * _nz];
@@ -67,10 +81,17 @@ namespace Pofi.Logic.Island
             for (var i = 0; i < _nx; i++)
                 _walk[j * _nx + i] = ComputeWalkable(MinX + i * Cell, MinZ + j * Cell);
 
+            if (_field != null)
+            {
+                // pişmiş ada: patikalar taslaktaki çoklu çizgiler (arazide rampa olarak zaten kazılı)
+                foreach (var line in baked.Layout.Paths)
+                    for (var k = 1; k < line.Count; k++)
+                        if (line[k - 1].Length > 1 && line[k].Length > 1) _paths.Add((line[k - 1][0], line[k - 1][1], line[k][0], line[k][1]));
+            }
             // Patikalar: dallanan yol ağı (en kısa bağlantı ağacı). Meydandan başlar; her adımda ağa en yakın kapı,
             // ağdaki en yakın noktadan yol bulmayla bağlanır (var olan patikalar tercih edilir) → köy gibi dallanır.
             var nodes = new List<(float x, float z)> { (PlazaX, PlazaZ) };
-            var left = regions.ToList();
+            var left = _field != null ? new List<RegionDef>() : regions.ToList();
             while (left.Count > 0)
             {
                 RegionDef bestR = null; (float x, float z) bestN = default; var bestD = float.MaxValue;
@@ -100,9 +121,10 @@ namespace Pofi.Logic.Island
             }
 
             // Süsler yerleşir ve engel olur: ağaç, kaya, çalı, çit… içinden geçilmez
-            _props = BuildProps();
+            _props = _field != null ? BakedProps(baked.Layout) : BuildProps();
             foreach (var p in _props)
             {
+                if (p.Asset == "b_temple") { BlockRect(p.X, p.Z + 1f, 14.5f, 10.5f); continue; }   // tapınak teras + yapılar (30 × 22 m)
                 var rad = ObstacleRadius(p);
                 if (rad <= 0f) continue;
                 var ci = (int)Math.Round((p.X - MinX) / Cell); var cj = (int)Math.Round((p.Z - MinZ) / Cell);
@@ -114,15 +136,72 @@ namespace Pofi.Logic.Island
                     if (Dist(MinX + i * Cell, MinZ + j * Cell, p.X, p.Z) <= rad) _walk[j * _nx + i] = false;
                 }
             }
+            if (_field != null) ResolveDoors();
         }
 
         private readonly List<PropSpot> _props;
+        private Dictionary<string, (float x, float z)> _doors;
+
+        /// <summary>
+        /// Pişmiş adada kapı: yapının önü (yaw) yürünebilirse orası; değilse yapı çevresinde patikaya en yakın yürünebilir nokta
+        /// (kumsal bölgelerinde ön su ya da yamaç olabilir). Yürüme ızgarası kurulduktan sonra bir kez hesaplanır.
+        /// </summary>
+        private void ResolveDoors()
+        {
+            var doors = new Dictionary<string, (float x, float z)>();
+            foreach (var r in Regions)
+            {
+                var front = Door(r);
+                if (Walkable(front.x, front.z)) { doors[r.Id] = front; continue; }
+                var best = front; var bestD = float.MaxValue;
+                for (var ring = 0; ring < 4; ring++)
+                {
+                    var rad = r.Size * 0.62f + 0.8f + ring * 0.8f;
+                    for (var k = 0; k < 24; k++)
+                    {
+                        var a = k * (float)Math.PI * 2f / 24f;
+                        var x = r.X + (float)Math.Sin(a) * rad; var z = r.Z - (float)Math.Cos(a) * rad;
+                        if (!Walkable(x, z)) continue;
+                        var d = PathDistance(x, z) + ring * 0.5f;
+                        if (d < bestD) { bestD = d; best = (x, z); }
+                    }
+                    if (bestD < float.MaxValue) break;
+                }
+                doors[r.Id] = best;
+            }
+            _doors = doors;
+        }
+
+        private void BlockRect(float cx, float cz, float hx, float hz)
+        {
+            for (var j = (int)((cz - hz - MinZ) / Cell); j <= (int)((cz + hz - MinZ) / Cell) + 1; j++)
+            for (var i = (int)((cx - hx - MinX) / Cell); i <= (int)((cx + hx - MinX) / Cell) + 1; i++)
+                if (i >= 0 && j >= 0 && i < _nx && j < _nz) _walk[j * _nx + i] = false;
+        }
+
+        private static List<PropSpot> BakedProps(BakedLayout layout) =>
+            layout.Props.Where(p => p != null && !string.IsNullOrEmpty(p.Asset))
+                .Select(p => new PropSpot { Asset = p.Asset, X = p.X, Z = p.Z, Y = p.Y, Yaw = p.Yaw, Size = p.S, Scaled = p.Fp == 0 }).ToList();
+
+        /// <summary>Süsün yerde kapladığı yarıçap (yerleşim aralığı için): ölçekli v6 modelinde engel yarıçapı, eskilerde taban genişliği.</summary>
+        public static float Footprint(PropSpot p) => p.Scaled ? ObstacleRadius(p) + 0.6f : p.Size;
 
         /// <summary>Süsün yürüme engeli yarıçapı (m).</summary>
         public static float ObstacleRadius(PropSpot p)
         {
             switch (p.Asset)
             {
+                // v6 (ölçekli modeller): gövde/taş yarıçapı
+                case "t_round0": case "t_round1": case "t_round2": case "t_round3": case "t_birch": case "t_cypress":
+                case "t_pine0": case "t_pine1": case "t_pine2": case "t_pine_snow":
+                case "t_palm_tall0": case "t_palm_tall1": case "t_palm_tall2": return 0.5f;
+                case "t_bush": return Math.Min(0.8f, p.Size * 0.4f);
+                case "r_boulder": case "r_boulder_b": case "r_pebble": return Math.Min(1.6f, p.Size * 0.45f);
+                case "p_campfire": return 1.3f;
+                case "p_log_v6": case "p_stump_v6": return 0.45f;
+                case "p_driftwood": return 0.6f;
+                case "p_trail_pole": return 0.15f;
+                case "p_snow_lump": case "p_starfish": case "p_crab": case "p_pool": case "b_temple": return 0f;
                 case "palm": return 0.45f;
                 case "p_tree": return 0.5f;
                 case "p_lantern": case "p_sign": return 0.3f;
@@ -134,14 +213,16 @@ namespace Pofi.Logic.Island
         /// <summary>Patika parçaları (çizim ve süs yerleşimi için).</summary>
         public IReadOnlyList<(float ax, float az, float bx, float bz)> Paths => _paths;
 
-        public float PlazaX => Def.Plaza != null && Def.Plaza.Length > 0 ? Def.Plaza[0] : 0f;
-        public float PlazaZ => Def.Plaza != null && Def.Plaza.Length > 1 ? Def.Plaza[1] : 0f;
+        private float[] PlazaArr => Baked?.Layout?.Plaza ?? Def.Plaza;
+        public float PlazaX => PlazaArr != null && PlazaArr.Length > 0 ? PlazaArr[0] : 0f;
+        public float PlazaZ => PlazaArr != null && PlazaArr.Length > 1 ? PlazaArr[1] : 0f;
 
         // ------------------------------------------------------------------ şekil
 
         /// <summary>Kıyı ölçüsü: &lt; 1 kara, &gt; 1 deniz (kıyı çizgisi gürültüyle dalgalı).</summary>
         public float Coast(float x, float z)
         {
+            if (_field != null) return _field.Height(x, z) < 0f ? 1.1f : 0.5f;
             var nx = x / Def.Rx;
             var nz = (z - Def.Cz) / Def.Rz;
             var c = (float)Math.Sqrt(nx * nx + nz * nz);
@@ -186,6 +267,7 @@ namespace Pofi.Logic.Island
         /// <summary>Yerin yüksekliği (m). Bina tabanları düzleştirilmiş, patikalar hafif yumuşatılmış.</summary>
         public float Height(float x, float z)
         {
+            if (_field != null) return _field.Height(x, z);   // bina yastıkları ızgarada pişmiş
             var h = BaseHeight(x, z) + HillHeight(x, z, out _);
             foreach (var r in Regions)
             {
@@ -200,7 +282,11 @@ namespace Pofi.Logic.Island
         }
 
         /// <summary>Bölge tabanının yüksekliği (doğal zeminin merkezdeki değeri, kıyıda en az 0,3).</summary>
-        public float PadHeight(RegionDef r) => Math.Max(0.3f, BaseHeight(r.X, r.Z) + HillHeight(r.X, r.Z, out _));
+        public float PadHeight(RegionDef r) => _field != null ? (r.Water ? 0f : Math.Max(0.3f, _field.Height(r.X, r.Z)))
+            : Math.Max(0.3f, BaseHeight(r.X, r.Z) + HillHeight(r.X, r.Z, out _));
+
+        /// <summary>Göl (pişmiş adada): yürünmez, su yüzeyi <see cref="BakedLayout.LakeDef.Level"/>.</summary>
+        public bool InLake(float x, float z) => _field != null && _field.Get(BakedField.Layer.Lake, x, z) > 0.4f;
 
         public float Slope(float x, float z)
         {
@@ -213,6 +299,15 @@ namespace Pofi.Logic.Island
         public Surface SurfaceAt(float x, float z)
         {
             var h = Height(x, z);
+            if (_field != null)
+            {
+                if (h < 0f || InLake(x, z)) return Surface.Water;
+                if (_field.Get(BakedField.Layer.Snow, x, z) > 0.5f) return Surface.Snow;
+                if (_field.Get(BakedField.Layer.Rock, x, z) > 0.5f) return Surface.Rock;
+                if (_field.Get(BakedField.Layer.Path, x, z) > 0.5f) return Surface.Path;
+                if (_field.Get(BakedField.Layer.Sand, x, z) > 0.5f) return Surface.Sand;
+                return Surface.Grass;
+            }
             if (h < 0f) return Surface.Water;
             HillHeight(x, z, out var snow);
             if (snow > 0.35f && h > 1.6f) return Surface.Snow;
@@ -226,6 +321,13 @@ namespace Pofi.Logic.Island
         public SurfaceMix MixAt(float x, float z)
         {
             var h = Height(x, z);
+            if (_field != null)
+                return new SurfaceMix
+                {
+                    Water = Math.Max(SmoothStep(0.05f, -0.2f, h), _field.Get(BakedField.Layer.Lake, x, z)),
+                    Sand = _field.Get(BakedField.Layer.Sand, x, z), Path = _field.Get(BakedField.Layer.Path, x, z),
+                    Rock = _field.Get(BakedField.Layer.Rock, x, z), Snow = _field.Get(BakedField.Layer.Snow, x, z),
+                };
             var c = Coast(x, z);
             HillHeight(x, z, out var snowW);
             var m = new SurfaceMix
@@ -263,6 +365,7 @@ namespace Pofi.Logic.Island
         /// <summary>Kapı noktası: yapının önünde, tabanın hemen dışında.</summary>
         public (float x, float z) Door(RegionDef r)
         {
+            if (_doors != null && _doors.TryGetValue(r.Id, out var cached)) return cached;
             var a = r.Yaw * (float)Math.PI / 180f;
             var depth = r.Size * 0.62f + 0.8f;
             // önü −z; yaw saat yönünde döndürür (Unity Y ekseni gibi)
@@ -283,6 +386,7 @@ namespace Pofi.Logic.Island
         {
             var h = Height(x, z);
             if (h < 0.15f) return false;                                      // kuru kumda kal: dalgalar ve kıyı köpüğü ~0,1 m (pet suyun üstünde görünmesin)
+            if (InLake(x, z)) return false;
             if (BuildingAt(x, z) != null) return false;
             return Slope(x, z) < 1.1f;
         }
@@ -339,7 +443,7 @@ namespace Pofi.Logic.Island
             open.Add((Heur(si, sj, gi, gj), start));
             var closed = new HashSet<int>();
             var found = false;
-            while (open.Count > 0 && closed.Count < 40000)
+            while (open.Count > 0 && closed.Count < (_field != null ? 160000 : 40000))   // büyük ada: uzun yollar
             {
                 var cur = open.Min; open.Remove(cur);
                 if (cur.id == goal) { found = true; break; }

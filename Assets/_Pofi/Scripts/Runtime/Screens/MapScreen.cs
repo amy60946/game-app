@@ -50,8 +50,9 @@ namespace Pofi.Screens
         {
             App.Stage.SetPetVisible(false);
             App.Stage.AllowDrag = false;
-            if (_terrain == null) _terrain = new IslandTerrain(App.Map.Regions, App.Map.Terrain);
+            if (_terrain == null) _terrain = new IslandTerrain(App.Map.Regions, App.Map.Terrain, App.Island);
             _views = App.Map.View(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
+            World.PropCuller.Radius = 95f;
             _world = MapWorld.Create(_views, _terrain);
 
             // Pet: en son girilen bölgenin kapısında (yoksa evin önünde) belirir
@@ -82,11 +83,12 @@ namespace Pofi.Screens
         private void ToggleMode()
         {
             _overview = !_overview;
+            World.PropCuller.Radius = _overview ? 400f : 95f;   // kuşbakışında bütün ada
             if (_overview) TipDone(Onboarding.Overview); else TipDone(null);
             if (_modeText != null) _modeText.text = T(_overview ? "map.walk" : "map.overview");
             RefreshTracker();
             if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
-            if (_overview) _pan = new Vector2(0f, _terrain.Def.Cz - 6f);   // kuşbakışı: adanın ortası
+            if (_overview) _pan = _terrain.Baked != null ? new Vector2(0f, -18f) : new Vector2(0f, _terrain.Def.Cz - 6f);   // kuşbakışı: adanın ortası
             _toast.Say(T(_overview ? "map.hint_overview" : "map.hint_walk"));
         }
 
@@ -127,7 +129,8 @@ namespace Pofi.Screens
             {
                 var c = _overview ? _pan : new Vector2(_terrain.PlazaX, _terrain.PlazaZ + 6f);
                 look = MapWorld.Origin + new Vector3(c.x, 0f, c.y + 4f);
-                pos = look + new Vector3(0f, 44f, -34f);
+                var big = _terrain.Baked != null ? 2.1f : 1f;   // v6 ada 2,5 kat büyük: kuşbakışı daha yüksekten
+                pos = look + new Vector3(0f, 44f, -34f) * big;
                 fov = 40f;
                 return;
             }
@@ -316,7 +319,7 @@ namespace Pofi.Screens
                     break;
                 case Role.Pan:
                     if (!f.Moved) break;
-                    var kp = 60f / Mathf.Max(1f, Screen.width);
+                    var kp = (_terrain.Baked != null ? 130f : 60f) / Mathf.Max(1f, Screen.width);
                     _pan -= d * kp;
                     _pan = Vector2.Max(new Vector2(_terrain.MinX + 8f, _terrain.MinZ + 6f), Vector2.Min(new Vector2(_terrain.MaxX - 8f, _terrain.MaxZ - 16f), _pan));
                     break;

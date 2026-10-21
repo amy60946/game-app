@@ -236,6 +236,14 @@ def build():
         run += L_
     cs.append(run); ch.append(TV_h_at(h, spts[-1]) + 0.2)
     ch = np.maximum.accumulate(np.convolve(np.pad(ch, 6, mode='edge'), np.ones(13) / 13, mode='valid'))
+    # oyunda yürünür: eğim en çok 0,6 (ileri geçiş sınırlar, geri geçiş sona yetiştirir; yol yamaca oyulur ya da hafif dolgu)
+    ski = [r for r in REGIONS if r[0] == 'region_ski_hill'][0]
+    padh_ = float(hb[int((ski[3] - Z0) / STEP), int((ski[2] - X0) / STEP)])          # raf kayak alanı yastığından başlar (basamak yok)
+    for q in range(len(ch)):
+        if cs[q] <= ski[5] * 0.8: ch[q] = padh_
+    ds_ = np.diff(np.array(cs))
+    for q in range(1, len(ch)): ch[q] = min(ch[q], ch[q - 1] + 0.6 * ds_[q - 1])
+    for q in range(len(ch) - 2, -1, -1): ch[q] = max(ch[q], ch[q + 1] - 0.6 * ds_[q])
     sprof = np.interp(stt, np.array(cs), ch)
     alongm = ss(-1.0, 0.5, stt) * ss(sll + 1.5, sll - 0.5, stt)
     shelf = ss(3.2, 1.6, sdd) * alongm
@@ -257,7 +265,7 @@ def build():
     for (rid, nm, rx, rz, shp, size, yaw) in REGIONS:
         if shp == 'pier' or rid in BEACH_REGIONS: continue
         dr = np.hypot(X - rx, Z - rz); padh = float(hb[int((rz - Z0) / STEP), int((rx - X0) / STEP)])
-        h = h + (padh - h) * ss(size * 0.75 + 2.5, size * 0.6, dr)
+        h = h + (padh - h) * ss(size * 0.75 + 2.5, size * 0.6, dr) * (1 - shelf * ss(size * 0.55, size * 0.75, dr))   # karlı patika rafı yastıkla ezilmez (oyunda yürünür eğim)
     # deniz tabanı
     sea = sd_land < 0
     depth = SEA_FLOOR * ss(0, 30, -sd_land) - 0.8 * ss(0, 3, -sd_land)

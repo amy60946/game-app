@@ -13,9 +13,7 @@ namespace Pofi.Tests.Logic
             get
             {
                 if (_t != null) return _t;
-                var data = TestData.Load();
-                var map = new IslandMap(TestData.ReadText("regions.json"), new LevelTable(data.Levels));
-                return _t = new IslandTerrain(map.Regions, map.Terrain);
+                return _t = TestData.Terrain();   // oyundaki gibi: pişmiş v6 adası
             }
         }
 
@@ -73,7 +71,8 @@ namespace Pofi.Tests.Logic
             for (var i = 0; i < a.Count; i++) { Assert.AreEqual(a[i].Asset, b[i].Asset); Assert.AreEqual(a[i].X, b[i].X); }
             foreach (var p in a)
             {
-                Assert.Greater(T.Height(p.X, p.Z), 0f, p.Asset + " karada");
+                Assert.Greater(T.Height(p.X, p.Z), -1.6f, p.Asset + " karada ya da kıyı sığlığında");
+                if (p.Asset == "p_pool") continue;   // koy havuzu Yüzme Koyu'nun kendisi
                 foreach (var r in T.Regions) Assert.Greater(IslandTerrain.Dist(p.X, p.Z, r.X, r.Z), r.Size * 0.6f, p.Asset + " / " + r.Id);
             }
         }
@@ -88,9 +87,9 @@ namespace Pofi.Tests.Logic
         [Test]
         public void Patikalar_dallanir_tek_merkezden_yildiz_degil()
         {
-            // meydandan çıkan patika sayısı az (en kısa bağlantı ağacı); yıldız biçimi 8+ olurdu
+            // meydandan çıkan patika sayısı az (köy yolu dallanır); yıldız biçimi 8+ olurdu
             var fromPlaza = T.Paths.Count(p => IslandTerrain.Dist(p.ax, p.az, T.PlazaX, T.PlazaZ) < 0.6f);
-            Assert.LessOrEqual(fromPlaza, 4);
+            Assert.LessOrEqual(fromPlaza, 6);
         }
 
         [Test]
@@ -100,7 +99,41 @@ namespace Pofi.Tests.Logic
             var kinds = new System.Collections.Generic.HashSet<Surface>();
             for (var x = T.MinX; x < T.MaxX; x += 1.5f)
             for (var z = T.MinZ; z < T.MaxZ; z += 1.5f) kinds.Add(T.SurfaceAt(x, z));
-            foreach (var k in new[] { Surface.Water, Surface.Sand, Surface.Grass, Surface.Path, Surface.Snow }) Assert.IsTrue(kinds.Contains(k), k.ToString());
+            foreach (var k in new[] { Surface.Water, Surface.Sand, Surface.Grass, Surface.Path, Surface.Snow, Surface.Rock }) Assert.IsTrue(kinds.Contains(k), k.ToString());
+        }
+
+        [Test]
+        public void Pismis_adadaki_her_susun_modeli_ve_gercek_boyu_var()
+        {
+            var sizes = EnvSizes.Parse(TestData.ReadText("env_v6_sizes.json"));
+            var env = System.IO.Path.Combine(System.IO.Directory.GetParent(TestData.PathOfData()).FullName, "Env");
+            foreach (var a in T.Props().Select(p => p.Asset).Distinct())
+            {
+                Assert.IsTrue(System.IO.File.Exists(System.IO.Path.Combine(env, a, a + ".fbx")), a + " modeli Resources/Env'de");
+                if (T.Props().First(p => p.Asset == a).Scaled) Assert.Greater(sizes.TryGetValue(a, out var h) ? h : 0f, 0f, a + " gerçek boyu");
+            }
+        }
+
+        [Test]
+        public void Pismis_ada_taslakla_ayni_olcekte()
+        {
+            Assert.IsNotNull(T.Baked, "oyun v6 pişmiş adayı kullanır");
+            Assert.AreEqual(-100f, T.MinX, 0.01f); Assert.AreEqual(100f, T.MaxX, 0.01f);
+            Assert.Greater(T.Height(9f, 25f), 25f, "ortadaki kaya tepe yüksek");
+            Assert.Greater(T.Height(-44f, 54f), 30f, "karlı zirve");
+            Assert.AreEqual(Surface.Water, T.SurfaceAt(-28f, 6f), "göl");
+            Assert.IsFalse(T.Walkable(-28f, 6f), "göle girilmez");
+            Assert.AreEqual(Surface.Snow, T.SurfaceAt(-44f, 50f));
+            Assert.Greater(T.Props().Count, 1000);
+            // karlı patika baştan sona yürünebilir (kayak alanından zirveye)
+            var ski = T.Door(T.Regions.First(r => r.Id == "region_ski_hill"));
+            var p = T.FindPath(ski.x, ski.z, -41f, 56.5f);
+            Assert.Greater(p.Count, 0, "karlı patika");
+            // toplama noktaları ve kulübe yeri büyük adada da bulunur (meydana yakın)
+            var nodes = Gathering.Place(T);
+            Assert.AreEqual(16, nodes.Count);
+            var site = Gathering.HutSite(T);
+            Assert.IsTrue(T.Walkable(site.x, site.z));
         }
     }
 }

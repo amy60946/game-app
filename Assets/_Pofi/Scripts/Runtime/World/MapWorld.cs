@@ -70,8 +70,18 @@ namespace Pofi.World
             BuildWater();
             foreach (var v in views) BuildRegion(v);
             BuildProps();
-            Clouds.Spawn(transform, new Vector3(0f, 0f, Terrain.Def.Cz), 72f, 10, 18f, 30f, 9f, 5);   // ada çevresinde bulutlar
-            Birds.Spawn(transform, new Vector3(0f, 0f, Terrain.Def.Cz), 54f, 3, 9);                   // denizin üstünde kuş sürüleri
+            if (Terrain.Baked != null)
+            {
+                BuildLake();
+                // büyük ada (v6): bulut halkası ve kuşlar adayı çevreler; zirve 38 m, bulutlar üstünde
+                Clouds.Spawn(transform, new Vector3(0f, 0f, 0f), 135f, 16, 46f, 70f, 16f, 5);
+                Birds.Spawn(transform, new Vector3(0f, 0f, -10f), 105f, 4, 9);
+            }
+            else
+            {
+                Clouds.Spawn(transform, new Vector3(0f, 0f, Terrain.Def.Cz), 72f, 10, 18f, 30f, 9f, 5);   // ada çevresinde bulutlar
+                Birds.Spawn(transform, new Vector3(0f, 0f, Terrain.Def.Cz), 54f, 3, 9);                   // denizin üstünde kuş sürüleri
+            }
         }
 
         // ------------------------------------------------------------------ zemin
@@ -81,8 +91,121 @@ namespace Pofi.World
         private static Mesh _groundMesh;
         private static Texture2D _groundTex;
 
+        // pişmiş v6 zemini: 8 × 8 parça (görüş dışı parçalar çizilmez), dokunma/kamera için 1 m'lik tek çarpışma ağı
+        private static Mesh[] _bakedParts;
+        private static Mesh _bakedCollider;
+        private static IslandTerrain _bakedFor;
+
+        private void BuildBakedGround()
+        {
+            var f = Terrain.Baked.Field;
+            if (_bakedFor != Terrain || _bakedParts == null)
+            {
+                const int parts = 8;
+                _bakedParts = new Mesh[parts * parts];
+                for (var pj = 0; pj < parts; pj++)
+                for (var pi = 0; pi < parts; pi++)
+                {
+                    int i0 = pi * (f.Nx - 1) / parts, i1 = (pi + 1) * (f.Nx - 1) / parts;
+                    int j0 = pj * (f.Nz - 1) / parts, j1 = (pj + 1) * (f.Nz - 1) / parts;
+                    _bakedParts[pj * parts + pi] = FieldMesh(f, i0, j0, i1, j1, 1, "IslandGround" + pi + "_" + pj);
+                }
+                _bakedCollider = FieldMesh(f, 0, 0, f.Nx - 1, f.Nz - 1, 2, "IslandGroundCollider");
+                _bakedFor = Terrain;
+            }
+            var go = new GameObject("ground");
+            go.transform.SetParent(transform, false);
+            var gsh = Shader.Find("Pofi/Ground");
+            var mat = gsh != null ? new Material(gsh) : PetModels.NewMaterial(Color.white, 0.12f);
+            var tex = Resources.Load<Texture2D>("Env/ground_v6/ground_v6");
+            if (tex != null) mat.SetTexture("_BaseMap", tex);
+            mat.SetFloat("_RockStrata", 1f);   // dik yüzlerde tabaka bantları + dikey oluklar (taslaktaki kaya)
+            _owned.Add(mat);
+            foreach (var m in _bakedParts)
+            {
+                var part = new GameObject("ground_part");
+                part.transform.SetParent(go.transform, false);
+                part.AddComponent<MeshFilter>().sharedMesh = m;
+                var mr = part.AddComponent<MeshRenderer>();
+                mr.sharedMaterial = mat;
+                mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;   // yarlar platoya gölge düşürür (derinlik)
+                mr.receiveShadows = true;
+            }
+            go.AddComponent<MeshCollider>().sharedMesh = _bakedCollider;
+        }
+
+        /// <summary>Izgara parçası ağı (i0..i1, j0..j1 hücre köşeleri, adım <paramref name="stride"/>); UV tüm adanın dokusuna göre.</summary>
+        private static Mesh FieldMesh(BakedField f, int i0, int j0, int i1, int j1, int stride, string name)
+        {
+            var nx = (i1 - i0) / stride + 1; var nz = (j1 - j0) / stride + 1;
+            var verts = new Vector3[nx * nz];
+            var uvs = new Vector2[nx * nz];
+            for (var j = 0; j < nz; j++)
+            for (var i = 0; i < nx; i++)
+            {
+                var gi = Mathf.Min(i0 + i * stride, f.Nx - 1); var gj = Mathf.Min(j0 + j * stride, f.Nz - 1);
+                var x = f.X0 + gi * f.Step; var z = f.Z0 + gj * f.Step;
+                verts[j * nx + i] = new Vector3(x, f.Height(x, z), z);
+                uvs[j * nx + i] = new Vector2(gi / (float)(f.Nx - 1), gj / (float)(f.Nz - 1));
+            }
+            var tris = new int[(nx - 1) * (nz - 1) * 6];
+            var k = 0;
+            for (var j = 0; j < nz - 1; j++)
+            for (var i = 0; i < nx - 1; i++)
+            {
+                var a = j * nx + i;
+                tris[k++] = a; tris[k++] = a + nx; tris[k++] = a + 1;
+                tris[k++] = a + 1; tris[k++] = a + nx; tris[k++] = a + nx + 1;
+            }
+            var mesh = new Mesh { name = name };
+            if (verts.Length > 65000) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            mesh.vertices = verts; mesh.uv = uvs; mesh.triangles = tris;
+            mesh.RecalculateNormals();   // parça kenarında normal dikişi küçük: komşu yükseklik aynı ızgaradan
+            mesh.RecalculateBounds();
+            return mesh;
+        }
+
+        /// <summary>Göl (v6): yüzey göl seviyesinde, aynı su gölgelendiricisi; sığlık göl derinliğinden.</summary>
+        private void BuildLake()
+        {
+            var lake = Terrain.Baked.Layout.Lake;
+            var sh = Shader.Find("Pofi/Water");
+            if (lake == null || sh == null) return;
+            var r = lake.R + 5f;
+            const int size = 64;
+            var px = new Color32[size * size];
+            for (var j = 0; j < size; j++)
+            for (var i = 0; i < size; i++)
+            {
+                var x = lake.X - r + (i + 0.5f) / size * 2f * r; var z = lake.Z - r + (j + 0.5f) / size * 2f * r;
+                var d = Terrain.Height(x, z) - lake.Level;
+                var shallow = d >= 0f ? 1f : Mathf.Clamp01(1f + d / 1.2f);
+                var foam = d >= 0f ? 1f : Mathf.Pow(Mathf.Clamp01(1f + d / 0.3f), 2f) * 0.5f;
+                px[j * size + i] = new Color32((byte)(shallow * 255), (byte)(foam * 255), 0, 255);
+            }
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+            tex.SetPixels32(px); tex.Apply(false, true);
+            _owned.Add(tex);
+            var m = new Material(sh);
+            m.SetTexture("_ShoreMap", tex);
+            var o = transform.position;
+            m.SetVector("_ShoreRect", new Vector4(o.x + lake.X - r, o.z + lake.Z - r, 2f * r, 2f * r));
+            m.SetFloat("_WaveAmp", 0.025f);   // göl sakin
+            _owned.Add(m);
+            var go = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            go.name = "Lake";
+            go.transform.SetParent(transform, false);
+            go.transform.localPosition = new Vector3(lake.X, lake.Level, lake.Z);
+            go.transform.localScale = new Vector3(r * 0.2f, 1f, r * 0.2f);
+            Destroy(go.GetComponent<Collider>());
+            var mr = go.GetComponent<Renderer>();
+            mr.sharedMaterial = m;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
+
         private void BuildGround()
         {
+            if (Terrain.Baked != null) { BuildBakedGround(); return; }
             if (_cachedFor != Terrain || _groundMesh == null || _groundTex == null)
             {
                 _groundMesh = GroundMesh();
@@ -175,6 +298,7 @@ namespace Pofi.World
 
         private static Texture2D _shoreTex;
         private static Mesh _waterMesh;
+        private static bool _waterBig;
 
         /// <summary>Deniz: dalgalı ağ (Pofi/Water), kıyı haritasıyla sığ turkuaz ve köpük; uzakta düz ufuk düzlemi.</summary>
         private void BuildWater()
@@ -187,12 +311,14 @@ namespace Pofi.World
                 if (_cachedFor != Terrain || _shoreTex == null) _shoreTex = ShoreMap();
                 m = new Material(sh);
                 m.SetTexture("_ShoreMap", _shoreTex);
-                m.SetVector("_ShoreRect", new Vector4(t.MinX, t.MinZ, t.MaxX - t.MinX, t.MaxZ - t.MinZ));
+                var o = transform.position;   // gölgelendirici dünya koordinatıyla okur (ada x = 200'de kurulu)
+                m.SetVector("_ShoreRect", new Vector4(o.x + t.MinX, o.z + t.MinZ, t.MaxX - t.MinX, t.MaxZ - t.MinZ));
             }
             else m = PetModels.NewMaterial(new Color(0.22f, 0.7f, 0.95f), 0.88f);
             _owned.Add(m);
 
-            if (_waterMesh == null) _waterMesh = WaterGrid(140, 1.6f);
+            var big = t.Baked != null;
+            if (_waterMesh == null || _waterBig != big) { _waterMesh = WaterGrid(big ? 150 : 140, big ? 1.6f * 1.6f : 1.6f); _waterBig = big; }
             var go = new GameObject("Water");
             go.transform.SetParent(transform, false);
             go.transform.localPosition = new Vector3((t.MinX + t.MaxX) * 0.5f, -0.02f, (t.MinZ + t.MaxZ) * 0.5f);
@@ -205,7 +331,7 @@ namespace Pofi.World
             var far = GameObject.CreatePrimitive(PrimitiveType.Plane);
             far.name = "FarWater";
             far.transform.SetParent(transform, false);
-            far.transform.localPosition = new Vector3(0f, -0.06f, t.Def.Cz);
+            far.transform.localPosition = new Vector3(0f, -0.06f, t.Baked != null ? 0f : t.Def.Cz);
             far.transform.localScale = new Vector3(80f, 1f, 80f);
             var fr = far.GetComponent<Renderer>();
             fr.sharedMaterial = m;
@@ -238,7 +364,7 @@ namespace Pofi.World
         /// <summary>Kıyı haritası: r = sığlık (kıyıya yakın 1), g = köpük şeridi (kıyı çizgisinde 1).</summary>
         private Texture2D ShoreMap()
         {
-            const int size = 192;
+            var size = Terrain.Baked != null ? 400 : 192;   // büyük ada: kıyı köpüğü aynı incelikte
             var t = Terrain;
             var px = new Color32[size * size];
             for (var j = 0; j < size; j++)
@@ -278,11 +404,17 @@ namespace Pofi.World
                     p.localPosition = new Vector3(offs[i].x, -0.1f, offs[i].y);
                 }
             }
+            else if (r.Id == "region_swim_cove" && Terrain.Baked != null)
+            {
+                // v6: koy havuzu süs olarak gelir (p_pool); dokunma kutusu için görünmez taban
+                new GameObject("pool_pad").transform.SetParent(root, false);
+            }
             else if (RegionAssets.TryGetValue(r.Id, out var asset))
             {
                 var m = RealAssets.EnvFootprint(asset, root, r.Size, 180f + r.Yaw);   // ham önü +z → güneye dön, sonra bölge açısı
             }
             if (root.childCount == 0) Placeholder(root, r, v.Unlocked);
+            var poolPad = root.Find("pool_pad");
             if (!v.Unlocked) RealAssets.Tint(root, new Color(0.62f, 0.64f, 0.72f));
             // Güneş Taşı ile açılan kilitli bölge: yere yakın, yapıyı saran yoğun sis (kullanıcı, 19 Ekim 2026: gökyüzündeki
             // bulutlar sis gibi okunmuyordu; sis bölgenin üstünde, kamera hizasında olmalı). Taş yerleşince bölge yeniden kurulur, sis kalkar.
@@ -290,7 +422,8 @@ namespace Pofi.World
                 Clouds.Spawn(transform, new Vector3(r.X, Terrain.Height(r.X, r.Z) + 0.4f, r.Z), r.Size * 0.42f, 7, 0f, r.Size * 0.25f, r.Size * 0.32f,
                     r.Id.GetHashCode(), 0f, 360f, true);
 
-            var b = RealAssets.WorldBounds(root);
+            var b = poolPad != null ? new Bounds(root.position + Vector3.up * 0.6f, new Vector3(r.Size * 1.2f, 1.2f, r.Size * 1.2f)) : RealAssets.WorldBounds(root);
+            if (poolPad != null) Destroy(poolPad.gameObject);
             var col = root.gameObject.AddComponent<BoxCollider>();
             col.center = root.InverseTransformPoint(b.center);
             col.size = new Vector3(Mathf.Max(1f, b.size.x), Mathf.Max(1f, b.size.y), Mathf.Max(1f, b.size.z));
@@ -314,11 +447,16 @@ namespace Pofi.World
         {
             var parent = new GameObject("Props").transform;
             parent.SetParent(transform, false);
+            var culler = Terrain.Baked != null ? gameObject.AddComponent<PropCuller>() : null;
             foreach (var p in Terrain.Props())
             {
-                var t = RealAssets.EnvFootprint(p.Asset, parent, p.Size, p.Yaw);
+                var cell = culler != null ? culler.Cell(parent, p.X, p.Z) : parent;
+                var t = p.Scaled ? RealAssets.EnvScaled(p.Asset, cell, p.Size, p.Yaw) : RealAssets.EnvFootprint(p.Asset, cell, p.Size, p.Yaw);
                 if (t == null) continue;
-                t.localPosition = new Vector3(p.X, Terrain.Height(p.X, p.Z), p.Z);
+                t.localPosition = new Vector3(p.X, float.IsNaN(p.Y) ? Terrain.Height(p.X, p.Z) : p.Y, p.Z) - cell.localPosition;
+                if (p.Asset == "p_crab") t.gameObject.AddComponent<CrabFlee>().Init(this);
+                else if (p.Asset == "p_campfire") Campfire.Light(t, p.Size);
+                else if (p.Asset == "p_starfish" || p.Asset == "p_snow_lump") { foreach (var r in t.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; }
             }
         }
 

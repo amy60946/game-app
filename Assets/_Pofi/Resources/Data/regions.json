@@ -1,188 +1,188 @@
 {
-  "_doc": "Ada (M5, 14 Ekim 2026 köy ölçeği): pos x,z metre (pet ~1,75 m), size: yapı taban genişliği, yaw: 0 = önü güneye (kuşbakışı kameraya), water: denize uzanan yapı. id levels.json'daki region_* ile aynı. target: page:* / minigame:* / cards. terrain: ada elipsi (rx, rz, cz), meydan, tepeler (h yükseklik, r yayılım, snow).",
+  "_doc": "Ada (M5, 14 Ekim 2026 köy ölçeği): pos x,z metre (pet ~1,75 m), size: yapı taban genişliği, yaw: 0 = önü güneye (kuşbakışı kameraya), water: denize uzanan yapı. id levels.json'daki region_* ile aynı. target: page:* / minigame:* / cards. terrain: ada elipsi (rx, rz, cz), meydan, tepeler (h yükseklik, r yayılım, snow). v6 (22 Ekim 2026): konumlar pişmiş adadan (art/code3d/v6/terrain_v6.py REGIONS); arazi/patika/süs Resources/Data/island_v6*. 'terrain' yalnız eski prosedürel ada (yedek).",
   "regions": [
     {
       "id": "region_home",
       "name": "Evim",
       "pos": [
         0.0,
-        -13.8
+        -30.0
       ],
       "target": "page:home",
       "color": "#FF8A2A",
       "shape": "house",
-      "size": 7,
+      "size": 8.6,
       "yaw": 0
     },
     {
       "id": "region_shop",
       "name": "Dükkan",
       "pos": [
-        -13.8,
-        -7.5
+        -22.0,
+        -23.0
       ],
       "target": "page:shop",
       "color": "#FF5A7A",
       "shape": "house",
-      "size": 6.5,
-      "yaw": 12
+      "size": 8.0,
+      "yaw": 18
     },
     {
       "id": "region_task_board",
       "name": "Ev Görevleri",
       "pos": [
-        12.5,
-        -8.8
+        17.0,
+        -24.0
       ],
       "target": "page:tasks",
       "color": "#2F80ED",
       "shape": "board",
-      "size": 4.5,
-      "yaw": -12
+      "size": 5.5,
+      "yaw": -16
     },
     {
       "id": "region_coconut_grove",
       "name": "Hindistan Cevizi Bahçesi",
       "pos": [
-        -26.2,
-        -1.2
+        -72.0,
+        -16.0
       ],
       "target": "minigame:coconut",
       "color": "#46D063",
       "shape": "palm",
-      "size": 6,
+      "size": 7.4,
       "yaw": 0
     },
     {
       "id": "region_swim_cove",
       "name": "Yüzme Koyu",
       "pos": [
-        25.0,
-        -1.2
+        61.0,
+        -37.0
       ],
       "target": "minigame:swim",
       "color": "#3DC9FF",
       "shape": "pool",
-      "size": 7,
-      "yaw": -15
+      "size": 8.6,
+      "yaw": -30
     },
     {
       "id": "region_surf_beach",
       "name": "Sörf Plajı",
       "pos": [
-        32.5,
-        11.2
+        75.0,
+        -12.0
       ],
       "target": "minigame:surf",
       "color": "#00A693",
       "shape": "board",
-      "size": 5.5,
-      "yaw": -35
+      "size": 6.8,
+      "yaw": -70
     },
     {
       "id": "region_game_hut",
       "name": "Oyun Kulübesi",
       "pos": [
-        -12.5,
-        5.0
+        34.0,
+        16.0
       ],
       "target": "cards",
       "color": "#A77BFF",
       "shape": "house",
-      "size": 6.5,
-      "yaw": 10
+      "size": 8.0,
+      "yaw": -20
     },
     {
       "id": "region_ski_hill",
       "name": "Kayak Tepesi",
       "pos": [
-        -21.2,
-        18.8
+        -38.0,
+        40.0
       ],
       "target": "minigame:ski",
       "color": "#F4F8FF",
       "shape": "hill",
-      "size": 7,
-      "yaw": 15
+      "size": 8.6,
+      "yaw": 30
     },
     {
       "id": "region_garden",
       "name": "Bahçe",
       "pos": [
-        11.2,
-        5.0
+        28.0,
+        -38.0
       ],
       "target": "page:garden",
       "color": "#7BD66B",
       "shape": "garden",
-      "size": 7,
-      "yaw": -8
+      "size": 8.6,
+      "yaw": -10
     },
     {
       "id": "region_pier",
       "name": "İskele",
       "pos": [
-        27.5,
-        -21.2
+        40.0,
+        -61.0
       ],
       "target": "minigame:fishing",
       "color": "#8C5A3C",
       "shape": "pier",
-      "size": 7,
-      "yaw": 143,
+      "size": 8.6,
+      "yaw": 0,
       "water": true
     },
     {
       "id": "region_cave",
       "name": "Mağara",
       "pos": [
-        -23.0,
-        -12.0
+        -60.0,
+        12.0
       ],
       "target": "minigame:cave",
       "color": "#5D6380",
       "shape": "hill",
-      "size": 7,
-      "yaw": 25
+      "size": 8.6,
+      "yaw": 127
     },
     {
       "id": "region_festival",
       "name": "Festival Alanı",
       "pos": [
-        -2.5,
-        13.8
+        0.0,
+        -6.0
       ],
       "target": "page:festival",
       "color": "#FFD23F",
       "shape": "tent",
-      "size": 7.5,
+      "size": 9.0,
       "yaw": 0
     },
     {
       "id": "region_mountain",
       "name": "Dağ",
       "pos": [
-        6.2,
-        26.5
+        20.0,
+        56.0
       ],
       "target": "minigame:hike",
       "color": "#9AA5B8",
       "shape": "hill",
-      "size": 8,
-      "yaw": -5
+      "size": 9.8,
+      "yaw": 0
     },
     {
       "id": "region_lighthouse",
       "name": "Fener",
       "pos": [
-        25.0,
-        25.0
+        60.0,
+        46.0
       ],
       "target": "page:lighthouse",
       "color": "#E8453C",
       "shape": "tower",
-      "size": 4.5,
-      "yaw": -30
+      "size": 5.5,
+      "yaw": 0
     }
   ],
   "terrain": {

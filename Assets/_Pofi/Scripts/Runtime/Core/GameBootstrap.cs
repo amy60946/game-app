@@ -33,6 +33,8 @@ namespace Pofi.Core
         public StarterKit Starter { get; private set; }
         public LevelTable Levels { get; private set; }
         public IslandMap Map { get; private set; }
+        /// <summary>Pişmiş v6 adası (Resources/Data/island_v6.bytes + island_v6_layout.json); yoksa null (eski prosedürel ada).</summary>
+        public BakedIsland Island { get; private set; }
 
         /// <summary>Açık mini oyunun kimliği (coconut, help_pet, swim, surf, ski).</summary>
         public string MiniGameId { get; private set; }
@@ -91,6 +93,13 @@ namespace Pofi.Core
             Starter = new StarterKit(ReadData("start.json"));
             Levels = new LevelTable(Data.Levels);
             Map = new IslandMap(ReadData("regions.json"), Levels);
+            var field = Resources.Load<TextAsset>("Data/island_v6");
+            var layout = Resources.Load<TextAsset>("Data/island_v6_layout");
+            if (field != null && layout != null)
+            {
+                try { Island = BakedIsland.Load(field.bytes, layout.text); }
+                catch (Exception e) { Debug.LogException(e); Island = null; }
+            }
             Store = new SecureStore();   // iOS: oturum belirteci Keychain (güvenlik M4)
             Server = ServerConfig.Parse(ReadOptional("server.json"));
             _http = new UnityHttp();
