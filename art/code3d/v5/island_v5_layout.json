@@ -1,0 +1,297 @@
+{
+ "_doc": "v5 ada taslağı (20 Ekim 2026): bugünkü regions.json'un 1,45 kat büyütülmüşü (alan ~2,1x) + yeni biyom tepeleri, göl çukuru. Oyuna girmedi; IslandTerrain ile aynı alanlar.",
+ "regions": [
+  {
+   "id": "region_home",
+   "name": "Evim",
+   "pos": [
+    0.0,
+    -20.01
+   ],
+   "target": "page:home",
+   "color": "#FF8A2A",
+   "shape": "house",
+   "size": 7.84,
+   "yaw": 0
+  },
+  {
+   "id": "region_shop",
+   "name": "Dükkan",
+   "pos": [
+    -20.01,
+    -10.88
+   ],
+   "target": "page:shop",
+   "color": "#FF5A7A",
+   "shape": "house",
+   "size": 7.28,
+   "yaw": 12
+  },
+  {
+   "id": "region_task_board",
+   "name": "Ev Görevleri",
+   "pos": [
+    18.12,
+    -12.76
+   ],
+   "target": "page:tasks",
+   "color": "#2F80ED",
+   "shape": "board",
+   "size": 5.04,
+   "yaw": -12
+  },
+  {
+   "id": "region_coconut_grove",
+   "name": "Hindistan Cevizi Bahçesi",
+   "pos": [
+    -37.99,
+    -1.74
+   ],
+   "target": "minigame:coconut",
+   "color": "#46D063",
+   "shape": "palm",
+   "size": 6.72,
+   "yaw": 0
+  },
+  {
+   "id": "region_swim_cove",
+   "name": "Yüzme Koyu",
+   "pos": [
+    36.25,
+    -1.74
+   ],
+   "target": "minigame:swim",
+   "color": "#3DC9FF",
+   "shape": "pool",
+   "size": 7.84,
+   "yaw": -15
+  },
+  {
+   "id": "region_surf_beach",
+   "name": "Sörf Plajı",
+   "pos": [
+    47.12,
+    16.24
+   ],
+   "target": "minigame:surf",
+   "color": "#00A693",
+   "shape": "board",
+   "size": 6.16,
+   "yaw": -35
+  },
+  {
+   "id": "region_game_hut",
+   "name": "Oyun Kulübesi",
+   "pos": [
+    -18.12,
+    7.25
+   ],
+   "target": "cards",
+   "color": "#A77BFF",
+   "shape": "house",
+   "size": 7.28,
+   "yaw": 10
+  },
+  {
+   "id": "region_ski_hill",
+   "name": "Kayak Tepesi",
+   "pos": [
+    -30.74,
+    27.26
+   ],
+   "target": "minigame:ski",
+   "color": "#F4F8FF",
+   "shape": "hill",
+   "size": 7.84,
+   "yaw": 15
+  },
+  {
+   "id": "region_garden",
+   "name": "Bahçe",
+   "pos": [
+    16.24,
+    7.25
+   ],
+   "target": "page:garden",
+   "color": "#7BD66B",
+   "shape": "garden",
+   "size": 7.84,
+   "yaw": -8
+  },
+  {
+   "id": "region_pier",
+   "name": "İskele",
+   "pos": [
+    39.88,
+    -30.74
+   ],
+   "target": "minigame:fishing",
+   "color": "#8C5A3C",
+   "shape": "pier",
+   "size": 7.84,
+   "yaw": 143,
+   "water": true
+  },
+  {
+   "id": "region_cave",
+   "name": "Mağara",
+   "pos": [
+    -33.35,
+    -17.4
+   ],
+   "target": "minigame:cave",
+   "color": "#5D6380",
+   "shape": "hill",
+   "size": 7.84,
+   "yaw": 25
+  },
+  {
+   "id": "region_festival",
+   "name": "Festival Alanı",
+   "pos": [
+    -3.62,
+    20.01
+   ],
+   "target": "page:festival",
+   "color": "#FFD23F",
+   "shape": "tent",
+   "size": 8.4,
+   "yaw": 0
+  },
+  {
+   "id": "region_mountain",
+   "name": "Dağ",
+   "pos": [
+    8.99,
+    38.42
+   ],
+   "target": "minigame:hike",
+   "color": "#9AA5B8",
+   "shape": "hill",
+   "size": 8.96,
+   "yaw": -5
+  },
+  {
+   "id": "region_lighthouse",
+   "name": "Fener",
+   "pos": [
+    36.25,
+    36.25
+   ],
+   "target": "page:lighthouse",
+   "color": "#E8453C",
+   "shape": "tower",
+   "size": 5.04,
+   "yaw": -30
+  }
+ ],
+ "terrain": {
+  "rx": 56.5,
+  "rz": 49.3,
+  "cz": 8.7,
+  "plaza": [
+   0.0,
+   -3.62
+  ],
+  "seed": 7,
+  "hills": [
+   {
+    "x": -34.5,
+    "z": 41.8,
+    "h": 11.0,
+    "r": 7.2,
+    "snow": true
+   },
+   {
+    "x": 7.2,
+    "z": 53.6,
+    "h": 12.0,
+    "r": 8.6,
+    "snow": false
+   },
+   {
+    "x": 25.4,
+    "z": 25.4,
+    "h": 3.3,
+    "r": 7.5,
+    "snow": false
+   },
+   {
+    "x": -49.0,
+    "z": 10.9,
+    "h": 3.8,
+    "r": 6.7,
+    "snow": false
+   },
+   {
+    "x": -40.0,
+    "z": 40.0,
+    "h": 8.5,
+    "r": 6.0,
+    "snow": true
+   },
+   {
+    "x": -6.0,
+    "z": 50.0,
+    "h": 6.5,
+    "r": 6.0,
+    "snow": false
+   },
+   {
+    "x": 24.0,
+    "z": 47.0,
+    "h": 7.5,
+    "r": 6.5,
+    "snow": false
+   },
+   {
+    "x": 44.0,
+    "z": 30.0,
+    "h": 4.0,
+    "r": 5.5,
+    "snow": false
+   },
+   {
+    "x": -15.0,
+    "z": 33.5,
+    "h": -3.4,
+    "r": 4.6,
+    "snow": false
+   }
+  ],
+  "_biomes": {
+   "cliff_coast": {
+    "from_deg": 20,
+    "to_deg": 120,
+    "note": "kuzey-doğu kıyısı: kayalık yar + turkuaz sığ su; diğer kıyılar kumsal koy"
+   },
+   "meadow_lake": {
+    "x": -15,
+    "z": 33.5,
+    "r": 13,
+    "note": "çiçekli çayır, durgun göl, iki büyük ağaç"
+   },
+   "forest": {
+    "x": -30.0,
+    "z": -12.0,
+    "r": 11.0,
+    "note": "çam + karışık orman, orman zemini (yaprak, mantar, dal)"
+   },
+   "rock_field": {
+    "x": 22,
+    "z": 21,
+    "r": 8,
+    "note": "yosunlu kaya kümeleri, menhirler"
+   },
+   "snow": {
+    "x": -34,
+    "z": 34,
+    "r": 13,
+    "note": "karlı zirve + eriyen kar geçişi"
+   },
+   "rocky_hills": {
+    "note": "kuzeydeki katmanlı tepeler (dağ + kuzey tepeleri)"
+   }
+  }
+ }
+}
