@@ -88,8 +88,8 @@ def rock_mat(name, base='#b0a5a6', dark='#7d7184', light='#cfc4bc', moss='#6aa33
     c1 = N.new('ShaderNodeValToRGB'); r = c1.color_ramp
     r.elements[0].position = 0.3; r.elements[0].color = srgb(dark) + (1,); r.elements[1].position = 0.72; r.elements[1].color = srgb(light) + (1,)
     e = r.elements.new(0.5); e.color = srgb(base) + (1,); L.new(n1.outputs['Fac'], c1.inputs[0])
-    vo = N.new('ShaderNodeTexVoronoi'); vo.feature = 'DISTANCE_TO_EDGE'; vo.inputs['Scale'].default_value = 1.6; L.new(tc.outputs['Object'], vo.inputs['Vector'])
-    crk = N.new('ShaderNodeMapRange'); crk.inputs[1].default_value = 0.0; crk.inputs[2].default_value = 0.035; crk.inputs[3].default_value = 1.0 - cracks * 0.6; crk.inputs[4].default_value = 1.0
+    vo = N.new('ShaderNodeTexVoronoi'); vo.feature = 'DISTANCE_TO_EDGE'; vo.inputs['Scale'].default_value = 0.7; vo.inputs['Randomness'].default_value = 1.0; L.new(tc.outputs['Object'], vo.inputs['Vector'])
+    crk = N.new('ShaderNodeMapRange'); crk.inputs[1].default_value = 0.0; crk.inputs[2].default_value = 0.018; crk.inputs[3].default_value = 1.0 - cracks * 0.4; crk.inputs[4].default_value = 1.0
     L.new(vo.outputs['Distance'], crk.inputs[0])
     mul = N.new('ShaderNodeMix'); mul.data_type = 'RGBA'; mul.blend_type = 'MULTIPLY'; mul.inputs['Factor'].default_value = 1.0
     L.new(c1.outputs['Color'], mul.inputs[6]); cmb = N.new('ShaderNodeCombineXYZ')
@@ -339,7 +339,7 @@ def cumulus(name, size=60.0, seed=0, mat=None, col=None, res=None, tall=1.0):
     mb = bpy.data.metaballs.new(name + '_mb'); r0 = res or size * 0.016; mb.resolution = r0; mb.render_resolution = r0; mb.threshold = 0.6
     o = bpy.data.objects.new(name + '_mbo', mb); bpy.context.scene.collection.objects.link(o)
     def add(c, r, typ='BALL', sz=1.0):
-        e = mb.elements.new(); e.co = c; e.radius = r; e.stiffness = 1.6; e.type = typ
+        e = mb.elements.new(); e.co = c; e.radius = r; e.stiffness = 1.25; e.type = typ
         if typ == 'ELLIPSOID': e.size_z = sz
     body = []
     for t in range(R.randint(2, 3)):
@@ -347,7 +347,7 @@ def cumulus(name, size=60.0, seed=0, mat=None, col=None, res=None, tall=1.0):
         for k in range(4):
             c = V((x0 + R.gauss(0, size * 0.05), R.gauss(0, size * 0.05), ht * (0.25 + 0.22 * k))); r = size * (0.2 - 0.03 * k) * R.uniform(0.85, 1.1)
             body.append((c, r)); add(c, r)
-    for lvl, (n, f) in enumerate(((40, (0.3, 0.45)), (110, (0.14, 0.24)), (220, (0.06, 0.11)))):
+    for lvl, (n, f) in enumerate(((28, (0.38, 0.58)), (55, (0.22, 0.34)), (50, (0.13, 0.2)))):
         for i in range(n):
             c, r = R.choice(body); d = V((R.gauss(0, 1), R.gauss(0, 0.7), abs(R.gauss(0.4, 0.9)))).normalized()
             add(c + d * r * R.uniform(0.85, 1.05), r * R.uniform(*f))

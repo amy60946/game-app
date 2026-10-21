@@ -167,13 +167,13 @@ def terrain_mat():
     wn = node('ShaderNodeTexNoise'); wn.inputs['Scale'].default_value = 0.08; wn.inputs['Detail'].default_value = 2; L.new(tc.outputs['Object'], wn.inputs['Vector'])
     zz = math_('MULTIPLY_ADD', sep.outputs['Z'], 1 / 1.35); L.new(wn.outputs['Fac'], zz.node.inputs[2]); zz.node.inputs[2].default_value = 0
     zf = math_('FRACT', zz)
-    line = mr(zf, 0.0, 0.07, 0.55, 1.0)                                   # 0..0.07: koyu çizgi
-    lite = mr(zf, 0.82, 1.0, 1.0, 1.18)                                   # üst kenar açık
+    line = mr(zf, 0.0, 0.05, 0.78, 1.0)                                   # 0..0.05: koyu ince çizgi
+    lite = mr(zf, 0.85, 1.0, 1.0, 1.1)                                    # üst kenar açık
     # dikey çatlak: (x,y) yüksek, z düşük frekanslı gürültünün 0.5 eş-değer çizgisi
     mp = node('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (1.0, 1.0, 0.035); L.new(tc.outputs['Object'], mp.inputs[0])
-    vn = node('ShaderNodeTexNoise'); vn.inputs['Scale'].default_value = 0.55; vn.inputs['Detail'].default_value = 1.5; L.new(mp.outputs[0], vn.inputs['Vector'])
+    vn = node('ShaderNodeTexNoise'); vn.inputs['Scale'].default_value = 0.32; vn.inputs['Detail'].default_value = 2.5; L.new(mp.outputs[0], vn.inputs['Vector'])
     ab = math_('ABSOLUTE', math_('SUBTRACT', vn.outputs['Fac'], 0.5))
-    crack = mr(ab, 0.0, 0.04, 0.5, 1.0)
+    crack = mr(ab, 0.0, 0.035, 0.62, 1.0)
     vn2 = node('ShaderNodeTexNoise'); vn2.inputs['Scale'].default_value = 2.2; vn2.inputs['Detail'].default_value = 4; L.new(mp.outputs[0], vn2.inputs['Vector'])
     blot = mr(vn2.outputs['Fac'], 0.3, 0.7, 0.82, 1.08)
     f = math_('MULTIPLY', math_('MULTIPLY', line, lite), math_('MULTIPLY', crack, blot))
@@ -249,7 +249,7 @@ def water(L):
     mx = N.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.inputs[7].default_value = (0.95, 0.98, 1.0, 1)
     Lk.new(fm.outputs[0], mx.inputs['Factor']); Lk.new(rp.outputs[0], mx.inputs[6])
     # ufuk pusu
-    lp = N.new('ShaderNodeLightPath'); hz = mrange(lp.outputs['Ray Length'], 350, 2600, 0.0, 0.85)
+    lp = N.new('ShaderNodeLightPath'); hz = mrange(lp.outputs['Ray Length'], 700, 3000, 0.0, 0.7)
     mh = N.new('ShaderNodeMix'); mh.data_type = 'RGBA'; mh.inputs[7].default_value = K.srgb('#8fc3ea') + (1,)
     Lk.new(hz, mh.inputs['Factor']); Lk.new(mx.outputs[2], mh.inputs[6]); Lk.new(mh.outputs[2], b.inputs['Base Color'])
     # sığda saydam
@@ -295,7 +295,7 @@ def clouds(seed=3):
         else: a = R.uniform(0, math.tau); r = R.uniform(700, 1600); z = R.uniform(80, 160)
         e = bpy.data.objects.new('cloud%d' % i, protos[i % len(protos)].data); col.objects.link(e)
         s = R.uniform(1.8, 3.2) * (r / 900) ** 0.5; e.scale = (s, s * R.uniform(0.7, 1.0), s * R.uniform(0.9, 1.3))
-        e.location = (math.cos(a) * r, math.sin(a) * r, z); e.rotation_euler = (0, 0, R.uniform(0, math.tau)); e.visible_shadow = False
+        e.location = (math.cos(a) * r, math.sin(a) * r, z); e.rotation_euler = (0, 0, R.uniform(0, math.tau)); e.visible_shadow = False; e.visible_glossy = False
         out.append(e)
     return out
 
@@ -465,7 +465,9 @@ def place_world(L, B, P):
     sandin = ss(0.4, 0.8, d['sand']) * ss(0.6, 1.0, L.h) * ss(2.0, 1.5, L.h) * fm
     pts = scatter(L, R, sandin * 0.4, 60000, 4.0, sp, hmin=0.5)
     for (x, z, y) in pts: env('palm', x, z, y - 0.1, rr.uniform(4.2, 6.0), rr.uniform(0, 360))
-    cnt['palm'] = len(pts)
+    cpal = scatter(L, R, ss(0.4, 0.8, d['canyon']) * ss(0.1, 0.4, L.slope_b) * fm * 0.05, 80000, 4.0, sp, avoid_slope=0.5)   # kanyonda palmiye
+    for (x, z, y) in cpal[:14]: env('palm', x, z, y - 0.1, rr.uniform(4.5, 6.5), rr.uniform(0, 360))
+    cnt['palm'] = len(pts) + len(cpal[:14])
     # kayalar: yar dibinde (kıyı + plato), kumsal/koy iri beyaz yuvarlaklar, çayırda soğuk gri öbekler
     base = ss(0.3, 0.9, L.slope_b) * ss(0.6, 0.2, L.slope)
     spr = Spacer(2.0)
@@ -567,7 +569,7 @@ def game_shot(L, px, pz, heading_deg, dist=6.0, pitch=16, look_ahead=2.0, lift=0
 
 SHOTS = {   # x, z, bakış (° , 0 = kuzey)
     'koy': (1.5, -19.5, 2), 'cayir': (-44.0, 0.0, 305), 'kanyon': (-2.5, 6.0, 352), 'kamp': (46.5, -3.5, 52),
-    'orman': (44.0, 12.0, 22), 'koy_kiyi': (55.0, -30.0, 140), 'kar': (-25.0, 33.0, 318),
+    'orman': (44.0, 12.0, 22), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-25.0, 33.0, 318),
 }
 
 SHOT_CAM = {'kar': dict(pitch=8, dist=6.5, lift=1.6), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}

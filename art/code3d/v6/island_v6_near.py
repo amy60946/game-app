@@ -34,7 +34,7 @@ def sector_pts(px, pz, hd, n, rad, R, back=6.0):
 
 def macro_grass(L, B, px, pz, hd, n=9_000_000, rad=40.0, seed=1, out=None, dens=1.0, avoid=None):
     R = np.random.default_rng(seed)
-    x, z, d = sector_pts(px, pz, hd, n, rad, R, back=2.5)
+    x, z, d = sector_pts(px, pz, hd, n, rad, R, back=6.5)
     g = bil(L.gw, x, z)
     fall = np.where(d < 7, 1.0, (7.0 / np.maximum(d, 1e-3)) ** 1.5)
     keep = R.uniform(0, 1, len(x)) < g * fall * dens
