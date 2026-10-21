@@ -172,8 +172,11 @@ namespace Pofi.World
             }
         }
 
+        private GrowthStage _petStage = GrowthStage.Genc;
+
         public void ShowPet(PetSpeciesDef def, GrowthStage stage, IEnumerable<string> equipped = null, bool resetYaw = true)
         {
+            _petStage = stage;
             ClearPet();
             _petDef = def;
             Pet = PetModels.Build(def, _holder, stage);
@@ -190,7 +193,7 @@ namespace Pofi.World
         {
             if (Pet == null || _petDef == null) return;
             var items = equipped == null || ItemLookup == null ? null : equipped.Select(ItemLookup).Where(i => i != null).ToList();
-            CosmeticModels.Apply(Pet, _petDef, items);
+            CosmeticModels.Apply(Pet, _petDef, items, _petStage);
         }
 
         private Transform _scenery, _backdrop;

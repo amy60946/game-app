@@ -1,0 +1,63 @@
+{
+ "head": {
+  "bone": "head_end",
+  "size": 0.62,
+  "up": -0.14,
+  "bottom": true
+ },
+ "eyes": {
+  "bone": "headfront",
+  "size": 0.4,
+  "fwd": -0.015
+ },
+ "body": {
+  "bone": "Spine02",
+  "size": 0.72,
+  "up": -0.02
+ },
+ "back": {
+  "bone": "Spine01",
+  "size": 0.36,
+  "up": -0.04,
+  "fwd": -0.2
+ },
+ "hand": {
+  "bone": "RightHand",
+  "size": 0.2,
+  "side": 0.03
+ },
+ "eyeline": {
+  "yavru": 0.42,
+  "genc": 0.22,
+  "yetiskin": 0.22
+ },
+ "item:vest_explorer": {
+  "size": 0.82
+ },
+ "item:headphones": {
+  "up": -0.3
+ },
+ "item:scarf_knit": {
+  "size": 0.62,
+  "up": -0.02
+ },
+ "item:sash_belt": {
+  "size": 0.85
+ },
+ "item:hat_beanie": {
+  "size": 0.92,
+  "up": -0.03
+ },
+ "item:cape_hero": {
+  "size": 1.15
+ },
+ "item:set_star_cape": {
+  "size": 1.15
+ },
+ "item:glove_mitten": {
+  "size": 1.3
+ },
+ "item:hand_flag": {
+  "size": 1.6
+ }
+}

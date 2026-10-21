@@ -331,7 +331,7 @@ namespace Pofi.World
             var holder = new GameObject("MapPet").transform;
             holder.SetParent(transform, false);
             var pet = PetModels.Build(def, holder, stage);
-            CosmeticModels.Apply(pet, def, items);
+            CosmeticModels.Apply(pet, def, items, stage);
             holder.localScale = Vector3.one * scale;
             var col = holder.gameObject.AddComponent<CapsuleCollider>();   // pete dokununca giydirme
             col.center = new Vector3(0f, 0.9f, 0f); col.height = 1.8f; col.radius = 0.6f;

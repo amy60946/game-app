@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Pofi.Logic.Cosmetics;
 using Pofi.Logic.Data;
+using Pofi.Logic.Progression;
 using UnityEngine;
 
 namespace Pofi.World
@@ -14,6 +15,7 @@ namespace Pofi.World
     {
         public const string RootName = "cosmetics";
         private static string _petId;
+        private static GrowthStage _stage = GrowthStage.Genc;
 
         private static readonly Dictionary<string, string> Colors = new Dictionary<string, string>
         {
@@ -30,7 +32,7 @@ namespace Pofi.World
             Colors.TryGetValue(itemId, out var h) && ColorUtility.TryParseHtmlString(h, out var c) ? c : new Color(0.9f, 0.5f, 0.2f);
 
         /// <summary>Petteki tüm eşyaları kaldırıp verilenleri takar. Uymayan eşya atlanır.</summary>
-        public static void Apply(Transform pet, PetSpeciesDef def, IEnumerable<ItemDef> items)
+        public static void Apply(Transform pet, PetSpeciesDef def, IEnumerable<ItemDef> items, GrowthStage stage = GrowthStage.Genc)
         {
             var old = pet.Find(RootName);
             if (old != null)
@@ -43,7 +45,7 @@ namespace Pofi.World
             var root = new GameObject(RootName).transform;
             root.SetParent(pet, false);
             if (items == null) return;
-            _petId = def?.Id;
+            _petId = def?.Id; _stage = stage;
             foreach (var item in items)
             {
                 if (item == null) continue;
@@ -72,6 +74,32 @@ namespace Pofi.World
             ["hand"] = new Rule("RightHand", 0.16f, side: 0.04f),
         };
 
+        /// <summary>
+        /// Okti (pet_13, Mixamo iskeleti, uç kemik yok): 3 evre × 24 eşya Blender'da oyundaki yerleşimle denendi
+        /// (art/meshy/scripts/fit_test_okti.py + okti_fit_rules.json, 22 Ekim 2026). Baş eşyası gövde ağının tepesine oturur,
+        /// gözlük göz hizasında yüzün hemen önüne, gövde eşyası Spine2'de pet giysisinin üstüne.
+        /// </summary>
+        private static readonly Dictionary<string, Rule> OktiRules = new Dictionary<string, Rule>
+        {
+            ["head"] = new Rule("Head", 0.62f, up: -0.14f, bottom: true),
+            ["eyes"] = new Rule("Head", 0.40f, fwd: 0.015f),
+            ["body"] = new Rule("Spine2", 0.72f, up: -0.02f),
+            ["back"] = new Rule("Spine1", 0.36f, up: -0.04f, fwd: -0.2f),
+            ["hand"] = new Rule("RightHand", 0.2f, side: 0.03f),
+        };
+        /// <summary>Evre başına göz hizası (petin boyuna oran, tabandan) ve göz hizasında yüzün önü (Head kemiğinden ileri, boya oran).</summary>
+        private static readonly Dictionary<GrowthStage, Vector2> OktiEyes = new Dictionary<GrowthStage, Vector2>
+        {
+            [GrowthStage.Yavru] = new Vector2(0.711f, 0.293f), [GrowthStage.Genc] = new Vector2(0.727f, 0.256f), [GrowthStage.Yetiskin] = new Vector2(0.769f, 0.225f),
+        };
+        /// <summary>Eşya başına boy çarpanı ve yukarı kayma (Okti'de).</summary>
+        private static readonly Dictionary<string, Vector2> OktiItem = new Dictionary<string, Vector2>
+        {
+            ["vest_explorer"] = new Vector2(0.82f, 0f), ["headphones"] = new Vector2(1f, -0.3f), ["scarf_knit"] = new Vector2(0.62f, -0.02f),
+            ["sash_belt"] = new Vector2(0.85f, 0f), ["hat_beanie"] = new Vector2(0.92f, -0.03f), ["cape_hero"] = new Vector2(1.15f, 0f),
+            ["set_star_cape"] = new Vector2(1.15f, 0f), ["glove_mitten"] = new Vector2(1.3f, 0f), ["hand_flag"] = new Vector2(1.6f, 0f),
+        };
+
         /// <summary>Gözlerin yüksekliği: Head kemiğinden head_end'e oranla (Blender'da 12 pet ölçüldü).</summary>
         private static readonly Dictionary<string, float> EyeLine = new Dictionary<string, float>
         {
@@ -81,7 +109,8 @@ namespace Pofi.World
 
         private static Transform FindDeep(Transform t, string name)
         {
-            if (t.name == name) return t;
+            if (t.name == name || t.name.EndsWith(":" + name)) return t;   // Mixamo iskeleti: "mixamorig:Head"
+
             for (var i = 0; i < t.childCount; i++)
             {
                 var r = FindDeep(t.GetChild(i), name);
@@ -93,7 +122,9 @@ namespace Pofi.World
         /// <summary>Gerçek pet + gerçek eşya: kemiğe takılır (animasyonla birlikte hareket eder). Olmazsa false.</summary>
         private static bool BuildReal(Transform pet, Transform root, ItemDef item, string variant, string petId)
         {
-            if (item.Slot == null || !Rules.TryGetValue(item.Slot, out var rule)) return false;
+            var okti = petId == "pet_13";
+            if (item.Slot == null || !(okti ? OktiRules : Rules).TryGetValue(item.Slot, out var rule)) return false;
+            if (okti && OktiItem.TryGetValue(item.Id, out var io)) { rule.Size *= io.x; rule.Up += io.y; }
             var bone = FindDeep(pet, rule.Bone);
             if (bone == null || !RealAssets.HasItem(item.Id)) return false;
 
@@ -121,10 +152,20 @@ namespace Pofi.World
             var target = bone.position + Vector3.up * (up * h) + front * (rule.Fwd * h) + right * (rule.Side * h);
             var headBone = FindDeep(pet, "Head");
             var headEnd = FindDeep(pet, "head_end");
-            if (item.Slot == "eyes" && headBone != null && headEnd != null)
+            if (!okti && item.Slot == "eyes" && headBone != null && headEnd != null)
             {
                 var hh = Vector3.Distance(headEnd.position, headBone.position);
                 target.y = headBone.position.y + (EyeLine.TryGetValue(petId ?? "", out var k) ? k : 0.48f) * hh;
+            }
+            if (okti)
+            {
+                if (item.Slot == "head") target.y = pb.max.y + rule.Up * h;                                // uç kemik yok: ağın tepesi
+                if (item.Slot == "eyes" && OktiEyes.TryGetValue(_stage, out var ey))
+                {
+                    target = bone.position + front * (ey.y * h); target.y = pb.min.y + ey.x * h;            // yüzün önü, göz hizası
+                    var depth = Mathf.Abs(front.x) * ib.extents.x + Mathf.Abs(front.z) * ib.extents.z;         // camlar yüzün önünde
+                    target += front * (rule.Fwd * h - depth);
+                }
             }
             var y = rule.Bottom ? target.y - (ib.min.y - t.position.y) : target.y - (ib.center.y - t.position.y);
             t.position = new Vector3(target.x - (ib.center.x - t.position.x), y, target.z - (ib.center.z - t.position.z));
