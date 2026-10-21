@@ -9,7 +9,7 @@ sw = TV.X1 - TV.X0 - 10; sh = sw * H / W
 def px(x, z): return ((x + sw / 2) / sw * W, (sh / 2 - z) / sh * H)
 dr = ImageDraw.Draw(im, 'RGBA'); F = ImageFont.truetype(font, max(16, W // 70)); F2 = ImageFont.truetype(font, max(14, W // 85))
 names = [(r[1], r[2], r[3], 0) for r in TV.REGIONS]
-extra = [('Kaya Tepe', 9, 31), ('Kanyon', -6, 16), ('Kamp', 54, -3), ('Çam Ormanı', 52, 24), ('Çiçek Çayırı', -44, -6), ('Göl', -28, 1),
+extra = [('Tapınak', 28, 38), ('Kaya Tepe', 9, 31), ('Kanyon', -6, 16), ('Kamp', 54, -3), ('Çam Ormanı', 52, 24), ('Çiçek Çayırı', -44, -6), ('Göl', -28, 1),
          ('Kayak Pisti', -46, 47), ('Kaya sütunu', 76, -47)]
 names += [(n, x, z, 1) for (n, x, z) in extra]
 for (n, x, z, kind) in names:
