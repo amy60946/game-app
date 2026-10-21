@@ -165,6 +165,8 @@ def build(L, B, P, shot, px, pz, hd):
         macro_grass(L, B, px, pz, hd, out=out); flowers(L, px, pz, hd, out, boost=1.2); props_near(L, P, px, pz, hd, out, rosettes=8, pebbles=40)
     elif shot == 'kamp_yakin':
         macro_grass(L, B, px, pz, hd, out=out); flowers(L, px, pz, hd, out, boost=0.6)
+    elif shot == 'tapinak':
+        macro_grass(L, B, px, pz, hd, out=out); flowers(L, px, pz, hd, out, boost=0.8)
     elif shot == 'yamac':
         macro_grass(L, B, px, pz, hd, out=out); flowers(L, px, pz, hd, out, boost=1.0); props_near(L, P, px, pz, hd, out, rosettes=6, pebbles=70)
     elif shot == 'koy':

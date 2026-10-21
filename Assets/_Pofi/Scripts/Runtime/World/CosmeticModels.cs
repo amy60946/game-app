@@ -87,6 +87,13 @@ namespace Pofi.World
             ["back"] = new Rule("Spine1", 0.36f, up: -0.04f, fwd: -0.2f),
             ["hand"] = new Rule("RightHand", 0.2f, side: 0.03f),
         };
+        /// <summary>Yetişkin Okti: gövdesi uzun, başı alçak, sırtında kendi çantası var. Gövde eşyaları omuz hizasının üstüne
+        /// taşıyordu (kullanıcı, 22 Ekim 2026) → daha alçak, dar ve önde; sırt eşyaları kendi çantasının arkasında.</summary>
+        private static readonly Dictionary<string, Rule> OktiAdult = new Dictionary<string, Rule>
+        {
+            ["body"] = new Rule("Spine2", 0.60f, up: -0.10f, fwd: 0.035f),
+            ["back"] = new Rule("Spine1", 0.34f, up: -0.07f, fwd: -0.27f),
+        };
         /// <summary>Evre başına göz hizası (petin boyuna oran, tabandan) ve göz hizasında yüzün önü (Head kemiğinden ileri, boya oran).</summary>
         private static readonly Dictionary<GrowthStage, Vector2> OktiEyes = new Dictionary<GrowthStage, Vector2>
         {
@@ -124,6 +131,7 @@ namespace Pofi.World
         {
             var okti = petId == "pet_13";
             if (item.Slot == null || !(okti ? OktiRules : Rules).TryGetValue(item.Slot, out var rule)) return false;
+            if (okti && _stage == GrowthStage.Yetiskin && OktiAdult.TryGetValue(item.Slot, out var adult)) rule = adult;
             if (okti && OktiItem.TryGetValue(item.Id, out var io)) { rule.Size *= io.x; rule.Up += io.y; }
             var bone = FindDeep(pet, rule.Bone);
             if (bone == null || !RealAssets.HasItem(item.Id)) return false;

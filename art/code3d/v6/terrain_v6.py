@@ -35,7 +35,7 @@ ISLET = (24.0, -79.0, 7.5)
 SNOW_PATH = [(-36.5, 40.5), (-46, 42), (-53, 47), (-54, 53), (-49, 59), (-43, 61.5), (-38, 58), (-41, 56.5)]
 BEACH_REGIONS = ('region_swim_cove', 'region_surf_beach', 'region_coconut_grove')
 # süs alanları (yalnız görsel; oyunda dekor)
-SPOTS = dict(camp=(54.0, 2.0), spire=(9.0, 25.0), lake=(LAKE['x'], LAKE['z']), bluebell=(-40.0, -8.0),
+SPOTS = dict(temple=(28.0, 38.0), camp=(54.0, 2.0), spire=(9.0, 25.0), lake=(LAKE['x'], LAKE['z']), bluebell=(-40.0, -8.0),
              forest=(44.0, 22.0), boulders=(-60.0, 14.0), canyon=(-3.0, 22.0))
 
 # patikalar (çoklu çizgi); platoya çıkan yerlerde arazi rampa olur
@@ -57,6 +57,7 @@ PATHS = [
     [(14, -22), (26, -14), (34, -4), (44, 2), (52, 2)],     # → doğu platosu → kamp
     [(44, 2), (40, 10), (36, 14)],                          # → Oyun Kulübesi
     [(40, 10), (46, 24), (52, 34), (58, 42)],               # orman → Fener
+    [(36, 14), (32, 20), (28, 26)],                          # → Tapınak
 ]
 
 # ------------------------------------------------------------------ gürültü (taşınabilir: tamsayı karması + yumuşak ara değer)

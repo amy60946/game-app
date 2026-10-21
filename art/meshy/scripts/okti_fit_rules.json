@@ -59,5 +59,17 @@
  },
  "item:hand_flag": {
   "size": 1.6
+ },
+ "yetiskin:body": {
+  "bone": "Spine02",
+  "size": 0.6,
+  "up": -0.1,
+  "fwd": 0.035
+ },
+ "yetiskin:back": {
+  "bone": "Spine01",
+  "size": 0.34,
+  "up": -0.07,
+  "fwd": -0.27
  }
 }

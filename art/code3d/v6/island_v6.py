@@ -12,6 +12,7 @@ import kit_v6 as K
 import terrain_v6 as TV
 import island_v6_near as NR
 import kit2_v6 as K2
+import kit3_v6 as K3
 from mathutils import noise as MN
 PALMS = []
 NEAR = []
@@ -507,6 +508,7 @@ def free_mask(L):
             m *= ss(2.6, 4.2, np.hypot(X - (px + fx * t), Z - (pz + fz * t)))
             if os.environ.get('WIDE'): m *= ss(4.0, 6.5, np.hypot(X - (px + fx * t), Z - (pz + fz * t)))
     cx, cz = TV.SPOTS['camp']; m *= ss(8.0, 11.0, np.hypot(X - cx, Z - cz))
+    tx, tz = TV.SPOTS['temple']; m *= np.maximum(ss(14.0, 17.5, np.abs(X - tx)), ss(-11.5, -14.5, Z - tz)) * np.maximum(ss(14.0, 17.5, np.abs(X - tx)), ss(13.0, 16.0, Z - tz)) if False else ss(15.5, 18.5, np.maximum(np.abs(X - tx), np.abs(Z - tz - 1.0) * 1.3))
     m *= 1 - ss(0.0, 0.5, TV.blur(L.d['snowpath'], 1.5) * 3)
     cv = [r for r in TV.REGIONS if r[0] == 'region_cave'][0]; ya = math.radians(cv[6])
     m *= ss(5.0, 8.0, np.hypot(X - (cv[2] + math.sin(ya) * 5), Z - (cv[3] + math.cos(ya) * 5)))
@@ -583,9 +585,11 @@ def place_world(L, B, P):
     # palmiyeler: geniş kumsalın iç kenarı
     sandin = ss(0.4, 0.8, d['sand']) * ss(0.6, 1.0, L.h) * ss(2.0, 1.5, L.h) * fm
     pts = scatter(L, R, sandin * 0.4, 60000, 4.0, sp, hmin=0.5)
-    for (x, z, y) in pts: inst(rr.choice(P['palm2']), x, z, y - 0.15, rr.uniform(0, math.tau), rr.uniform(0.85, 1.12))
+    for (x, z, y) in pts:   # kumsal: kısa kalın (önceki) + uzun ince karışık
+        if rr.random() < 0.5: env('palm', x, z, y - 0.1, rr.uniform(4.2, 6.0), rr.uniform(0, 360))
+        else: inst(rr.choice(P['palm2']), x, z, y - 0.15, rr.uniform(0, math.tau), rr.uniform(0.85, 1.12))
     cpal = scatter(L, R, ss(0.4, 0.8, d['canyon']) * ss(0.1, 0.4, L.slope_b) * fm * 0.05, 80000, 4.0, sp, avoid_slope=0.5)   # kanyonda palmiye
-    for (x, z, y) in cpal[:14]: inst(rr.choice(P['palm2']), x, z, y - 0.15, rr.uniform(0, math.tau), rr.uniform(0.7, 0.95))
+    for (x, z, y) in cpal[:14]: env('palm', x, z, y - 0.1, rr.uniform(4.5, 6.5), rr.uniform(0, 360))   # ada içi: kısa kalın
     cnt['palm'] = len(pts) + len(cpal[:14])
     # kayalar: yar dibinde (kıyı + plato), kumsal/koy iri beyaz yuvarlaklar, çayırda soğuk gri öbekler
     base = ss(0.3, 0.9, L.slope_b) * ss(0.6, 0.2, L.slope)
@@ -714,7 +718,9 @@ def beach_life(L, P, rr):
     ix, iz, ir = TV.ISLET
     for k in range(9):
         a = rr.uniform(0, math.tau); r_ = ir * 0.55 * math.sqrt(rr.random()); x, z = ix + math.cos(a) * r_, iz + math.sin(a) * r_ * 0.8
-        if L.height(x, z) > 0.6: inst(rr.choice(P['palm2']), x, z, L.height(x, z) - 0.15, rr.uniform(0, 6.3), rr.uniform(0.55, 1.15))
+        if L.height(x, z) <= 0.6: continue
+        if k % 2: env('palm', x, z, L.height(x, z) - 0.1, rr.uniform(4.0, 5.8), rr.uniform(0, 360))
+        else: inst(rr.choice(P['palm2']), x, z, L.height(x, z) - 0.15, rr.uniform(0, 6.3), rr.uniform(0.55, 1.0))
     for k in range(6):
         a = rr.uniform(0, math.tau); x, z = ix + math.cos(a) * ir * 0.95, iz + math.sin(a) * ir * 0.75
         s_ = rr.uniform(0.6, 1.6); inst(rr.choice(P['boulder']), x, z, L.height(x, z) - s_ * 0.3, rr.uniform(0, 6.3), s_)
@@ -731,7 +737,7 @@ def buildings(L):
         a = assets.get(r['id']); x, z = r['pos']
         if r['id'] == 'region_coconut_grove':
             for k, (ox, oz, s) in enumerate([(-1.8, 0.8, 5.4), (1.6, -0.6, 4.8), (0.2, 2.2, 6.0), (2.4, 2.6, 5.0)]):
-                inst(PALMS[k % len(PALMS)], x + ox, z + oz, L.height(x + ox, z + oz) - 0.15, k * 1.7, 0.8 + 0.08 * k)
+                env('palm', x + ox, z + oz, L.height(x + ox, z + oz) - 0.1, s, k * 95)
             continue
         if not a: continue
         y = L.height(x, z) if a != 'b_pier' else 0.6
@@ -767,15 +773,16 @@ def game_shot(L, px, pz, heading_deg, dist=6.0, pitch=16, look_ahead=2.0, lift=0
 
 SHOTS = {   # x, z, bakış (° , 0 = kuzey)
     'koy': (1.5, -19.5, 2), 'cayir': (-44.0, 0.0, 305), 'kanyon': (-2.5, 6.0, 352), 'kamp': (46.5, -3.5, 52),
-    'orman': (44.0, 12.0, 22), 'sahil': (13.0, -51.0, 158), 'kopuk': (15.0, -53.2, 172), 'magara': (-51.4, 11.6, 286), 'kamp_yakin': (51.0, 0.6, 52), 'yamac': (-15.0, 3.0, 2), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-38.0, 40.6, 284), 'kar_patika': (-44.5, 41.7, 300),
+    'orman': (44.0, 12.0, 22), 'sahil': (13.0, -51.0, 158), 'tapinak': (27.0, 21.5, 2), 'kopuk': (15.0, -53.2, 172), 'magara': (-51.4, 11.6, 286), 'kamp_yakin': (51.0, 0.6, 52), 'yamac': (-15.0, 3.0, 2), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-38.0, 40.6, 284), 'kar_patika': (-44.5, 41.7, 300),
 }
 
-SHOT_CAM = {'kopuk': dict(pitch=24, dist=4.2, lift=-0.5, look_ahead=3.5), 'sahil': dict(pitch=9, lift=1.4), 'magara': dict(pitch=5, dist=5.5, lift=0.5), 'kamp_yakin': dict(pitch=14, dist=4.5), 'yamac': dict(pitch=5, dist=6.0, lift=2.6), 'kar': dict(pitch=9, dist=6.5, lift=1.6), 'kar_patika': dict(pitch=6, dist=6.5, lift=2.2), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}
+SHOT_CAM = {'tapinak': dict(pitch=6, dist=7.5, lift=2.4), 'kopuk': dict(pitch=24, dist=4.2, lift=-0.5, look_ahead=3.5), 'sahil': dict(pitch=9, lift=1.4), 'magara': dict(pitch=5, dist=5.5, lift=0.5), 'kamp_yakin': dict(pitch=14, dist=4.5), 'yamac': dict(pitch=5, dist=6.0, lift=2.6), 'kar': dict(pitch=9, dist=6.5, lift=1.6), 'kar_patika': dict(pitch=6, dist=6.5, lift=2.2), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}
 
 AERIAL = {
     'ada_kusbakisi': ((-8, -128, 56), (0, 40, 12), 50),
     'ada_dogu': ((118, -58, 46), (4, 16, 10), 48),
     'harita_ust': None,
+    'tapinak_genis': ((46, 16, 24), (27, 39, 18), 44),
 }
 
 def main():
@@ -790,7 +797,8 @@ def main():
     cols, rw = terrain_colors(L, B); terrain_mesh(L, cols, rw); log('zemin')
     water(L); sky(sc); CLOUDS[:] = clouds(); lights(sc); log('su/gök')
     P = make_protos(); log('örnekler')
-    place_world(L, B, P); buildings(L); beach_life(L, P, random.Random(11)); log('yapılar')
+    place_world(L, B, P); buildings(L); beach_life(L, P, random.Random(11))
+    K3.place_temple(L, lambda c, x, z, y, r, s: inst(c, x, z, y, r, s), *TV.SPOTS['temple']); log('yapılar')
     for s in shots:
         for o in [o for o in sc.objects if o.type == 'CAMERA']: bpy.data.objects.remove(o)
         for o in NEAR: bpy.data.objects.remove(o, do_unlink=True)
