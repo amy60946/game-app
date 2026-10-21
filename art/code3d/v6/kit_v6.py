@@ -103,7 +103,24 @@ def rock_mat(name, base='#b0a5a6', dark='#7d7184', light='#cfc4bc', moss='#6aa33
     L.new(ad.outputs[0], mm.inputs[0])
     fin = N.new('ShaderNodeMix'); fin.data_type = 'RGBA'; fin.inputs[7].default_value = srgb(moss) + (1,)
     L.new(mm.outputs[0], fin.inputs['Factor']); L.new(mul.outputs[2], fin.inputs[6])
-    L.new(fin.outputs[2], b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.82
+    # el boyaması: yüz kenarlarında açık parıltı (eğimli normal farkı), çatlak dudağında parıltı, oyuklarda koyu (AO)
+    bv = N.new('ShaderNodeBevel'); bv.samples = 6; bv.inputs['Radius'].default_value = 0.06
+    dt = N.new('ShaderNodeVectorMath'); dt.operation = 'DOT_PRODUCT'; L.new(bv.outputs[0], dt.inputs[0]); L.new(geo.outputs['Normal'], dt.inputs[1])
+    edg = N.new('ShaderNodeMapRange'); edg.inputs[1].default_value = 0.995; edg.inputs[2].default_value = 0.93; L.new(dt.outputs['Value'], edg.inputs[0])
+    ao = N.new('ShaderNodeAmbientOcclusion'); ao.samples = 6; ao.only_local = True; ao.inputs['Distance'].default_value = 0.35
+    cav = N.new('ShaderNodeMapRange'); cav.inputs[1].default_value = 0.4; cav.inputs[2].default_value = 0.9; cav.inputs[3].default_value = 1.0; cav.inputs[4].default_value = 0.0
+    L.new(ao.outputs['AO'], cav.inputs[0])
+    cr2 = N.new('ShaderNodeMapRange'); cr2.inputs[1].default_value = 0.02; cr2.inputs[2].default_value = 0.035; L.new(vo.outputs['Distance'], cr2.inputs[0])
+    cr3 = N.new('ShaderNodeMapRange'); cr3.inputs[1].default_value = 0.075; cr3.inputs[2].default_value = 0.045; L.new(vo.outputs['Distance'], cr3.inputs[0])
+    clip_ = N.new('ShaderNodeMath'); clip_.operation = 'MINIMUM'; L.new(cr2.outputs[0], clip_.inputs[0]); L.new(cr3.outputs[0], clip_.inputs[1])
+    rimsum = N.new('ShaderNodeMath'); rimsum.operation = 'ADD'; rimsum.use_clamp = True; L.new(edg.outputs[0], rimsum.inputs[0]); L.new(clip_.outputs[0], rimsum.inputs[1])
+    rimf = N.new('ShaderNodeMath'); rimf.operation = 'MULTIPLY'; rimf.inputs[1].default_value = 0.7; L.new(rimsum.outputs[0], rimf.inputs[0])
+    lit = N.new('ShaderNodeMix'); lit.data_type = 'RGBA'; lit.inputs[7].default_value = srgb('#f1ebe4') + (1,)
+    L.new(rimf.outputs[0], lit.inputs['Factor']); L.new(fin.outputs[2], lit.inputs[6])
+    cavf = N.new('ShaderNodeMath'); cavf.operation = 'MULTIPLY'; cavf.inputs[1].default_value = 0.65; L.new(cav.outputs[0], cavf.inputs[0])
+    shd = N.new('ShaderNodeMix'); shd.data_type = 'RGBA'; shd.inputs[7].default_value = srgb('#3f3848') + (1,)
+    L.new(cavf.outputs[0], shd.inputs['Factor']); L.new(lit.outputs[2], shd.inputs[6])
+    L.new(shd.outputs[2], b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.82
     bn = N.new('ShaderNodeBump'); bn.inputs['Strength'].default_value = 0.25
     hb = N.new('ShaderNodeMath'); hb.operation = 'ADD'; L.new(n2.outputs['Fac'], hb.inputs[0]); L.new(crk.outputs[0], hb.inputs[1])
     L.new(hb.outputs[0], bn.inputs['Height']); L.new(bn.outputs['Normal'], b.inputs['Normal'])

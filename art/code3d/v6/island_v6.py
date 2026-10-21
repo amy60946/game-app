@@ -111,6 +111,7 @@ def terrain_colors(L, B):
     snw = np.clip(d['snow'] * (1 - ss(1.25, 2.1, L.slope + (n3 - 0.5) * 0.8) * 0.85), 0, 1)
     snw = np.maximum(snw, np.clip(TV.blur(d['snowpath'], 2.0) * 3, 0, 1) * ss(0.2, 0.5, d['snow']))
     L.dispw = (rw * (1 - ss(0.35, 0.7, snw))).astype(np.float32)
+    L.gravel = np.clip((np.clip(d['canyon'], 0, 1) * 0.95 + d['sand'] * ss(0.35, 0.9, L.slope_b) * ss(2.5, 1.0, h) * 0.8) * (1 - rw) * (1 - d['path'] * 0.35), 0, 1).astype(np.float32)
     c = mix(c, mix(C3('#cdd8ea'), C3('#e6edf7'), n2), snw)
     # karlı patika: sıkışmış, hafif mavi-gri, ayak izi benekli
     pk = mix(C3('#7f8daa'), C3('#9aa7bf'), n2); pk = mix(pk, C3('#7a6550'), ss(0.55, 0.72, n3) * 0.85)   # sıkışmış kar + eriyip açılmış toprak lekeleri
@@ -147,6 +148,7 @@ def terrain_mesh(L, cols, rw, crop=None, snw=None):
         at = me.attributes.new('rock', 'FLOAT', 'POINT'); at.data.foreach_set('value', rwv[uv_])
         at = me.attributes.new('snow', 'FLOAT', 'POINT'); at.data.foreach_set('value', sn[uv_])
         at = me.attributes.new('dispw', 'FLOAT', 'POINT'); at.data.foreach_set('value', L.dispw.ravel()[uv_])
+        at = me.attributes.new('gravel', 'FLOAT', 'POINT'); at.data.foreach_set('value', L.gravel.ravel()[uv_])
         o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o); o.data.materials.append(mat)
         if adaptive:
             # uyarlamalı bölme bu makinede belleği aşıyor: sabit 2 kat basit bölme (0,2 m → 5 cm), yer değiştirme köşelere
@@ -225,6 +227,55 @@ def terrain_mat():
     # derzlerde ve çatlak diplerinde renk de koyulaşsın (gölgeyi destekler)
     try: m.displacement_method = 'BOTH'
     except Exception: m.cycles.displacement_method = 'BOTH'
+    # EL BOYAMASI IŞIK-GÖLGE (kullanıcı örneği): kabartmanın kendi biçiminden — çıkıntı kenarında açık parıltı,
+    # saçak altı / çatlak içi / blok derzi koyu; düz yüzde basamaklı (posterize) ton lekeleri.
+    def band(sock, a0, a1, b1, b0):      # a0→a1 artar, b1→b0 azalır (bant)
+        return math_('MINIMUM', mr(sock, a0, a1), mr(sock, b0, b1))
+    lip = band(zf, 0.66, 0.78, 0.83, 0.86)                                # tabaka çıkıntısının üst kenarı
+    under = mr(zf, 0.86, 0.97, 1.0, 0.0)                                  # saçak altı gölgesi (0..1)
+    crim = band(ab, 0.055, 0.075, 0.1, 0.14)                              # çatlak dudağı
+    brim = band(vo.outputs['Distance'], 0.08, 0.1, 0.13, 0.17)            # blok kenarı
+    bgap = mr(vo.outputs['Distance'], 0.0, 0.05, 1.0, 0.0)                # blok derzi
+    pn = node('ShaderNodeTexNoise'); pn.inputs['Scale'].default_value = 0.6; pn.inputs['Detail'].default_value = 1.0; L.new(tc.outputs['Object'], pn.inputs['Vector'])
+    pst = math_('MULTIPLY', math_('FLOOR', math_('MULTIPLY', pn.outputs['Fac'], 4.0)), 0.25)   # 4 basamaklı ton
+    rim = math_('MINIMUM', math_('ADD', math_('ADD', lip, crim), brim), 1.0)
+    dark = math_('MINIMUM', math_('ADD', math_('MULTIPLY', under, 0.8), bgap), 1.0)
+    lit = node('ShaderNodeMix', data_type='RGBA'); lit.inputs[7].default_value = K.srgb('#f3ece3') + (1,)
+    L.new(math_('MULTIPLY', math_('MULTIPLY', rim, 0.75), rkn), lit.inputs['Factor']); L.new(dk.outputs[2], lit.inputs[6])
+    shd = node('ShaderNodeMix', data_type='RGBA'); shd.inputs[7].default_value = K.srgb('#4a3f52') + (1,)
+    L.new(math_('MULTIPLY', math_('MULTIPLY', dark, 0.7), rkn), shd.inputs['Factor']); L.new(lit.outputs[2], shd.inputs[6])
+    pv = node('ShaderNodeMix', data_type='RGBA', blend_type='MULTIPLY')
+    cp = node('ShaderNodeCombineXYZ'); pval = math_('ADD', math_('MULTIPLY', pst, 0.22), 0.88)
+    [L.new(pval, cp.inputs[q]) for q in range(3)]
+    L.new(math_('MULTIPLY', rkn, 1.0), pv.inputs['Factor']); L.new(shd.outputs[2], pv.inputs[6]); L.new(cp.outputs[0], pv.inputs[7])
+    # ÇAKIL ZEMİN (kanyon tabanı, yar dipleri): tek tek taşlar — taş başına gri ton, üst kenarda parıltı, aralar koyu toprak
+    gv = node('ShaderNodeAttribute', attribute_name='gravel').outputs['Fac']
+    mpg = node('ShaderNodeMapping'); mpg.inputs['Scale'].default_value = (1.0, 1.0, 0.0); L.new(tc.outputs['Object'], mpg.inputs[0])
+    gw = node('ShaderNodeTexNoise'); gw.inputs['Scale'].default_value = 3.0; L.new(mpg.outputs[0], gw.inputs['Vector'])
+    mpw = node('ShaderNodeVectorMath', operation='MULTIPLY_ADD'); mpw.inputs[1].default_value = (0.08, 0.08, 0.0)
+    L.new(gw.outputs['Color'], mpw.inputs[0]); L.new(mpg.outputs[0], mpw.inputs[2])
+    ge = node('ShaderNodeTexVoronoi', feature='DISTANCE_TO_EDGE'); ge.inputs['Scale'].default_value = 5.5; L.new(mpw.outputs[0], ge.inputs['Vector'])
+    gc = node('ShaderNodeTexVoronoi'); gc.inputs['Scale'].default_value = 5.5; L.new(mpw.outputs[0], gc.inputs['Vector'])
+    gsep = node('ShaderNodeSeparateColor'); L.new(gc.outputs['Color'], gsep.inputs[0])
+    stone = node('ShaderNodeMix', data_type='RGBA'); stone.inputs[6].default_value = K.srgb('#5f6672') + (1,); stone.inputs[7].default_value = K.srgb('#9aa1ad') + (1,)
+    L.new(gsep.outputs[0], stone.inputs['Factor'])
+    srim = node('ShaderNodeMix', data_type='RGBA'); srim.inputs[7].default_value = K.srgb('#e6e9ee') + (1,)
+    L.new(math_('MULTIPLY', band(ge.outputs['Distance'], 0.12, 0.15, 0.18, 0.24), 0.6), srim.inputs['Factor']); L.new(stone.outputs[2], srim.inputs[6])
+    gap = node('ShaderNodeMix', data_type='RGBA'); gap.inputs[7].default_value = K.srgb('#4f3e2b') + (1,)
+    soil = mr(gw.outputs['Fac'], 0.5, 0.62, 0.0, 1.0)                                    # yer yer taşlar seyrek, toprak görünür
+    gapw = math_('ADD', 0.13, math_('MULTIPLY', soil, 0.14))
+    gapm = math_('MINIMUM', math_('DIVIDE', ge.outputs['Distance'], gapw), 1.0)
+    # aralarda küçük taşlar (ikinci kat): toprak tamamen boş kalmasın
+    se = node('ShaderNodeTexVoronoi', feature='DISTANCE_TO_EDGE'); se.inputs['Scale'].default_value = 16.0; L.new(mpw.outputs[0], se.inputs['Vector'])
+    small = mr(se.outputs['Distance'], 0.1, 0.16)
+    gapf = math_('MULTIPLY', math_('SUBTRACT', 1.0, math_('POWER', gapm, 2.0)), math_('SUBTRACT', 1.0, math_('MULTIPLY', small, math_('SUBTRACT', 1.0, soil))))
+    L.new(gapf, gap.inputs['Factor']); L.new(srim.outputs[2], gap.inputs[6])
+    gm = node('ShaderNodeMix', data_type='RGBA'); L.new(gv, gm.inputs['Factor']); L.new(pv.outputs[2], gm.inputs[6]); L.new(gap.outputs[2], gm.inputs[7])
+    L.new(gm.outputs[2], b.inputs['Base Color'])
+    # çakıl kabartması (tümsek): taşlar yükselir
+    gb = node('ShaderNodeBump'); gb.inputs['Strength'].default_value = 1.0; gb.inputs['Distance'].default_value = 0.04
+    L.new(math_('MULTIPLY', math_('SUBTRACT', 1.0, gapf), gv), gb.inputs['Height'])
+    L.new(bn.outputs['Normal'], gb.inputs['Normal']); L.new(gb.outputs['Normal'], b.inputs['Normal'])
     return m
 
 # ------------------------------------------------------------------ su + gökyüzü
