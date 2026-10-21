@@ -87,7 +87,9 @@ def snow_f(x, z, sn, slope, hh):
     n1 = MN.noise(V((x * 0.09, z * 0.09, 1.3))) * 0.5 + 0.5; n2 = MN.noise(V((x * 0.35, z * 0.35, 5))) * 0.5 + 0.5
     sf = ss(0.15, 0.6, sn + (n2 - 0.5) * 0.5) * ss(6.5, 9.5, hh + (n1 - 0.5) * 3.0)
     streak = ss(0.55, 0.72, MN.noise(V((x * 0.55, z * 0.13, 4))) * 0.5 + 0.5) * ss(0.6, 1.1, slope)
-    return sf * (1 - streak * 0.85)
+    sf *= 1 - streak * 0.85
+    melt = ss(0.62, 0.72, MN.noise(V((x * 0.22, z * 0.22, 8))) * 0.5 + 0.5) * ss(0.03, 0.3, sn) * ss(2.0, 4.5, hh)
+    return max(sf, melt * 0.92)                                                           # erimekte olan kar lekeleri kenarda
 
 def ground_colors(L, x, z, i, j, hh):
     w, s, p, r, sn = (float(v) for v in L.m[j, i]); slope = float(L.slope[j, i])
@@ -98,8 +100,8 @@ def ground_colors(L, x, z, i, j, hh):
         c = mixc(c, (0.83, 0.66, 0.45), p); c = mixc(c, (0.55, 0.78, 0.82), w)
         return tuple(v ** 2.2 for v in c)
     # v5: canlı ama dengeli çim; biyom tonları; kuru ot lekeleri; toprak açıklıkları
-    g = mixc(hexc('#3f8a2a'), hexc('#6fb63a'), n1)
-    g = mixc(g, hexc('#9cc43e'), ss(0.62, 0.85, n2) * 0.5)                              # açık sarı-yeşil lekeler
+    g = mixc(hexc('#4f9a2e'), hexc('#86c84a'), n1)
+    g = mixc(g, hexc('#b5d652'), ss(0.62, 0.85, n2) * 0.5)                              # açık sarı-yeşil lekeler
     dry = ss(0.55, 0.75, MN.noise(V((x * 0.04, z * 0.04, 9))) * 0.5 + 0.5)
     g = mixc(g, hexc('#b3a748'), dry * 0.55)                                              # sararmış çim
     g = mixc(g, hexc('#2d6a33'), biome_w('forest', x, z) * 0.6)                           # orman: koyu mavi-yeşil
@@ -109,14 +111,19 @@ def ground_colors(L, x, z, i, j, hh):
     g = mixc(g, hexc('#8a6a3e'), dirt * (0.6 + 0.4 * biome_w('forest', x, z)))
     c = g
     c = mixc(c, mixc(hexc('#e9d39a'), hexc('#d9bd7f'), n2), s)                           # kum
-    c = mixc(c, hexc('#c9b18a'), ss(-0.15, 0.25, hh) * s * (1 - w) * 0.0 + ss(0.25, -0.1, hh) * s * 0.45)  # ıslak kum koyu
+    c = mixc(c, hexc('#b59a6e'), ss(0.35, 0.0, hh) * s * 0.6)                           # ıslak kum: su kıyısında koyu
+    lk = BIOMES['meadow_lake']; dl = math.hypot(x - lk['x'], z - lk['z'])
+    if dl < 9.0:                                                                          # göl kıyısı: ıslak toprak + kum halkası
+        ring = ss(0.45, 0.05, abs(hh - 0.05)) * ss(9.0, 6.0, dl)
+        c = mixc(c, mixc(hexc('#6f5a3c'), hexc('#c9b07e'), ss(-0.1, 0.3, hh)), ring * 0.85)
     rockc = mixc(hexc('#8d8a86'), hexc('#a9a199'), n2)
     rockc = mixc(rockc, hexc('#6c6878'), ss(0.4, 0.8, n1) * 0.4)                          # soğuk mor-gri
     rw = max(r, ss(0.8, 1.3, slope) * 0.9, getattr(L, 'cliffw', np.zeros((1, 1)))[j, i] if hasattr(L, 'cliffw') else 0)
     c = mixc(c, rockc, rw)
     snowc = mixc(hexc('#f4f7fb'), hexc('#c9d6ee'), ss(0.5, 1.4, slope) * 0.6)
     sf = snow_f(x, z, sn, slope, hh)
-    c = mixc(c, rockc, sn * (1 - sf) * 0.55)                                              # kar altı: kaya + seyrek ot
+    c = mixc(c, rockc, sn * (1 - sf) * 0.4)
+    c = mixc(c, hexc('#c4d2c8'), ss(0.0, 0.35, sn) * (1 - sf) * 0.45)                      # kırağı bandı (kar → kırağı → soğuk çim)                                              # kar altı: kaya + seyrek ot
     c = mixc(c, snowc, sf)                                                                # eriyen kar: gürültülü sınır
     pathc = mixc(hexc('#a07a4c'), hexc('#c19a66'), n2)
     c = mixc(c, pathc, p)
@@ -145,16 +152,17 @@ def weights(L, o):
     """Parçacık yoğunluk grupları: çim, çiçek, patika çakılı, orman zemini, kar kenarı."""
     groups = {k: o.vertex_groups.new(name=k) for k in ('grass', 'flowers', 'pebbles', 'litter', 'heath', 'dry')}
     nx = L.nx; buckets = {k: {} for k in groups}
+    L.gw = np.zeros_like(L.h); L.sf = np.zeros_like(L.h)
     for j in range(L.nz):
         for i in range(nx):
             x, z = L.xz(i, j); w, s, p, r, sn = (float(v) for v in L.m[j, i]); sl = float(L.slope[j, i]); hh = float(L.h[j, i])
             if hh < 0.15: continue
             cliff = L.cliffw[j, i] if hasattr(L, 'cliffw') else 0
-            sf = snow_f(x, z, sn, sl, hh)
+            sf = snow_f(x, z, sn, sl, hh); L.sf[j, i] = sf
             grass = max(0.0, 1 - max(s, p, r, ss(0.05, 0.5, sf), ss(0.8, 1.2, sl), cliff))
             n = MN.noise(V((x * 0.42, z * 0.42, 11))) * 0.5 + 0.5
             grass *= ss(0.22, 0.4, n)                                  # çimsiz açıklıklar (oyundaki GrassField ile aynı fikir)
-            idx = j * nx + i
+            idx = j * nx + i; L.gw[j, i] = grass
             def put(k, v):
                 if v > 0.02: buckets[k].setdefault(round(min(1.0, v), 2), []).append(idx)
             put('grass', grass)
@@ -286,6 +294,7 @@ def place_world(L, after):
             for k, (ox, oz, s) in enumerate([(-1.5, 0.6, 4.6), (1.4, -0.4, 4.0), (0.2, 1.8, 5.2)]):
                 env('palm', r['x'] + ox, r['z'] + oz, L.height(r['x'] + ox, r['z'] + oz) - 0.1, s, k * 120)
             continue
+        if after and a == 'b_ski_hill': continue   # v4 kayak tepesi: arazinin kendi karlı tepesi + pist (island_v5_near)
         if a: env(a, r['x'], r['z'], r['pad'] if not r['Water'] else 0.3, r['Size'], r['Yaw'])
     # süsler: oyundaki yerleşim (fener, çit, tabela, sandık) aynen; bitkiler v5'te biyomdan
     veg = {'palm', 'p_tree', 'p_bush', 'p_rock', 'p_flowers'}
@@ -395,6 +404,7 @@ def water(L, after):
     w = bpy.context.object; w.name = 'water'; w.scale = (x1 - x0 + 2 * pad, z1 - z0 + 2 * pad, 1)
     m = bpy.data.materials.new('water_m'); m.use_nodes = True; nt = m.node_tree; N = nt.nodes; Lk = nt.links
     b = N['Principled BSDF']; b.inputs['Roughness'].default_value = 0.06 if after else 0.25
+    if after: b.inputs['Coat Weight'].default_value = 0.6; b.inputs['Coat Roughness'].default_value = 0.02
     if not after:
         b.inputs['Base Color'].default_value = (0.04, 0.42, 0.85, 1); w.data.materials.append(m); return
     tc = N.new('ShaderNodeTexCoord'); mp = N.new('ShaderNodeMapping')
@@ -453,8 +463,8 @@ def game_shot(L, px, pz, heading_deg, dist=5.6, pitch=20, fov=52):
     return pos, look
 
 SHOTS = {   # x, z (oyun), bakış yönü (°, 0 = kuzey)
-    'koy_merkezi': (0.0, -6.0, 0), 'kiyi': (43.0, 21.5, 352), 'cayir_gol': (-14.0, 22.5, 0),
-    'orman': (-26.0, -3.0, 200), 'kayalik': (16.0, 15.0, 35), 'kar': (-42.0, 22.0, 20),
+    'koy_merkezi': (0.0, -6.0, 0), 'kiyi': (50.0, 0.0, 20), 'cayir_gol': (-14.0, 22.5, 0),
+    'orman': (-26.0, -14.0, 210), 'kayalik': (16.0, 15.0, 35), 'kar': (-30.0, 24.0, 345),
 }
 
 def shot_clear(x, z):
@@ -464,8 +474,16 @@ def shot_clear(x, z):
         for t in (0.0, -2.5, -5.0):
             if math.hypot(x - (px + fx * t), z - (pz + fz * t)) < 5.5: return False
         if math.hypot(x - (px + fx * 4), z - (pz + fz * 4)) < 3.0: return False
-        if hd == 200 and math.hypot(x - (px + fx * 9), z - (pz + fz * 9)) < 3.0: return False   # orman: içeri bakan koridor
+        if hd == 210 and math.hypot(x - (px + fx * 9), z - (pz + fz * 9)) < 3.0: return False   # orman: içeri bakan koridor
     return True
+
+NEAR = []
+import island_v5_near as NEAR_
+def set_far_grass(ground, on):
+    """Oyun kamerası çekimlerinde genel çim/çiçek parçacıkları kapanır (yakında makro çim var; uzak zemin rengi yeterli)."""
+    for md in ground.modifiers:
+        if md.type == 'PARTICLE_SYSTEM' and md.particle_system.settings.instance_collection in (GRASS.get('g'), GRASS.get('d'), GRASS.get('f')):
+            md.show_render = on
 
 GRASS = {}
 def local_grass(L, ground, cx, cz, rad=26.0):
@@ -493,10 +511,17 @@ def main():
     samples = int(args[4]) if len(args) > 4 else 48; k = float(args[5]) if len(args) > 5 else 1.0
     after = mode == 'after'; os.makedirs(out, exist_ok=True)
     sc = C.reset(samples=samples, size=(int(1600 * k), int(1000 * k)))
-    sc.view_settings.exposure = -0.12 if after else -0.1
+    sc.view_settings.exposure = -0.1
     sc.view_settings.look = 'AgX - Punchy' if after else 'None'
-    C.sky(sc, strength=1.15 if after else 0.9, cloud_amt=0.6 if after else 0.0)
-    C.sun(elev=36, azim=-38, energy=4.4 if after else 3.6, col='#ffefd2' if after else '#ffffff', angle=1.5)
+    if after:   # sıcak ana ışık + soğuk mavi/mor dolgu (gölgeler renkli, siyah değil) + açık gökyüzü
+        C.sky(sc, strength=1.35, cloud_amt=0.6, top='#5a98e4', mid='#a8d3f6', hor='#eef6fc')
+        C.sun(elev=36, azim=-38, energy=5.2, col='#ffe2b4', angle=1.5)
+        fl = bpy.data.lights.new('fill', 'SUN'); fl.energy = 1.1; fl.color = (0.62, 0.66, 1.0); fl.angle = math.radians(30)
+        fl.cycles.cast_shadow = False
+        fo = bpy.data.objects.new('fill', fl); sc.collection.objects.link(fo); fo.rotation_euler = (math.radians(60), 0, math.radians(142))
+    else:
+        C.sky(sc, strength=0.9, cloud_amt=0.0)
+        C.sun(elev=36, azim=-38, energy=3.6, col='#ffffff', angle=1.5)
     L = Land(dump, after)
     ground = build_terrain(L)
     if after: weights(L, ground)
@@ -508,18 +533,27 @@ def main():
         for o in [o for o in sc.objects if o.type == 'CAMERA']: bpy.data.objects.remove(o)
         pet = [o for o in sc.objects if o.name.startswith('i_F_okti')]
         for o in pet: bpy.data.objects.remove(o)
+        set_far_grass(ground, True)
         if s == 'kusbakisi':
             px, pz = d['plaza']; okti(L, px, pz - 2.0, 0)
             span = max(d['maxx'] - d['minx'], d['maxz'] - d['minz'])
             look = V((0, (d['minz'] + d['maxz']) / 2 + 2, 0)); pos = look + V((0, -span * 0.72, span * 0.62))
-            look_cam(pos, look, fov=40); sc.render.resolution_x, sc.render.resolution_y = int(1600 * k), int(1000 * k)
+            look_cam(pos, look, fov=40); sc.view_settings.exposure = 0.3 if after else -0.1; sc.render.resolution_x, sc.render.resolution_y = int(1600 * k), int(1000 * k)
             name = 'ada_kusbakisi' if after else 'ada_once'
         else:
             x, z, hd = SHOTS[s]; okti(L, x, z, -hd + 180)
-            for o in [o for o in sc.objects if o.name.startswith('grass_patch')]: bpy.data.objects.remove(o)
-            local_grass(L, ground, x, z)
+            for o in NEAR: bpy.data.objects.remove(o, do_unlink=True)
+            NEAR[:] = NEAR_.build(L, sys.modules[__name__], s, x, z, hd) if after else []
+            sc.view_settings.exposure = 0.45 if after else -0.1
+            set_far_grass(ground, False)
             pos, look = game_shot(L, x, z, hd); look_cam(pos, look)
             sc.render.resolution_x, sc.render.resolution_y = int(1600 * k), int(900 * k); name = s
+        if os.environ.get('PROBE'):   # hata ayıklama: görüntü noktasından ışın at, çarpan nesneyi yaz
+            cam = sc.camera; dg = bpy.context.evaluated_depsgraph_get(); ru, rd, ld, lu = [cam.matrix_world @ p for p in cam.data.view_frame(scene=sc)]
+            for uv in os.environ['PROBE'].split(';'):
+                u, v = (float(t) for t in uv.split(',')); p = ld.lerp(rd, u).lerp(lu.lerp(ru, u), v); o = cam.matrix_world.translation
+                hit = sc.ray_cast(dg, o, (p - o).normalized()); print('ISIN', u, v, hit[4].name if hit[4] else None, tuple(round(c, 1) for c in hit[1]))
+            continue
         sc.render.filepath = os.path.join(out, name + '.png'); bpy.ops.render.render(write_still=True); print('ok', name)
 
 if __name__ == '__main__':
