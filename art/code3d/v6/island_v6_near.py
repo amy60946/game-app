@@ -63,7 +63,7 @@ def flower_protos():
     if not FLOWER:
         FLOWER['bell'] = [K.flower_patch_mesh('pb%d' % k, 'bell', 7, 100 + k, col=bpy.data.collections.new('C_pb%d' % k)) for k in range(4)]
         FLOWER['daisy'] = [K.flower_patch_mesh('pd%d' % k, 'daisy', 6, 120 + k, col=bpy.data.collections.new('C_pd%d' % k)) for k in range(3)]
-        FLOWER['white'] = []
+        FLOWER['yellow'] = [K.flower_patch_mesh('py%d' % k, 'yellow', 3, 140 + k, col=bpy.data.collections.new('C_py%d' % k)) for k in range(3)]
     return FLOWER
 
 def obj_inst(o, x, z, y, rot, s, out):
@@ -75,7 +75,7 @@ def flowers(L, px, pz, hd, out, rad=34.0, seed=5, n=900000, boost=1.0):
     R = np.random.default_rng(seed); F = flower_protos()
     x, z, d = sector_pts(px, pz, hd, n, rad, R, back=3.0)
     fall = np.where(d < 6, 1.0, (6.0 / np.maximum(d, 1e-3)) ** 1.2)
-    for key, mask, dens in (('bell', L.fb, 0.06), ('daisy', L.fo, 0.035)):
+    for key, mask, dens in (('bell', L.fb, 0.06), ('daisy', L.fo, 0.035), ('yellow', np.ones_like(L.fb) * 0.35, 0.006)):
         p = np.clip(bil(mask, x, z) * 1.6, 0, 1) * bil(L.gw, x, z) * fall * dens * boost
         keep = R.uniform(0, 1, len(x)) < p
         for xi, zi, di in zip(x[keep], z[keep], d[keep]):
@@ -159,6 +159,8 @@ def build(L, B, P, shot, px, pz, hd):
         x, z = px + fx * 8 + fz * 2.5, pz + fz * 8 - fx * 2.5
         for o in list(bpy.data.collections['C_log'].objects):
             e = bpy.data.objects.new('n_lg', o.data); e.location = (x, z, float(bil(L.h, x, z)) - 0.05); e.rotation_euler = (0, 0, a + 0.9); bpy.context.scene.collection.objects.link(e); out.append(e)
+    elif shot == 'yamac':
+        macro_grass(L, B, px, pz, hd, out=out); flowers(L, px, pz, hd, out, boost=1.0); props_near(L, P, px, pz, hd, out, rosettes=6, pebbles=70)
     elif shot == 'koy':
         macro_grass(L, B, px, pz, hd, out=out); flowers(L, px, pz, hd, out, boost=1.0); props_near(L, P, px, pz, hd, out, rosettes=6, pebbles=20)
     elif shot == 'koy_kiyi':

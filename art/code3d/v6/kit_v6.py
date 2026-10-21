@@ -411,8 +411,8 @@ def flower_patch_mesh(name, kind='bell', n=1, seed=0, col=None):
                 r = 0.018 * (1.2 - t * 0.4)
                 ico = _ico(1); add([tuple(p + V((q[0] * r, q[1] * r, q[2] * r * 1.2))) for q in ico], [tuple(f) for f in _ICO_F[1]], R.choice(cs))
         else:
-            c = R.choice([srgb('#f08a3a'), srgb('#f6a648'), srgb('#f4c454'), srgb('#ee7a52')])
-            p = V((bx + lean.x, by + lean.y, hh)); r = R.uniform(0.03, 0.045); k = 6
+            c = R.choice([srgb('#f4cf3a'), srgb('#f7dc5a'), srgb('#c79ae8')]) if kind == 'yellow' else R.choice([srgb('#f08a3a'), srgb('#f6a648'), srgb('#f4c454'), srgb('#ee7a52')])
+            p = V((bx + lean.x, by + lean.y, hh * (0.6 if kind == 'yellow' else 1.0))); r = R.uniform(0.03, 0.045) * (0.7 if kind == 'yellow' else 1.0); k = 6
             ring = [tuple(p + V((math.cos(a) * r, math.sin(a) * r, R.uniform(-0.005, 0.01)))) for a in [i / k * math.tau for i in range(k)]]
             add([tuple(p + V((0, 0, 0.01)))] + ring, [(0, 1 + i, 1 + (i + 1) % k) for i in range(k)], c)
     return mesh_obj(name, V_, F_, vcol_mat(name + '_m', rough=0.6), colors=np.array(C_), col=col)

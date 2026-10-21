@@ -88,7 +88,7 @@ def terrain_colors(L, B):
     rk = mix(rk, C3('#e0d4c8'), ss(0.3, 0.12, streak) * 0.5)
     rk = mix(rk, C3('#6f6872'), ss(1.6, 0.0, h) * 0.55)                              # deniz kıyısında ıslak koyu
     rk = mix(rk, C3('#7f7b88'), B['snowpeak'] * 0.4)
-    rw = np.maximum(ss(0.8, 1.15, L.slope + (n2 - 0.5) * 0.3), ss(0.6, 0.95, L.slope_b) * 0.9)
+    rw = np.maximum(ss(0.85, 1.25, L.slope + (n2 - 0.5) * 0.35), ss(0.75, 1.1, L.slope_b) * 0.45)   # basamak üstleri çimenli (çimen kayadan taşar)
     rw = np.clip(rw, 0, 1) * (1 - ss(0.0, 0.3, TV.blur(d['snowpath'], 2.5)))
     rw = np.maximum(rw, d['snow'] * ss(0.9, 1.4, L.slope) * (1 - ss(0.0, 0.3, TV.blur(d['snowpath'], 2.5))))   # karlı dağda dik yüz = kaya çıkıntısı
     L.dispw = None
@@ -111,7 +111,7 @@ def terrain_colors(L, B):
     snw = np.clip(d['snow'] * (1 - ss(1.25, 2.1, L.slope + (n3 - 0.5) * 0.8) * 0.85), 0, 1)
     snw = np.maximum(snw, np.clip(TV.blur(d['snowpath'], 2.0) * 3, 0, 1) * ss(0.2, 0.5, d['snow']))
     L.dispw = (rw * (1 - ss(0.35, 0.7, snw))).astype(np.float32)
-    L.gravel = np.clip((np.clip(d['canyon'], 0, 1) * 0.95 + d['sand'] * ss(0.35, 0.9, L.slope_b) * ss(2.5, 1.0, h) * 0.8) * (1 - rw) * (1 - d['path'] * 0.35), 0, 1).astype(np.float32)
+    L.gravel = np.clip((np.clip(d['canyon'], 0, 1) * 0.95 + d['sand'] * ss(0.35, 0.9, L.slope_b) * ss(2.5, 1.0, h) * 0.8 + ss(0.3, 0.7, L.slope_b) * ss(0.7, 0.35, L.slope) * ss(0.45, 0.7, TV.fbm(X, Z, 1 / 2.5, 251, 2) * 0.5 + 0.5) * 0.85) * (1 - rw) * (1 - d['path'] * 0.35), 0, 1).astype(np.float32)
     c = mix(c, mix(C3('#cdd8ea'), C3('#e6edf7'), n2), snw)
     # karlı patika: sıkışmış, hafif mavi-gri, ayak izi benekli
     pk = mix(C3('#7f8daa'), C3('#9aa7bf'), n2); pk = mix(pk, C3('#7a6550'), ss(0.55, 0.72, n3) * 0.85)   # sıkışmış kar + eriyip açılmış toprak lekeleri
@@ -185,7 +185,7 @@ def terrain_mat():
     L.new(vc.outputs['Color'], ov.inputs[6]); L.new(nz.outputs['Color'], ov.inputs[7])
     # tabaka: z/1.35 + yatay gürültü → kesir; kesirin başı koyu ince çizgi, sonu açık kenar
     wn = node('ShaderNodeTexNoise'); wn.inputs['Scale'].default_value = 0.08; wn.inputs['Detail'].default_value = 2; L.new(tc.outputs['Object'], wn.inputs['Vector'])
-    zz = math_('MULTIPLY_ADD', sep.outputs['Z'], 1 / 1.35); L.new(wn.outputs['Fac'], zz.node.inputs[2]); zz.node.inputs[2].default_value = 0
+    zz = math_('MULTIPLY_ADD', sep.outputs['Z'], 1 / 2.3); L.new(wn.outputs['Fac'], zz.node.inputs[2]); zz.node.inputs[2].default_value = 0
     zf = math_('FRACT', zz)
     line = mr(zf, 0.0, 0.05, 0.78, 1.0)                                   # 0..0.05: koyu ince çizgi
     lite = mr(zf, 0.85, 1.0, 1.0, 1.1)                                    # üst kenar açık
@@ -214,10 +214,10 @@ def terrain_mat():
     L.new(hb, bn.inputs['Height']); L.new(bn.outputs['Normal'], b.inputs['Normal'])
     # GERÇEK KABARTMA (metre): her tabakanın üst kısmı dışa taşar, alttaki tabakanın üstüne saçak yapar (gölge düşer);
     # dikey çatlaklar içe oyuk; büyük kaya blokları arasında derz; ince yüzey pürüzü. Yalnız karsız kayada.
-    ledge = math_('SUBTRACT', mr(zf, 0.0, 0.8, 0.0, 0.34), mr(zf, 0.86, 1.0, 0.0, 0.2))
+    ledge = math_('SUBTRACT', mr(zf, 0.0, 0.75, 0.0, 0.26), mr(zf, 0.8, 1.0, 0.0, 0.18))
     crk = math_('MULTIPLY', mr(ab, 0.0, 0.07, -0.42, 0.0), 1.0)
     mpb = node('ShaderNodeMapping'); mpb.inputs['Scale'].default_value = (1.0, 1.0, 0.55); L.new(tc.outputs['Object'], mpb.inputs[0])
-    vo = node('ShaderNodeTexVoronoi', feature='DISTANCE_TO_EDGE'); vo.inputs['Scale'].default_value = 0.42; L.new(mpb.outputs[0], vo.inputs['Vector'])
+    vo = node('ShaderNodeTexVoronoi', feature='DISTANCE_TO_EDGE'); vo.inputs['Scale'].default_value = 0.26; L.new(mpb.outputs[0], vo.inputs['Vector'])
     blk = mr(vo.outputs['Distance'], 0.0, 0.09, -0.28, 0.0)
     rough = mr(vn2.outputs['Fac'], 0.3, 0.7, -0.06, 0.06)
     dw = node('ShaderNodeAttribute', attribute_name='dispw').outputs['Fac']
@@ -270,7 +270,16 @@ def terrain_mat():
     small = mr(se.outputs['Distance'], 0.1, 0.16)
     gapf = math_('MULTIPLY', math_('SUBTRACT', 1.0, math_('POWER', gapm, 2.0)), math_('SUBTRACT', 1.0, math_('MULTIPLY', small, math_('SUBTRACT', 1.0, soil))))
     L.new(gapf, gap.inputs['Factor']); L.new(srim.outputs[2], gap.inputs[6])
-    gm = node('ShaderNodeMix', data_type='RGBA'); L.new(gv, gm.inputs['Factor']); L.new(pv.outputs[2], gm.inputs[6]); L.new(gap.outputs[2], gm.inputs[7])
+    # DİKEY SU İZLERİ (örnek görsel): kaya yüzünde yukarıdan aşağı inen koyu lekeler ve açık şeritler
+    mps = node('ShaderNodeMapping'); mps.inputs['Scale'].default_value = (1.0, 1.0, 0.04); L.new(tc.outputs['Object'], mps.inputs[0])
+    sn1 = node('ShaderNodeTexNoise'); sn1.inputs['Scale'].default_value = 0.45; sn1.inputs['Detail'].default_value = 3; sn1.inputs['Roughness'].default_value = 0.55; L.new(mps.outputs[0], sn1.inputs['Vector'])
+    stain = math_('MULTIPLY', mr(sn1.outputs['Fac'], 0.56, 0.66), rkn)
+    lband = math_('MULTIPLY', mr(sn1.outputs['Fac'], 0.4, 0.33), rkn)
+    st1 = node('ShaderNodeMix', data_type='RGBA'); st1.inputs[7].default_value = K.srgb('#3c3742') + (1,)
+    L.new(math_('MULTIPLY', stain, 0.62), st1.inputs['Factor']); L.new(pv.outputs[2], st1.inputs[6])
+    st2 = node('ShaderNodeMix', data_type='RGBA'); st2.inputs[7].default_value = K.srgb('#ddd3c8') + (1,)
+    L.new(math_('MULTIPLY', lband, 0.45), st2.inputs['Factor']); L.new(st1.outputs[2], st2.inputs[6])
+    gm = node('ShaderNodeMix', data_type='RGBA'); L.new(gv, gm.inputs['Factor']); L.new(st2.outputs[2], gm.inputs[6]); L.new(gap.outputs[2], gm.inputs[7])
     L.new(gm.outputs[2], b.inputs['Base Color'])
     # çakıl kabartması (tümsek): taşlar yükselir
     gb = node('ShaderNodeBump'); gb.inputs['Strength'].default_value = 1.0; gb.inputs['Distance'].default_value = 0.04
@@ -682,10 +691,10 @@ def game_shot(L, px, pz, heading_deg, dist=6.0, pitch=16, look_ahead=2.0, lift=0
 
 SHOTS = {   # x, z, bakış (° , 0 = kuzey)
     'koy': (1.5, -19.5, 2), 'cayir': (-44.0, 0.0, 305), 'kanyon': (-2.5, 6.0, 352), 'kamp': (46.5, -3.5, 52),
-    'orman': (44.0, 12.0, 22), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-38.0, 40.6, 284), 'kar_patika': (-44.5, 41.7, 300),
+    'orman': (44.0, 12.0, 22), 'yamac': (-15.0, 3.0, 2), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-38.0, 40.6, 284), 'kar_patika': (-44.5, 41.7, 300),
 }
 
-SHOT_CAM = {'kar': dict(pitch=9, dist=6.5, lift=1.6), 'kar_patika': dict(pitch=6, dist=6.5, lift=2.2), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}
+SHOT_CAM = {'yamac': dict(pitch=5, dist=6.0, lift=2.6), 'kar': dict(pitch=9, dist=6.5, lift=1.6), 'kar_patika': dict(pitch=6, dist=6.5, lift=2.2), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}
 
 AERIAL = {
     'ada_kusbakisi': ((-8, -128, 56), (0, 40, 12), 50),
