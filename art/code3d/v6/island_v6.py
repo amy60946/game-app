@@ -767,10 +767,10 @@ def game_shot(L, px, pz, heading_deg, dist=6.0, pitch=16, look_ahead=2.0, lift=0
 
 SHOTS = {   # x, z, bakış (° , 0 = kuzey)
     'koy': (1.5, -19.5, 2), 'cayir': (-44.0, 0.0, 305), 'kanyon': (-2.5, 6.0, 352), 'kamp': (46.5, -3.5, 52),
-    'orman': (44.0, 12.0, 22), 'sahil': (13.0, -51.0, 158), 'kopuk': (57.4, -33.0, 150), 'magara': (-51.4, 11.6, 286), 'kamp_yakin': (51.0, 0.6, 52), 'yamac': (-15.0, 3.0, 2), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-38.0, 40.6, 284), 'kar_patika': (-44.5, 41.7, 300),
+    'orman': (44.0, 12.0, 22), 'sahil': (13.0, -51.0, 158), 'kopuk': (15.0, -53.2, 172), 'magara': (-51.4, 11.6, 286), 'kamp_yakin': (51.0, 0.6, 52), 'yamac': (-15.0, 3.0, 2), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-38.0, 40.6, 284), 'kar_patika': (-44.5, 41.7, 300),
 }
 
-SHOT_CAM = {'kopuk': dict(pitch=22, dist=4.5, lift=-0.4, look_ahead=3.0), 'sahil': dict(pitch=9, lift=1.4), 'magara': dict(pitch=5, dist=5.5, lift=0.5), 'kamp_yakin': dict(pitch=14, dist=4.5), 'yamac': dict(pitch=5, dist=6.0, lift=2.6), 'kar': dict(pitch=9, dist=6.5, lift=1.6), 'kar_patika': dict(pitch=6, dist=6.5, lift=2.2), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}
+SHOT_CAM = {'kopuk': dict(pitch=24, dist=4.2, lift=-0.5, look_ahead=3.5), 'sahil': dict(pitch=9, lift=1.4), 'magara': dict(pitch=5, dist=5.5, lift=0.5), 'kamp_yakin': dict(pitch=14, dist=4.5), 'yamac': dict(pitch=5, dist=6.0, lift=2.6), 'kar': dict(pitch=9, dist=6.5, lift=1.6), 'kar_patika': dict(pitch=6, dist=6.5, lift=2.2), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}
 
 AERIAL = {
     'ada_kusbakisi': ((-8, -128, 56), (0, 40, 12), 50),
