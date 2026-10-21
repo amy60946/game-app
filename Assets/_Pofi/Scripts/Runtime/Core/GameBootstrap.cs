@@ -91,7 +91,7 @@ namespace Pofi.Core
             Starter = new StarterKit(ReadData("start.json"));
             Levels = new LevelTable(Data.Levels);
             Map = new IslandMap(ReadData("regions.json"), Levels);
-            Store = new PrefsStore();
+            Store = new SecureStore();   // iOS: oturum belirteci Keychain (güvenlik M4)
             Server = ServerConfig.Parse(ReadOptional("server.json"));
             _http = new UnityHttp();
             var server = Server.IsConfigured ? new SupabaseAuthService(Server.Url, Server.PublishableKey, _http, Store) : null;

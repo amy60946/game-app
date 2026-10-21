@@ -50,6 +50,7 @@ namespace Pofi.EditorTools
             PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.iOS, BundleId);
             // Yatay oyun (14 Ekim 2026 kararı): iki yatay yöne döner, dikeye dönmez
             PlayerSettings.defaultInterfaceOrientation = UIOrientation.AutoRotation;
+            PlayerSettings.enableCrashReportAPI = false;   // çocuk uygulaması: Unity çökme raporu servisi kapalı (gizlilik; güvenlik denetimi)
             PlayerSettings.allowedAutorotateToLandscapeLeft = true;
             PlayerSettings.allowedAutorotateToLandscapeRight = true;
             PlayerSettings.allowedAutorotateToPortrait = false;

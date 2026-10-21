@@ -19,7 +19,11 @@ namespace Pofi.Logic.Safety
     /// </summary>
     public static class ParentGate
     {
-        public static GateChallenge Create(AgeBand band, Random rng)
+        /// <summary>Soruyu ebeveyn çözer: güvenlik denetimi L2 (22 Ekim 2026) sonrası her bantta iki basamaklı çarpma.
+        /// (Eskiden A bandında 6–9 × 6–9 idi; 8 yaşındaki çocuk bilir.) Bant parametresi uyumluluk için kalır.</summary>
+        public static GateChallenge Create(AgeBand band, Random rng) => CreateFor(AgeBand.C, rng);
+
+        private static GateChallenge CreateFor(AgeBand band, Random rng)
         {
             int a, b;
             switch (band)
@@ -42,6 +46,24 @@ namespace Pofi.Logic.Safety
                 Options = options.OrderBy(_ => rng.Next()).ToList(),
             };
         }
+    }
+
+    /// <summary>İki yanlış cevaptan sonra 30 sn bekleme (rastgele dokunarak geçilmesin; L2).</summary>
+    public sealed class GateLock
+    {
+        public const int MaxFails = 2;
+        public static readonly TimeSpan Wait = TimeSpan.FromSeconds(30);
+        private int _fails;
+        private DateTime _until;
+
+        public TimeSpan Remaining(DateTime nowUtc) => nowUtc < _until ? _until - nowUtc : TimeSpan.Zero;
+
+        public void Fail(DateTime nowUtc)
+        {
+            if (++_fails >= MaxFails) { _until = nowUtc + Wait; _fails = 0; }
+        }
+
+        public void Pass() => _fails = 0;
     }
 
     public static class TurkishNumber

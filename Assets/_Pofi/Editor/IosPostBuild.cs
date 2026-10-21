@@ -8,7 +8,7 @@ namespace Pofi.EditorTools
 {
     /// <summary>
     /// iOS Xcode projesi son ayarları (TestFlight): şifreleme beyanı (yalnız standart HTTPS → muaf; "Missing Compliance" sorulmaz),
-    /// görünen ad, tam ekran. Derleme sonrası Info.plist'e yazılır.
+    /// görünen ad, tam ekran. Derleme sonrası Info.plist'e yazılır; Keychain için Security.framework bağlanır.
     /// </summary>
     public static class IosPostBuild
     {
@@ -24,6 +24,13 @@ namespace Pofi.EditorTools
             root.SetString("CFBundleDisplayName", "Pofi Adası");
             root.SetBoolean("UIRequiresFullScreen", true);
             plist.WriteToFile(plistPath);
+
+            // Keychain (PofiNative.mm, oturum belirteci) için Security.framework
+            var projPath = PBXProject.GetPBXProjectPath(path);
+            var proj = new PBXProject();
+            proj.ReadFromFile(projPath);
+            proj.AddFrameworkToProject(proj.GetUnityFrameworkTargetGuid(), "Security.framework", false);
+            proj.WriteToFile(projPath);
         }
     }
 }

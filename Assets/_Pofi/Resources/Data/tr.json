@@ -429,6 +429,7 @@
     "gate.title": "Ebeveyn sorusu",
     "gate.hint": "Bu bölüm ebeveynler için.",
     "gate.wrong": "Olmadı, yeni bir soru deneyelim.",
+    "gate.wait": "Biraz bekleyelim: {0} saniye sonra tekrar dene.",
 
     "minigame.result": "{0} puan · +{1} XP",
     "minigame.again": "Tekrar oyna",

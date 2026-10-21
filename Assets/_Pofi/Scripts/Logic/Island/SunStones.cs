@@ -43,11 +43,11 @@ namespace Pofi.Logic.Island
         public SunStoneBook(IReadOnlyList<SunSpotDef> spots)
         {
             Spots = spots ?? new List<SunSpotDef>();
-            foreach (var s in Spots) foreach (var id in s.Opens) _gate[id] = s;
+            foreach (var s in Spots) if (s?.Opens != null) foreach (var id in s.Opens) _gate[id] = s;
         }
 
         public static SunStoneBook Parse(string json) =>
-            new SunStoneBook(string.IsNullOrWhiteSpace(json) ? new List<SunSpotDef>() : JsonConvert.DeserializeObject<File>(json).Spots);
+            new SunStoneBook(string.IsNullOrWhiteSpace(json) ? new List<SunSpotDef>() : JsonConvert.DeserializeObject<File>(json)?.Spots);
 
         public SunSpotDef Find(string id) => Spots.FirstOrDefault(s => s.Id == id);
 

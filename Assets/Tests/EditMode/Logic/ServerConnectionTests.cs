@@ -102,6 +102,19 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
+        public async Task Demo_code_does_not_wipe_the_real_family_session()
+        {
+            var store = new MemorySecureStore();
+            var router = new RoutedAuthService(new MockAuthService(store, () => _now),
+                new SupabaseAuthService("https://p.supabase.co", "K", ServerOk(), store, () => _now), store);
+            await router.SignInWithCodeAsync("XK7P2Q");
+            var token = store.Get(SupabaseAuthService.RefreshKey);
+            Assert.IsNotNull(token);
+            Assert.IsTrue((await router.SignInWithCodeAsync("A1A1A1")).Ok);
+            Assert.AreEqual(token, store.Get(SupabaseAuthService.RefreshKey), "güvenlik M3: aile bağlantısı kopmaz");
+        }
+
+        [Test]
         public async Task Without_server_everything_is_mock_and_old_sessions_restore()
         {
             var store = new MemorySecureStore();

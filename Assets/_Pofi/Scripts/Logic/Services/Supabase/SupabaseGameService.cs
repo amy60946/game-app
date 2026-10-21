@@ -119,6 +119,7 @@ namespace Pofi.Logic.Services.Supabase
             foreach (var o in JArray.Parse(r.Body).OfType<JObject>())
             {
                 var date = (string)o["date"];
+                if (string.IsNullOrEmpty(date) || date.Length < 10 || string.IsNullOrEmpty((string)o["task_id"])) continue;   // bozuk satır atlanır
                 var d = DateTime.ParseExact(date.Substring(0, 10), "yyyy-MM-dd", CultureInfo.InvariantCulture);
                 list.Add(new ChildTask
                 {

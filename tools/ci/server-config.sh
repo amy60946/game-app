@@ -11,6 +11,14 @@ if [ -z "$key" ]; then
 fi
 case "$key" in
   sb_secret_*) echo "::error::SUPABASE_PUBLISHABLE_KEY gizli anahtar (sb_secret_). Publishable anahtarı yaz."; exit 1 ;;
+  eyJ*)
+    # eski tip JWT anahtar: yalnız "anon" rolü kabul (service_role derlemeye gömülmesin; güvenlik denetimi L1)
+    payload=$(printf '%s' "$key" | cut -d. -f2 | tr '_-' '/+')
+    while [ $(( ${#payload} % 4 )) -ne 0 ]; do payload="$payload="; done
+    role=$(printf '%s' "$payload" | base64 -d 2>/dev/null | jq -r '.role // empty' 2>/dev/null || true)
+    if [ "$role" != "anon" ]; then
+      echo "::error::SUPABASE_PUBLISHABLE_KEY anon anahtarı değil (rol: ${role:-okunamadı}). Publishable/anon anahtarı yaz."; exit 1
+    fi ;;
 esac
 jq --arg k "$key" '.publishableKey = $k' "$f" > "$f.tmp"
 mv "$f.tmp" "$f"

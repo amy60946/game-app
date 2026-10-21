@@ -165,8 +165,12 @@ namespace Pofi.Screens
         }
 
         /// <summary>Ebeveyn sorusu (FR-SET-1): doğru cevapta <paramref name="onPass"/> çalışır.</summary>
+        private static readonly Logic.Safety.GateLock _gateLock = new Logic.Safety.GateLock();
+
         protected void ParentGate(System.Action onPass, System.Action<string> onFail = null)
         {
+            var wait = _gateLock.Remaining(System.DateTime.UtcNow);
+            if (wait > System.TimeSpan.Zero) { onFail?.Invoke(T("gate.wait", (int)System.Math.Ceiling(wait.TotalSeconds))); return; }
             App.Stage.AllowDrag = false;
             var ch = Logic.Safety.ParentGate.Create(App.Session.AgeBand, new System.Random());
             var root = Modal(860f, out var box);
@@ -181,8 +185,8 @@ namespace Pofi.Screens
                 Ui.Button(box, Th, v.ToString(), anchor, new Vector2(360f, 130f), () =>
                 {
                     Close();
-                    if (v == ch.Answer) onPass();
-                    else onFail?.Invoke(T("gate.wrong"));
+                    if (v == ch.Answer) { _gateLock.Pass(); onPass(); }
+                    else { _gateLock.Fail(System.DateTime.UtcNow); onFail?.Invoke(T("gate.wrong")); }
                 }, false, default, 56, false);
             }
             Ui.Button(box, Th, "X", new Vector2(0.5f, 0.09f), new Vector2(160f, 100f), Close, false, default, 48);

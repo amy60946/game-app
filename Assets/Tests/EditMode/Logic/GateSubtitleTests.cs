@@ -31,6 +31,11 @@ namespace Pofi.Tests.Logic
                     Assert.IsFalse(g.Prompt.Any(char.IsDigit), "rakam yok, yazıyla soru");
                 }
             Assert.Greater(ParentGate.Create(AgeBand.C, new Random(2)).Answer, 100);
+            for (var i = 0; i < 50; i++) Assert.Greater(ParentGate.Create(AgeBand.A, new Random(i)).Answer, 100, "L2: küçük bantta da iki basamaklı");
+            var lk = new GateLock(); var now = new DateTime(2026, 10, 22, 12, 0, 0, DateTimeKind.Utc);
+            lk.Fail(now); Assert.AreEqual(TimeSpan.Zero, lk.Remaining(now));
+            lk.Fail(now); Assert.AreEqual(GateLock.Wait, lk.Remaining(now), "iki yanlıştan sonra bekleme");
+            Assert.AreEqual(TimeSpan.Zero, lk.Remaining(now.AddSeconds(31)));
         }
 
         [Test]

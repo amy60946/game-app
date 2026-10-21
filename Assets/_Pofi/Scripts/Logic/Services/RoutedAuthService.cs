@@ -60,8 +60,10 @@ namespace Pofi.Logic.Services
             var side = RouteFor(code);
             var r = await side.SignInWithCodeAsync(code, ct);
             if (!r.Ok) return r;
-            var other = side == Mock ? (IAuthService)Server : Mock;
-            if (other != null) await other.SignOutAsync(ct);   // eski taraftaki oturum kalmasın (oyun kaydı silinmez)
+            // Gerçek sunucuya geçerken deneme oturumu kapanır. Deneme koduna geçerken gerçek oturum belirteci SİLİNMEZ
+            // (güvenlik denetimi M3: çevrimdışı açılışta giriş ekranına düşen çocuk deneme kodu yazarsa aile bağlantısı kopmasın;
+            // ebeveynin yeni kod üretmesi gerekmesin).
+            if (side == Server) await Mock.SignOutAsync(ct);
             Active = side;
             _store.Set(ModeKey, side == Server ? ServerMode : MockMode);
             return r;
