@@ -14,6 +14,10 @@ namespace Pofi.World
         private bool _started, _fog;
         private float _phase;
         private Mesh _mesh;
+        private Vector3 _scale = Vector3.one;
+
+        /// <summary>Rüzgâr (birim/sn). Bulutlar bu yönde kayar, uzaklaşınca karşı taraftan yeniden girer.</summary>
+        public static readonly Vector3 Wind = new Vector3(0.55f, 0f, 0.2f);
 
         private void OnDestroy() { if (_mesh != null) Destroy(_mesh); }
 
@@ -40,15 +44,22 @@ namespace Pofi.World
                 cl.localPosition = center + new Vector3(Mathf.Cos(a) * r, Mathf.Lerp(yMin, yMax, (float)rnd.NextDouble()), Mathf.Sin(a) * r);
                 cl.localRotation = Quaternion.Euler(0f, (float)rnd.NextDouble() * 360f, 0f);
                 var s = size * (0.7f + (float)rnd.NextDouble() * 0.6f);
-                var puffs = 9 + rnd.Next(6);
-                // pufları tek ağa birleştir: bulut başına 1 çizim çağrısı (iPhone'da 10+ puf × bulut yerine)
+                var puffs = 11 + rnd.Next(6);
+                // Doğal kümülüs (22 Ekim 2026, gökyüzü fotoğraflarından esinle): ortak düz taban, ortası yüksek ve büyük loblar,
+                // kenarlara doğru küçülen ve alçalan tutamlar; üstte birkaç küçük "karnabahar" lobu. Yer sisi yayvan ve alçak kalır.
+                // Puflar tek ağa birleşir: bulut başına 1 çizim çağrısı.
                 var parts = new CombineInstance[puffs];
+                var tall = fog ? 0.25f : 0.55f + (float)rnd.NextDouble() * 0.6f;   // yayvan .. kule
                 for (var k = 0; k < puffs; k++)
                 {
-                    var pr = s * (0.32f + (float)rnd.NextDouble() * 0.38f);
-                    var pos = new Vector3(((float)rnd.NextDouble() * 2f - 1f) * s * 1.5f, (float)rnd.NextDouble() * s * 0.45f, ((float)rnd.NextDouble() * 2f - 1f) * s * 0.6f);
+                    var upper = !fog && k >= puffs - 3;                                     // son üçü tepe lobları
+                    var u = upper ? ((float)rnd.NextDouble() * 2f - 1f) * 0.45f : ((k + 0.5f) / (fog ? puffs : puffs - 3) * 2f - 1f) + ((float)rnd.NextDouble() - 0.5f) * 0.2f;
+                    var edge = 1f - 0.55f * Mathf.Abs(u);
+                    var pr = s * (0.34f + (float)rnd.NextDouble() * 0.22f) * edge * (upper ? 0.75f : 1f);
+                    var lift = s * tall * (1f - u * u) * (upper ? 0.9f : 0.35f + (float)rnd.NextDouble() * 0.25f);
+                    var pos = new Vector3(u * s * 1.6f, Mathf.Max(lift, pr * 0.12f), ((float)rnd.NextDouble() * 2f - 1f) * s * 0.5f * edge);
                     var rot = Quaternion.Euler(0f, (float)rnd.NextDouble() * 360f, 0f);
-                    parts[k] = new CombineInstance { mesh = _puff, transform = Matrix4x4.TRS(pos, rot, new Vector3(pr, pr * 0.8f, pr)) };
+                    parts[k] = new CombineInstance { mesh = _puff, transform = Matrix4x4.TRS(pos, rot, new Vector3(pr, pr * 0.85f, pr)) };
                 }
                 var mesh = new Mesh { name = "Cloud" };
                 mesh.CombineMeshes(parts, true, true);
@@ -58,7 +69,9 @@ namespace Pofi.World
                 mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 mr.receiveShadows = false;
                 var drift = cl.gameObject.AddComponent<Clouds>();
-                drift._drift = new Vector3(0.35f + (float)rnd.NextDouble() * 0.25f, 0f, 0.12f);
+                // ortak rüzgâr (gökyüzündeki bulutlarla aynı yön); yüksektekiler biraz hızlı
+                drift._drift = Wind * (0.8f + (float)rnd.NextDouble() * 0.4f) * Mathf.Lerp(0.85f, 1.2f, Mathf.InverseLerp(yMin, yMax, cl.localPosition.y));
+                drift._scale = cl.localScale;
                 drift._fog = fog;   // yer sisi: yerinde hafifçe salınır, uzaklaşmaz
                 drift._phase = (float)rnd.NextDouble() * 6.28f;
                 drift._mesh = mesh;
@@ -98,7 +111,10 @@ namespace Pofi.World
                 return;
             }
             transform.localPosition += _drift * Time.deltaTime;
-            if ((transform.localPosition - _start).magnitude > 30f) transform.localPosition -= _drift.normalized * 60f;   // sonsuz süzülme
+            if ((transform.localPosition - _start).magnitude > 40f) transform.localPosition -= _drift.normalized * 80f;   // sonsuz süzülme
+            // bulut yavaşça "nefes alır": loblar kaynıyormuş gibi hafif büyüyüp küçülür
+            var b = Time.time * 0.12f + _phase;
+            transform.localScale = Vector3.Scale(_scale, new Vector3(1f + Mathf.Sin(b) * 0.04f, 1f + Mathf.Sin(b * 1.3f + 1f) * 0.06f, 1f + Mathf.Cos(b * 0.9f) * 0.04f));
         }
     }
 }

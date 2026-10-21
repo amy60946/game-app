@@ -4,7 +4,7 @@ Shader "Pofi/Cloud"
     Properties
     {
         _Lit ("Aydınlık", Color) = (1, 1, 1, 1)
-        _Shade ("Gölge", Color) = (0.8, 0.87, 0.98, 1)
+        _Shade ("Gölge", Color) = (0.7, 0.78, 0.92, 1)
     }
     SubShader
     {
@@ -41,6 +41,9 @@ Shader "Pofi/Cloud"
                 float sun = dot(n, _MainLightPosition.xyz) * 0.5 + 0.5;
                 // yumuşak üç ton: alt serin lavanta-mavi, orta beyaz, güneşe bakan üst sıcak krem
                 float k = saturate(up * 0.6 + sun * 0.5);
+                // düz taban serin ve biraz koyu (fotoğraflardaki kümülüs tabanı); yükseldikçe aydınlanır
+                float baseShade = saturate((i.positionWS.y - unity_ObjectToWorld._m13) * 0.35 + 0.35);
+                k *= lerp(0.7, 1.0, baseShade);
                 float3 col = lerp(_Shade.rgb, _Lit.rgb, smoothstep(0.15, 0.85, k));
                 col = lerp(col, float3(1.0, 0.97, 0.9), smoothstep(0.75, 1.0, sun) * 0.35);
                 float3 v = normalize(GetCameraPositionWS() - i.positionWS);

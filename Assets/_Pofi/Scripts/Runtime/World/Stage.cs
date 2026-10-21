@@ -153,9 +153,9 @@ namespace Pofi.World
                 _skyMat.SetColor("_Mid", new Color(0.52f, 0.8f, 1f));
                 _skyMat.SetColor("_Horizon", new Color(0.76f, 0.92f, 1f));
                 _skyMat.SetColor("_Ground", new Color(0.45f, 0.75f, 0.95f));
-                _skyMat.SetColor("_CloudLit", Color.white);
-                _skyMat.SetColor("_CloudShade", new Color(0.8f, 0.87f, 0.98f));
-                _skyMat.SetFloat("_Clouds", 0.65f);
+                _skyMat.SetColor("_CloudLit", new Color(1f, 0.99f, 0.96f));
+                _skyMat.SetColor("_CloudShade", new Color(0.66f, 0.75f, 0.89f));   // doğal kümülüs tabanı (sky v4)
+                _skyMat.SetFloat("_Clouds", 0.62f);
                 _skyMat.SetFloat("_Sun", 1f);
             }
             else
