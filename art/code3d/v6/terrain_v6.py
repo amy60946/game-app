@@ -31,6 +31,7 @@ REGIONS = [
     ('region_lighthouse', 'Fener', 60.0, 46.0, 'tower', 5.5, 0),
 ]
 PLAZA = (0.0, -17.0)
+SNOW_PATH = [(-36.5, 40.5), (-46, 42), (-53, 47), (-54, 53), (-49, 59), (-43, 61.5), (-38, 58), (-41, 56.5)]
 BEACH_REGIONS = ('region_swim_cove', 'region_surf_beach', 'region_coconut_grove')
 # süs alanları (yalnız görsel; oyunda dekor)
 SPOTS = dict(camp=(54.0, 2.0), spire=(9.0, 25.0), lake=(LAKE['x'], LAKE['z']), bluebell=(-40.0, -8.0),
@@ -96,6 +97,9 @@ def blur(a, sigma_m):
             if ax == 0: out = (c[2 * r + 1:, :] - c[:-2 * r - 1, :]) / (2 * r + 1)
             else: out = (c[:, 2 * r + 1:] - c[:, :-2 * r - 1]) / (2 * r + 1)
     return out.astype(np.float32)
+
+def TV_h_at(h, p):
+    return float(h[int(round((p[1] - Z0) / STEP)), int(round((p[0] - X0) / STEP))])
 
 def blobs_sd(x, z, circles, k=6.0):
     """Daire birleşimi (yumuşak): içeride pozitif, metre."""
@@ -219,6 +223,24 @@ def build():
     pw = ss(6.5, 2.0, pd)
     h = h + (hb - h) * pw
     h -= 0.06 * ss(1.4, 0.4, pd)
+    # karlı zirve patikası: kayak alanından zirveye dolanan, yamaca oyulmuş raf yol; iki yanında kar seti (oyunda yürünür)
+    spts = SNOW_PATH; sdd, stt, sll = seg_dist(X, Z, spts)
+    # yol profili: arazinin kendi yüksekliğini izler (az kazı), yalnız sürekli yükselir ve yumuşatılır
+    cs, ch = [], []; run = 0.0
+    for (ax, az), (bx, bz) in zip(spts[:-1], spts[1:]):
+        L_ = math.hypot(bx - ax, bz - az); n = max(2, int(L_ / 0.5))
+        for q in range(n):
+            u = q / n; cs.append(run + u * L_); ch.append(TV_h_at(h, (ax + (bx - ax) * u, az + (bz - az) * u)))
+        run += L_
+    cs.append(run); ch.append(TV_h_at(h, spts[-1]) + 0.2)
+    ch = np.maximum.accumulate(np.convolve(np.pad(ch, 6, mode='edge'), np.ones(13) / 13, mode='valid'))
+    sprof = np.interp(stt, np.array(cs), ch)
+    alongm = ss(-1.0, 0.5, stt) * ss(sll + 1.5, sll - 0.5, stt)
+    shelf = ss(3.2, 1.6, sdd) * alongm
+    h = h + (sprof - h) * shelf
+    h = h + 0.6 * np.exp(-((sdd - 1.9) / 0.5) ** 2) * alongm * ss(4.2, 2.0, sdd)       # kar setleri
+    h = h - 0.22 * ss(1.4, 0.4, sdd) * alongm                                           # ortası sıkışmış çukur (iz)
+    snowpath = (ss(1.65, 1.1, sdd) * alongm).astype(np.float32)
     # bina yastıkları (düz)
     for (rid, nm, rx, rz, shp, size, yaw) in REGIONS:
         if shp == 'pier' or rid in BEACH_REGIONS: continue
@@ -237,8 +259,9 @@ def build():
     lake_m = (np.hypot(X - LAKE['x'], Z - LAKE['z']) < LAKE['r'] + 5) & (h < LAKE['level'])
     path = ss(1.6, 0.9, pd)
     snow = ss(16.5, 19.0, h + 2.5 * fbm(X, Z, 1 / 7.0, 111, 3)) * ss(-15, -26, X) * ss(31, 38, Z)
+    snow = np.maximum(snow, ss(12.0, 8.0, np.hypot(X + 38, Z - 40)) * (h > 17.5))     # kayak alanı düzlüğü karlı
     out = dict(h=h, slope=slope, sand=sand.astype(np.float32), path=path.astype(np.float32), snow=snow.astype(np.float32),
-               coast=sd_land.astype(np.float32), canyon=cm.astype(np.float32), lake=lake_m, pathd=pd.astype(np.float32))
+               coast=sd_land.astype(np.float32), canyon=cm.astype(np.float32), snowpath=snowpath, lake=lake_m, pathd=pd.astype(np.float32))
     for k, v in masks.items(): out['t_' + k] = v.astype(np.float32)
     return out
 

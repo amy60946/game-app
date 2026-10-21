@@ -89,7 +89,9 @@ def terrain_colors(L, B):
     rk = mix(rk, C3('#6f6872'), ss(1.6, 0.0, h) * 0.55)                              # deniz kıyısında ıslak koyu
     rk = mix(rk, C3('#7f7b88'), B['snowpeak'] * 0.4)
     rw = np.maximum(ss(0.8, 1.15, L.slope + (n2 - 0.5) * 0.3), ss(0.6, 0.95, L.slope_b) * 0.9)
-    rw = np.clip(rw, 0, 1)
+    rw = np.clip(rw, 0, 1) * (1 - ss(0.0, 0.3, TV.blur(d['snowpath'], 2.5)))
+    rw = np.maximum(rw, d['snow'] * ss(0.9, 1.4, L.slope) * (1 - ss(0.0, 0.3, TV.blur(d['snowpath'], 2.5))))   # karlı dağda dik yüz = kaya çıkıntısı
+    L.dispw = None
     c = mix(c, rk, rw)
     # kum: kumsal + kanyon tabanı; ıslak kıyı koyu; su altı açık
     sandc = mix(C3('#e9d4a4'), C3('#f2e2bb'), n2)
@@ -106,36 +108,52 @@ def terrain_colors(L, B):
     pc = mix(C3('#b98c55'), C3('#d1aa72'), n2)
     c = mix(c, pc, np.clip(ss(2.1, 1.1, d['pathd']) * (1 - rw), 0, 1) * 0.92)
     # kar: beyaz, dik yerde kaya şeritleri kalır
-    snw = np.clip(d['snow'] * (1 - ss(2.0, 3.2, L.slope + (n3 - 0.5)) * 0.65), 0, 1)
+    snw = np.clip(d['snow'] * (1 - ss(1.25, 2.1, L.slope + (n3 - 0.5) * 0.8) * 0.85), 0, 1)
+    snw = np.maximum(snw, np.clip(TV.blur(d['snowpath'], 2.0) * 3, 0, 1) * ss(0.2, 0.5, d['snow']))
+    L.dispw = (rw * (1 - ss(0.35, 0.7, snw))).astype(np.float32)
     c = mix(c, mix(C3('#cdd8ea'), C3('#e6edf7'), n2), snw)
+    # karlı patika: sıkışmış, hafif mavi-gri, ayak izi benekli
+    pk = mix(C3('#7f8daa'), C3('#9aa7bf'), n2); pk = mix(pk, C3('#7a6550'), ss(0.55, 0.72, n3) * 0.85)   # sıkışmış kar + eriyip açılmış toprak lekeleri
+    pk = mix(pk, C3('#7f8ea8'), ss(0.55, 0.7, TV.fbm(X * 3, Z * 3, 1 / 0.6, 241, 2) * 0.5 + 0.5) * 0.5)     # ayak izi benekleri
+    c = mix(c, pk, d['snowpath'] * 0.95)
     # göl kıyısı
     dl = np.hypot(X - TV.LAKE['x'], Z - TV.LAKE['z'])
     c = mix(c, C3('#7a6a48'), ss(0.35, 0.0, np.abs(h - TV.LAKE['level'])) * (dl < TV.LAKE['r'] + 6) * 0.6)
     L.fb, L.fo = (fb * sp).astype(np.float32), (fo * (1 - sp)).astype(np.float32); L.snw = snw.astype(np.float32)
-    L.gw = np.clip((1 - rw) * (1 - np.clip(d['sand'] * 1.3, 0, 1)) * (1 - ss(2.0, 1.0, d['pathd']) * 0.97) * (1 - ss(6.6, 5.4, dc) * 0.95) * (1 - ss(0.05, 0.25, d['snow'])) * (h > 0.5), 0, 1).astype(np.float32)
+    L.gw = np.clip((1 - rw) * (1 - np.clip(d['sand'] * 1.3, 0, 1)) * (1 - ss(2.0, 1.0, d['pathd']) * 0.97) * (1 - ss(6.6, 5.4, dc) * 0.95) * (1 - ss(0.01, 0.08, d['snow'])) * (h > 0.5), 0, 1).astype(np.float32)
     return c.astype(np.float32), rw.astype(np.float32)
 
 def terrain_mesh(L, cols, rw, crop=None, snw=None):
+    """İki nesne: kaya yüzleri (gerçek kabartma: uyarlamalı alt bölme + yer değiştirme) ve geri kalan zemin."""
     nz, nx = L.h.shape
-    keep = np.ones((nz, nx), bool)
     verts = np.stack([L.X.ravel(), L.Z.ravel(), L.h.ravel()], -1).astype(np.float32)
     ii = np.arange(nx - 1); jj = np.arange(nz - 1)
     I, J = np.meshgrid(ii, jj); a = (J * nx + I).ravel()
     quads = np.stack([a, a + 1, a + nx + 1, a + nx], -1)
-    me = bpy.data.meshes.new('terrain')
-    me.vertices.add(len(verts)); me.vertices.foreach_set('co', verts.ravel())
-    me.loops.add(quads.size); me.loops.foreach_set('vertex_index', quads.ravel().astype(np.int32))
-    me.polygons.add(len(quads)); me.polygons.foreach_set('loop_start', (np.arange(len(quads)) * 4).astype(np.int32))
-    me.polygons.foreach_set('loop_total', np.full(len(quads), 4, np.int32))
-    me.update(); me.validate(clean_customdata=False)
-    me.polygons.foreach_set('use_smooth', np.ones(len(quads), bool))
-    ca = me.color_attributes.new('Col', 'FLOAT_COLOR', 'POINT'); c4 = np.ones((len(verts), 4), np.float32); c4[:, :3] = cols.reshape(-1, 3)
-    ca.data.foreach_set('color', c4.ravel())
-    at = me.attributes.new('rock', 'FLOAT', 'POINT'); at.data.foreach_set('value', rw.ravel())
-    at = me.attributes.new('snow', 'FLOAT', 'POINT'); at.data.foreach_set('value', (L.snw if snw is None else snw).ravel())
-    o = bpy.data.objects.new('terrain', me); bpy.context.scene.collection.objects.link(o)
-    o.data.materials.append(terrain_mat())
-    return o
+    sn = (L.snw if snw is None else snw).ravel(); rwv = rw.ravel()
+    isrock = rwv[quads].max(1) > 0.03
+    mat = terrain_mat(); objs = []
+    for name, qs, adaptive in (('terrain', quads[~isrock], False), ('terrain_rock', quads[isrock], True)):
+        uv_, inv = np.unique(qs.ravel(), return_inverse=True); q2 = inv.reshape(-1, 4)
+        me = bpy.data.meshes.new(name)
+        me.vertices.add(len(uv_)); me.vertices.foreach_set('co', verts[uv_].ravel())
+        me.loops.add(q2.size); me.loops.foreach_set('vertex_index', q2.ravel().astype(np.int32))
+        me.polygons.add(len(q2)); me.polygons.foreach_set('loop_start', (np.arange(len(q2)) * 4).astype(np.int32))
+        me.polygons.foreach_set('loop_total', np.full(len(q2), 4, np.int32))
+        me.update(); me.validate(clean_customdata=False)
+        me.polygons.foreach_set('use_smooth', np.ones(len(q2), bool))
+        ca = me.color_attributes.new('Col', 'FLOAT_COLOR', 'POINT'); c4 = np.ones((len(uv_), 4), np.float32); c4[:, :3] = cols.reshape(-1, 3)[uv_]
+        ca.data.foreach_set('color', c4.ravel())
+        at = me.attributes.new('rock', 'FLOAT', 'POINT'); at.data.foreach_set('value', rwv[uv_])
+        at = me.attributes.new('snow', 'FLOAT', 'POINT'); at.data.foreach_set('value', sn[uv_])
+        at = me.attributes.new('dispw', 'FLOAT', 'POINT'); at.data.foreach_set('value', L.dispw.ravel()[uv_])
+        o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o); o.data.materials.append(mat)
+        if adaptive:
+            # uyarlamalı bölme bu makinede belleği aşıyor: sabit 2 kat basit bölme (0,2 m → 5 cm), yer değiştirme köşelere
+            md = o.modifiers.new('sub', 'SUBSURF'); md.subdivision_type = 'SIMPLE'; md.levels = 0; md.render_levels = int(os.environ.get('ROCK_SUB', '2'))
+            log('kaya yüzü dörtgen', len(q2))
+        objs.append(o)
+    return objs[0]
 
 def terrain_mat():
     """Köşe rengi + el boyaması gürültü tonu. Kayada (rock özniteliği): yatay tabaka çizgileri (dünya z), dikey ince çatlaklar
@@ -190,8 +208,23 @@ def terrain_mat():
     hb = math_('ADD', hb, math_('MULTIPLY', sn.outputs['Fac'], math_('MULTIPLY', sw, 0.15)))
     gn = node('ShaderNodeTexNoise'); gn.inputs['Scale'].default_value = 9.0; gn.inputs['Detail'].default_value = 3; L.new(tc.outputs['Object'], gn.inputs['Vector'])
     hb = math_('ADD', hb, math_('MULTIPLY', gn.outputs['Fac'], 0.06))
-    bn = node('ShaderNodeBump'); bn.inputs['Strength'].default_value = 0.5; bn.inputs['Distance'].default_value = 0.4
+    bn = node('ShaderNodeBump'); bn.inputs['Strength'].default_value = 0.3; bn.inputs['Distance'].default_value = 0.3
     L.new(hb, bn.inputs['Height']); L.new(bn.outputs['Normal'], b.inputs['Normal'])
+    # GERÇEK KABARTMA (metre): her tabakanın üst kısmı dışa taşar, alttaki tabakanın üstüne saçak yapar (gölge düşer);
+    # dikey çatlaklar içe oyuk; büyük kaya blokları arasında derz; ince yüzey pürüzü. Yalnız karsız kayada.
+    ledge = math_('SUBTRACT', mr(zf, 0.0, 0.8, 0.0, 0.34), mr(zf, 0.86, 1.0, 0.0, 0.2))
+    crk = math_('MULTIPLY', mr(ab, 0.0, 0.07, -0.42, 0.0), 1.0)
+    mpb = node('ShaderNodeMapping'); mpb.inputs['Scale'].default_value = (1.0, 1.0, 0.55); L.new(tc.outputs['Object'], mpb.inputs[0])
+    vo = node('ShaderNodeTexVoronoi', feature='DISTANCE_TO_EDGE'); vo.inputs['Scale'].default_value = 0.42; L.new(mpb.outputs[0], vo.inputs['Vector'])
+    blk = mr(vo.outputs['Distance'], 0.0, 0.09, -0.28, 0.0)
+    rough = mr(vn2.outputs['Fac'], 0.3, 0.7, -0.06, 0.06)
+    dw = node('ShaderNodeAttribute', attribute_name='dispw').outputs['Fac']
+    disp = math_('MULTIPLY', math_('ADD', math_('ADD', ledge, crk), math_('ADD', blk, rough)), dw)
+    dn = node('ShaderNodeDisplacement'); dn.inputs['Midlevel'].default_value = 0.0; dn.inputs['Scale'].default_value = 1.0
+    L.new(disp, dn.inputs['Height']); L.new(dn.outputs['Displacement'], N['Material Output'].inputs['Displacement'])
+    # derzlerde ve çatlak diplerinde renk de koyulaşsın (gölgeyi destekler)
+    try: m.displacement_method = 'BOTH'
+    except Exception: m.cycles.displacement_method = 'BOTH'
     return m
 
 # ------------------------------------------------------------------ su + gökyüzü
@@ -388,7 +421,9 @@ def free_mask(L):
         a = math.radians(hd); fx, fz = math.sin(a), math.cos(a)
         for t in (-7.0, -5.0, -3.0, -1.0, 1.0, 3.0):
             m *= ss(2.6, 4.2, np.hypot(X - (px + fx * t), Z - (pz + fz * t)))
+            if os.environ.get('WIDE'): m *= ss(4.0, 6.5, np.hypot(X - (px + fx * t), Z - (pz + fz * t)))
     cx, cz = TV.SPOTS['camp']; m *= ss(8.0, 11.0, np.hypot(X - cx, Z - cz))
+    m *= 1 - ss(0.0, 0.5, TV.blur(L.d['snowpath'], 1.5) * 3)
     cv = [r for r in TV.REGIONS if r[0] == 'region_cave'][0]; ya = math.radians(cv[6])
     m *= ss(5.0, 8.0, np.hypot(X - (cv[2] + math.sin(ya) * 5), Z - (cv[3] + math.cos(ya) * 5)))
     for r in L.lay['regions']:
@@ -485,7 +520,34 @@ def place_world(L, B, P):
     cx, cz = [r['pos'] for r in L.lay['regions'] if r['id'] == 'region_cave'][0]
     cave(L, P, cx, cz, rr)
     camp(L, P, rr)
+    trail_poles(L)
     log('yerleşim', cnt)
+
+def trail_poles(L):
+    """Karlı patika işaret direkleri: her ~3,5 m'de bir, iki yana sırayla; turuncu başlıklı ahşap direk + aralarında halat."""
+    bark = K.bark_mat('pole_bark', base='#7a5536', dark='#4a3222', light='#a67c55')
+    cap = bpy.data.materials.new('pole_cap'); cap.use_nodes = True; cap.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = K.srgb('#f07a1a') + (1,)
+    rope = bpy.data.materials.new('rope'); rope.use_nodes = True; rope.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = K.srgb('#c9a56a') + (1,)
+    pts = TV.SNOW_PATH; vs, fs, cvs, cfs = [], [], [], []; tops = {-1: [], 1: []}
+    seg = [(V(a + (0,)), V(b + (0,))) for a, b in zip(pts[:-1], pts[1:])]
+    k = 0
+    for (a, b) in seg:
+        L_ = (b - a).length; n = max(1, int(L_ / 3.5)); d = (b - a).normalized(); side = V((-d.y, d.x, 0))
+        for i in range(n):
+            for sgn in (-1, 1):
+                p = a + d * (L_ * (i + 0.5) / n) + side * sgn * 2.25; y = L.height(p.x, p.y)
+                v, f = K.tube_data([(p.x, p.y, y - 0.2), (p.x, p.y, y + 1.15)], [0.045, 0.04], 6, len(vs)); vs += v; fs += f
+                v, f = K.tube_data([(p.x, p.y, y + 1.15), (p.x, p.y, y + 1.4)], [0.06, 0.06], 6, len(cvs)); cvs += v; cfs += f
+                tops[sgn].append((p.x, p.y, y + 0.95))
+    K.mesh_obj('trail_poles', vs, fs, bark); K.mesh_obj('trail_caps', cvs, cfs, cap)
+    rv, rf = [], []
+    for sgn in (-1, 1):
+        T = tops[sgn]
+        for p, q in zip(T[:-1], T[1:]):
+            if (V(p) - V(q)).length > 6: continue
+            mid = ((p[0] + q[0]) / 2, (p[1] + q[1]) / 2, (p[2] + q[2]) / 2 - 0.15)
+            v, f = K.tube_data([p, mid, q], [0.015, 0.015, 0.015], 5, len(rv)); rv += v; rf += f
+    K.mesh_obj('trail_rope', rv, rf, rope)
 
 def camp(L, P, rr):
     """Kamp alanı: toprak açıklık ortasında taş halkalı ateş, çevresinde devrik kütükler, kesik kütükler, iri kayalar."""
@@ -569,10 +631,10 @@ def game_shot(L, px, pz, heading_deg, dist=6.0, pitch=16, look_ahead=2.0, lift=0
 
 SHOTS = {   # x, z, bakış (° , 0 = kuzey)
     'koy': (1.5, -19.5, 2), 'cayir': (-44.0, 0.0, 305), 'kanyon': (-2.5, 6.0, 352), 'kamp': (46.5, -3.5, 52),
-    'orman': (44.0, 12.0, 22), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-25.0, 33.0, 318),
+    'orman': (44.0, 12.0, 22), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-38.0, 40.6, 284), 'kar_patika': (-44.5, 41.7, 300),
 }
 
-SHOT_CAM = {'kar': dict(pitch=8, dist=6.5, lift=1.6), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}
+SHOT_CAM = {'kar': dict(pitch=9, dist=6.5, lift=1.6), 'kar_patika': dict(pitch=6, dist=6.5, lift=2.2), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}
 
 AERIAL = {
     'ada_kusbakisi': ((-8, -128, 56), (0, 40, 12), 50),

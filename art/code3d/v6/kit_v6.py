@@ -107,6 +107,16 @@ def rock_mat(name, base='#b0a5a6', dark='#7d7184', light='#cfc4bc', moss='#6aa33
     bn = N.new('ShaderNodeBump'); bn.inputs['Strength'].default_value = 0.25
     hb = N.new('ShaderNodeMath'); hb.operation = 'ADD'; L.new(n2.outputs['Fac'], hb.inputs[0]); L.new(crk.outputs[0], hb.inputs[1])
     L.new(hb.outputs[0], bn.inputs['Height']); L.new(bn.outputs['Normal'], b.inputs['Normal'])
+    # gerçek kabartma: çatlaklar içe oyuk (nesne birimi; kaya 1 m'lik örnekten ölçeklenir), hafif yüzey dalgası
+    dcr = N.new('ShaderNodeMapRange'); dcr.inputs[1].default_value = 0.0; dcr.inputs[2].default_value = 0.05; dcr.inputs[3].default_value = -0.07 * (0.4 + cracks); dcr.inputs[4].default_value = 0.0
+    L.new(vo.outputs['Distance'], dcr.inputs[0])
+    dn2 = N.new('ShaderNodeMapRange'); dn2.inputs[1].default_value = 0.3; dn2.inputs[2].default_value = 0.7; dn2.inputs[3].default_value = -0.025; dn2.inputs[4].default_value = 0.025
+    L.new(n1.outputs['Fac'], dn2.inputs[0])
+    ad2 = N.new('ShaderNodeMath'); ad2.operation = 'ADD'; L.new(dcr.outputs[0], ad2.inputs[0]); L.new(dn2.outputs[0], ad2.inputs[1])
+    dsp = N.new('ShaderNodeDisplacement'); dsp.space = 'OBJECT'; dsp.inputs['Midlevel'].default_value = 0.0; dsp.inputs['Scale'].default_value = 1.0
+    L.new(ad2.outputs[0], dsp.inputs['Height']); L.new(dsp.outputs['Displacement'], N['Material Output'].inputs['Displacement'])
+    try: m.displacement_method = 'BOTH'
+    except Exception: m.cycles.displacement_method = 'BOTH'
     return m
 
 # ------------------------------------------------------------------ gövde
@@ -317,6 +327,7 @@ def boulder(name, size=(2.0, 1.6, 1.2), seed=0, cuts=13, mat=None, col=None, bev
     for v in me.vertices: v.co.z += 0.0
     if mat: me.materials.append(mat)
     o = bpy.data.objects.new(name, me); link(o, col)
+    md = o.modifiers.new('sub', 'SUBSURF'); md.subdivision_type = 'SIMPLE'; md.levels = 0; md.render_levels = 3
     return o
 
 # ------------------------------------------------------------------ bulut (metatop yığını → ağ)

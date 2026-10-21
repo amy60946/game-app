@@ -163,6 +163,6 @@ def build(L, B, P, shot, px, pz, hd):
         macro_grass(L, B, px, pz, hd, out=out); flowers(L, px, pz, hd, out, boost=1.0); props_near(L, P, px, pz, hd, out, rosettes=6, pebbles=20)
     elif shot == 'koy_kiyi':
         macro_grass(L, B, px, pz, hd, out=out, dens=0.9); sand_ripples(L, px, pz, hd, out); props_near(L, P, px, pz, hd, out, rosettes=6, pebbles=20)
-    elif shot == 'kar':
+    elif shot in ('kar', 'kar_patika'):
         macro_grass(L, B, px, pz, hd, out=out, dens=0.7); ski(L, px, pz, hd, out)
     return out
