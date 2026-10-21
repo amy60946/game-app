@@ -11,6 +11,9 @@ from mathutils import Vector as V, noise as MN
 import kit_v6 as K
 import terrain_v6 as TV
 import island_v6_near as NR
+import kit2_v6 as K2
+from mathutils import noise as MN
+PALMS = []
 NEAR = []
 CLOUDS = []
 
@@ -111,6 +114,7 @@ def terrain_colors(L, B):
     snw = np.clip(d['snow'] * (1 - ss(1.25, 2.1, L.slope + (n3 - 0.5) * 0.8) * 0.85), 0, 1)
     snw = np.maximum(snw, np.clip(TV.blur(d['snowpath'], 2.0) * 3, 0, 1) * ss(0.2, 0.5, d['snow']))
     L.dispw = (rw * (1 - ss(0.35, 0.7, snw))).astype(np.float32)
+    L.shallow = (ss(0.02, -0.25, h) * ss(-3.5, -1.2, h)).astype(np.float32)
     L.gravel = np.clip((np.clip(d['canyon'], 0, 1) * 0.95 + d['sand'] * ss(0.35, 0.9, L.slope_b) * ss(2.5, 1.0, h) * 0.8 + ss(0.3, 0.7, L.slope_b) * ss(0.7, 0.35, L.slope) * ss(0.45, 0.7, TV.fbm(X, Z, 1 / 2.5, 251, 2) * 0.5 + 0.5) * 0.85) * (1 - rw) * (1 - d['path'] * 0.35), 0, 1).astype(np.float32)
     c = mix(c, mix(C3('#cdd8ea'), C3('#e6edf7'), n2), snw)
     # karlı patika: sıkışmış, hafif mavi-gri, ayak izi benekli
@@ -149,6 +153,7 @@ def terrain_mesh(L, cols, rw, crop=None, snw=None):
         at = me.attributes.new('snow', 'FLOAT', 'POINT'); at.data.foreach_set('value', sn[uv_])
         at = me.attributes.new('dispw', 'FLOAT', 'POINT'); at.data.foreach_set('value', L.dispw.ravel()[uv_])
         at = me.attributes.new('gravel', 'FLOAT', 'POINT'); at.data.foreach_set('value', L.gravel.ravel()[uv_])
+        at = me.attributes.new('shallow', 'FLOAT', 'POINT'); at.data.foreach_set('value', L.shallow.ravel()[uv_])
         o = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(o); o.data.materials.append(mat)
         if adaptive:
             # uyarlamalı bölme bu makinede belleği aşıyor: sabit 2 kat basit bölme (0,2 m → 5 cm), yer değiştirme köşelere
@@ -280,7 +285,16 @@ def terrain_mat():
     st2 = node('ShaderNodeMix', data_type='RGBA'); st2.inputs[7].default_value = K.srgb('#ddd3c8') + (1,)
     L.new(math_('MULTIPLY', lband, 0.45), st2.inputs['Factor']); L.new(st1.outputs[2], st2.inputs[6])
     gm = node('ShaderNodeMix', data_type='RGBA'); L.new(gv, gm.inputs['Factor']); L.new(st2.outputs[2], gm.inputs[6]); L.new(gap.outputs[2], gm.inputs[7])
-    L.new(gm.outputs[2], b.inputs['Base Color'])
+    # su altı kostik: sığ kum üstünde dalgalı ışık ağları (faz ile kayar)
+    shw = node('ShaderNodeAttribute', attribute_name='shallow').outputs['Fac']
+    cwp = node('ShaderNodeTexNoise', noise_dimensions='4D'); cwp.inputs['Scale'].default_value = 0.5; cwp.inputs['W'].default_value = float(os.environ.get('PHASE', '0')) * 0.3
+    L.new(mpg.outputs[0], cwp.inputs['Vector'])
+    cwv = node('ShaderNodeVectorMath', operation='MULTIPLY_ADD'); cwv.inputs[1].default_value = (0.5, 0.5, 0.0); L.new(cwp.outputs['Color'], cwv.inputs[0]); L.new(mpg.outputs[0], cwv.inputs[2])
+    cvo = node('ShaderNodeTexVoronoi', feature='DISTANCE_TO_EDGE'); cvo.inputs['Scale'].default_value = 1.1; L.new(cwv.outputs[0], cvo.inputs['Vector'])
+    caus = math_('MULTIPLY', mr(cvo.outputs['Distance'], 0.0, 0.06, 1.0, 0.0), shw)
+    cadd = node('ShaderNodeMix', data_type='RGBA', blend_type='ADD'); cadd.inputs[7].default_value = (0.9, 0.95, 0.85, 1)
+    L.new(math_('MULTIPLY', caus, 0.45), cadd.inputs['Factor']); L.new(gm.outputs[2], cadd.inputs[6])
+    L.new(cadd.outputs[2], b.inputs['Base Color'])
     # çakıl kabartması (tümsek): taşlar yükselir
     gb = node('ShaderNodeBump'); gb.inputs['Strength'].default_value = 1.0; gb.inputs['Distance'].default_value = 0.04
     L.new(math_('MULTIPLY', math_('SUBTRACT', 1.0, gapf), gv), gb.inputs['Height'])
@@ -308,7 +322,14 @@ def water(L):
     uzakta ufuk pusu (ışın uzunluğu)."""
     h = L.h; sd = L.d['coast']
     depth = np.clip(-h / 6.5, 0, 1); depth = np.maximum(depth, ss(0, 35, -sd))
-    edge = np.clip(1 - np.abs(h + 0.08) / 0.3, 0, 1) * (h < 0.05)
+    ph = float(os.environ.get('PHASE', '0'))
+    dep = -h; brk = TV.fbm(L.X + ph * 1.3, L.Z, 1 / 1.6, 401, 3) * 0.5 + 0.5
+    edge = np.zeros_like(h)
+    for k, (p0, w0, amp) in enumerate(((0.015, 0.025, 1.0), (0.09, 0.02, 0.8), (0.2, 0.018, 0.6), (0.36, 0.016, 0.4))):   # kıyıya paralel ince köpük katmanları
+        pk = p0 + 0.05 * math.sin(ph + k * 1.1)
+        edge = np.maximum(edge, amp * np.exp(-((dep - pk) / w0) ** 2) * ss(0.25 + 0.08 * k, 0.6, brk + 0.12 * k * math.sin(ph * 0.7 + k)))
+    edge *= (h < 0.03) * (h > -0.6)
+    edge = np.maximum(edge, 0.6 * np.exp(-((dep - 0.0) / 0.012) ** 2) * (brk > 0.35))     # su çizgisi
     ring = np.exp(-((-sd - 4.0) / 2.2) ** 2) * (sd < 0) * ss(-5, -1.0, h)                    # açıkta ikinci köpük çizgisi
     img = img_from('wdepth', np.stack([depth, edge, ring], -1))
     x0, z0 = TV.X0, TV.Z0; x1, z1 = TV.X1, TV.Z1; pad = 3000.0
@@ -318,7 +339,7 @@ def water(L):
     bpy.ops.mesh.primitive_plane_add(size=1, location=((x0 + x1) / 2, (z0 + z1) / 2, 0.0))
     w = bpy.context.object; w.name = 'sea'; w.scale = (x1 - x0 + 2 * pad, z1 - z0 + 2 * pad, 1)
     m = bpy.data.materials.new('sea_m'); m.use_nodes = True; nt = m.node_tree; N = nt.nodes; Lk = nt.links
-    b = N['Principled BSDF']; b.inputs['Roughness'].default_value = 0.22; b.inputs['Coat Weight'].default_value = 0.12; b.inputs['Coat Roughness'].default_value = 0.1
+    b = N['Principled BSDF']; b.inputs['Roughness'].default_value = 0.1; b.inputs['Coat Weight'].default_value = 0.2; b.inputs['Coat Roughness'].default_value = 0.04
     b.inputs['Specular IOR Level'].default_value = 0.35
     tc = N.new('ShaderNodeTexCoord'); mp = N.new('ShaderNodeMapping')
     sx = (x1 - x0 + 2 * pad) / (x1 - x0); sz = (z1 - z0 + 2 * pad) / (z1 - z0)
@@ -335,7 +356,7 @@ def water(L):
         n = N.new('ShaderNodeMath'); n.operation = 'MULTIPLY'; Lk.new(a, n.inputs[0]); Lk.new(b_, n.inputs[1]); return n.outputs[0]
     def mrange(sock, a, b_, c=0.0, d=1.0):
         n = N.new('ShaderNodeMapRange'); n.inputs[1].default_value = a; n.inputs[2].default_value = b_; n.inputs[3].default_value = c; n.inputs[4].default_value = d; Lk.new(sock, n.inputs[0]); return n.outputs[0]
-    f1 = mrange(mul(sep.outputs[1], nzt.outputs['Fac']), 0.3, 0.42)
+    f1 = mrange(mul(sep.outputs[1], mrange(nzt.outputs['Fac'], 0.25, 0.6, 0.4, 1.0)), 0.18, 0.4)
     f2 = mrange(mul(sep.outputs[2], mrange(wn.outputs['Fac'], 0.42, 0.62)), 0.35, 0.6, 0.0, 0.85)
     f2 = mrange(mul(f2, nzt.outputs['Fac']), 0.12, 0.3)
     fm = N.new('ShaderNodeMath'); fm.operation = 'MAXIMUM'; Lk.new(f1, fm.inputs[0]); Lk.new(f2, fm.inputs[1])
@@ -350,8 +371,8 @@ def water(L):
     amx = N.new('ShaderNodeMath'); amx.operation = 'MAXIMUM'; Lk.new(al, amx.inputs[0]); Lk.new(fm.outputs[0], amx.inputs[1])
     Lk.new(amx.outputs[0], b.inputs['Alpha'])
     # dalga tümseği
-    bn = N.new('ShaderNodeBump'); bn.inputs['Strength'].default_value = 0.18; bn.inputs['Distance'].default_value = 0.3
-    wv = N.new('ShaderNodeTexNoise'); wv.inputs['Scale'].default_value = 0.6; wv.inputs['Detail'].default_value = 5
+    bn = N.new('ShaderNodeBump'); bn.inputs['Strength'].default_value = 0.32; bn.inputs['Distance'].default_value = 0.35
+    wv = N.new('ShaderNodeTexNoise'); wv.noise_dimensions = '4D'; wv.inputs['W'].default_value = float(os.environ.get('PHASE', '0')) * 0.4; wv.inputs['Scale'].default_value = 0.9; wv.inputs['Detail'].default_value = 6
     mpw = N.new('ShaderNodeMapping'); mpw.inputs['Scale'].default_value = (1.0, 2.2, 1.0); Lk.new(tc.outputs['Object'], mpw.inputs[0])
     Lk.new(mpw.outputs[0], wv.inputs['Vector']); Lk.new(wv.outputs['Fac'], bn.inputs['Height']); Lk.new(bn.outputs['Normal'], b.inputs['Normal'])
     w.data.materials.append(m)
@@ -445,20 +466,23 @@ def env(name, x, z, y, footprint, yaw_deg):
 def make_protos():
     P = {}
     bark = K.bark_mat(); fol = K.foliage_mat('fol_broad'); fol_c = K.foliage_mat('fol_cyp', translucent=0.15); fol_p = K.foliage_mat('fol_pine', translucent=0.18)
-    P['round'] = [proto('round%d' % k, lambda c, k=k: K.round_tree('rt%d' % k, 1.0, 10 + k, col=c, palette=K.PAL_BROAD if k % 2 else K.PAL_BROAD2,
-                                                                     spread=1.0 + 0.1 * (k % 3), fol=fol, bark=bark, clumps=9 + k % 4)) for k in range(6)]
+    pals = [K.PAL_BROAD, K.PAL_BROAD2, K.PAL_BROAD3, K.PAL_BROAD, K.PAL_BROAD4, K.PAL_BROAD2, K.PAL_BROAD3, K.PAL_BROAD4]
+    P['round'] = [proto('round%d' % k, lambda c, k=k: K.round_tree('rt%d' % k, 1.0, 10 + k, col=c, palette=pals[k],
+                                                                     spread=0.85 + 0.12 * (k % 4), fol=fol, bark=bark, clumps=8 + k % 5)) for k in range(8)]
     P['cypress'] = [proto('cyp%d' % k, lambda c, k=k: K.cypress('cy%d' % k, 1.0, 30 + k, col=c, fol=fol_c, bark=bark)) for k in range(3)]
     P['birch'] = [proto('bir%d' % k, lambda c, k=k: K.birch('bi%d' % k, 1.0, 40 + k, col=c, fol=fol)) for k in range(3)]
-    P['pine'] = [proto('pine%d' % k, lambda c, k=k: K.pine('pi%d' % k, 1.0, 50 + k, col=c, fol=fol_p, bark=bark)) for k in range(3)]
+    P['pine'] = [proto('pine%d' % k, lambda c, k=k: K.pine('pi%d' % k, 1.0, 50 + k, col=c, fol=fol_p, bark=bark, palette=(K.PAL_PINE, K.PAL_PINE2, K.PAL_PINE3)[k % 3])) for k in range(6)]
+    P['palm2'] = [proto('palm2_%d' % k, lambda c, k=k: K2.palm('pm%d' % k, (9.5, 13.0, 16.0, 11.0, 14.5, 10.0, 17.5, 12.0)[k], 300 + k, col=c, thick=(1.0, 0.85, 0.8, 1.1, 0.9, 1.0, 0.75, 0.95)[k])) for k in range(8)]
     P['pine_snow'] = [proto('pines%d' % k, lambda c, k=k: K.pine('ps%d' % k, 1.0, 55 + k, col=c, fol=fol_p, bark=bark, palette=K.PAL_PINE_SNOW)) for k in range(2)]
     P['bush'] = [proto('bush%d' % k, lambda c, k=k: K.bush('bu%d' % k, 1.0, 60 + k, col=c, fol=fol, leaf=0.09)) for k in range(4)]
     rmA = K.rock_mat('rockA', base='#b3a8a8', dark='#7f7386', light='#d4c9c0', moss_amt=0.18)
     rmB = K.rock_mat('rockB', base='#a7adb8', dark='#727a8c', light='#cdd2d8', moss_amt=0.28)        # soğuk mavi-gri (çayır)
     rmW = K.rock_mat('rockW', base='#d6d0cc', dark='#a49ca0', light='#ece8e2', moss_amt=0.0, cracks=0.2)  # kıyı/kanyon açık yuvarlak
+    P['rmA'], P['rmB'] = rmA, rmB
     P['boulder'] = [proto('bd%d' % k, lambda c, k=k: K.boulder('bd%d' % k, (1.0, 0.8 + 0.1 * (k % 3), 0.7 + 0.1 * (k % 4)), 70 + k, mat=rmA, col=c)) for k in range(5)]
     P['boulderB'] = [proto('bb%d' % k, lambda c, k=k: K.boulder('bb%d' % k, (1.0, 0.85, 0.75 + 0.1 * (k % 3)), 80 + k, mat=rmB, col=c)) for k in range(4)]
     P['pebW'] = [proto('bw%d' % k, lambda c, k=k: K.boulder('bw%d' % k, (1.0, 0.85, 0.7), 90 + k, cuts=4, mat=rmW, col=c, bevel=0.25, top_flat=0.0)) for k in range(3)]
-    P['palm'] = 'palm'
+    P['palm'] = 'palm'; PALMS[:] = P['palm2']
     return P
 
 # ------------------------------------------------------------------ yerleşim
@@ -513,12 +537,12 @@ def place_world(L, B, P):
             inst(col, x, z, y - sink, rr.uniform(0, math.tau), s)
         cnt[kind] = cnt.get(kind, 0) + len(pts)
     # doğu orman: çam ağırlıklı + yuvarlak
-    put('pine', scatter(L, R, grass * edge_far * B['forest'] * 0.8, 90000, 3.2, sp), (6.5, 10.0))
+    put('pine', scatter(L, R, grass * edge_far * B['forest'] * 0.8, 90000, 3.2, sp), (5.0, 12.0))
     put('round', scatter(L, R, grass * edge_far * B['forest'] * 0.35, 30000, 4.5, sp), (6.5, 9.0))
     # karlı zirve etekleri: çam
     peakz = ss(8.0, 12.0, L.h) * ss(24.0, 18.0, L.h) * B['snowpeak']
     put('pine', scatter(L, R, (1 - d['snow']) * fm * peakz * 0.15, 40000, 3.6, sp, avoid_slope=0.9), (5.5, 8.5))
-    def groves(kind, dens, n_try, n=(4, 9), rad=(5.0, 9.0), sep=3.6, hs=(6.0, 9.5), csep=14.0, sink=0.15):
+    def groves(kind, dens, n_try, n=(4, 9), rad=(5.0, 9.0), sep=3.6, hs=(4.8, 10.5), csep=14.0, sink=0.15):
         cs = scatter(L, R, dens, n_try, csep, Spacer(6.0))
         pts = []
         for (x, z, y) in cs:
@@ -548,7 +572,7 @@ def place_world(L, B, P):
     put('cypress', cyc + cyp_pts, (7.5, 12.0), sink=0.1)
     # kaya tepe (yer imi) basamakları: ağaçlar
     spm = (d['t_spire1'] > 0.5) * ss(0.35, 0.1, L.slope_b) * fm
-    put('round', scatter(L, R, spm * 0.6, 30000, 3.2, sp, hmin=12), (4.5, 6.5))
+    put('round', scatter(L, R, spm * 0.6, 30000, 3.2, sp, hmin=12), (3.8, 7.0))
     put('cypress', scatter(L, R, spm * 0.35, 30000, 2.2, sp, hmin=12), (6.0, 8.5))
     # genel serpinti (tek ağaçlar)
     put('round', scatter(L, R, ge * 0.025, 80000, 7.0, sp), (5.0, 8.5))
@@ -559,9 +583,9 @@ def place_world(L, B, P):
     # palmiyeler: geniş kumsalın iç kenarı
     sandin = ss(0.4, 0.8, d['sand']) * ss(0.6, 1.0, L.h) * ss(2.0, 1.5, L.h) * fm
     pts = scatter(L, R, sandin * 0.4, 60000, 4.0, sp, hmin=0.5)
-    for (x, z, y) in pts: env('palm', x, z, y - 0.1, rr.uniform(4.2, 6.0), rr.uniform(0, 360))
+    for (x, z, y) in pts: inst(rr.choice(P['palm2']), x, z, y - 0.15, rr.uniform(0, math.tau), rr.uniform(0.85, 1.12))
     cpal = scatter(L, R, ss(0.4, 0.8, d['canyon']) * ss(0.1, 0.4, L.slope_b) * fm * 0.05, 80000, 4.0, sp, avoid_slope=0.5)   # kanyonda palmiye
-    for (x, z, y) in cpal[:14]: env('palm', x, z, y - 0.1, rr.uniform(4.5, 6.5), rr.uniform(0, 360))
+    for (x, z, y) in cpal[:14]: inst(rr.choice(P['palm2']), x, z, y - 0.15, rr.uniform(0, math.tau), rr.uniform(0.7, 0.95))
     cnt['palm'] = len(pts) + len(cpal[:14])
     # kayalar: yar dibinde (kıyı + plato), kumsal/koy iri beyaz yuvarlaklar, çayırda soğuk gri öbekler
     base = ss(0.3, 0.9, L.slope_b) * ss(0.6, 0.2, L.slope)
@@ -569,7 +593,7 @@ def place_world(L, B, P):
     for (x, z, y) in scatter(L, R, base * fm * 0.14, 200000, 2.5, spr, avoid_slope=0.7, hmin=-0.8):
         s = rr.uniform(0.9, 2.8); inst(rr.choice(P['boulder']), x, z, y - s * 0.25, rr.uniform(0, math.tau), s)
     beachr = d['sand'] * ss(1.2, 0.2, L.h) * (1 - ss(0.6, 0.9, d['canyon']))
-    for (x, z, y) in scatter(L, R, (beachr * ss(0.5, 1.2, L.slope_b) * 0.03 + d['canyon'] * 0.008) * fm, 200000, 5.0, spr, avoid_slope=1.2, hmin=-1.5):
+    for (x, z, y) in scatter(L, R, (beachr * ss(0.5, 1.2, L.slope_b) * 0.008 + d['canyon'] * 0.008) * fm, 200000, 7.0, spr, avoid_slope=1.2, hmin=-1.5):
         s = rr.uniform(1.4, 3.2); inst(rr.choice(P['pebW']), x, z, y - s * 0.2, rr.uniform(0, math.tau), s)
     for (x, z, y) in scatter(L, R, (grass * B['meadow'] * 0.006 + grass * B['upper'] * 0.004) * fm, 200000, 6.0, spr):
         for k in range(rr.randint(2, 5)):
@@ -608,19 +632,34 @@ def trail_poles(L):
             mid = ((p[0] + q[0]) / 2, (p[1] + q[1]) / 2, (p[2] + q[2]) / 2 - 0.15)
             v, f = K.tube_data([p, mid, q], [0.015, 0.015, 0.015], 5, len(rv)); rv += v; rf += f
     K.mesh_obj('trail_rope', rv, rf, rope)
+    # kar topakları: setlerin üstünde ve kenarında irili ufaklı yumrular, yolun ortasında küçük çiğnenmiş topaklar
+    smat = K2.snow_mat(); protos_ = [K2.snow_lump('slump%d' % k, 1.0, 70 + k, col=bpy.data.collections.new('C_sl%d' % k), mat=smat) for k in range(5)]
+    Rn = random.Random(17)
+    for (a, b) in seg:
+        L_ = (b - a).length; d = (b - a).normalized(); side = V((-d.y, d.x, 0))
+        for i in range(int(L_ / 0.45)):
+            for sgn in (-1, 1):
+                if Rn.random() < 0.35: continue
+                off = Rn.uniform(1.5, 2.6); p = a + d * (i * 0.45 + Rn.uniform(0, 0.4)) + side * sgn * off
+                s_ = Rn.uniform(0.12, 0.5) * (1.3 if off > 2.1 else 1.0); y = L.height(p.x, p.y)
+                e = bpy.data.objects.new('slump', protos_[Rn.randrange(5)].data); e.location = (p.x, p.y, y - s_ * 0.3); e.scale = (s_, s_ * Rn.uniform(0.75, 1.2), s_ * Rn.uniform(1.1, 1.6))
+                e.rotation_euler = (0, 0, Rn.uniform(0, 6.3)); bpy.context.scene.collection.objects.link(e)
+            if Rn.random() < 0.45:
+                p = a + d * (i * 0.45) + side * Rn.uniform(-0.9, 0.9); s_ = Rn.uniform(0.05, 0.12); y = L.height(p.x, p.y)
+                e = bpy.data.objects.new('slump', protos_[Rn.randrange(5)].data); e.location = (p.x, p.y, y - s_ * 0.2); e.scale = (s_, s_, s_ * 0.6); bpy.context.scene.collection.objects.link(e)
 
 def camp(L, P, rr):
     """Kamp alanı: toprak açıklık ortasında taş halkalı ateş, çevresinde devrik kütükler, kesik kütükler, iri kayalar."""
     cx, cz = TV.SPOTS['camp']; y = L.height(cx, cz)
     col = bpy.data.collections.new('camp'); bpy.context.scene.collection.children.link(col)
-    K.campfire('fire', col=col, seed=4)
+    K2.campfire_v2('fire', col=col, seed=4, scale=1.5)
     for o in col.objects: o.location = (o.location.x + cx, o.location.y + cz, o.location.z + y)
     bark = K.bark_mat('camp_bark')
     for k, (a, r_, ln) in enumerate(((0.3, 3.6, 3.4), (2.3, 3.8, 2.8), (4.0, 3.4, 3.0))):
-        c2 = bpy.data.collections.new('C_clog%d' % k); K.log('clog%d' % k, ln, 0.3, 20 + k, col=c2, bark=bark)
+        c2 = bpy.data.collections.new('C_clog%d' % k); K2.log_v2('clog%d' % k, ln, (0.34, 0.26, 0.4)[k], 20 + k, col=c2)
         x, z = cx + math.cos(a) * r_, cz + math.sin(a) * r_; e = inst(c2, x, z, L.height(x, z) - 0.06, a + math.pi / 2, 1.0)
     for k, a in enumerate((1.2, 3.2, 5.2, 5.9)):
-        c2 = bpy.data.collections.new('C_cst%d' % k); K.stump('cst%d' % k, 0.42 + 0.05 * k, 0.55 + 0.1 * (k % 2), 30 + k, col=c2, bark=bark)
+        c2 = bpy.data.collections.new('C_cst%d' % k); K2.stump_v2('cst%d' % k, (0.42, 0.32, 0.5, 0.36)[k], (0.55, 0.42, 0.7, 0.35)[k], 30 + k, col=c2)
         x, z = cx + math.cos(a) * 4.6, cz + math.sin(a) * 4.6; inst(c2, x, z, L.height(x, z) - 0.05, rr.uniform(0, 6.3), 1.0)
     for k, a in enumerate((0.8, 1.8, 2.9, 4.6, 5.5)):
         x, z = cx + math.cos(a) * rr.uniform(5.6, 6.8), cz + math.sin(a) * rr.uniform(5.6, 6.8); s = rr.uniform(1.0, 1.9)
@@ -631,10 +670,21 @@ def cave(L, P, cx, cz, rr):
     yaw = math.radians([r['yaw'] for r in L.lay['regions'] if r['id'] == 'region_cave'][0])
     fx, fz = math.sin(yaw), math.cos(yaw); sx, sz = fz, -fx          # ağız yönü (dışa) ve yan
     y0 = L.height(cx, cz)
-    dark = bpy.data.materials.new('cave_dark'); dark.use_nodes = True; db = dark.node_tree.nodes['Principled BSDF']
-    db.inputs['Base Color'].default_value = (0.01, 0.01, 0.014, 1); db.inputs['Roughness'].default_value = 1.0
-    bpy.ops.mesh.primitive_uv_sphere_add(radius=1, location=(cx - fx * 1.2, cz - fz * 1.2, y0 + 1.2)); m = bpy.context.object
-    m.scale = (1.9, 2.2, 1.9); m.rotation_euler = (0, 0, -yaw); m.data.materials.append(dark)
+    # TÜNEL: ağızdan içeri 9 m giden, daralan ve hafif inen kaya tüneli (iç yüzey içe bakar). Işık içeri girdikçe kendiliğinden
+    # azalır: ağız ağzında az gölge, içeri doğru derinleşen karanlık (siyah duvar yok). Dipte tünel kapanır.
+    tm = K.rock_mat('cave_in', base='#8c8f99', dark='#4f5260', light='#b3b6bf', moss_amt=0.25, cracks=0.7)
+    tpath = [V((cx + fx * 0.6 - fx * 9.5 * t, cz + fz * 0.6 - fz * 9.5 * t, y0 + 1.25 - 0.6 * t)) for t in np.linspace(0, 1, 24)]
+    def trf(t, a):
+        rw_, rh_ = 2.1 - 0.9 * t, 1.7 - 0.6 * t
+        base = rw_ * rh_ / math.sqrt((rh_ * math.cos(a)) ** 2 + (rw_ * math.sin(a)) ** 2)
+        if math.sin(a) < -0.55: base *= 0.92                              # taban daha düz
+        return base * (1 + 0.12 * MN.noise(V((math.cos(a) * 2, math.sin(a) * 2, t * 6))) + 0.05 * MN.noise(V((math.cos(a) * 7, math.sin(a) * 7, t * 15))))
+    K2.lathe('cave_tunnel', tpath, trf, res=28, mat=tm, inward=True)
+    endc = tpath[-1]; bpy.ops.mesh.primitive_uv_sphere_add(radius=1.25, location=tuple(endc)); e_ = bpy.context.object; e_.data.materials.append(tm)
+    # ağız tabanında ince çakıl/taş + nemli koyu zemin
+    for k in range(10):
+        f = rr.uniform(-6, 0.5); sd = rr.uniform(-1.3, 1.3); s_ = rr.uniform(0.15, 0.45)
+        inst(P['boulderB'][k % 4], cx + fx * f + sx * sd, cz + fz * f + sz * sd, y0 - 0.12 + 0.0 * f - s_ * 0.3, rr.uniform(0, 6.3), s_)
     B_ = P['boulderB']
     def put(f, sd, up, s, k, sq=None):
         x = cx + fx * f + sx * sd; z = cz + fz * f + sz * sd
@@ -647,15 +697,41 @@ def cave(L, P, cx, cz, rr):
     for k in range(5):                                                                 # ağız önünde çalılar
         put(rr.uniform(0.5, 2.5), rr.choice((-1, 1)) * rr.uniform(3.2, 5.5), -0.1, 0, 0) if False else None
 
+def beach_life(L, P, rr):
+    """Koy havuzu (yontulmuş kaya halkası), kıyıda eski oyuk kütükler, deniz yıldızları ve yengeçler, açık adada palmiyeler."""
+    sx_, sz_ = [r['pos'] for r in L.lay['regions'] if r['id'] == 'region_swim_cove'][0]
+    pc = bpy.data.collections.new('C_pool'); K2.swim_pool('pool', col=pc, seed=3, mats=(P['rmA'], P['rmB']))
+    inst(pc, sx_, sz_, 0.05, 0.4, 1.35)
+    for (x, z, yaw, ln) in DRIFT:
+        c = bpy.data.collections.new('C_dw%d' % int(x)); K2.driftwood('dw%d' % int(x), ln, 0.62, int(x) % 7 + 3, col=c)
+        inst(c, x, z, L.height(x, z) - 0.42, math.radians(yaw), 1.0)
+    sfs = [K2.starfish('sf%d' % k, 0.13 + 0.02 * k, 50 + k, col=bpy.data.collections.new('C_sf%d' % k)) for k in range(4)]
+    crs = [K2.crab('cr%d' % k, 0.2 + 0.03 * k, 60 + k, col=bpy.data.collections.new('C_cr%d' % k)) for k in range(2)]
+    for (x, z) in STARS:
+        c = rr.choice(sfs).users_collection[0]; inst(c, x, z, L.height(x, z) + 0.005, rr.uniform(0, 6.3), rr.uniform(0.9, 1.3))
+    for (x, z, yaw) in CRABS:
+        c = rr.choice(crs).users_collection[0]; inst(c, x, z, L.height(x, z) + 0.06, math.radians(yaw), 1.0)
+    ix, iz, ir = TV.ISLET
+    for k in range(9):
+        a = rr.uniform(0, math.tau); r_ = ir * 0.55 * math.sqrt(rr.random()); x, z = ix + math.cos(a) * r_, iz + math.sin(a) * r_ * 0.8
+        if L.height(x, z) > 0.6: inst(rr.choice(P['palm2']), x, z, L.height(x, z) - 0.15, rr.uniform(0, 6.3), rr.uniform(0.55, 1.15))
+    for k in range(6):
+        a = rr.uniform(0, math.tau); x, z = ix + math.cos(a) * ir * 0.95, iz + math.sin(a) * ir * 0.75
+        s_ = rr.uniform(0.6, 1.6); inst(rr.choice(P['boulder']), x, z, L.height(x, z) - s_ * 0.3, rr.uniform(0, 6.3), s_)
+
+DRIFT = [(54.0, -33.8, 70, 5.8), (8.5, -52.5, -10, 5.0)]
+STARS = [(57.8, -31.6), (58.4, -32.3), (55.9, -33.0), (57.0, -33.6), (12.0, -54.0), (13.8, -55.0), (16.5, -53.5), (10.5, -55.3)]
+CRABS = [(57.2, -32.4, 140), (14.5, -55.2, 200), (56.4, -33.8, 60)]
+
 def buildings(L):
-    assets = {'region_home': 'b_home', 'region_shop': 'b_shop', 'region_task_board': 'b_task_board', 'region_swim_cove': 'b_swim',
+    assets = {'region_home': 'b_home', 'region_shop': 'b_shop', 'region_task_board': 'b_task_board',
               'region_surf_beach': 'b_surf', 'region_game_hut': 'b_game_hut', 'region_garden': 'b_garden', 'region_pier': 'b_pier',
               'region_festival': 'b_festival', 'region_mountain': 'b_mountain', 'region_lighthouse': 'b_lighthouse'}
     for r in L.lay['regions']:
         a = assets.get(r['id']); x, z = r['pos']
         if r['id'] == 'region_coconut_grove':
             for k, (ox, oz, s) in enumerate([(-1.8, 0.8, 5.4), (1.6, -0.6, 4.8), (0.2, 2.2, 6.0), (2.4, 2.6, 5.0)]):
-                env('palm', x + ox, z + oz, L.height(x + ox, z + oz) - 0.1, s, k * 95)
+                inst(PALMS[k % len(PALMS)], x + ox, z + oz, L.height(x + ox, z + oz) - 0.15, k * 1.7, 0.8 + 0.08 * k)
             continue
         if not a: continue
         y = L.height(x, z) if a != 'b_pier' else 0.6
@@ -691,10 +767,10 @@ def game_shot(L, px, pz, heading_deg, dist=6.0, pitch=16, look_ahead=2.0, lift=0
 
 SHOTS = {   # x, z, bakış (° , 0 = kuzey)
     'koy': (1.5, -19.5, 2), 'cayir': (-44.0, 0.0, 305), 'kanyon': (-2.5, 6.0, 352), 'kamp': (46.5, -3.5, 52),
-    'orman': (44.0, 12.0, 22), 'yamac': (-15.0, 3.0, 2), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-38.0, 40.6, 284), 'kar_patika': (-44.5, 41.7, 300),
+    'orman': (44.0, 12.0, 22), 'sahil': (13.0, -51.0, 158), 'kopuk': (57.4, -33.0, 150), 'magara': (-51.4, 11.6, 286), 'kamp_yakin': (51.0, 0.6, 52), 'yamac': (-15.0, 3.0, 2), 'koy_kiyi': (56.0, -29.5, 138), 'kar': (-38.0, 40.6, 284), 'kar_patika': (-44.5, 41.7, 300),
 }
 
-SHOT_CAM = {'yamac': dict(pitch=5, dist=6.0, lift=2.6), 'kar': dict(pitch=9, dist=6.5, lift=1.6), 'kar_patika': dict(pitch=6, dist=6.5, lift=2.2), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}
+SHOT_CAM = {'kopuk': dict(pitch=22, dist=4.5, lift=-0.4, look_ahead=3.0), 'sahil': dict(pitch=9, lift=1.4), 'magara': dict(pitch=5, dist=5.5, lift=0.5), 'kamp_yakin': dict(pitch=14, dist=4.5), 'yamac': dict(pitch=5, dist=6.0, lift=2.6), 'kar': dict(pitch=9, dist=6.5, lift=1.6), 'kar_patika': dict(pitch=6, dist=6.5, lift=2.2), 'kanyon': dict(pitch=11, lift=0.6), 'orman': dict(pitch=13, lift=0.5)}
 
 AERIAL = {
     'ada_kusbakisi': ((-8, -128, 56), (0, 40, 12), 50),
@@ -714,7 +790,7 @@ def main():
     cols, rw = terrain_colors(L, B); terrain_mesh(L, cols, rw); log('zemin')
     water(L); sky(sc); CLOUDS[:] = clouds(); lights(sc); log('su/gök')
     P = make_protos(); log('örnekler')
-    place_world(L, B, P); buildings(L); log('yapılar')
+    place_world(L, B, P); buildings(L); beach_life(L, P, random.Random(11)); log('yapılar')
     for s in shots:
         for o in [o for o in sc.objects if o.type == 'CAMERA']: bpy.data.objects.remove(o)
         for o in NEAR: bpy.data.objects.remove(o, do_unlink=True)

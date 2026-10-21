@@ -102,7 +102,7 @@ def sand_ripples(L, px, pz, hd, out, rad=26.0, seed=11, mask=None, color='#e9d2a
     Rn = np.random.default_rng(seed)
     x, z, d = sector_pts(px, pz, hd, 300000, rad, Rn, back=3.0)
     m = bil(L.d['sand'], x, z) if mask is None else mask(x, z)
-    keep = Rn.uniform(0, 1, len(x)) < m * np.where(d < 8, 0.035, 0.035 * (8 / np.maximum(d, 1)) ** 2)
+    keep = Rn.uniform(0, 1, len(x)) < m * np.where(d < 8, 0.0025, 0.0025 * (8 / np.maximum(d, 1)) ** 2)
     x, z = x[keep], z[keep]
     pm = K.rock_mat('n_grav', base='#9e9294', dark='#6f6670', light='#c4bab4', moss_amt=0.0, cracks=0.2)
     proto_ = K.boulder('n_gravel', (1.0, 0.8, 0.55), 5, cuts=5, mat=pm, bevel=0.3, top_flat=0.0, col=bpy.data.collections.new('C_grav'))
@@ -159,6 +159,12 @@ def build(L, B, P, shot, px, pz, hd):
         x, z = px + fx * 8 + fz * 2.5, pz + fz * 8 - fx * 2.5
         for o in list(bpy.data.collections['C_log'].objects):
             e = bpy.data.objects.new('n_lg', o.data); e.location = (x, z, float(bil(L.h, x, z)) - 0.05); e.rotation_euler = (0, 0, a + 0.9); bpy.context.scene.collection.objects.link(e); out.append(e)
+    elif shot in ('sahil', 'kopuk'):
+        macro_grass(L, B, px, pz, hd, out=out, dens=0.9); sand_ripples(L, px, pz, hd, out); props_near(L, P, px, pz, hd, out, rosettes=4, pebbles=10)
+    elif shot in ('magara',):
+        macro_grass(L, B, px, pz, hd, out=out); flowers(L, px, pz, hd, out, boost=1.2); props_near(L, P, px, pz, hd, out, rosettes=8, pebbles=40)
+    elif shot == 'kamp_yakin':
+        macro_grass(L, B, px, pz, hd, out=out); flowers(L, px, pz, hd, out, boost=0.6)
     elif shot == 'yamac':
         macro_grass(L, B, px, pz, hd, out=out); flowers(L, px, pz, hd, out, boost=1.0); props_near(L, P, px, pz, hd, out, rosettes=6, pebbles=70)
     elif shot == 'koy':

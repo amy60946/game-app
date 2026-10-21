@@ -40,8 +40,13 @@ def foliage_mat(name, translucent=0.28, rough=0.6, hue_var=0.03):
     nz = N.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 2.5; nz.inputs['Detail'].default_value = 2
     tc = N.new('ShaderNodeTexCoord'); L.new(tc.outputs['Object'], nz.inputs['Vector'])
     hs = N.new('ShaderNodeHueSaturation'); L.new(vc.outputs['Color'], hs.inputs['Color'])
-    mr = N.new('ShaderNodeMapRange'); mr.inputs[3].default_value = 0.5 - hue_var; mr.inputs[4].default_value = 0.5 + hue_var
-    L.new(nz.outputs['Fac'], mr.inputs[0]); L.new(mr.outputs[0], hs.inputs['Hue'])
+    # ağaç başına renk çeşitliliği (her örnek farklı): ton, doygunluk, parlaklık; + yaprak kümesi başına küçük oynama
+    oi = N.new('ShaderNodeObjectInfo')
+    ad = N.new('ShaderNodeMath'); ad.operation = 'MULTIPLY_ADD'; ad.inputs[1].default_value = 0.3; L.new(nz.outputs['Fac'], ad.inputs[0]); L.new(oi.outputs['Random'], ad.inputs[2])
+    mr = N.new('ShaderNodeMapRange'); mr.inputs[1].default_value = 0.0; mr.inputs[2].default_value = 1.3; mr.inputs[3].default_value = 0.5 - hue_var * 1.6; mr.inputs[4].default_value = 0.5 + hue_var * 1.6
+    L.new(ad.outputs[0], mr.inputs[0]); L.new(mr.outputs[0], hs.inputs['Hue'])
+    sv = N.new('ShaderNodeMapRange'); sv.inputs[3].default_value = 0.82; sv.inputs[4].default_value = 1.18; L.new(oi.outputs['Random'], sv.inputs[0]); L.new(sv.outputs[0], hs.inputs['Value'])
+    sa = N.new('ShaderNodeMapRange'); sa.inputs[3].default_value = 0.85; sa.inputs[4].default_value = 1.15; L.new(nz.outputs['Fac'], sa.inputs[0]); L.new(sa.outputs[0], hs.inputs['Saturation'])
     b.inputs['Roughness'].default_value = rough; b.inputs['Specular IOR Level'].default_value = 0.3
     L.new(hs.outputs['Color'], b.inputs['Base Color'])
     tr = N.new('ShaderNodeBsdfTranslucent'); L.new(hs.outputs['Color'], tr.inputs['Color'])
@@ -218,6 +223,10 @@ PAL_CYPRESS = [(0.0, '#123222'), (0.4, '#1f4f31'), (0.75, '#2f6d3c'), (1.0, '#4f
 PAL_BIRCH = [(0.0, '#2c5a26'), (0.4, '#4d8e35'), (0.75, '#86c24c'), (1.0, '#b9df73')]
 PAL_PINE = [(0.0, '#173a26'), (0.4, '#24603a'), (0.75, '#3e8a45'), (1.0, '#6fb055')]
 PAL_PINE_SNOW = [(0.0, '#173a26'), (0.45, '#24603a'), (0.7, '#9fbcc4'), (0.85, '#e8f0f6'), (1.0, '#ffffff')]
+PAL_BROAD3 = [(0.0, '#2b4a1c'), (0.35, '#4f7a26'), (0.65, '#8aa83a'), (0.9, '#c4cf5a'), (1.0, '#e0dc82')]   # sarımsı
+PAL_BROAD4 = [(0.0, '#173f2c'), (0.35, '#266b45'), (0.65, '#3f9a5a'), (0.9, '#7cc27a'), (1.0, '#a8dca0')]   # mavimsi
+PAL_PINE2 = [(0.0, '#1d4226'), (0.4, '#2e7040'), (0.75, '#4f9a4c'), (1.0, '#8cc265')]
+PAL_PINE3 = [(0.0, '#123327'), (0.4, '#1d5440'), (0.75, '#2f7a5a'), (1.0, '#5c9e80')]
 PAL_BUSH = [(0.0, '#1f4c25'), (0.4, '#3b8434'), (0.8, '#76bb48'), (1.0, '#a9d867')]
 
 def round_tree(name, h=8.0, seed=0, col=None, palette=PAL_BROAD, spread=1.0, fol=None, bark=None, clumps=11):

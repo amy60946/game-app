@@ -31,6 +31,7 @@ REGIONS = [
     ('region_lighthouse', 'Fener', 60.0, 46.0, 'tower', 5.5, 0),
 ]
 PLAZA = (0.0, -17.0)
+ISLET = (24.0, -79.0, 7.5)
 SNOW_PATH = [(-36.5, 40.5), (-46, 42), (-53, 47), (-54, 53), (-49, 59), (-43, 61.5), (-38, 58), (-41, 56.5)]
 BEACH_REGIONS = ('region_swim_cove', 'region_surf_beach', 'region_coconut_grove')
 # süs alanları (yalnız görsel; oyunda dekor)
@@ -241,6 +242,16 @@ def build():
     h = h + 0.6 * np.exp(-((sdd - 1.9) / 0.5) ** 2) * alongm * ss(4.2, 2.0, sdd)       # kar setleri
     h = h - 0.22 * ss(1.4, 0.4, sdd) * alongm                                           # ortası sıkışmış çukur (iz)
     snowpath = (ss(1.65, 1.1, sdd) * alongm).astype(np.float32)
+    # kum tepecikleri / birikintileri: kumsalda irili ufaklı yumuşak tümsekler
+    beachm = np.clip(1.0 - ss(beach_w * 0.75, beach_w + 0.5, sd_land), 0, 1) * ss(0.25, 0.9, h) * ss(2.4, 1.6, h)
+    mounds = 0.32 * ss(0.55, 0.85, fbm(X, Z, 1 / 3.2, 311, 3) * 0.5 + 0.5) + 0.12 * ss(0.5, 0.8, fbm(X, Z, 1 / 1.2, 313, 2) * 0.5 + 0.5)
+    h = h + mounds * beachm
+    # mağara tüneli: ağızdan yamaca 9 m giren yarık (tavanı tünel ağı kapatır)
+    cv = [r for r in REGIONS if r[0] == 'region_cave'][0]; ya = math.radians(cv[6]); fxc, fzc = math.sin(ya), math.cos(ya)
+    y0c = TV_h_at(h, (cv[2], cv[3]))
+    tdd, ttt, tll = seg_dist(X, Z, [(cv[2] + fxc * 0.5, cv[3] + fzc * 0.5), (cv[2] - fxc * 9.5, cv[3] - fzc * 9.5)])
+    trench = ss(2.6, 2.1, tdd) * ss(0.0, 0.8, ttt) * ss(tll + 0.5, tll - 0.5, ttt)
+    h = np.where(trench > 0, h + (np.minimum(h, y0c - 0.15 - 0.06 * ttt) - h) * trench, h)
     # bina yastıkları (düz)
     for (rid, nm, rx, rz, shp, size, yaw) in REGIONS:
         if shp == 'pier' or rid in BEACH_REGIONS: continue
@@ -251,6 +262,9 @@ def build():
     depth = SEA_FLOOR * ss(0, 30, -sd_land) - 0.8 * ss(0, 3, -sd_land)
     h = np.where(sea, np.minimum(h, depth + (h - depth) * ss(-1.5, 0, sd_land)), h)
     for (Hn, m) in stacks: h = h + np.maximum(0, Hn - h) * m     # denizdeki kaya sütunları
+    # açıkta küçük ada (kumsaldan görünür): alçak kum tepe, ortası çimen
+    di = np.hypot(X - ISLET[0], (Z - ISLET[1]) * 1.25) + 1.5 * fbm(X, Z, 1 / 5.0, 301, 2)
+    h = np.maximum(h, -0.6 + 2.6 * ss(ISLET[2] + 2.5, ISLET[2] * 0.25, di))
     h = h.astype(np.float32)
     gz, gx = np.gradient(h, STEP); slope = np.hypot(gx, gz).astype(np.float32)
     # yüzey katmanları
