@@ -65,6 +65,13 @@ namespace Pofi.Core
 
         private ScreenBase _screen;
         private float _autosave, _autosync;
+
+        /// <summary>Oyun içi haberler (yeni görev, onay, ödül): sakin anda gösterilir (Logic/App/Notices).</summary>
+        public NoticeInbox Notices { get; } = new NoticeInbox();
+
+        /// <summary>Mini oyun, kart oyunu, etkinlik ve giriş sırasında haber gösterilmez (oyun bölünmez).</summary>
+        private bool CalmMoment => Page == AppPage.Map || Page == AppPage.Home || Page == AppPage.Tasks || Page == AppPage.Shop
+                                   || Page == AppPage.Wardrobe || Page == AppPage.Garden || Page == AppPage.Album;
         private bool _syncing;
         private SupabaseGameService _remote;      // gerçek sunucu oturumunda
         private bool _remoteChecked;              // sunucu yedeğine bakıldı mı (bakılmadan senkron/yedekleme yok)
@@ -232,8 +239,7 @@ namespace Pofi.Core
                 var skill = Logic.Tasks.SkillCatalog.Label(rw.Skill);
                 Toast.Post(Overlay.transform, Theme, rw.NewTier > 0 ? Loc.Get("skill.tier." + rw.NewTier, skill) : Loc.Get("skill.star", skill, rw.Stars));
             }
-            foreach (var ev in report.RewardEvents)
-                Toast.Post(Overlay.transform, Theme, Loc.Get(ev.Kind == Logic.Rewards.RewardEventKind.Given ? "rewards.given" : "rewards.declined", ev.Request.Title));
+            Notices.Add(NoticeDigest.Build(report.TaskEvents, report.RewardEvents));
             if (report.RealTaskXp > 0) XpGained?.Invoke(report.RealTaskXp);
             if (report.LevelUp != null) { Data.SunBook.FilterLevelUp(report.LevelUp); LevelUpCelebration.Show(this, report.LevelUp); }
             var approved = 0;
@@ -388,6 +394,12 @@ namespace Pofi.Core
             {
                 _autosync += Time.unscaledDeltaTime;
                 if (_autosync > 20f) _ = SyncNow();
+                if (Notices.Count > 0)
+                    foreach (var n in Notices.Drain(CalmMoment))
+                    {
+                        Toast.Post(Overlay.transform, Theme, Loc.Get(n.Key, n.Args));
+                        if (n.Happy) Audio.Sfx.Play(Audio.SfxKind.Success);
+                    }
             }
         }
 
