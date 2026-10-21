@@ -82,16 +82,18 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
-        public async Task Bakiye_yetmezse_ebeveyn_veremez_istek_bekler()
+        public async Task Ayrilan_coin_harcanamaz_ve_ayni_odul_iki_kez_beklemez()
         {
             var (server, sync, s) = Setup(40);
             Assert.IsTrue((await server.RequestAsync("demo_movie", "tx-movie-001")).Ok);
             Assert.AreEqual("not_enough_coins", (await server.RequestAsync("demo_park", "tx-park-0002")).Error, "ayrılan coin yeni isteğe yetmez");
             await sync.SyncAsync(s, Local, Utc);
-            // çocuk eski sürümden eşya almış gibi: sunucu bakiyesi düşer
-            await server.SpendAsync("tx-spend-1", TestData.Load().Items.First(i => i.Price > 0 && i.Price <= 40).Id, 1);
-            Assert.AreEqual(0, DemoParent.GiveRewards(server));
-            Assert.AreEqual(RewardStatus.Pending, server.RewardRequests.Single().Status);
+            // ayrılan coin eşya dükkânında harcanamaz (eski/değiştirilmiş istemci de): ebeveyn verebilir
+            var item = TestData.Load().Items.First(i => i.Price > 0 && i.Price <= 40);
+            Assert.AreEqual(ServiceError.NotEnoughCoins, (await server.SpendAsync("tx-spend-1", item.Id, 1)).Error);
+            Assert.AreEqual("already_requested", (await server.RequestAsync("demo_movie", "tx-movie-002")).Error);
+            Assert.AreEqual(1, DemoParent.GiveRewards(server));
+            Assert.AreEqual(0, server.Coins);
         }
 
         [Test]

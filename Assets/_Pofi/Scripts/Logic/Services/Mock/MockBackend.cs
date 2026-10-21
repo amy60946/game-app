@@ -95,7 +95,8 @@ namespace Pofi.Logic.Services.Mock
             var item = _data.Item(itemId);
             if (item == null || quantity <= 0 || quantity > 20) return Task.FromResult(new SpendResponse { Error = ServiceError.UnknownItem, Balance = Coins });
             var amount = item.Price * quantity;
-            if (amount > Coins) return Task.FromResult(new SpendResponse { Error = ServiceError.NotEnoughCoins, Balance = Coins });
+            // ödüle ayrılan coin harcanmaz (sunucu spend_coins ile aynı)
+            if (amount > Coins - Held) return Task.FromResult(new SpendResponse { Error = ServiceError.NotEnoughCoins, Balance = Coins });
             Coins -= amount;
             _processedTx[txId] = amount;
             return Task.FromResult(new SpendResponse { Balance = Coins });
@@ -152,6 +153,10 @@ namespace Pofi.Logic.Services.Mock
             if (r == null) return Task.FromResult(new Rewards.RewardReply { Error = "unknown_reward" });
             if (_requests.Count(q => q.Status == Rewards.RewardStatus.Pending) >= Rewards.RewardBook.MaxPending)
                 return Task.FromResult(new Rewards.RewardReply { Error = "too_many_pending" });
+            if (_requests.Any(q => q.RewardId == r.Id && q.Status == Rewards.RewardStatus.Pending))
+                return Task.FromResult(new Rewards.RewardReply { Error = "already_requested" });
+            if (_requests.Count >= 10 && _requests.Skip(_requests.Count - 10).All(q => DateTime.TryParse(q.RequestedAt, null, System.Globalization.DateTimeStyles.RoundtripKind, out var at) && at > DateTime.UtcNow.AddHours(-24)))
+                return Task.FromResult(new Rewards.RewardReply { Error = "too_many_today" });
             if (Coins - Held < r.Price) return Task.FromResult(new Rewards.RewardReply { Error = "not_enough_coins" });
             var id = "rq_" + (_requests.Count + 1) + "_" + txId.Substring(0, 6);
             _requests.Add(new Rewards.RewardRequest { Id = id, RewardId = r.Id, Title = r.Title, Icon = r.Icon, Price = r.Price, Status = Rewards.RewardStatus.Pending,

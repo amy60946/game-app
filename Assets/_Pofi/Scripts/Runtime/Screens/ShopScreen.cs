@@ -171,6 +171,8 @@ namespace Pofi.Screens
         // ------------------------------------------------------------ gerçek ödüller (Ö7)
 
         private bool _busy;
+        /// <summary>Ödül başına işlem kimliği: kesin yanıt gelene kadar aynı kalır (yanıt kaybolup tekrar dokunulursa ikinci istek açılmaz).</summary>
+        private static readonly System.Collections.Generic.Dictionary<string, string> _askTx = new System.Collections.Generic.Dictionary<string, string>();
 
         private static string RewardIcon(string icon)
         {
@@ -252,7 +254,9 @@ namespace Pofi.Screens
             _busy = true;
             try
             {
-                var r = await App.Rewards.RequestAsync(rw.Id, Guid.NewGuid().ToString("N"));
+                if (!_askTx.TryGetValue(rw.Id, out var tx)) _askTx[rw.Id] = tx = Guid.NewGuid().ToString("N");
+                var r = await App.Rewards.RequestAsync(rw.Id, tx);
+                if (r.Error != Logic.Rewards.RewardReply.Network) _askTx.Remove(rw.Id);   // kesin yanıt: sonraki istek yeni kimlikle
                 if (this == null) return;
                 if (r.Ok)
                 {
@@ -263,10 +267,12 @@ namespace Pofi.Screens
                 }
                 else _bubble.Say(T(r.Error == "not_enough_coins" ? "rewards.not_enough_short"
                     : r.Error == "too_many_pending" ? "rewards.too_many"
+                    : r.Error == "already_requested" ? "rewards.waiting"
+                    : r.Error == "too_many_today" ? "rewards.tomorrow"
                     : r.Error == Logic.Rewards.RewardReply.Network ? "rewards.offline" : "rewards.failed"));
+                await App.SyncNow();   // _busy senkron bitene kadar açık: hızlı ikinci dokunuş ikinci istek açmaz
             }
             finally { _busy = false; }
-            await App.SyncNow();
         }
 
         private async System.Threading.Tasks.Task Cancel(Logic.Rewards.RewardRequest q)
@@ -278,9 +284,9 @@ namespace Pofi.Screens
                 var r = await App.Rewards.CancelAsync(q.Id);
                 if (this == null) return;
                 _bubble.Say(T(r.Ok ? "rewards.cancelled" : r.Error == Logic.Rewards.RewardReply.Network ? "rewards.offline" : "rewards.failed"));
+                await App.SyncNow();
             }
             finally { _busy = false; }
-            await App.SyncNow();
         }
 
         private void NotEnough()

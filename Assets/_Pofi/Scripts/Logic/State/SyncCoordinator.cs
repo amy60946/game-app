@@ -103,15 +103,21 @@ namespace Pofi.Logic.State
                 report.SunStonesEarned = Island.SunStoneBook.ApplyServerTotal(s.SunStones, balances.SunStones);
 
                 // 4b) Gerçek ödüller (Ö7): liste + istekler; ayrılmış coin cüzdana
+                // Ödül listesi alınamazsa (sunucu hatası, bozuk yanıt) senkronun geri kalanı ve yedek etkilenmez.
                 if (_rewards != null)
                 {
-                    var snap = await _rewards.GetAsync(ct);
-                    if (snap != null)
+                    try
                     {
-                        s.Rewards = s.Rewards ?? new Rewards.RewardBook();
-                        report.RewardEvents = s.Rewards.Apply(snap);
-                        s.Wallet.Held = s.Rewards.Held;
+                        var snap = await _rewards.GetAsync(ct);
+                        if (snap != null)
+                        {
+                            s.Rewards = s.Rewards ?? new Rewards.RewardBook();
+                            report.RewardEvents = s.Rewards.Apply(snap);
+                            s.Wallet.Held = s.Rewards.Held;
+                        }
                     }
+                    catch (OperationCanceledException) when (!ct.IsCancellationRequested) { }
+                    catch (Newtonsoft.Json.JsonException) { }
                 }
 
                 // 5) Yedek

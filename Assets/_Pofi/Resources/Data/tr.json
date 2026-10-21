@@ -373,6 +373,7 @@
     "rewards.not_enough_short": "Biraz daha coin biriktirelim.",
     "rewards.offline": "İnternet gelince tekrar deneyelim.",
     "rewards.failed": "Bu ödül şu an istenemiyor.",
+    "rewards.tomorrow": "Bugünlük bu kadar istek yeter. Yarın yine bakalım.",
     "demo.give_rewards": "Ödül isteklerini ver",
     "demo.close": "Kapat",
     "shop.title": "Dükkan",
