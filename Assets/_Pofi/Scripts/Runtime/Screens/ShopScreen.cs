@@ -17,8 +17,10 @@ namespace Pofi.Screens
     /// </summary>
     public sealed class ShopScreen : ScreenBase
     {
-        private static readonly string[] Tabs = { ItemCategory.Food, ItemCategory.Cleaning, ItemCategory.Clothes, ItemCategory.Accessory, ItemCategory.Seed, ItemCategory.Home };
-        private static readonly string[] TabIcons = { "food_apple", "clean_soap", "shirt_stripes", "glasses_round", "seed_carrot", "home_lamp" };
+        /// <summary>Gerçek ödüller sekmesi (Ö7): ebeveynin koyduğu ödüller coin'le istenir, ebeveyn verince coin düşer.</summary>
+        private const string RealTab = "real";
+        private static readonly string[] Tabs = { ItemCategory.Food, ItemCategory.Cleaning, ItemCategory.Clothes, ItemCategory.Accessory, ItemCategory.Seed, ItemCategory.Home, RealTab };
+        private static readonly string[] TabIcons = { "food_apple", "clean_soap", "shirt_stripes", "glasses_round", "seed_carrot", "home_lamp", "ui_gift" };
         private const int PerPage = 5;
 
         /// <summary>"Ev" sekmesi ev eşyalarıyla birlikte dekorları da gösterir.</summary>
@@ -47,14 +49,15 @@ namespace Pofi.Screens
             for (var i = 0; i < Tabs.Length; i++)
             {
                 var cat = Tabs[i];
-                _tabButtons[i] = Candy.Round(Root, Candy.White, TabIcons[i], 108f, new Vector2(0f, 1f), new Vector2(96f, -96f - i * 132f),
-                    () => { _tab = cat; _page = 0; _selected = 0; Fill(); });
+                _tabButtons[i] = Candy.Round(Root, Candy.White, TabIcons[i], 108f, new Vector2(0f, 1f), new Vector2(96f, -96f - i * 118f),
+                    () => { _tab = cat; _page = 0; _selected = 0; Fill(); if (cat == RealTab) _ = RefreshRewards(); });
             }
             _shelf = Ui.Fill(Root, "Shelf");
             _bubble = Bubble(new Vector2(0.5f, 0.9f));
             NavBar(AppPage.Shop);
             App.Synced += OnSynced;
             Fill();
+            if (_tab == RealTab) _ = RefreshRewards();
             if (Onboarding.Pending(App.State, Onboarding.Shop))
                 _coach = Coach.Show(Root, Onboarding.Shop, T("tip.shop"), TipGesture.Tap, () => new Vector2(Screen.width * 0.62f, Screen.height * 0.72f));
         }
@@ -87,6 +90,7 @@ namespace Pofi.Screens
             for (var i = 0; i < Tabs.Length; i++)
                 _tabButtons[i].targetGraphic.color = Tabs[i] == _tab ? Candy.Orange : Candy.White;
             Ui.Clear(_shelf);
+            if (_tab == RealTab) { FillRewards(); return; }
             var views = Views();
             var pages = Mathf.Max(1, (views.Count + PerPage - 1) / PerPage);
             _page = Mathf.Clamp(_page, 0, pages - 1);
@@ -162,6 +166,121 @@ namespace Pofi.Screens
             }
             else if (r == BuyCheck.NotEnoughCoins) NotEnough();
             else Fill();
+        }
+
+        // ------------------------------------------------------------ gerçek ödüller (Ö7)
+
+        private bool _busy;
+
+        private static string RewardIcon(string icon)
+        {
+            switch (icon)
+            {
+                case "park": return "decor_palm";
+                case "movie": return "act_play";
+                case "game": return "ui_album";
+                case "treat": return "food_icecream";
+                case "book": return "home_bookshelf";
+                case "toy": return "decor_sandcastle";
+                case "trip": return "ui_map";
+                case "star": return "ui_star";
+                default: return "ui_gift";
+            }
+        }
+
+        private async System.Threading.Tasks.Task RefreshRewards()
+        {
+            if (App.Sync == null) return;
+            await App.SyncNow();   // senkron ödül listesini ve istekleri de getirir (OnSynced → Fill)
+        }
+
+        private void FillRewards()
+        {
+            Preview(null);
+            var book = App.State.Rewards ?? new Logic.Rewards.RewardBook();
+            var held = App.State.Wallet.Held;
+            if (held > 0)
+                Candy.Caption(_shelf, T("rewards.held", held), 34, new Vector2(0.5f, 1f), new Vector2(900f, 56f), new Vector2(0f, -150f));
+            if (App.Rewards == null || book.Rewards.Count == 0)
+            {
+                Candy.Caption(_shelf, T("rewards.empty"), 44, new Vector2(0.5f, 0.5f), new Vector2(1100f, 200f), new Vector2(0f, 120f));
+                return;
+            }
+            var list = book.Rewards;
+            var pages = Mathf.Max(1, (list.Count + PerPage - 1) / PerPage);
+            _page = Mathf.Clamp(_page, 0, pages - 1);
+            var start = _page * PerPage;
+            var count = Mathf.Min(PerPage, list.Count - start);
+            _selected = Mathf.Clamp(_selected, 0, count - 1);
+            for (var k = 0; k < count; k++)
+            {
+                var rw = list[start + k];
+                var sel = k == _selected;
+                var off = k - (count - 1) / 2f;
+                var pos = new Vector2(off * 270f, 250f - off * off * 34f);
+                var idx = k;
+                var b = Candy.Round(_shelf, sel ? new Color(1f, 0.93f, 0.6f) : Candy.White, RewardIcon(rw.Icon), sel ? 210f : 160f, new Vector2(0.5f, 0.5f), pos,
+                    () => { _selected = idx; Fill(); });
+                var asked = book.PendingFor(rw.Id) != null;
+                Candy.Badge(b.transform, asked ? "ui_check" : "ui_coin", asked ? T("rewards.asked_short") : rw.Price.ToString(),
+                    new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, 6f), 56f, 170f);
+            }
+            if (pages > 1)
+            {
+                Candy.Pill(_shelf, Candy.White, "<", new Vector2(0.5f, 0.5f), new Vector2(110f, 110f), new Vector2(-780f, 160f), () => { _page = (_page + pages - 1) % pages; _selected = 0; Fill(); }, null, 56);
+                Candy.Pill(_shelf, Candy.White, ">", new Vector2(0.5f, 0.5f), new Vector2(110f, 110f), new Vector2(780f, 160f), () => { _page = (_page + 1) % pages; _selected = 0; Fill(); }, null, 56);
+            }
+            var cur = list[start + _selected];
+            var mine = book.PendingFor(cur.Id);
+            Candy.Caption(_shelf, cur.Title, 48, new Vector2(0.5f, 0.5f), new Vector2(900f, 70f), new Vector2(0f, 40f));
+            if (mine != null)
+                Candy.Pill(_shelf, Candy.White, T("rewards.cancel"), new Vector2(0.5f, 0.5f), new Vector2(420f, 110f), new Vector2(0f, -60f), () => _ = Cancel(mine), null, 44);
+            else
+            {
+                var ok = App.State.Wallet.Available >= cur.Price && book.CanRequestMore;
+                Candy.Pill(_shelf, ok ? Candy.Green : Candy.White, T("rewards.ask", cur.Price), new Vector2(0.5f, 0.5f), new Vector2(380f, 120f), new Vector2(0f, -60f),
+                    () => _ = Ask(cur), "ui_coin", 50);
+            }
+            Candy.Caption(_shelf, mine != null ? T("rewards.waiting") : T("rewards.how"), 30, new Vector2(0.5f, 0.5f), new Vector2(1100f, 60f), new Vector2(0f, -150f));
+        }
+
+        private async System.Threading.Tasks.Task Ask(Logic.Rewards.RealReward rw)
+        {
+            if (_busy || App.Rewards == null) return;
+            if (!App.State.Rewards.CanRequestMore) { _bubble.Say(T("rewards.too_many")); return; }
+            if (App.State.Wallet.Available < rw.Price) { _bubble.Say(T("rewards.not_enough", rw.Price - App.State.Wallet.Available)); return; }
+            _busy = true;
+            try
+            {
+                var r = await App.Rewards.RequestAsync(rw.Id, Guid.NewGuid().ToString("N"));
+                if (this == null) return;
+                if (r.Ok)
+                {
+                    Audio.Sfx.Play(Audio.SfxKind.Coin);
+                    App.Stage.Hop();
+                    _bubble.Say(T("rewards.asked", rw.Title));
+                    App.RecordActivity("reward_requested");
+                }
+                else _bubble.Say(T(r.Error == "not_enough_coins" ? "rewards.not_enough_short"
+                    : r.Error == "too_many_pending" ? "rewards.too_many"
+                    : r.Error == Logic.Rewards.RewardReply.Network ? "rewards.offline" : "rewards.failed"));
+            }
+            finally { _busy = false; }
+            await App.SyncNow();
+        }
+
+        private async System.Threading.Tasks.Task Cancel(Logic.Rewards.RewardRequest q)
+        {
+            if (_busy || App.Rewards == null) return;
+            _busy = true;
+            try
+            {
+                var r = await App.Rewards.CancelAsync(q.Id);
+                if (this == null) return;
+                _bubble.Say(T(r.Ok ? "rewards.cancelled" : r.Error == Logic.Rewards.RewardReply.Network ? "rewards.offline" : "rewards.failed"));
+            }
+            finally { _busy = false; }
+            await App.SyncNow();
         }
 
         private void NotEnough()

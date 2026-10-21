@@ -13,7 +13,7 @@ namespace Pofi.Logic.Services.Mock
     /// fiyat sunucuda (oyun verisinden) okunur, harcama idempotenttir, coin yalnızca ebeveyn onayıyla artar.
     /// Geliştirmede "ebeveyn" işlemleri (görev ata, onayla, reddet) bu sınıftan çağrılır.
     /// </summary>
-    public sealed class MockBackend : IWalletService, ITaskService, ISaveService
+    public sealed class MockBackend : IWalletService, ITaskService, ISaveService, Rewards.IRewardService
     {
         private readonly GameData _data;
         private readonly Dictionary<string, int> _processedTx = new Dictionary<string, int>(); // txId → tutar
@@ -101,6 +101,79 @@ namespace Pofi.Logic.Services.Mock
             return Task.FromResult(new SpendResponse { Balance = Coins });
         }
 
+        // ---------- gerçek ödüller (Ö7; sunucu kuralları: en çok 3 bekleyen, coin ayrılır, verince düşer) ----------
+
+        private readonly List<Rewards.RealReward> _rewards = new List<Rewards.RealReward>();
+        private readonly List<Rewards.RewardRequest> _requests = new List<Rewards.RewardRequest>();
+        private readonly Dictionary<string, string> _requestTx = new Dictionary<string, string>();   // tx → istek
+
+        public IReadOnlyList<Rewards.RewardRequest> RewardRequests => _requests;
+
+        public void ParentAddReward(string id, string title, string icon, int price)
+        {
+            _rewards.RemoveAll(r => r.Id == id);
+            _rewards.Add(new Rewards.RealReward { Id = id, Title = title, Icon = icon, Price = Math.Max(1, Math.Min(500, price)) });
+        }
+
+        private int Held => _requests.Where(q => q.Status == Rewards.RewardStatus.Pending).Sum(q => q.Price);
+
+        /// <summary>Ebeveyn kararı. Verince coin düşer; bakiye yetmezse istek bekler (false).</summary>
+        public bool ParentDecideReward(string requestId, bool give)
+        {
+            var q = _requests.FirstOrDefault(x => x.Id == requestId && x.Status == Rewards.RewardStatus.Pending);
+            if (q == null) return false;
+            if (give)
+            {
+                if (Coins < q.Price) return false;
+                Coins -= q.Price;
+            }
+            q.Status = give ? Rewards.RewardStatus.Given : Rewards.RewardStatus.Declined;
+            return true;
+        }
+
+        public Task<Rewards.RewardsSnapshot> GetAsync(CancellationToken ct = default)
+        {
+            if (Offline) throw new OperationCanceledException("çevrimdışı");
+            var held = Held;
+            return Task.FromResult(new Rewards.RewardsSnapshot
+            {
+                Balance = Coins, Held = held, Available = Math.Max(0, Coins - held),
+                Rewards = _rewards.Select(r => new Rewards.RealReward { Id = r.Id, Title = r.Title, Icon = r.Icon, Price = r.Price }).OrderBy(r => r.Price).ToList(),
+                Requests = Enumerable.Reverse(_requests).Take(20).Select(CloneReq).ToList(),
+            });
+        }
+
+        public Task<Rewards.RewardReply> RequestAsync(string rewardId, string txId, CancellationToken ct = default)
+        {
+            if (Offline) return Task.FromResult(new Rewards.RewardReply { Error = Rewards.RewardReply.Network });
+            if (string.IsNullOrEmpty(txId) || txId.Length < 8 || txId.Length > 64) return Task.FromResult(new Rewards.RewardReply { Error = "rejected" });
+            if (_requestTx.ContainsKey(txId)) return Task.FromResult(new Rewards.RewardReply());
+            var r = _rewards.FirstOrDefault(x => x.Id == rewardId);
+            if (r == null) return Task.FromResult(new Rewards.RewardReply { Error = "unknown_reward" });
+            if (_requests.Count(q => q.Status == Rewards.RewardStatus.Pending) >= Rewards.RewardBook.MaxPending)
+                return Task.FromResult(new Rewards.RewardReply { Error = "too_many_pending" });
+            if (Coins - Held < r.Price) return Task.FromResult(new Rewards.RewardReply { Error = "not_enough_coins" });
+            var id = "rq_" + (_requests.Count + 1) + "_" + txId.Substring(0, 6);
+            _requests.Add(new Rewards.RewardRequest { Id = id, RewardId = r.Id, Title = r.Title, Icon = r.Icon, Price = r.Price, Status = Rewards.RewardStatus.Pending,
+                RequestedAt = DateTime.UtcNow.ToString("o") });
+            _requestTx[txId] = id;
+            return Task.FromResult(new Rewards.RewardReply());
+        }
+
+        public Task<Rewards.RewardReply> CancelAsync(string requestId, CancellationToken ct = default)
+        {
+            if (Offline) return Task.FromResult(new Rewards.RewardReply { Error = Rewards.RewardReply.Network });
+            var q = _requests.FirstOrDefault(x => x.Id == requestId && x.Status == Rewards.RewardStatus.Pending);
+            if (q == null) return Task.FromResult(new Rewards.RewardReply { Error = "already_decided" });
+            q.Status = Rewards.RewardStatus.Cancelled;
+            return Task.FromResult(new Rewards.RewardReply());
+        }
+
+        private static Rewards.RewardRequest CloneReq(Rewards.RewardRequest q) => new Rewards.RewardRequest
+        {
+            Id = q.Id, RewardId = q.RewardId, Title = q.Title, Icon = q.Icon, Price = q.Price, Status = q.Status, RequestedAt = q.RequestedAt,
+        };
+
         // ---------- ITaskService ----------
 
         public Task<List<ChildTask>> FetchAsync(string fromDate, string toDate, CancellationToken ct = default)
@@ -117,7 +190,7 @@ namespace Pofi.Logic.Services.Mock
             var t = _tasks.FirstOrDefault(x => x.Key == taskKey);
             if (t == null) return Task.FromResult(ServiceError.Rejected);
             if (t.IsFinal) return Task.FromResult(ServiceError.Rejected);
-            if (to == ChildTaskStatus.Approved || to == ChildTaskStatus.RejectedByParent) return Task.FromResult(ServiceError.Unauthorized);
+            if (to == ChildTaskStatus.Approved || to == ChildTaskStatus.RejectedByParent) return Task.FromResult(ServiceError.Rejected);
             t.Status = to;
             return Task.FromResult(ServiceError.None);
         }
@@ -143,11 +216,15 @@ namespace Pofi.Logic.Services.Mock
             public List<ChildTask> Tasks = new List<ChildTask>();
             public Dictionary<string, int> Tx = new Dictionary<string, int>();
             public string Remote;
+            public List<Rewards.RealReward> Rewards = new List<Rewards.RealReward>();
+            public List<Rewards.RewardRequest> Requests = new List<Rewards.RewardRequest>();
+            public Dictionary<string, string> RequestTx = new Dictionary<string, string>();
         }
 
         public string Export() => Newtonsoft.Json.JsonConvert.SerializeObject(new Snapshot
         {
             Coins = Coins, SunStones = SunStones, Tasks = _tasks.Select(Clone).ToList(), Tx = new Dictionary<string, int>(_processedTx), Remote = _remoteSave,
+            Rewards = _rewards.ToList(), Requests = _requests.Select(CloneReq).ToList(), RequestTx = new Dictionary<string, string>(_requestTx),
         });
 
         /// <summary>Önceki <see cref="Export"/> çıktısını yükler. Bozuk veri yok sayılır (boş sunucu).</summary>
@@ -165,6 +242,12 @@ namespace Pofi.Logic.Services.Mock
             _processedTx.Clear();
             if (snap.Tx != null) foreach (var kv in snap.Tx) _processedTx[kv.Key] = kv.Value;
             _remoteSave = snap.Remote;
+            _rewards.Clear();
+            if (snap.Rewards != null) _rewards.AddRange(snap.Rewards.Where(r => r != null));
+            _requests.Clear();
+            if (snap.Requests != null) _requests.AddRange(snap.Requests.Where(r => r != null));
+            _requestTx.Clear();
+            if (snap.RequestTx != null) foreach (var kv in snap.RequestTx) _requestTx[kv.Key] = kv.Value;
         }
 
         /// <summary>Sunucudaki görevlerin (ebeveyn gözünden) listesi: deneme ebeveyn paneli için.</summary>

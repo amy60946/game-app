@@ -64,7 +64,7 @@ namespace Pofi.Tests.Logic
             StringAssert.Contains("\"p_task_id\":\"t1\"", http.Calls[0].body);
             StringAssert.Contains("\"p_date\":\"2026-10-14\"", http.Calls[0].body);
             Assert.AreEqual(ServiceError.Rejected, await svc.SetStatusAsync("t1|2026-10-14", ChildTaskStatus.Assigned));
-            Assert.AreEqual(ServiceError.Unauthorized, await svc.SetStatusAsync("t1|2026-10-14", ChildTaskStatus.Approved));
+            Assert.AreEqual(ServiceError.Rejected, await svc.SetStatusAsync("t1|2026-10-14", ChildTaskStatus.Approved));
             Assert.AreEqual(1 + 1, http.Calls.Count);   // onay isteği sunucuya hiç gitmez
             var offline = Svc(new FakeHttp { Handler = (f, a) => R(0, null) });
             Assert.AreEqual(ServiceError.Network, await offline.SetStatusAsync("t1|2026-10-14", ChildTaskStatus.ChildDone));

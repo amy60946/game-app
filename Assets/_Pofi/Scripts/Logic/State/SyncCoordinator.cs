@@ -21,12 +21,13 @@ namespace Pofi.Logic.State
         public int RealTaskXp;
         public int SunStonesEarned;      // bu senkronda yeni gelen Güneş Taşı (Ö1)
         public Progression.LevelUp LevelUp;   // görev XP'siyle seviye atlandıysa (kutlama)
+        public List<Rewards.RewardEvent> RewardEvents = new List<Rewards.RewardEvent>();   // verilen / bekleyecek gerçek ödüller (Ö7)
     }
 
     /// <summary>
     /// Senkron (FR-TASK-7, kabul ölçütü 6): açılışta, ön plana gelince ve aralıkla çağrılır.
     /// Sıra: (1) görev niyetlerini gönder, (2) bekleyen harcamaları gönder, (3) görevleri çek ve birleştir,
-    /// (4) bakiyeyi sunucudan al (sunucu esastır), (5) kaydı sunucuya yedekle. Ağ yoksa yerel durum bozulmaz.
+    /// (4) bakiyeyi sunucudan al (sunucu esastır), (4b) gerçek ödülleri al, (5) kaydı sunucuya yedekle. Ağ yoksa yerel durum bozulmaz.
     /// </summary>
     public sealed class SyncCoordinator
     {
@@ -35,10 +36,11 @@ namespace Pofi.Logic.State
         private readonly ISaveService _save;
         private readonly GameData _data;
         private readonly Progression.LevelTable _levels;
+        private readonly Rewards.IRewardService _rewards;
 
-        public SyncCoordinator(ITaskService tasks, IWalletService wallet, ISaveService save, GameData data)
+        public SyncCoordinator(ITaskService tasks, IWalletService wallet, ISaveService save, GameData data, Rewards.IRewardService rewards = null)
         {
-            _tasks = tasks; _wallet = wallet; _save = save; _data = data;
+            _tasks = tasks; _wallet = wallet; _save = save; _data = data; _rewards = rewards;
             _levels = new Progression.LevelTable(data.Levels);
         }
 
@@ -51,7 +53,8 @@ namespace Pofi.Logic.State
                 foreach (var change in s.Tasks.Outbox.ToList())
                 {
                     var err = await _tasks.SetStatusAsync(change.Key, change.To, ct);
-                    if (err == ServiceError.Network) { report.Offline = true; return report; }
+                    // Oturum süresi dolmuşsa (401) niyet silinmez: ağ yokmuş gibi bekler, oturum yenilenince gider
+                    if (err == ServiceError.Network || err == ServiceError.Unauthorized) { report.Offline = true; return report; }
                     s.Tasks.Acknowledge(change.Key); // kabul ya da kalıcı ret: tekrar gönderme; birleştirme düzeltir
                 }
 
@@ -65,7 +68,8 @@ namespace Pofi.Logic.State
                 foreach (var p in s.Wallet.Pending.ToList())
                 {
                     var r = await _wallet.SpendAsync(p.TxId, p.ItemId, p.Quantity, ct);
-                    if (r.Error == ServiceError.Network) { report.Offline = true; return report; }
+                    // 401: satın alma geri alınmaz (eşya kaybolmasın); oturum yenilenince tekrar denenir
+                    if (r.Error == ServiceError.Network || r.Error == ServiceError.Unauthorized) { report.Offline = true; return report; }
                     if (r.Error == ServiceError.None) s.Wallet.Acknowledge(p.TxId, r.Balance);
                     else
                     {
@@ -97,6 +101,18 @@ namespace Pofi.Logic.State
                 var balances = await _wallet.GetBalancesAsync(ct);
                 report.CoinsEarned = s.Wallet.ApplyServerSnapshot(balances.Coins, Array.Empty<string>());
                 report.SunStonesEarned = Island.SunStoneBook.ApplyServerTotal(s.SunStones, balances.SunStones);
+
+                // 4b) Gerçek ödüller (Ö7): liste + istekler; ayrılmış coin cüzdana
+                if (_rewards != null)
+                {
+                    var snap = await _rewards.GetAsync(ct);
+                    if (snap != null)
+                    {
+                        s.Rewards = s.Rewards ?? new Rewards.RewardBook();
+                        report.RewardEvents = s.Rewards.Apply(snap);
+                        s.Wallet.Held = s.Rewards.Held;
+                    }
+                }
 
                 // 5) Yedek
                 s.LastSyncUtcTicks = nowUtc.Ticks;

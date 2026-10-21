@@ -15,7 +15,7 @@ namespace Pofi.Logic.Services.Supabase
     /// fonksiyonlarını çağırır (child_me, child_tasks, child_set_status, spend_coins, game_save_get/put).
     /// Ağ yoksa <see cref="OperationCanceledException"/> (SyncCoordinator bunu "çevrimdışı" sayar) ya da ServiceError.Network.
     /// </summary>
-    public sealed class SupabaseGameService : IWalletService, ITaskService, ISaveService
+    public sealed class SupabaseGameService : IWalletService, ITaskService, ISaveService, Rewards.IRewardService
     {
         public const string LocalSaveKey = "pofi.save.local";
 
@@ -66,7 +66,9 @@ namespace Pofi.Logic.Services.Supabase
             var r = await Rpc("spend_coins", new { p_tx = txId, p_item_id = itemId, p_quantity = quantity }, ct);
             if (r.Status == 0) return new SpendResponse { Error = ServiceError.Network };
             if (r.Status == 401 || r.Status == 403) return new SpendResponse { Error = ServiceError.Unauthorized };
-            if (!Ok(r)) return new SpendResponse { Error = ServiceError.Network };   // geçici sunucu hatası: kuyrukta kalsın, tekrar denensin
+            // geçici sunucu hatası (5xx, 408, 429): kuyrukta kalsın, tekrar denensin; diğer 4xx kalıcı ret (sonsuza dek takılmasın)
+            if (r.Status >= 500 || r.Status == 408 || r.Status == 429) return new SpendResponse { Error = ServiceError.Network };
+            if (!Ok(r)) return new SpendResponse { Error = ServiceError.Rejected, Balance = -1 };
             var o = JObject.Parse(r.Body);
             var balance = (int?)o["balance"] ?? 0;
             if ((bool?)o["ok"] == true) return new SpendResponse { Balance = balance };
@@ -139,7 +141,7 @@ namespace Pofi.Logic.Services.Supabase
         public async Task<ServiceError> SetStatusAsync(string taskKey, ChildTaskStatus to, CancellationToken ct = default)
         {
             var status = StatusText(to);
-            if (status == null) return ServiceError.Unauthorized;
+            if (status == null) return ServiceError.Rejected;   // onay/ret yalnız ebeveynin: kalıcı ret, kuyruktan düşer
             var sep = taskKey.IndexOf('|');
             if (sep <= 0) return ServiceError.Rejected;
             var r = await Rpc("child_set_status", new { p_task_id = taskKey.Substring(0, sep), p_date = taskKey.Substring(sep + 1), p_status = status }, ct);
@@ -147,6 +149,60 @@ namespace Pofi.Logic.Services.Supabase
             if (r.Status == 401 || r.Status == 403) return ServiceError.Unauthorized;
             if (r.Status >= 500) return ServiceError.Network;
             return Ok(r) ? ServiceError.None : ServiceError.Rejected;   // ör. "Ebeveyn karar verdi": birleştirme sunucu durumunu alır
+        }
+
+        // ------------------------------------------------------------ gerçek ödüller (Ö7)
+
+        public async Task<Rewards.RewardsSnapshot> GetAsync(CancellationToken ct = default)
+        {
+            var r = await Rpc("child_rewards", null, ct);
+            if (r.Status == 404) return null;   // sunucuda Ö7 henüz yok: ödül bölümü gizli kalır
+            if (!Ok(r)) throw new OperationCanceledException(r.Status == 0 ? "çevrimdışı" : "sunucu: " + r.Status);
+            return ParseRewards(r.Body);
+        }
+
+        public static Rewards.RewardsSnapshot ParseRewards(string body)
+        {
+            var snap = new Rewards.RewardsSnapshot();
+            if (string.IsNullOrWhiteSpace(body) || body.Trim() == "null") return snap;
+            var o = JObject.Parse(body);
+            snap.Balance = (int?)o["balance"] ?? 0;
+            snap.Held = (int?)o["held"] ?? 0;
+            snap.Available = (int?)o["available"] ?? 0;
+            if (o["rewards"] is JArray rw)
+                foreach (var x in rw.OfType<JObject>())
+                    snap.Rewards.Add(new Rewards.RealReward { Id = (string)x["id"], Title = (string)x["title"], Icon = (string)x["icon"], Price = (int?)x["price"] ?? 0 });
+            if (o["requests"] is JArray rq)
+                foreach (var x in rq.OfType<JObject>())
+                    snap.Requests.Add(new Rewards.RewardRequest
+                    {
+                        Id = (string)x["id"], RewardId = (string)x["reward_id"], Title = (string)x["title"], Icon = (string)x["icon"],
+                        Price = (int?)x["price"] ?? 0, Status = (string)x["status"], RequestedAt = (string)x["requested_at"],
+                    });
+            return snap;
+        }
+
+        private static Rewards.RewardReply ParseReply(HttpReply r)
+        {
+            if (r.Status == 0 || r.Status >= 500 || r.Status == 401 || r.Status == 408 || r.Status == 429)
+                return new Rewards.RewardReply { Error = Rewards.RewardReply.Network };
+            if (!Ok(r)) return new Rewards.RewardReply { Error = "rejected" };
+            try
+            {
+                var o = JObject.Parse(r.Body);
+                return (bool?)o["ok"] == true ? new Rewards.RewardReply() : new Rewards.RewardReply { Error = (string)o["error"] ?? "rejected" };
+            }
+            catch (JsonException) { return new Rewards.RewardReply { Error = "rejected" }; }
+        }
+
+        public async Task<Rewards.RewardReply> RequestAsync(string rewardId, string txId, CancellationToken ct = default)
+            => ParseReply(await Rpc("child_request_reward", new { p_reward = rewardId, p_tx = txId }, ct));
+
+        public async Task<Rewards.RewardReply> CancelAsync(string requestId, CancellationToken ct = default)
+        {
+            var r = await Rpc("child_cancel_reward_request", new { p_id = requestId }, ct);
+            if (!Ok(r)) return ParseReply(r);
+            return r.Body != null && r.Body.Trim() == "true" ? new Rewards.RewardReply() : new Rewards.RewardReply { Error = "already_decided" };
         }
 
         // ------------------------------------------------------------ kayıt

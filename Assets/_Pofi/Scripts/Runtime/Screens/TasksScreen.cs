@@ -195,19 +195,25 @@ namespace Pofi.Screens
             Ui.Label(box, T("demo.title"), Th.Font(54), Th.Text, new Vector2(0.5f, 0.9f), new Vector2(880f, 80f), FontStyle.Bold);
             Ui.Label(box, T("demo.info"), Th.Font(32), Th.SubtleText, new Vector2(0.5f, 0.79f), new Vector2(860f, 110f));
             var pending = Ui.Label(box, T("demo.pending", DemoParent.Pending(App.Backend)), Th.Font(44), Th.Text, new Vector2(0.5f, 0.64f), new Vector2(860f, 70f), FontStyle.Bold);
-            Ui.Button(box, Th, T("demo.approve_all"), new Vector2(0.5f, 0.47f), new Vector2(700f, 120f), async () =>
+            Ui.Button(box, Th, T("demo.approve_all"), new Vector2(0.5f, 0.5f), new Vector2(700f, 120f), async () =>
             {
                 DemoParent.ApproveAll(App.Backend);
                 Destroy(root.gameObject);
                 await App.SyncNow();
             });
-            Ui.Button(box, Th, T("demo.new_tasks"), new Vector2(0.5f, 0.3f), new Vector2(700f, 110f), async () =>
+            Ui.Button(box, Th, T("demo.new_tasks"), new Vector2(0.5f, 0.355f), new Vector2(700f, 100f), async () =>
             {
                 DemoParent.EnsureToday(App.Backend, App.LocalNow);
                 Destroy(root.gameObject);
                 await App.SyncNow();
             }, false, default, 40);
-            Ui.Button(box, Th, T("demo.close"), new Vector2(0.5f, 0.11f), new Vector2(400f, 100f), () => Destroy(root.gameObject), false, default, 40);
+            Ui.Button(box, Th, T("demo.give_rewards"), new Vector2(0.5f, 0.225f), new Vector2(700f, 100f), async () =>
+            {
+                DemoParent.GiveRewards(App.Backend);
+                Destroy(root.gameObject);
+                await App.SyncNow();
+            }, false, default, 40);
+            Ui.Button(box, Th, T("demo.close"), new Vector2(0.5f, 0.09f), new Vector2(400f, 100f), () => Destroy(root.gameObject), false, default, 40);
             pending.name = "Pending";
         }
 

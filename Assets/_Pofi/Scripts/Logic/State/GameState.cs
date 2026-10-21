@@ -72,6 +72,7 @@ namespace Pofi.Logic.State
         public bool StarterGiven;        // hoş geldin hediyesi verildi mi (App/StarterKit)
         public Island.SunStoneState SunStones = new Island.SunStoneState();   // Güneş Taşı (Ö1): kazanılan + yerleştirilen
         public SkillState Skills = new SkillState();                          // beceri yıldızları (Ö2)
+        public Rewards.RewardBook Rewards = new Rewards.RewardBook();         // gerçek ödüller (Ö7): son bilinen liste + istekler
         public long FirstLaunchUtcTicks;  // ilk açılış: ilk gün akışı (App/FirstDay) en geç 24 saat sürer
 
         public bool HasPet => !string.IsNullOrEmpty(PetId) && !string.IsNullOrEmpty(PetName);

@@ -20,6 +20,24 @@ namespace Pofi.Logic.App
             ("demo_homework", "Ödevini bitir", 20, "Sorumluluk", "hard"),
         };
 
+        /// <summary>Deneme ailesinin gerçek ödülleri (ParentApp'te ebeveyn tanımlar).</summary>
+        public static readonly (string Id, string Title, string Icon, int Price)[] SampleRewards =
+        {
+            ("demo_park", "Parka gitmek", "park", 20),
+            ("demo_movie", "Film gecesi", "movie", 40),
+            ("demo_treat", "Dondurma", "treat", 15),
+            ("demo_book", "Yeni kitap", "book", 80),
+        };
+
+        public static void EnsureRewards(MockBackend backend)
+        {
+            foreach (var r in SampleRewards) backend.ParentAddReward(r.Id, r.Title, r.Icon, r.Price);
+        }
+
+        /// <summary>Bekleyen ödül isteklerini verir (bakiye yetmeyenler bekler). Verilen sayısı.</summary>
+        public static int GiveRewards(MockBackend backend) =>
+            backend.RewardRequests.Where(q => q.Status == Rewards.RewardStatus.Pending).Select(q => q.Id).ToList().Count(id => backend.ParentDecideReward(id, true));
+
         public static string Day(DateTime local) => local.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
 
         /// <summary>Bugün için görev yoksa örnekleri atar. Atanan görev sayısını döndürür.</summary>

@@ -54,6 +54,9 @@ namespace Pofi.Core
 
         /// <summary>Sahte sunucu (deneme kodlarıyla girişte). Gerçek sunucu oturumunda null. Ebeveyn rolü: <see cref="DemoParent"/>.</summary>
         public MockBackend Backend { get; private set; }
+
+        /// <summary>Gerçek ödüller (Ö7): gerçek sunucu ya da sahte sunucu; oturum yoksa null.</summary>
+        public Logic.Rewards.IRewardService Rewards => (Logic.Rewards.IRewardService)_remote ?? Backend;
         public SyncCoordinator Sync { get; private set; }
         public AppPage Page { get; private set; } = AppPage.Map;   // ana merkez ada (14 Ekim 2026)
 
@@ -138,7 +141,7 @@ namespace Pofi.Core
                 Backend = null;
                 _remote = new SupabaseGameService(Server.Url, Server.PublishableKey, _http, () => Router.Server.AccessToken, Store);
                 _remoteChecked = false;
-                Sync = new SyncCoordinator(_remote, _remote, _remote, Data);
+                Sync = new SyncCoordinator(_remote, _remote, _remote, Data, _remote);
             }
             else
             {
@@ -147,7 +150,8 @@ namespace Pofi.Core
                 Backend = new MockBackend(Data);
                 Backend.Import(Store.Get(ServerKey(session.ChildId)));
                 DemoParent.EnsureToday(Backend, LocalNow);
-                Sync = new SyncCoordinator(Backend, Backend, Backend, Data);
+                DemoParent.EnsureRewards(Backend);
+                Sync = new SyncCoordinator(Backend, Backend, Backend, Data, Backend);
             }
             Page = AppPage.Map;
             _ = SyncNow();
@@ -228,6 +232,8 @@ namespace Pofi.Core
                 var skill = Logic.Tasks.SkillCatalog.Label(rw.Skill);
                 Toast.Post(Overlay.transform, Theme, rw.NewTier > 0 ? Loc.Get("skill.tier." + rw.NewTier, skill) : Loc.Get("skill.star", skill, rw.Stars));
             }
+            foreach (var ev in report.RewardEvents)
+                Toast.Post(Overlay.transform, Theme, Loc.Get(ev.Kind == Logic.Rewards.RewardEventKind.Given ? "rewards.given" : "rewards.declined", ev.Request.Title));
             if (report.RealTaskXp > 0) XpGained?.Invoke(report.RealTaskXp);
             if (report.LevelUp != null) { Data.SunBook.FilterLevelUp(report.LevelUp); LevelUpCelebration.Show(this, report.LevelUp); }
             var approved = 0;
