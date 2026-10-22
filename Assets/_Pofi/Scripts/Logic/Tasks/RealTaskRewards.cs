@@ -5,36 +5,46 @@ using System.Linq;
 namespace Pofi.Logic.Tasks
 {
     /// <summary>
-    /// Beceri sözlüğü (Ö2; sözleşme: ortak/sozlesme/ekonomi.md 5B). Görevin becerisi sunucuda serbest metindir
-    /// (ParentApp şablon etiketi); burada altı beceriden birine eşlenir. Eşleşmeyen (Özel, boş) beceri yıldızı vermez.
+    /// Beceri sözlüğü (Ö2; sözleşme: ortak/sozlesme/ekonomi.md 5B). 23 Ekim 2026'dan beri her görev kategorisi tek bir
+    /// beceriye bağlıdır (kategori = beceri). Sunucudaki `tasks.skill` beceri anahtarıdır; eski serbest etiketler, kategori
+    /// anahtarları ve İngilizce adlar da buraya eşlenir. Eşleşmeyen (Özel, boş) beceri yıldızı vermez.
     /// </summary>
     public static class SkillCatalog
     {
-        public const string Focus = "focus", Kindness = "kindness", Responsibility = "responsibility",
-            Independence = "independence", Calm = "calm", SelfCare = "self_care";
+        public const string Teamwork = "teamwork", Stamina = "stamina", Knowledge = "knowledge",
+            Strength = "strength", Focus = "focus", Kindness = "kindness";
 
-        public static readonly IReadOnlyList<string> All = new[] { Focus, Kindness, Responsibility, Independence, Calm, SelfCare };
+        public static readonly IReadOnlyList<string> All = new[] { Teamwork, Stamina, Knowledge, Strength, Focus, Kindness };
 
         private static readonly Dictionary<string, string> Labels = new Dictionary<string, string>
         {
-            [Focus] = "Odak", [Kindness] = "Nezaket", [Responsibility] = "Sorumluluk",
-            [Independence] = "Bağımsızlık", [Calm] = "Sakinlik", [SelfCare] = "Öz Bakım",
+            [Teamwork] = "Takım Çalışması", [Stamina] = "Dayanıklılık", [Knowledge] = "Bilgi",
+            [Strength] = "Güç", [Focus] = "Odak", [Kindness] = "Nezaket",
         };
 
-        // etiket (küçük harf, Türkçe) → anahtar; ParentApp'in bugünkü şablon etiketleri dahil
+        /// <summary>Görev kategorisi (ortak/sozlesme/durumlar.md 9) → beceri.</summary>
+        public static readonly IReadOnlyDictionary<string, string> ByCategory = new Dictionary<string, string>
+        {
+            ["home"] = Teamwork, ["mind"] = Stamina, ["learn"] = Knowledge,
+            ["health"] = Strength, ["self"] = Strength, ["focus"] = Focus, ["relation"] = Kindness,
+        };
+
+        // etiket (küçük harf) → anahtar: bugünkü ve eski ParentApp şablon etiketleri, İngilizce adlar, eski oyun anahtarları
         private static readonly Dictionary<string, string> Aliases = new Dictionary<string, string>
         {
-            ["odak"] = Focus, ["odaklanma"] = Focus,
-            ["nezaket"] = Kindness, ["empati"] = Kindness, ["minnettarlık"] = Kindness,
-            ["sorumluluk"] = Responsibility, ["takım çalışması"] = Responsibility,
-            ["bağımsızlık"] = Independence,
-            ["sakinlik"] = Calm, ["sakinleşme"] = Calm,
-            ["öz bakım"] = SelfCare,
+            ["takım çalışması"] = Teamwork, ["sorumluluk"] = Teamwork, ["bağımsızlık"] = Teamwork,
+            ["responsibility"] = Teamwork, ["independence"] = Teamwork,
+            ["dayanıklılık"] = Stamina, ["sakinlik"] = Stamina, ["sakinleşme"] = Stamina, ["duygu farkındalığı"] = Stamina, ["calm"] = Stamina,
+            ["bilgi"] = Knowledge, ["okuma"] = Knowledge, ["dil"] = Knowledge, ["temel beceriler"] = Knowledge, ["öğrenme"] = Knowledge,
+            ["güç"] = Strength, ["öz bakım"] = Strength, ["hareket"] = Strength, ["sağlıklı alışkanlık"] = Strength, ["self_care"] = Strength,
+            ["odak"] = Focus, ["odaklanma"] = Focus, ["öz denetim"] = Focus, ["sabır"] = Focus, ["planlama"] = Focus,
+            ["nezaket"] = Kindness, ["empati"] = Kindness, ["minnettarlık"] = Kindness, ["paylaşma"] = Kindness,
+            ["iletişim"] = Kindness, ["arkadaşlık"] = Kindness,
         };
 
         public static string Label(string key) => key != null && Labels.TryGetValue(key, out var l) ? l : null;
 
-        /// <summary>Sunucudaki beceri metni → anahtar (bilinmeyen: null). Anahtarın kendisi de kabul edilir.</summary>
+        /// <summary>Sunucudaki beceri metni → anahtar (bilinmeyen: null). Anahtarın, kategorinin ve İngilizce adın kendisi de kabul edilir.</summary>
         public static string Map(string skill)
         {
             if (string.IsNullOrWhiteSpace(skill)) return null;
@@ -42,6 +52,12 @@ namespace Pofi.Logic.Tasks
             if (Labels.ContainsKey(s)) return s;
             // Türkçe küçük harf (WebGL'de kültür verisi olmayabilir: elle)
             var k = s.Replace('I', 'ı').Replace('İ', 'i').ToLowerInvariant();
+            if (Labels.ContainsKey(k)) return k;
+            if (ByCategory.TryGetValue(k, out var byCat)) return byCat;
+            // İngilizce ad büyük I ile gelirse ("Independence") 'ı'ya döner: ASCII hâliyle de dene
+            var ascii = s.ToLowerInvariant();
+            if (Labels.ContainsKey(ascii)) return ascii;
+            if (Aliases.TryGetValue(ascii, out var a)) return a;
             return Aliases.TryGetValue(k, out var key) ? key : null;
         }
     }
@@ -54,6 +70,20 @@ namespace Pofi.Logic.Tasks
         public List<string> RewardedKeys = new List<string>();   // her görev örneği bir kez (en yeni ~200 tutulur)
 
         public int StarsOf(string key) => key != null && Stars.TryGetValue(key, out var n) ? n : 0;
+
+        /// <summary>Eski kayıt (23 Ekim 2026 öncesi beceri anahtarları) → yeni altı beceri; yıldızlar toplanır.</summary>
+        public void Normalize()
+        {
+            if (Stars == null) { Stars = new Dictionary<string, int>(); return; }
+            var old = new List<KeyValuePair<string, int>>();
+            foreach (var kv in Stars) if (SkillCatalog.Label(kv.Key) == null) old.Add(kv);
+            foreach (var kv in old)
+            {
+                Stars.Remove(kv.Key);
+                var to = SkillCatalog.Map(kv.Key);
+                if (to != null) Stars[to] = StarsOf(to) + kv.Value;
+            }
+        }
     }
 
     public sealed class RealTaskReward

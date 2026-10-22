@@ -13,11 +13,11 @@ namespace Pofi.Logic.App
     {
         public static readonly (string Id, string Title, int Coins, string Skill, string Difficulty)[] Samples =
         {
-            ("demo_teeth", "Dişlerini fırçala", 5, "Öz Bakım", "easy"),
-            ("demo_room", "Odanı topla", 10, "Sorumluluk", "medium"),
-            ("demo_read", "15 dakika kitap oku", 10, "Odaklanma", "medium"),
-            ("demo_table", "Sofrayı kurmaya yardım et", 5, "Takım Çalışması", "easy"),
-            ("demo_homework", "Ödevini bitir", 20, "Sorumluluk", "hard"),
+            ("demo_teeth", "Dişlerini fırçala", 5, "strength", "easy"),
+            ("demo_room", "Odanı topla", 10, "teamwork", "medium"),
+            ("demo_read", "15 dakika kitap oku", 10, "knowledge", "medium"),
+            ("demo_table", "Sofrayı kurmaya yardım et", 5, "teamwork", "easy"),
+            ("demo_homework", "Ödevini bitir", 20, "knowledge", "hard"),
         };
 
         /// <summary>Deneme ailesinin gerçek ödülleri (ParentApp'te ebeveyn tanımlar): taşla; son ikisi "Değiş tokuş".</summary>

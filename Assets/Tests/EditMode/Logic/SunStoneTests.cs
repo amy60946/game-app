@@ -118,16 +118,48 @@ namespace Pofi.Tests.Logic
         [Test]
         public void Beceri_etiketleri_alti_beceriye_eslenir()
         {
+            // kategori = beceri (23 Ekim 2026): her kategorinin tek becerisi
+            Assert.AreEqual(SkillCatalog.Teamwork, SkillCatalog.Map("home"));
+            Assert.AreEqual(SkillCatalog.Stamina, SkillCatalog.Map("mind"));
+            Assert.AreEqual(SkillCatalog.Knowledge, SkillCatalog.Map("learn"));
+            Assert.AreEqual(SkillCatalog.Strength, SkillCatalog.Map("health"));
+            Assert.AreEqual(SkillCatalog.Focus, SkillCatalog.Map("focus"));
+            Assert.AreEqual(SkillCatalog.Kindness, SkillCatalog.Map("relation"));
+            // eski ParentApp etiketleri ve İngilizce adlar
             Assert.AreEqual(SkillCatalog.Focus, SkillCatalog.Map("Odaklanma"));
-            Assert.AreEqual(SkillCatalog.Responsibility, SkillCatalog.Map("Takım Çalışması"));
+            Assert.AreEqual(SkillCatalog.Teamwork, SkillCatalog.Map("Takım Çalışması"));
+            Assert.AreEqual(SkillCatalog.Teamwork, SkillCatalog.Map("Sorumluluk"));
             Assert.AreEqual(SkillCatalog.Kindness, SkillCatalog.Map("Empati"));
             Assert.AreEqual(SkillCatalog.Kindness, SkillCatalog.Map("MİNNETTARLIK"));
-            Assert.AreEqual(SkillCatalog.Calm, SkillCatalog.Map(" Sakinleşme "));
-            Assert.AreEqual(SkillCatalog.SelfCare, SkillCatalog.Map("Öz Bakım"));
-            Assert.AreEqual(SkillCatalog.Independence, SkillCatalog.Map("independence"));
+            Assert.AreEqual(SkillCatalog.Stamina, SkillCatalog.Map(" Sakinleşme "));
+            Assert.AreEqual(SkillCatalog.Strength, SkillCatalog.Map("Öz Bakım"));
+            Assert.AreEqual(SkillCatalog.Teamwork, SkillCatalog.Map("independence"));
+            Assert.AreEqual(SkillCatalog.Knowledge, SkillCatalog.Map("Okuma"));
+            Assert.AreEqual(SkillCatalog.Strength, SkillCatalog.Map("Strength"));
+            Assert.AreEqual(SkillCatalog.Teamwork, SkillCatalog.Map("Teamwork"));
+            Assert.AreEqual(SkillCatalog.Kindness, SkillCatalog.Map("kindness"));
             Assert.IsNull(SkillCatalog.Map("Özel"));
             Assert.IsNull(SkillCatalog.Map(""));
-            Assert.AreEqual("Öz Bakım", SkillCatalog.Label(SkillCatalog.SelfCare));
+            Assert.AreEqual("Takım Çalışması", SkillCatalog.Label(SkillCatalog.Teamwork));
+            Assert.AreEqual("Dayanıklılık", SkillCatalog.Label(SkillCatalog.Stamina));
+        }
+
+        [Test]
+        public void Eski_beceri_yildizlari_yeni_anahtarlara_tasinir()
+        {
+            var s = new SkillState();
+            s.Stars["responsibility"] = 3; s.Stars["independence"] = 2; s.Stars["calm"] = 4; s.Stars["self_care"] = 1;
+            s.Stars["focus"] = 5; s.Stars["kindness"] = 2; s.Stars["bilinmeyen"] = 9;
+            s.Normalize();
+            Assert.AreEqual(5, s.StarsOf(SkillCatalog.Teamwork));
+            Assert.AreEqual(4, s.StarsOf(SkillCatalog.Stamina));
+            Assert.AreEqual(1, s.StarsOf(SkillCatalog.Strength));
+            Assert.AreEqual(5, s.StarsOf(SkillCatalog.Focus));
+            Assert.AreEqual(2, s.StarsOf(SkillCatalog.Kindness));
+            Assert.IsFalse(s.Stars.ContainsKey("bilinmeyen"));
+            Assert.AreEqual(5, s.Stars.Count, "bilinmeyen anahtar düşer");
+            var json = SaveCodec.Serialize(new GameState { ChildId = "c", Skills = new SkillState { Stars = new System.Collections.Generic.Dictionary<string, int> { ["calm"] = 2 } } }, System.DateTime.UtcNow);
+            Assert.AreEqual(2, SaveCodec.Deserialize(json).Skills.StarsOf(SkillCatalog.Stamina), "kayıt yüklenince taşınır");
         }
 
         [Test]
@@ -137,7 +169,7 @@ namespace Pofi.Tests.Logic
             ChildTask T(int i, string diff) => new ChildTask { TaskId = "t" + i, Date = Day, Status = ChildTaskStatus.Approved, Skill = "Sorumluluk", Difficulty = diff };
             var r = RealTaskRewards.Apply(s, T(0, "hard"));
             Assert.AreEqual(14, r.Xp, "zor görev cüzî XP (M7, 22 Ekim 2026)");
-            Assert.AreEqual(SkillCatalog.Responsibility, r.Skill);
+            Assert.AreEqual(SkillCatalog.Teamwork, r.Skill);
             Assert.AreEqual(1, r.Stars);
             Assert.IsNull(RealTaskRewards.Apply(s, T(0, "hard")), "aynı görev örneği ikinci kez ödül vermez");
             Assert.IsNull(RealTaskRewards.Apply(s, new ChildTask { TaskId = "x", Date = Day, Status = ChildTaskStatus.ChildDone }), "onaysız ödül yok");
@@ -147,7 +179,7 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual(1, fifth.NewTier, "5 yıldız bronz");
             Assert.AreEqual(2, RealTaskRewards.Tier(15));
             Assert.AreEqual(3, RealTaskRewards.Tier(30));
-            Assert.AreEqual(SkillCatalog.Responsibility, RealTaskRewards.Ranked(s).First().Key);
+            Assert.AreEqual(SkillCatalog.Teamwork, RealTaskRewards.Ranked(s).First().Key);
         }
 
         [Test]
@@ -202,7 +234,7 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual(10, r.RealTaskXp);
             Assert.AreEqual(10 + TaskStreak.Bonus(1), s.Xp.TotalXp, "görev XP'si + seri bonusu");
             Assert.IsFalse(r.RealTaskGoalReached, "tek görev günlük payı doldurmaz");
-            Assert.AreEqual(1, s.Skills.StarsOf(SkillCatalog.Responsibility));
+            Assert.AreEqual(1, s.Skills.StarsOf(SkillCatalog.Teamwork));
             Assert.AreEqual(10, s.Wallet.Available);
 
             var again = sync.SyncAsync(s, Local, Utc).Result;
@@ -210,7 +242,7 @@ namespace Pofi.Tests.Logic
 
             s = SaveCodec.Deserialize(SaveCodec.Serialize(s, Utc));
             Assert.AreEqual(2, s.SunStones.Earned, "kayıtta kalır");
-            Assert.AreEqual(1, s.Skills.StarsOf(SkillCatalog.Responsibility));
+            Assert.AreEqual(1, s.Skills.StarsOf(SkillCatalog.Teamwork));
         }
 
         [Test]

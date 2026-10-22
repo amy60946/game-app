@@ -108,7 +108,9 @@ namespace Pofi.Logic.State
                 var schema = obj.Value<int?>("Schema") ?? 0;
                 if (schema > GameState.CurrentSchema) return null; // daha yeni sürümün kaydı: dokunma
                 Migrate(obj, schema);
-                return obj.ToObject<GameState>(JsonSerializer.Create(Settings));
+                var state = obj.ToObject<GameState>(JsonSerializer.Create(Settings));
+                state?.Skills?.Normalize();   // eski beceri anahtarları (23 Ekim 2026 öncesi) → yeni altı beceri
+                return state;
             }
             catch (JsonException)
             {
