@@ -70,7 +70,7 @@ namespace Pofi.Screens
             _coinText = Candy.CoinPlate(hud, Vector2.zero, 300f);
             TopCenter(_coinText, 170f);
             RewardFlight.Register("coin", (RectTransform)_coinText.transform.parent);    // O1: kazanılan coin buraya uçar
-            RewardFlight.Register("stone", (RectTransform)_stoneText.transform.parent);
+            RewardFlight.Register("sunstone", (RectTransform)_stoneText.transform.parent);
 
             // sağ üst: Harita (kuşbakışı / yürü) ve Ayarlar
             // kenarlara yakın (kullanıcı, 20 Ekim 2026)
@@ -219,7 +219,7 @@ namespace Pofi.Screens
                 _gauges[i].fillAmount = f;
             }
             // uçuştaki ödül sayaçtan düşülür: parçalar geldikçe sayı tek tek artar (O1)
-            var coins = st.Wallet.Available - RewardFlight.Pending("coin"); var stones = Logic.Island.SunStoneBook.Available(st.SunStones) - RewardFlight.Pending("stone");
+            var coins = st.Wallet.Available - RewardFlight.Pending("coin"); var stones = Logic.Island.SunStoneBook.Available(st.SunStones) - RewardFlight.Pending("sunstone");
             if (_lastCoins >= 0 && coins != _lastCoins) Bump.Play(_coinText.transform.parent);
             if (_lastStones >= 0 && stones != _lastStones) Bump.Play(_stoneText.transform.parent, 0.3f);
             _lastCoins = coins; _lastStones = stones;

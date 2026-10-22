@@ -18,6 +18,7 @@ namespace Pofi.UI
         private readonly List<Piece> _pieces = new List<Piece>();
         private string _kind;
         private RectTransform _target;
+        private bool _counted;   // Pending'e eklendi mi (hedef uçuşta yok olsa da geri düşülür)
         private float _t;
         private const float BurstT = 0.35f, Hold = 0.2f, FlyT = 0.55f, Gap = 0.07f;
 
@@ -38,7 +39,7 @@ namespace Pofi.UI
             var root = Ui.Fill(overlay, "RewardFlight");
             var group = root.gameObject.AddComponent<CanvasGroup>(); group.blocksRaycasts = false; group.interactable = false;
             var f = root.gameObject.AddComponent<RewardFlight>();
-            f._kind = kind; f._target = target;
+            f._kind = kind; f._target = target; f._counted = target != null;
             var canvas = overlay.GetComponentInParent<Canvas>();
             var cam = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(root, from, cam, out var local);
@@ -84,9 +85,9 @@ namespace Pofi.UI
                 if (ft <= 0f) { p.Rt.localScale = Vector3.one * (1.1f + Mathf.Sin(_t * 12f) * 0.04f); continue; }
                 if (_target == null)
                 {
-                    // hedef yok: yerinde parlayıp söner
+                    // hedef yok (ya da uçuşta ekran değişti): yerinde parlayıp söner
                     p.Rt.localScale = Vector3.one * Mathf.Lerp(1.1f, 0f, ft);
-                    if (ft >= 1f) { p.Done = true; p.Rt.gameObject.SetActive(false); }
+                    if (ft >= 1f) { p.Done = true; p.Rt.gameObject.SetActive(false); Uncount(p.Share); }
                     continue;
                 }
                 var e = ft * ft;   // ivmelenerek
@@ -97,7 +98,7 @@ namespace Pofi.UI
                 if (ft >= 1f)
                 {
                     p.Done = true; p.Rt.gameObject.SetActive(false);
-                    PendingBy[_kind] = Mathf.Max(0, Pending(_kind) - p.Share);
+                    Uncount(p.Share);
                     Bump.Play(_target, 0.18f);
                     Audio.Haptics.Light();
                 }
@@ -105,24 +106,19 @@ namespace Pofi.UI
             if (all) Finish();
         }
 
-        private void Finish()
+        private void Uncount(int n)
         {
-            if (_target != null)
-            {
-                var left = 0;
-                foreach (var p in _pieces) if (!p.Done) left += p.Share;
-                PendingBy[_kind] = Mathf.Max(0, Pending(_kind) - left);
-            }
-            Destroy(gameObject);
+            if (_counted && n > 0) PendingBy[_kind] = Mathf.Max(0, Pending(_kind) - n);
         }
+
+        private void Finish() => Destroy(gameObject);
 
         private void OnDestroy()
         {
             // ekran değişip yarıda kalırsa sayaç takılı kalmasın
-            if (_target == null) return;
             var left = 0;
             foreach (var p in _pieces) if (!p.Done) { left += p.Share; p.Done = true; }
-            if (left > 0) PendingBy[_kind] = Mathf.Max(0, Pending(_kind) - left);
+            Uncount(left);
         }
     }
 }

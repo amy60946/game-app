@@ -272,7 +272,7 @@ namespace Pofi.Core
             if (report.SunStonesEarned > 0)
             {
                 Toast.Post(Overlay.transform, Theme, Loc.Get("stones.earned", report.SunStonesEarned));
-                RewardFlight.Fly(Overlay.transform, "stone", "ui_sunstone", report.SunStonesEarned, new Vector2(Screen.width * 0.5f, Screen.height * 0.42f));   // O1
+                RewardFlight.Fly(Overlay.transform, "sunstone", "ui_sunstone", report.SunStonesEarned, new Vector2(Screen.width * 0.5f, Screen.height * 0.42f));   // O1
             }
             var shown = 0;
             foreach (var rw in report.RealTaskRewards)

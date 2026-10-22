@@ -92,7 +92,7 @@ namespace Pofi.Logic.Story
             string.IsNullOrWhiteSpace(json) ? new StoryBook() : JsonConvert.DeserializeObject<StoryBook>(json) ?? new StoryBook();
 
         public StoryScene Scene(string id) => Scenes.FirstOrDefault(s => s.Id == id);
-        public string NameOf(string who) => who != null && Names.TryGetValue(who, out var n) ? n : who;
+        public string NameOf(string who) => who != null && Names.TryGetValue(who, out var n) ? n : who ?? "";
 
         /// <summary>Bu seviyede açık olan en yüksek bölüm (0 = giriş).</summary>
         public int ChapterFor(int level) => Chapters.Where(c => c.Level <= level).Select(c => c.Number).DefaultIfEmpty(0).Max();
@@ -115,7 +115,12 @@ namespace Pofi.Logic.Story
                 if (s.Trigger == StoryDirector.Spot && spots != null && !spots.Contains(s.Arg)) e.Add(s.Id + ": bilinmeyen onarım noktası " + s.Arg);
                 if (string.IsNullOrWhiteSpace(s.Summary)) e.Add(s.Id + ": özet yok");
             }
-            foreach (var r in Requests) if (r.Count < 1) e.Add(r.Id + ": adet en az 1");
+            foreach (var r in Requests)
+            {
+                if (r.Count < 1) e.Add(r.Id + ": adet en az 1");
+                if (!Names.ContainsKey(r.Who ?? "")) e.Add(r.Id + ": bilinmeyen adalı " + r.Who);
+                if (string.IsNullOrWhiteSpace(r.Need) || string.IsNullOrWhiteSpace(r.Text)) e.Add(r.Id + ": istek eksik");
+            }
             return e;
         }
     }

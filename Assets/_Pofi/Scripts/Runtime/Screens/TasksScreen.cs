@@ -160,7 +160,9 @@ namespace Pofi.Screens
         {
             Logic.Tasks.TaskBoosts.MarkOffered(App.State.Boosts, App.LocalNow);
             App.Save();
-            var root = Modal(620f, out var box);
+            RectTransform root = null;
+            void Later() { if (root != null) Destroy(root.gameObject); _ = App.Goals?.RecordBoostAsync(task.Key, false); }
+            root = Modal(620f, out var box, true, Later);
             var badge = Ui.Rect(box, "Badge", new Vector2(0.5f, 0.76f), new Vector2(220f, 160f));
             Ui.Panel(badge, Theme.Hex("#FFC93C"), 70f);
             Ui.Label(badge, "2×", Th.Font(96), Theme.Hex("#7A3B00"), new Vector2(0.5f, 0.5f), new Vector2(220f, 160f), FontStyle.Bold);
@@ -177,11 +179,7 @@ namespace Pofi.Screens
                 Fill();
                 _ = App.SyncNow();
             }, true, default, 44);
-            Ui.Button(box, Th, T("boost.later"), new Vector2(0.72f, 0.17f), new Vector2(340f, 120f), () =>
-            {
-                Destroy(root.gameObject);
-                _ = App.Goals?.RecordBoostAsync(task.Key, false);
-            }, false, default, 40);
+            Ui.Button(box, Th, T("boost.later"), new Vector2(0.72f, 0.17f), new Vector2(340f, 120f), Later, false, default, 40);
         }
 
         private void InfoRow(string name, string text)

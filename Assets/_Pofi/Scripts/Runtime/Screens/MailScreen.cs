@@ -44,7 +44,11 @@ namespace Pofi.Screens
             if (this == null) return;
             if (list == null) { _status.text = T("mail.offline"); return; }
             Render(list);
-            if (MailBox.UnreadCount(list) > 0) { await App.Mail.MarkReadAsync(); App.MailRead(); }
+            if (MailBox.UnreadCount(list) > 0)
+            {
+                try { await App.Mail.MarkReadAsync(); } catch (System.Exception) { return; }   // çevrimdışı: sonra yeniden denenir
+                App.MailRead();
+            }
         }
 
         private void Render(List<MailMessage> list)
@@ -144,8 +148,10 @@ namespace Pofi.Screens
                 return;
             }
             _sending = true;
-            var r = await App.Mail.SendAsync(kind, kind == MailBox.Text ? body.Trim() : body);
-            _sending = false;
+            MailSend r;
+            try { r = await App.Mail.SendAsync(kind, kind == MailBox.Text ? body.Trim() : body); }
+            catch (System.Exception) { r = new MailSend { Ok = false, Error = "offline" }; }
+            finally { _sending = false; }
             if (this == null) return;
             if (!r.Ok) { Toast.Post(App.Overlay.transform, Th, T(r.Error == "offline" ? "mail.offline" : "mail.err_server")); return; }
             Audio.Sfx.Play(Audio.SfxKind.Whoosh);

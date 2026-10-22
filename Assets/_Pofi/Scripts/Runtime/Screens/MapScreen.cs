@@ -110,7 +110,8 @@ namespace Pofi.Screens
             SnapCamera();
             _toast.Say(T("map.hint_walk"));
             if (_mailbox != null) RefreshMailFlag();   // baloncuk kurulduktan sonra: sahte arka uç eşzamanlı döner
-            StartCoroutine(StoryCheck());   // Ö4: sırası gelen hikâye sahnesi
+            StartCoroutine(StoryCheck());
+            _built = true;   // Ö4: sırası gelen hikâye sahnesi
         }
 
         private void ToggleMode()
@@ -290,8 +291,12 @@ namespace Pofi.Screens
             cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, fov - World.HitStop.Zoom, 0.15f);
         }
 
+        // Build yarıda kalırsa (veri hatası) sonraki karelerde kurulmamış alanlara dokunulmasın: WebGL'de boş başvuru oyunu kilitler
+        private bool _built;
+
         private void Update()
         {
+            if (!_built) return;
             if (!_cine) HandleInput();
             // dokunma başka ekran açtıysa (ör. pete dokun → Dolap) bu karede kamerayı geri çekme: dolapta pet görünmüyordu
             if (!gameObject.activeInHierarchy) return;
@@ -497,7 +502,7 @@ namespace Pofi.Screens
             foreach (var open in App.State.Story.Requests)
             {
                 var d = book.Requests.FirstOrDefault(r => r.Id == open.Id);
-                if (d == null || !Logic.Story.Residents.Home.TryGetValue(d.Who, out var regionId)) continue;
+                if (d == null || d.Who == null || !Logic.Story.Residents.Home.TryGetValue(d.Who, out var regionId)) continue;
                 var v = _views.FirstOrDefault(x => x.Region.Id == regionId);
                 if (v == null || !v.Unlocked) continue;
                 var (dx, dz) = _terrain.Door(v.Region);
@@ -551,6 +556,7 @@ namespace Pofi.Screens
                 var done = Logic.Story.Residents.Fulfill(App.State, App.Data, id);
                 if (done == null) return;
                 _reqBubbles.RemoveAll(x => { if (x.Id == id && x.B != null) { Destroy(x.B.gameObject); return true; } return x.Id == id; });
+                RefreshTracker();   // verilen odun/dal/taş sayaçtan ve şantiye yığınından düşsün
                 Audio.Sfx.Play(Audio.SfxKind.Success);
                 _world.Walker?.Cheer();
                 var reward = string.IsNullOrEmpty(done.RewardItem) ? null : App.Data.Item(done.RewardItem);

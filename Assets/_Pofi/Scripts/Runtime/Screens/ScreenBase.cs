@@ -164,7 +164,7 @@ namespace Pofi.Screens
         /// Ekranı karartan ortalanmış kutu (onay, ebeveyn kapısı, panel). Kökü döndürür; kutuya .GetChild(0) ile erişilir.
         /// P5 (23 Ekim 2026): kutunun dışına dokununca kapanır (vazgeç ile aynı); <paramref name="closeOutside"/> false ise kapanmaz.
         /// </summary>
-        protected RectTransform Modal(float height, out RectTransform box, bool closeOutside = true)
+        protected RectTransform Modal(float height, out RectTransform box, bool closeOutside = true, System.Action onOutside = null)
         {
             var root = Ui.Fill(Root, "Modal");
             root.gameObject.AddComponent<Image>().color = new Color(0f, 0.08f, 0.2f, 0.5f);
@@ -175,7 +175,8 @@ namespace Pofi.Screens
             {
                 var outside = root.gameObject.AddComponent<Button>();
                 outside.transition = Selectable.Transition.None;
-                outside.onClick.AddListener(() => { if (root != null) Destroy(root.gameObject); });
+                // dışarı dokunuş: pencerenin kendi kapanışı varsa o (ör. ebeveyn sorusu sürüklemeyi geri açar), yoksa yalnız kapanır
+                outside.onClick.AddListener(() => { if (root == null) return; if (onOutside != null) onOutside(); else Destroy(root.gameObject); });
                 box.gameObject.AddComponent<ClickSink>();   // kutunun içine dokunuş dışarıya taşmasın
             }
             return root;
@@ -258,8 +259,9 @@ namespace Pofi.Screens
             if (wait > System.TimeSpan.Zero) { onFail?.Invoke(T("gate.wait", (int)System.Math.Ceiling(wait.TotalSeconds))); return; }
             App.Stage.AllowDrag = false;
             var ch = Logic.Safety.ParentGate.Create(App.Session.AgeBand, new System.Random());
-            var root = Modal(860f, out var box);
-            void Close() { Destroy(root.gameObject); App.Stage.AllowDrag = true; }
+            RectTransform root = null;
+            void Close() { if (root != null) Destroy(root.gameObject); App.Stage.AllowDrag = true; }
+            root = Modal(860f, out var box, true, Close);
             Ui.Label(box, T("gate.title"), Th.Font(56), Th.Text, new Vector2(0.5f, 0.9f), new Vector2(880f, 80f), FontStyle.Bold);
             Ui.Label(box, T("gate.hint"), Th.Font(34), Th.SubtleText, new Vector2(0.5f, 0.82f), new Vector2(880f, 60f));
             Ui.Label(box, ch.Prompt, Th.Font(48), Th.Text, new Vector2(0.5f, 0.69f), new Vector2(880f, 140f), FontStyle.Bold);
