@@ -19,6 +19,7 @@ namespace Pofi.Logic.State
         public List<PendingSpend> RejectedSpends = new List<PendingSpend>();
         public List<RealTaskReward> RealTaskRewards = new List<RealTaskReward>();   // onaylı gerçek görevin XP'si + beceri yıldızı (Ö2)
         public int RealTaskXp;
+        public bool RealTaskGoalReached;   // görünmez günlük pay doldu: "bugünkü yıldız hedefine ulaştın" (M7)
         public int SunStonesEarned;      // bu senkronda yeni gelen Güneş Taşı (Ö1)
         public Progression.LevelUp LevelUp;   // görev XP'siyle seviye atlandıysa (kutlama)
         public List<Rewards.RewardEvent> RewardEvents = new List<Rewards.RewardEvent>();   // verilen / bekleyecek gerçek ödüller (Ö7)
@@ -92,7 +93,9 @@ namespace Pofi.Logic.State
                     if (bonus > 0) report.StreakBonusXp += s.Xp.Add(bonus, XpSource.TaskStreak, local, int.MaxValue).Granted;
                     var reward = RealTaskRewards.Apply(s.Skills, ev.Task);
                     if (reward == null) continue;
-                    report.RealTaskXp += s.Xp.Add(reward.Xp, XpSource.RealTask, local, int.MaxValue).Granted;
+                    var g = s.Xp.AddRealTask(reward.Xp, local);
+                    report.RealTaskXp += g.Granted;
+                    if (g.CapReached) report.RealTaskGoalReached = true;
                     report.RealTaskRewards.Add(reward);
                 }
                 report.LevelUp = _levels.Check(xpBefore, s.Xp.TotalXp);

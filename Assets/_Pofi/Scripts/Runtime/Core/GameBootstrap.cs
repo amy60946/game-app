@@ -250,6 +250,8 @@ namespace Pofi.Core
             }
             Notices.Add(NoticeDigest.Build(report.TaskEvents, report.RewardEvents));
             if (report.RealTaskXp > 0) XpGained?.Invoke(report.RealTaskXp);
+            // görünmez günlük pay doldu (M7): sınır değil, ulaşılmış hedef gibi sıcak bir haber
+            if (report.RealTaskGoalReached) Toast.Post(Overlay.transform, Theme, Loc.Get("tasks.xp_goal"));
             if (report.LevelUp != null) { Data.SunBook.FilterLevelUp(report.LevelUp); LevelUpCelebration.Show(this, report.LevelUp); }
             var approved = 0;
             foreach (var ev in report.TaskEvents) if (ev.Kind == Logic.Tasks.TaskEventKind.Approved) approved++;

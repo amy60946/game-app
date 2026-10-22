@@ -78,9 +78,11 @@ namespace Pofi.Logic.Tasks
         {
             switch (difficulty)
             {
-                case "hard": return 50;
-                case "medium": return 35;
-                default: return 20;
+                // 22 Ekim 2026 (kullanıcı, XP takibi M7): gerçek görev "cüzî" XP verir; asıl ödülü coin, Güneş Taşı ve beceri
+                // yıldızıdır. Oran korunur (kolay 1 : orta 1,7 : zor 2,3). Günlük görünmez pay: XpSystem.AddRealTask.
+                case "hard": return 14;
+                case "medium": return 10;
+                default: return 6;
             }
         }
 

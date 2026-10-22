@@ -21,6 +21,11 @@ namespace Pofi.Logic.Economy
         public int TotalXp;
         public int Day;          // yerel tarih gün numarası
         public int XpToday;      // bugün sınıra sayılan XP
+        public int InGameToday;  // bugün oyun içinden gelen XP (gerçek görev ve seri hariç; sınıra sayılmayan rozet/parıltı dahil)
+        public int RealToday;    // bugün gerçek görevden gelen XP
+
+        /// <summary>Gerçek görev XP'sinin görünmez günlük payı en az bu kadar (oyun oynamadan görev yapan çocuk da XP görür).</summary>
+        public const int RealTaskFloor = 20;
 
         public static int DayNumber(DateTime local) => (int)(local.Date.Ticks / TimeSpan.TicksPerDay);
 
@@ -47,6 +52,25 @@ namespace Pofi.Logic.Economy
             {
                 g.Granted = g.Requested;
             }
+            if (source != XpSource.RealTask && source != XpSource.TaskStreak) InGameToday += g.Granted;
+            else if (source == XpSource.RealTask) RealToday += g.Granted;
+            TotalXp += g.Granted;
+            return g;
+        }
+
+        /// <summary>
+        /// Onaylı gerçek görevin XP'si (M7, 22 Ekim 2026): bir günde gerçek görevden gelen XP o günkü oyun içi XP'yi geçmez
+        /// (en az <see cref="RealTaskFloor"/>). Çocuk sınırı görmez; dolunca <see cref="XpGrant.CapReached"/> = true ve arayüz
+        /// "bugünkü yıldız hedefine ulaştın" der. Coin, Güneş Taşı ve beceri yıldızı bundan etkilenmez.
+        /// </summary>
+        public XpGrant AddRealTask(int amount, DateTime local)
+        {
+            Roll(local);
+            var room = Math.Max(0, Math.Max(RealTaskFloor, InGameToday) - RealToday);
+            var g = new XpGrant { Requested = Math.Max(0, amount) };
+            g.Granted = Math.Min(g.Requested, room);
+            g.CapReached = g.Requested > 0 && g.Granted < g.Requested;
+            RealToday += g.Granted;
             TotalXp += g.Granted;
             return g;
         }
@@ -54,7 +78,7 @@ namespace Pofi.Logic.Economy
         private void Roll(DateTime local)
         {
             var d = DayNumber(local);
-            if (d != Day) { Day = d; XpToday = 0; }
+            if (d != Day) { Day = d; XpToday = 0; InGameToday = 0; RealToday = 0; }
         }
     }
 

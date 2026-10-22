@@ -136,14 +136,14 @@ namespace Pofi.Tests.Logic
             var s = new SkillState();
             ChildTask T(int i, string diff) => new ChildTask { TaskId = "t" + i, Date = Day, Status = ChildTaskStatus.Approved, Skill = "Sorumluluk", Difficulty = diff };
             var r = RealTaskRewards.Apply(s, T(0, "hard"));
-            Assert.AreEqual(50, r.Xp);
+            Assert.AreEqual(14, r.Xp, "zor görev cüzî XP (M7, 22 Ekim 2026)");
             Assert.AreEqual(SkillCatalog.Responsibility, r.Skill);
             Assert.AreEqual(1, r.Stars);
             Assert.IsNull(RealTaskRewards.Apply(s, T(0, "hard")), "aynı görev örneği ikinci kez ödül vermez");
             Assert.IsNull(RealTaskRewards.Apply(s, new ChildTask { TaskId = "x", Date = Day, Status = ChildTaskStatus.ChildDone }), "onaysız ödül yok");
             for (var i = 1; i < 4; i++) Assert.AreEqual(0, RealTaskRewards.Apply(s, T(i, "easy")).NewTier);
             var fifth = RealTaskRewards.Apply(s, T(4, null));
-            Assert.AreEqual(20, fifth.Xp, "zorluk yoksa kolay");
+            Assert.AreEqual(6, fifth.Xp, "zorluk yoksa kolay");
             Assert.AreEqual(1, fifth.NewTier, "5 yıldız bronz");
             Assert.AreEqual(2, RealTaskRewards.Tier(15));
             Assert.AreEqual(3, RealTaskRewards.Tier(30));
@@ -156,6 +156,30 @@ namespace Pofi.Tests.Logic
             var xp = new XpSystem();
             xp.Add(300, XpSource.MiniGame, Local, 300);
             Assert.AreEqual(50, xp.Add(50, XpSource.RealTask, Local, 300).Granted);
+        }
+
+        [Test]
+        public void Gercek_gorev_XPsi_gorunmez_gunluk_payi_gecmez()
+        {
+            var xp = new XpSystem();
+            // oyun oynamadan: pay en az 20 (2 orta görev), üçüncü görev XP vermez ama hedef mesajı tetiklenir
+            Assert.AreEqual(10, xp.AddRealTask(10, Local).Granted);
+            Assert.AreEqual(10, xp.AddRealTask(10, Local).Granted);
+            var third = xp.AddRealTask(10, Local);
+            Assert.AreEqual(0, third.Granted);
+            Assert.IsTrue(third.CapReached);
+            // oyun içi XP payı büyütür: bugün 45 oyun içi → toplam 45'e kadar gerçek görev XP'si
+            xp.Add(45, XpSource.DailyQuest, Local, 300);
+            Assert.AreEqual(14, xp.AddRealTask(14, Local).Granted);
+            var cut = xp.AddRealTask(14, Local);
+            Assert.AreEqual(11, cut.Granted, "kalan pay kadar (45 − 20 − 14)");
+            Assert.IsTrue(cut.CapReached);
+            Assert.AreEqual(45 + 45, xp.TotalXp);
+            // ertesi gün sıfırlanır; seri bonusu oyun içi sayılmaz
+            var next = Local.AddDays(1);
+            xp.Add(40, XpSource.TaskStreak, next, int.MaxValue);
+            Assert.AreEqual(0, xp.InGameToday);
+            Assert.AreEqual(14, xp.AddRealTask(14, next).Granted);
         }
 
         [Test]
@@ -175,8 +199,9 @@ namespace Pofi.Tests.Logic
             var r = sync.SyncAsync(s, Local, Utc).Result;
             Assert.AreEqual(2, r.SunStonesEarned, "orta görev 2 taş");
             Assert.AreEqual(2, s.SunStones.Earned);
-            Assert.AreEqual(35, r.RealTaskXp);
-            Assert.AreEqual(35 + TaskStreak.Bonus(1), s.Xp.TotalXp, "görev XP'si + seri bonusu");
+            Assert.AreEqual(10, r.RealTaskXp);
+            Assert.AreEqual(10 + TaskStreak.Bonus(1), s.Xp.TotalXp, "görev XP'si + seri bonusu");
+            Assert.IsFalse(r.RealTaskGoalReached, "tek görev günlük payı doldurmaz");
             Assert.AreEqual(1, s.Skills.StarsOf(SkillCatalog.Responsibility));
             Assert.AreEqual(10, s.Wallet.Available);
 
