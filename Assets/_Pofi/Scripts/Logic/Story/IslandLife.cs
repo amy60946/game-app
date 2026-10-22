@@ -119,6 +119,39 @@ namespace Pofi.Logic.Story
         }
     }
 
+    /// <summary>
+    /// Adalıların yeri ve isteğin karşılanması (H4): malzeme (odun/dal/taş) toplanan malzemeden, eşya (hindistan cevizi, balık, havuç)
+    /// envanterden düşülür; ödül eşyası envantere girer. Coin asla (yalnız onaylı gerçek görevden).
+    /// </summary>
+    public static class Residents
+    {
+        public static readonly Dictionary<string, string> Home = new Dictionary<string, string>
+        {
+            { "kiskac", "region_shop" }, { "mavi", "region_home" }, { "pitir", "region_coconut_grove" }, { "hisir", "region_coconut_grove" },
+            { "tosbi", "region_pier" },
+        };
+
+        public static bool IsMaterial(string need) => need == Island.Gathering.Wood || need == Island.Gathering.Branch || need == Island.Gathering.Stone;
+
+        public static int Have(State.GameState s, string need) =>
+            IsMaterial(need) ? Island.Gathering.Count(s.Gather, need) : s.Inventory.CountOf(need);
+
+        public static RequestDef Fulfill(State.GameState s, Data.GameData data, string requestId)
+        {
+            var d = ResidentRequests.Fulfill(s.Story, data.Story.Requests, requestId, k => Have(s, k), (k, n) =>
+            {
+                if (IsMaterial(k)) s.Gather.Materials[k] = Island.Gathering.Count(s.Gather, k) - n;
+                else { var it = data.Item(k); if (it != null) s.Inventory.Remove(it, n); }
+            });
+            if (d != null && !string.IsNullOrEmpty(d.RewardItem))
+            {
+                var reward = data.Item(d.RewardItem);
+                if (reward != null) s.Inventory.Add(reward);
+            }
+            return d;
+        }
+    }
+
     /// <summary>Günün küçük sürprizleri (O3): her gün 2–3 tanesi adada belirir; kaçırılırsa bir şey kaybedilmez.</summary>
     public static class DailySurprises
     {

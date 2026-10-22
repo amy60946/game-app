@@ -138,6 +138,23 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
+        public void Adali_istegi_malzemeyle_karsilanir_odul_esya()
+        {
+            var data = TestData.Load();
+            var s = new GameState { ChildId = "c1" };
+            s.Story.Requests.Add(new OpenRequest { Id = "req_kiskac_stone", Day = 1 });
+            Assert.IsNull(Residents.Fulfill(s, data, "req_kiskac_stone"), "taş yokken olmaz");
+            s.Gather.Materials[Gathering.Stone] = 5;
+            var d = Residents.Fulfill(s, data, "req_kiskac_stone");
+            Assert.IsNotNull(d);
+            Assert.AreEqual(2, Gathering.Count(s.Gather, Gathering.Stone), "3 taş verildi");
+            Assert.IsTrue(s.Inventory.Owns("decor_sandcastle"), "ödül eşyası");
+            Assert.AreEqual(1, s.Story.Friendship["kiskac"]);
+            Assert.IsTrue(Residents.Home.ContainsKey(d.Who));
+            foreach (var r in Book.Requests) Assert.IsTrue(Residents.Home.ContainsKey(r.Who), r.Id + " adalının yeri var");
+        }
+
+        [Test]
         public void Gunun_surprizleri_belirlenimci_ve_bir_kez()
         {
             var defs = Book.Surprises;

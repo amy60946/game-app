@@ -509,6 +509,10 @@
     "mail.new": "Posta kutunda {0} yeni mektup var!",
     "story.go": "Hadi!",
     "story.skip": "Atla »",
-    "settings.story": "Hikâye sahneleri"
+    "settings.story": "Hikâye sahneleri",
+    "resident.give": "Ver",
+    "resident.later": "Toplayınca gel",
+    "resident.thanks": "{0}: Teşekkürler, çok iyi geldi!",
+    "resident.thanks_item": "{0}: Teşekkürler! Sana {1} hediye."
   }
 }

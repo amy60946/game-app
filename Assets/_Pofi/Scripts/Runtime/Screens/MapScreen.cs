@@ -100,6 +100,7 @@ namespace Pofi.Screens
             }
 
             _labelLayer = Ui.Fill(Root, "Labels");
+            BuildRequests();   // H4: adalı istekleri (kapıda baloncuk)
             foreach (var v in _views) _labels[v.Region.Id] = Label(v);
             BuildPlaceLabels();
             BuildGather();   // kütük/çalı/taş + kulübe yeri, nesne üstü baloncuklar
@@ -296,6 +297,7 @@ namespace Pofi.Screens
             if (!gameObject.activeInHierarchy) return;
             UpdateGather();
             UpdateDressBubble();
+            UpdateRequests();
             UpdateHud();
             TargetCamera(out var pos, out var look, out var fov);
             var lag = _overview ? 0.25f : 0.16f;
@@ -477,6 +479,87 @@ namespace Pofi.Screens
                 TipDone(Onboarding.Walk);
                 GoTo(p.x, p.y, null);
             }
+        }
+
+        // ------------------------------------------------------------------ H4 adalı istekleri (23 Ekim 2026)
+        // Günde en çok bir yeni istek, aynı anda en çok iki; süre dolmaz. İstek, adalının yerinin (dükkân, ev, bahçe, iskele) kapısında
+        // adalının simgesiyle süzülen baloncuk olarak durur. 3B adalı modelleri onaydan sonra aynı yere gelir.
+        private static readonly Dictionary<string, string> ResidentIcons = new Dictionary<string, string>
+            { { "kiskac", "res_crab" }, { "mavi", "res_seagull" }, { "tosbi", "res_turtle" }, { "pitir", "decor_palm" }, { "hisir", "decor_palm" } };
+        private readonly List<(string Id, Button B, Vector3 At)> _reqBubbles = new List<(string, Button, Vector3)>();
+
+        private void BuildRequests()
+        {
+            var book = App.Data.Story;
+            if (book == null || book.Requests.Count == 0) return;
+            Logic.Story.ResidentRequests.Refresh(App.State.Story, book.Requests, Day, App.Level, App.State.ChildId);
+            App.Save();
+            foreach (var open in App.State.Story.Requests)
+            {
+                var d = book.Requests.FirstOrDefault(r => r.Id == open.Id);
+                if (d == null || !Logic.Story.Residents.Home.TryGetValue(d.Who, out var regionId)) continue;
+                var v = _views.FirstOrDefault(x => x.Region.Id == regionId);
+                if (v == null || !v.Unlocked) continue;
+                var (dx, dz) = _terrain.Door(v.Region);
+                var icon = ResidentIcons.TryGetValue(d.Who, out var ic) ? ic : "ui_gift";
+                var id = d.Id;
+                var b = Candy.Round(_gLayer, Candy.White, icon, 120f, Vector2.zero, Vector2.zero, () => GoTo(dx, dz, () => RequestCard(id)));
+                Hover.On(b, 7f);
+                var gem = Ui.Rect(b.transform, "Need", new Vector2(1f, 1f), new Vector2(52f, 52f), new Vector2(-6f, -6f));
+                Ui.Panel(gem, Theme.Hex("#FFD23F"), 26f).raycastTarget = false;
+                Ui.Label(gem, "!", Th.Font(40), Theme.Hex("#7A4A12"), new Vector2(0.5f, 0.5f), new Vector2(52f, 52f), FontStyle.Bold);
+                _reqBubbles.Add((id, b, _world.World(dx, dz) + Vector3.up * 3.2f));
+            }
+        }
+
+        private void UpdateRequests()
+        {
+            if (_reqBubbles.Count == 0) return;
+            var cam = App.Stage.Camera;
+            var k = Root.rect.width / Mathf.Max(1f, Screen.width);
+            var pet = _world.Walker != null ? _world.Walker.transform.position : Vector3.zero;
+            foreach (var (_, b, at) in _reqBubbles)
+            {
+                if (b == null) continue;
+                var sp = cam.WorldToScreenPoint(at);
+                var show = !_overview && !_cine && sp.z > 0f && Vector3.Distance(at, pet) < 40f;
+                if (b.gameObject.activeSelf != show) b.gameObject.SetActive(show);
+                if (show) ((RectTransform)b.transform).anchoredPosition = new Vector2(sp.x * k, sp.y * k);
+            }
+        }
+
+        private void RequestCard(string id)
+        {
+            var book = App.Data.Story;
+            var d = book.Requests.FirstOrDefault(r => r.Id == id);
+            if (d == null || App.State.Story.Requests.All(o => o.Id != id)) return;
+            var root = Modal(620f, out var box);
+            var who = book.NameOf(d.Who).Replace("{pet}", App.State.PetName);
+            if (ResidentIcons.TryGetValue(d.Who, out var icon)) Ui.IconImage(box, icon, new Vector2(0.14f, 0.78f), 150f);
+            Candy.Caption(box, who, 54, new Vector2(0.55f, 0.84f), new Vector2(600f, 80f), Vector2.zero, Candy.Deep(Candy.Orange));
+            Ui.Label(box, d.Text, Th.Font(42), Th.Text, new Vector2(0.55f, 0.64f), new Vector2(660f, 140f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            var have = Logic.Story.Residents.Have(App.State, d.Need);
+            var needIcon = Logic.Story.Residents.IsMaterial(d.Need) ? MatIcon(d.Need) : d.Need;
+            Ui.IconImage(box, needIcon, new Vector2(0.36f, 0.38f), 120f);
+            Ui.Label(box, Mathf.Min(have, d.Count) + "/" + d.Count, Th.Font(56), have >= d.Count ? Theme.Hex("#23914A") : Theme.Hex("#C9731E"),
+                new Vector2(0.56f, 0.38f), new Vector2(220f, 90f), FontStyle.Bold);
+            var ok = have >= d.Count;
+            var btn = Ui.Button(box, Th, ok ? T("resident.give") : T("resident.later"), new Vector2(0.5f, 0.12f), new Vector2(380f, 110f), () =>
+            {
+                Destroy(root.gameObject);
+                if (!ok) return;
+                var done = Logic.Story.Residents.Fulfill(App.State, App.Data, id);
+                if (done == null) return;
+                _reqBubbles.RemoveAll(x => { if (x.Id == id && x.B != null) { Destroy(x.B.gameObject); return true; } return x.Id == id; });
+                Audio.Sfx.Play(Audio.SfxKind.Success);
+                _world.Walker?.Cheer();
+                var reward = string.IsNullOrEmpty(done.RewardItem) ? null : App.Data.Item(done.RewardItem);
+                Toast.Post(App.Overlay.transform, Th, reward != null ? T("resident.thanks_item", who, reward.Name) : T("resident.thanks", who));
+                App.RecordActivity("resident_helped");
+                App.Save();
+                if (done.Xp > 0) App.GrantXp(done.Xp, Logic.Economy.XpSource.Achievement);
+            }, ok, default, 44, false);
+            _ = btn;
         }
 
         // ------------------------------------------------------------------ Ö4 hikâye sahneleri (23 Ekim 2026)
