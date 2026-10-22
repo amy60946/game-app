@@ -294,9 +294,16 @@ namespace Pofi.Screens
         // Build yarıda kalırsa (veri hatası) sonraki karelerde kurulmamış alanlara dokunulmasın: WebGL'de boş başvuru oyunu kilitler
         private bool _built;
 
+        private CanvasGroup _rootGroup;
+
         private void Update()
         {
             if (!_built) return;
+            // hikâye sahnesi oynarken adanın arayüzü (göstergeler, baloncuklar, ipucu) çekilir; sahne bitince geri gelir
+            if (_rootGroup == null) { _rootGroup = Root.gameObject.GetComponent<CanvasGroup>(); if (_rootGroup == null) _rootGroup = Root.gameObject.AddComponent<CanvasGroup>(); }
+            var hide = StoryPlayer.Playing;
+            _rootGroup.alpha = Mathf.MoveTowards(_rootGroup.alpha, hide ? 0f : 1f, Time.unscaledDeltaTime * 5f);
+            _rootGroup.blocksRaycasts = !hide;
             if (!_cine) HandleInput();
             // dokunma başka ekran açtıysa (ör. pete dokun → Dolap) bu karede kamerayı geri çekme: dolapta pet görünmüyordu
             if (!gameObject.activeInHierarchy) return;
@@ -884,6 +891,7 @@ namespace Pofi.Screens
         /// <summary>Ekrandan çıkarken (pencere açıldı, bölgeye girildi) petin yerini hatırla.</summary>
         private void OnDisable()
         {
+            StoryPlayer.Stop();   // sahne yalnız adada oynar
             if (App == null || _world == null || _world.Walker == null) return;
             var p = _world.Walker.Position;
             App.MapSpot = new Core.MapSpot(p.x, p.y, _world.Walker.Heading, _camYaw);

@@ -15,6 +15,10 @@ namespace Pofi.UI
     {
         public enum Mode { Cinema, Island }
         public static bool Playing { get; private set; }
+        private static StoryPlayer _current;
+
+        /// <summary>Oynayan sahneyi bitir (ada ekranı kapanırken: sahne başka pencerenin üstünde kalmasın).</summary>
+        public static void Stop() { if (_current != null) Destroy(_current.gameObject); }
 
         private StoryScene _scene;
         private StoryBook _book;
@@ -48,7 +52,7 @@ namespace Pofi.UI
             p._th = th; p._book = book; p._scene = scene; p._mode = mode; p._band = band;
             p._petName = petName; p._petId = petId; p._done = done; p._root = root; p._goText = goText; p._skipText = skipText;
             p.Build();
-            Playing = true;
+            Playing = true; _current = p;
             p.Next();
         }
 
@@ -169,6 +173,7 @@ namespace Pofi.UI
         private void OnDestroy()
         {
             Playing = false;
+            if (_current == this) _current = null;
             if (_done != null) { var d = _done; _done = null; d(); }
         }
     }

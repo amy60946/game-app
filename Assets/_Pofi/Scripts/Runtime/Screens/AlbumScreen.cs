@@ -31,7 +31,7 @@ namespace Pofi.Screens
             for (var i = 0; i < _tabs.Length; i++)
             {
                 var k = i;
-                _tabs[i] = Ui.Button(Root, Th, T(names[i]), new Vector2(0f, 1f), new Vector2(300f, 96f), () => { _tab = k; Fill(); }, _tab == i, default, 36, false);
+                _tabs[i] = Ui.Button(Root, Th, T(names[i]), new Vector2(0f, 1f), new Vector2(300f, 96f), () => { _tab = k; Fill(); }, false, default, 36, false);   // hepsi aynı gövde; seçili olanı Tab() boyar
                 var rt = (RectTransform)_tabs[i].transform;
                 rt.pivot = new Vector2(0f, 1f);
                 rt.anchoredPosition = new Vector2(36f, -(HeaderHeight + 10f) - i * 110f);
