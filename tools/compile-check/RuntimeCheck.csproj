@@ -19,5 +19,18 @@
   <ItemGroup>
     <Reference Include="$(UnityRef)/unityengine.modules/lib/**/*.dll" Private="false" />
     <Reference Include="$(UnityRef)/unity3d.unityengine.ui/lib/**/*.dll" Private="false" />
+    <!-- Packages/manifest.json'da olmayan Unity modülleri: kodda kullanılırsa CI'daki gibi burada da derleme hatası olsun -->
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.ParticleSystemModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.AIModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.ClothModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.TerrainModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.TerrainPhysicsModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.VideoModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.VehiclesModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.WindModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.TilemapModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.VFXModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.UnityWebRequestAssetBundleModule.dll" />
+    <Reference Remove="$(UnityRef)/unityengine.modules/lib/**/UnityEngine.UnityWebRequestWWWModule.dll" />
   </ItemGroup>
 </Project>

@@ -491,6 +491,7 @@ namespace Pofi.Screens
         {
             if (v == null || _world.Walker == null) { done?.Invoke(); yield break; }
             _cine = true;
+            if (_hudGroup != null) _hudGroup.blocksRaycasts = false;   // görünmez düğmeler basılmasın
             _world.Walker.Steer(Vector2.zero); _world.Walker.Stop();
             var bars = new[] { Bar(true), Bar(false) };
             var c = _world.World(v.Region.X, v.Region.Z);
@@ -547,7 +548,7 @@ namespace Pofi.Screens
                 yield return null;
             }
             foreach (var b in bars) Destroy(b.gameObject);
-            if (_hudGroup != null) _hudGroup.alpha = 1f;
+            if (_hudGroup != null) { _hudGroup.alpha = 1f; _hudGroup.blocksRaycasts = true; }
             _cine = false;
             done?.Invoke();
         }
