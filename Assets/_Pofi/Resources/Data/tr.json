@@ -466,6 +466,15 @@
     "chest.open": "Aç",
     "chest.got": "Sandıktan {0} çıktı!",
     "chest.got_n": "Sandıktan {1} {0} çıktı!",
+    "tasks.self_started": "Hatırlatmadan yaptın! Kendi kendine, ekstra yıldız!",
+    "goal.progress": "Bu haftaki hedefin: {0} görev. Şu an {1}! Sandığa {2} görev kaldı.",
+    "goal.reached": "Haftalık hedefe ulaştın: {0} görev! Ödülünü al.",
+    "goal.claimed": "Bu haftanın hedefi tamam ({0} görev). Harikasın!",
+    "goal.claim": "Ödülü al",
+    "goal.done_toast": "Haftalık hedef tamam! +{0} Güneş Taşı ve yıldızlar!",
+    "boost.text": "Bu görev biraz zor olabilir. Denersen 2 kat yıldız kazanırsın!",
+    "boost.try": "Deneyeceğim",
+    "boost.later": "Şimdi değil",
     "tasks.xp_goal": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin coin ve Güneş Taşı kazandırmaya devam ediyor!",
     "badge.earned": "Yeni rozet: {0}! Kartına dokun, gör."
   }

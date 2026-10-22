@@ -59,6 +59,8 @@ namespace Pofi.Core
 
         /// <summary>Gerçek ödüller (Ö7): gerçek sunucu ya da sahte sunucu; oturum yoksa null.</summary>
         public Logic.Rewards.IRewardService Rewards => (Logic.Rewards.IRewardService)_remote ?? Backend;
+        /// <summary>Görev ekleri: 2× XP teklif kaydı (Y2), haftalık hedef (Y6).</summary>
+        public Logic.Tasks.IGoalService Goals => (Logic.Tasks.IGoalService)_remote ?? Backend;
         public SyncCoordinator Sync { get; private set; }
         public AppPage Page { get; private set; } = AppPage.Map;   // ana merkez ada (14 Ekim 2026)
 
@@ -253,6 +255,7 @@ namespace Pofi.Core
             if (report.RealTaskXp > 0) XpGained?.Invoke(report.RealTaskXp);
             // görünmez günlük pay doldu (M7): sınır değil, ulaşılmış hedef gibi sıcak bir haber
             if (report.RealTaskGoalReached) Toast.Post(Overlay.transform, Theme, Loc.Get("tasks.xp_goal"));
+            if (report.SelfStarted > 0) { Toast.Post(Overlay.transform, Theme, Loc.Get("tasks.self_started")); RecordActivity("self_started", report.SelfStarted); }
             if (report.LevelUp != null) { Data.SunBook.FilterLevelUp(report.LevelUp); LevelUpCelebration.Show(this, report.LevelUp); }
             var approved = 0;
             foreach (var ev in report.TaskEvents) if (ev.Kind == Logic.Tasks.TaskEventKind.Approved) approved++;

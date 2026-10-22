@@ -15,7 +15,7 @@ namespace Pofi.Logic.Services.Supabase
     /// fonksiyonlarını çağırır (child_me, child_tasks, child_set_status, spend_coins, game_save_get/put).
     /// Ağ yoksa <see cref="OperationCanceledException"/> (SyncCoordinator bunu "çevrimdışı" sayar) ya da ServiceError.Network.
     /// </summary>
-    public sealed class SupabaseGameService : IWalletService, ITaskService, ISaveService, Rewards.IRewardService
+    public sealed class SupabaseGameService : IWalletService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService
     {
         public const string LocalSaveKey = "pofi.save.local";
 
@@ -134,6 +134,7 @@ namespace Pofi.Logic.Services.Supabase
                     ParentNote = (string)o["parent_note"],
                     Skill = (string)o["skill"],
                     Difficulty = (string)o["difficulty"],
+                    Reminder = (string)o["reminder"],   // sunucu önerisi uygulanmadıysa alan yok: null
                 });
             }
             return list;
@@ -150,6 +151,50 @@ namespace Pofi.Logic.Services.Supabase
             if (r.Status == 401 || r.Status == 403) return ServiceError.Unauthorized;
             if (r.Status >= 500) return ServiceError.Network;
             return Ok(r) ? ServiceError.None : ServiceError.Rejected;   // ör. "Ebeveyn karar verdi": birleştirme sunucu durumunu alır
+        }
+
+        // ------------------------------------------------------------ görev ekleri (ortak proposed/20261022210000, 20261022230000)
+
+        public async Task<ServiceError> RecordBoostAsync(string taskKey, bool accepted, CancellationToken ct = default)
+        {
+            var sep = taskKey.IndexOf('|');
+            if (sep <= 0) return ServiceError.Rejected;
+            var r = await Rpc("child_record_boost", new { p_task_id = taskKey.Substring(0, sep), p_date = taskKey.Substring(sep + 1), p_choice = accepted ? "accepted" : "skipped" }, ct);
+            if (r.Status == 0 || r.Status >= 500) return ServiceError.Network;
+            return Ok(r) ? ServiceError.None : ServiceError.Rejected;   // 404: fonksiyon henüz yok — teklif oyunda yine çalışır
+        }
+
+        public async Task<WeeklyGoal> WeeklyGoalAsync(CancellationToken ct = default)
+        {
+            var r = await Rpc("child_weekly_goal", null, ct);
+            if (!Ok(r)) return null;   // fonksiyon yok ya da ağ yok: pano gizli
+            return ParseGoal(r.Body);
+        }
+
+        public static WeeklyGoal ParseGoal(string body)
+        {
+            try
+            {
+                var o = JObject.Parse(body);
+                return new WeeklyGoal
+                {
+                    WeekStart = (string)o["week_start"], Target = (int?)o["target"], Done = (int?)o["done"] ?? 0,
+                    Assigned = (int?)o["assigned"] ?? 0, Claimed = (bool?)o["claimed"] ?? false,
+                };
+            }
+            catch (Newtonsoft.Json.JsonException) { return null; }
+        }
+
+        public async Task<GoalClaim> ClaimWeeklyGoalAsync(CancellationToken ct = default)
+        {
+            var r = await Rpc("claim_weekly_goal", null, ct);
+            if (!Ok(r)) return new GoalClaim { Ok = false, Error = r.Status == 0 ? "offline" : "server" };
+            try
+            {
+                var o = JObject.Parse(r.Body);
+                return new GoalClaim { Ok = (bool?)o["ok"] ?? false, Error = (string)o["error"], Stones = (int?)o["stones"] ?? 0 };
+            }
+            catch (Newtonsoft.Json.JsonException) { return new GoalClaim { Ok = false, Error = "server" }; }
         }
 
         // ------------------------------------------------------------ gerçek ödüller (Güneş Taşı; ortak migrations/20261022130000_sun_stones_rewards)

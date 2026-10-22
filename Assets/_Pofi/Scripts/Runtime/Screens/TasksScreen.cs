@@ -50,6 +50,7 @@ namespace Pofi.Screens
             _firstDone = null;
             Ui.Clear(_list);
             StonesRow();
+            GoalRow();
             var local = App.LocalNow;
             var today = DemoParent.Day(local);
             var tasks = App.State.Tasks.ForDisplay(local).Where(t => t.Date == today).ToList();
@@ -98,6 +99,89 @@ namespace Pofi.Screens
             var place = Btn(row, T("stones.go"), true, new Vector2(-28f, 60f), new Vector2(320f, 110f), () => App.Open(AppPage.Map));
             if (Onboarding.Pending(App.State, Onboarding.Stone))
                 _coach = Coach.Show(Root, Onboarding.Stone, T("tip.stone_go", next.Name), TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, place.position));
+        }
+
+        // ---- Kişisel haftalık hedef (Y6) ----
+        private Logic.Tasks.WeeklyGoal _goal;
+        private bool _goalAsked, _claiming;
+
+        private async void LoadGoal()
+        {
+            _goalAsked = true;
+            var g = App.Goals != null ? await App.Goals.WeeklyGoalAsync() : null;
+            if (this == null) return;
+            _goal = g;
+            if (g != null && g.Target.HasValue) Fill();
+        }
+
+        private void GoalRow()
+        {
+            if (!_goalAsked) { LoadGoal(); return; }
+            var g = _goal;
+            if (g == null || !g.Target.HasValue) return;   // sunucu önerisi yok ya da bu hafta hedef yok (yalnız ölçüm)
+            var row = Ui.Row(_list, "WeeklyGoal", 200f);
+            Ui.Panel(row, Theme.Hex("#E8F4FF"), Th.Radius);
+            var text = g.Claimed ? T("goal.claimed", g.Target.Value) : g.Reached ? T("goal.reached", g.Target.Value) : T("goal.progress", g.Target.Value, g.Done, g.Left);
+            var title = Ui.Label(row, text, Th.Font(38), Theme.Hex("#1F4E8C"), new Vector2(0f, 1f), new Vector2(760f, 100f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            title.rectTransform.pivot = new Vector2(0f, 1f);
+            title.rectTransform.anchoredPosition = new Vector2(36f, -14f);
+            var bar = Ui.Bar(row, new Vector2(0.36f, 0.22f), new Vector2(760f, 26f), new Color(0f, 0f, 0f, 0.08f), Theme.Hex("#3D8BE0"), 13f);
+            Ui.SetBar(bar, Mathf.Clamp01((float)g.Done / Mathf.Max(1, g.Target.Value)));
+            Ui.IconImage(row, "ui_gift", new Vector2(0.69f, 0.22f), 70f);
+            if (!g.CanClaim) return;
+            var b = Btn(row, T("goal.claim"), true, new Vector2(-28f, 44f), new Vector2(300f, 110f), ClaimGoal);
+            UI.Hover.On(b, 6f, 0.08f);
+        }
+
+        private async void ClaimGoal()
+        {
+            if (_claiming || App.Goals == null) return;
+            _claiming = true;
+            var r = await App.Goals.ClaimWeeklyGoalAsync();
+            _claiming = false;
+            if (this == null) return;
+            if (r != null && r.Ok)
+            {
+                var level = App.Levels.LevelFor(App.State.Xp.TotalXp);
+                var xp = Logic.Tasks.WeeklyGoal.XpFor(App.Levels.TotalXpFor(level + 1) - App.Levels.TotalXpFor(level));
+                Audio.Sfx.Play(Audio.SfxKind.Success);
+                StarSparkles.Around(App.Overlay.transform, new Vector2(0.5f, 0.6f), new Vector2(0.22f, 0.22f), 14, 61);
+                Toast.Post(App.Overlay.transform, Th, T("goal.done_toast", r.Stones));
+                App.GrantXp(xp, Logic.Economy.XpSource.Achievement);
+                App.RecordActivity("weekly_goal");
+            }
+            _goalAsked = false;
+            await App.SyncNow();   // taşlar sunucudan gelir
+            if (this != null) Fill();
+        }
+
+        // ---- Zor görevde 2× XP teklifi (Y2) ----
+        private void BoostOffer(ChildTask task)
+        {
+            Logic.Tasks.TaskBoosts.MarkOffered(App.State.Boosts, App.LocalNow);
+            App.Save();
+            var root = Modal(620f, out var box);
+            var badge = Ui.Rect(box, "Badge", new Vector2(0.5f, 0.76f), new Vector2(220f, 160f));
+            Ui.Panel(badge, Theme.Hex("#FFC93C"), 70f);
+            Ui.Label(badge, "2×", Th.Font(96), Theme.Hex("#7A3B00"), new Vector2(0.5f, 0.5f), new Vector2(220f, 160f), FontStyle.Bold);
+            UI.Hover.On(badge, 5f, 0.1f);
+            Ui.Label(box, T("boost.text"), Th.Font(40), Th.Text, new Vector2(0.5f, 0.48f), new Vector2(860f, 160f), FontStyle.Bold);
+            Ui.Button(box, Th, T("boost.try"), new Vector2(0.3f, 0.17f), new Vector2(380f, 120f), () =>
+            {
+                Destroy(root.gameObject);
+                var t = App.State.Tasks.Find(task.Key);
+                if (t != null && App.State.Tasks.Mark(t.Key, ChildTaskStatus.Assigned, App.LocalNow, App.UtcNow) == ChangeResult.Ok) t.Boosted = true;
+                _ = App.Goals?.RecordBoostAsync(task.Key, true);
+                Audio.Sfx.Play(Audio.SfxKind.Sparkle);
+                App.Save();
+                Fill();
+                _ = App.SyncNow();
+            }, true, default, 44);
+            Ui.Button(box, Th, T("boost.later"), new Vector2(0.72f, 0.17f), new Vector2(340f, 120f), () =>
+            {
+                Destroy(root.gameObject);
+                _ = App.Goals?.RecordBoostAsync(task.Key, false);
+            }, false, default, 40);
         }
 
         private void InfoRow(string name, string text)
@@ -186,6 +270,8 @@ namespace Pofi.Screens
             App.Save();
             Fill();
             _ = App.SyncNow();
+            if (to == ChildTaskStatus.DeclinedByChild && Logic.Tasks.TaskBoosts.ShouldOffer(App.State.Boosts, App.State.Tasks.Find(task.Key), App.LocalNow))
+                BoostOffer(task);
         }
 
         // ---- deneme ebeveyn paneli (yalnızca sahte sunucu) ----

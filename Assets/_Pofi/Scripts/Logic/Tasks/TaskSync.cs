@@ -41,6 +41,8 @@ namespace Pofi.Logic.Tasks
             var r = TaskRules.CanChange(t, to, local);
             if (r != ChangeResult.Ok) return r;
             t.Status = to;
+            if (to == ChildTaskStatus.ChildDone) t.DoneLocalTicks = local.Ticks;
+            else if (to == ChildTaskStatus.Assigned) t.DoneLocalTicks = 0;
             Outbox.RemoveAll(o => o.Key == key); // aynı görev için yalnızca son niyet gönderilir
             Outbox.Add(new OutboxChange { Key = key, To = to, ClientUtcTicks = nowUtc.Ticks });
             return ChangeResult.Ok;
@@ -62,6 +64,7 @@ namespace Pofi.Logic.Tasks
             foreach (var s in incoming)
             {
                 old.TryGetValue(s.Key, out var local);
+                if (local != null) { s.DoneLocalTicks = local.DoneLocalTicks; s.Boosted = local.Boosted; }   // yalnız cihazdaki alanlar
                 var pending = Outbox.FirstOrDefault(o => o.Key == s.Key);
                 if (s.IsFinal)
                 {

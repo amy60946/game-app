@@ -13,7 +13,7 @@ namespace Pofi.Logic.Services.Mock
     /// fiyat sunucuda (oyun verisinden) okunur, harcama idempotenttir, coin yalnızca ebeveyn onayıyla artar.
     /// Geliştirmede "ebeveyn" işlemleri (görev ata, onayla, reddet) bu sınıftan çağrılır.
     /// </summary>
-    public sealed class MockBackend : IWalletService, ITaskService, ISaveService, Rewards.IRewardService
+    public sealed class MockBackend : IWalletService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService
     {
         private readonly GameData _data;
         private readonly Dictionary<string, int> _processedTx = new Dictionary<string, int>(); // txId → tutar
@@ -36,14 +36,14 @@ namespace Pofi.Logic.Services.Mock
         // ---------- "ebeveyn" tarafı (geliştirme) ----------
 
         public ChildTask ParentAssign(string taskId, string date, string title, int coins, Recurrence rec = Recurrence.Once,
-            string skill = null, string difficulty = "easy")
+            string skill = null, string difficulty = "easy", string reminder = null)
         {
             var d = DateTime.ParseExact(date, "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
             var t = new ChildTask
             {
                 TaskId = taskId, Date = date, Title = title, RewardCoins = Math.Max(1, Math.Min(50, coins)), Recurrence = rec,
                 DueLocalTicks = d.AddDays(1).AddTicks(-1).Ticks, Status = ChildTaskStatus.Assigned,
-                Skill = skill, Difficulty = difficulty ?? "easy",
+                Skill = skill, Difficulty = difficulty ?? "easy", Reminder = reminder,
             };
             _tasks.Add(t);
             return t;
@@ -232,6 +232,60 @@ namespace Pofi.Logic.Services.Mock
             return Task.FromResult(ServiceError.None);
         }
 
+        // ---------- IGoalService (Y2 teklif kaydı, Y6 haftalık hedef; sunucu kuralının kopyası) ----------
+
+        public readonly Dictionary<string, bool> Boosts = new Dictionary<string, bool>();
+        public int? WeeklyCap;
+        private readonly HashSet<string> _goalClaims = new HashSet<string>();
+        /// <summary>Test için "bugün"; null ise cihaz saati.</summary>
+        public DateTime? Today;
+
+        public Task<ServiceError> RecordBoostAsync(string taskKey, bool accepted, CancellationToken ct = default)
+        {
+            if (Offline) return Task.FromResult(ServiceError.Network);
+            if (_tasks.All(t => t.Key != taskKey)) return Task.FromResult(ServiceError.Rejected);
+            Boosts[taskKey] = accepted;
+            return Task.FromResult(ServiceError.None);
+        }
+
+        private static DateTime WeekStart(DateTime d) => d.Date.AddDays(-(((int)d.DayOfWeek + 6) % 7));
+
+        public WeeklyGoal GoalFor(DateTime today)
+        {
+            var w = WeekStart(today);
+            string S(DateTime d) => d.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
+            int Approved(DateTime a, DateTime b) => _tasks.Count(t => t.Status == ChildTaskStatus.Approved
+                && string.CompareOrdinal(t.Date, S(a)) >= 0 && string.CompareOrdinal(t.Date, S(b)) <= 0);
+            var assigned = _tasks.Count(t => string.CompareOrdinal(t.Date, S(w)) >= 0 && string.CompareOrdinal(t.Date, S(w.AddDays(6))) <= 0);
+            var done = Approved(w, w.AddDays(6));
+            var prev1 = Approved(w.AddDays(-7), w.AddDays(-1));
+            var prev2 = Approved(w.AddDays(-14), w.AddDays(-8));
+            var history = _tasks.Any(t => string.CompareOrdinal(t.Date, S(w)) < 0 && t.Status != ChildTaskStatus.Assigned);
+            int? target = null;
+            if (history && assigned >= 3)
+            {
+                var auto = (int)Math.Ceiling((prev1 + prev2) / 2.0 * 1.2);
+                var t = Math.Min(Math.Max(3, auto), (int)Math.Floor(assigned * 0.9));
+                if (t >= 3) target = WeeklyCap.HasValue ? Math.Min(t, WeeklyCap.Value) : t;
+            }
+            return new WeeklyGoal { WeekStart = S(w), Target = target, Done = done, Assigned = assigned, Claimed = _goalClaims.Contains(S(w)) };
+        }
+
+        public Task<WeeklyGoal> WeeklyGoalAsync(CancellationToken ct = default) =>
+            Task.FromResult(Offline ? null : GoalFor(Today ?? DateTime.Now));
+
+        public Task<GoalClaim> ClaimWeeklyGoalAsync(CancellationToken ct = default)
+        {
+            if (Offline) return Task.FromResult(new GoalClaim { Error = "offline" });
+            var g = GoalFor(Today ?? DateTime.Now);
+            if (!g.Target.HasValue) return Task.FromResult(new GoalClaim { Error = "no_goal" });
+            if (g.Claimed) return Task.FromResult(new GoalClaim { Error = "already_claimed" });
+            if (!g.Reached) return Task.FromResult(new GoalClaim { Error = "not_reached" });
+            _goalClaims.Add(g.WeekStart);
+            SunStones += 2;
+            return Task.FromResult(new GoalClaim { Ok = true, Stones = 2 });
+        }
+
         // ---------- ISaveService ----------
 
         public Task<string> LoadLocalAsync(CancellationToken ct = default) => Task.FromResult(_localSave);
@@ -296,7 +350,7 @@ namespace Pofi.Logic.Services.Mock
         {
             TaskId = t.TaskId, Date = t.Date, Title = t.Title, Description = t.Description, RewardCoins = t.RewardCoins,
             Recurrence = t.Recurrence, DueLocalTicks = t.DueLocalTicks, Status = t.Status, ParentNote = t.ParentNote,
-            Skill = t.Skill, Difficulty = t.Difficulty,
+            Skill = t.Skill, Difficulty = t.Difficulty, Reminder = t.Reminder,
         };
     }
 }

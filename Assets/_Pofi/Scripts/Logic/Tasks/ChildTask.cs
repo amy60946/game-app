@@ -24,6 +24,9 @@ namespace Pofi.Logic.Tasks
         public string ParentNote;      // ret/onay notu
         public string Skill;           // sunucudaki beceri metni (ParentApp etiketi; SkillCatalog eşler)
         public string Difficulty;      // "easy" | "medium" | "hard" (XP ve Güneş Taşı buna göre)
+        public string Reminder;        // ebeveynin hatırlatma saati "HH:MM" (null: yok) — Y5
+        public long DoneLocalTicks;    // çocuğun "Yaptım" dediği yerel an (yalnız cihazda; Y5 "kendiliğinden yaptı")
+        public bool Boosted;           // 2× XP teklifini kabul etti (Y2; yalnız cihazda)
 
         public string Key => TaskId + "|" + Date;
 

@@ -63,6 +63,8 @@ namespace Pofi.Logic.Tasks
         public string Skill;      // null: beceri yok
         public int Stars;         // ödülden sonra o becerinin yıldızı
         public int NewTier;       // kademe yükseldiyse 1 bronz / 2 gümüş / 3 altın; değilse 0
+        public bool SelfStarted;  // hatırlatma saatinden önce "Yaptım" (Y5): +yarım görev XP'si
+        public bool Boosted;      // 2× XP teklifi kabul edilmişti (Y2)
     }
 
     /// <summary>
@@ -86,6 +88,19 @@ namespace Pofi.Logic.Tasks
             }
         }
 
+        /// <summary>
+        /// "Kendiliğinden yaptı" (Y5, 22 Ekim 2026): çocuk "Yaptım"ı görevin günü, hatırlatma saatinden önce bastı.
+        /// Hatırlatması olmayan görevde yok (karşılaştıracak saat yok). Ebeveyne iş düşmez.
+        /// </summary>
+        public static bool SelfStarted(ChildTask t)
+        {
+            if (t == null || t.DoneLocalTicks <= 0 || string.IsNullOrEmpty(t.Reminder) || t.Reminder.Length < 5) return false;
+            if (!int.TryParse(t.Reminder.Substring(0, 2), out var hh) || !int.TryParse(t.Reminder.Substring(3, 2), out var mm)) return false;
+            var done = new DateTime(t.DoneLocalTicks);
+            if (done.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture) != t.Date) return false;
+            return done.TimeOfDay < new TimeSpan(hh, mm, 0);
+        }
+
         /// <summary>0 = kademe yok, 1 bronz, 2 gümüş, 3 altın.</summary>
         public static int Tier(int stars)
         {
@@ -101,7 +116,9 @@ namespace Pofi.Logic.Tasks
             if (t == null || t.Status != ChildTaskStatus.Approved || s.RewardedKeys.Contains(t.Key)) return null;
             s.RewardedKeys.Add(t.Key);
             if (s.RewardedKeys.Count > KeepKeys) s.RewardedKeys.RemoveRange(0, s.RewardedKeys.Count - KeepKeys);
-            var r = new RealTaskReward { Task = t, Xp = Xp(t.Difficulty), Skill = SkillCatalog.Map(t.Skill) };
+            var basis = Xp(t.Difficulty);
+            var r = new RealTaskReward { Task = t, Xp = basis * (t.Boosted ? 2 : 1), Skill = SkillCatalog.Map(t.Skill), Boosted = t.Boosted };
+            if (SelfStarted(t)) { r.SelfStarted = true; r.Xp += basis / 2; }
             if (r.Skill != null)
             {
                 var before = s.StarsOf(r.Skill);

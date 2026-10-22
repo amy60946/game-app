@@ -19,7 +19,8 @@ namespace Pofi.Logic.State
         public List<PendingSpend> RejectedSpends = new List<PendingSpend>();
         public List<RealTaskReward> RealTaskRewards = new List<RealTaskReward>();   // onaylı gerçek görevin XP'si + beceri yıldızı (Ö2)
         public int RealTaskXp;
-        public bool RealTaskGoalReached;   // görünmez günlük pay doldu: "bugünkü yıldız hedefine ulaştın" (M7)
+        public bool RealTaskGoalReached;
+        public int SelfStarted;            // hatırlatmadan önce yapılıp onaylanan görev sayısı (Y5)   // görünmez günlük pay doldu: "bugünkü yıldız hedefine ulaştın" (M7)
         public int SunStonesEarned;      // bu senkronda yeni gelen Güneş Taşı (Ö1)
         public Progression.LevelUp LevelUp;   // görev XP'siyle seviye atlandıysa (kutlama)
         public List<Rewards.RewardEvent> RewardEvents = new List<Rewards.RewardEvent>();   // verilen / bekleyecek gerçek ödüller (Ö7)
@@ -98,9 +99,11 @@ namespace Pofi.Logic.State
                     var g = s.Xp.AddRealTask(reward.Xp, local);
                     report.RealTaskXp += g.Granted;
                     if (g.CapReached) report.RealTaskGoalReached = true;
+                    if (reward.SelfStarted) report.SelfStarted++;
                     report.RealTaskRewards.Add(reward);
                 }
                 report.LevelUp = _levels.Check(xpBefore, s.Xp.TotalXp);
+                TaskBoosts.RecordOutcomes(s.Boosts ?? (s.Boosts = new BoostState()), s.Tasks.Tasks, local);
 
                 // 4) Bakiye ve Güneş Taşı (sunucu esastır)
                 var balances = await _wallet.GetBalancesAsync(ct);
