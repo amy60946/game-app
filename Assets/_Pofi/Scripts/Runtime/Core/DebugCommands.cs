@@ -10,7 +10,7 @@ namespace Pofi.Core
     /// <summary>
     /// Otomatik test kancası (yalnızca sahte arka uçla): tarayıcıdan
     /// <c>unityInstance.SendMessage("Bootstrap", "PofiDebug", "login A1A1A1")</c> ile çağrılır. Gerçek sunucuda kapalıdır.
-    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · tp X Z YAW · region ID · wear ID… · place ID… · gather [near|site|give|state] · audio · petpos
+    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · tp X Z YAW · hud 0|1 · region ID · wear ID… · place ID… · gather [near|site|give|state] · audio · petpos
     /// </summary>
     public static class DebugCommands
     {
@@ -55,6 +55,9 @@ namespace Pofi.Core
                         var tp = arg.Split(' ');
                         var inv = System.Globalization.CultureInfo.InvariantCulture;
                         Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugTeleport(float.Parse(tp[0], inv), float.Parse(tp[1], inv), tp.Length > 2 ? float.Parse(tp[2], inv) : 0f);
+                        break;
+                    case "hud":         // görsel karşılaştırma çekimleri: arayüz katmanlarını gizle/göster
+                        app.Canvas.enabled = arg != "0"; app.Overlay.enabled = arg != "0";
                         break;
                     case "wear":        // test: eşyayı ver ve giydir ("wear hat_straw glasses_round …")
                         foreach (var id in arg.Split(' '))
