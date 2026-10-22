@@ -1,0 +1,883 @@
+{
+ "_doc": "Hikâye (kullanıcı onayı bekleyen metin: 'Pofi Adası Hikâyesi' belgesi, 23 Ekim 2026). {pet} = petin adı. a: A/K kısa, c: C esprili. Tetik: intro | level (arg seviye) | spot (onarım noktası) | event (RecordActivity sayacı).",
+ "names": {
+  "okti": "{pet}",
+  "kiskac": "Kıskaç",
+  "pitir": "Pıtır",
+  "hisir": "Hışır",
+  "mavi": "Mavi",
+  "tosbi": "Tosbi Dede",
+  "nur": "Bekçi Nur",
+  "pus": "Pus"
+ },
+ "chapters": [
+  {
+   "n": 1,
+   "title": "Kumsaldaki misafir",
+   "level": 1
+  },
+  {
+   "n": 2,
+   "title": "Postacının kulübesi",
+   "level": 2
+  },
+  {
+   "n": 3,
+   "title": "Karlı tepe",
+   "level": 4
+  },
+  {
+   "n": 4,
+   "title": "Kırık köprü",
+   "level": 6
+  },
+  {
+   "n": 5,
+   "title": "Bekçinin günlüğü",
+   "level": 8
+  },
+  {
+   "n": 6,
+   "title": "Mağaranın derinliği",
+   "level": 11
+  },
+  {
+   "n": 7,
+   "title": "Festival",
+   "level": 12
+  },
+  {
+   "n": 8,
+   "title": "Zirve",
+   "level": 13
+  },
+  {
+   "n": 9,
+   "title": "Fener yanıyor",
+   "level": 15
+  }
+ ],
+ "scenes": [
+  {
+   "id": "intro",
+   "chapter": 0,
+   "trigger": "intro",
+   "art": "load_beach",
+   "summary": "Fırtınadan sonra ada sise büründü. Haydi, adayı birlikte uyandıralım!",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Bir zamanlar mavi denizin ortasında Işık Adası vardı.",
+     "a": "Bir zamanlar Işık Adası vardı."
+    },
+    {
+     "who": "narrator",
+     "text": "Sakinleri birbirine yardım eder, fener her gece yolları aydınlatırdı.",
+     "a": "Fener her gece yolları aydınlatırdı."
+    },
+    {
+     "who": "narrator",
+     "text": "Bir gece büyük bir fırtına çıktı. Fener söndü.",
+     "a": "Bir gece fırtına çıktı. Fener söndü."
+    },
+    {
+     "who": "narrator",
+     "text": "Ada sise büründü, sakinler dağıldı.",
+     "a": "Ada sise büründü."
+    },
+    {
+     "who": "narrator",
+     "text": "Ama bir sabah kumsala küçük bir misafir geldi...",
+     "a": "Bir sabah küçük bir misafir geldi..."
+    },
+    {
+     "who": "narrator",
+     "text": "Evde yaptığın her iyilik bir Güneş Taşı olur. Haydi, adayı birlikte uyandıralım!",
+     "a": "Her iyilik bir Güneş Taşı olur. Haydi!"
+    }
+   ]
+  },
+  {
+   "id": "ch1_open",
+   "chapter": 1,
+   "trigger": "level",
+   "arg": "1",
+   "art": "load_shop",
+   "summary": "Kıskaç seni dükkânına çağırıyor.",
+   "lines": [
+    {
+     "who": "kiskac",
+     "text": "Hey küçük! Sen de fırtınayla mı geldin?",
+     "a": "Hey küçük! Merhaba!",
+     "mood": "surprised"
+    },
+    {
+     "who": "kiskac",
+     "text": "Ben Kıskaç. Dükkânım bu kabuğun içinde, hah!",
+     "a": "Ben Kıskaç, dükkâncıyım.",
+     "c": "Ben Kıskaç. Kabuğum hem evim hem dükkânım, kira yok!"
+    },
+    {
+     "who": "okti",
+     "text": "Merhaba Kıskaç! Ada neden bu kadar sisli?",
+     "a": "Ada neden sisli?",
+     "mood": "think"
+    },
+    {
+     "who": "kiskac",
+     "text": "Uzun hikâye. Önce karnını doyuralım, sonra anlatırım.",
+     "a": "Önce bir elma ye!",
+     "mood": "happy"
+    }
+   ]
+  },
+  {
+   "id": "ch1_board",
+   "chapter": 1,
+   "trigger": "event",
+   "arg": "board_opened",
+   "summary": "Ev Görevleri panosu: yaptığın her görev ışıklı bir taş getirir.",
+   "lines": [
+    {
+     "who": "kiskac",
+     "text": "Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.",
+     "a": "Evdeki büyüklerin buraya görev bırakır."
+    },
+    {
+     "who": "kiskac",
+     "text": "Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!",
+     "a": "Görevi yapınca Güneş Taşı gelir!"
+    },
+    {
+     "who": "okti",
+     "text": "Taşla ne yapacağız?",
+     "a": "Taşla ne yapacağız?",
+     "mood": "think"
+    },
+    {
+     "who": "kiskac",
+     "text": "Sise koyarsan sis kalkar. Koydan başlayalım mı?",
+     "a": "Sise koy, sis kalksın!",
+     "mood": "happy"
+    }
+   ]
+  },
+  {
+   "id": "ch1_close",
+   "chapter": 1,
+   "trigger": "spot",
+   "arg": "spot_fog_cove",
+   "art": "load_beach",
+   "summary": "Koydaki sis kalktı! Yüzme Koyu göründü.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Taştan bir ışık halkası yayıldı, sis geri çekildi.",
+     "a": "Işık yayıldı, sis kalktı!"
+    },
+    {
+     "who": "okti",
+     "text": "Bak! Su ne kadar turkuazmış!",
+     "a": "Su turkuaz!",
+     "mood": "happy"
+    },
+    {
+     "who": "pus",
+     "text": "...",
+     "a": "...",
+     "mood": "sad"
+    },
+    {
+     "who": "narrator",
+     "text": "Tepedeki küçük bulut biraz küçüldü ve ilk kez gülümsedi.",
+     "a": "Tepedeki bulut gülümsedi."
+    }
+   ]
+  },
+  {
+   "id": "ch2_open",
+   "chapter": 2,
+   "trigger": "level",
+   "arg": "2",
+   "art": "load_mavi",
+   "summary": "Postacı Mavi kulübesini kaybetmiş.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Gökyüzünden bir zarf süzüldü, ardından bir martı düşer gibi kondu.",
+     "a": "Gökyüzünden bir zarf düştü!"
+    },
+    {
+     "who": "mavi",
+     "text": "Ben adanın postacısı Mavi'yim! Ama kulübem uçtu!",
+     "a": "Ben Mavi, postacıyım!",
+     "c": "Ben Mavi. Postacıyım ama adresim fırtınayla uçtu.",
+     "mood": "surprised"
+    },
+    {
+     "who": "mavi",
+     "text": "Mektupları nerede saklayacağım şimdi?",
+     "a": "Mektuplar nerede kalacak?",
+     "mood": "sad"
+    },
+    {
+     "who": "okti",
+     "text": "Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.",
+     "a": "Sana kulübe yaparım!",
+     "mood": "happy"
+    }
+   ]
+  },
+  {
+   "id": "ch2_close",
+   "chapter": 2,
+   "trigger": "event",
+   "arg": "hut_built",
+   "art": "load_mavi",
+   "summary": "Posta kulübesi bitti! Evinin önünde artık bir mektup kutusu var.",
+   "lines": [
+    {
+     "who": "mavi",
+     "text": "Kulübem bitti! Bak, posta zili bile çalıyor!",
+     "a": "Kulübem bitti!",
+     "mood": "happy"
+    },
+    {
+     "who": "mavi",
+     "text": "Evinin önüne bir mektup kutusu koydum. Sana yazacağım!",
+     "a": "Sana mektup yazacağım!"
+    },
+    {
+     "who": "mavi",
+     "text": "Bir yere gitmek istersen önden uçarım, izimi takip et.",
+     "a": "Ben önden uçarım, beni izle!"
+    }
+   ]
+  },
+  {
+   "id": "ch3_open",
+   "chapter": 3,
+   "trigger": "level",
+   "arg": "4",
+   "art": "load_ski",
+   "summary": "Tepeden bir kartopu yuvarlandı: Kayak Tepesi'nde kar var.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Tepeden bir kartopu yuvarlanıp önünde durdu.",
+     "a": "Bir kartopu geldi!"
+    },
+    {
+     "who": "pitir",
+     "text": "Pus üşüyünce kar yağdırır!",
+     "a": "Pus üşüyünce kar yağar!"
+    },
+    {
+     "who": "hisir",
+     "text": "...kar yağdırır.",
+     "a": "...kar yağar."
+    },
+    {
+     "who": "okti",
+     "text": "O zaman kayak zamanı!",
+     "a": "Kayak zamanı!",
+     "mood": "happy"
+    }
+   ]
+  },
+  {
+   "id": "ch3_close",
+   "chapter": 3,
+   "trigger": "level",
+   "arg": "5",
+   "art": "load_ski",
+   "summary": "Okti büyüdü! Artık genç bir ahtapot.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "{pet}'nin çevresinde bir ışık sarmalı döndü.",
+     "a": "Işık sarmalı döndü!"
+    },
+    {
+     "who": "okti",
+     "text": "Bakın, kollarım uzadı!",
+     "a": "Büyüdüm!",
+     "mood": "happy"
+    },
+    {
+     "who": "pitir",
+     "text": "Bizden bile uzun olacak!",
+     "a": "Çok büyümüş!"
+    },
+    {
+     "who": "hisir",
+     "text": "...bizden bile uzun.",
+     "a": "...çok büyümüş."
+    }
+   ]
+  },
+  {
+   "id": "ch4_open",
+   "chapter": 4,
+   "trigger": "level",
+   "arg": "6",
+   "art": "load_pier",
+   "summary": "Tosbi Dede kırık köprünün öbür ucunda bekliyor.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Denizden yaşlı bir kaplumbağa yavaşça yaklaştı.",
+     "a": "Yaşlı bir kaplumbağa geldi."
+    },
+    {
+     "who": "tosbi",
+     "text": "Merhaba evlat. Ben Tosbi. Bu köprüyü çok eskiden bilirim.",
+     "a": "Ben Tosbi Dede."
+    },
+    {
+     "who": "tosbi",
+     "text": "Köprü onarılırsa sana bir sır göstereceğim.",
+     "a": "Köprü onarılırsa sır var!",
+     "mood": "think"
+    },
+    {
+     "who": "okti",
+     "text": "Güneş Taşları köprüyü onarır mı?",
+     "a": "Taşlar köprüyü onarır mı?",
+     "mood": "think"
+    },
+    {
+     "who": "tosbi",
+     "text": "Dört taş, dört tahta. Acele yok, ben beklerim.",
+     "a": "Dört taş yeter. Ben beklerim."
+    }
+   ]
+  },
+  {
+   "id": "ch4_close",
+   "chapter": 4,
+   "trigger": "spot",
+   "arg": "spot_pier_bridge",
+   "art": "load_pier",
+   "summary": "Köprü onarıldı! Tosbi Dede ilk günlük sayfasını verdi.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Son tahta da yerine oturdu.",
+     "a": "Köprü onarıldı!"
+    },
+    {
+     "who": "tosbi",
+     "text": "İşte söz verdiğim sır: Bekçi Nur'un günlüğünden bir sayfa.",
+     "a": "İşte bir günlük sayfası."
+    },
+    {
+     "who": "nur",
+     "text": "\"Bu ada bir zamanlar ışıkla dolardı...\"",
+     "a": "\"Bu ada ışıkla dolardı...\""
+    },
+    {
+     "who": "tosbi",
+     "text": "Diğer sayfalar adaya dağıldı. Belki sen bulursun.",
+     "a": "Diğerlerini sen bul!"
+    }
+   ]
+  },
+  {
+   "id": "ch5_open",
+   "chapter": 5,
+   "trigger": "level",
+   "arg": "8",
+   "summary": "Bekçi Nur'un günlük sayfaları adaya dağılmış.",
+   "lines": [
+    {
+     "who": "tosbi",
+     "text": "Nur her gece bir sayfa yazardı.",
+     "a": "Nur her gece yazardı."
+    },
+    {
+     "who": "tosbi",
+     "text": "Fırtına sayfaları adaya dağıttı. Parıltıların yanına bak.",
+     "a": "Parıltıların yanına bak!"
+    },
+    {
+     "who": "okti",
+     "text": "Hepsini bulup Defter'e koyacağım!",
+     "a": "Hepsini bulacağım!",
+     "mood": "happy"
+    }
+   ]
+  },
+  {
+   "id": "ch5_close",
+   "chapter": 5,
+   "trigger": "level",
+   "arg": "10",
+   "summary": "Okti yetişkin oldu! Günlükte fener camının mağarada olduğu yazıyor.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "{pet} artık yetişkin bir ahtapot. Evi de büyüdü.",
+     "a": "{pet} yetişkin oldu!"
+    },
+    {
+     "who": "nur",
+     "text": "\"Fenerin büyük camı mağaraya yuvarlandı.\"",
+     "a": "\"Cam mağarada.\""
+    },
+    {
+     "who": "okti",
+     "text": "Mağara! Ama yolu sisle kapalı...",
+     "a": "Mağara sisli...",
+     "mood": "think"
+    }
+   ]
+  },
+  {
+   "id": "ch6_open",
+   "chapter": 6,
+   "trigger": "level",
+   "arg": "11",
+   "art": "load_cave",
+   "summary": "Mağara ağzında Pus'un en büyük parçası uyuyor.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Mağaranın ağzını kalın bir sis kapatmış.",
+     "a": "Mağara sisli."
+    },
+    {
+     "who": "okti",
+     "text": "Sanki biri burada uyuyor...",
+     "a": "Biri uyuyor...",
+     "mood": "think"
+    },
+    {
+     "who": "narrator",
+     "text": "Yoldaki altı ışık direği taş bekliyor.",
+     "a": "Altı direk taş bekliyor."
+    }
+   ]
+  },
+  {
+   "id": "ch6_close",
+   "chapter": 6,
+   "trigger": "spot",
+   "arg": "spot_cave_path",
+   "art": "load_cave",
+   "summary": "Mağara yolu açıldı! Fenerin camı bulundu, Pus uyandı.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Direkler sırayla yandı. Mağaranın dibinde bir şey parladı.",
+     "a": "Direkler yandı!"
+    },
+    {
+     "who": "okti",
+     "text": "Fenerin camı! Buldum!",
+     "a": "Cam burada!",
+     "mood": "happy"
+    },
+    {
+     "who": "pus",
+     "text": "Herkes benden kaçtı...",
+     "a": "Herkes kaçtı...",
+     "mood": "sad"
+    },
+    {
+     "who": "okti",
+     "text": "Ben kaçmam. Gel, birlikte ısınalım.",
+     "a": "Ben kaçmam. Gel!",
+     "mood": "happy"
+    }
+   ]
+  },
+  {
+   "id": "ch7_open",
+   "chapter": 7,
+   "trigger": "level",
+   "arg": "12",
+   "art": "load_festival",
+   "summary": "Mavi'nin mektupları ulaştı: adalılar geri dönüyor!",
+   "lines": [
+    {
+     "who": "mavi",
+     "text": "Mektuplarım uzak kıyılara ulaştı!",
+     "a": "Mektuplar ulaştı!",
+     "mood": "happy"
+    },
+    {
+     "who": "narrator",
+     "text": "Ufuktan küçük tekneler görünüyor.",
+     "a": "Tekneler geliyor!"
+    },
+    {
+     "who": "kiskac",
+     "text": "Festival zamanı! Fenerleri hazırlayın!",
+     "a": "Festival zamanı!",
+     "mood": "happy"
+    }
+   ]
+  },
+  {
+   "id": "ch7_close",
+   "chapter": 7,
+   "trigger": "event",
+   "arg": "festival_lit",
+   "art": "load_festival",
+   "summary": "Festival fenerleri yandı, gökyüzünde gökkuşağı belirdi.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Fenerler birer birer yandı.",
+     "a": "Fenerler yandı!"
+    },
+    {
+     "who": "pus",
+     "text": "Ben de gelebilir miyim?",
+     "a": "Ben de gelebilir miyim?",
+     "mood": "think"
+    },
+    {
+     "who": "okti",
+     "text": "Elbette! Bak, ışıkta renk renk oldun!",
+     "a": "Elbette! Renk renk oldun!",
+     "mood": "happy"
+    },
+    {
+     "who": "narrator",
+     "text": "Gökyüzünde bir gökkuşağı belirdi.",
+     "a": "Gökkuşağı çıktı!"
+    }
+   ]
+  },
+  {
+   "id": "ch8_open",
+   "chapter": 8,
+   "trigger": "level",
+   "arg": "13",
+   "summary": "Pus: fenerin aynası zirvede kaldı.",
+   "lines": [
+    {
+     "who": "pus",
+     "text": "Fırtına zirvede doğdu. Ben de oradan koptum.",
+     "a": "Ben zirvede doğdum."
+    },
+    {
+     "who": "pus",
+     "text": "Fenerin aynası hâlâ orada.",
+     "a": "Ayna zirvede."
+    },
+    {
+     "who": "okti",
+     "text": "O zaman tırmanalım!",
+     "a": "Tırmanalım!",
+     "mood": "happy"
+    }
+   ]
+  },
+  {
+   "id": "ch8_close",
+   "chapter": 8,
+   "trigger": "level",
+   "arg": "14",
+   "summary": "Zirveden bütün ada görünüyor; ufukta bir tekne ışığı var.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Zirveden bütün ada göründü.",
+     "a": "Bütün ada göründü!"
+    },
+    {
+     "who": "okti",
+     "text": "Ayna burada! Bir de... ufukta bir ışık var.",
+     "a": "Ayna burada! Ufukta ışık var.",
+     "mood": "surprised"
+    },
+    {
+     "who": "pus",
+     "text": "Biri adaya yolunu arıyor.",
+     "a": "Biri yol arıyor.",
+     "mood": "think"
+    }
+   ]
+  },
+  {
+   "id": "ch9_open",
+   "chapter": 9,
+   "trigger": "level",
+   "arg": "15",
+   "art": "load_lighthouse",
+   "summary": "Herkes fenerin kapısında toplandı.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Kıskaç, Mavi, Tosbi Dede, palmiyeler ve Pus fenerin kapısında.",
+     "a": "Herkes fenerde!"
+    },
+    {
+     "who": "okti",
+     "text": "Camı ve aynayı yerine taktım. Şimdi son taşlar!",
+     "a": "Son taşlar kaldı!",
+     "mood": "happy"
+    },
+    {
+     "who": "tosbi",
+     "text": "Nur görseydi çok sevinirdi.",
+     "a": "Nur sevinirdi."
+    }
+   ]
+  },
+  {
+   "id": "ch9_close",
+   "chapter": 9,
+   "trigger": "spot",
+   "arg": "spot_lighthouse",
+   "art": "load_lighthouse",
+   "summary": "Fener yandı! Bütün sis kalktı, Bekçi Nur geri döndü.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Fener yandı. Işık bütün adayı süpürdü, kalan sis kalktı.",
+     "a": "Fener yandı!"
+    },
+    {
+     "who": "pus",
+     "text": "Artık sis değilim... yağmur bulutuyum! Bahçeyi sularım.",
+     "a": "Ben yağmur bulutuyum!",
+     "mood": "happy"
+    },
+    {
+     "who": "narrator",
+     "text": "Ufuktaki tekne ışığı izleyip kıyıya yanaştı.",
+     "a": "Bir tekne geldi."
+    },
+    {
+     "who": "nur",
+     "text": "Fenerimi kim yaktı? Teşekkür ederim, {pet}.",
+     "a": "Teşekkür ederim, {pet}!",
+     "mood": "happy"
+    },
+    {
+     "who": "narrator",
+     "text": "Işık Adası yeniden ışıkla doldu.",
+     "a": "Ada yeniden ışıkla doldu!"
+    }
+   ]
+  }
+ ],
+ "pages": [
+  {
+   "id": "page_1",
+   "n": 1,
+   "text": "Bu ada bir zamanlar ışıkla dolardı. Her gece feneri yakar, denizcilere 'buradayız' derdim.",
+   "where": "tosbi",
+   "chapter": 4
+  },
+  {
+   "id": "page_2",
+   "n": 2,
+   "text": "Kıskaç her sabah kabuğunu parlatır. Mavi mektupları hep yanlış kapıya bırakır, herkes güler.",
+   "where": "sparkle",
+   "chapter": 5
+  },
+  {
+   "id": "page_3",
+   "n": 3,
+   "text": "Palmiyeler fırtınadan önce susar. O gün Pıtır bile konuşmadı.",
+   "where": "region:region_coconut_grove",
+   "chapter": 5
+  },
+  {
+   "id": "page_4",
+   "n": 4,
+   "text": "Gökyüzü kurşun rengi oldu. Zirveden küçük, korkmuş bir bulut koptu.",
+   "where": "sparkle",
+   "chapter": 5
+  },
+  {
+   "id": "page_5",
+   "n": 5,
+   "text": "Feneri yakmaya koştum. Rüzgâr kapıyı çarptı, büyük cam yuvarlandı.",
+   "where": "region:region_pier",
+   "chapter": 5
+  },
+  {
+   "id": "page_6",
+   "n": 6,
+   "text": "Cam mağaraya yuvarlandı. Ayna ise zirvede kaldı.",
+   "where": "sparkle",
+   "chapter": 6
+  },
+  {
+   "id": "page_7",
+   "n": 7,
+   "text": "Dalgalar teknemi uzaklara götürdü. Uyandığımda adanın ışığını göremiyordum.",
+   "where": "region:region_festival",
+   "chapter": 7
+  },
+  {
+   "id": "page_8",
+   "n": 8,
+   "text": "Her akşam ufka bakıyorum. Fener bir gün yeniden yanarsa yolumu bulacağım.",
+   "where": "region:region_mountain",
+   "chapter": 8
+  },
+  {
+   "id": "page_9",
+   "n": 9,
+   "text": "Bu sayfaları kim bulduysa: iyilik yapan elin ışığı hiç sönmez. Teşekkür ederim.",
+   "where": "lighthouse",
+   "chapter": 9
+  }
+ ],
+ "requests": [
+  {
+   "id": "req_kiskac_stone",
+   "who": "kiskac",
+   "text": "Vitrinim için 3 taş bulur musun?",
+   "need": "stone",
+   "count": 3,
+   "reward": "decor_sandcastle",
+   "xp": 10,
+   "minLevel": 2
+  },
+  {
+   "id": "req_mavi_branch",
+   "who": "mavi",
+   "text": "Posta çantamı onarmak için 2 dal lazım.",
+   "need": "branch",
+   "count": 2,
+   "reward": "hat_cap",
+   "xp": 10,
+   "minLevel": 3
+  },
+  {
+   "id": "req_pitir_wood",
+   "who": "pitir",
+   "text": "Yanımıza bir oturak yapar mısın? 4 odun yeter.",
+   "need": "wood",
+   "count": 4,
+   "xp": 12,
+   "minLevel": 2
+  },
+  {
+   "id": "req_tosbi_fish",
+   "who": "tosbi",
+   "text": "Bana 2 balık getirirsen sana bir şey anlatacağım.",
+   "need": "food_fish",
+   "count": 2,
+   "xp": 15,
+   "minLevel": 7
+  },
+  {
+   "id": "req_kiskac_coconut",
+   "who": "kiskac",
+   "text": "Tezgâhıma 2 hindistan cevizi koyalım mı?",
+   "need": "food_coconut",
+   "count": 2,
+   "xp": 8,
+   "minLevel": 1
+  },
+  {
+   "id": "req_hisir_carrot",
+   "who": "hisir",
+   "text": "...bir havuç alabilir miyiz?",
+   "need": "food_carrot",
+   "count": 1,
+   "xp": 8,
+   "minLevel": 6
+  }
+ ],
+ "surprises": [
+  {
+   "id": "sur_bottle",
+   "kind": "bottle",
+   "minLevel": 1,
+   "xp": 5,
+   "say": "Şişenin içinde bir not var: 'Merhaba adalı!'"
+  },
+  {
+   "id": "sur_crabs",
+   "kind": "crabs",
+   "minLevel": 1,
+   "xp": 3,
+   "say": "Yengeç ailesi kumda yürüyüşe çıkmış!"
+  },
+  {
+   "id": "sur_butterfly",
+   "kind": "butterfly",
+   "minLevel": 2,
+   "xp": 3,
+   "say": "Bir kelebek omzuna kondu."
+  },
+  {
+   "id": "sur_shells",
+   "kind": "shells",
+   "minLevel": 1,
+   "xp": 3,
+   "say": "Kumsalda parlak deniz kabukları var."
+  },
+  {
+   "id": "sur_starfish",
+   "kind": "starfish",
+   "minLevel": 3,
+   "xp": 4,
+   "say": "Bir deniz yıldızı el sallıyor!"
+  },
+  {
+   "id": "sur_gull",
+   "kind": "gull",
+   "minLevel": 2,
+   "xp": 3,
+   "say": "Mavi tepede tur atıp selam verdi."
+  }
+ ],
+ "arts": [
+  {
+   "id": "load_beach",
+   "chapter": 0,
+   "tip": "Okti'ye dokun, sana bir hareket yapsın."
+  },
+  {
+   "id": "load_palms",
+   "chapter": 1,
+   "tip": "Palmiyelere dokun: Pıtır ve Hışır dans eder."
+  },
+  {
+   "id": "load_shop",
+   "chapter": 1,
+   "tip": "Kıskaç'ın dükkânında yeni şeyler var."
+  },
+  {
+   "id": "load_mavi",
+   "chapter": 2,
+   "tip": "Mektup kutusunda yeni mektup olabilir."
+  },
+  {
+   "id": "load_ski",
+   "chapter": 3,
+   "tip": "Kayak Tepesi'nde kardan adam yapabilirsin."
+  },
+  {
+   "id": "load_pier",
+   "chapter": 4,
+   "tip": "Tosbi Dede iskelede balık tutuyor."
+  },
+  {
+   "id": "load_cave",
+   "chapter": 6,
+   "tip": "Mağarada ışık direkleri seni bekliyor."
+  },
+  {
+   "id": "load_festival",
+   "chapter": 7,
+   "tip": "Festival fenerlerini yak!"
+  },
+  {
+   "id": "load_lighthouse",
+   "chapter": 9,
+   "tip": "Fener bütün adayı aydınlatıyor."
+  }
+ ]
+}

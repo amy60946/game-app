@@ -30,6 +30,7 @@ namespace Pofi.Logic.State
         public bool HighContrast;
         public bool ReduceMotion;
         public bool NotificationsAllowed;
+        public bool StoryOn = true;      // hikâye sahneleri (kapalıyken yalnız tek satırlık özet balonu)
     }
 
     /// <summary>
@@ -74,6 +75,7 @@ namespace Pofi.Logic.State
         public SkillState Skills = new SkillState();                          // beceri yıldızları (Ö2)
         public Rewards.RewardBook Rewards = new Rewards.RewardBook();         // gerçek ödüller (Ö7): son bilinen liste + istekler
         public Pofi.Logic.Tasks.BoostState Boosts = new Pofi.Logic.Tasks.BoostState();             // zor görevde 2× XP teklifi (Y2)
+        public Pofi.Logic.Story.StoryState Story = new Pofi.Logic.Story.StoryState();                 // hikâye, günlük, adalı istekleri, sürprizler
         public long FirstLaunchUtcTicks;  // ilk açılış: ilk gün akışı (App/FirstDay) en geç 24 saat sürer
 
         public bool HasPet => !string.IsNullOrEmpty(PetId) && !string.IsNullOrEmpty(PetName);

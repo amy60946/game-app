@@ -21,6 +21,7 @@ namespace Pofi.Logic.Data
         public IReadOnlyList<DailyQuestDef> DailyQuests { get; private set; } = new List<DailyQuestDef>();
         public int DailyQuestsPerDay { get; private set; } = 3;
         public Island.SunStoneBook SunBook { get; private set; } = new Island.SunStoneBook(null);   // Güneş Taşı onarım noktaları
+        public Pofi.Logic.Story.StoryBook Story { get; private set; } = new Pofi.Logic.Story.StoryBook();                  // hikâye, sayfalar, istekler, sürprizler
 
         private readonly Dictionary<string, PetSpeciesDef> _pets;
         private readonly Dictionary<string, ItemDef> _items;
@@ -42,7 +43,8 @@ namespace Pofi.Logic.Data
             var badges = JsonConvert.DeserializeObject<BadgesFile>(readText("badges.json")).Badges;
             var dq = JsonConvert.DeserializeObject<DailyQuestsFile>(readText("daily_quests.json"));
             var sun = Island.SunStoneBook.Parse(readText("sun_spots.json"));
-            return new GameData(pets, items, levels) { Collection = col, Badges = badges, DailyQuests = dq.Quests, DailyQuestsPerDay = dq.PerDay, SunBook = sun };
+            var story = Pofi.Logic.Story.StoryBook.Parse(readText("story.json"));
+            return new GameData(pets, items, levels) { Collection = col, Badges = badges, DailyQuests = dq.Quests, DailyQuestsPerDay = dq.PerDay, SunBook = sun, Story = story };
         }
 
         public PetSpeciesDef Pet(string id) => _pets.TryGetValue(id, out var p) ? p : null;

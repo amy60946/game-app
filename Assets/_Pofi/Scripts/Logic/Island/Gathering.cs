@@ -143,6 +143,27 @@ namespace Pofi.Logic.Island
         }
 
         /// <summary>Kulübe için eksik malzeme kalmadı mı?</summary>
+        /// <summary>
+        /// Şantiye (O2): kulübe yerindeki malzeme yığınının doluluğu (0..1). Toplanan malzeme yığına eklenmiş gibi görünür;
+        /// yapı bitince 1.
+        /// </summary>
+        public static float HutProgress(GatherState s)
+        {
+            if (s.HutBuilt) return 1f;
+            var need = HutRecipe.Sum(r => r.count);
+            var have = HutRecipe.Sum(r => Math.Min(Count(s, r.material), r.count));
+            return need > 0 ? (float)have / need : 0f;
+        }
+
+        /// <summary>Şantiye evresi: 0 boş arsa, 1 temel, 2 iskele, 3 duvarlar (malzeme tamam, "Kulübe yap" hazır), 4 bitti.</summary>
+        public static int HutStage(GatherState s)
+        {
+            if (s.HutBuilt) return 4;
+            var p = HutProgress(s);
+            if (p >= 1f) return 3;
+            return p >= 0.5f ? 2 : p > 0f ? 1 : 0;
+        }
+
         public static bool CanBuild(GatherState s) => !s.HutBuilt && HutRecipe.All(r => Count(s, r.material) >= r.count);
 
         /// <summary>Kulübeyi inşa et: tarif kadar malzeme düşer. Yetmiyorsa false.</summary>
