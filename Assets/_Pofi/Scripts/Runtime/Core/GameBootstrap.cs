@@ -61,6 +61,23 @@ namespace Pofi.Core
         public Logic.Rewards.IRewardService Rewards => (Logic.Rewards.IRewardService)_remote ?? Backend;
         /// <summary>Görev ekleri: 2× XP teklif kaydı (Y2), haftalık hedef (Y6).</summary>
         public Logic.Tasks.IGoalService Goals => (Logic.Tasks.IGoalService)_remote ?? Backend;
+        /// <summary>Posta kutusu (H2): ParentApp mesajları.</summary>
+        public Logic.Mail.IMailService Mail => (Logic.Mail.IMailService)_remote ?? Backend;
+        /// <summary>Okunmamış ebeveyn mesajı (adadaki kutunun bayrağı). <see cref="RefreshMail"/> günceller.</summary>
+        public int MailUnread { get; private set; }
+
+        public async System.Threading.Tasks.Task<System.Collections.Generic.List<Logic.Mail.MailMessage>> RefreshMail()
+        {
+            var svc = Mail;
+            if (svc == null) return null;
+            System.Collections.Generic.List<Logic.Mail.MailMessage> list;
+            try { list = await svc.MessagesAsync(); }
+            catch (Exception e) { Debug.LogException(e); return null; }
+            if (list != null) MailUnread = Logic.Mail.MailBox.UnreadCount(list);
+            return list;
+        }
+
+        public void MailRead() => MailUnread = 0;
         public SyncCoordinator Sync { get; private set; }
         public AppPage Page { get; private set; } = AppPage.Map;   // ana merkez ada (14 Ekim 2026)
 
@@ -177,6 +194,7 @@ namespace Pofi.Core
                 Backend.Import(Store.Get(ServerKey(session.ChildId)));
                 DemoParent.EnsureToday(Backend, LocalNow);
                 DemoParent.EnsureRewards(Backend);
+                DemoParent.EnsureMail(Backend, UtcNow);
                 Sync = new SyncCoordinator(Backend, Backend, Backend, Data, Backend) { Levels = Levels };
             }
             Page = AppPage.Map;
@@ -249,6 +267,7 @@ namespace Pofi.Core
             if (report.Offline && await CheckRevoked()) return report;
             if (Session != null && Backend != null) Store.Set(ServerKey(Session.ChildId), Backend.Export());
             Save();
+            _ = RefreshMail();   // posta kutusu bayrağı (H2)
             if (report.CoinsEarned > 0) CoinBurst.Play(Overlay.transform, Theme, Loc.Get("tasks.earned", report.CoinsEarned), report.CoinsEarned);
             if (report.SunStonesEarned > 0)
             {
@@ -410,6 +429,7 @@ namespace Pofi.Core
                         case AppPage.Cards: _screen = root.gameObject.AddComponent<CardsScreen>(); break;
                         case AppPage.Garden: _screen = root.gameObject.AddComponent<GardenScreen>(); break;
                         case AppPage.Album: _screen = root.gameObject.AddComponent<AlbumScreen>(); break;
+                        case AppPage.Mail: _screen = root.gameObject.AddComponent<MailScreen>(); break;
                         case AppPage.Settings: _screen = root.gameObject.AddComponent<SettingsScreen>(); break;
                         case AppPage.Decorate: _screen = root.gameObject.AddComponent<DecorateScreen>(); break;
                         case AppPage.Festival:

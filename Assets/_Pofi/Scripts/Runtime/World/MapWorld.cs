@@ -28,6 +28,8 @@ namespace Pofi.World
         public readonly Dictionary<string, Transform> Regions = new Dictionary<string, Transform>();
         /// <summary>Bölge etiketinin yapı tabanından yüksekliği.</summary>
         public readonly Dictionary<string, float> LabelHeights = new Dictionary<string, float>();
+        /// <summary>Güneş Taşı bölgelerinin yer sisi (H1 sis kalkış sahnesi dağıtır).</summary>
+        public readonly Dictionary<string, Transform> Fog = new Dictionary<string, Transform>();
         public IslandTerrain Terrain { get; private set; }
         public PetWalker Walker { get; private set; }
         /// <summary>Patika ve kumda solan ayak izleri (PetWalker adım temasında ekler).</summary>
@@ -503,7 +505,7 @@ namespace Pofi.World
             // Güneş Taşı ile açılan kilitli bölge: yere yakın, yapıyı saran yoğun sis (kullanıcı, 19 Ekim 2026: gökyüzündeki
             // bulutlar sis gibi okunmuyordu; sis bölgenin üstünde, kamera hizasında olmalı). Taş yerleşince bölge yeniden kurulur, sis kalkar.
             if (!shown && v.Spot != null)
-                Clouds.Spawn(transform, new Vector3(r.X, Terrain.Height(r.X, r.Z) + 0.4f, r.Z), r.Size * 0.42f, 7, 0f, r.Size * 0.25f, r.Size * 0.32f,
+                Fog[r.Id] = Clouds.Spawn(transform, new Vector3(r.X, Terrain.Height(r.X, r.Z) + 0.4f, r.Z), r.Size * 0.42f, 7, 0f, r.Size * 0.25f, r.Size * 0.32f,
                     r.Id.GetHashCode(), 0f, 360f, true);
 
             var b = poolPad != null ? new Bounds(root.position + Vector3.up * 0.6f, new Vector3(r.Size * 1.2f, 1.2f, r.Size * 1.2f)) : RealAssets.WorldBounds(root);

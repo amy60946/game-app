@@ -489,6 +489,23 @@
     "story.intro": "Giriş: Işık Adası'nın hikâyesi",
     "lore.found": "Fener bekçisinin günlüğünden {0}. sayfayı buldun! Defter'de.",
     "lore.title": "Bekçinin günlüğü ({0}/{1})",
-    "lore.none": "Henüz sayfa bulunmadı. Açılan yerlerde ve parıltılarda saklı."
+    "lore.none": "Henüz sayfa bulunmadı. Açılan yerlerde ve parıltılarda saklı.",
+    "mail.title": "Posta kutusu",
+    "mail.loading": "Mektuplar geliyor...",
+    "mail.offline": "Şu an internet yok. Biraz sonra yeniden bak.",
+    "mail.empty": "Henüz mektup yok. Ailen ParentApp'ten yazınca burada görünür.",
+    "mail.me": "ben",
+    "mail.family": "Ailem",
+    "mail.photo": "Fotoğraf açılıyor...",
+    "mail.photo_later": "Fotoğraf şimdi açılamadı.",
+    "mail.voice": "Sesli mesaj ({0} sn) · Dinle",
+    "mail.voice_later": "Ses şimdi açılamadı.",
+    "mail.write": "Kısa bir cevap yaz...",
+    "mail.send": "Gönder",
+    "mail.err_empty": "Önce bir şey yaz.",
+    "mail.err_too_long": "Mesaj biraz uzun; 500 harfe kadar yaz.",
+    "mail.err_not_allowed": "Bir çıkartma seçerek cevap ver.",
+    "mail.err_server": "Mesaj gönderilemedi, biraz sonra dene.",
+    "mail.new": "Posta kutunda {0} yeni mektup var!"
   }
 }

@@ -13,7 +13,7 @@ namespace Pofi.Logic.Services.Mock
     /// fiyat sunucuda (oyun verisinden) okunur, harcama idempotenttir, coin yalnızca ebeveyn onayıyla artar.
     /// Geliştirmede "ebeveyn" işlemleri (görev ata, onayla, reddet) bu sınıftan çağrılır.
     /// </summary>
-    public sealed class MockBackend : IWalletService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService
+    public sealed class MockBackend : IWalletService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService
     {
         private readonly GameData _data;
         private readonly Dictionary<string, int> _processedTx = new Dictionary<string, int>(); // txId → tutar
@@ -231,6 +231,48 @@ namespace Pofi.Logic.Services.Mock
             t.Status = to;
             return Task.FromResult(ServiceError.None);
         }
+
+        // ---------- IMailService (H2 posta kutusu; sunucu kuralının kopyası: çocuk yazı ≤ 500, çıkartma, dosya yok) ----------
+
+        public readonly List<Mail.MailMessage> Messages = new List<Mail.MailMessage>();
+        private int _msgSeq;
+
+        /// <summary>Deneme: "ebeveyn" mesaj gönderir (yazı, çıkartma ya da fotoğraf/ses yolu).</summary>
+        public Mail.MailMessage ParentMessage(string kind, string body, string fromName = "Annem", string mediaPath = null, int durationMs = 0, DateTime? at = null)
+        {
+            var m = new Mail.MailMessage
+            {
+                Id = "m" + (++_msgSeq), Sender = "parent", Kind = kind, Body = body, MediaPath = mediaPath, DurationMs = durationMs,
+                CreatedAt = at ?? DateTime.UtcNow, FromName = fromName,
+            };
+            Messages.Add(m);
+            return m;
+        }
+
+        public Task<List<Mail.MailMessage>> MessagesAsync(int limit = 100, CancellationToken ct = default)
+        {
+            if (Offline) return Task.FromResult<List<Mail.MailMessage>>(null);
+            return Task.FromResult(Messages.OrderBy(m => m.CreatedAt).Skip(Math.Max(0, Messages.Count - limit)).ToList());
+        }
+
+        public Task<int> MarkReadAsync(CancellationToken ct = default)
+        {
+            var n = 0;
+            foreach (var m in Messages) if (m.Unread) { m.ReadAt = DateTime.UtcNow; n++; }
+            return Task.FromResult(n);
+        }
+
+        public Task<Mail.MailSend> SendAsync(string kind, string body, CancellationToken ct = default)
+        {
+            if (Offline) return Task.FromResult(new Mail.MailSend { Error = "offline" });
+            if (kind == Mail.MailBox.Sticker ? !Mail.MailBox.IsSticker(body) : kind != Mail.MailBox.Text || string.IsNullOrWhiteSpace(body) || body.Trim().Length > Mail.MailBox.ChildTextMax)
+                return Task.FromResult(new Mail.MailSend { Error = "server" });
+            var m = new Mail.MailMessage { Id = "m" + (++_msgSeq), Sender = "child", Kind = kind, Body = body.Trim(), CreatedAt = DateTime.UtcNow };
+            Messages.Add(m);
+            return Task.FromResult(new Mail.MailSend { Ok = true, Id = m.Id });
+        }
+
+        public Task<string> MediaUrlAsync(string mediaPath, CancellationToken ct = default) => Task.FromResult<string>(null);
 
         // ---------- IGoalService (Y2 teklif kaydı, Y6 haftalık hedef; sunucu kuralının kopyası) ----------
 

@@ -44,6 +44,7 @@ namespace Pofi.Screens
         private void BuildHud()
         {
             var hud = Ui.Fill(Root, "Hud");
+            _hudGroup = hud.gameObject.AddComponent<CanvasGroup>();   // sinematik anlarda (H1) arayüz çekilir
             // sol üst
             // pet kartı: madalyon + isim plakası + seviye yıldızı + XP kapsülü (Candy.PetPlate)
             var pet = App.Data.Pet(App.State.PetId);
@@ -514,8 +515,13 @@ namespace Pofi.Screens
             App.RecordActivity("stone_placed");
             if (r == PlaceResult.Repaired)
             {
-                Toast.Post(App.Overlay.transform, Th, string.IsNullOrEmpty(spot.Say) ? T("stones.all_done") : spot.Say);
-                App.Route();   // sis kalkar, bölge açılır (ada yeniden kurulur)
+                // H1: sis kalkış sahnesi (≈4 sn), sonra bölge açılır (ada yeniden kurulur)
+                var view = _views.FirstOrDefault(x => x.Spot != null && x.Spot.Id == spot.Id);
+                StartCoroutine(FogLift(view, () =>
+                {
+                    Toast.Post(App.Overlay.transform, Th, string.IsNullOrEmpty(spot.Say) ? T("stones.all_done") : spot.Say);
+                    App.Route();
+                }));
             }
             else _toast.Say(T("stones.placed_more", spot.Cost - SunStoneBook.PlacedIn(st, spot.Id)));
         }

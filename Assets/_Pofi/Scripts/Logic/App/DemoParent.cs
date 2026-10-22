@@ -38,6 +38,14 @@ namespace Pofi.Logic.App
         public static int GiveRewards(MockBackend backend) =>
             backend.RewardRequests.Where(q => q.Status == Rewards.RewardStatus.Pending).Select(q => q.Id).ToList().Count(id => backend.ParentDecideReward(id, true, "Hak ettin!"));
 
+        /// <summary>Deneme posta kutusu (H2): ilk girişte ebeveynden iki sıcak mesaj (yalnız sahte sunucu).</summary>
+        public static void EnsureMail(MockBackend backend, DateTime utcNow)
+        {
+            if (backend.Messages.Count > 0) return;
+            backend.ParentMessage(Mail.MailBox.Text, "Günaydın! Bugün adada neler yapacaksın? Seni seviyorum.", "Annem", at: utcNow.AddMinutes(-40));
+            backend.ParentMessage(Mail.MailBox.Sticker, "star", "Babam", at: utcNow.AddMinutes(-5));
+        }
+
         public static string Day(DateTime local) => local.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
 
         /// <summary>Bugün için görev yoksa örnekleri atar. Atanan görev sayısını döndürür.</summary>

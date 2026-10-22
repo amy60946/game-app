@@ -86,6 +86,19 @@ namespace Pofi.Screens
                 SurpriseView.Create(_world.transform, i, sp.Def.Kind, new Vector3(sp.X, _terrain.Height(sp.X, sp.Z), sp.Z));
             }
 
+            // H2 posta kutusu: Evim'in kapısının yanında; okunmamış mesajda bayrak kalkık
+            var home = _terrain.Regions.FirstOrDefault(r => r.Id == "region_home");
+            if (home != null)
+            {
+                var (hx, hz) = _terrain.Door(home);
+                var d = new Vector2(hx - home.X, hz - home.Z); d = d.sqrMagnitude > 0.01f ? d.normalized : Vector2.up;
+                var side = new Vector2(-d.y, d.x) * 2.6f;
+                var mx = hx + side.x; var mz = hz + side.y;
+                _mailbox = Mailbox.Create(_world.transform, new Vector3(mx, _terrain.Height(mx, mz), mz), Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg);
+                _mailbox.Unread = App.MailUnread > 0;
+                RefreshMailFlag();
+            }
+
             _labelLayer = Ui.Fill(Root, "Labels");
             foreach (var v in _views) _labels[v.Region.Id] = Label(v);
             BuildPlaceLabels();
@@ -171,6 +184,11 @@ namespace Pofi.Screens
 
         private void TargetCamera(out Vector3 pos, out Vector3 look, out float fov)
         {
+            if (_cine)
+            {
+                pos = _cinePos; look = _cineLook; fov = 48f;
+                return;
+            }
             if (_overview || _world.Walker == null)
             {
                 var c = _overview ? _pan : new Vector2(_terrain.PlazaX, _terrain.PlazaZ + 6f);
@@ -272,7 +290,7 @@ namespace Pofi.Screens
 
         private void Update()
         {
-            HandleInput();
+            if (!_cine) HandleInput();
             // dokunma başka ekran açtıysa (ör. pete dokun → Dolap) bu karede kamerayı geri çekme: dolapta pet görünmüyordu
             if (!gameObject.activeInHierarchy) return;
             UpdateGather();
@@ -424,6 +442,12 @@ namespace Pofi.Screens
             }
             if (go.name == "gather_site") { TapSite(); return; }
             if (go.name.StartsWith("gather_") && int.TryParse(go.name.Substring("gather_".Length), out var gi)) { TapNode(gi); return; }
+            if (go.name == "mailbox")
+            {
+                var spot = _world.Local(go.transform.position);
+                GoTo(spot.x, spot.y, () => { Audio.Sfx.Play(Audio.SfxKind.Pop); App.Open(AppPage.Mail); });
+                return;
+            }
             if (go.name.StartsWith("surprise_"))
             {
                 var spot = _world.Local(go.transform.position);
@@ -452,6 +476,89 @@ namespace Pofi.Screens
                 TipDone(Onboarding.Walk);
                 GoTo(p.x, p.y, null);
             }
+        }
+
+        // ------------------------------------------------------------------ H1 sis kalkış sahnesi (23 Ekim 2026)
+        private bool _cine;
+        private Vector3 _cinePos, _cineLook;
+        private CanvasGroup _hudGroup;
+
+        /// <summary>
+        /// Güneş Taşı bölgeyi açınca: arayüz çekilir, sinema bantları iner, kamera bölgeye döner; sis dağılıp yükselir, ışık patlar,
+        /// gri bölge renklenir, Okti sevinir. Sonra <paramref name="done"/> (bölge açılır). Toplam ≈4 sn; girdi kapalı.
+        /// </summary>
+        private System.Collections.IEnumerator FogLift(RegionView v, System.Action done)
+        {
+            if (v == null || _world.Walker == null) { done?.Invoke(); yield break; }
+            _cine = true;
+            _world.Walker.Steer(Vector2.zero); _world.Walker.Stop();
+            var bars = new[] { Bar(true), Bar(false) };
+            var c = _world.World(v.Region.X, v.Region.Z);
+            var pet = _world.Walker.transform.position;
+            var dir = c - pet; dir.y = 0f; dir = dir.sqrMagnitude > 0.01f ? dir.normalized : Vector3.forward;
+            _cinePos = pet - dir * 7f + Vector3.up * 5.5f + Vector3.Cross(Vector3.up, dir) * 2.5f;
+            _cineLook = c + Vector3.up * 1.6f;
+            _world.Walker.Face(v.Region.X, v.Region.Z);
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 0.45f)
+            {
+                if (_hudGroup != null) _hudGroup.alpha = 1f - t;
+                foreach (var b in bars) b.sizeDelta = new Vector2(0f, Mathf.Lerp(0f, 96f, t));
+                yield return null;
+            }
+            if (_hudGroup != null) _hudGroup.alpha = 0f;
+            yield return new WaitForSeconds(0.8f);
+            // ışık patlaması + sis dağılır
+            Audio.Sfx.Play(Audio.SfxKind.Chime);
+            Audio.Haptics.Medium();
+            var glow = GainFx.Glow(_world.transform, GainFx.StoneColor, 1.2f, false);
+            glow.position = c + Vector3.up * 1.2f;
+            var sp = App.Stage.Camera.WorldToScreenPoint(c + Vector3.up * 1.5f);
+            StarSparkles.Around(Root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.2f, 0.26f), 14, 23);
+            _world.Fog.TryGetValue(v.Region.Id, out var fog);
+            var clouds = new List<(Transform T, Vector3 P, Vector3 S)>();
+            if (fog != null) foreach (Transform cl in fog) clouds.Add((cl, cl.localPosition, cl.localScale));
+            var region = _world.Regions.TryGetValue(v.Region.Id, out var rt) ? rt : null;
+            var mpb = new MaterialPropertyBlock();
+            var rends = region != null ? region.GetComponentsInChildren<Renderer>(true) : new Renderer[0];
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 1.6f)
+            {
+                var e = t * t * (3f - 2f * t);
+                glow.localScale = Vector3.one * Mathf.Lerp(0.5f, v.Region.Size * 1.6f, e);
+                foreach (var (cl, p0, s0) in clouds)
+                {
+                    if (cl == null) continue;
+                    var outw = p0 - fog.InverseTransformPoint(c); outw.y = 0f;
+                    cl.localPosition = p0 + outw.normalized * e * v.Region.Size * 0.8f + Vector3.up * e * 4f;
+                    cl.localScale = s0 * Mathf.Lerp(1f, 0.05f, e);
+                }
+                // gri bölge renklenir
+                mpb.SetColor("_BaseColor", Color.Lerp(new Color(0.62f, 0.64f, 0.72f), Color.white, e));
+                foreach (var r in rends) if (r != null) r.SetPropertyBlock(mpb);
+                if (t > 0.35f && t - Time.deltaTime / 1.6f <= 0.35f) { _world.Walker.Cheer(); Audio.Sfx.Play(Audio.SfxKind.Success); }
+                yield return null;
+            }
+            if (fog != null) Destroy(fog.gameObject);
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 0.5f) { glow.localScale *= 0.92f; yield return null; }
+            Destroy(glow.gameObject);
+            yield return new WaitForSeconds(0.5f);
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 0.4f)
+            {
+                foreach (var b in bars) b.sizeDelta = new Vector2(0f, Mathf.Lerp(96f, 0f, t));
+                yield return null;
+            }
+            foreach (var b in bars) Destroy(b.gameObject);
+            if (_hudGroup != null) _hudGroup.alpha = 1f;
+            _cine = false;
+            done?.Invoke();
+        }
+
+        private RectTransform Bar(bool top)
+        {
+            var b = Ui.Rect(Root, top ? "BarTop" : "BarBottom", new Vector2(0.5f, top ? 1f : 0f), Vector2.zero);
+            b.anchorMin = new Vector2(0f, top ? 1f : 0f); b.anchorMax = new Vector2(1f, top ? 1f : 0f);
+            b.pivot = new Vector2(0.5f, top ? 1f : 0f); b.anchoredPosition = Vector2.zero; b.sizeDelta = Vector2.zero;
+            var img = b.gameObject.AddComponent<Image>(); img.color = Color.black; img.raycastTarget = true;
+            return b;
         }
 
         // ------------------------------------------------------------------ dokunuş tepkileri (A1, O4; 23 Ekim 2026)
@@ -574,6 +681,16 @@ namespace Pofi.Screens
         }
 
         private List<Logic.Story.SurpriseSpot> _surprises = new List<Logic.Story.SurpriseSpot>();
+        private Mailbox _mailbox;
+        private static bool _mailToldThisSession;
+
+        private async void RefreshMailFlag()
+        {
+            await App.RefreshMail();
+            if (this == null || _mailbox == null) return;
+            _mailbox.Unread = App.MailUnread > 0;
+            if (App.MailUnread > 0 && !_mailToldThisSession) { _mailToldThisSession = true; _toast.Say(T("mail.new", App.MailUnread)); }
+        }
 
         /// <summary>Sürpriz bulundu (O3): ödül günde bir kez (küçük XP), kısa söz; puan ya da seri yok.</summary>
         private void CollectSurprise(GameObject go)

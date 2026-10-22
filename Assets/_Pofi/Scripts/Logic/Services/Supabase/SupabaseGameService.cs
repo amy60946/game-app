@@ -15,7 +15,7 @@ namespace Pofi.Logic.Services.Supabase
     /// fonksiyonlarını çağırır (child_me, child_tasks, child_set_status, spend_coins, game_save_get/put).
     /// Ağ yoksa <see cref="OperationCanceledException"/> (SyncCoordinator bunu "çevrimdışı" sayar) ya da ServiceError.Network.
     /// </summary>
-    public sealed class SupabaseGameService : IWalletService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService
+    public sealed class SupabaseGameService : IWalletService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService
     {
         public const string LocalSaveKey = "pofi.save.local";
 
@@ -289,6 +289,45 @@ namespace Pofi.Logic.Services.Supabase
 
         public async Task<Rewards.RewardReply> CancelAsync(string requestId, CancellationToken ct = default)
             => ParseReply(await Rpc("cancel_reward_request", new { p_request_id = requestId }, ct));
+
+        // ------------------------------------------------------------ posta kutusu (H2; ortak migrations/20261022120000_messages)
+
+        public async Task<List<Mail.MailMessage>> MessagesAsync(int limit = 100, CancellationToken ct = default)
+        {
+            var r = await Rpc("child_messages", new { p_limit = Math.Max(1, Math.Min(200, limit)) }, ct);
+            return Ok(r) ? Mail.MailBox.Parse(r.Body) : null;   // null: ağ yok / fonksiyon yok
+        }
+
+        public async Task<int> MarkReadAsync(CancellationToken ct = default)
+        {
+            var r = await Rpc("mark_messages_read", null, ct);
+            return Ok(r) && int.TryParse((r.Body ?? "").Trim(), out var n) ? n : 0;
+        }
+
+        public async Task<Mail.MailSend> SendAsync(string kind, string body, CancellationToken ct = default)
+        {
+            var r = await Rpc("child_send_message", new { p_kind = kind, p_body = body }, ct);
+            if (r.Status == 0 || r.Status >= 500) return new Mail.MailSend { Error = "offline" };
+            if (!Ok(r)) return new Mail.MailSend { Error = "server" };
+            try { return new Mail.MailSend { Ok = true, Id = (string)JObject.Parse(r.Body)["id"] }; }
+            catch (Newtonsoft.Json.JsonException) { return new Mail.MailSend { Ok = true }; }
+        }
+
+        public async Task<string> MediaUrlAsync(string mediaPath, CancellationToken ct = default)
+        {
+            if (string.IsNullOrEmpty(mediaPath)) return null;
+            var h = new Dictionary<string, string> { ["apikey"] = _anonKey, ["Content-Type"] = "application/json" };
+            var t = _token();
+            if (!string.IsNullOrEmpty(t)) h["Authorization"] = "Bearer " + t;
+            var r = await _http.SendAsync("POST", _url + "/storage/v1/object/sign/mail/" + mediaPath, h, JsonConvert.SerializeObject(new { expiresIn = 600 }), ct);
+            if (!Ok(r)) return null;
+            try
+            {
+                var u = (string)JObject.Parse(r.Body)["signedURL"];
+                return string.IsNullOrEmpty(u) ? null : _url + "/storage/v1" + (u.StartsWith("/") ? u : "/" + u);
+            }
+            catch (Newtonsoft.Json.JsonException) { return null; }
+        }
 
         // ------------------------------------------------------------ kayıt
 
