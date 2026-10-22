@@ -29,6 +29,7 @@ namespace Pofi.Screens
         private readonly RectTransform[] _trackFill = new RectTransform[3];
         private float _respawnT;
         private int _gTarget = int.MinValue;                // en yakın erişilebilir: düğüm indeksi, -1 kulübe yeri, MinValue yok
+        private int _gCalmFor = int.MaxValue;               // CalmBubbles en son hangi hedefe göre çalıştı
 
         private const float Reach = 2.1f, SiteReach = 4.4f, BubbleRange = 11f;
 
@@ -59,10 +60,21 @@ namespace Pofi.Screens
                 var i = n.Index;
                 var b = Candy.Round(_gLayer, Candy.White, ToolIcon(Gathering.Rule(n.Kind).Tool), 112f, Vector2.zero, Vector2.zero, () => TapNode(i));
                 b.gameObject.SetActive(false);
+                Hover.On(b, 6f);
                 _gBubbles[i] = b;
             }
             _siteBubble = Candy.Round(_gLayer, Candy.White, "tool_hammer", 124f, Vector2.zero, Vector2.zero, TapSite);
             _siteBubble.gameObject.SetActive(false);
+            Hover.On(_siteBubble, 6f);
+            CalmBubbles();
+        }
+
+        /// <summary>Çocuk toplamayı öğrendiyse (≈3 nesne) alet baloncukları sakinleşir; yalnız hedefteki canlı kalır.</summary>
+        private void CalmBubbles()
+        {
+            var learned = App.State.Counters.Total("gathered") >= 9;
+            foreach (var kv in _gBubbles) kv.Value.GetComponent<Hover>().Calm(learned && kv.Key != _gTarget);
+            _siteBubble.GetComponent<Hover>().Calm(learned && _gTarget != -1);
         }
 
         /// <summary>Joystickle yürürken engel: nesnenin içine doğru ilerlenmez (içindeyse dışarı çıkılabilir).</summary>
@@ -144,6 +156,7 @@ namespace Pofi.Screens
                 if (d < Reach + _gSpots[n.Index].Radius * 0.5f && d < best) { best = d; _gTarget = n.Index; }
             }
             if (!st.HutBuilt && Vector2.Distance(p, new Vector2(_sitePos.x, _sitePos.z)) < SiteReach && _gTarget == int.MinValue) _gTarget = -1;
+            if (_gTarget != _gCalmFor) { _gCalmFor = _gTarget; CalmBubbles(); }
 
             var cam = App.Stage.Camera;
             var k = Root.rect.width / Mathf.Max(1f, Screen.width);
@@ -173,8 +186,7 @@ namespace Pofi.Screens
             var sp = cam.WorldToScreenPoint(s.transform.position + Vector3.up * (s.Top + 0.55f));
             if (sp.z <= 0f) return false;
             var rt = (RectTransform)b.transform;
-            var bob = target ? Mathf.Sin(Time.time * 5f) * 8f : 0f;
-            rt.anchoredPosition = new Vector2(sp.x * k, sp.y * k + bob);
+            rt.anchoredPosition = new Vector2(sp.x * k, sp.y * k);   // süzülme + nefes: Hover
             rt.localScale = Vector3.one * (target ? 1.25f : 0.9f);
             b.targetGraphic.color = target ? new Color(0.62f, 0.93f, 0.72f) : Candy.White;
             return true;
@@ -248,6 +260,7 @@ namespace Pofi.Screens
                 Gain(rule.Material, got, spot);
                 Audio.Sfx.Play(Audio.SfxKind.Pop);
                 App.RecordActivity("gathered", got);
+                CalmBubbles();
                 App.Save();
                 RefreshTracker();
                 if (Gathering.CanBuild(st)) _toast.Say(T("gather.ready"));
@@ -284,6 +297,7 @@ namespace Pofi.Screens
             Audio.Haptics.Medium();
             var sp = App.Stage.Camera.WorldToScreenPoint(_site.transform.position + Vector3.up * 2f);
             StarSparkles.Around(Root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.14f, 0.2f), 10, 7);
+            _xpFrom = _site.transform.position + Vector3.up * 1.5f;
             App.GrantXp(Gathering.HutXp, Logic.Economy.XpSource.Achievement);
             App.RecordActivity("hut_built");
             App.Save();

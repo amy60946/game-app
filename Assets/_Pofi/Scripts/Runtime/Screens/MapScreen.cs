@@ -66,7 +66,7 @@ namespace Pofi.Screens
             {
                 _sparkles = Sparkles.Open(App.State.Sparkles, Day, Sparkles.ForDay(Day, App.State.ChildId, App.Level,
                     Logic.Pet.PetCare.CollectTime(App.LocalNow), App.Data.Collection, _terrain));
-                foreach (var sp in _sparkles) _sparkleObjs[sp.Index] = _world.AddSparkle(sp.Index, sp.X, sp.Z);
+                foreach (var sp in _sparkles) _sparkleObjs[sp.Index] = _world.AddSparkle(sp.Index, sp.X, sp.Z, !App.State.Collection.Contains(sp.EntryId));
             }
 
             _labelLayer = Ui.Fill(Root, "Labels");
@@ -137,7 +137,7 @@ namespace Pofi.Screens
                 img.sprite = Ui.Rounded; img.type = Image.Type.Sliced; img.color = Candy.Green; img.raycastTarget = false;
                 var o = play.gameObject.AddComponent<Outline>(); o.effectColor = Color.white; o.effectDistance = new Vector2(4f, -4f);
                 Candy.Caption(play, T("hud.play"), 44, new Vector2(0.5f, 0.5f), new Vector2(220f, 84f));
-                play.gameObject.AddComponent<Pulse>();
+                Hover.On(play, 7f, 0.07f);
             }
             if (v.IsNew)
             {
@@ -145,7 +145,7 @@ namespace Pofi.Screens
                 var badge = Ui.Rect(rt, "New", new Vector2(0.5f, 1f), new Vector2(120f, 50f), new Vector2(0f, hasPlay ? 128f : 26f));
                 Ui.Panel(badge, Th.Danger, 25f).raycastTarget = false;
                 Ui.Label(badge, T("map.new"), Th.Font(26), Color.white, new Vector2(0.5f, 0.5f), new Vector2(120f, 50f), FontStyle.Bold);
-                badge.gameObject.AddComponent<Pulse>();
+                Hover.On(badge, 5f, 0.08f);
             }
             return rt;
         }
@@ -466,7 +466,14 @@ namespace Pofi.Screens
             if (sp == null) return;
             Sparkles.Take(App.State.Sparkles, Day, sp);
             TipDone(Onboarding.Sparkle);
-            Destroy(go);
+            // açılma (M5): kristal dönüp patlar, pet zafer hareketi yapar, pırıltı sesi; XP parçaları kristalden pete akar
+            _sparkleObjs.Remove(idx);
+            go.name = "sparkle_open";
+            _xpFrom = go.transform.position;
+            var fl = go.GetComponent<SparkleFloat>();
+            if (fl != null) fl.Open(); else Destroy(go);
+            if (_world.Walker != null) { _world.Walker.Face(go.transform.position.x - _world.transform.position.x, go.transform.position.z - _world.transform.position.z); _world.Walker.Cheer(); }
+            Audio.Sfx.Play(Audio.SfxKind.Sparkle);
             var entry = App.Data.Collection.FirstOrDefault(e => e.Id == sp.EntryId);
             if (entry == null) return;
             var isNew = Logic.Meta.CollectionBook.Discover(App.State.Collection, entry, App.State.Counters);

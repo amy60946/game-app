@@ -291,6 +291,8 @@ namespace Pofi.Core
         /// <summary>XP kazancı (mini oyun, masa oyunu…): günlük sınır, seviye atlama ve kutlama burada.</summary>
         /// <summary>XP kazanıldı (miktar): arayüz "+N ★" gösterir.</summary>
         public event System.Action<int> XpGained;
+        /// <summary>Yeni rozet kazanıldı (adet): adada pet sevinir, kupa göstergesi yaylanır (XP takibi M4).</summary>
+        public event System.Action<int> BadgeEarned;
 
         public XpResult GrantXp(int amount, XpSource source)
         {
@@ -310,6 +312,7 @@ namespace Pofi.Core
             if (State == null) return;
             var r = Activity.Record(State, Data, Levels, counter, n, LocalNow);
             foreach (var b in r.NewBadges) Toast.Post(Overlay.transform, Theme, Loc.Get("badge.earned", b.Name));
+            if (r.NewBadges.Count > 0) BadgeEarned?.Invoke(r.NewBadges.Count);
             foreach (var q in r.QuestsDone) Toast.Post(Overlay.transform, Theme, q.Text + "  " + Loc.Get("xp.gain", q.Xp));
             if (r.BadgeXp > 0) GrantXp(r.BadgeXp, XpSource.Achievement);
             if (r.QuestXp > 0) GrantXp(r.QuestXp, XpSource.DailyQuest);

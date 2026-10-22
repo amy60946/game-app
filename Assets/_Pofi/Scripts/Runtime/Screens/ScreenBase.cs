@@ -273,6 +273,7 @@ namespace Pofi.Screens
             b._group = banner.gameObject.AddComponent<CanvasGroup>();
             b._group.alpha = 0f;
             b._group.blocksRaycasts = false;
+            Hover.On(banner, 4f, 0.015f);   // bilgilendirici baloncuk canlı (S5)
             return b;
         }
 

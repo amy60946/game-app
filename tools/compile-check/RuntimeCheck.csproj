@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Yalnız yerel derleme ön kontrolü (run.sh): Pofi.Logic + Pofi.Runtime, NuGet'teki Unity başvuru derlemeleriyle. -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>CS0414;CS0649;CS0169;CS0618;CS0067</NoWarn>
+    <OutputPath>.out/</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/_Pofi/Scripts/Logic/**/*.cs" />
+    <Compile Include="../../Assets/_Pofi/Scripts/Runtime/**/*.cs" />
+    <Compile Include="UrpStubs.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="$(UnityRef)/unityengine.modules/lib/**/*.dll" Private="false" />
+    <Reference Include="$(UnityRef)/unity3d.unityengine.ui/lib/**/*.dll" Private="false" />
+  </ItemGroup>
+</Project>

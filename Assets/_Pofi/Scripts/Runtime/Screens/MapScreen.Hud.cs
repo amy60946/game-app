@@ -6,6 +6,7 @@ using Pofi.Logic.Island;
 using Pofi.Logic.Pet;
 using Pofi.Logic.Core;
 using Pofi.UI;
+using Pofi.World;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -37,6 +38,8 @@ namespace Pofi.Screens
         private int _lastCoins = -1, _lastStones = -1;
         private float _questT;
         private Image _xpFill;
+        private RectTransform _trophy;
+        private Text _trophyCount;
 
         private void BuildHud()
         {
@@ -45,6 +48,15 @@ namespace Pofi.Screens
             // pet kartı: madalyon + isim plakası + seviye yıldızı + XP kapsülü (Candy.PetPlate)
             var pet = App.Data.Pet(App.State.PetId);
             _levelBadge = Candy.PetPlate(hud, App.State.PetId, Theme.Hex(pet.MainColor), new Vector2(10f, -10f), out _levelText, out _levelNum, out _xpFill);
+            // pet kartı dokunulur: Defter rozetler sekmesiyle açılır (XP takibi M4: "rozetleri oyunda göremedim").
+            // XP kapsülünün sağında küçük kupa + kazanılan rozet sayısı.
+            var plateHit = _levelBadge.gameObject.AddComponent<Image>(); plateHit.color = new Color(1f, 1f, 1f, 0f);
+            var plateBtn = _levelBadge.gameObject.AddComponent<Button>(); plateBtn.targetGraphic = plateHit; plateBtn.transition = Selectable.Transition.None;
+            plateBtn.onClick.AddListener(() => { Audio.Sfx.Play(Audio.SfxKind.Tap); AlbumScreen.ShowBadges(); App.Open(AppPage.Album); });
+            _trophy = Ui.Rect(_levelBadge, "Trophy", new Vector2(0f, 1f), new Vector2(84f, 84f), new Vector2(506f, -116f));
+            var ti = Ui.IconImage(_trophy, "ui_trophy", new Vector2(0.5f, 0.5f), 84f);
+            if (ti != null) ti.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -4f);
+            _trophyCount = Candy.Count(_trophy, 40f);
             // Yerleşim v3 taslağına göre (kullanıcı onayı, 19 Ekim 2026): halkalar küçük, rozetin altında; sol sütun Görev + Ev Görevleri;
             // üst orta Güneş Taşı + coin; sağ üst yuvarlak Harita ve Ayarlar; sol alt Besle/Yıka; sağ alt eylem.
             Color[] cols = { new Color(1f, 0.62f, 0.26f), new Color(0.24f, 0.79f, 1f), new Color(1f, 0.44f, 0.68f), new Color(0.48f, 0.84f, 0.42f) };
@@ -104,6 +116,8 @@ namespace Pofi.Screens
             _stickBase.gameObject.SetActive(false);
 
             App.XpGained += OnXp;
+            App.Synced += OnSyncedFx;
+            App.BadgeEarned += OnBadge;
             RefreshHud();
         }
 
@@ -118,7 +132,44 @@ namespace Pofi.Screens
 
         private void HudDestroy()
         {
-            if (App != null) App.XpGained -= OnXp;
+            if (App != null) { App.XpGained -= OnXp; App.Synced -= OnSyncedFx; App.BadgeEarned -= OnBadge; }
+        }
+
+        /// <summary>Rozet kazanınca (M4): pet sevinir, kupa yaylanır ve sayısı artar; rozetin XP'si ayrıca yıldız olarak akar.</summary>
+        private void OnBadge(int n)
+        {
+            if (this == null) return;
+            RefreshHud();
+            if (_trophy != null) Bump.Play(_trophy, 0.4f);
+            Audio.Sfx.Play(Audio.SfxKind.Chime);
+            if (_world != null && _world.Walker != null && !_overview) _world.Walker.Cheer();
+        }
+
+        /// <summary>Bir sonraki XP kazanımının dünyada doğduğu yer (parıltı, kulübe…); yoksa parçalar petin üstünde doğar.</summary>
+        private Vector3? _xpFrom;
+
+        private float PetHeight => _world != null && _world.Walker != null ? PetModels.RealHeight * _world.Walker.transform.lossyScale.y : 1f;
+
+        /// <summary>3B kazanım efekti (S4): parçalar pete akar; bitince gösterge yaylanır.</summary>
+        private void GainFx3D(GainFx.Kind kind, int amount, Vector3? from)
+        {
+            var w = _world != null ? _world.Walker : null;
+            if (w == null || _overview || amount <= 0) return;
+            System.Action done = () =>
+            {
+                if (this == null) return;
+                if (kind == GainFx.Kind.Xp && _levelBadge != null) Bump.Play(_levelBadge, 0.25f);
+                if (kind == GainFx.Kind.Stone && _stoneText != null) Bump.Play(_stoneText.transform.parent, 0.3f);
+            };
+            if (from.HasValue) GainFx.Play(kind, amount, from.Value, w.transform, PetHeight, done);
+            else GainFx.AroundPet(kind, amount, w.transform, PetHeight, done);
+        }
+
+        /// <summary>Senkronda gelen Güneş Taşı (ebeveyn onayı): altın kristaller gökten pete iner.</summary>
+        private void OnSyncedFx(Logic.State.SyncReport r)
+        {
+            if (this == null || r == null) return;
+            if (r.SunStonesEarned > 0) GainFx3D(GainFx.Kind.Stone, r.SunStonesEarned, null);
         }
 
         /// <summary>XP kazanınca rozetin yanında "+N ★" süzülür; ilk seferde XP ipucu.</summary>
@@ -129,6 +180,8 @@ namespace Pofi.Screens
             Ui.IconImage(f, "ui_star", new Vector2(0f, 0.5f), 80f, new Vector2(40f, 0f));
             Candy.Caption(f, T("xp.star", n), 56, new Vector2(0.5f, 0.5f), new Vector2(160f, 90f), new Vector2(40f, 0f));
             f.gameObject.AddComponent<FloatUp>();
+            var from = _xpFrom; _xpFrom = null;
+            GainFx3D(GainFx.Kind.Xp, n, from);
             RefreshHud();
             if (Onboarding.Pending(App.State, Onboarding.Xp))
             {
@@ -155,6 +208,12 @@ namespace Pofi.Screens
             _lastCoins = coins; _lastStones = stones;
             _levelText.text = st.PetName;
             _levelNum.text = App.Level.ToString();
+            if (_trophyCount != null)
+            {
+                var nb = st.Badges.Count;
+                _trophyCount.text = nb.ToString();
+                _trophyCount.transform.parent.gameObject.SetActive(nb > 0);
+            }
             _coinText.text = st.Wallet.Available.ToString();
             _stoneText.text = Logic.Island.SunStoneBook.Available(st.SunStones).ToString();
             Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
@@ -342,7 +401,17 @@ namespace Pofi.Screens
                 if (key != "hud.jump") break;
                 if (kv.Value == null) continue;
                 var sp = _world.Local(kv.Value.position);
-                if (Vector2.Distance(sp, p) < 2.6f)
+                var dist = Vector2.Distance(sp, p);
+                var fl = kv.Value.GetComponent<SparkleFloat>();
+                if (fl != null) fl.Near = 1f - (dist - 1.2f) / 3f;
+                if (dist < 1.2f)
+                {
+                    // üstünden geçince kendiliğinden açılır (kullanıcı, 22 Ekim 2026)
+                    var auto = kv.Value.gameObject;
+                    Collect(auto, auto.name);
+                    break;
+                }
+                if (dist < 2.6f)
                 {
                     var go = kv.Value.gameObject;
                     key = "hud.collect"; icon = "tool_hand"; act = () => Collect(go, go.name);

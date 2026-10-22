@@ -274,7 +274,7 @@
     "tip.feed_open": "Besle'ye dokun, yiyecek seç!",
     "tip.wash": "Sabunu {0} üstüne sürükle!",
     "tip.tasks": "Görev yap, yıldız kazan!",
-    "tip.xp": "Yıldız topla, seviye atla!",
+    "tip.xp": "Yıldız topla, seviye atla! Rozetlerin için kartına dokun.",
     "tip.wardrobe": "{0} üstünü değiştir: ona dokun!",
     "tip.sparkle": "Parıltıya git, topla!",
     "tip.overview": "Haritadan hemen git!",
@@ -458,6 +458,6 @@
     "cards.won": "Kazandın! +{0} XP",
 
     "collection.new": "Yeni! {0} deftere eklendi.",
-    "badge.earned": "Yeni rozet: {0}"
+    "badge.earned": "Yeni rozet: {0}! Kartına dokun, gör."
   }
 }

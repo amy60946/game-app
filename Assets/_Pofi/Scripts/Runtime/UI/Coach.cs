@@ -34,6 +34,7 @@ namespace Pofi.UI
             var banner = Candy.Banner(rt, Candy.Blue, "ui_hand", new Vector2(0.5f, 0f), new Vector2(0f, 150f), 760f, 36, false);
             banner.SetText(caption);
             banner.Rect.gameObject.AddComponent<PopIn>();
+            Hover.On(banner.Rect, 5f, 0.02f);                                   // öğretici baloncuklar canlı (S5)
             if (!string.IsNullOrEmpty(step))
             {
                 // sıra göstergesi ("3/7"): çocuk kaçıncı adımda olduğunu görür

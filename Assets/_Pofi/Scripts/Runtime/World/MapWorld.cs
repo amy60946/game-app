@@ -615,23 +615,32 @@ namespace Pofi.World
             return Walker;
         }
 
-        /// <summary>Günlük keşif parıltısı: dönen küçük yıldız; dokunma için "sparkle_N" adlı collider.</summary>
-        public Transform AddSparkle(int index, float x, float z)
+        /// <summary>
+        /// Günlük keşif parıltısı (S/M5, 22 Ekim 2026): havada süzülen, yavaş dönen kristal; altında ışık halkası, içinden ışık
+        /// hüzmesi. Yeni tür (koleksiyonda yok) altın, bulunmuş tür gümüş. Pet yaklaşınca parlar. Dokunma için "sparkle_N" collider.
+        /// </summary>
+        public Transform AddSparkle(int index, float x, float z, bool fresh = true)
         {
             var root = new GameObject("sparkle_" + index).transform;
             root.SetParent(transform, false);
-            root.localPosition = new Vector3(x, Terrain.Height(x, z) + 0.9f, z);
-            var gold = PetModels.NewMaterial(new Color(1f, 0.85f, 0.2f), 0.9f);
-            _owned.Add(gold);
-            var cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.transform.SetParent(root, false);
-            cube.transform.localScale = Vector3.one * 0.45f;
-            cube.transform.localRotation = Quaternion.Euler(45f, 0f, 45f);
-            cube.GetComponent<Renderer>().sharedMaterial = gold;
-            Destroy(cube.GetComponent<Collider>());
+            var ground = Terrain.Height(x, z);
+            root.localPosition = new Vector3(x, ground + 1.1f, z);
+            var color = fresh ? new Color(1f, 0.82f, 0.22f) : new Color(0.82f, 0.88f, 0.98f);
+            var mat = PetModels.NewMaterial(color, 0.95f);
+            mat.SetFloat("_Rim", 2.4f);
+            _owned.Add(mat);
+            var crystal = new GameObject("Crystal").transform;
+            crystal.SetParent(root, false);
+            crystal.gameObject.AddComponent<MeshFilter>().sharedMesh = GainFx.GemMesh;
+            var mr = crystal.gameObject.AddComponent<MeshRenderer>();
+            mr.sharedMaterial = mat; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            crystal.localScale = Vector3.one * 2.1f;
+            var halo = GainFx.Glow(root, color, 0.9f, false); halo.localScale = Vector3.one * 1.9f;
+            var beam = GainFx.Glow(root, color, 0.45f, false); beam.localScale = new Vector3(0.7f, 4.2f, 1f); beam.localPosition = Vector3.up * 0.6f;
+            var ring = GainFx.Glow(root, color, 0.8f, true); ring.localPosition = Vector3.down * 1.05f; ring.localRotation = Quaternion.Euler(90f, 0f, 0f); ring.localScale = Vector3.one * 2.2f;
             var col = root.gameObject.AddComponent<SphereCollider>();
             col.radius = 1.0f;
-            root.gameObject.AddComponent<Spin>();
+            root.gameObject.AddComponent<SparkleFloat>().Init(crystal, halo, ring);
             return root;
         }
 
@@ -692,9 +701,16 @@ namespace Pofi.World
         public void Jump()
         {
             if (_jump > 0f) return;
+            Cheer();
+            Audio.Sfx.Play(Audio.SfxKind.Tap);
+        }
+
+        /// <summary>Zafer hareketi (kazanınca): sevinç klibi (kollar havada) + sıçrama; ses kazanımın kendisinden gelir.</summary>
+        public void Cheer()
+        {
+            if (_jump > 0f) return;
             _jump = 1f;
             if (RealAssets.Play(_pet, "happy")) _clip = null;
-            Audio.Sfx.Play(Audio.SfxKind.Tap);
         }
 
         public void Init(MapWorld world, Transform pet, float x, float z)
@@ -834,6 +850,50 @@ namespace Pofi.World
         {
             if (_clip == clip) return;
             if (RealAssets.Play(_pet, clip, false) || (fallback != null && RealAssets.Play(_pet, fallback, false))) _clip = clip;
+        }
+    }
+
+    /// <summary>Parıltının canlılığı: süzülür, döner, hâle nefes alır, halka yavaşça döner; pet yaklaşınca parlar.</summary>
+    public sealed class SparkleFloat : MonoBehaviour
+    {
+        private Transform _crystal, _halo, _ring;
+        private Vector3 _base, _haloS, _ringS;
+        private float _phase, _near, _open = -1f;
+
+        public void Init(Transform crystal, Transform halo, Transform ring)
+        {
+            _crystal = crystal; _halo = halo; _ring = ring;
+            _base = transform.localPosition; _haloS = halo.localScale; _ringS = ring.localScale;
+            _phase = Random.value * 6f;
+        }
+
+        /// <summary>0..1: pet ne kadar yakın (parlaklık).</summary>
+        public float Near { set { _near = Mathf.Clamp01(value); } }
+
+        /// <summary>Açılma: kristal hızla döner, büyür ve söner; sonra nesne silinir.</summary>
+        public void Open() { if (_open < 0f) { _open = 0f; var c = GetComponent<Collider>(); if (c != null) c.enabled = false; } }
+
+        private void Update()
+        {
+            var t = Time.time + _phase;
+            if (_open >= 0f)
+            {
+                _open += Time.deltaTime / 0.45f;
+                var k = Mathf.Clamp01(_open);
+                _crystal.Rotate(0f, 1400f * Time.deltaTime, 0f, Space.Self);
+                _crystal.localScale = Vector3.one * 2.1f * (1f + k * 0.8f) * (1f - k * k);
+                _halo.localScale = _haloS * (1f + k * 2.2f) * (1f - k);
+                _ring.localScale = _ringS * (1f + k * 1.6f) * (1f - k);
+                if (k >= 1f) Destroy(gameObject);
+                return;
+            }
+            transform.localPosition = _base + Vector3.up * Mathf.Sin(t * 1.9f) * 0.15f;
+            _crystal.Rotate(0f, (55f + _near * 120f) * Time.deltaTime, 0f, Space.Self);
+            var breath = 1f + Mathf.Sin(t * 2.6f) * 0.08f + _near * 0.35f;
+            _halo.localScale = _haloS * breath;
+            _ring.localScale = _ringS * (1f + Mathf.Sin(t * 1.3f) * 0.06f + _near * 0.2f);
+            _ring.localPosition = Vector3.down * (1.05f + Mathf.Sin(t * 1.9f) * 0.15f);   // halka zeminde kalır (kök süzülse de)
+            _ring.Rotate(0f, 0f, 20f * Time.deltaTime, Space.Self);
         }
     }
 }

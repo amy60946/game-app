@@ -12,6 +12,9 @@ namespace Pofi.Screens
     public sealed class AlbumScreen : ScreenBase
     {
         private static bool _badges;
+
+        /// <summary>Defter rozetler sekmesiyle açılsın (adadaki pet kartına dokununca, XP takibi M4).</summary>
+        public static void ShowBadges() => _badges = true;
         private RectTransform _list;
         private Button _tabC, _tabB;
         private static readonly string[] Cats = { "bug", "shell", "resident", "fish" };

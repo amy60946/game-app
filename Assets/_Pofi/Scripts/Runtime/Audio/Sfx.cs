@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Pofi.Audio
 {
-    public enum SfxKind { Tap, Pop, Coin, Success, Fail, Whoosh, Chop, Rustle, Clink }
+    public enum SfxKind { Tap, Pop, Coin, Success, Fail, Whoosh, Chop, Rustle, Clink, Gain, Chime, Sparkle }
 
     /// <summary>
     /// Ses dosyası gelene kadar kodla üretilen kısa efektler (yumuşak "pop", coin şıngırtısı, başarı arpeji).
@@ -91,6 +91,9 @@ namespace Pofi.Audio
                 case SfxKind.Chop: return Hit("chop", 190f, 0.32f, 0.10f, 0.9f);     // tahta "tok"
                 case SfxKind.Rustle: return Hit("rustle", 0f, 0.55f, 0.22f, 0.7f);  // yaprak hışırtısı
                 case SfxKind.Clink: return Hit("clink", 1250f, 0.2f, 0.12f, 0.75f); // taş "çın"
+                case SfxKind.Gain: return Tone("gain", new[] { 1046.5f, 1318.5f, 1568f, 2093f }, 0.055f, 0.45f);    // XP pete girdi: parlak yükselen pırıltı
+                case SfxKind.Chime: return Tone("chime", new[] { 784f, 1174.7f, 1568f }, 0.11f, 0.5f);             // Güneş Taşı: daha tok, çan gibi
+                case SfxKind.Sparkle: return Tone("sparkle", new[] { 1568f, 2093f, 2637f, 3136f, 2637f }, 0.04f, 0.35f);  // parıltı açıldı
                 default: return Tone("whoosh", new[] { 300f, 600f }, 0.08f, 0.3f);
             }
         }
