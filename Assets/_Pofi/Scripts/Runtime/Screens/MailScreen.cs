@@ -22,8 +22,7 @@ namespace Pofi.Screens
         private static readonly Dictionary<string, string> StickerIcons = new Dictionary<string, string>
         {
             { "heart", "ui_heart" }, { "star", "ui_star" }, { "party", "ui_gift" }, { "thumbs_up", "ui_check" }, { "love_you", "ui_heart" },
-            { "thanks", "ui_heart" }, { "hug", "ui_heart" },
-        };
+        };   // diğerleri (gülümseme, kahkaha, vay, üzgün, uykulu, sarılma, teşekkür) kodla çizilen yüz: StickerFace
         private static readonly string[] StickerColors = { "#FFB3C7", "#FFE27A", "#A8E6A1", "#FFC9A8", "#BFE3FF", "#FFD6F0", "#D9C8FF", "#C7D3E6", "#C8D9FF", "#FFDF9E", "#B8F0D8", "#FFB8B8" };
 
         protected override void Build()
@@ -115,6 +114,11 @@ namespace Pofi.Screens
             c.pivot = anchor;
             Ui.Panel(c, Theme.Hex(StickerColors[Mathf.Max(0, idx) % StickerColors.Length]), size * 0.5f).raycastTarget = false;
             if (StickerIcons.TryGetValue(key ?? "", out var icon)) Ui.IconImage(c, icon, new Vector2(0.5f, 0.6f), size * 0.55f);
+            else if (StickerFace.For(key) is Sprite face)
+            {
+                var f = Ui.Rect(c, "Face", new Vector2(0.5f, 0.6f), new Vector2(size * 0.58f, size * 0.58f));
+                var fi = f.gameObject.AddComponent<Image>(); fi.sprite = face; fi.preserveAspect = true; fi.raycastTarget = false;
+            }
             Ui.Label(c, MailBox.StickerLabel(key), Th.Font((int)(size * 0.15f)), Theme.Hex("#3A2508"), new Vector2(0.5f, 0.2f), new Vector2(size + 40f, size * 0.3f), FontStyle.Bold);
         }
 
@@ -197,5 +201,104 @@ namespace Pofi.Screens
                 _voice.clip = clip; _voice.Play();
             }
         }
+    }
+
+    /// <summary>
+    /// Çıkartma yüzleri (H2): simgesi olmayan duygular için kodla çizilen sarı yüz (göz + ağız biçimi duyguya göre, yanak pembesi).
+    /// 128 px, 2×2 örnekle yumuşak kenar; bir kez çizilir, saklanır.
+    /// </summary>
+    public static class StickerFace
+    {
+        private static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();
+        private static readonly string[] Kinds = { "smile", "laugh", "wow", "sad", "sleepy", "hug", "thanks" };
+
+        public static Sprite For(string key)
+        {
+            if (key == null || System.Array.IndexOf(Kinds, key) < 0) return null;
+            if (Cache.TryGetValue(key, out var sp) && sp != null) return sp;
+            const int n = 128;
+            var tex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, name = "sticker_" + key };
+            var px = new Color32[n * n];
+            for (var y = 0; y < n; y++)
+                for (var x = 0; x < n; x++)
+                {
+                    var acc = new Color(0f, 0f, 0f, 0f);
+                    for (var sy = 0; sy < 2; sy++)
+                        for (var sx = 0; sx < 2; sx++)
+                        {
+                            var u = ((x + 0.25f + sx * 0.5f) / n) * 2f - 1f;
+                            var v = ((y + 0.25f + sy * 0.5f) / n) * 2f - 1f;
+                            var c = Sample(key, u, v);
+                            acc += new Color(c.r * c.a, c.g * c.a, c.b * c.a, c.a);
+                        }
+                    acc /= 4f;
+                    px[y * n + x] = acc.a > 0.001f ? new Color(acc.r / acc.a, acc.g / acc.a, acc.b / acc.a, acc.a) : new Color(0f, 0f, 0f, 0f);
+                }
+            tex.SetPixels32(px); tex.Apply();
+            return Cache[key] = Sprite.Create(tex, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
+        }
+
+        private static readonly Color Skin = new Color(1f, 0.84f, 0.29f), Rim = new Color(0.91f, 0.62f, 0.2f), Ink = new Color(0.29f, 0.17f, 0.05f),
+            Blush = new Color(1f, 0.55f, 0.55f), Mouth = new Color(0.6f, 0.18f, 0.2f), Tongue = new Color(1f, 0.5f, 0.55f);
+
+        private static Color Sample(string k, float u, float v)
+        {
+            var r = Mathf.Sqrt(u * u + v * v);
+            if (r > 0.94f) return new Color(0f, 0f, 0f, 0f);
+            var c = r > 0.86f ? Rim : Color.Lerp(Skin, Color.white, Mathf.Clamp01(0.35f - Dist(u, v, -0.3f, 0.38f) * 1.2f));   // sol üst parıltı
+            var happyEyes = k == "laugh" || k == "hug" || k == "thanks";
+            var blush = k == "hug" || k == "thanks" || k == "laugh";
+            if (blush && (Dist(u, v, -0.52f, -0.16f) < 0.14f || Dist(u, v, 0.52f, -0.16f) < 0.14f)) c = Color.Lerp(c, Blush, 0.75f);
+            // gözler
+            for (var side = -1; side <= 1; side += 2)
+            {
+                var ex = side * 0.32f;
+                if (happyEyes || k == "sleepy")
+                {
+                    // ∩ (mutlu) ya da ∪ (uykulu) kapalı göz: yay çizgisi
+                    var cy = k == "sleepy" ? 0.22f : 0.12f;
+                    var d = Mathf.Abs(Dist(u, v, ex, cy) - 0.12f);
+                    var upper = k == "sleepy" ? v < cy : v > cy;
+                    if (d < 0.035f && upper) c = Ink;
+                }
+                else
+                {
+                    var ry = k == "wow" ? 0.15f : 0.13f; var rx = k == "wow" ? 0.12f : 0.09f;
+                    var ey = k == "sad" ? 0.12f : 0.18f;
+                    var q = Mathf.Pow((u - ex) / rx, 2f) + Mathf.Pow((v - ey) / ry, 2f);
+                    if (q < 1f) c = Ink;
+                    if (Mathf.Pow((u - ex + rx * 0.35f) / (rx * 0.35f), 2f) + Mathf.Pow((v - ey - ry * 0.35f) / (ry * 0.35f), 2f) < 1f) c = Color.white;   // göz ışığı
+                    if (k == "sad" && Mathf.Abs((v - 0.36f) - side * (u - ex) * -0.35f) < 0.03f && Mathf.Abs(u - ex) < 0.13f) c = Ink;   // eğik kaş
+                }
+            }
+            // ağız
+            switch (k)
+            {
+                case "smile": case "hug": case "thanks":
+                    if (Mathf.Abs(Dist(u, v, 0f, 0.02f) - 0.42f) < 0.045f && v < -0.18f) c = Ink;
+                    break;
+                case "laugh":
+                    if (Dist(u, v, 0f, -0.14f) < 0.4f && v < -0.14f) c = Dist(u, v, 0f, -0.62f) < 0.2f ? Tongue : Mouth;
+                    break;
+                case "wow":
+                    if (Mathf.Pow(u / 0.13f, 2f) + Mathf.Pow((v + 0.38f) / 0.17f, 2f) < 1f) c = Mouth;
+                    break;
+                case "sad":
+                    if (Mathf.Abs(Dist(u, v, 0f, -0.78f) - 0.36f) < 0.045f && v > -0.5f) c = Ink;
+                    break;
+                case "sleepy":
+                    if (Mathf.Pow(u / 0.09f, 2f) + Mathf.Pow((v + 0.36f) / 0.07f, 2f) < 1f) c = Mouth;
+                    break;
+            }
+            if (k == "thanks")
+            {
+                // teşekkür: sağ üstte küçük kalp ((x²+y²−1)³ − x²y³ < 0)
+                var hx = (u - 0.5f) / 0.2f; var hy = (v - 0.46f) / 0.2f; var a = hx * hx + hy * hy - 1f;
+                if (a * a * a - hx * hx * hy * hy * hy < 0f) c = new Color(0.93f, 0.25f, 0.32f);
+            }
+            return c;
+        }
+
+        private static float Dist(float u, float v, float x, float y) => Mathf.Sqrt((u - x) * (u - x) + (v - y) * (v - y));
     }
 }

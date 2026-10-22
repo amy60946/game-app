@@ -299,9 +299,9 @@ namespace Pofi.Screens
         private void Update()
         {
             if (!_built) return;
-            // hikâye sahnesi oynarken adanın arayüzü (göstergeler, baloncuklar, ipucu) çekilir; sahne bitince geri gelir
+            // hikâye sahnesi ve sis kalkışı sırasında adanın arayüzü (göstergeler, yer adları, baloncuklar, ipucu) çekilir; bitince geri gelir
             if (_rootGroup == null) { _rootGroup = Root.gameObject.GetComponent<CanvasGroup>(); if (_rootGroup == null) _rootGroup = Root.gameObject.AddComponent<CanvasGroup>(); }
-            var hide = StoryPlayer.Playing;
+            var hide = StoryPlayer.Playing || _cine;
             _rootGroup.alpha = Mathf.MoveTowards(_rootGroup.alpha, hide ? 0f : 1f, Time.unscaledDeltaTime * 5f);
             _rootGroup.blocksRaycasts = !hide;
             if (!_cine) HandleInput();
@@ -688,6 +688,7 @@ namespace Pofi.Screens
             b.anchorMin = new Vector2(0f, top ? 1f : 0f); b.anchorMax = new Vector2(1f, top ? 1f : 0f);
             b.pivot = new Vector2(0.5f, top ? 1f : 0f); b.anchoredPosition = Vector2.zero; b.sizeDelta = Vector2.zero;
             var img = b.gameObject.AddComponent<Image>(); img.color = Color.black; img.raycastTarget = true;
+            b.gameObject.AddComponent<CanvasGroup>().ignoreParentGroups = true;   // ada arayüzü çekilirken bantlar görünür kalır
             return b;
         }
 
