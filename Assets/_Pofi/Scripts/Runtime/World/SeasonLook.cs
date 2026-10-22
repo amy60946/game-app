@@ -46,39 +46,42 @@ namespace Pofi.World
         }
     }
 
-    /// <summary>Kameranın çevresinde süzülen yaprak (sonbahar), kar (kış) ya da çiçek yaprağı (ilkbahar). Az ve yavaş.</summary>
+    /// <summary>
+    /// Kameranın çevresinde süzülen yaprak (sonbahar), kar (kış) ya da çiçek yaprağı (ilkbahar). Az ve yavaş. Parçacık modülü
+    /// kullanılmaz (projede yok, WebGL boyutu): kameraya dönük küçük dörtgenler kendi döngüsünde düşer, aşağı inince yukarıda yeniden doğar.
+    /// </summary>
     public sealed class SeasonFall : MonoBehaviour
     {
-        private ParticleSystem _ps;
+        private Season _s;
+        private Transform[] _q;
+        private Vector3[] _p;
+        private float[] _ph, _sp, _sz;
         private static readonly Dictionary<Season, Material> Mats = new Dictionary<Season, Material>();
+        private const float Box = 17f, Top = 10f, Bottom = -3f;
 
         public static SeasonFall Create(Transform parent, Season s)
         {
             var go = new GameObject("season_" + s);
             go.transform.SetParent(parent, false);
             var f = go.AddComponent<SeasonFall>();
-            var ps = f._ps = go.AddComponent<ParticleSystem>();
-            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-            var main = ps.main;
-            main.loop = true; main.playOnAwake = true;
-            main.simulationSpace = ParticleSystemSimulationSpace.World;
-            main.startLifetime = s == Season.Winter ? 9f : 7f;
-            main.startSpeed = 0f;
-            main.startSize = new ParticleSystem.MinMaxCurve(s == Season.Winter ? 0.08f : 0.16f, s == Season.Winter ? 0.16f : 0.28f);
-            main.startRotation = new ParticleSystem.MinMaxCurve(0f, Mathf.PI * 2f);
-            main.gravityModifier = 0f;
-            main.maxParticles = s == Season.Winter ? 260 : 90;
-            var em = ps.emission; em.rateOverTime = s == Season.Winter ? 30f : 9f;
-            var sh = ps.shape; sh.shapeType = ParticleSystemShapeType.Box; sh.scale = new Vector3(34f, 1f, 34f);
-            var vel = ps.velocityOverLifetime; vel.enabled = true; vel.space = ParticleSystemSimulationSpace.World;
-            vel.x = new ParticleSystem.MinMaxCurve(-0.4f, 0.6f); vel.y = new ParticleSystem.MinMaxCurve(s == Season.Winter ? -1.1f : -0.8f, s == Season.Winter ? -0.7f : -0.45f); vel.z = new ParticleSystem.MinMaxCurve(-0.3f, 0.3f);
-            var noise = ps.noise; noise.enabled = true; noise.strength = s == Season.Winter ? 0.3f : 0.6f; noise.frequency = 0.4f;
-            var rot = ps.rotationOverLifetime; rot.enabled = s != Season.Winter; rot.z = new ParticleSystem.MinMaxCurve(-2f, 2f);
-            var r = go.GetComponent<ParticleSystemRenderer>();
-            r.renderMode = ParticleSystemRenderMode.Billboard;
-            r.sharedMaterial = Mat(s);
-            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
-            ps.Play();
+            f._s = s;
+            var n = s == Season.Winter ? 140 : 46;
+            f._q = new Transform[n]; f._p = new Vector3[n]; f._ph = new float[n]; f._sp = new float[n]; f._sz = new float[n];
+            var m = Mat(s);
+            var rnd = new System.Random(7);
+            for (var i = 0; i < n; i++)
+            {
+                var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
+                Destroy(q.GetComponent<Collider>());
+                q.transform.SetParent(go.transform, false);
+                var r = q.GetComponent<MeshRenderer>(); r.sharedMaterial = m;
+                r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+                f._q[i] = q.transform;
+                f._p[i] = new Vector3(((float)rnd.NextDouble() * 2f - 1f) * Box, Bottom + (float)rnd.NextDouble() * (Top - Bottom), ((float)rnd.NextDouble() * 2f - 1f) * Box);
+                f._ph[i] = (float)rnd.NextDouble() * 10f;
+                f._sp[i] = s == Season.Winter ? 0.7f + (float)rnd.NextDouble() * 0.5f : 0.45f + (float)rnd.NextDouble() * 0.35f;
+                f._sz[i] = s == Season.Winter ? 0.08f + (float)rnd.NextDouble() * 0.08f : 0.16f + (float)rnd.NextDouble() * 0.12f;
+            }
             return f;
         }
 
@@ -86,9 +89,26 @@ namespace Pofi.World
         {
             var cam = Camera.main;
             if (cam == null) return;
-            // kameranın önünde ve üstünde: düşen parçalar kadrajdan geçer
-            var f = cam.transform.forward; f.y = 0f;
-            transform.position = cam.transform.position + f.normalized * 9f + Vector3.up * 9f;
+            // kutu kameranın önünde ve biraz yukarısında: düşen parçalar kadrajdan geçer
+            var fw = cam.transform.forward; fw.y = 0f;
+            var c = cam.transform.position + fw.normalized * 8f;
+            transform.position = c;
+            var t = Time.time; var dt = Time.deltaTime;
+            var face = cam.transform.rotation;
+            for (var i = 0; i < _q.Length; i++)
+            {
+                var p = _p[i];
+                p.y -= _sp[i] * dt;
+                var sway = _s == Season.Winter ? 0.25f : 0.8f;
+                p.x += Mathf.Sin(t * 0.9f + _ph[i]) * sway * dt;
+                p.z += Mathf.Cos(t * 0.7f + _ph[i] * 1.3f) * sway * 0.6f * dt;
+                if (p.y < Bottom) { p.y = Top; p.x = Mathf.Repeat(p.x * 7.13f + 3f, Box * 2f) - Box; }
+                _p[i] = p;
+                var q = _q[i];
+                q.localPosition = p;
+                q.rotation = face * Quaternion.Euler(0f, 0f, _s == Season.Winter ? 0f : (t * 60f + _ph[i] * 40f));
+                q.localScale = Vector3.one * _sz[i];
+            }
         }
 
         private static Material Mat(Season s)

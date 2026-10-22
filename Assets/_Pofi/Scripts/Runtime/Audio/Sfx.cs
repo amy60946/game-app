@@ -16,8 +16,12 @@ namespace Pofi.Audio
         private static readonly Dictionary<SfxKind, AudioClip> Clips = new Dictionary<SfxKind, AudioClip>();
         private const int Rate = 22050;
 
+        /// <summary>Çalınan her efekt (ses kapalı olsa da): pencerede Okti'nin tepkisi (P4) bunu dinler.</summary>
+        public static event System.Action<SfxKind> Played;
+
         public static void Play(SfxKind kind)
         {
+            Played?.Invoke(kind);
             if (Volume <= 0.001f) { if (kind != SfxKind.Whoosh) Haptics.Light(); return; }
             EnsureSource();
             if (!Clips.TryGetValue(kind, out var clip)) Clips[kind] = clip = Make(kind);

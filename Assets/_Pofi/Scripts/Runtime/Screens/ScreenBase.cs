@@ -17,7 +17,18 @@ namespace Pofi.Screens
         {
             App = app;
             Build();
+            // P1: pencere dokunulan düğmeden büyüyerek açılır; P4: Okti pencerenin kenarından bakar
+            if (App.Page != AppPage.Map)
+            {
+                var fromTap = Time.unscaledTime - PressBounce.LastTime < 0.8f;
+                _grow = WindowGrow.Open(Root, fromTap ? PressBounce.LastPos : (Vector2?)null);
+                if (PeekPages.Contains(App.Page) && App.State != null) OktiPeek.Add(Root, App.State.PetId);
+            }
         }
+
+        private WindowGrow _grow;
+        private static readonly System.Collections.Generic.HashSet<AppPage> PeekPages = new System.Collections.Generic.HashSet<AppPage>
+            { AppPage.Tasks, AppPage.Shop, AppPage.Album, AppPage.Mail, AppPage.Garden };
 
         protected abstract void Build();
 
@@ -84,7 +95,7 @@ namespace Pofi.Screens
             if (App.Page == AppPage.Map) return;
             var home = App.Page == AppPage.Settings || App.Page == AppPage.Album || App.Page == AppPage.Decorate;
             var target = home ? AppPage.Home : AppPage.Map;
-            CloseButton(Root, () => App.Open(target));
+            CloseButton(Root, () => { if (_grow != null) _grow.Close(() => App.Open(target)); else App.Open(target); });
             MusicButton.Place(MusicButton.BesideClose);
         }
 

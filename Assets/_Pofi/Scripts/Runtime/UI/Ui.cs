@@ -362,8 +362,15 @@ namespace Pofi.UI
     {
         private bool _down;
         private float _sq, _v;   // ezilme: 1 basılı, 0 serbest; bırakınca yayla eksiye aşar (uzama)
+        /// <summary>En son basılan düğmenin ekran noktası ve zamanı (P1: pencere bu noktadan büyüyerek açılır).</summary>
+        public static Vector2 LastPos;
+        public static float LastTime = -10f;
 
-        public void OnPointerDown(PointerEventData e) => _down = !Theme.ReduceMotion;
+        public void OnPointerDown(PointerEventData e)
+        {
+            _down = !Theme.ReduceMotion;
+            LastPos = e.position; LastTime = Time.unscaledTime;
+        }
         public void OnPointerUp(PointerEventData e) => _down = false;
         public void OnPointerExit(PointerEventData e) => _down = false;
 
