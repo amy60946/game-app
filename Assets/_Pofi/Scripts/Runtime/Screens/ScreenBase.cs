@@ -88,11 +88,23 @@ namespace Pofi.Screens
             MusicButton.Place(MusicButton.BesideClose);
         }
 
-        /// <summary>Sağ üst köşede kırmızı yuvarlak çarpı düğmesi (çizimle; simge dosyası gerekmez).</summary>
+        /// <summary>Sağ üst köşede kırmızı yuvarlak çarpı düğmesi (v3 "close" görseli; yoksa iki çubukla çizilir).</summary>
         public static Button CloseButton(Transform parent, System.Action onClick, float size = 100f)
         {
-            var b = Candy.Round(parent, Candy.Pink, null, size, new Vector2(1f, 1f), new Vector2(-24f - size / 2f, -66f), onClick, null);
+            var red = new Color(0.93f, 0.27f, 0.33f);
+            var b = Candy.Round(parent, red, null, size, new Vector2(1f, 1f), new Vector2(-24f - size / 2f, -66f), onClick, null);
             b.name = "Close";
+            var body = b.transform.Find("Body");
+            if (body != null) body.GetComponent<Image>().color = red;   // v3 yuvarlak gövde beyaz; kırmızıya boyanır
+            var cross = Skin.Plain("close");
+            if (cross != null)
+            {
+                var ic = Ui.Rect(b.transform, "X", new Vector2(0.5f, 0.53f), new Vector2(size * 0.5f, size * 0.5f));
+                var img = ic.gameObject.AddComponent<Image>();
+                img.sprite = cross; img.preserveAspect = true; img.raycastTarget = false;
+                ic.gameObject.AddComponent<Shadow>().effectColor = new Color(0.45f, 0f, 0.05f, 0.35f);
+                return b;
+            }
             for (var i = 0; i < 2; i++)
             {
                 var bar = Ui.Rect(b.transform, "X" + i, new Vector2(0.5f, 0.52f), new Vector2(size * 0.52f, size * 0.13f));
