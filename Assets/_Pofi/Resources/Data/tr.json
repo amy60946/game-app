@@ -462,7 +462,7 @@
     "chest.locked": "Bugünün görevlerini bitir, sandığı aç!",
     "chest.open_hint": "Sandık hazır, hadi aç!",
     "chest.opened": "Bugünkü sandığı açtın. Yarın yenisi!",
-    "chest.odds": "İçinden: yiyecek %60 · tohum %25 · sürpriz eşya %15",
+    "chest.odds": "Yiyecek %60 · Tohum %25 · Sürpriz eşya %15",
     "chest.open": "Aç",
     "chest.got": "Sandıktan {0} çıktı!",
     "chest.got_n": "Sandıktan {1} {0} çıktı!",

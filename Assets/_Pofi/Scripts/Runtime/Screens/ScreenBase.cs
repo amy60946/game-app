@@ -157,10 +157,11 @@ namespace Pofi.Screens
             // günlük sandık (S2): üç görev bitince bir kez açılır; şans oranları her zaman görünür
             var dq = App.State.DailyQuests;
             var ready = Logic.Meta.DailyChest.Ready(dq);
-            Ui.IconImage(box, "ui_gift", new Vector2(0.1f, 0.22f), 84f);
-            Ui.Label(box, T(dq.ChestOpened ? "chest.opened" : ready ? "chest.open_hint" : "chest.locked"), Th.Font(34), Th.Text,
-                new Vector2(0.43f, 0.245f), new Vector2(560f, 56f), FontStyle.Bold, TextAnchor.MiddleLeft);
-            Ui.Label(box, T("chest.odds"), Th.Font(26), Th.SubtleText, new Vector2(0.43f, 0.19f), new Vector2(560f, 44f), FontStyle.Normal, TextAnchor.MiddleLeft);
+            Ui.IconImage(box, "ui_gift", new Vector2(0.08f, 0.22f), 80f);
+            var lineW = ready ? 560f : 760f;   // "Aç" düğmesi yoksa satır uzun
+            Ui.Label(box, T(dq.ChestOpened ? "chest.opened" : ready ? "chest.open_hint" : "chest.locked"), Th.Font(32), Th.Text,
+                new Vector2(0.155f + lineW / 1920f, 0.25f), new Vector2(lineW, 52f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            Ui.Label(box, T("chest.odds"), Th.Font(24), Th.SubtleText, new Vector2(0.155f + lineW / 1920f, 0.195f), new Vector2(lineW, 40f), FontStyle.Normal, TextAnchor.MiddleLeft);
             if (ready)
             {
                 var b = Ui.Button(box, Th, T("chest.open"), new Vector2(0.86f, 0.22f), new Vector2(220f, 96f), () =>
