@@ -97,6 +97,34 @@ namespace Pofi.Logic.Island
         [JsonProperty("lake")] public LakeDef Lake;
         [JsonProperty("props")] public List<BakedProp> Props = new List<BakedProp>();
         [JsonProperty("spots")] public Dictionary<string, float[]> Spots = new Dictionary<string, float[]>();
+        [JsonProperty("snow_path")] public List<float[]> SnowPath = new List<float[]>();
+
+        /// <summary>
+        /// Karlı patika halat noktaları (taslak island_v6.trail_poles ile aynı): her ~3,5 m'de iki yanda direk (eksenden 2,25 m),
+        /// kayak alanı içindekiler hariç (bake_game.py). Yan başına sıralı (x, z) listesi; ardışık noktalar arası 6 m'den uzunsa halat yok.
+        /// </summary>
+        public List<List<float[]>> RopeSides()
+        {
+            var sides = new List<List<float[]>> { new List<float[]>(), new List<float[]>() };
+            for (var s = 0; s + 1 < SnowPath.Count; s++)
+            {
+                float ax = SnowPath[s][0], az = SnowPath[s][1], bx = SnowPath[s + 1][0], bz = SnowPath[s + 1][1];
+                var len = (float)Math.Sqrt((bx - ax) * (bx - ax) + (bz - az) * (bz - az));
+                if (len < 1e-3f) continue;
+                float dx = (bx - ax) / len, dz = (bz - az) / len, sx = -dz, sz = dx;
+                var n = Math.Max(1, (int)(len / 3.5f));
+                for (var i = 0; i < n; i++)
+                for (var k = 0; k < 2; k++)
+                {
+                    var sg = k == 0 ? -1f : 1f;
+                    var t = len * (i + 0.5f) / n;
+                    var px = ax + dx * t + sx * sg * 2.25f; var pz = az + dz * t + sz * sg * 2.25f;
+                    if (Math.Sqrt((px + 38f) * (px + 38f) + (pz - 40f) * (pz - 40f)) < 6.5) { sides[k].Add(null); continue; }   // kayak alanı: halat kopar
+                    sides[k].Add(new[] { px, pz });
+                }
+            }
+            return sides;
+        }
 
         public static BakedLayout Parse(string json) => JsonConvert.DeserializeObject<BakedLayout>(json) ?? new BakedLayout();
     }

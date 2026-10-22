@@ -76,6 +76,7 @@ namespace Pofi.World
             BuildWater();
             foreach (var v in views) BuildRegion(v);
             BuildProps();
+            BuildTrailRopes();
             if (Terrain.Baked != null)
             {
                 BuildLake();
@@ -486,6 +487,56 @@ namespace Pofi.World
                 else if (p.Asset == "p_campfire") Campfire.Light(t, p.Size);
                 else if (p.Asset == "p_starfish" || p.Asset == "p_snow_lump") { foreach (var r in t.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; }
             }
+        }
+
+        /// <summary>Karlı patika direkleri arasında hafif sarkık halat (taslaktaki gibi; tek birleşik ağ, gölge yok).</summary>
+        private void BuildTrailRopes()
+        {
+            var lay = Terrain.Baked?.Layout;
+            if (lay == null || lay.SnowPath == null || lay.SnowPath.Count < 2) return;
+            var verts = new List<Vector3>(); var tris = new List<int>();
+            const int seg = 6, ring = 4; const float r = 0.017f;
+            foreach (var side in lay.RopeSides())
+            for (var i = 0; i + 1 < side.Count; i++)
+            {
+                var a = side[i]; var b = side[i + 1];
+                if (a == null || b == null) continue;
+                var pa = new Vector3(a[0], Terrain.Height(a[0], a[1]) + 0.95f, a[1]);
+                var pb = new Vector3(b[0], Terrain.Height(b[0], b[1]) + 0.95f, b[1]);
+                if ((pb - pa).magnitude > 6f) continue;
+                var dir = (pb - pa).normalized;
+                var side1 = Vector3.Cross(dir, Vector3.up).normalized; var up1 = Vector3.Cross(side1, dir);
+                var b0 = verts.Count;
+                for (var k = 0; k <= seg; k++)
+                {
+                    var t = k / (float)seg;
+                    var c = Vector3.Lerp(pa, pb, t) + Vector3.down * 0.15f * 4f * t * (1f - t);   // sarkma
+                    for (var q = 0; q < ring; q++)
+                    {
+                        var ang = q * Mathf.PI * 2f / ring;
+                        verts.Add(c + (side1 * Mathf.Cos(ang) + up1 * Mathf.Sin(ang)) * r);
+                    }
+                }
+                for (var k = 0; k < seg; k++)
+                for (var q = 0; q < ring; q++)
+                {
+                    int i0 = b0 + k * ring + q, i1 = b0 + k * ring + (q + 1) % ring;
+                    tris.Add(i0); tris.Add(i0 + ring); tris.Add(i1);
+                    tris.Add(i1); tris.Add(i0 + ring); tris.Add(i1 + ring);
+                }
+            }
+            if (verts.Count == 0) return;
+            var mesh = new Mesh { name = "TrailRopes" };
+            mesh.SetVertices(verts); mesh.SetTriangles(tris, 0); mesh.RecalculateNormals(); mesh.RecalculateBounds();
+            _owned.Add(mesh);
+            var go = new GameObject("TrailRopes");
+            go.transform.SetParent(transform, false);
+            go.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var mr = go.AddComponent<MeshRenderer>();
+            var m = PetModels.NewMaterial(new Color(0.79f, 0.65f, 0.42f), 0.1f);
+            _owned.Add(m);
+            mr.sharedMaterial = m;
+            mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
 
         // ------------------------------------------------------------------ pet ve parıltılar
