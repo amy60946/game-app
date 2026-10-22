@@ -7,7 +7,8 @@ namespace Pofi.Logic.Island
     /// <summary>
     /// Pişmiş ada ızgarası (v6, 22 Ekim 2026; art/code3d/v6/bake_game.py → Resources/Data/island_v6.bytes).
     /// Onaylı taslağın yükseklik haritası 0,5 m adımla; yüzey katmanları 0..1 (kum, patika, kar, kaya, göl).
-    /// Biçim: "PV6\x01", nx, nz (int32), x0, z0, step (float32), yükseklik int16 cm (nx·nz), 5 katman × uint8 (nx·nz). Küçük sonlu.
+    /// Biçim: "PV6" + sürüm bayt, nx, nz (int32), x0, z0, step (float32), yükseklik int16 cm (nx·nz), katmanlar × uint8 (nx·nz). Küçük sonlu.
+    /// Sürüm 1: 5 katman; sürüm 2 (22 Ekim 2026): + mavi çan çiçeği ve turuncu çiçek yoğunluğu (oyunda 3B çiçek öbekleri).
     /// </summary>
     public sealed class BakedField
     {
@@ -17,7 +18,7 @@ namespace Pofi.Logic.Island
         private readonly byte[][] _layers;
         public const float SeaFloor = -7f;
 
-        public enum Layer { Sand = 0, Path = 1, Snow = 2, Rock = 3, Lake = 4 }
+        public enum Layer { Sand = 0, Path = 1, Snow = 2, Rock = 3, Lake = 4, Bluebell = 5, Orange = 6 }
 
         public float X1 => X0 + (Nx - 1) * Step;
         public float Z1 => Z0 + (Nz - 1) * Step;
@@ -34,12 +35,13 @@ namespace Pofi.Logic.Island
             var nx = BitConverter.ToInt32(data, 4); var nz = BitConverter.ToInt32(data, 8);
             var x0 = BitConverter.ToSingle(data, 12); var z0 = BitConverter.ToSingle(data, 16); var step = BitConverter.ToSingle(data, 20);
             var n = nx * nz;
-            if (nx < 2 || nz < 2 || data.Length < 24 + n * 2 + n * 5) throw new FormatException("island_v6.bytes eksik");
+            var count = data[3] >= 2 ? 7 : 5;
+            if (nx < 2 || nz < 2 || data.Length < 24 + n * 2 + n * count) throw new FormatException("island_v6.bytes eksik");
             var h = new float[n];
             for (var i = 0; i < n; i++) h[i] = BitConverter.ToInt16(data, 24 + i * 2) / 100f;
-            var layers = new byte[5][];
+            var layers = new byte[count][];
             var off = 24 + n * 2;
-            for (var k = 0; k < 5; k++) { layers[k] = new byte[n]; Buffer.BlockCopy(data, off + k * n, layers[k], 0, n); }
+            for (var k = 0; k < count; k++) { layers[k] = new byte[n]; Buffer.BlockCopy(data, off + k * n, layers[k], 0, n); }
             return new BakedField(nx, nz, x0, z0, step, h, layers);
         }
 
@@ -61,7 +63,7 @@ namespace Pofi.Logic.Island
 
         public float Get(Layer layer, float x, float z)
         {
-            if (!Cell(x, z, out var i, out var j, out var tx, out var tz)) return 0f;
+            if ((int)layer >= _layers.Length || !Cell(x, z, out var i, out var j, out var tx, out var tz)) return 0f;
             var l = _layers[(int)layer]; var a = j * Nx + i;
             return ((l[a] * (1 - tx) + l[a + 1] * tx) * (1 - tz) + (l[a + Nx] * (1 - tx) + l[a + Nx + 1] * tx) * tz) / 255f;
         }

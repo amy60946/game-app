@@ -1,4 +1,5 @@
 // Çim telleri (URP): kökten uca koyudan açığa, öbek tonu köşe renginden, rüzgârda sallanma (uca doğru artar).
+// Çiçek öbekleri (22 Ekim 2026, GrassField): uv.x 0..1 çim teli (ton = köşe rengi), 2 sap (ton = köşe alfası), 3 çiçek (renk = köşe rengi).
 Shader "Pofi/Grass"
 {
     Properties
@@ -29,7 +30,7 @@ Shader "Pofi/Grass"
             CBUFFER_END
 
             struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; float4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
-            struct Varyings { float4 positionCS : SV_POSITION; float3 positionWS : TEXCOORD0; float h : TEXCOORD1; float3 tint : TEXCOORD2; };
+            struct Varyings { float4 positionCS : SV_POSITION; float3 positionWS : TEXCOORD0; float h : TEXCOORD1; float3 tint : TEXCOORD2; float bloom : TEXCOORD3; };
 
             Varyings vert(Attributes v)
             {
@@ -42,13 +43,15 @@ Shader "Pofi/Grass"
                 o.positionWS = w;
                 o.positionCS = TransformWorldToHClip(w);
                 o.h = h;
-                o.tint = v.color.rgb;   // öbek başına ton farkı (GrassField köşe rengi)
+                float mode = v.uv.x;
+                o.tint = mode >= 2.5 ? v.color.rgb : (mode >= 1.5 ? v.color.aaa : v.color.rgb);   // öbek başına ton (GrassField köşe rengi)
+                o.bloom = mode >= 2.5 ? 1.0 : 0.0;
                 return o;
             }
 
             half4 frag(Varyings i) : SV_Target
             {
-                float3 albedo = lerp(_Root.rgb, _Tip.rgb, i.h) * i.tint;
+                float3 albedo = i.bloom > 0.5 ? i.tint * (0.8 + 0.2 * i.h) : lerp(_Root.rgb, _Tip.rgb, i.h) * i.tint;
                 Light light = GetMainLight(TransformWorldToShadowCoord(i.positionWS));
                 float3 col = albedo * (SampleSH(float3(0, 1, 0)) + light.color * 0.75 * light.shadowAttenuation);
                 return half4(col, 1);

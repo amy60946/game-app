@@ -101,7 +101,8 @@ namespace Pofi.Screens
                 : v.Spot != null ? v.Region.Name + " · " + T("map.stones_short", v.StonesLeft)   // Güneş Taşı ile açılır
                 : v.Region.Name + " · Sv " + v.UnlockLevel;
             Candy.Tag(rt, text, v.Unlocked ? new Color(0.1f, 0.36f, 0.68f, 0.86f) : new Color(0.3f, 0.32f, 0.42f, 0.82f), 30, 64f);
-            if (v.Unlocked && IsPlayPlace(v.Region))
+            var hasPlay = v.Unlocked && IsPlayPlace(v.Region);
+            if (hasPlay)
             {
                 // oyun yerinin üstünde "Oyna!" çağrısı
                 var play = Ui.Rect(rt, "Play", new Vector2(0.5f, 1f), new Vector2(220f, 84f), new Vector2(0f, 56f));
@@ -113,7 +114,8 @@ namespace Pofi.Screens
             }
             if (v.IsNew)
             {
-                var badge = Ui.Rect(rt, "New", new Vector2(0.5f, 1f), new Vector2(120f, 50f), new Vector2(0f, 26f));
+                // "Oyna!" baloncuğu varsa onun üstünde (üst üste binip ikisi de okunmuyordu)
+                var badge = Ui.Rect(rt, "New", new Vector2(0.5f, 1f), new Vector2(120f, 50f), new Vector2(0f, hasPlay ? 128f : 26f));
                 Ui.Panel(badge, Th.Danger, 25f).raycastTarget = false;
                 Ui.Label(badge, T("map.new"), Th.Font(26), Color.white, new Vector2(0.5f, 0.5f), new Vector2(120f, 50f), FontStyle.Bold);
                 badge.gameObject.AddComponent<Pulse>();
@@ -443,6 +445,13 @@ namespace Pofi.Screens
         /// <summary>Hata ayıklama/test: kamera modunu değiştir, ada üzerinde bir noktaya yürü.</summary>
         public void DebugToggle() => ToggleMode();
         public void DebugWalk(float x, float z) => GoTo(x, z, null);
+        /// <summary>Test görüntüsü: peti (x, z) noktasına koy, kamerayı <paramref name="yaw"/> yönüne çevir.</summary>
+        public void DebugTeleport(float x, float z, float yaw)
+        {
+            if (_world.Walker == null) return;
+            _world.Walker.Teleport(x, z, yaw);
+            _camYaw = yaw;
+        }
         public string DebugPetScreen()
         {
             if (_world.Walker == null) return "yok";

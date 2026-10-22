@@ -61,17 +61,20 @@ def biome_fields(L):
     f['spire'] = np.clip(d['t_spire1'], 0, 1)
     return f
 
+GAME_PAINT = False   # bake_game.py: oyun dokusu (çiçekler 3B, renkler oyun ışığına göre; taslak görüntüleri değişmez)
+
 def terrain_colors(L, B):
     X, Z, h, d = L.X, L.Z, L.h, L.d
+    G = GAME_PAINT
     n1 = TV.fbm(X, Z, 1 / 14.0, 201, 4) * 0.5 + 0.5; n2 = TV.fbm(X, Z, 1 / 4.0, 203, 3) * 0.5 + 0.5
     n3 = TV.fbm(X, Z, 1 / 1.3, 205, 2) * 0.5 + 0.5; n4 = TV.fbm(X, Z, 1 / 40.0, 207, 3) * 0.5 + 0.5
     # çim: canlı limon yeşili, açık lekeler, ormanda koyu, kuru sarı alanlar
-    g = mix(C3('#4c9a2a'), C3('#7cc63d'), n1)
-    g = mix(g, C3('#a9d64e'), ss(0.6, 0.85, n2) * 0.55)
+    g = mix(C3('#4c9a2a'), C3('#7cc63d'), n1) if not G else mix(C3('#3f8128'), C3('#68a83a'), n1)
+    g = mix(g, C3('#a9d64e') if not G else C3('#8cbc4a'), ss(0.6, 0.85, n2) * (0.55 if not G else 0.35))
     g = mix(g, C3('#3a7a2c'), B['forest'] * 0.75)
     g = mix(g, C3('#5a9a3a'), B['snowpeak'] * 0.5)
     dry = ss(0.62, 0.8, n4) * (1 - B['meadow']) * (1 - B['forest']); L.dry = dry.astype(np.float32)
-    g = mix(g, C3('#b8b052'), dry * 0.45)
+    g = mix(g, C3('#b8b052'), dry * (0.45 if not G else 0.28))
     g = mix(g, C3('#c2a75c'), ss(3.2, 1.5, d['pathd']) * 0.4)                     # patika kenarı aşınmış
     # çiçek lekeleri (kuşbakışı): mavi çan çiçeği + turuncu; benekli
     fb = ss(0.6, 0.7, TV.fbm(X, Z, 1 / 8.0, 211, 3) * 0.5 + 0.5) * np.clip(B['meadow'] * 1.2 + B['upper'] * 0.45 + B['village'] * 0.2, 0, 1)
@@ -81,15 +84,16 @@ def terrain_colors(L, B):
         if kind == 'b': fb = np.maximum(fb, w_)
         else: fo = np.maximum(fo, w_)
     sp = ss(0.45, 0.65, n3)
-    g = mix(g, mix(C3('#5d62d8'), C3('#8d84ee'), n2), fb * sp * 0.9)
-    g = mix(g, C3('#ef9a46'), fo * (1 - sp) * 0.85)
+    # oyunda çiçekler 3B (GrassField, island_v6.bytes çiçek katmanları); dokuda yalnız uzaktan seçilen hafif ton
+    g = mix(g, mix(C3('#5d62d8'), C3('#8d84ee'), n2) if not G else C3('#6f78b0'), fb * sp * (0.9 if not G else 0.22))
+    g = mix(g, C3('#ef9a46') if not G else C3('#b49a52'), fo * (1 - sp) * (0.85 if not G else 0.2))
     c = g
     # kaya: sıcak leylak-gri; yatay tabaka bantları + dikey çizgiler (x,z yüksek frekans → yarda dikey iner)
     band = np.sin(h * (2 * math.pi / 1.6) + TV.fbm(X, Z, 1 / 6.0, 221, 2) * 2.0) * 0.5 + 0.5
     streak = TV.fbm(X * 3.0, Z * 3.0, 1 / 2.2, 223, 3) * 0.5 + 0.5
-    rk = mix(C3('#a3929a'), C3('#d0c2b8'), band * 0.7 + 0.15)
-    rk = mix(rk, C3('#6e5f76'), ss(0.52, 0.78, streak) * 0.7)
-    rk = mix(rk, C3('#e0d4c8'), ss(0.3, 0.12, streak) * 0.5)
+    rk = mix(C3('#a3929a') if not G else C3('#9b9b9f'), C3('#d0c2b8') if not G else C3('#d0cdc6'), band * 0.7 + 0.15)
+    rk = mix(rk, C3('#6e5f76') if not G else C3('#5f5d66'), ss(0.52, 0.78, streak) * 0.7)
+    rk = mix(rk, C3('#e0d4c8') if not G else C3('#e2dfd8'), ss(0.3, 0.12, streak) * 0.5)
     rk = mix(rk, C3('#6f6872'), ss(1.6, 0.0, h) * 0.55)                              # deniz kıyısında ıslak koyu
     rk = mix(rk, C3('#7f7b88'), B['snowpeak'] * 0.4)
     rw = np.maximum(ss(0.85, 1.25, L.slope + (n2 - 0.5) * 0.35), ss(0.75, 1.1, L.slope_b) * 0.45)   # basamak üstleri çimenli (çimen kayadan taşar)

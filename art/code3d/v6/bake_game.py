@@ -31,15 +31,16 @@ def resample(a, L):
     return ((a[J0, I0] * (1 - tx) + a[J0, I0 + 1] * tx) * (1 - tz) + (a[J0 + 1, I0] * (1 - tx) + a[J0 + 1, I0 + 1] * tx) * tz), len(xs), len(zs)
 
 def write_field(L, rw):
+    """Biçim 2 (22 Ekim 2026): 7 katman = kum, patika, kar, kaya, göl, mavi çan çiçeği, turuncu çiçek (oyunda 3B çiçek yoğunluğu)."""
     d = L.d
     h, nx, nz = resample(L.h, L)
     lake = ((np.hypot(L.X - TV.LAKE['x'], L.Z - TV.LAKE['z']) < TV.LAKE['r'] + 5) & (L.h < TV.LAKE['level'])).astype(np.float32)
-    layers = [d['sand'], np.maximum(d['path'], d['snowpath']), L.snw, rw, lake]
+    layers = [d['sand'], np.maximum(d['path'], d['snowpath']), L.snw, rw, lake, L.fb, L.fo]
     m = [np.clip(resample(x, L)[0], 0, 1) for x in layers]
     with open(os.path.join(DATA, 'island_v6.bytes'), 'wb') as f:
-        f.write(b'PV6\x01'); f.write(struct.pack('<iifff', nx, nz, TV.X0, TV.Z0, CELL))
+        f.write(b'PV6\x02'); f.write(struct.pack('<iifff', nx, nz, TV.X0, TV.Z0, CELL))
         f.write(np.clip(np.round(h * 100), -32000, 32000).astype('<i2').tobytes())       # cm
-        for x in m: f.write(np.round(x * 255).astype(np.uint8).tobytes())               # kum, patika, kar, kaya, göl
+        for x in m: f.write(np.round(x * 255).astype(np.uint8).tobytes())               # kum, patika, kar, kaya, göl, çiçekler
     IV.log('ızgara', nx, nz, 'h', float(h.min()), float(h.max()))
 
 # ------------------------------------------------------------------ süs yerleşimi: taslağın kodu, örnek nesneler yerine kayıt
@@ -160,15 +161,48 @@ def bake_ground(L, cols, rw, size):
     Image.fromarray(rgba, 'RGBA').save(os.path.join(out, 'ground_v6.png'), optimize=True)
     for o in objs: bpy.data.objects.remove(o)
 
+def _segd(px, pz, path):
+    best = 1e9
+    for (ax, az), (bx, bz) in zip([q[:2] for q in path[:-1]], [q[:2] for q in path[1:]]):
+        dx, dz = bx - ax, bz - az; L2 = dx * dx + dz * dz or 1e-9
+        t = max(0.0, min(1.0, ((px - ax) * dx + (pz - az) * dz) / L2))
+        best = min(best, math.hypot(px - ax - t * dx, pz - az - t * dz))
+    return best
+
+def clear_paths(lay):
+    """Patikanın üstüne/kenarına taşan ağaç ve çalıları kaldırır (geri bildirim 11, 22 Ekim 2026: kayak tepesine giden
+    patikanın önü ağaçla kapalı görünüyordu). Gövdesi patika ekseninden 2,6 m + taç payı içindeki ağaç, 1,7 m içindeki çalı gider."""
+    paths = list(lay.get('paths', [])) + [list(TV.SNOW_PATH)]
+    keep = []; gone = 0
+    for p in PROPS:
+        a = p['a']; tree = a.startswith('t_') and a != 't_bush' or a == 'palm'
+        if tree or a == 't_bush':
+            lim = (2.6 + min(1.6, 0.12 * p['s'])) if tree else 1.7
+            if min(_segd(p['x'], p['z'], q) for q in paths) < lim: gone += 1; continue
+        keep.append(p)
+    PROPS[:] = keep; IV.log('patikadan kaldırılan', gone)
+
+def write_mask(L, W, H):
+    """ground_v6_mask.png (r: kanyon kaldırımı; oyun gölgelendiricisi dünya koordinatlı taş döşer)."""
+    from PIL import Image, ImageFilter
+    cob = np.clip(np.clip(L.d['canyon'], 0, 1) * 1.15, 0, 1) * (1 - np.clip(L.rw * 1.5, 0, 1))
+    im = Image.fromarray((cob * 255).astype(np.uint8)[::-1]).resize((W, H), Image.BILINEAR).filter(ImageFilter.GaussianBlur(1.5))
+    rgb = np.zeros((H, W, 3), np.uint8); rgb[..., 0] = np.asarray(im)
+    out = os.path.join(ENV, 'ground_v6'); os.makedirs(out, exist_ok=True)
+    Image.fromarray(rgb, 'RGB').save(os.path.join(out, 'ground_v6_mask.png'), optimize=True)
+
 def main():
     args = sys.argv[sys.argv.index('--') + 1:]
     npz = args[0]; size = int(args[1]) if len(args) > 1 else 2048
     bpy.ops.wm.read_factory_settings(use_empty=True)
     L = IV.Land(npz); B = IV.biome_fields(L)
-    cols, rw = IV.terrain_colors(L, B); IV.log('boya')
+    IV.GAME_PAINT = True
+    cols, rw = IV.terrain_colors(L, B); IV.log('boya'); L.rw = rw
+    write_mask(L, 1024, int(round(1024 * (TV.Z1 - TV.Z0) / (TV.X1 - TV.X0))))
     write_field(L, rw)
     place_props(L, B)
     lay = TV.layout_json()
+    clear_paths(lay)
     lay['props'] = PROPS
     lay['islet'] = list(TV.ISLET); lay['snow_path'] = [list(p) for p in TV.SNOW_PATH]
     json.dump(lay, open(os.path.join(DATA, 'island_v6_layout.json'), 'w'), ensure_ascii=False, separators=(',', ':'))

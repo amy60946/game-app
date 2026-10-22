@@ -14,6 +14,9 @@ Shader "Pofi/Toon"
         _Smoothness ("Pürüzsüzlük (vinyl parlaması)", Range(0, 1)) = 0.2
         _Metallic ("(kullanılmaz)", Range(0, 1)) = 0
         _OutlineWidth ("Dış çizgi (px, 720p)", Float) = 1.4
+        _Rim ("Kenar ışığı", Float) = 1
+        _BumpScale ("Normal gücü", Float) = 0.5
+        _Fade ("Soldurma (kamera önü)", Float) = 1
     }
 
     HLSLINCLUDE
@@ -25,6 +28,9 @@ Shader "Pofi/Toon"
         half _Smoothness;
         half _Metallic;
         float _OutlineWidth;
+        half _Rim;
+        half _BumpScale;
+        half _Fade;
     CBUFFER_END
     TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
     TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
@@ -81,11 +87,17 @@ Shader "Pofi/Toon"
 
             half4 frag(Varyings i) : SV_Target
             {
+                // kamerayla pet arasına giren süs (World/CameraClear): ekran uzayı titreşimli soldurma, saydam geçiş gerekmez
+                if (_Fade < 0.999)
+                {
+                    float dz = frac(52.9829189 * frac(dot(i.positionCS.xy, float2(0.06711056, 0.00583715))));
+                    clip(_Fade - dz - 0.001);
+                }
                 half3 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv).rgb * _BaseColor.rgb;
                 float3 n = normalize(i.normalWS);
             #if defined(_NORMALMAP)
-                // doku ayrıntısı yarım güçte: boyalı görünümde yüzey sakin kalsın
-                half3 nts = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, i.uv), 0.5);
+                // doku ayrıntısı: pet/eşyada yarım güç (boyalı yüzey sakin), taslaktan pişmiş çevre modellerinde tam (RealAssets)
+                half3 nts = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, i.uv), _BumpScale);
                 float3 t = normalize(i.tangentWS.xyz);
                 float3 b = cross(n, t) * i.tangentWS.w;
                 n = normalize(nts.x * t + nts.y * b + nts.z * n);
@@ -114,7 +126,7 @@ Shader "Pofi/Toon"
 
                 // kenar ışığı: ince, gökyüzü renginde (yalnız silüete yakın)
                 float fres = pow(1.0 - saturate(dot(n, v)), 3.0);
-                col += half3(0.55, 0.75, 1.0) * smoothstep(0.45, 0.85, fres) * 0.14 * (0.35 + 0.65 * lit);
+                col += half3(0.55, 0.75, 1.0) * smoothstep(0.45, 0.85, fres) * 0.14 * _Rim * (0.35 + 0.65 * lit);
 
                 col = MixFog(col, i.fog);
                 return half4(col, 1);

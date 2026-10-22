@@ -286,6 +286,10 @@ namespace Pofi.Logic.Island
             : Math.Max(0.3f, BaseHeight(r.X, r.Z) + HillHeight(r.X, r.Z, out _));
 
         /// <summary>Göl (pişmiş adada): yürünmez, su yüzeyi <see cref="BakedLayout.LakeDef.Level"/>.</summary>
+        /// <summary>Çiçek yoğunluğu 0..1 (pişmiş ada sürüm 2): mavi çan çiçeği ve turuncu çiçek. Eski adada 0.</summary>
+        public float Bluebell(float x, float z) => _field != null ? _field.Get(BakedField.Layer.Bluebell, x, z) : 0f;
+        public float OrangeFlower(float x, float z) => _field != null ? _field.Get(BakedField.Layer.Orange, x, z) : 0f;
+
         public bool InLake(float x, float z) => _field != null && _field.Get(BakedField.Layer.Lake, x, z) > 0.4f;
 
         public float Slope(float x, float z)

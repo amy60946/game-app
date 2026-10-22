@@ -47,6 +47,90 @@ namespace Pofi.World
         }
     }
 
+    /// <summary>
+    /// Kamera önünü açık tutar (geri bildirim 11, 22 Ekim 2026: patikada ağaçlar görüşü kapatıyordu): kamerayla pet arasındaki
+    /// çizgiye giren ağaç/iri kaya titreşimli soldurmayla (Pofi/Toon _Fade) yumuşakça kaybolur, çizgiden çıkınca geri gelir.
+    /// Soldurma yalnız o anda değişen nesnelerde MaterialPropertyBlock ile; tam görünürken blok kaldırılır (SRP toplu çizimi bozulmaz).
+    /// </summary>
+    public sealed class CameraClear : MonoBehaviour
+    {
+        private sealed class Entry { public Renderer[] R; public Vector2 C; public float Rad, Y0, Y1, Fade = 1f, Target = 1f; }
+        private const float Cell = 8f;
+        private readonly Dictionary<long, List<Entry>> _grid = new Dictionary<long, List<Entry>>();
+        private readonly List<Entry> _active = new List<Entry>();
+        private MapWorld _world;
+        private MaterialPropertyBlock _mpb;
+        private static readonly int FadeId = Shader.PropertyToID("_Fade");
+
+        public void Init(MapWorld world) { _world = world; _mpb = new MaterialPropertyBlock(); }
+
+        public void Add(Transform t)
+        {
+            var rs = t.GetComponentsInChildren<Renderer>(true);
+            if (rs.Length == 0) return;
+            var b = rs[0].bounds;
+            for (var i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
+            var e = new Entry { R = rs, C = new Vector2(b.center.x, b.center.z), Rad = Mathf.Max(b.extents.x, b.extents.z) * 0.8f, Y0 = b.min.y, Y1 = b.max.y };
+            var key = Key(Mathf.FloorToInt(e.C.x / Cell), Mathf.FloorToInt(e.C.y / Cell));
+            if (!_grid.TryGetValue(key, out var l)) _grid[key] = l = new List<Entry>();
+            l.Add(e);
+        }
+
+        private static long Key(int i, int j) => ((long)i << 32) ^ (uint)j;
+
+        private void LateUpdate()
+        {
+            var cam = Camera.main;
+            if (cam == null || _world == null || _world.Walker == null) return;
+            var a = cam.transform.position;
+            var b = _world.Walker.transform.position + Vector3.up * 0.9f;
+            // çizgi yakınındaki hücreler: hedefe yeni giren nesneler aday
+            var mn = Vector2.Min(new Vector2(a.x, a.z), new Vector2(b.x, b.z)) - Vector2.one * 6f;
+            var mx = Vector2.Max(new Vector2(a.x, a.z), new Vector2(b.x, b.z)) + Vector2.one * 6f;
+            foreach (var e in _active) e.Target = 1f;
+            var near = (a - b).sqrMagnitude < 30f * 30f;                       // kuşbakışında (uzak kamera) soldurma yok
+            if (near)
+            for (var i = Mathf.FloorToInt(mn.x / Cell); i <= Mathf.FloorToInt(mx.x / Cell); i++)
+            for (var j = Mathf.FloorToInt(mn.y / Cell); j <= Mathf.FloorToInt(mx.y / Cell); j++)
+            {
+                if (!_grid.TryGetValue(Key(i, j), out var l)) continue;
+                foreach (var e in l)
+                {
+                    if (!e.R[0].gameObject.activeInHierarchy) continue;
+                    if (!Blocks(e, a, b)) continue;
+                    e.Target = 0.15f;
+                    if (!_active.Contains(e)) _active.Add(e);
+                }
+            }
+            var k = 1f - Mathf.Exp(-9f * Time.deltaTime);
+            for (var n = _active.Count - 1; n >= 0; n--)
+            {
+                var e = _active[n];
+                e.Fade = Mathf.Abs(e.Fade - e.Target) < 0.01f ? e.Target : Mathf.Lerp(e.Fade, e.Target, k);
+                if (e.Fade >= 0.999f)
+                {
+                    foreach (var r in e.R) if (r != null) r.SetPropertyBlock(null);
+                    _active.RemoveAt(n);
+                    continue;
+                }
+                _mpb.SetFloat(FadeId, e.Fade);
+                foreach (var r in e.R) if (r != null) r.SetPropertyBlock(_mpb);
+            }
+        }
+
+        /// <summary>Kamera–pet doğru parçası nesnenin dikey silindirinden (taban–tepe, yarıçap) geçiyor mu?</summary>
+        private static bool Blocks(Entry e, Vector3 a, Vector3 b)
+        {
+            var ab = new Vector2(b.x - a.x, b.z - a.z); var l2 = ab.sqrMagnitude;
+            var t = l2 < 1e-4f ? 0f : Mathf.Clamp01(Vector2.Dot(e.C - new Vector2(a.x, a.z), ab) / l2);
+            if (t > 0.92f) return false;                                   // petin hemen yanındaki (arkasındaki) nesne kalır
+            var p = new Vector2(a.x, a.z) + ab * t;
+            if ((p - e.C).sqrMagnitude > (e.Rad + 0.35f) * (e.Rad + 0.35f)) return false;
+            var y = Mathf.Lerp(a.y, b.y, t);
+            return y > e.Y0 + 0.2f && y < e.Y1;
+        }
+    }
+
     /// <summary>Kıyı yengeci (madde 10, kullanıcı): pet yaklaşınca yan yan denize koşar ve kaybolur; pet uzaklaşınca bir süre sonra yerine döner.</summary>
     public sealed class CrabFlee : MonoBehaviour
     {

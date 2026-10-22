@@ -215,6 +215,12 @@ namespace Pofi.World
             if (m.shader != sh) m.shader = sh;
             m.SetFloat("_Smoothness", stylized ? info.ToonSmooth : info.LitSmooth);
             if (stylized) m.SetFloat("_OutlineWidth", info.Outline);
+            if (stylized && m.name.StartsWith("Env/"))
+            {
+                // çevre: kenar ışığı az (soluk kaya "saydam" görünüyordu), taslaktan pişmiş normal tam güçte (22 Ekim 2026)
+                m.SetFloat("_Rim", 0.3f);
+                m.SetFloat("_BumpScale", 1f);
+            }
             // dış çizgi kapalı (kullanıcı kararı 15 Ekim 2026: yeni tasarımda nesne/karakter çevresinde çizgi olmayacak)
             m.SetShaderPassEnabled("SRPDefaultUnlit", false);
             if (m.GetTexture("_BumpMap") != null) m.EnableKeyword("_NORMALMAP");

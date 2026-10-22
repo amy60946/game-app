@@ -49,7 +49,8 @@ namespace Pofi.EditorTools
             m.importCameras = false;
             m.importLights = false;
             m.isReadable = false;
-            m.meshCompression = ModelImporterMeshCompression.High;
+            // çevre modellerinde normal haritası var: yüksek sıkıştırma UV/teğetleri kaydırıp pişmiş dikişleri belli ediyordu
+            m.meshCompression = assetPath.Replace('\\', '/').Contains("/Resources/Env/") ? ModelImporterMeshCompression.Low : ModelImporterMeshCompression.High;
             var isAnim = Path.GetFileNameWithoutExtension(assetPath).Contains("@");
             if (IsPet)
             {
@@ -134,9 +135,10 @@ namespace Pofi.EditorTools
             if (Path.GetFileName(assetPath).StartsWith("ground_"))
             {
                 // v6 ada zemini (art/code3d/v6/bake_game.py): 200 m'ye 2048 px (10 cm/px); alfa = kum ağırlığı (gölgelendirici)
-                t.maxTextureSize = 2048;
+                var isMask = Path.GetFileNameWithoutExtension(assetPath).EndsWith("_mask");   // kaldırım maskesi: doğrusal, 1024
+                t.maxTextureSize = isMask ? 1024 : 2048;
                 t.mipmapEnabled = true;
-                t.sRGBTexture = true;
+                t.sRGBTexture = !isMask;
                 t.alphaSource = TextureImporterAlphaSource.FromInput;
                 t.alphaIsTransparency = false;
                 t.wrapMode = TextureWrapMode.Clamp;
@@ -151,7 +153,9 @@ namespace Pofi.EditorTools
             // kodla yenilenen yapılar (b_*, adacık; art/code3d/export_game.py): pişirilmiş ayrıntı 1024'te korunur
             var file = Path.GetFileName(assetPath);
             var building = assetPath.Replace('\\', '/').Contains("/Resources/Env/") && (file.StartsWith("b_") || file.StartsWith("island_chunk"));
-            t.maxTextureSize = (IsPet && !normal) || building ? 1024 : 512;
+            // v6 ağaçları (art/code3d/v6/proxy_bake.py): taç yaprak dokusu taslaktan pişirilir, 1024'te korunur
+            var tree = assetPath.Replace('\\', '/').Contains("/Resources/Env/t_") && !normal;
+            t.maxTextureSize = (IsPet && !normal) || building || tree ? 1024 : 512;
             t.mipmapEnabled = true;
             t.textureCompression = TextureImporterCompression.Compressed;
             t.crunchedCompression = false;

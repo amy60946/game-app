@@ -14,7 +14,7 @@ namespace Pofi.World
     {
         private const float Radius = 10f, Cell = 0.32f, Rebuild = 3f, BitCell = 0.55f;
         private MapWorld _world;
-        private Mesh _clump, _pebble, _blob;
+        private Mesh _clump, _pebble, _blob, _bell, _daisy;
         private Material _mat, _bitsMat;
         private Mesh _field, _bits;
         private Transform _holder, _bitsHolder;
@@ -27,6 +27,8 @@ namespace Pofi.World
             if (sh == null) { enabled = false; return; }
             _mat = new Material(sh);
             _clump = Clump();
+            _bell = Bluebell();
+            _daisy = Daisy();
             _field = Layer("GrassMesh", _mat, out _holder);
             var bsh = Shader.Find("Pofi/Bits");
             if (bsh != null)
@@ -73,6 +75,77 @@ namespace Pofi.World
                 t.Add(i0); t.Add(i0 + 1); t.Add(i0 + 2);
             }
             return Make("GrassClump", v, uv, t);
+        }
+
+        /// <summary>
+        /// Mavi çan çiçeği öbeği (taslaktaki çayır, 22 Ekim 2026): 5 ince sap, her sapın üst üçte birinde 6 küçük sarkık çan.
+        /// Saplar uv.x = 2 (çim tonu köşe alfasından), çanlar uv.x = 3 (renk köşe renginden; Pofi/Grass).
+        /// </summary>
+        private static Mesh Bluebell()
+        {
+            var rnd = new System.Random(23);
+            var v = new List<Vector3>(); var uv = new List<Vector2>(); var t = new List<int>();
+            for (var b = 0; b < 5; b++)
+            {
+                var a = (float)rnd.NextDouble() * Mathf.PI * 2f; var r = (float)rnd.NextDouble() * 0.09f;
+                var root = new Vector3(Mathf.Cos(a) * r, 0f, Mathf.Sin(a) * r);
+                var h = 0.2f + (float)rnd.NextDouble() * 0.12f;
+                var lean = new Vector3((float)rnd.NextDouble() - 0.5f, 0f, (float)rnd.NextDouble() - 0.5f) * 0.08f;
+                var face = (float)rnd.NextDouble() * Mathf.PI;
+                var side = new Vector3(Mathf.Cos(face), 0f, Mathf.Sin(face)) * 0.006f;
+                var top = root + lean + Vector3.up * h;
+                var i0 = v.Count;
+                v.Add(root - side); v.Add(root + side); v.Add(top);
+                uv.Add(new Vector2(2f, 0f)); uv.Add(new Vector2(2f, 0f)); uv.Add(new Vector2(2f, 1f));
+                t.Add(i0); t.Add(i0 + 1); t.Add(i0 + 2);
+                for (var k = 0; k < 6; k++)
+                {
+                    var f = 0.62f + k * 0.065f;
+                    var c = root + (top - root) * f;
+                    var da = (float)rnd.NextDouble() * Mathf.PI * 2f;
+                    var dir = new Vector3(Mathf.Cos(da), 0f, Mathf.Sin(da));
+                    var s = 0.022f * (1.1f - k * 0.08f);
+                    var p0 = c + dir * 0.012f; var p1 = p0 + dir * s * 0.6f + Vector3.down * s;   // sarkık çan: dışa ve aşağı
+                    var w = Vector3.Cross(dir, Vector3.up) * s * 0.55f;
+                    var j0 = v.Count;
+                    v.Add(p0); v.Add(p1 - w); v.Add(p1 + w); v.Add(p1 + Vector3.down * s * 0.25f);
+                    for (var q = 0; q < 4; q++) uv.Add(new Vector2(3f, q == 0 ? 1f : 0.4f));
+                    t.Add(j0); t.Add(j0 + 1); t.Add(j0 + 2);
+                    t.Add(j0 + 1); t.Add(j0 + 3); t.Add(j0 + 2);
+                }
+            }
+            return Make("Bluebell", v, uv, t);
+        }
+
+        /// <summary>Turuncu çiçek öbeği: 3 sap, tepede beş taç yapraklı yatık disk (uv.x = 3) ve koyu göbek.</summary>
+        private static Mesh Daisy()
+        {
+            var rnd = new System.Random(29);
+            var v = new List<Vector3>(); var uv = new List<Vector2>(); var t = new List<int>();
+            for (var b = 0; b < 3; b++)
+            {
+                var a = (float)rnd.NextDouble() * Mathf.PI * 2f; var r = (float)rnd.NextDouble() * 0.08f;
+                var root = new Vector3(Mathf.Cos(a) * r, 0f, Mathf.Sin(a) * r);
+                var h = 0.14f + (float)rnd.NextDouble() * 0.1f;
+                var top = root + new Vector3((float)rnd.NextDouble() - 0.5f, 0f, (float)rnd.NextDouble() - 0.5f) * 0.05f + Vector3.up * h;
+                var side = new Vector3(0.006f, 0f, 0f);
+                var i0 = v.Count;
+                v.Add(root - side); v.Add(root + side); v.Add(top);
+                uv.Add(new Vector2(2f, 0f)); uv.Add(new Vector2(2f, 0f)); uv.Add(new Vector2(2f, 1f));
+                t.Add(i0); t.Add(i0 + 1); t.Add(i0 + 2);
+                var c0 = v.Count; v.Add(top + Vector3.up * 0.006f); uv.Add(new Vector2(3f, 1f));
+                const int n = 10;
+                var tilt = new Vector3((float)rnd.NextDouble() - 0.5f, 0f, (float)rnd.NextDouble() - 0.5f) * 0.5f;
+                for (var k = 0; k < n; k++)
+                {
+                    var pa = k * Mathf.PI * 2f / n;
+                    var rad = k % 2 == 0 ? 0.034f : 0.018f;              // beş taç yaprak ucu
+                    var d = new Vector3(Mathf.Cos(pa), 0f, Mathf.Sin(pa));
+                    v.Add(top + d * rad + Vector3.up * Vector3.Dot(d, tilt) * rad); uv.Add(new Vector2(3f, 0.7f));
+                }
+                for (var k = 0; k < n; k++) { t.Add(c0); t.Add(c0 + 1 + (k + 1) % n); t.Add(c0 + 1 + k); }
+            }
+            return Make("Daisy", v, uv, t);
         }
 
         /// <summary>Çakıl taşı: basık, düşük çokgenli yuvarlak (8 dilim × 2 kat), yaklaşık 1 birim çap.</summary>
@@ -160,6 +233,23 @@ namespace Pofi.World
                 if (t.BuildingAt(x, z) != null) continue;
                 var pos = _world.transform.TransformPoint(new Vector3(x, t.Height(x, z) - 0.01f, z));
                 var s = 0.85f + hsh * 0.4f;
+                // çiçek öbeği (taslaktaki çan çiçeği tarlaları ve turuncu benekler): yoğunluğa göre çimin yerine
+                var bell = t.Bluebell(x, z); var orange = t.OrangeFlower(x, z);
+                var hf = Hash(gx - 17, gz + 23);
+                if (bell > 0.08f && hf < bell * 0.75f)
+                {
+                    var hue = Hash(gx + 41, gz - 3);
+                    var bc = Color.Lerp(new Color(0.30f, 0.33f, 0.82f), new Color(0.50f, 0.46f, 0.92f), hue);
+                    var tone = 0.86f + Hash(gx - 2, gz + 9) * 0.2f;
+                    grass.Add(new Placed { M = Matrix4x4.TRS(pos, Quaternion.Euler(0f, hsh * 360f, 0f), Vector3.one * (0.85f + hf * 0.5f)), C = new Color(bc.r, bc.g, bc.b, tone), Mesh = _bell });
+                    if (hf < bell * 0.45f) continue;   // yoğun tarlada çim azalır
+                }
+                else if (orange > 0.08f && hf < orange * 0.5f)
+                {
+                    var hue = Hash(gx + 41, gz - 3);
+                    var oc = Color.Lerp(new Color(0.95f, 0.55f, 0.2f), new Color(0.98f, 0.78f, 0.3f), hue);
+                    grass.Add(new Placed { M = Matrix4x4.TRS(pos, Quaternion.Euler(0f, hsh * 360f, 0f), Vector3.one * (0.9f + hf * 0.4f)), C = new Color(oc.r, oc.g, oc.b, 0.95f), Mesh = _daisy });
+                }
                 var tall = (0.75f + Hash(gx + 7, gz) * 0.5f) * Mathf.Lerp(0.6f, 1f, edge);
                 var tint = 0.86f + Hash(gx - 2, gz + 9) * 0.22f;
                 grass.Add(new Placed { M = Matrix4x4.TRS(pos, Quaternion.Euler(0f, hsh * 360f, 0f), new Vector3(s, s * tall, s)), C = new Color(tint, tint, tint * 0.95f, 1f), Mesh = _clump });
@@ -218,6 +308,8 @@ namespace Pofi.World
 
         private Vector3 Pos(float x, float y, float z) => _world.transform.TransformPoint(new Vector3(x, y, z));
 
+        private static readonly Dictionary<Mesh, (Vector3[], Vector2[], int[])> Cache = new Dictionary<Mesh, (Vector3[], Vector2[], int[])>();
+
         /// <summary>Yerleştirilen parçaları tek ağda birleştirir (dünya → katman nesnesinin yerel uzayı); renk köşe rengine yazılır.</summary>
         private static void Merge(Mesh into, Transform holder, List<Placed> list)
         {
@@ -226,7 +318,13 @@ namespace Pofi.World
             Mesh last = null; Vector3[] src = null; Vector2[] suv = null; int[] stri = null;
             foreach (var p in list)
             {
-                if (p.Mesh != last) { last = p.Mesh; src = last.vertices; suv = last.uv; stri = last.triangles; }
+                if (p.Mesh != last)
+                {
+                    // çim ve çiçek öbekleri karışık sırada: köşe dizileri ağ başına bir kez kopyalanır
+                    last = p.Mesh;
+                    if (!Cache.TryGetValue(last, out var arr)) Cache[last] = arr = (last.vertices, last.uv, last.triangles);
+                    (src, suv, stri) = arr;
+                }
                 var mm = toLocal * p.M;
                 var b = verts.Count;
                 for (var i = 0; i < src.Length; i++) { verts.Add(mm.MultiplyPoint3x4(src[i])); uvs.Add(suv[i]); cols.Add(p.C); }
@@ -261,7 +359,8 @@ namespace Pofi.World
 
         private void OnDestroy()
         {
-            foreach (var o in new Object[] { _mat, _bitsMat, _clump, _pebble, _blob, _field, _bits })
+            Cache.Clear();
+            foreach (var o in new Object[] { _mat, _bitsMat, _clump, _pebble, _blob, _bell, _daisy, _field, _bits })
                 if (o != null) Destroy(o);
         }
     }

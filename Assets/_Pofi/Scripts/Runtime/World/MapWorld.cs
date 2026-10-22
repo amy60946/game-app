@@ -45,6 +45,12 @@ namespace Pofi.World
             { "region_lighthouse", "b_lighthouse" },
         };
 
+        /// <summary>Pişmiş adada (v6) gerçek ölçülü bölge modelleri (art/code3d/v6/assets_v6_game.py).</summary>
+        private static readonly Dictionary<string, string> V6Regions = new Dictionary<string, string>
+        {
+            { "region_cave", "b_cave_v6" }, { "region_ski_hill", "b_ski_v6" }, { "region_mountain", "b_summit_v6" },
+        };
+
         public static MapWorld Create(IReadOnlyList<RegionView> views, IslandTerrain terrain)
         {
             var go = new GameObject("MapWorld");
@@ -120,6 +126,8 @@ namespace Pofi.World
             var tex = Resources.Load<Texture2D>("Env/ground_v6/ground_v6");
             if (tex != null) mat.SetTexture("_BaseMap", tex);
             mat.SetFloat("_RockStrata", 1f);   // dik yüzlerde tabaka bantları + dikey oluklar (taslaktaki kaya)
+            var mask = Resources.Load<Texture2D>("Env/ground_v6/ground_v6_mask");   // r: kanyon kaldırımı (bake_game.py)
+            if (mask != null) { mat.SetTexture("_MaskMap", mask); mat.SetFloat("_Cobble", 1f); }
             _owned.Add(mat);
             foreach (var m in _bakedParts)
             {
@@ -192,13 +200,25 @@ namespace Pofi.World
             m.SetVector("_ShoreRect", new Vector4(o.x + lake.X - r, o.z + lake.Z - r, 2f * r, 2f * r));
             m.SetFloat("_WaveAmp", 0.025f);   // göl sakin
             _owned.Add(m);
-            var go = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            go.name = "Lake";
+            // taslaktaki gibi yuvarlak su yüzeyi (r + 5,5 m): kare düzlemin köşeleri göl çanağı dışındaki alçak dereye taşıp
+            // çimenin üstünde düz kenarlı su gibi görünüyordu (geri bildirim 22 Ekim 2026)
+            const int seg = 72;
+            var rr = lake.R + 5.5f;
+            var verts = new Vector3[seg + 1]; var tris = new int[seg * 3];
+            for (var k = 0; k < seg; k++)
+            {
+                var a = k * Mathf.PI * 2f / seg;
+                verts[k + 1] = new Vector3(Mathf.Cos(a) * rr, 0f, Mathf.Sin(a) * rr);
+                tris[k * 3] = 0; tris[k * 3 + 1] = 1 + (k + 1) % seg; tris[k * 3 + 2] = 1 + k;
+            }
+            var disc = new Mesh { name = "LakeDisc", vertices = verts, triangles = tris };
+            disc.RecalculateNormals(); disc.RecalculateBounds();
+            _owned.Add(disc);
+            var go = new GameObject("Lake");
             go.transform.SetParent(transform, false);
             go.transform.localPosition = new Vector3(lake.X, lake.Level, lake.Z);
-            go.transform.localScale = new Vector3(r * 0.2f, 1f, r * 0.2f);
-            Destroy(go.GetComponent<Collider>());
-            var mr = go.GetComponent<Renderer>();
+            go.AddComponent<MeshFilter>().sharedMesh = disc;
+            var mr = go.AddComponent<MeshRenderer>();
             mr.sharedMaterial = m;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
@@ -409,6 +429,11 @@ namespace Pofi.World
                 // v6: koy havuzu süs olarak gelir (p_pool); dokunma kutusu için görünmez taban
                 new GameObject("pool_pad").transform.SetParent(root, false);
             }
+            else if (Terrain.Baked != null && V6Regions.TryGetValue(r.Id, out var v6) && RealAssets.EnvScaled(v6, root, 1f, r.Yaw) != null)
+            {
+                // v6 (geri bildirim 13, 22 Ekim 2026): taslaktaki mağara (kaya kemeri + tünel), kayak kapısı/bayraklar/kardan adam,
+                // zirve taş kulesi; eski minyatür tepe modelleri pişmiş arazinin gerçek dağıyla çakışıyordu
+            }
             else if (RegionAssets.TryGetValue(r.Id, out var asset))
             {
                 var m = RealAssets.EnvFootprint(asset, root, r.Size, 180f + r.Yaw);   // ham önü +z → güneye dön, sonra bölge açısı
@@ -448,12 +473,15 @@ namespace Pofi.World
             var parent = new GameObject("Props").transform;
             parent.SetParent(transform, false);
             var culler = Terrain.Baked != null ? gameObject.AddComponent<PropCuller>() : null;
+            var clear = Terrain.Baked != null ? gameObject.AddComponent<CameraClear>() : null;
+            clear?.Init(this);
             foreach (var p in Terrain.Props())
             {
                 var cell = culler != null ? culler.Cell(parent, p.X, p.Z) : parent;
                 var t = p.Scaled ? RealAssets.EnvScaled(p.Asset, cell, p.Size, p.Yaw) : RealAssets.EnvFootprint(p.Asset, cell, p.Size, p.Yaw);
                 if (t == null) continue;
                 t.localPosition = new Vector3(p.X, float.IsNaN(p.Y) ? Terrain.Height(p.X, p.Z) : p.Y, p.Z) - cell.localPosition;
+                if (clear != null && (p.Asset.StartsWith("t_") || p.Asset == "palm" || (p.Asset.StartsWith("r_boulder") && p.Size > 1.6f))) clear.Add(t);
                 if (p.Asset == "p_crab") t.gameObject.AddComponent<CrabFlee>().Init(this);
                 else if (p.Asset == "p_campfire") Campfire.Light(t, p.Size);
                 else if (p.Asset == "p_starfish" || p.Asset == "p_snow_lump") { foreach (var r in t.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; }

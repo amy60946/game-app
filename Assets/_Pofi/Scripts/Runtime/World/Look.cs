@@ -40,10 +40,11 @@ namespace Pofi.World
             _volume.isGlobal = true;
             _volume.priority = 1f;
             var profile = ScriptableObject.CreateInstance<VolumeProfile>();
-            // canlı ama dengeli: hafif kontrast + doygunluk, çok az sıcak ton; parlama (bloom) yok — kullanıcı uyarısı
+            // canlı ama dengeli: hafif kontrast, doygunluk nötr (22 Ekim 2026: +12 çimeni neon yeşil yapıyordu; taslaktaki
+            // doğal yeşile yaklaştırıldı), çok az sıcak ton; parlama (bloom) yok — kullanıcı uyarısı
             var color = profile.Add<ColorAdjustments>();
-            color.contrast.Override(10f);
-            color.saturation.Override(12f);
+            color.contrast.Override(8f);
+            color.saturation.Override(-2f);
             color.colorFilter.Override(new Color(1f, 0.985f, 0.96f));
             // kenarlarda çok hafif kararma: göz ortadaki pete gider
             var vig = profile.Add<Vignette>();
