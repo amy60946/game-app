@@ -152,59 +152,98 @@ namespace Pofi.Logic.Services.Supabase
             return Ok(r) ? ServiceError.None : ServiceError.Rejected;   // ör. "Ebeveyn karar verdi": birleştirme sunucu durumunu alır
         }
 
-        // ------------------------------------------------------------ gerçek ödüller (Ö7)
+        // ------------------------------------------------------------ gerçek ödüller (Güneş Taşı; ortak migrations/20261022130000_sun_stones_rewards)
+
+        private Task<HttpReply> Get(string pathAndQuery, CancellationToken ct)
+        {
+            var h = new Dictionary<string, string> { ["apikey"] = _anonKey, ["Accept"] = "application/json" };
+            var t = _token();
+            if (!string.IsNullOrEmpty(t)) h["Authorization"] = "Bearer " + t;
+            return _http.SendAsync("GET", _url + "/rest/v1/" + pathAndQuery, h, null, ct);
+        }
+
+        private static void Need(HttpReply r)
+        {
+            if (!Ok(r)) throw new OperationCanceledException(r.Status == 0 ? "çevrimdışı" : "sunucu: " + r.Status);
+        }
 
         public async Task<Rewards.RewardsSnapshot> GetAsync(CancellationToken ct = default)
         {
-            var r = await Rpc("child_rewards", null, ct);
-            if (r.Status == 404) return null;   // sunucuda Ö7 henüz yok: ödül bölümü gizli kalır
-            if (!Ok(r)) throw new OperationCanceledException(r.Status == 0 ? "çevrimdışı" : "sunucu: " + r.Status);
-            return ParseRewards(r.Body);
-        }
-
-        public static Rewards.RewardsSnapshot ParseRewards(string body)
-        {
-            var snap = new Rewards.RewardsSnapshot();
-            if (string.IsNullOrWhiteSpace(body) || body.Trim() == "null") return snap;
-            var o = JObject.Parse(body);
-            snap.Balance = (int?)o["balance"] ?? 0;
-            snap.Held = (int?)o["held"] ?? 0;
-            snap.Available = (int?)o["available"] ?? 0;
-            if (o["rewards"] is JArray rw)
-                foreach (var x in rw.OfType<JObject>())
-                    snap.Rewards.Add(new Rewards.RealReward { Id = (string)x["id"], Title = (string)x["title"], Icon = (string)x["icon"], Price = (int?)x["price"] ?? 0 });
-            if (o["requests"] is JArray rq)
-                foreach (var x in rq.OfType<JObject>())
-                    snap.Requests.Add(new Rewards.RewardRequest
-                    {
-                        Id = (string)x["id"], RewardId = (string)x["reward_id"], Title = (string)x["title"], Icon = (string)x["icon"],
-                        Price = (int?)x["price"] ?? 0, Status = (string)x["status"], RequestedAt = (string)x["requested_at"],
-                    });
+            // satır güvenliği: çocuk yalnız ailesinin etkin ve kendine açık ödüllerini, kendi isteklerini ve kendi defterini görür
+            var rw = await Get("rewards?select=id,title,kind,cost,unit,unit_amount,icon&order=cost.asc", ct);
+            if (rw.Status == 404) return null;   // sunucuda ödüller yok: bölüm gizli kalır
+            Need(rw);
+            var rq = await Get("reward_requests?select=id,reward_id,title,quantity,cost,unit,amount,source,status,note,created_at&order=created_at.desc&limit=30", ct);
+            Need(rq);
+            var pen = await Get("sun_stone_ledger?select=id,amount,note,created_at&reason=eq.penalty&order=created_at.desc&limit=10", ct);
+            Need(pen);
+            var me = await Rpc("child_me", null, ct);
+            Need(me);
+            var snap = ParseRewards(rw.Body, rq.Body, pen.Body);
+            snap.Spendable = (int?)JObject.Parse(me.Body)["sun_stones_spendable"] ?? 0;
             return snap;
         }
 
+        public static Rewards.RewardsSnapshot ParseRewards(string rewards, string requests, string deductions)
+        {
+            var snap = new Rewards.RewardsSnapshot();
+            foreach (var x in Rows(rewards))
+                snap.Rewards.Add(new Rewards.RealReward
+                {
+                    Id = (string)x["id"], Title = (string)x["title"], Kind = (string)x["kind"] ?? Rewards.RewardKind.Item,
+                    Cost = (int?)x["cost"] ?? 0, Unit = (string)x["unit"], UnitAmount = (int?)x["unit_amount"] ?? 0, Icon = (string)x["icon"],
+                });
+            foreach (var x in Rows(requests))
+                snap.Requests.Add(new Rewards.RewardRequest
+                {
+                    Id = (string)x["id"], RewardId = (string)x["reward_id"], Title = (string)x["title"], Quantity = (int?)x["quantity"] ?? 1,
+                    Cost = (int?)x["cost"] ?? 0, Unit = (string)x["unit"], Amount = (int?)x["amount"] ?? 0, Source = (string)x["source"],
+                    Status = (string)x["status"], Note = (string)x["note"], CreatedAt = (string)x["created_at"],
+                });
+            foreach (var x in Rows(deductions))
+                snap.Deductions.Add(new Rewards.StoneDeduction
+                {
+                    Id = (string)x["id"], Amount = Math.Abs((int?)x["amount"] ?? 0), Note = (string)x["note"], CreatedAt = (string)x["created_at"],
+                });
+            return snap;
+        }
+
+        private static IEnumerable<JObject> Rows(string body)
+        {
+            if (string.IsNullOrWhiteSpace(body)) return Enumerable.Empty<JObject>();
+            try { return JToken.Parse(body) is JArray a ? a.OfType<JObject>().ToList() : Enumerable.Empty<JObject>(); }
+            catch (JsonException) { return Enumerable.Empty<JObject>(); }
+        }
+
+        /// <summary>RPC hatası (raise exception): PostgREST gövdesi {code, message, hint}; hint sözleşmedeki anahtar.</summary>
         private static Rewards.RewardReply ParseReply(HttpReply r)
         {
             if (r.Status == 0 || r.Status >= 500 || r.Status == 401 || r.Status == 408 || r.Status == 429)
                 return new Rewards.RewardReply { Error = Rewards.RewardReply.Network };
-            if (!Ok(r)) return new Rewards.RewardReply { Error = "rejected" };
+            if (Ok(r))
+            {
+                string id = null;
+                try { if (!string.IsNullOrWhiteSpace(r.Body) && JToken.Parse(r.Body) is JObject o) id = (string)o["request_id"]; }
+                catch (JsonException) { }
+                return new Rewards.RewardReply { RequestId = id };
+            }
             try
             {
                 var o = JObject.Parse(r.Body);
-                return (bool?)o["ok"] == true ? new Rewards.RewardReply() : new Rewards.RewardReply { Error = (string)o["error"] ?? "rejected" };
+                var hint = (string)o["hint"];
+                var msg = (string)o["message"] ?? "";
+                if (!string.IsNullOrEmpty(hint)) return new Rewards.RewardReply { Error = hint };
+                if (msg.Contains("bulunamadı")) return new Rewards.RewardReply { Error = "not_found" };
             }
-            catch (JsonException) { return new Rewards.RewardReply { Error = "rejected" }; }
+            catch (JsonException) { }
+            return new Rewards.RewardReply { Error = "rejected" };
         }
 
-        public async Task<Rewards.RewardReply> RequestAsync(string rewardId, string txId, CancellationToken ct = default)
-            => ParseReply(await Rpc("child_request_reward", new { p_reward = rewardId, p_tx = txId }, ct));
+        public async Task<Rewards.RewardReply> RequestAsync(string rewardId, int quantity, CancellationToken ct = default)
+            => ParseReply(await Rpc("request_reward", new { p_reward_id = rewardId, p_quantity = Math.Max(1, quantity) }, ct));
 
         public async Task<Rewards.RewardReply> CancelAsync(string requestId, CancellationToken ct = default)
-        {
-            var r = await Rpc("child_cancel_reward_request", new { p_id = requestId }, ct);
-            if (!Ok(r)) return ParseReply(r);
-            return r.Body != null && r.Body.Trim() == "true" ? new Rewards.RewardReply() : new Rewards.RewardReply { Error = "already_decided" };
-        }
+            => ParseReply(await Rpc("cancel_reward_request", new { p_request_id = requestId }, ct));
 
         // ------------------------------------------------------------ kayıt
 

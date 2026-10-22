@@ -95,88 +95,120 @@ namespace Pofi.Logic.Services.Mock
             var item = _data.Item(itemId);
             if (item == null || quantity <= 0 || quantity > 20) return Task.FromResult(new SpendResponse { Error = ServiceError.UnknownItem, Balance = Coins });
             var amount = item.Price * quantity;
-            // ödüle ayrılan coin harcanmaz (sunucu spend_coins ile aynı)
-            if (amount > Coins - Held) return Task.FromResult(new SpendResponse { Error = ServiceError.NotEnoughCoins, Balance = Coins });
+            if (amount > Coins) return Task.FromResult(new SpendResponse { Error = ServiceError.NotEnoughCoins, Balance = Coins });
             Coins -= amount;
             _processedTx[txId] = amount;
             return Task.FromResult(new SpendResponse { Balance = Coins });
         }
 
-        // ---------- gerçek ödüller (Ö7; sunucu kuralları: en çok 3 bekleyen, coin ayrılır, verince düşer) ----------
+        // ---------- gerçek ödüller (Güneş Taşı; sunucu sun_stones_rewards ile aynı kurallar) ----------
+        // Kazanılan taş (SunStones, ada) azalmaz; harcanabilir = kazanılan − verilen ödüller − düşürmeler.
 
         private readonly List<Rewards.RealReward> _rewards = new List<Rewards.RealReward>();
         private readonly List<Rewards.RewardRequest> _requests = new List<Rewards.RewardRequest>();
-        private readonly Dictionary<string, string> _requestTx = new Dictionary<string, string>();   // tx → istek
+        private readonly List<Rewards.StoneDeduction> _deductions = new List<Rewards.StoneDeduction>();
+        private int _stonesSpent;
 
         public IReadOnlyList<Rewards.RewardRequest> RewardRequests => _requests;
+        public int SpendableStones => Math.Max(0, SunStones - _stonesSpent);
 
-        public void ParentAddReward(string id, string title, string icon, int price)
+        public void ParentAddReward(string id, string title, string icon, int cost, string unit = null, int unitAmount = 0)
         {
             _rewards.RemoveAll(r => r.Id == id);
-            _rewards.Add(new Rewards.RealReward { Id = id, Title = title, Icon = icon, Price = Math.Max(1, Math.Min(500, price)) });
+            _rewards.Add(new Rewards.RealReward
+            {
+                Id = id, Title = title, Icon = icon, Cost = Math.Max(1, Math.Min(500, cost)),
+                Kind = unit == null ? Rewards.RewardKind.Item : Rewards.RewardKind.Exchange, Unit = unit, UnitAmount = unit == null ? 0 : unitAmount,
+            });
         }
 
-        private int Held => _requests.Where(q => q.Status == Rewards.RewardStatus.Pending).Sum(q => q.Price);
-
-        /// <summary>Ebeveyn kararı. Verince coin düşer; bakiye yetmezse istek bekler (false).</summary>
-        public bool ParentDecideReward(string requestId, bool give)
+        /// <summary>Ebeveyn kararı (decide_reward_request). Onayda taş düşer; bakiye yetmezse false (istek bekler).</summary>
+        public bool ParentDecideReward(string requestId, bool approve, string note = null)
         {
             var q = _requests.FirstOrDefault(x => x.Id == requestId && x.Status == Rewards.RewardStatus.Pending);
             if (q == null) return false;
-            if (give)
+            if (approve)
             {
-                if (Coins < q.Price) return false;
-                Coins -= q.Price;
+                if (SpendableStones < q.Cost) return false;
+                _stonesSpent += q.Cost;
             }
-            q.Status = give ? Rewards.RewardStatus.Given : Rewards.RewardStatus.Declined;
+            q.Status = approve ? Rewards.RewardStatus.Approved : Rewards.RewardStatus.Rejected;
+            q.Note = note;
             return true;
+        }
+
+        /// <summary>Ebeveyn doğrudan ödül verir (give_reward).</summary>
+        public bool ParentGiveReward(string rewardId, int quantity = 1)
+        {
+            var r = _rewards.FirstOrDefault(x => x.Id == rewardId);
+            if (r == null || SpendableStones < r.Cost * quantity) return false;
+            _stonesSpent += r.Cost * quantity;
+            _requests.Add(new Rewards.RewardRequest
+            {
+                Id = "rq_" + (_requests.Count + 1), RewardId = r.Id, Title = r.Title, Quantity = quantity, Cost = r.Cost * quantity, Unit = r.Unit,
+                Amount = r.UnitAmount * quantity, Source = "parent", Status = Rewards.RewardStatus.Approved, CreatedAt = DateTime.UtcNow.ToString("o"),
+            });
+            return true;
+        }
+
+        /// <summary>Ebeveyn taş düşürür (deduct_sun_stones); harcanabilir bakiye eksiye inmez.</summary>
+        public void ParentDeductStones(int amount, string note)
+        {
+            var n = Math.Min(Math.Max(0, amount), SpendableStones);
+            if (n == 0) return;
+            _stonesSpent += n;
+            _deductions.Add(new Rewards.StoneDeduction { Id = "pen_" + (_deductions.Count + 1), Amount = n, Note = note, CreatedAt = DateTime.UtcNow.ToString("o") });
         }
 
         public Task<Rewards.RewardsSnapshot> GetAsync(CancellationToken ct = default)
         {
             if (Offline) throw new OperationCanceledException("çevrimdışı");
-            var held = Held;
             return Task.FromResult(new Rewards.RewardsSnapshot
             {
-                Balance = Coins, Held = held, Available = Math.Max(0, Coins - held),
-                Rewards = _rewards.Select(r => new Rewards.RealReward { Id = r.Id, Title = r.Title, Icon = r.Icon, Price = r.Price }).OrderBy(r => r.Price).ToList(),
-                Requests = Enumerable.Reverse(_requests).Take(20).Select(CloneReq).ToList(),
+                Spendable = SpendableStones,
+                Rewards = _rewards.Select(CloneReward).OrderBy(r => r.Cost).ToList(),
+                Requests = Enumerable.Reverse(_requests).Take(30).Select(CloneReq).ToList(),
+                Deductions = Enumerable.Reverse(_deductions).Take(10).Select(d => new Rewards.StoneDeduction { Id = d.Id, Amount = d.Amount, Note = d.Note, CreatedAt = d.CreatedAt }).ToList(),
             });
         }
 
-        public Task<Rewards.RewardReply> RequestAsync(string rewardId, string txId, CancellationToken ct = default)
+        public Task<Rewards.RewardReply> RequestAsync(string rewardId, int quantity, CancellationToken ct = default)
         {
             if (Offline) return Task.FromResult(new Rewards.RewardReply { Error = Rewards.RewardReply.Network });
-            if (string.IsNullOrEmpty(txId) || txId.Length < 8 || txId.Length > 64) return Task.FromResult(new Rewards.RewardReply { Error = "rejected" });
-            if (_requestTx.ContainsKey(txId)) return Task.FromResult(new Rewards.RewardReply());
             var r = _rewards.FirstOrDefault(x => x.Id == rewardId);
-            if (r == null) return Task.FromResult(new Rewards.RewardReply { Error = "unknown_reward" });
-            if (_requests.Count(q => q.Status == Rewards.RewardStatus.Pending) >= Rewards.RewardBook.MaxPending)
-                return Task.FromResult(new Rewards.RewardReply { Error = "too_many_pending" });
-            if (_requests.Any(q => q.RewardId == r.Id && q.Status == Rewards.RewardStatus.Pending))
-                return Task.FromResult(new Rewards.RewardReply { Error = "already_requested" });
-            if (_requests.Count >= 10 && _requests.Skip(_requests.Count - 10).All(q => DateTime.TryParse(q.RequestedAt, null, System.Globalization.DateTimeStyles.RoundtripKind, out var at) && at > DateTime.UtcNow.AddHours(-24)))
-                return Task.FromResult(new Rewards.RewardReply { Error = "too_many_today" });
-            if (Coins - Held < r.Price) return Task.FromResult(new Rewards.RewardReply { Error = "not_enough_coins" });
-            var id = "rq_" + (_requests.Count + 1) + "_" + txId.Substring(0, 6);
-            _requests.Add(new Rewards.RewardRequest { Id = id, RewardId = r.Id, Title = r.Title, Icon = r.Icon, Price = r.Price, Status = Rewards.RewardStatus.Pending,
-                RequestedAt = DateTime.UtcNow.ToString("o") });
-            _requestTx[txId] = id;
-            return Task.FromResult(new Rewards.RewardReply());
+            if (r == null) return Task.FromResult(new Rewards.RewardReply { Error = "not_found" });
+            if (quantity < 1 || quantity > r.MaxQuantity) return Task.FromResult(new Rewards.RewardReply { Error = "rejected" });
+            var same = _requests.FirstOrDefault(q => q.RewardId == r.Id && q.Status == Rewards.RewardStatus.Pending);
+            if (same != null) return Task.FromResult(new Rewards.RewardReply { RequestId = same.Id });
+            if (_requests.Count(q => q.Status == Rewards.RewardStatus.Pending) >= 5) return Task.FromResult(new Rewards.RewardReply { Error = "too_many_requests" });
+            if (SpendableStones < r.Cost * quantity) return Task.FromResult(new Rewards.RewardReply { Error = "not_enough_stones" });
+            var id = "rq_" + (_requests.Count + 1);
+            _requests.Add(new Rewards.RewardRequest
+            {
+                Id = id, RewardId = r.Id, Title = r.Title, Quantity = quantity, Cost = r.Cost * quantity, Unit = r.Unit, Amount = r.UnitAmount * quantity,
+                Source = "child", Status = Rewards.RewardStatus.Pending, CreatedAt = DateTime.UtcNow.ToString("o"),
+            });
+            return Task.FromResult(new Rewards.RewardReply { RequestId = id });
         }
 
         public Task<Rewards.RewardReply> CancelAsync(string requestId, CancellationToken ct = default)
         {
             if (Offline) return Task.FromResult(new Rewards.RewardReply { Error = Rewards.RewardReply.Network });
             var q = _requests.FirstOrDefault(x => x.Id == requestId && x.Status == Rewards.RewardStatus.Pending);
-            if (q == null) return Task.FromResult(new Rewards.RewardReply { Error = "already_decided" });
-            q.Status = Rewards.RewardStatus.Cancelled;
+            if (q == null) return Task.FromResult(new Rewards.RewardReply { Error = "not_found" });
+            q.Status = Rewards.RewardStatus.Canceled;
             return Task.FromResult(new Rewards.RewardReply());
         }
 
+        private static Rewards.RealReward CloneReward(Rewards.RealReward r) => new Rewards.RealReward
+        {
+            Id = r.Id, Title = r.Title, Kind = r.Kind, Cost = r.Cost, Unit = r.Unit, UnitAmount = r.UnitAmount, Icon = r.Icon,
+        };
+
         private static Rewards.RewardRequest CloneReq(Rewards.RewardRequest q) => new Rewards.RewardRequest
         {
-            Id = q.Id, RewardId = q.RewardId, Title = q.Title, Icon = q.Icon, Price = q.Price, Status = q.Status, RequestedAt = q.RequestedAt,
+            Id = q.Id, RewardId = q.RewardId, Title = q.Title, Quantity = q.Quantity, Cost = q.Cost, Unit = q.Unit, Amount = q.Amount,
+            Source = q.Source, Status = q.Status, Note = q.Note, CreatedAt = q.CreatedAt,
         };
 
         // ---------- ITaskService ----------
@@ -223,13 +255,14 @@ namespace Pofi.Logic.Services.Mock
             public string Remote;
             public List<Rewards.RealReward> Rewards = new List<Rewards.RealReward>();
             public List<Rewards.RewardRequest> Requests = new List<Rewards.RewardRequest>();
-            public Dictionary<string, string> RequestTx = new Dictionary<string, string>();
+            public List<Rewards.StoneDeduction> Deductions = new List<Rewards.StoneDeduction>();
+            public int StonesSpent;
         }
 
         public string Export() => Newtonsoft.Json.JsonConvert.SerializeObject(new Snapshot
         {
             Coins = Coins, SunStones = SunStones, Tasks = _tasks.Select(Clone).ToList(), Tx = new Dictionary<string, int>(_processedTx), Remote = _remoteSave,
-            Rewards = _rewards.ToList(), Requests = _requests.Select(CloneReq).ToList(), RequestTx = new Dictionary<string, string>(_requestTx),
+            Rewards = _rewards.ToList(), Requests = _requests.Select(CloneReq).ToList(), Deductions = _deductions.ToList(), StonesSpent = _stonesSpent,
         });
 
         /// <summary>Önceki <see cref="Export"/> çıktısını yükler. Bozuk veri yok sayılır (boş sunucu).</summary>
@@ -251,8 +284,9 @@ namespace Pofi.Logic.Services.Mock
             if (snap.Rewards != null) _rewards.AddRange(snap.Rewards.Where(r => r != null));
             _requests.Clear();
             if (snap.Requests != null) _requests.AddRange(snap.Requests.Where(r => r != null));
-            _requestTx.Clear();
-            if (snap.RequestTx != null) foreach (var kv in snap.RequestTx) _requestTx[kv.Key] = kv.Value;
+            _deductions.Clear();
+            if (snap.Deductions != null) _deductions.AddRange(snap.Deductions.Where(d => d != null));
+            _stonesSpent = Math.Max(0, snap.StonesSpent);
         }
 
         /// <summary>Sunucudaki görevlerin (ebeveyn gözünden) listesi: deneme ebeveyn paneli için.</summary>

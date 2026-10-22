@@ -29,10 +29,11 @@ namespace Pofi.Logic.App
             var evs = (tasks ?? Enumerable.Empty<TaskEvent>()).Where(e => e?.Task != null).ToList();
 
             // Olumlu haberler önce
-            foreach (var r in (rewards ?? Enumerable.Empty<Rewards.RewardEvent>()).Where(r => r?.Request != null))
+            var rw = (rewards ?? Enumerable.Empty<Rewards.RewardEvent>()).Where(r => r != null).ToList();
+            foreach (var r in rw.Where(r => r.Request != null))
                 list.Add(r.Kind == Rewards.RewardEventKind.Given
-                    ? new Notice { Key = "notice.reward_given", Args = new object[] { r.Request.Title }, Happy = true }
-                    : new Notice { Key = "notice.reward_waits", Args = new object[] { r.Request.Title } });
+                    ? new Notice { Key = "notice.reward_given", Args = new object[] { Rewards.RewardText.Label(r.Request) }, Happy = true }
+                    : new Notice { Key = "notice.reward_waits", Args = new object[] { Rewards.RewardText.Label(r.Request) } });
 
             var approved = evs.Where(e => e.Kind == TaskEventKind.Approved).ToList();
             if (approved.Count == 1) list.Add(new Notice { Key = "notice.approved_one", Args = new object[] { approved[0].Task.Title }, Happy = true });
@@ -46,6 +47,12 @@ namespace Pofi.Logic.App
             var rejected = evs.Where(e => e.Kind == TaskEventKind.Rejected).ToList();
             if (rejected.Count == 1) list.Add(new Notice { Key = "notice.try_again_one", Args = new object[] { rejected[0].Task.Title } });
             else if (rejected.Count > 1) list.Add(new Notice { Key = "notice.try_again_many" });
+
+            // ebeveynin taş düşürmesi: en sona, suçlamasız ("ailen … dedi"), not varsa aynen
+            foreach (var d in rw.Where(r => r.Kind == Rewards.RewardEventKind.Deducted && r.Deduction != null).Select(r => r.Deduction).Take(1))
+                list.Add(string.IsNullOrWhiteSpace(d.Note)
+                    ? new Notice { Key = "notice.stones_deducted", Args = new object[] { d.Amount } }
+                    : new Notice { Key = "notice.stones_deducted_note", Args = new object[] { d.Amount, d.Note.Trim() } });
 
             if (list.Count > MaxPerSync)
             {

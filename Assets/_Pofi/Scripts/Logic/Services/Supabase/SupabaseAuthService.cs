@@ -124,7 +124,14 @@ namespace Pofi.Logic.Services.Supabase
                 JsonConvert.SerializeObject(new { p_code = normalized }), ct);
             if (r.Status == 0) return AuthResult.Fail(AuthErrorKind.Network);
             if (r.Status == 429) return AuthResult.Fail(AuthErrorKind.Throttled);   // sunucu deneme sınırı (15 dk'da 10 hata)
-            if (r.Status >= 400) { _throttle.RecordFailure(now); return AuthResult.Fail(AuthErrorKind.InvalidCode); }
+            if (r.Status >= 400)
+            {
+                _throttle.RecordFailure(now);
+                string reason = null;
+                try { if (!string.IsNullOrWhiteSpace(r.Body) && JToken.Parse(r.Body) is JObject eo) reason = (string)eo["reason"]; }
+                catch (JsonException) { }
+                return AuthResult.Fail(reason == "expired" ? AuthErrorKind.CodeExpired : reason == "used" ? AuthErrorKind.CodeUsed : AuthErrorKind.InvalidCode);
+            }
 
             _throttle.RecordSuccess();
             var o = JObject.Parse(r.Body);

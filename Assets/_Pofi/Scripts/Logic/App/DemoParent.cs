@@ -20,23 +20,23 @@ namespace Pofi.Logic.App
             ("demo_homework", "Ödevini bitir", 20, "Sorumluluk", "hard"),
         };
 
-        /// <summary>Deneme ailesinin gerçek ödülleri (ParentApp'te ebeveyn tanımlar).</summary>
-        public static readonly (string Id, string Title, string Icon, int Price)[] SampleRewards =
+        /// <summary>Deneme ailesinin gerçek ödülleri (ParentApp'te ebeveyn tanımlar): taşla; son ikisi "Değiş tokuş".</summary>
+        public static readonly (string Id, string Title, string Icon, int Cost, string Unit, int UnitAmount)[] SampleRewards =
         {
-            ("demo_park", "Parka gitmek", "park", 20),
-            ("demo_movie", "Film gecesi", "movie", 40),
-            ("demo_treat", "Dondurma", "treat", 15),
-            ("demo_book", "Yeni kitap", "book", 80),
+            ("demo_park", "Parka gitmek", "park", 3, null, 0),
+            ("demo_movie", "Film gecesi", "movie", 5, null, 0),
+            ("demo_tablet", "Tablet süresi", "tablet", 1, "minute", 10),
+            ("demo_pocket", "Harçlık", "money", 2, "money", 5),
         };
 
         public static void EnsureRewards(MockBackend backend)
         {
-            foreach (var r in SampleRewards) backend.ParentAddReward(r.Id, r.Title, r.Icon, r.Price);
+            foreach (var r in SampleRewards) backend.ParentAddReward(r.Id, r.Title, r.Icon, r.Cost, r.Unit, r.UnitAmount);
         }
 
-        /// <summary>Bekleyen ödül isteklerini verir (bakiye yetmeyenler bekler). Verilen sayısı.</summary>
+        /// <summary>Bekleyen ödül isteklerini onaylar (taş yetmeyenler bekler). Onaylanan sayısı.</summary>
         public static int GiveRewards(MockBackend backend) =>
-            backend.RewardRequests.Where(q => q.Status == Rewards.RewardStatus.Pending).Select(q => q.Id).ToList().Count(id => backend.ParentDecideReward(id, true));
+            backend.RewardRequests.Where(q => q.Status == Rewards.RewardStatus.Pending).Select(q => q.Id).ToList().Count(id => backend.ParentDecideReward(id, true, "Hak ettin!"));
 
         public static string Day(DateTime local) => local.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);
 

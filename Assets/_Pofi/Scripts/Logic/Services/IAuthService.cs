@@ -18,7 +18,7 @@ namespace Pofi.Logic.Services
         }
     }
 
-    public enum AuthErrorKind { None, InvalidCode, Revoked, Network, Throttled, Unknown }
+    public enum AuthErrorKind { None, InvalidCode, Revoked, Network, Throttled, Unknown, CodeExpired, CodeUsed }   // süresi doldu / kullanıldı: sunucu reason (ortak codes_15min)
 
     public sealed class AuthResult
     {

@@ -102,7 +102,7 @@ namespace Pofi.Logic.State
                 report.CoinsEarned = s.Wallet.ApplyServerSnapshot(balances.Coins, Array.Empty<string>());
                 report.SunStonesEarned = Island.SunStoneBook.ApplyServerTotal(s.SunStones, balances.SunStones);
 
-                // 4b) Gerçek ödüller (Ö7): liste + istekler; ayrılmış coin cüzdana
+                // 4b) Gerçek ödüller (Güneş Taşı): liste, istekler, harcanabilir taş, taş düşürmeler
                 // Ödül listesi alınamazsa (sunucu hatası, bozuk yanıt) senkronun geri kalanı ve yedek etkilenmez.
                 if (_rewards != null)
                 {
@@ -113,7 +113,6 @@ namespace Pofi.Logic.State
                         {
                             s.Rewards = s.Rewards ?? new Rewards.RewardBook();
                             report.RewardEvents = s.Rewards.Apply(snap);
-                            s.Wallet.Held = s.Rewards.Held;
                         }
                     }
                     catch (OperationCanceledException) when (!ct.IsCancellationRequested) { }

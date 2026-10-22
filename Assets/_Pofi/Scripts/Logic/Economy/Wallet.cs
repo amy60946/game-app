@@ -28,11 +28,8 @@ namespace Pofi.Logic.Economy
 
         public int PendingTotal => Pending.Sum(p => p.Amount);
 
-        /// <summary>Gerçek ödül istekleri için ayrılmış coin (Ö7; sunucu child_rewards.held). Ebeveyn karar verince çözülür.</summary>
-        public int Held;
-
-        /// <summary>Arayüzde gösterilen harcanabilir bakiye (ödüle ayrılan coin eşya dükkânında harcanmaz).</summary>
-        public int Available => Math.Max(0, ServerCoins - PendingTotal - Held);
+        /// <summary>Arayüzde gösterilen harcanabilir bakiye.</summary>
+        public int Available => Math.Max(0, ServerCoins - PendingTotal);
 
         /// <summary>Bir harcamadaki en fazla adet (sunucu spend_coins ile aynı: 1–20).</summary>
         public const int MaxQuantity = 20;

@@ -83,6 +83,8 @@ namespace Pofi.Screens
                     return T("auth.throttled", Math.Max(1, secs));
                 case AuthErrorKind.Revoked: return T("auth.revoked");
                 case AuthErrorKind.Network: return T("auth.offline");
+                case AuthErrorKind.CodeExpired: return T("auth.expired");
+                case AuthErrorKind.CodeUsed: return T("auth.used");
                 default: return T("auth.invalid");
             }
         }

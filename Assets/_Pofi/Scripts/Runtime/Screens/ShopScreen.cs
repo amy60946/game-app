@@ -168,23 +168,24 @@ namespace Pofi.Screens
             else Fill();
         }
 
-        // ------------------------------------------------------------ gerçek ödüller (Ö7)
+        // ------------------------------------------------------------ gerçek ödüller (Güneş Taşı; ParentApp ile ortak sözleşme)
+        // Ebeveyn listeyi ve fiyatı belirler, çocuk taşı yetince ister, ebeveyn onaylar. Aynı anda tek bekleyen istek.
+        // "Değiş tokuş" ödülünde (ör. 1 taş = 10 dk) kaç kez istendiği seçilir. Yetmeyen ödül "hedef" yapılır: "N taş kaldı".
 
         private bool _busy;
-        /// <summary>Ödül başına işlem kimliği: kesin yanıt gelene kadar aynı kalır (yanıt kaybolup tekrar dokunulursa ikinci istek açılmaz).</summary>
-        private static readonly System.Collections.Generic.Dictionary<string, string> _askTx = new System.Collections.Generic.Dictionary<string, string>();
+        private int _qty = 1;
+        private string _qtyFor;
 
         private static string RewardIcon(string icon)
         {
             switch (icon)
             {
-                case "park": return "decor_palm";
-                case "movie": return "act_play";
-                case "game": return "ui_album";
-                case "treat": return "food_icecream";
-                case "book": return "home_bookshelf";
+                case "park": case "outdoor": case "trip": return "decor_palm";
+                case "movie": case "tv": case "tablet": case "screen": case "game": return "act_play";
+                case "treat": case "icecream": case "food": return "food_icecream";
+                case "book": case "read": return "home_bookshelf";
                 case "toy": return "decor_sandcastle";
-                case "trip": return "ui_map";
+                case "money": case "coin": return "ui_coin";
                 case "star": return "ui_star";
                 default: return "ui_gift";
             }
@@ -193,16 +194,14 @@ namespace Pofi.Screens
         private async System.Threading.Tasks.Task RefreshRewards()
         {
             if (App.Sync == null) return;
-            await App.SyncNow();   // senkron ödül listesini ve istekleri de getirir (OnSynced → Fill)
+            await App.SyncNow();   // senkron ödülleri, istekleri ve taş bakiyesini getirir (OnSynced → Fill)
         }
 
         private void FillRewards()
         {
             Preview(null);
             var book = App.State.Rewards ?? new Logic.Rewards.RewardBook();
-            var held = App.State.Wallet.Held;
-            if (held > 0)
-                Candy.Caption(_shelf, T("rewards.held", held), 34, new Vector2(0.5f, 1f), new Vector2(900f, 56f), new Vector2(0f, -150f));
+            Candy.Badge(_shelf, "ui_sunstone", T("rewards.stones", book.Spendable), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -150f), 70f, 330f);
             if (App.Rewards == null || book.Rewards.Count == 0)
             {
                 Candy.Caption(_shelf, T("rewards.empty"), 44, new Vector2(0.5f, 0.5f), new Vector2(1100f, 200f), new Vector2(0f, 120f));
@@ -214,6 +213,7 @@ namespace Pofi.Screens
             var start = _page * PerPage;
             var count = Mathf.Min(PerPage, list.Count - start);
             _selected = Mathf.Clamp(_selected, 0, count - 1);
+            var pending = book.Pending;
             for (var k = 0; k < count; k++)
             {
                 var rw = list[start + k];
@@ -223,9 +223,10 @@ namespace Pofi.Screens
                 var idx = k;
                 var b = Candy.Round(_shelf, sel ? new Color(1f, 0.93f, 0.6f) : Candy.White, RewardIcon(rw.Icon), sel ? 210f : 160f, new Vector2(0.5f, 0.5f), pos,
                     () => { _selected = idx; Fill(); });
-                var asked = book.PendingFor(rw.Id) != null;
-                Candy.Badge(b.transform, asked ? "ui_check" : "ui_coin", asked ? T("rewards.asked_short") : rw.Price.ToString(),
-                    new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, 6f), 56f, 170f);
+                var asked = pending != null && pending.RewardId == rw.Id;
+                var tag = asked ? T("rewards.asked_short") : rw.IsExchange ? Logic.Rewards.RewardText.Rate(rw) : rw.Cost.ToString();
+                Candy.Badge(b.transform, asked ? "ui_check" : "ui_sunstone", tag, new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, 6f), 56f, rw.IsExchange ? 260f : 170f);
+                if (book.GoalId == rw.Id) Candy.Count(b.transform).text = "★";
             }
             if (pages > 1)
             {
@@ -233,42 +234,71 @@ namespace Pofi.Screens
                 Candy.Pill(_shelf, Candy.White, ">", new Vector2(0.5f, 0.5f), new Vector2(110f, 110f), new Vector2(780f, 160f), () => { _page = (_page + 1) % pages; _selected = 0; Fill(); }, null, 56);
             }
             var cur = list[start + _selected];
-            var mine = book.PendingFor(cur.Id);
-            Candy.Caption(_shelf, cur.Title, 48, new Vector2(0.5f, 0.5f), new Vector2(900f, 70f), new Vector2(0f, 40f));
-            if (mine != null)
-                Candy.Pill(_shelf, Candy.White, T("rewards.cancel"), new Vector2(0.5f, 0.5f), new Vector2(420f, 110f), new Vector2(0f, -60f), () => _ = Cancel(mine), null, 44);
-            else
+            if (_qtyFor != cur.Id) { _qtyFor = cur.Id; _qty = 1; }
+            _qty = Mathf.Clamp(_qty, 1, cur.MaxQuantity);
+            var total = cur.Cost * _qty;
+            var title = cur.IsExchange ? Logic.Rewards.RewardText.Label(cur.Title, cur.Unit, cur.UnitAmount * _qty) : cur.Title;
+            Candy.Caption(_shelf, title, 48, new Vector2(0.5f, 0.5f), new Vector2(1000f, 70f), new Vector2(0f, 40f));
+
+            if (pending != null && pending.RewardId == cur.Id)
             {
-                var ok = App.State.Wallet.Available >= cur.Price && book.CanRequestMore;
-                Candy.Pill(_shelf, ok ? Candy.Green : Candy.White, T("rewards.ask", cur.Price), new Vector2(0.5f, 0.5f), new Vector2(380f, 120f), new Vector2(0f, -60f),
-                    () => _ = Ask(cur), "ui_coin", 50);
+                Candy.Pill(_shelf, Candy.White, T("rewards.cancel"), new Vector2(0.5f, 0.5f), new Vector2(420f, 110f), new Vector2(0f, -60f), () => _ = Cancel(pending), null, 44);
+                Candy.Caption(_shelf, T("rewards.waiting"), 30, new Vector2(0.5f, 0.5f), new Vector2(1100f, 60f), new Vector2(0f, -150f));
+                return;
             }
-            Candy.Caption(_shelf, mine != null ? T("rewards.waiting") : T("rewards.how"), 30, new Vector2(0.5f, 0.5f), new Vector2(1100f, 60f), new Vector2(0f, -150f));
+            if (cur.IsExchange)
+            {
+                // kaç kez: − adet +
+                Candy.Pill(_shelf, Candy.White, "−", new Vector2(0.5f, 0.5f), new Vector2(100f, 100f), new Vector2(-330f, -60f), () => { _qty = Mathf.Max(1, _qty - 1); Fill(); }, null, 56);
+                Candy.Pill(_shelf, Candy.White, "+", new Vector2(0.5f, 0.5f), new Vector2(100f, 100f), new Vector2(330f, -60f), () => { _qty = Mathf.Min(cur.MaxQuantity, _qty + 1); Fill(); }, null, 56);
+            }
+            var enough = book.Spendable >= total;
+            if (enough)
+                Candy.Pill(_shelf, pending == null ? Candy.Green : Candy.White, T("rewards.ask", total), new Vector2(0.5f, 0.5f), new Vector2(420f, 120f), new Vector2(0f, -60f),
+                    () => _ = Ask(cur, _qty), "ui_sunstone", 50);
+            else
+                Candy.Pill(_shelf, book.GoalId == cur.Id ? new Color(1f, 0.93f, 0.6f) : Candy.White, T(book.GoalId == cur.Id ? "rewards.goal_set" : "rewards.make_goal"),
+                    new Vector2(0.5f, 0.5f), new Vector2(420f, 120f), new Vector2(0f, -60f), () => ToggleGoal(cur), "ui_star", 44);
+            var line = pending != null ? T("rewards.one_at_a_time", Logic.Rewards.RewardText.Label(pending))
+                : enough ? T("rewards.how") : T("rewards.left", book.StonesLeft(cur, _qty));
+            Candy.Caption(_shelf, line, 30, new Vector2(0.5f, 0.5f), new Vector2(1100f, 60f), new Vector2(0f, -150f));
+            var goal = book.Goal;
+            if (goal != null && goal.Id != cur.Id)
+                Candy.Caption(_shelf, T("rewards.goal_line", goal.Title, book.StonesLeft(goal)), 28, new Vector2(0.5f, 0.5f), new Vector2(1100f, 50f), new Vector2(0f, -200f));
         }
 
-        private async System.Threading.Tasks.Task Ask(Logic.Rewards.RealReward rw)
+        private void ToggleGoal(Logic.Rewards.RealReward rw)
+        {
+            var book = App.State.Rewards;
+            book.GoalId = book.GoalId == rw.Id ? null : rw.Id;
+            App.Save();
+            _bubble.Say(book.GoalId == null ? T("rewards.goal_off") : T("rewards.goal_on", book.StonesLeft(rw)));
+            Fill();
+        }
+
+        private async System.Threading.Tasks.Task Ask(Logic.Rewards.RealReward rw, int quantity)
         {
             if (_busy || App.Rewards == null) return;
-            if (!App.State.Rewards.CanRequestMore) { _bubble.Say(T("rewards.too_many")); return; }
-            if (App.State.Wallet.Available < rw.Price) { _bubble.Say(T("rewards.not_enough", rw.Price - App.State.Wallet.Available)); return; }
+            var book = App.State.Rewards;
+            if (!book.CanRequestMore) { _bubble.Say(T("rewards.one_at_a_time", Logic.Rewards.RewardText.Label(book.Pending))); return; }
+            if (book.Spendable < rw.Cost * quantity) { _bubble.Say(T("rewards.left", book.StonesLeft(rw, quantity))); return; }
             _busy = true;
             try
             {
-                if (!_askTx.TryGetValue(rw.Id, out var tx)) _askTx[rw.Id] = tx = Guid.NewGuid().ToString("N");
-                var r = await App.Rewards.RequestAsync(rw.Id, tx);
-                if (r.Error != Logic.Rewards.RewardReply.Network) _askTx.Remove(rw.Id);   // kesin yanıt: sonraki istek yeni kimlikle
+                // sunucu aynı ödül için bekleyen isteği geri döndürür: yanıt kaybolup tekrar dokunulsa da ikinci istek açılmaz
+                var r = await App.Rewards.RequestAsync(rw.Id, quantity);
                 if (this == null) return;
                 if (r.Ok)
                 {
                     Audio.Sfx.Play(Audio.SfxKind.Coin);
                     App.Stage.Hop();
                     _bubble.Say(T("rewards.asked", rw.Title));
+                    if (book.GoalId == rw.Id) book.GoalId = null;
                     App.RecordActivity("reward_requested");
                 }
-                else _bubble.Say(T(r.Error == "not_enough_coins" ? "rewards.not_enough_short"
-                    : r.Error == "too_many_pending" ? "rewards.too_many"
-                    : r.Error == "already_requested" ? "rewards.waiting"
-                    : r.Error == "too_many_today" ? "rewards.tomorrow"
+                else _bubble.Say(T(r.Error == "not_enough_stones" ? "rewards.not_enough_short"
+                    : r.Error == "too_many_requests" ? "rewards.too_many"
+                    : r.Error == "premium_required" ? "rewards.later"
                     : r.Error == Logic.Rewards.RewardReply.Network ? "rewards.offline" : "rewards.failed"));
                 await App.SyncNow();   // _busy senkron bitene kadar açık: hızlı ikinci dokunuş ikinci istek açmaz
             }
