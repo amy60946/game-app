@@ -89,5 +89,6 @@
 
 
 - **XP sistemi takibi (22 Ekim 2026):** https://claude.ai/artifact/GBchgErLHs7MniTLGEsanE — pet XP senaryoları madde madde (iletişim, beyin fırtınası, son durum, tasarım, çocuğa metin, etkilenen uygulama). Veri sayfanın veritabanında (`items`, `log`); XP/görev/seviye işinden önce oku, kararları oraya işle (ArtifactData).
+  XP geliştirmesi bu pencerede (22 Ekim 2026, kullanıcı): "Pet XP senaryoları" penceresinin `claude/project-thread-ch4ttv` işi bu dala alındı, o pencere durdu; kalan maddeler burada sürer.
   XP takibi kodu (22 Ekim 2026): öğretici baloncuk canlılığı `UI/Hover.cs` (S5), 3B kazanım efekti `World/GainFx.cs` + `Shaders/PofiGlow.shader` (S4), parıltı kristali `SparkleFloat` (üstünden geçince açılır), pet kartına dokun → Defter rozetler (M4). XP miktarları kullanıcı kararını bekliyor (%40 sınırı onaylı değil).
 - Unity'siz Runtime derleme ön kontrolü: `bash tools/compile-check/run.sh` (dotnet 8 gerekir; bu ortamda `apt-get install dotnet8`).
