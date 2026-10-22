@@ -1,0 +1,16 @@
+{
+ "id": "01a1656a-2692-7379-916d-1af8e48ef750",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Cinematic shot of a stormy night at sea: deep purple and navy storm clouds swirl over a tall red-and-white striped lighthouse on a rocky cliff, big rounded waves crash below, rain streaks, soft lightning glow far away, the lighthouse lamp flickers out leaving a last fading glow. Dramatic but gentle and not scary for young children, soft rounded shapes, no characters. Vivid 3D game key art for a cozy kids island adventure game, landscape 16:9, painted miniature diorama look, soft toon lighting with clean crisp shadows, saturated but balanced colors (never washed out, never glaring, no heavy bloom), rounded friendly shapes, characters are soft matte vinyl toys, no outlines, no text, no letters, no logo, no user interface.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702817952,
+ "started_at": 1792702817966,
+ "finished_at": 1792702847832,
+ "expires_at": 1792962047832,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1656a-2692-7379-916d-1af8e48ef750_0.png?Expires=1792962047&Signature=a2kXwRm76RvoSKW~ETPSgo9nS08SvbAU~LGwtWs3m-bZtsj2Ax8yHusOjj1NzJtNj1JVhuvcXJbtADekhXzuChzALtWUBDkxkWUZ1FRTvGJnpcAjGUIczV-Thw0YcNcA0SxF90JRftA8wVJlxYmoZnTRN8s4p-PjttvLa4CJF4BiZKshTOecYmRHZWUu7vb7756YC7bD2UyGFOEB7c91bOKJOcMx8NWInxlZoLZoQ-0wb5WQ8SYKJpCqUdJ0XicV5QGXpnOwDA1cvMXa10MwONyc2VytKASIvTqQf9jth5WPOeT05OSofL2gy~gmfS0JlyiMJ9zGkLDznh~F65YU1Q__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

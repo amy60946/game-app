@@ -1,0 +1,16 @@
+{
+ "id": "01a16569-3473-7235-a6ba-6571f6b54bdb",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A tall red-and-white striped lighthouse on a rocky green cliff above the sea in warm late-afternoon light, its lamp glowing gently, a wooden rope bridge leads to it, a white postal seagull with a small blue cap flies past carrying an envelope, the little octopus walks on the path toward the lighthouse, seen from slightly below, grand but friendly. The main character is exactly the little octopus from the reference image: light blue jelly-like octopus head, coral-pink round snout, small black eyes, wearing the same outfit. Vivid 3D game key art for a cozy kids island adventure game, landscape 16:9, painted miniature diorama look, soft toon lighting with clean crisp shadows, saturated but balanced colors (never washed out, never glaring, no heavy bloom), turquoise shallow sea with white shore foam, lush green grass with tiny flowers, soft cumulus clouds, rounded friendly shapes, characters are soft matte vinyl toys, no outlines, no text, no letters, no logo, no user interface. Keep the bottom fifth of the image calm and simple so a loading bar and a short tip can sit there.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702756213,
+ "started_at": 1792702756226,
+ "finished_at": 1792702786216,
+ "expires_at": 1792961986216,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16569-3473-7235-a6ba-6571f6b54bdb_0.png?Expires=1792961986&Signature=emPLAwePjPjKcwXuOleoeDXQnfJ6p5nR2PKwM4vpnNsUXYKHquOWMr0bCBvfroJ~vXE9KIJoVRZvedimDLetflrWDI4pUXj3-0BAz6S7HfPDPc3XviZtdlJVuOOUbZHJ1Vs2SxhMDgpZZuXZeJCR7Q2yEZ-1rFF2ne40-AzeSsKrweiDwOOFK4modkBJoYL~hMunyPy~yGQGLOvxMdq2UDxzKVFZPxiSU-4tZxhUpcazrV7jKiylVqmuL02JQ~zdJmDSHVlGFYfFn1lodGkO-uV1~gVVp-Km5zorAuLmz-ht5gIbhareg7Fx24fz1lm8nVE08BPVmcGa7llx7pnoFg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

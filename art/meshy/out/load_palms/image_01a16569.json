@@ -1,0 +1,16 @@
+{
+ "id": "01a16569-32bb-72b2-a85a-1a697638a0b7",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A coconut palm grove by the beach: two friendly palm tree siblings with cute faces on their trunks (big round eyes, smiling mouths, leafy crowns like hair) sway in the breeze, one tall and lively, one shorter and shy; a coconut is falling, the little octopus holds up a coconut and laughs, a striped hammock hangs between two palms, sunlight dapples through the leaves. The main character is exactly the little octopus from the reference image: light blue jelly-like octopus head, coral-pink round snout, small black eyes, wearing the same outfit. Vivid 3D game key art for a cozy kids island adventure game, landscape 16:9, painted miniature diorama look, soft toon lighting with clean crisp shadows, saturated but balanced colors (never washed out, never glaring, no heavy bloom), turquoise shallow sea with white shore foam, lush green grass with tiny flowers, soft cumulus clouds, rounded friendly shapes, characters are soft matte vinyl toys, no outlines, no text, no letters, no logo, no user interface. Keep the bottom fifth of the image calm and simple so a loading bar and a short tip can sit there.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702755744,
+ "started_at": 1792702755757,
+ "finished_at": 1792702779028,
+ "expires_at": 1792961979028,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16569-32bb-72b2-a85a-1a697638a0b7_0.png?Expires=1792961979&Signature=fbRzzwyu1mO5adB7iTINAF-qIZQDLMKNM7uQc7uWpC5QFfyzSpO-SCXf8b3s4TzrHkP0Y8cr2NrXeeKk~4zjb3q779UnoBGWTJGRCdTdWwoicmtPwnsl~NwiQEl0WWUvvTY8356WJkwxVnJoInPuCOUv0qa3y7Z~D0Wh7HeqVHO9-uI07efpDhVhvOlZYdTkySNLSmmpymmlvW-oNZmZPbmgsU8rme0uiS9ocfPZDuNqEbZ5Z4XgDnJNp7MQJR-KXucFv3dBsJvRJ-p1vkuUkdT4s06xt685evrIDNAp~v-KbX~eh5jPQBVJesYlkPV0QqkAgy7Hm9pHVUMsalKq7w__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

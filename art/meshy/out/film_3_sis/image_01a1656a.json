@@ -1,0 +1,16 @@
+{
+ "id": "01a1656a-26ed-73f6-8fd8-b30617d4a73d",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Cinematic shot of thick soft white-grey fog rolling over a cozy island village in the early morning: cottages half hidden in mist, the red-and-white lighthouse dark and quiet on the cliff, small silhouettes of animal residents (a hermit crab, a seagull, a turtle) walking away into the fog in different directions, mysterious and calm, slightly muted colors but still warm, not gloomy. Vivid 3D game key art for a cozy kids island adventure game, landscape 16:9, painted miniature diorama look, soft toon lighting with clean crisp shadows, saturated but balanced colors (never washed out, never glaring, no heavy bloom), rounded friendly shapes, characters are soft matte vinyl toys, no outlines, no text, no letters, no logo, no user interface.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702818056,
+ "started_at": 1792702818069,
+ "finished_at": 1792702846764,
+ "expires_at": 1792962046764,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1656a-26ed-73f6-8fd8-b30617d4a73d_0.png?Expires=1792962046&Signature=Bck1RphFa9BaDqmiVke7bos-fFFZngY-2aXju31B~UZrQm8PlGiI5FBrZP46NR906piOrYhULyneLVFeVGYrF22z44AsZVWZRJ4CsJVZ~koalzSVly3CA3KoGRb-z61TS-UaQE~77QR67jh0XXwZT~IdQkww-CsVN~u720hgAKIWExwq6upKJjA8ZqRb2yautotgdy92wmbnYz8OknZ5wRKequ8GK27bJlbedea7pccVVRRz1WH3ubMFhuEE3vAOGTpyMm-EjSK-~S87MWzuZ0U0hxAzgPCBW5WtCsNjIdzv2FdHvtfE2JWPd4TJV6NQrDUWC9AQ5S88p9spuhNziw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

@@ -1,0 +1,16 @@
+{
+ "id": "01a16569-34bd-7123-916d-18639640ad54",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Island life on a sunny morning: the little octopus waves happily on a sandy beach beside a half-built sandcastle and a small bucket, two tiny crabs and a starfish nearby, a wooden pier on the left, cozy cottages with red roofs and a red-and-white striped lighthouse far away on a green hill, palm trees casting soft shadows. The main character is exactly the little octopus from the reference image: light blue jelly-like octopus head, coral-pink round snout, small black eyes, wearing the same outfit. Vivid 3D game key art for a cozy kids island adventure game, landscape 16:9, painted miniature diorama look, soft toon lighting with clean crisp shadows, saturated but balanced colors (never washed out, never glaring, no heavy bloom), turquoise shallow sea with white shore foam, lush green grass with tiny flowers, soft cumulus clouds, rounded friendly shapes, characters are soft matte vinyl toys, no outlines, no text, no letters, no logo, no user interface. Keep the bottom fifth of the image calm and simple so a loading bar and a short tip can sit there.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702756314,
+ "started_at": 1792702756321,
+ "finished_at": 1792702788262,
+ "expires_at": 1792961988262,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16569-34bd-7123-916d-18639640ad54_0.png?Expires=1792961988&Signature=Ry9LD3SxHPqb2eaJIxitRcm7d-sfV1KemHn20w90KDZjLXBv5KtEADLapoi~jCenb2HBXS0EYBjlH2Oq9V6I7MI-SdjFfMR1X2ypJlcGJ-a64P7XKoC6xLVRp8gAY9gwiuF1e0ztUjvQ~p3LbKTC3Ttl1JW5Dml14QZscMJhqUsbffq1n0HrKm2vq6i9y-SfgoOEF4yyssv4aOaPUg5wls8Bj8Y~MTG3nzq6jmPnl2EjY~PaJGIS7w5VsSy1-8NAxarD3vvvV7EQtIQeEOYG8m~FebckMUNkKkbkis7IR4TIiH69FUv-QDPygQ58-qDInVrBs2iUK5V2dw-vldlHYw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

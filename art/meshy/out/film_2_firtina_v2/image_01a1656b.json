@@ -1,0 +1,16 @@
+{
+ "id": "01a1656b-a794-7027-b5c0-4cc3ffcab8a8",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Stormy night: the camera is close to the rocky cliff of the island from the reference, the tall red-and-white striped lighthouse stands against deep purple and navy swirling storm clouds, big rounded waves crash on the rocks below, soft rain streaks, a far away lightning glow, the lighthouse lamp is going out with a last fading warm glow. Dramatic but gentle, not scary for young children, no characters. Full-frame cinematic 3D animated film still for a cozy kids game, landscape 16:9, the scene fills the whole frame (no glass dome, no display stand, no base, no floating diorama block, no border), soft toon lighting, rounded friendly shapes, saturated but balanced colors, no outlines, no text, no logo, no user interface. Same island, same village and same red-and-white striped lighthouse as in the reference image.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702916826,
+ "started_at": 1792702916840,
+ "finished_at": 1792702946945,
+ "expires_at": 1792962146945,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1656b-a794-7027-b5c0-4cc3ffcab8a8_0.png?Expires=1792962146&Signature=MVwDczPdG0~A2mnJx5fYdceSciRGcPmsedpR6ZFSzUzwZQ5P-yG~oTgphUepQL6MNQzduDnf5wqezKx19JvEDG2u1S7HTlmacS1tO8m6o63Fcyt-gwPWnKq9l8rSBJyLU3xKKjWcmdQ1GzpI0OeqLIE6zYvla2Czd5hvlK-iaOhtEm8A7ik7TheZgCTG0d80FDja2-ruirOw9AIh1ZTBKIb8aLnYRGtxC18DfJbMWFFP8VILHsyaPDkQQjCeKSawbMoYoOB7elDPrv~uqPHMsdurL70uqM4T07KgPFJVo1BudL-psVDInVB8sU9aXuuq6-~C-7zzExn4ibYz2CC0tg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

@@ -1,0 +1,16 @@
+{
+ "id": "01a16568-b194-75a2-93cf-437d0b943e24",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Character design sheet, 3x3 grid of nine separate full-body characters on a plain soft cream background, each centered in its own cell, front three-quarter view, same soft matte vinyl toy style as the reference characters (smooth rounded shapes, pastel but vivid colors, soft studio light, gentle shadow under feet, no outlines, no text, no labels). Row 1: three variations of a cheerful hermit crab shopkeeper who lives in a big spiral sea shell decorated like a tiny shop with a striped awning, small bag of coins on the shell is NOT allowed, instead a little apron and a market basket. Row 2: three variations of a friendly postal seagull, white and light grey feathers, yellow beak, small blue postman cap and a leather mail satchel with an envelope. Row 3: three variations of a small fluffy cloud character with tiny arms and big shy eyes: first grey and worried with a tiny raindrop, second light grey peeking, third white and happy with a small rainbow. Cute, kid-friendly for ages 6-12, original designs.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702722778,
+ "started_at": 1792702722796,
+ "finished_at": 1792702753554,
+ "expires_at": 1792961953554,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16568-b194-75a2-93cf-437d0b943e24_0.png?Expires=1792961953&Signature=dxr3yfJj7wkXNGv4faF7uq8Oh2RBcl-1BkTjuOr0PjUhCR~kaUcvc5H3p-vT6dWUmecyOYM~BHIZIeH72r2Qx1QJjPKxfQ2p~eFcrpuLzrAtREdi-tYHJ6j16lqln1LXgrMwcK7A8TAFKrgRnOk7ssEYxVcH6G0KuhByRZirrYBOhtnt1xnOhE6QoLI4IBpxxx2U4M3VJrqtdfX9J1xZX5NTc-SIYlRjJslpTR4SM4tTI6qiYEnLZIAJ4ZVguyl~X3Cl2c2KV89mQX2ZnzKEuRHAW1CPvtdjz0uDKEaIhD0hNsJQvl-5OqUpdFCl4q2tm96ImNlDh7AjB4J1k9wbHg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

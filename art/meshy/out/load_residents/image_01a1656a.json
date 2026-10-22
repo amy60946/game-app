@@ -1,0 +1,16 @@
+{
+ "id": "01a1656a-271a-7243-8478-abe82f99a475",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Island residents gathered on a sunny wooden pier by turquoise water: the little light-blue octopus from the first reference in the middle waving, the hermit crab shopkeeper with the striped shell and apron from the second reference holding a market basket, the postal seagull with blue cap and mail satchel from the third reference landing with an envelope, the small happy white cloud with a tiny rainbow from the fourth reference floating above, and an old wise sea turtle grandpa (based on the fifth reference turtle but older, with round glasses, white eyebrows and a small fishing rod) sitting on the pier edge. Village cottages and a red-and-white striped lighthouse in the background. Warm, welcoming group portrait. Vivid 3D game key art for a cozy kids island adventure game, landscape 16:9, painted miniature diorama look, soft toon lighting with clean crisp shadows, saturated but balanced colors (never washed out, never glaring, no heavy bloom), rounded friendly shapes, characters are soft matte vinyl toys, no outlines, no text, no letters, no logo, no user interface. Keep the bottom fifth of the image calm and simple so a loading bar and a short tip can sit there.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702818450,
+ "started_at": 1792702818464,
+ "finished_at": 1792702848064,
+ "expires_at": 1792962048064,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1656a-271a-7243-8478-abe82f99a475_0.png?Expires=1792962048&Signature=MxJHAzayAWNq-clCeFK3n5EvW81WnYoYwKSD7aKG2w~LWO6idj8m5nfe1YyPCzI~H6zJr~t~fnuwzMap7eKw3dryjl4A5tloTDb8D12X9qc0b6g88QJJtve~aB-XNg4cW2Kwo4h~GOk-f9NTPaviL~ZJi1xgoP~v8pkJbxZxHiKfPM63AsKTtiryBAO9fXMIa34KJiH1SkRzDEbXY7mKveFTMUtDEmBu15i0uJSja5ibzuJpB42Jo0sSdWkSyRYiZl~EsZXt81~tM5VhwrXC9Vy8zs0HdHNfq5l7EEZY~sIyQucWcciYE~y8RAJSeVSXQNBU9uXdDK-T90qa9l4~6w__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

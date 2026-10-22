@@ -1,0 +1,16 @@
+{
+ "id": "01a1656a-265b-763f-8b71-7d1de84be44e",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Cinematic wide aerial establishing shot of a lush tropical island in the middle of a deep blue sea on a peaceful golden morning: a small village of cozy cottages with red roofs, a market stall, a wooden pier with boats, a coconut palm grove, a green hill with a snowy peak, and a tall red-and-white striped lighthouse shining on a cliff. Tiny animal residents walk the paths and help each other. Storybook wonder. Vivid 3D game key art for a cozy kids island adventure game, landscape 16:9, painted miniature diorama look, soft toon lighting with clean crisp shadows, saturated but balanced colors (never washed out, never glaring, no heavy bloom), rounded friendly shapes, characters are soft matte vinyl toys, no outlines, no text, no letters, no logo, no user interface.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702817901,
+ "started_at": 1792702817918,
+ "finished_at": 1792702843888,
+ "expires_at": 1792962043888,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1656a-265b-763f-8b71-7d1de84be44e_0.png?Expires=1792962043&Signature=SzNal-ZBOigwQBa0chVLcPVL1CZqU08a8TLmnfbqhZ8~K5WrR25oT-a2GZuwXOmODE1iqY7P1I2G~yU4sl8o5Jp8fTa4KB~vgH6lRBySKhxpwrqXirZ7q8P7p2Yt4MToXwA-O8LQk9KmT1N74J1uLk6qMPpR5rpHRmns8vY3ZMo63t1AN2MN9vj3RxmXz2ogjl80sARMGhNIkIKaUG0eoMp7F43Kr52joK7fFa~Aqh29sHo6kpR~yOvqkl-Zb955z5eEt743dqN-4GUnieztx9VPIVe8zmGipYLxsUuR0J7DFPgpPMan4cdVmM5sQvzRdmFRvVnb7EJqy1IPHZU87A__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

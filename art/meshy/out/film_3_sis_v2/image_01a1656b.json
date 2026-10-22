@@ -1,0 +1,16 @@
+{
+ "id": "01a1656b-a8a4-7579-aaa3-6394a3f10097",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Early morning after the storm: the island from the reference seen from a similar high angle but closer, thick soft white-grey fog rolls over the village, cottages half hidden in mist, the lighthouse dark and quiet, tiny silhouettes of animal residents (a hermit crab, a seagull, a turtle) leaving along the paths into the fog, calm and mysterious, slightly muted but warm colors, not gloomy, sea around the island. Full-frame cinematic 3D animated film still for a cozy kids game, landscape 16:9, the scene fills the whole frame (no glass dome, no display stand, no base, no floating diorama block, no border), soft toon lighting, rounded friendly shapes, saturated but balanced colors, no outlines, no text, no logo, no user interface. Same island, same village and same red-and-white striped lighthouse as in the reference image.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702917077,
+ "started_at": 1792702917090,
+ "finished_at": 1792702947105,
+ "expires_at": 1792962147105,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1656b-a8a4-7579-aaa3-6394a3f10097_0.png?Expires=1792962147&Signature=HuWDU3xuxOpgjMaoP~mAuZRTpKWwc9B1ltxvUU~-1Y687~cyQIjiR3WoVeLp~T66wCEJLwP3a5IDD-rKu5SmyX~rsOXDrdokAqBgy~GRPKx4l4WVD6Ce3edD2j2KQONIINJtQ4gXHfipg25e8MOTX~x5bLkaGOfYXgTeQtv8B5BhxiUxskP4tbWaRPl4uE827YH8tl1z9uEiBoaAGLxcfwh3s0XUQ7qDc6zpuJyJIcV68sp--EnQuw4vbxuOMXRcGuNuqsO5lY095HKctdBq9h6JZYSZ7Xp8ZViOzKJVS15FbmX0-fa2RQ4O4g1oDVf6WnuI6swHszCEsp8V6oOKOA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

@@ -1,0 +1,16 @@
+{
+ "id": "01a16569-36a8-7597-88c2-616677032682",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Hero shot: the little octopus jumps joyfully out of shallow turquoise water with a sparkling splash, a small heart-shaped puff of light blue ink floats in the air, a few smooth round amber stones with a warm inner glow float around it, the beach and palm trees softly blurred behind (shallow depth of field). The main character is exactly the little octopus from the reference image: light blue jelly-like octopus head, coral-pink round snout, small black eyes, wearing the same outfit. Vivid 3D game key art for a cozy kids island adventure game, landscape 16:9, painted miniature diorama look, soft toon lighting with clean crisp shadows, saturated but balanced colors (never washed out, never glaring, no heavy bloom), turquoise shallow sea with white shore foam, lush green grass with tiny flowers, soft cumulus clouds, rounded friendly shapes, characters are soft matte vinyl toys, no outlines, no text, no letters, no logo, no user interface. Keep the bottom fifth of the image calm and simple so a loading bar and a short tip can sit there.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702756772,
+ "started_at": 1792702756781,
+ "finished_at": 1792702786199,
+ "expires_at": 1792961986199,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16569-36a8-7597-88c2-616677032682_0.png?Expires=1792961986&Signature=I7fFI1dBArcjF5sVqPT2D6-yFNMIYoMQ5y5NmhzzsTO9lXeYd7BQLsazkYV4CuUt~Cn~oNj6JotHFnPgitkWKduUuK76s6UnMUMVxds8AI8bYbeUCENGJtaQ5harH97q5AStREc3DK19VPi87YlnOCbJ6OdFGEg0GJkXWqny-rApFu0~TFhPji1A7tW3NxUL8MaZI1DFnEUgPAynTcsnEeSg0x8cMAeXskrWMlB9cFmu2ZIO-QvcEVLEhUm6EY1chw8WGHc151NhFJn~8PVMJtHlaLYvq33Lkt9ldu~XDYTsE3u9tZ2UtgZq8Jz2yGaVO3GC9iVDrT1gUkmwmx9TEA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

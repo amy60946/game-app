@@ -1,0 +1,945 @@
+<meta charset="utf-8">
+<title>Pofi Hikâye ve Arayüz Taslakları</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap">
+<style>
+/* Düzen: tek sütun; her başlık = kod + kısa açıklama + oyun ekranı oranında (1600×740) canlı sahne + seçim düğmeleri + ölçüler */
+:root {
+  --bg: #E7EFF7; --card: #FFFFFF; --fg: #13243A; --muted: #4A5F77; --accent: #1F6FD6; --line: #D2DFEB; --good: #23914A; --warn: #C9731E;
+  --display: 'Baloo 2', system-ui, sans-serif; --body: 'Nunito', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0D1823; --card: #15222E; --fg: #E6EFF8; --muted: #9DB2C7; --accent: #6DB0FF; --line: #26394B; --good: #5BD186; --warn: #F0A256; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #0D1823; --card: #15222E; --fg: #E6EFF8; --muted: #9DB2C7; --accent: #6DB0FF; --line: #26394B; --good: #5BD186; --warn: #F0A256; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 64px; }
+main { max-width: 1120px; margin: 0 auto; display: grid; gap: 26px; }
+h1, h2 { font-family: var(--display); font-weight: 800; margin: 0; text-wrap: balance; line-height: 1.08; }
+h1 { font-size: clamp(30px, 5vw, 46px); }
+h2 { font-size: clamp(23px, 3.2vw, 30px); }
+p { margin: 0; }
+[hidden] { display: none !important; }
+.lead { color: var(--muted); max-width: 70ch; margin-top: 8px; }
+nav.jump { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.jump a { font: 800 14.5px var(--body); color: var(--fg); text-decoration: none; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; }
+nav.jump a b { color: var(--accent); margin-right: 4px; }
+nav.jump a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+section { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 16px; display: grid; gap: 12px; min-width: 0; scroll-margin-top: 12px; }
+.head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.code { font-family: var(--display); font-weight: 800; font-size: 20px; color: #fff; background: var(--accent); border-radius: 10px; min-width: 40px; height: 40px; padding: 0 10px; display: grid; place-items: center; flex: none; }
+.insp { color: var(--muted); max-width: 76ch; }
+.ctrl { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ctrl .lbl { font: 900 13px var(--body); color: var(--muted); letter-spacing: .05em; text-transform: uppercase; margin-right: 2px; }
+.ctrl button { font: 800 15px var(--body); border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); padding: 6px 14px; cursor: pointer; }
+.ctrl button b { color: var(--accent); margin-right: 4px; }
+.ctrl button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.ctrl button[aria-pressed="true"] b { color: #fff; }
+.ctrl button:focus-visible, .frame:focus-visible, .thumbs button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 6px 22px; margin: 0; padding: 0; list-style: none; }
+.facts li { padding-left: 22px; position: relative; min-width: 0; }
+.facts li::before { content: "+"; position: absolute; left: 4px; font-weight: 900; color: var(--good); }
+.facts li.w::before { content: "!"; color: var(--warn); }
+.facts li.t::before { content: "⏱"; font-size: 13px; top: 2px; left: 0; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.opt { border: 1px solid var(--line); border-radius: 14px; padding: 10px 12px; background: var(--bg); min-width: 0; }
+.opt b { font-family: var(--display); font-size: 18px; }
+.opt b i { font-style: normal; color: var(--accent); margin-right: 6px; }
+.opt p { color: var(--muted); font-size: 14.5px; }
+.opt.rec { border: 2px solid var(--accent); }
+.rec-tag { font: 900 11.5px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.note { font-size: 14px; color: var(--muted); }
+.ask { border: 2px solid var(--accent); }
+.ask ol { margin: 0; padding-left: 22px; display: grid; gap: 4px; }
+table.map { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+table.map th, table.map td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.map th { font: 900 12.5px var(--body); letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.tw { overflow-x: auto; }
+
+/* ---- sahne: 1600×740 telefon yatay ekran, JS ile çerçeveye ölçeklenir ---- */
+.frame { position: relative; width: 100%; max-width: 100%; aspect-ratio: 1600 / 740; border-radius: 14px; overflow: hidden; background: #6FB7E8; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+.stage { position: absolute; left: 0; top: 0; width: 1600px; height: 740px; transform-origin: 0 0; overflow: hidden; font-family: 'Baloo 2', sans-serif; font-weight: 800; color: #fff;
+  --gold: linear-gradient(160deg, #FFF6C2, #F5BC3A 38%, #B8751A 64%, #FFE48C 88%); }
+.stage img { max-width: none; }
+.stage .bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: filter .3s ease, transform .3s ease; }
+.abs { position: absolute; }
+.tx { text-shadow: 0 3px 0 #18389A, 0 0 10px rgba(10,30,90,.45); }
+.ink { text-shadow: 0 3px 0 #3A2408, 2px 2px 0 #3A2408, -2px 2px 0 #3A2408, 2px -1px 0 #3A2408, -2px -1px 0 #3A2408; }
+/* 3B simge düğme (yol 1: kalın simge) */
+.b3 { position: absolute; display: grid; place-items: center; border: 0; background: none; padding: 0; cursor: pointer; }
+.b3 > img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 1px 0 rgba(255,255,255,.7)) drop-shadow(0 6px 0 var(--ex, #7A4A12)) drop-shadow(0 12px 10px rgba(16,26,56,.38)); animation: fl 3.4s ease-in-out infinite; animation-delay: var(--dl, 0s); transition: transform .12s ease; }
+.b3:active > img { transform: translateY(5px) scale(1.05, .93); }
+@keyframes fl { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+.lab { position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); height: 30px; padding: 0 16px; display: grid; place-items: center; font-size: 19px; white-space: nowrap; background: linear-gradient(#4A86FF, #1C49CC); clip-path: polygon(0 0, 100% 0, 93% 50%, 100% 100%, 0 100%, 7% 50%); text-shadow: 0 2px 0 #102E86; z-index: 3; }
+.lab.green { background: linear-gradient(#7EDD6A, #2A9E44); text-shadow: 0 2px 0 #17652A; font-size: 22px; height: 34px; }
+.gem { position: absolute; top: -4px; right: -6px; min-width: 34px; height: 34px; border-radius: 17px; padding: 0 6px; display: grid; place-items: center; font-size: 20px; background: linear-gradient(#FF7A7A, #D72E46); box-shadow: 0 3px 0 #8E1426; border: 3px solid #fff; box-sizing: border-box; z-index: 4; text-shadow: none; }
+.chip { height: 58px; border-radius: 29px; padding: 0 22px 0 8px; display: flex; align-items: center; gap: 8px; font-size: 28px; color: #fff; background: rgba(18,40,92,.42); box-shadow: inset 0 0 0 3px rgba(255,255,255,.35); }
+.chip img { width: 50px; height: 50px; filter: drop-shadow(0 3px 0 #9A5A06); }
+.wb { position: relative; border: 3px solid transparent; cursor: pointer; font: 800 26px 'Baloo 2', sans-serif; height: 70px; padding: 0 34px; border-radius: 22px; white-space: nowrap; color: #fff; text-shadow: 0 2px 0 #17652A;
+  background: linear-gradient(#8EEB78, #2AA548) padding-box, var(--gold) border-box; box-shadow: inset 0 -6px 0 #1E8A36, 0 6px 0 #8A5A10, 0 10px 14px rgba(40,30,10,.28); transition: transform .1s ease; }
+.wb::after { content: ""; position: absolute; left: 12px; right: 12px; top: 5px; height: 38%; border-radius: 14px 14px 22px 22px; background: linear-gradient(rgba(255,255,255,.55), rgba(255,255,255,0)); pointer-events: none; }
+.wb:active { transform: translateY(5px); }
+.wb.off { filter: grayscale(.85) brightness(1.05); }
+.xbtn { position: absolute; width: 84px; height: 84px; border: 0; background: none; cursor: pointer; padding: 0; }
+.xbtn i { position: absolute; inset: 0; filter: drop-shadow(0 1px 0 rgba(255,255,255,.6)) drop-shadow(0 5px 0 #8E1426) drop-shadow(0 9px 6px rgba(60,10,10,.3)); }
+.xbtn i::before, .xbtn i::after { content: ""; position: absolute; left: 12%; right: 12%; top: 39%; height: 22%; border-radius: 999px; background: linear-gradient(#FF8A94, #D8233A); }
+.xbtn i::before { transform: rotate(45deg); } .xbtn i::after { transform: rotate(-45deg); }
+.ribbon { position: absolute; left: 50%; transform: translateX(-50%); height: 66px; padding: 0 56px; display: flex; align-items: center; gap: 10px; white-space: nowrap; font-size: 36px; color: #fff; background: linear-gradient(#4A86FF, #1C49CC); clip-path: polygon(0 0, 100% 0, 95% 50%, 100% 100%, 0 100%, 5% 50%); text-shadow: 0 3px 0 #102E86; }
+.ribbon.red { background: linear-gradient(#FF7373, #D72E46); text-shadow: 0 3px 0 #8E1426; }
+.cream { border-radius: 30px; border: 6px solid transparent; background: linear-gradient(#FFF8E4, #F3DDA6) padding-box, var(--gold) border-box; box-shadow: 0 18px 40px rgba(20,20,60,.38), inset 0 0 0 3px rgba(255,255,255,.5); box-sizing: border-box; color: #5A3410; }
+
+/* ---- Y · yükleme ---- */
+.y-img { position: absolute; inset: -2%; width: 104%; height: 104%; object-fit: cover; animation: kb 9s ease-in-out infinite alternate; }
+@keyframes kb { from { transform: scale(1) translate(0, 0); } to { transform: scale(1.07) translate(-1.2%, -1%); } }
+.y-shade { position: absolute; left: 0; right: 0; bottom: 0; height: 210px; background: linear-gradient(rgba(8,24,60,0), rgba(8,24,60,.55)); }
+.y-word { left: 38px; top: 26px; font-size: 58px; line-height: 1; letter-spacing: .01em; }
+.y-word small { display: block; font-size: 24px; margin-top: 2px; opacity: .95; }
+.y-tip { left: 50%; bottom: 112px; transform: translateX(-50%); display: flex; align-items: center; gap: 14px; height: 70px; padding: 0 30px 0 10px; border-radius: 35px; font-size: 29px; color: #5A3410; background: linear-gradient(#FFF8E4, #F3DDA6); box-shadow: 0 6px 0 #B8751A, 0 12px 20px rgba(10,20,50,.35); white-space: nowrap; }
+.y-tip img { width: 60px; height: 60px; object-fit: contain; }
+.y-bar { left: 50%; bottom: 40px; width: 760px; height: 44px; transform: translateX(-50%); border-radius: 22px; border: 5px solid transparent; background: linear-gradient(#2A3B66, #1A2850) padding-box, var(--gold) border-box; box-sizing: border-box; overflow: hidden; box-shadow: 0 6px 14px rgba(0,0,0,.3); }
+.y-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 18px; background: linear-gradient(#9CF07E, #2DB34C); box-shadow: inset 0 -5px 0 rgba(0,0,0,.15), inset 0 4px 0 rgba(255,255,255,.45); }
+.y-bar b { position: absolute; inset: 0; display: grid; place-items: center; font-size: 22px; text-shadow: 0 2px 0 #102E86; }
+.y-cloud { position: absolute; top: -10%; width: 70%; height: 120%; border-radius: 50%; background: radial-gradient(closest-side, #fff 62%, rgba(255,255,255,.9) 76%, rgba(255,255,255,0)); transition: transform 1s cubic-bezier(.6,.05,.3,1); filter: blur(2px); }
+.y-cloud.l { left: -18%; transform: translateX(-120%); } .y-cloud.r { right: -18%; transform: translateX(120%); }
+.y-cloud.c { left: 18%; width: 64%; transform: translateY(-140%); }
+.cl-in .y-cloud.l, .cl-in .y-cloud.r { transform: translateX(0); } .cl-in .y-cloud.c { transform: translateY(0); }
+.thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.thumbs button { border: 2px solid var(--line); border-radius: 12px; overflow: hidden; padding: 0; background: var(--card); cursor: pointer; text-align: left; color: var(--fg); }
+.thumbs button img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.thumbs button span { display: block; padding: 4px 8px 6px; font: 800 14px var(--body); }
+.thumbs button span b { color: var(--accent); margin-right: 4px; }
+.thumbs button[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+
+/* ---- F · film ---- */
+.f-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .7s ease; will-change: transform; }
+.f-img.on { opacity: 1; }
+.bars::before, .bars::after { content: ""; position: absolute; left: 0; right: 0; height: 96px; background: #000; z-index: 5; transition: height .4s ease; }
+.bars::before { top: 0; } .bars::after { bottom: 0; }
+.nobars::before, .nobars::after { height: 0; }
+.f-sub { left: 120px; right: 120px; bottom: 112px; z-index: 6; text-align: center; font-size: 40px; line-height: 1.2; min-height: 96px; display: grid; align-items: end; color: #FFF8E4; text-shadow: 0 3px 0 rgba(0,0,0,.65), 0 0 18px rgba(0,0,0,.6); }
+.skip { z-index: 7; right: 28px; top: 24px; height: 50px; padding: 0 22px; border-radius: 25px; border: 2px solid rgba(255,255,255,.6); background: rgba(0,0,0,.35); color: #fff; font: 800 24px 'Baloo 2', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.nexti { z-index: 7; right: 40px; bottom: 26px; font-size: 40px; color: #FFF8E4; animation: nb 1s ease-in-out infinite; }
+@keyframes nb { 0%, 100% { transform: translateX(0); opacity: .6; } 50% { transform: translateX(8px); opacity: 1; } }
+.f-end { inset: 0; z-index: 8; display: grid; place-items: center; background: radial-gradient(rgba(10,20,50,0), rgba(10,20,50,.35)); opacity: 0; pointer-events: none; transition: opacity .5s ease; }
+.f-end.on { opacity: 1; pointer-events: auto; }
+.f-end .wb { height: 96px; font-size: 44px; padding: 0 70px; border-radius: 30px; animation: pop .45s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ---- S · konuşma ---- */
+.s-por { position: absolute; bottom: 0; height: 520px; transition: transform .35s cubic-bezier(.2,1.3,.4,1), filter .25s ease, opacity .25s ease; z-index: 3; }
+.s-por img { height: 100%; width: auto; filter: drop-shadow(0 10px 18px rgba(0,0,0,.35)); }
+.s-por.dim { filter: brightness(.5) saturate(.7); transform: scale(.93); }
+.s-por.away { transform: translateY(110%); }
+.s-box { left: 40px; right: 40px; bottom: 112px; height: 190px; z-index: 4; border-radius: 26px; padding: 44px 40px 20px; font-size: 38px; line-height: 1.22; color: #4A2C0A; background: linear-gradient(#FFF8E4, #F6E5BC); box-shadow: 0 8px 0 #C9A25A, 0 14px 30px rgba(0,0,0,.35); box-sizing: border-box; }
+.s-name { position: absolute; top: -26px; left: 40px; height: 52px; padding: 0 30px; display: grid; place-items: center; font-size: 28px; color: #fff; background: linear-gradient(#FF7373, #D72E46); border-radius: 14px; box-shadow: 0 4px 0 #8E1426; text-shadow: 0 2px 0 #8E1426; }
+.s-name.blue { background: linear-gradient(#4A86FF, #1C49CC); box-shadow: 0 4px 0 #102E86; text-shadow: 0 2px 0 #102E86; }
+.s-bub { z-index: 4; max-width: 620px; border-radius: 34px; padding: 40px 36px 30px; font-size: 38px; line-height: 1.2; color: #4A2C0A; background: linear-gradient(#FFF8E4, #F6E5BC); box-shadow: 0 8px 0 #C9A25A, 0 14px 30px rgba(0,0,0,.3); transition: transform .25s cubic-bezier(.2,1.5,.4,1), opacity .2s ease; transform-origin: 0 100%; }
+.s-bub.r { transform-origin: 100% 100%; }
+.s-bub.hide { transform: scale(.6); opacity: 0; }
+.s-bub .s-name { left: 30px; }
+.s-reply { z-index: 5; right: 70px; bottom: 60px; }
+.s2 .bg { filter: blur(5px) saturate(1.05); transform: scale(1.03); }
+.s1 .bg { filter: brightness(.75); }
+
+/* ---- N · yol ---- */
+.chev { position: absolute; width: 90px; height: 54px; margin: -27px 0 0 -45px; opacity: 0; transition: opacity .3s ease; }
+.chev svg { width: 100%; height: 100%; overflow: visible; }
+.chev path { fill: #FFF3B0; stroke: #F2A81C; stroke-width: 5; stroke-linejoin: round; filter: drop-shadow(0 0 10px rgba(255,214,90,.95)); animation: cg 1.4s ease-in-out infinite; animation-delay: var(--d); }
+@keyframes cg { 0%, 100% { opacity: .35; } 35% { opacity: 1; } }
+.on-n1 .chev { opacity: 1; }
+.n-mavi { width: 130px; z-index: 3; opacity: 0; transition: opacity .3s ease; }
+.n-mavi img { width: 100%; animation: flap .5s ease-in-out infinite alternate; filter: drop-shadow(0 18px 10px rgba(0,0,0,.25)); }
+@keyframes flap { from { transform: translateY(0) rotate(-3deg); } to { transform: translateY(-8px) rotate(3deg); } }
+.on-n2 .n-mavi { opacity: 1; }
+.spark { position: absolute; width: 16px; height: 16px; margin: -8px; border-radius: 50%; background: radial-gradient(#fff, #FFE27A 40%, rgba(255,210,80,0) 70%); animation: sp 1.2s ease-out forwards; pointer-events: none; }
+@keyframes sp { from { transform: scale(1.4); opacity: 1; } to { transform: scale(.2) translateY(14px); opacity: 0; } }
+.n-arrow { left: 650px; top: -10px; width: 110px; height: 130px; opacity: 0; transition: opacity .3s ease; }
+.n-arrow svg { width: 100%; height: 100%; animation: ab .6s ease-in-out infinite alternate; filter: drop-shadow(0 8px 0 #B86E0A) drop-shadow(0 14px 10px rgba(0,0,0,.3)); }
+@keyframes ab { from { transform: translateY(0); } to { transform: translateY(22px); } }
+.n-bub { left: 800px; top: 40px; width: 104px; height: 112px; opacity: 0; transform: scale(.4); transition: opacity .2s ease, transform .25s cubic-bezier(.2,1.6,.4,1); }
+.n-bub .bb { position: absolute; inset: 0 0 12px; border-radius: 50%; background: #fff; box-shadow: 0 6px 12px rgba(0,0,0,.25); display: grid; place-items: center; }
+.n-bub .bb::after { content: ""; position: absolute; left: 42px; bottom: -14px; border: 10px solid transparent; border-top: 14px solid #fff; }
+.n-bub img { width: 70px; height: 70px; }
+.on-n3 .n-arrow { opacity: 1; } .on-n3 .n-bub { opacity: 1; transform: scale(1); }
+
+/* ---- D · parmak ---- */
+.hand { position: absolute; width: 150px; height: 150px; z-index: 9; pointer-events: none; opacity: 0; transform-origin: 30% 10%; filter: drop-shadow(0 10px 8px rgba(0,0,0,.3)); }
+.hand img { width: 100%; height: 100%; }
+.ring { position: absolute; width: 120px; height: 120px; margin: -60px; border-radius: 50%; border: 8px solid #FFE27A; opacity: 0; z-index: 8; pointer-events: none; box-shadow: 0 0 16px rgba(255,220,100,.9); }
+.ring.go { animation: rg .7s ease-out; }
+@keyframes rg { from { transform: scale(.3); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+.bed { left: 470px; top: 330px; width: 760px; height: 330px; perspective: 900px; }
+.bed-in { position: absolute; inset: 0; transform: rotateX(52deg); transform-origin: 50% 100%; border-radius: 26px; background: linear-gradient(#B98A55, #8F6537); box-shadow: 0 0 0 14px #E0B878, 0 26px 0 14px #9C6E3A, 0 40px 40px rgba(0,0,0,.3); display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; padding: 26px; box-sizing: border-box; }
+.plot { border-radius: 18px; background: repeating-linear-gradient(90deg, #6E4724 0 22px, #7D532C 22px 44px); box-shadow: inset 0 6px 10px rgba(0,0,0,.35); transition: box-shadow .2s ease; }
+.plot.lit { box-shadow: inset 0 6px 10px rgba(0,0,0,.35), 0 0 0 8px #FFE27A, 0 0 26px rgba(255,226,122,.9); }
+.sprout { position: absolute; width: 96px; height: 96px; margin: -80px 0 0 -48px; transform: scale(0); transition: transform .35s cubic-bezier(.2,1.7,.4,1); z-index: 3; }
+.sprout.up { transform: scale(1); }
+.sprout img { width: 100%; height: 100%; filter: drop-shadow(0 8px 4px rgba(0,0,0,.3)); }
+.tray { left: 236px; top: 360px; display: flex; gap: 14px; padding: 14px; border-radius: 30px; background: rgba(255,248,228,.92); box-shadow: 0 6px 0 #C9A25A, 0 12px 24px rgba(0,0,0,.28); }
+.tray .ti { width: 104px; height: 104px; border-radius: 22px; background: #fff; display: grid; place-items: center; position: relative; box-shadow: inset 0 -4px 0 #E6CF98; }
+.tray .ti img { width: 86px; height: 86px; }
+.tray .ti .gem { top: -10px; right: -10px; }
+.carry { position: absolute; width: 96px; height: 96px; margin: -48px; z-index: 8; opacity: 0; pointer-events: none; }
+.carry img { width: 100%; height: 100%; }
+.spot { position: absolute; inset: 0; z-index: 7; pointer-events: none; opacity: 0; transition: opacity .4s ease; background: radial-gradient(circle 190px at var(--sx, 50%) var(--sy, 50%), rgba(0,0,0,0) 60%, rgba(6,14,32,.66) 100%); }
+.spot.on { opacity: 1; }
+.d-tip { left: 40px; bottom: 30px; z-index: 9; display: flex; align-items: center; gap: 14px; max-width: 640px; padding: 14px 28px 14px 14px; border-radius: 28px; font-size: 32px; line-height: 1.15; color: #4A2C0A; background: linear-gradient(#FFF8E4, #F6E5BC); box-shadow: 0 6px 0 #C9A25A, 0 12px 24px rgba(0,0,0,.3); }
+.d-tip img { width: 84px; height: 84px; object-fit: contain; }
+.d-tip em { font-style: normal; color: #23914A; }
+
+/* ---- G · gösterge ---- */
+.g-ava { left: 22px; top: 16px; width: 124px; height: 124px; }
+.g-ava .arc { position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(#FF9B3D 0 22%, transparent 0 25%, #4FC3F7 0 47%, transparent 0 50%, #7EDD6A 0 72%, transparent 0 75%, #F06292 0 97%, transparent 0); -webkit-mask: radial-gradient(circle, transparent 52px, #000 53px); mask: radial-gradient(circle, transparent 52px, #000 53px); filter: drop-shadow(0 2px 2px rgba(10,30,90,.4)); }
+.g-ava .face { position: absolute; inset: 12px; border-radius: 50%; border: 4px solid transparent; background: linear-gradient(#9EE0FF, #3E92F2) padding-box, var(--gold) border-box; overflow: hidden; display: grid; place-items: end center; box-shadow: 0 6px 14px rgba(12,28,80,.35); }
+.g-ava .face img { width: 100%; height: 100%; object-fit: cover; }
+.g-ava .lv { position: absolute; right: -10px; bottom: -6px; width: 54px; height: 54px; display: grid; place-items: center; font-size: 26px; background: url(img/ui_star.png) center / contain no-repeat; text-shadow: 0 2px 0 #9A5A06; }
+.g-top { right: 26px; top: 18px; display: flex; gap: 26px; align-items: flex-start; }
+.g-top .b3 { position: relative; }
+.g-act { right: 46px; bottom: 50px; width: 150px; height: 150px; }
+.g-need { left: 790px; top: 220px; width: 116px; height: 124px; z-index: 4; transform: scale(0); transform-origin: 30% 100%; transition: transform .35s cubic-bezier(.2,1.6,.4,1); cursor: pointer; }
+.g-need .bb { position: absolute; inset: 0 0 16px; border-radius: 50%; background: #fff; box-shadow: 0 6px 12px rgba(0,0,0,.25); display: grid; place-items: center; }
+.g-need .bb img { width: 76px; height: 76px; animation: fl 1.6s ease-in-out infinite; }
+.g-need i { position: absolute; width: 22px; height: 22px; border-radius: 50%; background: #fff; left: 6px; bottom: 4px; box-shadow: 0 3px 6px rgba(0,0,0,.2); }
+.g-need i + i { width: 12px; height: 12px; left: -10px; bottom: -14px; }
+.g-need.on { transform: scale(1); }
+.g-ring { z-index: 4; }
+.g-ring .b3 { width: 112px; height: 112px; transform: scale(0); transition: transform .32s cubic-bezier(.2,1.6,.4,1); }
+.g-ring.on .b3 { transform: scale(1); }
+.g-ring.on .b3:nth-child(2) { transition-delay: .05s; } .g-ring.on .b3:nth-child(3) { transition-delay: .1s; }
+.g-bag { left: 40px; bottom: 44px; width: 128px; height: 128px; }
+.g-tray { left: 40px; bottom: 190px; display: flex; gap: 12px; padding: 14px; border-radius: 28px; background: rgba(255,248,228,.95); box-shadow: 0 6px 0 #C9A25A, 0 12px 24px rgba(0,0,0,.28); transform: scale(0); transform-origin: 10% 100%; transition: transform .3s cubic-bezier(.2,1.5,.4,1); }
+.g-tray.on { transform: scale(1); }
+.g-tray .ti { width: 96px; height: 96px; border-radius: 20px; background: #fff; display: grid; place-items: center; position: relative; box-shadow: inset 0 -4px 0 #E6CF98; }
+.g-tray .ti img { width: 76px; height: 76px; }
+.g-tray .ti span { position: absolute; right: 6px; bottom: 0; font-size: 24px; color: #5A3410; }
+.g-fly { position: absolute; width: 80px; height: 80px; margin: -40px; z-index: 9; pointer-events: none; }
+.g-fly img { width: 100%; height: 100%; filter: drop-shadow(0 6px 4px rgba(0,0,0,.3)); }
+.g-hut { right: 26px; top: 150px; height: 64px; display: flex; align-items: center; gap: 8px; padding: 0 18px 0 6px; border-radius: 32px; font-size: 28px; color: #5A3410; background: linear-gradient(#FFF8E4, #F3DDA6); box-shadow: 0 5px 0 #B8751A; opacity: 0; transform: translateY(-14px); transition: opacity .3s ease, transform .3s ease; }
+.g-hut img { width: 56px; height: 56px; }
+.g-hut.on { opacity: 1; transform: none; }
+.g-hide { transition: opacity .45s ease, transform .45s ease; }
+.moving .g-hide { opacity: 0; transform: translateY(-12px) scale(.9); pointer-events: none; }
+.moving .g-act { opacity: .85; transform: scale(.82); }
+.g-act { transition: opacity .45s ease, transform .45s ease; }
+.g-count { left: 50%; top: 22px; transform: translateX(-50%); height: 46px; padding: 0 20px; border-radius: 23px; background: rgba(10,24,60,.55); font-size: 22px; display: flex; align-items: center; }
+.g-walk { position: absolute; inset: 0; pointer-events: none; }
+.moving .bg { animation: bob .5s ease-in-out infinite alternate; }
+@keyframes bob { from { transform: scale(1.02) translateY(0); } to { transform: scale(1.02) translateY(-4px); } }
+
+/* ---- E · pencere ---- */
+.e-side { right: 30px; top: 70px; width: 650px; padding: 56px 28px 26px; display: grid; gap: 14px; transform: translateX(120%); transition: transform .4s cubic-bezier(.2,1.2,.4,1); }
+.e-side.on { transform: none; }
+.e-row { display: flex; align-items: center; gap: 16px; padding: 10px 12px 10px 14px; border-radius: 22px; background: #FFFDF5; box-shadow: 0 3px 0 #E6CF98, 0 6px 12px rgba(120,70,10,.12); font-size: 30px; color: #4A2C0A; }
+.e-row .em { width: 66px; height: 66px; display: grid; place-items: center; font-size: 46px; flex: none; }
+.e-row .nm { flex: 1; min-width: 0; line-height: 1.1; }
+.e-row .cn { display: flex; align-items: center; gap: 2px; font-size: 26px; color: #8A5A22; }
+.e-row .cn img { width: 40px; height: 40px; }
+.e-row .wb { height: 64px; font-size: 26px; padding: 0 22px; }
+.e-row.done { opacity: .75; }
+.e-row.done .wb { background: linear-gradient(#FFF6DA, #EBD39A) padding-box, var(--gold) border-box; color: #8A5A22; text-shadow: none; box-shadow: inset 0 -4px 0 #CDAE6B; }
+.e-drawer { left: 0; right: 0; bottom: 0; height: 300px; border-radius: 36px 36px 0 0; border-width: 6px 0 0; padding: 26px 40px; display: flex; gap: 22px; align-items: center; transform: translateY(105%); transition: transform .4s cubic-bezier(.2,1.2,.4,1); }
+.e-drawer:not(.on) { transform: translateY(135%); }
+.e-drawer.on { transform: none; }
+.e-tabs { display: grid; gap: 12px; }
+.e-tab { width: 86px; height: 86px; border-radius: 50%; border: 4px solid transparent; background: linear-gradient(#FFF6DA, #EBD39A) padding-box, var(--gold) border-box; display: grid; place-items: center; box-shadow: 0 4px 0 #B08A45; }
+.e-tab img { width: 56px; height: 56px; }
+.e-tab.on { background: linear-gradient(#4A86FF, #1C49CC) padding-box, var(--gold) border-box; }
+.e-items { display: flex; gap: 22px; flex: 1; }
+.e-bub { width: 170px; height: 196px; border-radius: 30px; background: #FFFDF5; box-shadow: 0 5px 0 #E6CF98, 0 8px 14px rgba(120,70,10,.15); display: grid; justify-items: center; align-content: center; gap: 6px; position: relative; }
+.e-bub img.it { width: 110px; height: 110px; animation: fl 3s ease-in-out infinite; }
+.e-bub .pr { display: flex; align-items: center; gap: 4px; font-size: 30px; color: #5A3410; }
+.e-bub .pr img { width: 42px; height: 42px; }
+.e-req { left: 560px; top: 110px; width: 600px; padding: 56px 30px 26px; display: grid; gap: 20px; justify-items: center; transform: scale(.2); opacity: 0; transform-origin: 30% 100%; transition: transform .35s cubic-bezier(.2,1.4,.4,1), opacity .2s ease; }
+.e-req.on { transform: none; opacity: 1; }
+.e-cards { display: flex; gap: 18px; }
+.e-card { width: 160px; height: 176px; border-radius: 24px; background: #FFFDF5; box-shadow: 0 4px 0 #E6CF98; display: grid; justify-items: center; align-content: center; gap: 2px; position: relative; font-size: 32px; color: #5A3410; }
+.e-card img { width: 96px; height: 96px; }
+.e-card .ok { position: absolute; top: -14px; right: -14px; width: 54px; height: 54px; }
+.e-card.miss { box-shadow: 0 4px 0 #E6CF98, inset 0 0 0 4px #F0A256; }
+.e-card.miss b { color: #C9731E; }
+.e-info { left: 860px; top: 200px; padding: 16px 24px; border-radius: 22px; font-size: 28px; line-height: 1.15; color: #4A2C0A; background: #FFFDF5; box-shadow: 0 6px 0 #C9A25A, 0 12px 20px rgba(0,0,0,.25); display: flex; align-items: center; gap: 12px; opacity: 0; transform: translateY(10px); transition: opacity .2s ease, transform .2s ease; }
+.e-info.on { opacity: 1; transform: none; }
+.e-info img { width: 64px; height: 64px; }
+.e-dim .bg { filter: brightness(.82); }
+.e-side, .e-drawer, .e-req, .e-info { z-index: 3; }
+.e-blurL::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(10,20,40,0) 30%, rgba(10,20,40,.35)); z-index: 1; pointer-events: none; }
+
+/* ---- L · seviye ---- */
+.l-veil { position: absolute; inset: 0; z-index: 5; background: rgba(6,16,40,.5); opacity: 0; transition: opacity .15s ease; pointer-events: none; }
+.l-on .l-veil { opacity: 1; }
+.l-on .bg { filter: blur(6px) brightness(.85); transform: scale(1.03); transition-duration: .15s; }
+.l-star { left: 50%; top: 120px; width: 300px; height: 288px; margin-left: -150px; z-index: 7; transform: scale(0); }
+.l-star img { width: 100%; height: 100%; filter: drop-shadow(0 10px 0 #B8751A) drop-shadow(0 20px 20px rgba(0,0,0,.35)); }
+.l-star b { position: absolute; inset: 0; display: grid; place-items: center; padding-top: 22px; font-size: 104px; color: #fff; text-shadow: 0 5px 0 #9A5A06, 0 0 16px rgba(150,80,0,.6); }
+.l-rays { left: 50%; top: 264px; width: 900px; height: 900px; margin: -450px 0 0 -450px; z-index: 6; opacity: 0; background: repeating-conic-gradient(rgba(255,240,170,.42) 0 9deg, rgba(255,240,170,0) 9deg 22.5deg); -webkit-mask: radial-gradient(circle, #000 18%, transparent 62%); mask: radial-gradient(circle, #000 18%, transparent 62%); animation: rot 18s linear infinite; }
+@keyframes rot { to { transform: rotate(360deg); } }
+.l-rib { top: 410px; z-index: 8; opacity: 0; }
+.l-rew { left: 50%; top: 500px; transform: translateX(-50%); z-index: 8; display: flex; gap: 18px; opacity: 0; }
+.l-rew .rw { width: 120px; height: 120px; border-radius: 26px; background: rgba(255,248,228,.95); box-shadow: 0 5px 0 #C9A25A; display: grid; place-items: center; position: relative; }
+.l-rew .rw img { width: 90px; height: 90px; }
+.l-rew .rw span { position: absolute; bottom: -6px; right: -6px; font-size: 28px; color: #fff; text-shadow: 0 2px 0 #102E86, 0 0 6px #102E86; }
+.l-go { left: 50%; top: 640px; transform: translateX(-50%) scale(0); z-index: 8; height: 84px; font-size: 38px; padding: 0 60px; }
+.l-card { left: 50%; top: 80px; width: 580px; margin-left: -290px; z-index: 7; padding: 150px 30px 26px; display: grid; justify-items: center; gap: 16px; transform: scale(0); }
+.l-card .l-star2 { position: absolute; left: 50%; top: -90px; width: 230px; height: 220px; margin-left: -115px; }
+.l-card .l-star2 img { width: 100%; height: 100%; filter: drop-shadow(0 8px 0 #B8751A); }
+.l-card .l-star2 b { position: absolute; inset: 0; display: grid; place-items: center; padding-top: 18px; font-size: 80px; text-shadow: 0 5px 0 #9A5A06; }
+.l-card .ribbon { position: relative; left: auto; transform: none; }
+.l-card .l-unlock { display: flex; align-items: center; gap: 14px; font-size: 30px; color: #5A3410; }
+.l-card .l-unlock img { width: 80px; height: 80px; }
+.confetti { position: absolute; width: 16px; height: 24px; z-index: 9; border-radius: 3px; pointer-events: none; }
+.coinfly { position: absolute; width: 64px; height: 64px; margin: -32px; z-index: 10; pointer-events: none; }
+.coinfly img { width: 100%; height: 100%; }
+.l-bar { left: 170px; top: 40px; width: 300px; height: 40px; border-radius: 20px; border: 4px solid transparent; background: linear-gradient(#2A3B66, #1A2850) padding-box, var(--gold) border-box; box-sizing: border-box; overflow: hidden; z-index: 11; }
+.l-bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 86%; border-radius: 16px; background: linear-gradient(#FFE27A, #F2A81C); transition: width .6s ease; }
+
+/* ---- K · adalılar ---- */
+.k-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 760px) { .k-grid { grid-template-columns: 1fr; } }
+.k-sheet { position: relative; border-radius: 14px; overflow: hidden; }
+.k-sheet img { display: block; width: 100%; height: auto; }
+.k-sheet .tagc { position: absolute; font: 900 15px var(--body); color: #fff; background: rgba(20,40,90,.7); border-radius: 8px; padding: 1px 8px; }
+.k-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.k-list li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px; background: var(--bg); }
+.k-list img { width: 64px; height: 64px; object-fit: contain; }
+.k-list b { font-family: var(--display); font-size: 18px; }
+.k-list p { font-size: 14.5px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { .stage *, .stage *::before, .stage *::after { animation: none !important; transition-duration: .01s !important; } }
+</style>
+
+<main>
+  <header>
+    <h1>Hikâye ve arayüz taslakları</h1>
+    <p class="lead">Gönderdiğin oyun kayıtlarından (Klondike Adventures, Family Island, Whiteout Survival, Hay Day, Super Bear Adventure) ölçü ve zamanlamaları çıkardım; dünyadaki iyi örneklere de baktım. Hiçbir görsel, karakter ya da yazı kopya değil. Her taslağın bir kodu var: beğendiklerinin kodlarını yazman yeterli, onaylananlar oyuna girer. Sahneler oyun ekranı oranında ve canlı; dokunabilirsin.</p>
+  </header>
+
+  <nav class="jump" aria-label="Bölümler">
+    <a href="#yukleme"><b>Y</b>Yükleme görselleri</a>
+    <a href="#film"><b>F</b>Giriş filmi</a>
+    <a href="#konusma"><b>S</b>Konuşma</a>
+    <a href="#yol"><b>N</b>Yol gösterme</a>
+    <a href="#parmak"><b>D</b>Parmak ipuçları</a>
+    <a href="#gosterge"><b>G</b>Sade gösterge</a>
+    <a href="#pencere"><b>E</b>Küçük pencereler</a>
+    <a href="#seviye"><b>L</b>Seviye atlama</a>
+    <a href="#adalilar"><b>K</b>Adalılar</a>
+    <a href="#onay"><b>✓</b>Onay</a>
+  </nav>
+
+  <!-- ================= Y ================= -->
+  <section id="yukleme">
+    <div class="head"><span class="code">Y</span><h2>Yükleme görselleri</h2></div>
+    <p class="insp">Oyun her açılışta hikâyeyle eşleşen başka bir 3B görselle açılır. Yalnız çocuğun ulaştığı bölümün görselleri gelir, aynısı art arda gelmez. Yükleme bitince ada bulutların aralanmasıyla görünür (sis temamız). Alttaki küçük resimlere dokunarak değiştir, "Oyunu aç" ile geçişi izle.</p>
+    <div class="frame" id="y-frame" tabindex="0" aria-label="Yükleme ekranı örneği"><div class="stage">
+      <img class="bg" id="y-island" src="img/shot_sahil.jpg" alt="">
+      <div id="y-load" class="abs" style="inset:0">
+        <img class="y-img" id="y-img" src="img/load_beach.jpg" alt="">
+        <div class="y-shade"></div>
+        <div class="abs y-word ink">Pofi Adası<small>Işık Adası'nın hikâyesi</small></div>
+        <div class="abs y-tip"><img src="img/okti_face.png" alt="" style="border-radius:50%"><span id="y-tipt"></span></div>
+        <div class="abs y-bar"><i id="y-fill"></i><b id="y-pct">0%</b></div>
+      </div>
+      <div id="y-clouds" class="abs" style="inset:0;pointer-events:none"><div class="y-cloud l"></div><div class="y-cloud r"></div><div class="y-cloud c"></div></div>
+    </div></div>
+    <div class="thumbs" id="y-thumbs" role="group" aria-label="Yükleme görseli seç"></div>
+    <div class="ctrl"><button type="button" id="y-open"><b>▶</b>Oyunu aç (sıradaki görsel)</button><span class="note" id="y-note"></span></div>
+    <ul class="facts">
+      <li class="t">En az 1,2 sn görünür, yükleme uzarsa ipucu değişmez; bitince bulutlar 1 sn'de aralanır.</li>
+      <li>İpucu tek kısa cümle ve gerçekten işe yarayan bir şey söyler.</li>
+      <li>Görseller Meshy ile üretildi (görsel başına 9 kredi). Kalan kredi: 613.</li>
+      <li class="w">Okti'nin kıyafeti görselden görsele değişiyor; oyunda kıyafet zaten değişebildiği için bunu sorun saymadım. İstersen tek kıyafette yeniden üretirim.</li>
+    </ul>
+    <div class="opts">
+      <div class="opt"><b><i>Y1–Y5</i>Beş görsel dönüşümlü</b><p>Ada hayatı, Ahtapot, Kırmızı fener, Ada sakinleri, Palmiyeler. Bölüm ilerledikçe yenileri eklenir.</p></div>
+      <div class="opt"><b><i>Y6</i>Oyunlara özel yükleme</b><p>Hindistan cevizi, kart, yüzme, kayak oyunlarına girerken o oyunun kendi görseli. Onaylarsan oyun başına 9 kredi.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= F ================= -->
+  <section id="film">
+    <div class="head"><span class="code">F</span><h2>Giriş filmi</h2></div>
+    <p class="insp">Yeni kayıt olan çocuk oyuna bu kısa filmle başlar (yaklaşık 25 sn, 5 sahne). Metin onaylı hikâyenin açılışı. Her yere dokununca sıradaki cümle gelir, "Atla" filmi geçer. Film Defter'de durur, istenince yeniden izlenir.</p>
+    <div class="frame" id="f-frame" tabindex="0" aria-label="Giriş filmi örneği. Dokun: sıradaki cümle"><div class="stage bars" id="f-stage">
+      <img class="f-img" alt=""><img class="f-img" alt="">
+      <div class="abs f-sub" id="f-sub"></div>
+      <span class="abs nexti" aria-hidden="true">⇢</span>
+      <button type="button" class="abs skip" id="f-skip">Atla ▸▸</button>
+      <div class="abs f-end" id="f-end"><button type="button" class="wb" id="f-go">Haydi!</button></div>
+    </div></div>
+    <div class="ctrl" role="group" aria-label="Yaş grubu">
+      <span class="lbl">Metin</span>
+      <button type="button" data-fa="A" aria-pressed="false">6–8 yaş (kısa)</button>
+      <button type="button" data-fa="B" aria-pressed="true">9–15 yaş</button>
+      <button type="button" id="f-replay"><b>↺</b>Baştan oynat</button>
+    </div>
+    <ul class="facts">
+      <li>Siyah bantlar sinema hissi verir; yazı bantların üstünde büyük ve okunaklı.</li>
+      <li>Harfler hızlı belirir (saniyede 40 harf); dokununca cümle hemen tamamlanır.</li>
+      <li>5 yaş ve altında cümleler kendiliğinden 4 sn'de ilerler.</li>
+      <li class="w">Seslendirme (6–8 yaş için sesli okuma) ayrı bir karar: istersen kayıt ya da kodla ses önerisi hazırlarım.</li>
+    </ul>
+  </section>
+
+  <!-- ================= S ================= -->
+  <section id="konusma">
+    <div class="head"><span class="code">S</span><h2>Konuşma sahneleri</h2></div>
+    <p class="insp">Hikâye sahneleri adanın üstünde oynar. İki sunuş: S1 sinema gibi (bantlar, iki portre, geniş kutu), S2 ada üstünde (ada bulanık kalır, konuşan alttan yükselir, balon küçük). İkisinde de her yere dokun ilerler, "Atla" sahneyi geçer. Hikâyeyi tümden kapatmak Ayarlar'da; kapalıyken yalnız tek satırlık özet çıkar.</p>
+    <div class="ctrl" role="group" aria-label="Sunuş">
+      <button type="button" data-sv="s1" aria-pressed="false"><b>S1</b>Sinema</button>
+      <button type="button" data-sv="s2" aria-pressed="true"><b>S2</b>Ada üstü</button>
+      <span class="lbl" style="margin-left:10px">Yaş</span>
+      <button type="button" data-sa="A" aria-pressed="false">6–8</button>
+      <button type="button" data-sa="B" aria-pressed="true">9–12</button>
+      <button type="button" data-sa="C" aria-pressed="false">13–15</button>
+    </div>
+    <div class="frame" id="s-frame" tabindex="0" aria-label="Konuşma örneği. Dokun: sıradaki satır"><div class="stage s2" id="s-stage">
+      <img class="bg" src="img/shot_koy.jpg" alt="">
+      <div class="abs bars nobars" id="s-bars" style="inset:0;pointer-events:none;z-index:2"></div>
+      <div class="s-por" id="s-kis" style="left:40px"><img src="img/por_kiskac.png" alt=""></div>
+      <div class="s-por" id="s-okt" style="right:60px"><img src="img/por_okti.png" alt=""></div>
+      <div class="abs s-box" id="s-box"><span class="s-name" id="s-name1"></span><span id="s-t1"></span></div>
+      <div class="abs s-bub" id="s-bub"><span class="s-name" id="s-name2"></span><span id="s-t2"></span></div>
+      <button type="button" class="abs skip" id="s-skip" style="z-index:9">Atla ▸▸</button>
+      <button type="button" class="abs wb s-reply" id="s-reply">Hadi!</button>
+    </div></div>
+    <ul class="facts">
+      <li>Sahne en çok 6 satır, satır en çok 14 kelime (hikâye dosyasında denetleniyor).</li>
+      <li>Konuşan aydınlık ve önde; dinleyen soluk. Yeni karakter ilk kez siluetle girer.</li>
+      <li>Kıskaç ve Okti portreleri taslak; onaylanan adalı tasarımıyla değişecek.</li>
+      <li class="w">S2'de dünya kararmaz, yalnız bulanıklaşır; çocuk nerede olduğunu kaybetmez. S1 büyük anlar (bölüm açılışı, fener) için daha etkili.</li>
+    </ul>
+    <div class="opts">
+      <div class="opt"><b><i>S1</i>Sinema</b><p>Klondike tarzı: üst ve alt bant, iki yarım boy portre, tam genişlik krem kutu, kırmızı ad etiketi.</p></div>
+      <div class="opt rec"><span class="rec-tag">Önerim: ikisi birlikte</span><b><i>S2</i>Ada üstü</b><p>Whiteout ve Hay Day tarzı: konuşan alttan yükselir, balon 1–2 satır, son satırda tek cevap düğmesi. Günlük konuşmalar S2, bölüm açılış ve kapanışları S1.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= N ================= -->
+  <section id="yol">
+    <div class="head"><span class="code">N</span><h2>Yol gösterme</h2></div>
+    <p class="insp">Gidilecek yere yazısız yönlendirme. Hikâyede posta martısı Mavi önden uçar, yerdeki ışıklı oklar onun izidir. Hedefin üstünde zıplayan ok ve ne yapılacağını gösteren küçük baloncuk durur. Varınca hepsi söner.</p>
+    <div class="ctrl" role="group" aria-label="Yol gösterme">
+      <button type="button" data-n="n1" aria-pressed="true"><b>N1</b>Yerde ışıklı oklar</button>
+      <button type="button" data-n="n2" aria-pressed="true"><b>N2</b>Mavi önden uçar</button>
+      <button type="button" data-n="n3" aria-pressed="true"><b>N3</b>Hedefte ok + baloncuk</button>
+    </div>
+    <div class="frame" id="n-frame"><div class="stage on-n1 on-n2 on-n3" id="n-stage">
+      <img class="bg" src="img/shot_koy.jpg" alt="">
+      <div id="n-chevs"></div>
+      <div class="abs n-mavi" id="n-mavi"><img src="img/por_mavi.png" alt=""></div>
+      <div class="abs n-arrow" aria-hidden="true"><svg viewBox="0 0 110 130"><path d="M30 6h50v60h26L55 124 4 66h26z" fill="#FFD33D" stroke="#fff" stroke-width="7" stroke-linejoin="round"/></svg></div>
+      <div class="abs n-bub"><div class="bb"><img src="img/act_enter.png" alt=""></div></div>
+    </div></div>
+    <ul class="facts">
+      <li class="t">Ok dalgası 1,4 sn'de bir ileri akar; hedef oku 0,6 sn'de bir zıplar.</li>
+      <li>Yalnız rehberli adımda ve çocuk 8 sn hareketsiz kalınca açılır; yürümeye başlayınca oklar kalır, Mavi uçmaya devam eder.</li>
+      <li>Zincir mantığı (Klondike): bir iş bitince sıradakinin baloncuğu çıkar; zincir rotanın kendisidir.</li>
+      <li class="w">Okun oyunda zemine yatık çizilmesi gerekir (burada düz resim üstünde taslak).</li>
+    </ul>
+  </section>
+
+  <!-- ================= D ================= -->
+  <section id="parmak">
+    <div class="head"><span class="code">D</span><h2>Parmak ipuçları</h2></div>
+    <p class="insp">Nereye, nasıl basılacağını küçük bir el gösterir. Yalnız ilk seferde çıkar, doğru dokunuşta kaybolur. Ekim ve hasatta el, aletin kopyasını tutup tarlalar boyunca sürükler; tarlalar sırayla parlar.</p>
+    <div class="ctrl" role="group" aria-label="Parmak ipucu">
+      <button type="button" data-d="d1" aria-pressed="false"><b>D1</b>Dokun</button>
+      <button type="button" data-d="d2" aria-pressed="true"><b>D2</b>Sürükle: ek</button>
+      <button type="button" data-d="d2h" aria-pressed="false"><b>D2</b>Sürükle: topla</button>
+      <button type="button" data-d="d3" aria-pressed="false"><b>D3</b>Işık halkası</button>
+    </div>
+    <div class="frame" id="d-frame"><div class="stage" id="d-stage">
+      <img class="bg" src="img/shot_board.jpg" alt="" style="filter:saturate(1.05)">
+      <div class="abs bed" id="d-bed"><div class="bed-in"><div class="plot"></div><div class="plot"></div><div class="plot"></div><div class="plot"></div></div></div>
+      <div id="d-sprouts"></div>
+      <div class="abs tray" id="d-tray"><div class="ti"><img src="img/seed_carrot.png" alt=""><span class="gem">4</span></div><div class="ti"><img src="img/tool_hand.png" alt=""></div></div>
+      <div class="carry" id="d-carry"><img src="img/seed_carrot.png" alt=""></div>
+      <div class="ring" id="d-ring"></div>
+      <div class="hand" id="d-hand"><img src="img/ui_hand.png" alt=""></div>
+      <div class="spot" id="d-spot"></div>
+      <div class="abs d-tip" id="d-tip"><img src="img/okti_face.png" alt="" style="border-radius:50%"><span id="d-tipt"></span></div>
+    </div></div>
+    <ul class="facts">
+      <li class="t">Dokunma döngüsü 1,5 sn; sürükleme döngüsü 4,1 sn (0,25 belir, 0,4 alete git, 1,7 sürükle, 1,5 bekle).</li>
+      <li>El ekranın yaklaşık yüzde 20'si büyüklüğünde; ipucu yazısı hedefi örtmez, nesne kelimesi yeşil.</li>
+      <li>D3 ışık halkası yalnız yeni bir düğme ilk kez çıktığında: ekran kısılır, düğme aydınlık kalır.</li>
+      <li>Aynı yapı balta, kazma ve elle toplamada da kullanılır (alet tepsisi nesnenin yanında açılır).</li>
+    </ul>
+  </section>
+
+  <!-- ================= G ================= -->
+  <section id="gosterge">
+    <div class="head"><span class="code">G</span><h2>Sade gösterge</h2></div>
+    <p class="insp">Örnek oyunlarda kenarlarda en çok 1–2 eylem düğmesi var. Besle/Yıka düğmeleri ve malzeme paneli kalkıyor, üç yeni yol çizdim. Üçünde de G (akıllı gizlenme) var: yürürken her şey kenara çekilir, durunca geri gelir. Avatarın çevresindeki tek halka Okti'nin 4 ihtiyacını gösterir.</p>
+    <div class="ctrl" role="group" aria-label="Gösterge yolu">
+      <button type="button" data-g="g1" aria-pressed="true"><b>G1</b>İhtiyaç baloncuğu</button>
+      <button type="button" data-g="g2" aria-pressed="false"><b>G2</b>Okti'ye dokun</button>
+      <button type="button" data-g="g3" aria-pressed="false"><b>G3</b>Tek çanta</button>
+    </div>
+    <div class="ctrl" role="group" aria-label="Sahnede dene">
+      <span class="lbl">Dene</span>
+      <button type="button" id="g-walk" aria-pressed="false">Yürü</button>
+      <button type="button" id="g-hungry">Okti acıksın</button>
+      <button type="button" id="g-gather">Odun topla</button>
+    </div>
+    <div class="frame" id="g-frame"><div class="stage" id="g-stage">
+      <img class="bg" src="img/shot_sahil.jpg" alt="">
+      <div class="abs g-count g-hide" id="g-count"></div>
+      <div class="abs g-ava"><div class="arc"></div><div class="face"><img src="img/okti_face.png" alt=""></div><div class="lv">3</div></div>
+      <div class="abs g-top">
+        <div class="chip g-hide"><img src="img/ui_coin.png" alt="">35</div>
+        <button type="button" class="b3" style="width:100px;height:100px;--ex:#C26A08" aria-label="Görev"><img src="img/ui_star.png" alt=""><span class="lab g-hide">Görev</span><span class="gem">2</span></button>
+        <button type="button" class="b3" style="width:100px;height:100px;--ex:#7A4A12;--dl:.5s" aria-label="Harita"><img src="img/ui_map.png" alt=""><span class="lab g-hide">Harita</span></button>
+      </div>
+      <div class="abs g-hut" id="g-hut"><img src="img/ui_hut.png" alt=""><span id="g-hutn">5/6</span><img src="img/mat_wood.png" alt="" style="width:44px;height:44px"></div>
+      <button type="button" class="b3 g-act" style="--ex:#4E2E14" aria-label="Topla"><img src="img/tool_axe.png" alt=""><span class="lab green">Topla</span></button>
+      <div class="abs g-need" id="g-need"><div class="bb"><img src="img/food_apple.png" alt=""></div><i></i><i></i></div>
+      <div class="abs g-ring" id="g-ring" style="left:640px;top:200px;width:330px;height:200px">
+        <button type="button" class="b3" style="left:0;top:90px;--ex:#8E1020" aria-label="Besle"><img src="img/food_apple.png" alt=""></button>
+        <button type="button" class="b3" style="left:110px;top:0;--ex:#A04A78" aria-label="Yıka"><img src="img/clean_soap.png" alt=""></button>
+        <button type="button" class="b3" style="left:220px;top:90px;--ex:#1C49CC" aria-label="Giydir"><img src="img/hoodie_soft.png" alt=""></button>
+      </div>
+      <button type="button" class="b3 g-bag" id="g-bag" style="--ex:#2F5A1C" aria-label="Çanta"><img src="img/backpack_small.png" alt=""><span class="gem">3</span></button>
+      <div class="abs g-tray" id="g-tray">
+        <div class="ti"><img src="img/food_apple.png" alt=""><span>3</span></div>
+        <div class="ti"><img src="img/clean_soap.png" alt=""><span>2</span></div>
+        <div class="ti"><img src="img/mat_wood.png" alt=""><span>5</span></div>
+        <div class="ti"><img src="img/mat_branch.png" alt=""><span>4</span></div>
+        <div class="ti"><img src="img/mat_stone.png" alt=""><span>1</span></div>
+      </div>
+      <button type="button" class="abs" id="g-okti" aria-label="Okti" style="left:730px;top:350px;width:140px;height:230px;border:0;background:none;cursor:pointer"></button>
+    </div></div>
+    <div class="opts">
+      <div class="opt rec"><span class="rec-tag">Önerim: G1 + G2</span><b><i>G1</i>İhtiyaç baloncuğu</b><p>Besle/Yıka düğmesi yok. Okti acıkınca ya da kirlenince başının üstünde düşünce baloncuğu çıkar; dokununca yer ya da yıkanır, yiyecek yoksa baloncukta dükkân belirir. Malzeme sayısı yalnız toplarken 2 sn görünür; tamamı kulübe şantiyesinde yığın olarak durur.</p></div>
+      <div class="opt"><b><i>G2</i>Okti'ye dokun</b><p>Okti'ye dokununca etrafında üç baloncuk açılır: Besle, Yıka, Giydir. Okti aynı anda küçük bir tepki verir (A1). Baloncuk beklemeden bakım yapmak isteyen çocuk için.</p></div>
+      <div class="opt"><b><i>G3</i>Tek çanta</b><p>Sol altta tek çanta düğmesi; açınca yiyecek, sabun ve malzemeler sayılarıyla. Kenarda iki düğme kalır: çanta ve eylem.</p></div>
+    </div>
+    <ul class="facts">
+      <li>Bugün adada 13 kalıcı öğe var; G1 + G2 ile 5'e iniyor: avatar, coin, Görev, Harita, eylem düğmesi.</li>
+      <li>Ayarlar ve müzik avatara dokununca açılan küçük menüye taşınır; Ev Görevleri adadaki panodan ve Görev penceresinin sekmesinden açılır.</li>
+      <li class="w">G1'de Okti'nin ihtiyacı uzun süre fark edilmezse halkadaki ilgili dilim yavaşça nabız atar; cezalandıran ya da üzgün yüzle çağıran bir şey yok.</li>
+    </ul>
+  </section>
+
+  <!-- ================= E ================= -->
+  <section id="pencere">
+    <div class="head"><span class="code">E</span><h2>Küçük eylem pencereleri</h2></div>
+    <p class="insp">Pencereler ekranı kaplamaz: ada ve dokunulan nesne görünür kalır. Yazı en aza iner; her pencerede tek büyük yeşil düğme (P3), sağ üstte kırmızı çarpı, dışına dokununca kapanır (P5).</p>
+    <div class="ctrl" role="group" aria-label="Pencere türü">
+      <button type="button" data-e="e1" aria-pressed="true"><b>E1</b>Yan kart: Ev Görevleri</button>
+      <button type="button" data-e="e2" aria-pressed="false"><b>E2</b>Alt çekmece: Dükkân</button>
+      <button type="button" data-e="e3" aria-pressed="false"><b>E3</b>Gereksinim kartı: Kulübe</button>
+      <button type="button" data-e="e4" aria-pressed="false"><b>E4</b>Uzun bas: bilgi</button>
+    </div>
+    <div class="frame" id="e-frame"><div class="stage e-dim" id="e-stage">
+      <img class="bg" src="img/shot_board.jpg" alt="">
+      <div class="abs cream e-side" id="e1">
+        <div class="ribbon" style="top:-34px"><img src="img/ui_board.png" alt="" style="width:52px;height:52px">Ev Görevleri</div>
+        <button type="button" class="xbtn" style="right:-30px;top:-36px" aria-label="Kapat" data-close><i></i></button>
+        <div class="e-row"><span class="em">🪥</span><span class="nm">Dişlerini fırçala</span><span class="cn"><img src="img/ui_coin.png" alt="">5</span><button type="button" class="wb" data-done>✓ Yaptım</button></div>
+        <div class="e-row"><span class="em">🧸</span><span class="nm">Oyuncaklarını topla</span><span class="cn"><img src="img/ui_coin.png" alt="">5</span><button type="button" class="wb" data-done>✓ Yaptım</button></div>
+        <div class="e-row"><span class="em">📖</span><span class="nm">10 dakika kitap oku</span><span class="cn"><img src="img/ui_coin.png" alt="">10</span><button type="button" class="wb" data-done>✓ Yaptım</button></div>
+      </div>
+      <div class="abs cream e-drawer" id="e2">
+        <button type="button" class="xbtn" style="right:20px;top:-46px" aria-label="Kapat" data-close><i></i></button>
+        <div class="e-tabs"><div class="e-tab on"><img src="img/food_apple.png" alt=""></div><div class="e-tab"><img src="img/hoodie_soft.png" alt=""></div></div>
+        <div class="e-items">
+          <div class="e-bub"><img class="it" src="img/food_apple.png" alt=""><span class="pr"><img src="img/ui_coin.png" alt="">2</span></div>
+          <div class="e-bub"><img class="it" src="img/food_carrot.png" alt="" style="animation-delay:.4s"><span class="pr"><img src="img/ui_coin.png" alt="">3</span></div>
+          <div class="e-bub"><img class="it" src="img/food_coconut.png" alt="" style="animation-delay:.8s"><span class="pr"><img src="img/ui_coin.png" alt="">4</span></div>
+          <div class="e-bub"><img class="it" src="img/hoodie_soft.png" alt="" style="animation-delay:1.2s"><span class="pr"><img src="img/ui_coin.png" alt="">20</span></div>
+        </div>
+        <button type="button" class="wb" style="align-self:center">Al</button>
+      </div>
+      <div class="abs cream e-req" id="e3">
+        <div class="ribbon" style="top:-34px"><img src="img/ui_hut.png" alt="" style="width:52px;height:52px">Kulübe</div>
+        <button type="button" class="xbtn" style="right:-30px;top:-36px" aria-label="Kapat" data-close><i></i></button>
+        <div class="e-cards">
+          <div class="e-card"><img src="img/mat_wood.png" alt=""><b>6/6</b><img class="ok" src="img/ui_check.png" alt=""></div>
+          <div class="e-card"><img src="img/mat_branch.png" alt=""><b>4/4</b><img class="ok" src="img/ui_check.png" alt=""></div>
+          <div class="e-card miss"><img src="img/mat_stone.png" alt=""><b>2/3</b></div>
+        </div>
+        <button type="button" class="wb off" id="e3-go">Yap</button>
+      </div>
+      <div class="abs e-info" id="e4"><img src="img/tool_hand.png" alt=""><span>Çalı: elle topla<br><b style="color:#23914A">→ dal</b></span></div>
+    </div></div>
+    <ul class="facts">
+      <li>E1 yan kart ekranın en çok yüzde 42'si; pano ve Okti solda görünür kalır.</li>
+      <li>E2 alt çekmece ekranın yüzde 40'ı; ürünler süzülen baloncuklar, seçili sekme mavi.</li>
+      <li>E3 gereksinim kartı resimli: tamamlanan kart tik alır, eksik olan turuncu çerçeveli. Hepsi tamamsa "Yap" yeşil olur.</li>
+      <li>E4 uzun basınca bilgi baloncuğu; bırakınca kaybolur.</li>
+    </ul>
+  </section>
+
+  <!-- ================= L ================= -->
+  <section id="seviye">
+    <div class="head"><span class="code">L</span><h2>Seviye atlama</h2></div>
+    <p class="insp">Seviye atlamak en büyük an. İki biçim: L1 penceresiz (yıldız ortada patlar, tek ödül, büyük düğme), L2 küçük kart. İkisinde de ödül sonradan sayaca uçar (O1) ve kısa bir duraklama vardır (A4).</p>
+    <div class="ctrl" role="group" aria-label="Seviye atlama biçimi">
+      <button type="button" data-l="l1" aria-pressed="true"><b>L1</b>Penceresiz</button>
+      <button type="button" data-l="l2" aria-pressed="false"><b>L2</b>Küçük kart</button>
+      <button type="button" id="l-play"><b>▶</b>Oynat</button>
+    </div>
+    <div class="frame" id="l-frame"><div class="stage" id="l-stage">
+      <img class="bg" src="img/shot_sahil.jpg" alt="">
+      <div class="abs l-bar"><i id="l-xp"></i></div>
+      <button type="button" class="b3" id="l-coin" style="right:30px;top:14px;width:100px;height:100px;z-index:11;--ex:#7A4A12" aria-label="Evim"><img src="img/ui_home.png" alt=""><span class="gem" id="l-cn" hidden>1</span></button>
+      <div class="l-veil"></div>
+      <div class="abs l-rays" id="l-rays"></div>
+      <div class="abs l-star" id="l-star"><img src="img/ui_star_big.png" alt=""><b>4</b></div>
+      <div class="ribbon red l-rib" id="l-rib">Seviye 4!</div>
+      <div class="abs l-rew" id="l-rew"><div class="rw"><img src="img/ui_garden.png" alt=""></div><div class="rw"><img src="img/decor_sandcastle.png" alt=""><span>+1</span></div></div>
+      <button type="button" class="abs wb l-go" id="l-go">Harika!</button>
+      <div class="abs cream l-card" id="l-card">
+        <div class="l-star2"><img src="img/ui_star_big.png" alt=""><b>4</b></div>
+        <div class="ribbon red">Seviye 4</div>
+        <div class="l-unlock"><img src="img/ui_garden.png" alt="">Bahçe açıldı</div>
+        <div class="l-unlock"><img src="img/decor_sandcastle.png" alt="">Kumdan kale</div>
+        <button type="button" class="wb" id="l-go2" style="height:64px;font-size:30px">Harika!</button>
+      </div>
+    </div></div>
+    <ul class="facts">
+      <li class="t">L1: kısma 0,12 sn → yıldız aşırı sıçrayarak 0,25 sn → 0,9 sn bekler → yazı ve tek ödül → düğme 1 sn sonra.</li>
+      <li>Ödül düğmeden sonra sayaca yay çizerek uçar, sayaç her gelişte zıplar.</li>
+      <li>Renkler parlak ama ekran parlamaz: ışınlar yarı saydam, beyaz yalnız yazıda.</li>
+      <li class="w">Seviye ödülü coin ya da Güneş Taşı olmaz (ikisi yalnız ebeveynin onayladığı gerçek görevden gelir): açılan yer ve bir eşya. Eşya Evim düğmesine uçar.</li>
+    </ul>
+  </section>
+
+  <!-- ================= K ================= -->
+  <section id="adalilar">
+    <div class="head"><span class="code">K</span><h2>Adalılar</h2></div>
+    <p class="insp">Hikâyedeki karakterlerin ilk taslakları (Meshy, 9 kredi). Okti ile aynı yumuşak oyuncak dili. Her satırdan bir seçenek seç: örneğin "Kıskaç a, Mavi c". Pus'un üç hâli hikâyede sırayla kullanılır (fırtınanın korkmuş bulutu → utangaç → yağmur bulutu dostu).</p>
+    <div class="k-grid">
+      <div class="k-sheet">
+        <img src="img/res_sheet.jpg" alt="Adalı taslakları: üstte üç yengeç, ortada üç martı, altta üç bulut">
+        <span class="tagc" style="left:2%;top:2%">Kıskaç a</span><span class="tagc" style="left:35.5%;top:2%">b</span><span class="tagc" style="left:69%;top:2%">c</span>
+        <span class="tagc" style="left:2%;top:35.5%">Mavi a</span><span class="tagc" style="left:35.5%;top:35.5%">b</span><span class="tagc" style="left:69%;top:35.5%">c</span>
+        <span class="tagc" style="left:2%;top:69%">Pus 1</span><span class="tagc" style="left:35.5%;top:69%">2</span><span class="tagc" style="left:69%;top:69%">3</span>
+      </div>
+      <ul class="k-list">
+        <li><img src="img/por_kiskac.png" alt=""><div><b>Kıskaç</b><p>Keşiş yengeç, dükkâncı. Kabuğu çizgili tente; her mevsim kabuğunu değiştirir (H6 ile).</p></div></li>
+        <li><img src="img/por_mavi.png" alt=""><div><b>Mavi</b><p>Posta martısı. Mektup kutusunu (H2) getirir, yol gösterir (N2).</p></div></li>
+        <li><img src="img/por_pus.png" alt=""><div><b>Pus</b><p>Fırtınadan kopmuş küçük bulut. Hikâye boyunca gülümsemeye başlar; sonunda bahçeyi sular.</p></div></li>
+        <li><img src="img/load_residents.jpg" alt="" style="object-fit:cover;border-radius:10px"><div><b>Tosbi Dede</b><p>Mevcut Tosbi modeline gözlük, beyaz kaş ve olta (kodla, kredisiz). İskelede durur, fener bekçisinin günlük sayfalarını saklar (H3).</p></div></li>
+        <li><img src="img/load_palms.jpg" alt="" style="object-fit:cover;border-radius:10px"><div><b>Pıtır ve Hışır</b><p>Yüzlü iki palmiye kardeş (kodla, kredisiz): dokununca sallanıp konuşurlar.</p></div></li>
+      </ul>
+    </div>
+    <ul class="facts">
+      <li>Onaydan sonra 3B: Kıskaç, Mavi ve Pus için Meshy görselden 3B + iskelet, karakter başına yaklaşık 30–35 kredi (toplam ~100). Kalan 613 kredinin 100'ün altına inmemesi kuralına uyar.</li>
+      <li>Bekçi Nur sahnede görünmez; günlük sayfalarıyla konuşur.</li>
+    </ul>
+  </section>
+
+  <!-- ================= Onay ================= -->
+  <section id="onay" class="ask">
+    <div class="head"><span class="code">✓</span><h2>Nasıl onaylarsın</h2></div>
+    <p>Sohbete beğendiğin kodları yaz. Örnek: <strong>"Y1–Y5, F, S1+S2, N1+N2+N3, D1+D2+D3, G1+G2, E1+E2+E3+E4, L1, Kıskaç a, Mavi c"</strong>. Değişiklik istediğin yeri kısaca yazman yeter.</p>
+    <p class="note">Önceki fikir sayfasındaki onaylı maddeler (P1–P5, O1–O4, A1–A4, H1–H6) oyuna giriyor; bu sayfadaki seçimler onların görünüşünü belirler:</p>
+    <div class="tw"><table class="map">
+      <thead><tr><th>Onaylı madde</th><th>Bu sayfada görünüşü</th></tr></thead>
+      <tbody>
+        <tr><td>P1 düğmeden doğan pencere, P2 ada arkada, P3 tek büyük düğme, P5 dışına dokun</td><td>E1–E4</td></tr>
+        <tr><td>O1 ödül uçuşu, A4 büyük anda duraklama</td><td>L1 / L2</td></tr>
+        <tr><td>H1 sis kalkınca sahne, Ö4 hikâye bölümleri</td><td>S1 / S2, F</td></tr>
+        <tr><td>H2 mektup kutusu, H4 adalılar</td><td>K, N2</td></tr>
+        <tr><td>A1 Okti'nin tepki dili</td><td>G2</td></tr>
+        <tr><td>O2 şantiye büyür</td><td>G1 (malzeme sayısı şantiyede), E3</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">Bilerek almadıklarımız: enerji bekletmesi, "son fırsat" teklifleri, satın almaya yönlendiren karakter, oyunu bırakınca üzülen Okti. Yerdeki coinler (Super Bear Adventure) ve ekran süresi kontrolü hatırlatma listesinde.</p>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wait = ms => new Promise(r => setTimeout(r, reduce ? Math.min(ms, 60) : ms));
+  // sahneleri çerçeveye ölçekle
+  const ro = new ResizeObserver(es => es.forEach(e => { const s = e.target.querySelector('.stage'); if (s) s.style.transform = `scale(${e.target.clientWidth / 1600})`; }));
+  $$('.frame').forEach(f => ro.observe(f));
+  // görünürde değilse döngüleri beklet
+  const vis = new Map();
+  const io = new IntersectionObserver(es => es.forEach(e => vis.set(e.target, e.isIntersecting)), { threshold: .15 });
+  $$('.frame').forEach(f => { vis.set(f, true); io.observe(f); });
+  const visible = f => vis.get(f) !== false;
+  const press = (group, btn) => $$('button[aria-pressed]', group).forEach(b => b.setAttribute('aria-pressed', b === btn));
+
+  /* ===== Y ===== */
+  const Y = [
+    { id: 'load_beach', c: 'Y1', n: 'Ada hayatı', tip: "Okti'ye dokun, sana bir hareket yapsın." },
+    { id: 'load_okti', c: 'Y2', n: 'Ahtapot', tip: 'Evde yaptığın her iyilik bir Güneş Taşı olur.' },
+    { id: 'load_lighthouse', c: 'Y3', n: 'Kırmızı fener', tip: 'Sisli yere Güneş Taşı koyunca sis kalkar.' },
+    { id: 'load_residents', c: 'Y4', n: 'Ada sakinleri', tip: "Kıskaç'ın dükkânında yeni şeyler var." },
+    { id: 'load_palms', c: 'Y5', n: 'Palmiyeler', tip: 'Palmiyelere dokun: Pıtır ve Hışır sallanır.' },
+  ];
+  let yi = 0, yBusy = false;
+  const yT = $('#y-thumbs');
+  Y.forEach((y, i) => { const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', i === 0); b.innerHTML = `<img src="img/${y.id}.jpg" alt=""><span><b>${y.c}</b>${y.n}</span>`; b.onclick = () => { yi = i; yShow(); press(yT, b); }; yT.appendChild(b); });
+  function yShow() { $('#y-img').src = `img/${Y[yi].id}.jpg`; $('#y-tipt').textContent = Y[yi].tip; yRun(); }
+  let yTok = 0;
+  async function yRun() {
+    const tok = ++yTok; const fill = $('#y-fill'), pct = $('#y-pct'), load = $('#y-load'), cl = $('#y-clouds');
+    load.style.opacity = 1; load.style.transition = 'none'; cl.classList.remove('cl-in'); cl.style.opacity = 1;
+    const steps = [0, 18, 34, 41, 63, 78, 90, 100];
+    for (const v of steps) { if (tok !== yTok) return; fill.style.width = v + '%'; fill.style.transition = 'width .35s ease'; pct.textContent = v + '%'; await wait(360); }
+    return tok;
+  }
+  async function yOpen() {
+    if (yBusy) return; yBusy = true;
+    const tok = await yRun(); if (tok !== yTok) { yBusy = false; return; }
+    const load = $('#y-load'), cl = $('#y-clouds');
+    cl.classList.add('cl-in'); await wait(1000);
+    load.style.opacity = 0; await wait(300);
+    cl.classList.remove('cl-in'); await wait(1600);
+    // sıradaki açılış: aynısı gelmez
+    yi = (yi + 1) % Y.length; press(yT, yT.children[yi]);
+    $('#y-note').textContent = `Sıradaki açılışta: ${Y[yi].c} ${Y[yi].n}`;
+    $('#y-img').src = `img/${Y[yi].id}.jpg`; $('#y-tipt').textContent = Y[yi].tip;
+    load.style.transition = 'opacity .3s'; load.style.opacity = 1; yBusy = false; yRun();
+  }
+  $('#y-open').onclick = yOpen; $('#y-frame').onclick = yOpen;
+  yShow();
+
+  /* ===== F ===== */
+  const FL = [
+    { img: 'film_1_ada', kb: [1, 0, 0, 1.1, -2, -1], L: [['Bir zamanlar mavi denizin ortasında Işık Adası vardı.', 'Bir zamanlar Işık Adası vardı.'], ['Sakinleri birbirine yardım eder, fener her gece yolları aydınlatırdı.', 'Fener her gece yolları aydınlatırdı.']] },
+    { img: 'film_2_firtina', kb: [1.08, 1, 0, 1.0, 0, 0], L: [['Bir gece büyük bir fırtına çıktı. Fener söndü.', 'Bir gece fırtına çıktı. Fener söndü.']] },
+    { img: 'film_3_sis', kb: [1, 0, 0, 1.08, 1.5, 1], L: [['Ada sise büründü, sakinler dağıldı.', 'Ada sise büründü.']] },
+    { img: 'film_4_misafir', kb: [1.06, -1.5, 0, 1, 0, 0], L: [['Ama bir sabah kumsala küçük bir misafir geldi...', 'Bir sabah küçük bir misafir geldi...']] },
+    { img: 'load_okti', kb: [1, 0, 0, 1.07, 0, -1.5], L: [['Evde yaptığın her iyilik bir Güneş Taşı olur. Haydi, adayı birlikte uyandıralım!', 'Her iyilik bir Güneş Taşı olur. Haydi!']] },
+  ];
+  let fAge = 'B', fShot = 0, fLine = 0, fTyping = false, fFull = '', fTimer = 0, fTok = 0, fLayer = 0;
+  const fImgs = $$('#f-frame .f-img'), fSub = $('#f-sub');
+  function fSetShot(i) {
+    const s = FL[i]; fLayer ^= 1; const a = fImgs[fLayer], b = fImgs[fLayer ^ 1];
+    a.src = `img/${s.img}.jpg`; a.style.transition = 'none'; a.style.transform = `scale(${s.kb[0]}) translate(${s.kb[1]}%, ${s.kb[2]}%)`;
+    void a.offsetWidth; a.style.transition = 'opacity .7s ease, transform 8s linear'; a.classList.add('on'); b.classList.remove('on');
+    requestAnimationFrame(() => { a.style.transform = `scale(${s.kb[3]}) translate(${s.kb[4]}%, ${s.kb[5]}%)`; });
+  }
+  async function fType(text) {
+    const tok = ++fTok; fTyping = true; fFull = text; fSub.textContent = '';
+    for (let i = 1; i <= text.length; i++) { if (tok !== fTok) return; fSub.textContent = text.slice(0, i); await wait(25); }
+    fTyping = false; clearTimeout(fTimer); fTimer = setTimeout(() => { if (visible($('#f-frame'))) fNext(); else fTimer = setTimeout(fNext, 1000); }, 2600);
+  }
+  function fShow() { const s = FL[fShot]; const l = s.L[fLine]; fType(fAge === 'A' ? l[1] : l[0]); }
+  function fNext() {
+    clearTimeout(fTimer);
+    if (fTyping) { fTok++; fTyping = false; fSub.textContent = fFull; fTimer = setTimeout(fNext, 2600); return; }
+    fLine++;
+    if (fLine >= FL[fShot].L.length) { fShot++; fLine = 0; if (fShot >= FL.length) return fEnd(); fSetShot(fShot); }
+    fShow();
+  }
+  function fEnd() { clearTimeout(fTimer); fTok++; fSub.textContent = ''; $('#f-stage').classList.add('nobars'); $('#f-end').classList.add('on'); }
+  function fStart() { clearTimeout(fTimer); $('#f-end').classList.remove('on'); $('#f-stage').classList.remove('nobars'); fShot = 0; fLine = 0; fSetShot(0); fShow(); }
+  $('#f-frame').addEventListener('click', e => { if (e.target.closest('#f-skip, #f-go')) return; if (!$('#f-end').classList.contains('on')) fNext(); });
+  $('#f-skip').onclick = e => { e.stopPropagation(); fShot = FL.length - 1; fSetShot(fShot); fEnd(); };
+  $('#f-go').onclick = e => { e.stopPropagation(); fStart(); };
+  $('#f-replay').onclick = fStart;
+  $$('[data-fa]').forEach(b => b.onclick = () => { fAge = b.dataset.fa; $$('[data-fa]').forEach(x => x.setAttribute('aria-pressed', x === b)); fStart(); });
+  fStart();
+
+  /* ===== S ===== */
+  const SL = [
+    { w: 'kiskac', t: ['Hey küçük! Sen de fırtınayla mı geldin?', 'Hey küçük! Merhaba!', 'Hey küçük! Sen de fırtınayla mı geldin?'] },
+    { w: 'kiskac', t: ['Ben Kıskaç. Dükkânım bu kabuğun içinde, hah!', 'Ben Kıskaç, dükkâncıyım.', 'Ben Kıskaç. Kabuğum hem evim hem dükkânım, kira yok!'] },
+    { w: 'okti', t: ['Merhaba Kıskaç! Ada neden bu kadar sisli?', 'Ada neden sisli?', 'Merhaba Kıskaç! Ada neden bu kadar sisli?'] },
+    { w: 'kiskac', t: ['Uzun hikâye. Önce karnını doyuralım, sonra anlatırım.', 'Önce bir elma ye!', 'Uzun hikâye. Önce karnını doyuralım, sonra anlatırım.'] },
+  ];
+  let sMode = 's2', sAge = 1, sI = 0, sTok = 0;
+  const sSt = $('#s-stage'), kis = $('#s-kis'), okt = $('#s-okt'), box = $('#s-box'), bub = $('#s-bub'), rep = $('#s-reply');
+  const NM = { kiskac: 'Kıskaç', okti: 'Mimi' };
+  async function sShow() {
+    const tok = ++sTok; const l = SL[sI]; const text = l.t[sAge]; const isK = l.w === 'kiskac';
+    sSt.className = 'stage ' + sMode; $('#s-bars').classList.toggle('nobars', sMode !== 's1');
+    rep.hidden = !(sMode === 's2' && sI === SL.length - 1);
+    if (sMode === 's1') {
+      bub.style.display = 'none'; box.style.display = '';
+      kis.classList.remove('away'); okt.classList.remove('away');
+      kis.style.left = '30px'; okt.style.right = '50px'; kis.style.height = okt.style.height = '470px'; kis.style.bottom = okt.style.bottom = '250px'; kis.style.zIndex = okt.style.zIndex = 3;
+      kis.classList.toggle('dim', !isK); okt.classList.toggle('dim', isK);
+      const n = $('#s-name1'); n.textContent = NM[l.w]; n.className = 's-name' + (isK ? '' : ' blue'); n.style.left = isK ? '40px' : 'auto'; n.style.right = isK ? 'auto' : '40px';
+      await sType($('#s-t1'), text, tok);
+    } else {
+      box.style.display = 'none'; bub.style.display = '';
+      kis.style.height = okt.style.height = '560px'; kis.style.bottom = okt.style.bottom = '-40px'; kis.classList.remove('dim'); okt.classList.remove('dim');
+      kis.classList.toggle('away', !isK); okt.classList.toggle('away', isK);
+      bub.classList.add('hide'); await wait(120); if (tok !== sTok) return;
+      bub.classList.toggle('r', !isK);
+      bub.style.left = isK ? '560px' : 'auto'; bub.style.right = isK ? 'auto' : '500px'; bub.style.top = '250px';
+      const n = $('#s-name2'); n.textContent = NM[l.w]; n.className = 's-name' + (isK ? '' : ' blue');
+      $('#s-t2').textContent = ''; bub.classList.remove('hide');
+      await sType($('#s-t2'), text, tok);
+    }
+  }
+  async function sType(el, text, tok) { el.textContent = ''; for (let i = 1; i <= text.length; i++) { if (tok !== sTok) return; el.textContent = text.slice(0, i); await wait(22); } }
+  function sNext() { sI = (sI + 1) % SL.length; sShow(); }
+  $('#s-frame').addEventListener('click', e => { if (e.target.closest('#s-skip')) { sI = 0; sShow(); return; } sNext(); });
+  setInterval(() => { if (visible($('#s-frame')) && document.activeElement?.closest?.('#s-frame') == null) sNext(); }, 3600);
+  $$('[data-sv]').forEach(b => b.onclick = () => { sMode = b.dataset.sv; $$('[data-sv]').forEach(x => x.setAttribute('aria-pressed', x === b)); sI = 0; sShow(); });
+  $$('[data-sa]').forEach(b => b.onclick = () => { sAge = { A: 1, B: 0, C: 2 }[b.dataset.sa]; $$('[data-sa]').forEach(x => x.setAttribute('aria-pressed', x === b)); sShow(); });
+  sShow();
+
+  /* ===== N ===== */
+  const nPts = [[790, 348, 1.7], [770, 306, 1.42], [753, 272, 1.18], [739, 246, .98], [727, 226, .82], [718, 210, .68]];
+  const nC = $('#n-chevs');
+  nPts.forEach(([x, y, s], i) => { const d = document.createElement('div'); d.className = 'chev'; d.style.left = x + 'px'; d.style.top = y + 'px'; d.style.transform = `scale(${s}) perspective(300px) rotateX(38deg)`; d.style.setProperty('--d', (i * 0.16) + 's'); d.innerHTML = '<svg viewBox="0 0 90 54"><path d="M6 46 45 10l39 36-14 4-25-22-25 22z"/></svg>'; nC.appendChild(d); });
+  const nSt = $('#n-stage'), mav = $('#n-mavi');
+  let nt = 0;
+  (function nLoop() {
+    nt += 0.006; if (nt > 1) nt = 0;
+    const x = 820 - nt * 120, y = 300 - nt * 210 + Math.sin(nt * 12) * 10;
+    mav.style.left = x + 'px'; mav.style.top = y + 'px'; mav.style.transform = `scale(${1 - nt * 0.45})`;
+    if (nSt.classList.contains('on-n2') && visible($('#n-frame')) && Math.random() < .25) {
+      const p = document.createElement('i'); p.className = 'spark'; p.style.left = (x + 40) + 'px'; p.style.top = (y + 120 - nt * 30) + 'px'; nSt.appendChild(p); setTimeout(() => p.remove(), 1300);
+    }
+    requestAnimationFrame(nLoop);
+  })();
+  $$('[data-n]').forEach(b => b.onclick = () => { const on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on); nSt.classList.toggle('on-' + b.dataset.n, on); });
+
+  /* ===== D ===== */
+  const dSt = $('#d-stage'), hand = $('#d-hand'), ring = $('#d-ring'), carry = $('#d-carry'), spot = $('#d-spot'), dTip = $('#d-tipt');
+  const plots = $$('#d-bed .plot');
+  const plotXY = [[612, 520], [790, 520], [968, 520], [1146, 520]].map(([x, y]) => [x - 20, y - 20]);
+  let dMode = 'd2', dTok = 0;
+  const sprouts = plotXY.map(([x, y]) => { const s = document.createElement('div'); s.className = 'sprout'; s.style.left = (x + 20) + 'px'; s.style.top = (y + 20) + 'px'; s.innerHTML = '<img src="img/food_carrot.png" alt="">'; $('#d-sprouts').appendChild(s); return s; });
+  const hm = (x, y, ms, sc = 1, op = 1) => { hand.style.transition = `left ${ms}ms ease-in-out, top ${ms}ms ease-in-out, transform .15s ease, opacity .25s ease`; hand.style.left = (x - 38) + 'px'; hand.style.top = (y - 14) + 'px'; hand.style.transform = `scale(${sc})`; hand.style.opacity = op; };
+  const tapAt = async (x, y) => { hm(x, y, 1, 1, 1); hand.style.transform = 'scale(.88)'; ring.style.left = x + 'px'; ring.style.top = y + 'px'; ring.classList.remove('go'); void ring.offsetWidth; ring.classList.add('go'); await wait(180); hand.style.transform = 'scale(1)'; };
+  async function dLoop() {
+    const tok = ++dTok;
+    const alive = () => tok === dTok;
+    spot.classList.remove('on'); carry.style.opacity = 0; plots.forEach(p => p.classList.remove('lit'));
+    const harvest = dMode === 'd2h';
+    sprouts.forEach(s => s.classList.toggle('up', harvest));
+    $('#d-tray').children[0].style.outline = $('#d-tray').children[1].style.outline = 'none';
+    if (dMode === 'd1') {
+      dTip.innerHTML = 'Tarlaya <em>dokun</em>.';
+      while (alive()) { if (!visible($('#d-frame'))) { await wait(500); continue; } hm(830, 610, 300, 1, 0); await wait(50); hm(800, 560, 250, 1, 1); await wait(400); await tapAt(800, 545); await wait(260); await tapAt(800, 545); await wait(500); hand.style.opacity = 0; await wait(700); }
+    } else if (dMode === 'd3') {
+      dTip.innerHTML = '<em>Tohum</em> çantası burada!';
+      const tray = $('#d-tray').children[0];
+      spot.style.setProperty('--sx', '18.6%'); spot.style.setProperty('--sy', '56.5%');
+      spot.classList.add('on');
+      while (alive()) { if (!visible($('#d-frame'))) { await wait(500); continue; } hm(330, 480, 300, 1, 1); await wait(500); await tapAt(298, 412); await wait(300); await tapAt(298, 412); await wait(900); hand.style.opacity = 0; await wait(700); }
+    } else {
+      dTip.innerHTML = harvest ? 'Eli havuçların üstünden <em>sürükle</em>.' : 'Tohumu tarlalara <em>sürükle</em>.';
+      const tool = harvest ? 'tool_hand' : 'seed_carrot'; carry.innerHTML = `<img src="img/${tool}.png" alt="">`;
+      const src = harvest ? [416, 412] : [298, 412];
+      while (alive()) {
+        if (!visible($('#d-frame'))) { await wait(500); continue; }
+        plots.forEach(p => p.classList.remove('lit')); sprouts.forEach(s => s.classList.toggle('up', harvest));
+        hm(src[0] + 30, src[1] + 60, 1, 1, 0); await wait(50); hm(src[0], src[1], 250, 1, 1); await wait(400); if (!alive()) return;
+        await tapAt(src[0], src[1]);
+        carry.style.transition = 'none'; carry.style.left = src[0] + 'px'; carry.style.top = (src[1] - 40) + 'px'; carry.style.opacity = 1; await wait(150);
+        for (let i = 0; i < plotXY.length; i++) {
+          const [x, y] = plotXY[i]; hm(x + 20, y + 40, 420); carry.style.transition = 'left 420ms ease-in-out, top 420ms ease-in-out'; carry.style.left = (x + 20) + 'px'; carry.style.top = y + 'px';
+          await wait(420); if (!alive()) return; plots[i].classList.add('lit');
+          if (harvest) { sprouts[i].classList.remove('up'); } else sprouts[i].classList.add('up');
+        }
+        carry.style.opacity = 0; hand.style.opacity = 0; await wait(1500);
+      }
+    }
+  }
+  $$('[data-d]').forEach(b => b.onclick = () => { dMode = b.dataset.d; $$('[data-d]').forEach(x => x.setAttribute('aria-pressed', x === b)); dLoop(); });
+  dLoop();
+
+  /* ===== G ===== */
+  const gSt = $('#g-stage'); let gMode = 'g1', walking = false, gAuto = true;
+  const gCount = { g1: '5 kalıcı öğe', g2: '5 kalıcı öğe + Okti menüsü', g3: '6 kalıcı öğe (çanta dahil)' };
+  function gApply() {
+    $('#g-bag').hidden = gMode !== 'g3'; $('#g-tray').classList.remove('on'); $('#g-ring').classList.remove('on'); $('#g-need').classList.remove('on');
+    $('#g-count').textContent = 'Bugün 13 öğe → ' + gCount[gMode];
+    $('#g-hungry').hidden = gMode === 'g3';
+  }
+  $$('[data-g]').forEach(b => b.onclick = () => { gMode = b.dataset.g; $$('[data-g]').forEach(x => x.setAttribute('aria-pressed', x === b)); gApply(); });
+  function setWalk(on) { walking = on; gSt.classList.toggle('moving', on); $('#g-walk').setAttribute('aria-pressed', on); if (on) { $('#g-ring').classList.remove('on'); $('#g-tray').classList.remove('on'); } }
+  $('#g-walk').onclick = () => { gAuto = false; setWalk(!walking); };
+  setInterval(() => { if (gAuto && visible($('#g-frame'))) setWalk(!walking); }, 3200);
+  $('#g-hungry').onclick = () => { gAuto = false; setWalk(false); if (gMode === 'g2') { $('#g-ring').classList.add('on'); } else $('#g-need').classList.add('on'); };
+  $('#g-need').onclick = async () => { const n = $('#g-need'); n.classList.remove('on'); await fly('food_apple', 850, 280, 800, 470, 500); };
+  $('#g-okti').onclick = () => { gAuto = false; setWalk(false); if (gMode === 'g2') $('#g-ring').classList.toggle('on'); else { $('#g-okti').animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-30px)' }, { transform: 'translateY(0)' }], 400); } };
+  $('#g-bag').onclick = () => { gAuto = false; setWalk(false); $('#g-tray').classList.toggle('on'); };
+  $$('#g-ring .b3').forEach(b => b.onclick = e => { e.stopPropagation(); $('#g-ring').classList.remove('on'); });
+  let wood = 5;
+  $('#g-gather').onclick = async () => {
+    gAuto = false; setWalk(false); const hut = $('#g-hut');
+    if (gMode === 'g3') { await fly('mat_wood', 1380, 560, 104, 600, 700); $('#g-bag').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.15)' }, { transform: 'scale(1)' }], 300); return; }
+    hut.classList.add('on'); await fly('mat_wood', 1380, 560, 1460, 182, 700);
+    wood = Math.min(6, wood + 1); $('#g-hutn').textContent = wood + '/6'; hut.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.12)' }, { transform: 'scale(1)' }], 300);
+    await wait(2000); hut.classList.remove('on'); if (wood >= 6) wood = 4;
+  };
+  async function fly(icon, x0, y0, x1, y1, ms) {
+    const f = document.createElement('div'); f.className = 'g-fly'; f.innerHTML = `<img src="img/${icon}.png" alt="">`; gSt.appendChild(f);
+    const mx = (x0 + x1) / 2, my = Math.min(y0, y1) - 160;
+    await f.animate([{ left: x0 + 'px', top: y0 + 'px', transform: 'scale(.6)' }, { left: x0 + 'px', top: (y0 - 60) + 'px', transform: 'scale(1.4)', offset: .25 }, { left: mx + 'px', top: my + 'px', transform: 'scale(1.1)', offset: .6 }, { left: x1 + 'px', top: y1 + 'px', transform: 'scale(.7)' }], { duration: reduce ? 10 : ms + 400, easing: 'ease-in', fill: 'forwards' }).finished;
+    f.remove();
+  }
+  gApply();
+
+  /* ===== E ===== */
+  const eSt = $('#e-stage');
+  function eShow(k) {
+    ['e1', 'e2', 'e3', 'e4'].forEach(id => $('#' + id).classList.toggle('on', id === k));
+    eSt.classList.toggle('e-blurL', k === 'e1');
+    $$('[data-e]').forEach(x => x.setAttribute('aria-pressed', x.dataset.e === k));
+  }
+  $$('[data-e]').forEach(b => b.onclick = () => eShow(b.dataset.e));
+  $$('[data-close]', eSt).forEach(b => b.onclick = e => { e.stopPropagation(); eShow(''); });
+  eSt.addEventListener('click', e => { if (e.target.classList.contains('bg')) eShow(''); });
+  $$('[data-done]', eSt).forEach(b => b.onclick = e => { e.stopPropagation(); const r = b.closest('.e-row'); r.classList.add('done'); b.textContent = 'Bekliyor'; });
+  $('#e3-go').onclick = () => {};
+  eShow('e1');
+
+  /* ===== L ===== */
+  const lSt = $('#l-stage'); let lMode = 'l1', lBusy = false;
+  const A = (el, kf, o) => el.animate(kf, Object.assign({ fill: 'forwards' }, o, { duration: reduce ? 10 : o.duration })).finished;
+  function lReset() {
+    lSt.classList.remove('l-on'); ['#l-star', '#l-rays', '#l-rib', '#l-rew', '#l-go', '#l-card'].forEach(s => { const el = $(s); el.getAnimations().forEach(a => a.cancel()); });
+    $('#l-xp').style.width = '86%'; $('#l-cn').hidden = true;
+  }
+  function confetti(n = 40) {
+    const cols = ['#FFD33D', '#FF7A7A', '#4FC3F7', '#7EDD6A', '#F06292', '#fff'];
+    for (let i = 0; i < n; i++) {
+      const c = document.createElement('i'); c.className = 'confetti'; c.style.background = cols[i % cols.length]; c.style.left = '800px'; c.style.top = '250px'; lSt.appendChild(c);
+      const ang = Math.random() * Math.PI * 2, d = 300 + Math.random() * 400;
+      c.animate([{ transform: 'translate(0,0) rotate(0)' }, { transform: `translate(${Math.cos(ang) * d}px, ${Math.sin(ang) * d * .6 + 300}px) rotate(${Math.random() * 720}deg)`, opacity: 0 }], { duration: reduce ? 10 : 1600 + Math.random() * 600, easing: 'cubic-bezier(.1,.7,.3,1)', fill: 'forwards' }).finished.then(() => c.remove());
+    }
+  }
+  async function lPlay() {
+    if (lBusy) return; lBusy = true; lReset();
+    $('#l-xp').style.width = '100%'; await wait(650);
+    lSt.classList.add('l-on'); await wait(120);
+    if (lMode === 'l1') {
+      A($('#l-rays'), [{ opacity: 0 }, { opacity: 1 }], { duration: 300 });
+      await A($('#l-star'), [{ transform: 'scale(0) rotate(-20deg)' }, { transform: 'scale(1.25) rotate(6deg)', offset: .7 }, { transform: 'scale(1) rotate(0)' }], { duration: 380, easing: 'ease-out' });
+      confetti(); await wait(900);
+      A($('#l-star'), [{ transform: 'scale(1)' }, { transform: 'translateY(-40px) scale(.8)' }], { duration: 400, easing: 'ease-in-out' });
+      await A($('#l-rib'), [{ opacity: 0, transform: 'translate(-50%, 30px) scale(.6)' }, { opacity: 1, transform: 'translate(-50%, -30px) scale(1)' }], { duration: 300, easing: 'cubic-bezier(.2,1.5,.4,1)' });
+      await A($('#l-rew'), [{ opacity: 0, transform: 'translate(-50%, 30px)' }, { opacity: 1, transform: 'translate(-50%, -30px)' }], { duration: 300, easing: 'ease-out' });
+      await wait(700);
+      await A($('#l-go'), [{ transform: 'translateX(-50%) scale(0)' }, { transform: 'translateX(-50%) scale(1.12)', offset: .7 }, { transform: 'translateX(-50%) scale(1)' }], { duration: 320, easing: 'ease-out' });
+    } else {
+      confetti(28);
+      await A($('#l-card'), [{ transform: 'scale(0)' }, { transform: 'scale(1.08)', offset: .7 }, { transform: 'scale(1)' }], { duration: 300, easing: 'ease-out' });
+    }
+    lBusy = false;
+  }
+  async function lClaim() {
+    if (lBusy) return; lBusy = true;
+    const from = lMode === 'l1' ? [800, 560] : [800, 380];
+    ['#l-rays', '#l-rib', '#l-rew', '#l-go', '#l-star', '#l-card'].forEach(s => $(s).getAnimations().forEach(a => a.cancel()));
+    lSt.classList.remove('l-on');
+    const target = [1500, 64];
+    const coins = [];
+    for (let i = 0; i < 1; i++) {
+      const c = document.createElement('div'); c.className = 'coinfly'; c.innerHTML = '<img src="img/decor_sandcastle.png" alt="">'; lSt.appendChild(c); coins.push(c);
+      await c.animate([{ left: from[0] + 'px', top: from[1] + 'px', transform: 'scale(1)' }, { left: from[0] + 'px', top: (from[1] - 50) + 'px', transform: 'scale(1.6)', offset: .3 }, { left: target[0] + 'px', top: target[1] + 'px', transform: 'scale(.8)' }], { duration: reduce ? 10 : 1100, easing: 'ease-in', fill: 'forwards' }).finished;
+      c.remove(); $('#l-cn').hidden = false; $('#l-coin').animate([{ transform: 'scale(1)' }, { transform: 'scale(1.18)' }, { transform: 'scale(1)' }], 350);
+    }
+    $('#l-xp').style.transition = 'none'; $('#l-xp').style.width = '4%'; void $('#l-xp').offsetWidth; $('#l-xp').style.transition = '';
+    lBusy = false;
+  }
+  $('#l-go').onclick = lClaim; $('#l-go2').onclick = lClaim; $('#l-play').onclick = lPlay;
+  $$('[data-l]').forEach(b => b.onclick = () => { lMode = b.dataset.l; $$('[data-l]').forEach(x => x.setAttribute('aria-pressed', x === b)); lBusy = false; lReset(); lPlay(); });
+  setTimeout(lPlay, 600);
+})();
+</script>

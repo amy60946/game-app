@@ -1,0 +1,16 @@
+{
+ "id": "01a1656a-2731-729a-8581-3e055e576428",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Cinematic shot of a quiet beach in the morning with light fog over the island behind: the little light-blue octopus from the reference sits inside a big pink scallop shell washed up on wet sand, rubbing one eye and looking curiously toward the foggy island, a single warm ray of sunlight breaks through the clouds onto it, gentle foam at its feet, a few tiny shells around, hopeful mood. The octopus looks exactly like the reference: light blue jelly-like head, coral-pink round snout, small black eyes, same outfit. Vivid 3D game key art for a cozy kids island adventure game, landscape 16:9, painted miniature diorama look, soft toon lighting with clean crisp shadows, saturated but balanced colors (never washed out, never glaring, no heavy bloom), rounded friendly shapes, characters are soft matte vinyl toys, no outlines, no text, no letters, no logo, no user interface.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792702818331,
+ "started_at": 1792702818349,
+ "finished_at": 1792702847478,
+ "expires_at": 1792962047478,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a1656a-2731-729a-8581-3e055e576428_0.png?Expires=1792962047&Signature=AZPiMlM6c8QlD83i8RIND3SnuQTfHpMFNVDRT~-~Nxgxv-hbNdLd0wyR~zfMlw6LfMWd-EhaoH8bgKR7c-lbjICKuVw96GRvMPcGklpt8H3mNRhw631DIH2r000IAIL9nLfzoh5Nm97YzADKtonGxEm4wXWDhkomqVmGm3TTTtUwmbm7N5HTkR6vgLbVulkM1eLSYPDdOyz0aK40SpGgWP7Jh85czNsbQWJGhVe54pR594n1wFj5esBT3lipyhYyZrnWZQKqhZbMwFeYCRNzwTu4L0JNOXnpEkpcz4Ix0BOqan78~lE036uAujaic85n7TcUcSpaY3S4vzXaKdIHSQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
