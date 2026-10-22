@@ -55,12 +55,17 @@ namespace Pofi.Screens
             World.PropCuller.Radius = 95f;
             _world = MapWorld.Create(_views, _terrain);
 
-            // Pet: en son girilen bölgenin kapısında (yoksa evin önünde) belirir
+            // Pet: bir pencereden dönülüyorsa kaldığı yerde; yoksa en son girilen bölgenin kapısında (yoksa evin önünde) belirir
             var start = _terrain.Regions.FirstOrDefault(r => r.Id == App.State.LastRegion) ?? _terrain.Regions.FirstOrDefault(r => r.Id == "region_home");
             var (sx, sz) = start != null ? _terrain.Door(start) : (_terrain.PlazaX, _terrain.PlazaZ);
+            float heading = 0f, camYaw = 0f;
+            if (App.MapSpot is Core.MapSpot spot && !float.IsNaN(spot.X) && !float.IsNaN(spot.Z))
+            {
+                sx = spot.X; sz = spot.Z; heading = spot.Heading; camYaw = spot.CamYaw;
+            }
             var def = App.Data.Pet(App.State.PetId);
             var items = App.State.Inventory.Equipped.Values.Select(App.Data.Item).Where(i => i != null).ToList();
-            if (def != null) { _world.PlacePet(def, App.Growth, items, sx, sz); _world.Walker.Teleport(sx, sz, 0f); _camYaw = 0f; }
+            if (def != null) { _world.PlacePet(def, App.Growth, items, sx, sz); _world.Walker.Teleport(sx, sz, heading); _camYaw = camYaw; }
 
             if (App.Levels.IsUnlocked(Sparkles.UnlockId, App.Level))
             {
@@ -497,6 +502,14 @@ namespace Pofi.Screens
             if (_world.Walker == null) return "yok";
             var sp = App.Stage.Camera.WorldToScreenPoint(_world.Walker.transform.position + Vector3.up * 0.7f);
             return $"{sp.x:0} {sp.y:0} {Screen.width} {Screen.height}";
+        }
+
+        /// <summary>Ekrandan çıkarken (pencere açıldı, bölgeye girildi) petin yerini hatırla.</summary>
+        private void OnDisable()
+        {
+            if (App == null || _world == null || _world.Walker == null) return;
+            var p = _world.Walker.Position;
+            App.MapSpot = new Core.MapSpot(p.x, p.y, _world.Walker.Heading, _camYaw);
         }
 
         private void OnDestroy()

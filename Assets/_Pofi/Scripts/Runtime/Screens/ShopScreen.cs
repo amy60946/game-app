@@ -43,7 +43,7 @@ namespace Pofi.Screens
             App.Stage.SetBackdrop("b_shop", 6f, 3.4f);
 
             Candy.Caption(Root, T("shop.title"), 64, new Vector2(0.5f, 1f), new Vector2(600f, 90f), new Vector2(0f, -66f));
-            _coins = Candy.Badge(Root, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -24f), 84f, 250f);
+            _coins = Candy.Badge(Root, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(CoinRight, -24f), 84f, 250f);
 
             _tabButtons = new Button[Tabs.Length];
             for (var i = 0; i < Tabs.Length; i++)

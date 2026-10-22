@@ -75,17 +75,37 @@ namespace Pofi.Screens
         }
 
         /// <summary>
-        /// Alt menü kaldırıldı (14 Ekim 2026): ada ana merkez. Her ekranın sol altında geri düğmesi: evin alt sayfaları
-        /// (defter, ayarlar, süsle) Evim'e, diğerleri adaya döner. Adanın kendisinde düğme yok.
+        /// Pencereyi kapat (22 Ekim 2026, kullanıcı): sol alttaki "Ada" düğmesi kaldırıldı; her pencerenin sağ üst köşesinde çarpı.
+        /// Evin alt sayfaları (defter, ayarlar, süsle) Evim'e, diğerleri adaya döner; adada pet kaldığı yerden devam eder
+        /// (<see cref="GameBootstrap.MapSpot"/>). Adanın kendisinde düğme yok. Coin rozeti ve müzik düğmesi çarpının soluna kayar.
         /// </summary>
         protected void NavBar(AppPage current)
         {
             if (App.Page == AppPage.Map) return;
             var home = App.Page == AppPage.Settings || App.Page == AppPage.Album || App.Page == AppPage.Decorate;
             var target = home ? AppPage.Home : AppPage.Map;
-            Candy.Pill(Root, Candy.Blue, T(home ? "hud.home" : "hud.back"), new Vector2(0f, 0f), new Vector2(250f, 100f), new Vector2(160f, 66f),
-                () => App.Open(target), home ? "home_bed" : "decor_palm", 42);
+            CloseButton(Root, () => App.Open(target));
+            MusicButton.Place(MusicButton.BesideClose);
         }
+
+        /// <summary>Sağ üst köşede kırmızı yuvarlak çarpı düğmesi (çizimle; simge dosyası gerekmez).</summary>
+        public static Button CloseButton(Transform parent, System.Action onClick, float size = 100f)
+        {
+            var b = Candy.Round(parent, Candy.Pink, null, size, new Vector2(1f, 1f), new Vector2(-24f - size / 2f, -66f), onClick, null);
+            b.name = "Close";
+            for (var i = 0; i < 2; i++)
+            {
+                var bar = Ui.Rect(b.transform, "X" + i, new Vector2(0.5f, 0.52f), new Vector2(size * 0.52f, size * 0.13f));
+                bar.localRotation = Quaternion.Euler(0f, 0f, i == 0 ? 45f : -45f);
+                var img = bar.gameObject.AddComponent<Image>();
+                img.sprite = Ui.Rounded; img.type = Image.Type.Sliced; img.color = Color.white; img.raycastTarget = false;
+                bar.gameObject.AddComponent<Shadow>().effectColor = new Color(0f, 0f, 0f, 0.2f);
+            }
+            return b;
+        }
+
+        /// <summary>Pencerelerde coin rozetinin sağ kenarı (çarpı düğmesinin solunda).</summary>
+        public const float CoinRight = -150f;
 
         private void TaskBadge(Transform button)
         {
@@ -102,7 +122,7 @@ namespace Pofi.Screens
             // Şerit yok: başlık sahne üstünde kenarlı yazı, coin sağ üstte rozet (14 Ekim 2026 arayüz kararı)
             var t = Candy.Caption(Root, title, 64, new Vector2(0f, 1f), new Vector2(900f, 110f), new Vector2(480f, -62f));
             t.alignment = TextAnchor.MiddleLeft;
-            var coins = Candy.Badge(Root, "ui_coin", App.State.Wallet.Available.ToString(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-30f, -20f), 84f, 250f);
+            var coins = Candy.Badge(Root, "ui_coin", App.State.Wallet.Available.ToString(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(CoinRight, -20f), 84f, 250f);
             coins.gameObject.AddComponent<CoinLive>().Init(App, coins);   // coin sayısı her zaman görünür ve güncel (festival vb. ekranlarda boş kalıyordu)
             return coins;
         }

@@ -64,6 +64,12 @@ namespace Pofi.Core
         public SyncCoordinator Sync { get; private set; }
         public AppPage Page { get; private set; } = AppPage.Map;   // ana merkez ada (14 Ekim 2026)
 
+        /// <summary>
+        /// Petin adada en son durduğu yer (x, z, yön, kamera açısı). Bir pencere açılıp çarpıyla kapanınca pet buradan devam eder
+        /// (22 Ekim 2026, kullanıcı: "oyun akışını bozmayalım"). Yalnız bu oturumda tutulur; uygulama yeniden açılınca son bölgenin kapısı.
+        /// </summary>
+        public MapSpot? MapSpot { get; set; }
+
         /// <summary>Her senkrondan sonra (görev olayları, kazanılan coin).</summary>
         public event Action<SyncReport> Synced;
 
@@ -150,6 +156,7 @@ namespace Pofi.Core
         public void OnSignedIn(ChildSession session, bool route = true)
         {
             Session = session;
+            MapSpot = null;   // başka çocuk / yeni oturum: kapıdan başla
             Theme = Theme.For(session.AgeBand);
             Levels.UseBand(session.AgeBand);   // seviye eşikleri yaş grubuna göre (S1)
             var saved = SaveCodec.Deserialize(Store.Get(SaveKey(session.ChildId)));
@@ -349,6 +356,7 @@ namespace Pofi.Core
             await Auth.SignOutAsync();
             Session = null;
             State = null;
+            MapSpot = null;
             Backend = null;
             Sync = null;
             _remote = null;
@@ -378,6 +386,7 @@ namespace Pofi.Core
             Stage.SetSleeping(false);
             Stage.SetBackdrop(null);
             Stage.Swiped = null;
+            MusicButton.Place(MusicButton.DefaultX);   // pencere çarpısı yanına kaymışsa geri al
             var root = Ui.Fill(Canvas.transform, "Screen " + next);
             root.gameObject.AddComponent<SafeArea>();                // iPhone çentiği / ev çubuğu
             switch (next)
@@ -434,5 +443,12 @@ namespace Pofi.Core
             Audio.Music.Resume();
         }
         private void OnApplicationQuit() => Save();
+    }
+
+    /// <summary>Adada petin yeri ve bakışı (bkz. <see cref="GameBootstrap.MapSpot"/>).</summary>
+    public readonly struct MapSpot
+    {
+        public readonly float X, Z, Heading, CamYaw;
+        public MapSpot(float x, float z, float heading, float camYaw) { X = x; Z = z; Heading = heading; CamYaw = camYaw; }
     }
 }

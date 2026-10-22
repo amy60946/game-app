@@ -4,17 +4,30 @@ using UnityEngine.UI;
 
 namespace Pofi.UI
 {
-    /// <summary>Her ekranın sağ üstünde (coin rozetinin solunda) müzik aç/kapa: ♪; kapalıyken üstü çizili.</summary>
+    /// <summary>Her ekranın sağ üstünde (coin rozetinin solunda; pencerelerde çarpının solundaki coin rozetinin de solunda) müzik aç/kapa: ♪; kapalıyken üstü çizili.</summary>
     public sealed class MusicButton : MonoBehaviour
     {
         private GameObject _slash;
         private GameBootstrap _app;
+        private static MusicButton _instance;
+
+        /// <summary>Varsayılan yer (adada: Ayarlar ile Harita arasında) ve pencerelerde coin rozetinin solu.</summary>
+        public const float DefaultX = -386f, BesideClose = -466f;
+
+        /// <summary>Düğmeyi sağ üstte yatayda taşır (ekran değişince <see cref="GameBootstrap.Route"/> varsayılana döndürür).</summary>
+        public static void Place(float x)
+        {
+            if (_instance == null) return;
+            var rt = (RectTransform)_instance.transform;
+            rt.anchoredPosition = new Vector2(x, rt.anchoredPosition.y);
+        }
 
         public static MusicButton Create(Transform overlay, GameBootstrap app)
         {
             var b = Candy.Round(overlay, Candy.Blue, null, 92f, new Vector2(1f, 1f), new Vector2(-386f, -66f), null);
             var mb = b.gameObject.AddComponent<MusicButton>();
             mb._app = app;
+            _instance = mb;
             Ui.IconImage(b.transform, "ui_music", new Vector2(0.5f, 0.5f), 64f);   // ♪ yazı tipinde yoktu: düğme boş mavi küre görünüyordu
             var slash = Ui.Rect(b.transform, "Off", new Vector2(0.5f, 0.5f), new Vector2(84f, 12f));
             slash.localRotation = Quaternion.Euler(0f, 0f, 45f);
