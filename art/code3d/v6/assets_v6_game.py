@@ -94,10 +94,6 @@ def build(spec):
     elif kind == 'skiset': ski_set(K, K2, col)
     elif kind == 'summit': summit(K, K2, col)
     else: raise SystemExit('bilinmeyen ' + spec)
-    # kabartma: alt bölme + gerçek yer değiştirme kaynağa işlenir (kaya çatlakları normal haritasına geçer)
-    for o in list(col.objects):
-        for md in getattr(o, 'modifiers', []):
-            if md.type == 'SUBSURF' and md.render_levels > md.levels: md.levels = min(md.render_levels, 2)
     high = [o for o in bpy.context.scene.objects if o.type in ('MESH', 'CURVE') and o not in low]
     if low:
         # gövde/dal ve taç dışı parçalar hedefte de kalır (kopya; bütçeye birlikte iner)
@@ -143,21 +139,17 @@ def _flat_mat(K, name, hexc, rough=0.7):
     return m
 
 def ski_set(K, K2, col):
-    """Kayak tepesi (taslak island_v6_near.ski ile aynı öğeler): başlangıç kapısı (iki direk + kırmızı pankart),
-    +Y boyunca sırayla kırmızı/mavi kapı bayrakları, kardan adam (havuç burun), kenarda kızak."""
+    """Kayak tepesi (taslak island_v6_near.ski ile aynı öğeler): +Y boyunca sırayla kırmızı/mavi kapı bayrakları,
+    kardan adam (havuç burun), kızak — patikanın iki yanında (ortası yürüyüş için açık)."""
     import bpy
     bark = K.bark_mat('ski_bark', base='#7a5536', dark='#4a3222', light='#a67c55')
     red, blu, wh, org = _flat_mat(K, 'ski_red', '#e8423a'), _flat_mat(K, 'ski_blu', '#2f7be8'), _flat_mat(K, 'ski_wh', '#f4f7fb', 0.9), _flat_mat(K, 'ski_org', '#f07a1a')
-    for sx in (-1.6, 1.6):
-        v, f = K.tube_data([(sx, 0, -0.2), (sx, 0, 2.6)], [0.09, 0.08], 8, 0); K.mesh_obj('gate_pole', v, f, bark, col=col)
-        v, f = K.tube_data([(sx, 0, 2.6), (sx, 0, 2.85)], [0.11, 0.11], 8, 0); K.mesh_obj('gate_cap', v, f, org, col=col)
-    vs = [(-1.55, 0.02, 2.0), (1.55, 0.02, 2.0), (1.55, 0.02, 2.5), (-1.55, 0.02, 2.5)]
-    K.mesh_obj('gate_banner', vs + [(x, -0.02, z) for (x, _, z) in vs], [(0, 1, 2, 3), (7, 6, 5, 4)], red, col=col)
+    # öğeler patikanın iki yanında (bölge merkezi = karlı patikanın başı; ortası açık kalır, kapı yok)
     for k in range(5):
-        y = 3.0 + k * 3.2; x = (-1.4 if k % 2 else 1.4) + math.sin(k) * 0.3; m = red if k % 2 else blu
+        y = 1.0 + k * 2.6; x = 4.6 + (-0.9 if k % 2 else 0.9) + math.sin(k) * 0.3; m = red if k % 2 else blu
         v, f = K.tube_data([(x, y, -0.1), (x, y, 1.35)], [0.03, 0.025], 6, 0); K.mesh_obj('flag_pole', v, f, m, col=col)
         K.mesh_obj('flag', [(x, y, 1.35), (x + (0.55 if x < 0 else -0.55), y, 1.15), (x, y, 0.95), (x, y + 0.01, 1.35), (x, y + 0.01, 0.95), (x + (0.55 if x < 0 else -0.55), y + 0.01, 1.15)], [(0, 1, 2), (3, 4, 5)], m, col=col)
-    ico = K._ico(2); sx_, sy_ = -3.2, 1.5
+    ico = K._ico(2); sx_, sy_ = -4.6, 1.2
     for (r, hgt) in ((0.5, 0.42), (0.37, 1.1), (0.27, 1.6)):
         K.mesh_obj('snowman', [(sx_ + q[0] * r, sy_ + q[1] * r, hgt + q[2] * r) for q in ico], K._ICO_F[2], wh, col=col)
     K.mesh_obj('nose', [(sx_ - 0.04, sy_ - 0.26, 1.6), (sx_ + 0.04, sy_ - 0.26, 1.6), (sx_, sy_ - 0.26, 1.66), (sx_, sy_ - 0.55, 1.61)], [(0, 1, 3), (1, 2, 3), (2, 0, 3)], org, col=col)
@@ -167,8 +159,8 @@ def ski_set(K, K2, col):
     # kızak: iki kızak demiri + tahta oturak
     wood = K.bark_mat('sled', base='#b5713a', dark='#7a4a26', light='#d89a5c')
     for sx in (-0.28, 0.28):
-        v, f = K.tube_data([(3.0 + sx, -0.6, 0.06), (3.0 + sx, 0.6, 0.06), (3.0 + sx, 0.8, 0.22)], [0.03, 0.03, 0.03], 6, 0); K.mesh_obj('runner', v, f, red, col=col)
-    v, f = K.tube_data([(2.7, 0.0, 0.25), (3.3, 0.0, 0.25)], [0.32, 0.32], 4, 0); K.mesh_obj('seat', v, f, wood, col=col)
+        v, f = K.tube_data([(-5.2 + sx, 3.0, 0.06), (-5.2 + sx, 4.2, 0.06), (-5.2 + sx, 4.4, 0.22)], [0.03, 0.03, 0.03], 6, 0); K.mesh_obj('runner', v, f, red, col=col)
+    v, f = K.tube_data([(-5.5, 3.6, 0.25), (-4.9, 3.6, 0.25)], [0.32, 0.32], 4, 0); K.mesh_obj('seat', v, f, wood, col=col)
 
 def summit(K, K2, col):
     """Dağ zirvesi işareti: üst üste taş kulesi (gri kaya, yosunsuz) + ahşap direkte kırmızı bayrak + dipte birkaç taş."""
@@ -236,13 +228,26 @@ def child(name, out):
             try: bpy.ops.object.convert(target='MESH')
             except Exception: pass
     high = [o for o in bpy.context.scene.objects if o.type == 'MESH' and (low is None or o not in low)]
+    if low is None:
+        # hedef = taslağın görünüm (alt bölmesiz) ağı; kaynak = alt bölme + yer değiştirme ile kabartmalı kopya.
+        # (Hedef kaynağın kendisinden sadeleşince çok parçalı modeller — tapınak — dağılıyordu.)
+        dg = bpy.context.evaluated_depsgraph_get(); low = []
+        for o in high:
+            me = bpy.data.meshes.new_from_object(o.evaluated_get(dg), depsgraph=dg)
+            c = bpy.data.objects.new(o.name + '_low', me); c.matrix_world = o.matrix_world.copy(); bpy.context.scene.collection.objects.link(c); low.append(c)
+    # kabartma: alt bölme + gerçek yer değiştirme yalnız kaynağa (kaya çatlakları normal haritasına geçer); tapınak gibi
+    # çok parçalı yapılarda alt bölme kapalı kalır (kaynak zaten ayrıntılı)
+    if ASSETS[name][0].split(':')[0] in ('boulder', 'boulderB', 'pebW', 'cave', 'summit', 'pool', 'stump', 'log', 'driftwood'):
+        for o in high:
+            for md in getattr(o, 'modifiers', []):
+                if md.type == 'SUBSURF' and md.render_levels > md.levels: md.levels = min(md.render_levels, 2)
     _, target, tex = ASSETS[name]
     leaf = opts.get('leaf')
     # ışın: ağaçta yaprak katmanı kalınlığı; katı modellerde kabartma kadar (model 1 m'lik örnek ölçüsünde)
     cage, ray = (leaf * 0.9, leaf * 2.2) if leaf else (0.02, 0.08)
     tris = PB.export_proxy(os.path.join(out, name), high, low, target=target, size=tex, nsize=max(256, tex // 2),
                            cage=cage, ray=ray, ao_strength=0.5 if leaf is None else 0.7, ds_low=True,
-                           tone=1.35 if ASSETS[name][0].split(':')[0] in ('boulder', 'boulderB', 'pebW', 'cave', 'pool') else 1.0)
+                           tone=1.2 if ASSETS[name][0].split(':')[0] in ('boulder', 'boulderB', 'pebW', 'cave', 'pool') else 1.0)
     print('üçgen', tris, flush=True)
 
 def export(name):

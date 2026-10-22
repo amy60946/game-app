@@ -62,26 +62,29 @@ Shader "Pofi/Ground"
             // altında koyu oyuk, üst kenarda açık pah; deniz kıyısında ıslak koyu. along: yüzeyin yatay yönü (iki izdüşüm karışımı).
             float3 StrataAt(float y, float along, float2 q, out float groove, out float2 tilt)
             {
+                // taslaktaki kanyon duvarı: serin gri, dikey akan kıvrımlar (perde gibi oluklar) ağır basar, yatay tabaka
+                // izi hafif; düzensiz genişlikte dikey sütunlar (çatlak çizgisi y boyunca kıvrılır), çatlak/oluk diplerinde koyu
                 float wob = vnoise(q * 0.17) * 1.6 + vnoise(q * 0.6) * 0.4;
                 float ly = y / 1.6 + wob / 6.2832;
                 float layer = floor(ly), fr = ly - layer;
-                // dikey çatlaklar: tabaka başına kaydırılmış, genişliği 0,9–2,2 m bloklar
-                float bw = lerp(0.9, 2.2, hash12(float2(layer, 7.1)));
-                float u = along / bw + hash12(float2(layer, 3.3)) * 10.0 + vnoise(float2(y * 1.3, along * 0.3)) * 0.35;
+                float bw = lerp(1.4, 3.6, hash12(float2(floor(ly * 0.5), 7.1)));
+                float u = along / bw + vnoise(float2(y * 0.55, along * 0.2)) * 0.9 + hash12(float2(floor(ly * 0.5), 3.3)) * 10.0;
                 float cell = floor(u), fu = u - cell;
-                float rnd = hash12(float2(cell, layer));
-                float crack = smoothstep(0.06, 0.0, fu) + smoothstep(0.94, 1.0, fu);
-                float under = smoothstep(0.10, 0.0, fr);                                   // tabaka altı oyuk
-                float lip = smoothstep(0.86, 0.97, fr) * (1.0 - smoothstep(0.97, 1.0, fr)); // üst pah (açık)
-                groove = saturate(max(crack * 0.85, under));
-                float streak = vnoise(float2(along * 3.0, y * 0.45)) * 0.7 + vnoise(float2(along * 9.0, y * 1.4)) * 0.3;
-                float3 rk = lerp(Lin(float3(0.60, 0.60, 0.62)), Lin(float3(0.83, 0.82, 0.80)), saturate(0.35 + rnd * 0.45 + (streak - 0.5) * 0.5));
-                rk = lerp(rk, Lin(float3(0.47, 0.45, 0.50)), smoothstep(0.62, 0.85, streak) * 0.55);
-                rk = lerp(rk, Lin(float3(0.92, 0.90, 0.87)), lip * 0.6);
-                rk = lerp(rk, Lin(float3(0.40, 0.39, 0.42)), smoothstep(1.6, 0.0, y) * 0.55);
-                rk = lerp(rk, Lin(float3(0.24, 0.23, 0.27)), groove * 0.8);
-                // blok yüzeyi hafif eğik (yontulmuş levha hissi) + çatlağa doğru kavis
-                tilt = float2((rnd - 0.5) * 0.5 + (fu - 0.5) * 0.25 * (1.0 - crack), (hash12(float2(layer, cell + 9.0)) - 0.5) * 0.35);
+                float rnd = hash12(float2(cell, floor(ly * 0.5)));
+                float crack = smoothstep(0.05, 0.0, fu) + smoothstep(0.95, 1.0, fu);
+                float under = smoothstep(0.08, 0.0, fr) * 0.55;                           // tabaka altı (hafif)
+                float lip = smoothstep(0.88, 0.97, fr) * (1.0 - smoothstep(0.97, 1.0, fr));
+                // dikey perde oluklar: yatayda yüksek, dikeyde çok düşük frekans
+                float drape = vnoise(float2(along * 2.2, y * 0.12)) * 0.6 + vnoise(float2(along * 6.5, y * 0.35)) * 0.4;
+                float fold = smoothstep(0.35, 0.75, drape);
+                groove = saturate(max(crack * 0.9, under) + smoothstep(0.32, 0.12, drape) * 0.5);
+                float3 dark = Lin(float3(0.40, 0.41, 0.45)), mid = Lin(float3(0.58, 0.59, 0.62)), light = Lin(float3(0.76, 0.76, 0.77));
+                float3 rk = lerp(mid, light, saturate(fold * 0.8 + (rnd - 0.5) * 0.35));
+                rk = lerp(rk, dark, smoothstep(0.30, 0.10, drape) * 0.6);
+                rk = lerp(rk, Lin(float3(0.86, 0.86, 0.85)), lip * 0.45);
+                rk = lerp(rk, Lin(float3(0.36, 0.35, 0.38)), smoothstep(1.6, 0.0, y) * 0.55);
+                rk = lerp(rk, Lin(float3(0.20, 0.20, 0.24)), groove * 0.75);
+                tilt = float2((fold - 0.5) * 0.6 + (rnd - 0.5) * 0.3, (hash12(float2(floor(ly * 0.5), cell + 9.0)) - 0.5) * 0.25);
                 return rk;
             }
 
@@ -101,9 +104,10 @@ Shader "Pofi/Ground"
             }
 
             // kanyon kaldırımı: dünya koordinatlı Voronoi taşları (0,22 m), aralarda kahve toprak; uzakta söner (titreme olmasın)
-            float3 Cobbles(float2 p, float3 base, out float edge)
+            // kanyon kaldırımı: dünya koordinatlı Voronoi taşları (~0,15 m), aralarda kahve toprak; uzakta söner (titreme olmasın)
+            float3 Cobbles(float2 p, out float edge)
             {
-                float2 g = p / 0.22; float2 c = floor(g), f = g - c;
+                float2 g = p / 0.15; float2 c = floor(g), f = g - c;
                 float d1 = 8.0, d2 = 8.0; float2 id = 0;
                 [unroll] for (int y = -1; y <= 1; y++)
                 [unroll] for (int x = -1; x <= 1; x++)
@@ -112,11 +116,11 @@ Shader "Pofi/Ground"
                     float d = dot(r, r);
                     if (d < d1) { d2 = d1; d1 = d; id = c + o; } else if (d < d2) d2 = d;
                 }
-                edge = smoothstep(0.10, 0.02, sqrt(d2) - sqrt(d1));
+                edge = smoothstep(0.16, 0.04, sqrt(d2) - sqrt(d1));
                 float h = hash12(id);
-                float3 stone = lerp(Lin(float3(0.62, 0.62, 0.63)), Lin(float3(0.86, 0.85, 0.83)), h);
-                stone = lerp(stone, Lin(float3(0.70, 0.60, 0.50)), step(0.78, hash12(id + 5.0)) * 0.6);
-                float3 dirt = Lin(float3(0.44, 0.34, 0.24));
+                float3 stone = lerp(Lin(float3(0.48, 0.48, 0.50)), Lin(float3(0.72, 0.71, 0.70)), h);
+                stone = lerp(stone, Lin(float3(0.62, 0.52, 0.42)), step(0.72, hash12(id + 5.0)) * 0.7);
+                float3 dirt = Lin(float3(0.40, 0.30, 0.21));
                 return lerp(stone, dirt, edge);
             }
 
@@ -151,7 +155,7 @@ Shader "Pofi/Ground"
                 if (cob > 0.001)
                 {
                     float edge;
-                    float3 cb = Cobbles(p, albedo, edge);
+                    float3 cb = Cobbles(p, edge);
                     albedo = lerp(albedo, cb * lerp(0.9, 1.1, tex.g), cob * 0.9);
                     n = normalize(n + float3(0, -0.25, 0) * edge * cob);
                 }

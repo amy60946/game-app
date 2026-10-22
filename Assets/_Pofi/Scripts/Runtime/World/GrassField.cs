@@ -78,14 +78,14 @@ namespace Pofi.World
         }
 
         /// <summary>
-        /// Mavi çan çiçeği öbeği (taslaktaki çayır, 22 Ekim 2026): 5 ince sap, her sapın üst üçte birinde 6 küçük sarkık çan.
+        /// Mavi çan çiçeği öbeği (taslaktaki çayır, 22 Ekim 2026): 4 ince sap, her sapın üst kısmında 5 küçük sarkık çan.
         /// Saplar uv.x = 2 (çim tonu köşe alfasından), çanlar uv.x = 3 (renk köşe renginden; Pofi/Grass).
         /// </summary>
         private static Mesh Bluebell()
         {
             var rnd = new System.Random(23);
             var v = new List<Vector3>(); var uv = new List<Vector2>(); var t = new List<int>();
-            for (var b = 0; b < 5; b++)
+            for (var b = 0; b < 4; b++)
             {
                 var a = (float)rnd.NextDouble() * Mathf.PI * 2f; var r = (float)rnd.NextDouble() * 0.09f;
                 var root = new Vector3(Mathf.Cos(a) * r, 0f, Mathf.Sin(a) * r);
@@ -98,9 +98,9 @@ namespace Pofi.World
                 v.Add(root - side); v.Add(root + side); v.Add(top);
                 uv.Add(new Vector2(2f, 0f)); uv.Add(new Vector2(2f, 0f)); uv.Add(new Vector2(2f, 1f));
                 t.Add(i0); t.Add(i0 + 1); t.Add(i0 + 2);
-                for (var k = 0; k < 6; k++)
+                for (var k = 0; k < 5; k++)
                 {
-                    var f = 0.62f + k * 0.065f;
+                    var f = 0.6f + k * 0.08f;
                     var c = root + (top - root) * f;
                     var da = (float)rnd.NextDouble() * Mathf.PI * 2f;
                     var dir = new Vector3(Mathf.Cos(da), 0f, Mathf.Sin(da));
@@ -236,18 +236,19 @@ namespace Pofi.World
                 // çiçek öbeği (taslaktaki çan çiçeği tarlaları ve turuncu benekler): yoğunluğa göre çimin yerine
                 var bell = t.Bluebell(x, z); var orange = t.OrangeFlower(x, z);
                 var hf = Hash(gx - 17, gz + 23);
-                if (bell > 0.08f && hf < bell * 0.75f)
+                if (bell > 0.05f && hf < Mathf.Min(0.95f, bell * 1.8f))
                 {
+                    // taslaktaki koyu mavi-mor çan çiçeği (köşe rengi doğrusal uzayda: sRGB tonu .linear ile)
                     var hue = Hash(gx + 41, gz - 3);
-                    var bc = Color.Lerp(new Color(0.30f, 0.33f, 0.82f), new Color(0.50f, 0.46f, 0.92f), hue);
+                    var bc = Color.Lerp(new Color(0.24f, 0.28f, 0.78f), new Color(0.40f, 0.36f, 0.86f), hue).linear;
                     var tone = 0.86f + Hash(gx - 2, gz + 9) * 0.2f;
                     grass.Add(new Placed { M = Matrix4x4.TRS(pos, Quaternion.Euler(0f, hsh * 360f, 0f), Vector3.one * (0.85f + hf * 0.5f)), C = new Color(bc.r, bc.g, bc.b, tone), Mesh = _bell });
-                    if (hf < bell * 0.45f) continue;   // yoğun tarlada çim azalır
+                    if (hf < bell * 1.1f) continue;   // yoğun tarlada çimin yerini çiçek alır
                 }
-                else if (orange > 0.08f && hf < orange * 0.5f)
+                else if (orange > 0.05f && hf < Mathf.Min(0.8f, orange * 1.2f))
                 {
                     var hue = Hash(gx + 41, gz - 3);
-                    var oc = Color.Lerp(new Color(0.95f, 0.55f, 0.2f), new Color(0.98f, 0.78f, 0.3f), hue);
+                    var oc = Color.Lerp(new Color(0.92f, 0.50f, 0.22f), new Color(0.96f, 0.70f, 0.32f), hue).linear;
                     grass.Add(new Placed { M = Matrix4x4.TRS(pos, Quaternion.Euler(0f, hsh * 360f, 0f), Vector3.one * (0.9f + hf * 0.4f)), C = new Color(oc.r, oc.g, oc.b, 0.95f), Mesh = _daisy });
                 }
                 var tall = (0.75f + Hash(gx + 7, gz) * 0.5f) * Mathf.Lerp(0.6f, 1f, edge);

@@ -85,6 +85,9 @@ def export_proxy(path_noext, high, low=None, target=1500, size=1024, nsize=None,
     bpy.ops.object.mode_set(mode='OBJECT')
     bm = bpy.data.materials.new('bake'); bm.use_nodes = True; L.data.materials.append(bm)
     tex = bm.node_tree.nodes.new('ShaderNodeTexImage'); bm.node_tree.nodes.active = tex
+    # hedef ağ kaynağın üstünde/içinde durur: oyuk gölgesi (AO) ışınları ona çarpıp her yeri karartmasın
+    for attr in ('visible_diffuse', 'visible_glossy', 'visible_transmission', 'visible_shadow', 'visible_volume_scatter'):
+        if hasattr(L, attr): setattr(L, attr, False)
     bk = sc.render.bake
     bk.use_selected_to_active = True; bk.cage_extrusion = cage; bk.max_ray_distance = ray; bk.margin = margin; bk.use_clear = True
     def select_for_bake():

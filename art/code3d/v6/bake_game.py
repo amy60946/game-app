@@ -171,13 +171,13 @@ def _segd(px, pz, path):
 
 def clear_paths(lay):
     """Patikanın üstüne/kenarına taşan ağaç ve çalıları kaldırır (geri bildirim 11, 22 Ekim 2026: kayak tepesine giden
-    patikanın önü ağaçla kapalı görünüyordu). Gövdesi patika ekseninden 2,6 m + taç payı içindeki ağaç, 1,7 m içindeki çalı gider."""
+    patikanın önü ağaçla kapalı görünüyordu). Gövdesi patika ekseninden 2,2 m içindeki ağaç, 1,4 m içindeki çalı gider."""
     paths = list(lay.get('paths', [])) + [list(TV.SNOW_PATH)]
     keep = []; gone = 0
     for p in PROPS:
         a = p['a']; tree = a.startswith('t_') and a != 't_bush' or a == 'palm'
         if tree or a == 't_bush':
-            lim = (2.6 + min(1.6, 0.12 * p['s'])) if tree else 1.7
+            lim = 2.2 if tree else 1.4          # yalnız gövdesi patikanın üstünde/kenarında olan; yandaki sıra kalır (kamera önü CameraClear ile açılır)
             if min(_segd(p['x'], p['z'], q) for q in paths) < lim: gone += 1; continue
         keep.append(p)
     PROPS[:] = keep; IV.log('patikadan kaldırılan', gone)
