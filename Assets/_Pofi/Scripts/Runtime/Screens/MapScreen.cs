@@ -71,6 +71,7 @@ namespace Pofi.Screens
 
             _labelLayer = Ui.Fill(Root, "Labels");
             foreach (var v in _views) _labels[v.Region.Id] = Label(v);
+            BuildPlaceLabels();
             BuildGather();   // kütük/çalı/taş + kulübe yeri, nesne üstü baloncuklar
 
             BuildHud();
@@ -90,6 +91,32 @@ namespace Pofi.Screens
             if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
             if (_overview) _pan = _terrain.Baked != null ? new Vector2(0f, -18f) : new Vector2(0f, _terrain.Def.Cz - 6f);   // kuşbakışı: adanın ortası
             _toast.Say(T(_overview ? "map.hint_overview" : "map.hint_walk"));
+        }
+
+        // onaylı v6 haritasındaki alt yer adları (bölge değil, yalnız kuşbakışında; koyu yeşil hap): spots anahtarı ya da sabit nokta
+        private static readonly (string Key, float X, float Z)[] Places =
+        {
+            ("temple", 0f, -6f), ("spire", 0f, 0f), ("canyon", 0f, 0f), ("lake", 0f, 0f), ("bluebell", 0f, 0f),
+            ("forest", 0f, 0f), ("camp", 0f, 0f), ("@ski_piste", -46f, 47f), ("@sea_stack", 76f, -52f),
+        };
+        private readonly List<(RectTransform Rt, Vector3 At)> _places = new List<(RectTransform, Vector3)>();
+
+        private void BuildPlaceLabels()
+        {
+            var lay = _terrain.Baked?.Layout;
+            if (lay == null) return;
+            foreach (var (key, x, z) in Places)
+            {
+                float px, pz;
+                if (key[0] == '@') { px = x; pz = z; }
+                else if (lay.Spots.TryGetValue(key, out var s) && s.Length >= 2) { px = s[0] + x; pz = s[1] + z; }
+                else continue;
+                var id = key.TrimStart('@');
+                var rt = Ui.Rect(_labelLayer, "place_" + id, Vector2.zero, new Vector2(260f, 52f));
+                rt.pivot = new Vector2(0.5f, 0f);
+                Candy.Tag(rt, T("place." + id), new Color(0.13f, 0.27f, 0.24f, 0.86f), 24, 52f);
+                _places.Add((rt, _world.World(px, pz) + Vector3.up * 3f));
+            }
         }
 
         private RectTransform Label(RegionView v)
@@ -251,6 +278,12 @@ namespace Pofi.Screens
                 var sp = cam.WorldToScreenPoint(t.position + Vector3.up * lh);
                 kv.Value.gameObject.SetActive(near && sp.z > 0f);
                 kv.Value.anchoredPosition = new Vector2(sp.x * scale, sp.y * scale);
+            }
+            foreach (var (rt, at) in _places)
+            {
+                var sp = cam.WorldToScreenPoint(at);
+                rt.gameObject.SetActive(_overview && sp.z > 0f);
+                rt.anchoredPosition = new Vector2(sp.x * scale, sp.y * scale);
             }
         }
 
