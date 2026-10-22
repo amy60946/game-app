@@ -112,6 +112,15 @@ namespace Pofi.Core
                     case "audio":       // müzik durumu, adım sesi ve titreşim sayısı
                         Debug.Log($"[PofiDebug] audio {Audio.Music.Describe()} adım={Audio.Sfx.Steps} titreşim={Audio.Haptics.Count}");
                         break;
+                    case "surprise":    // test: "surprise N" — N. sürprizin yanına ışınlan; liste günlüğe
+                        Debug.Log("[PofiDebug] surprise " + Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugSurprise(int.Parse(string.IsNullOrEmpty(arg) ? "0" : arg)));
+                        break;
+                    case "pettap":      // test: pete dokun (A1)
+                        Debug.Log("[PofiDebug] pettap " + Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugPetTap());
+                        break;
+                    case "mailbox":     // test: posta kutusunun önüne ışınlan
+                        Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugMailbox();
+                        break;
                     case "petpos":      // adadaki petin ekran konumu (piksel, sol alt köken) — gerçek dokunma testi için
                         Debug.Log("[PofiDebug] petpos " + Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugPetScreen());
                         break;

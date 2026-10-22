@@ -709,6 +709,39 @@ namespace Pofi.Screens
             App.GrantXp(def.Xp, Logic.Economy.XpSource.Achievement);
         }
 
+        /// <summary>Test: i. sürprizin yanına ışınlan (kamera ona baksın); liste döner.</summary>
+        public string DebugSurprise(int i)
+        {
+            if (i >= 0 && i < _surprises.Count && _world.Walker != null)
+            {
+                var s = _surprises[i];
+                var w = _terrain.NearestWalkable(s.X - 3f, s.Z - 3f);
+                if (!float.IsNaN(w.x)) { _world.Walker.Teleport(w.x, w.z, 45f); _camYaw = Mathf.Atan2(s.X - w.x, s.Z - w.z) * Mathf.Rad2Deg; }
+            }
+            return string.Join(", ", _surprises.Select((s, k) => k + ":" + s.Def.Kind + "@" + s.X.ToString("0") + "," + s.Z.ToString("0")));
+        }
+
+        /// <summary>Test: pete dokunmuş gibi (A1 tepki + giydir baloncuğu).</summary>
+        public string DebugPetTap()
+        {
+            if (_world.Walker == null) return "pet yok";
+            var r = Logic.Story.OktiReactions.Next(App.State.Story);
+            _world.Walker.React(r);
+            ShowDressBubble();
+            return r;
+        }
+
+        /// <summary>Test: posta kutusunun önüne ışınlan.</summary>
+        public void DebugMailbox()
+        {
+            if (_mailbox == null || _world.Walker == null) return;
+            var p = _world.Local(_mailbox.transform.position);
+            var w = _terrain.NearestWalkable(p.x + 2.5f, p.y + 2.5f);
+            if (float.IsNaN(w.x)) return;
+            _world.Walker.Teleport(w.x, w.z, 0f);
+            _camYaw = Mathf.Atan2(p.x - w.x, p.y - w.z) * Mathf.Rad2Deg;
+        }
+
         /// <summary>Hata ayıklama/test: kamera modunu değiştir, ada üzerinde bir noktaya yürü.</summary>
         public void DebugToggle() => ToggleMode();
         public void DebugWalk(float x, float z) => GoTo(x, z, null);
