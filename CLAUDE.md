@@ -96,3 +96,4 @@
 - Pencere kapatma (22 Ekim 2026, kullanıcı): sol alttaki "Ada" düğmesi yok; her pencerenin sağ üstünde kırmızı çarpı (`ScreenBase.NavBar` → `CloseButton`; evin alt sayfaları Evim'e, diğerleri adaya). Coin rozeti çarpının solunda (`ScreenBase.CoinRight`), müzik düğmesi pencerelerde `MusicButton.BesideClose`, adada `DefaultX` (`GameBootstrap.Route` sıfırlar).
   Adaya dönüşte pet kaldığı yerden devam eder: `GameBootstrap.MapSpot` (yalnız oturum içi; `MapScreen.OnDisable` yazar). Uygulama yeniden açılınca son bölgenin kapısı.
   Kenar göstergeleri yeni tasarım ön onayda: https://claude.ai/artifact/4xQHoTa8Lj5FgdgdF28zbo (D Arena / E Altın Atölye / F Pamuk / G Akıllı Gizlen; kaynak scratchpad, seçim bekleniyor).
+  Pencere/nesne/animasyon/hikâye fikirleri (P1–P5, O1–O5, A1–A4, H1–H6; kaynaklı) ön onayda: https://claude.ai/artifact/PMTnywXjED1E27AVvthS6L (kaynak scratchpad/ideas).
