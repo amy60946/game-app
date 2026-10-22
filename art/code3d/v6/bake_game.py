@@ -101,7 +101,9 @@ def place_props(L, B):
     rt = random.Random(21)
     for (a, x, y, z, s_) in (('t_blossom', -5.0, 12.8, 1.0, 9.0 * 1.25), ('t_round0', -16.5, 2.0, 0.0, 7.0), ('t_round3', 16.5, -1.0, 0.0, 8.0 * 0.9),
                              ('t_round2', 8.0, 13.0, 1.0, 9.0), ('t_round0', -7.0, 13.5, 1.0, 7.0 * 0.85), ('t_bush', -3.5, -8.0, 0.0, 1.3), ('t_bush', 4.5, -8.5, 0.0, 1.04)):
-        record(a, tx + x, tz + y, ty + z - 0.1, rt.uniform(0, 6.3), s_)
+        wx, wz = tx + x, tz + y
+        if any(math.hypot(wx - r['pos'][0], wz - r['pos'][1]) < r['size'] * 0.65 + 0.5 for r in L.lay['regions']): continue   # bölge yapısına girmesin
+        record(a, wx, wz, ty + z - 0.1, rt.uniform(0, 6.3), s_)
     # karlı patika: işaret direkleri (her ~3,5 m, iki yanda) + kar topakları setlerde
     pts = TV.SNOW_PATH; Rn = random.Random(17)
     for (ax, az), (bx, bz) in zip(pts[:-1], pts[1:]):
