@@ -96,7 +96,6 @@ namespace Pofi.Screens
                 var mx = hx + side.x; var mz = hz + side.y;
                 _mailbox = Mailbox.Create(_world.transform, new Vector3(mx, _terrain.Height(mx, mz), mz), Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg);
                 _mailbox.Unread = App.MailUnread > 0;
-                RefreshMailFlag();
             }
 
             _labelLayer = Ui.Fill(Root, "Labels");
@@ -110,6 +109,7 @@ namespace Pofi.Screens
 
             SnapCamera();
             _toast.Say(T("map.hint_walk"));
+            if (_mailbox != null) RefreshMailFlag();   // baloncuk kurulduktan sonra: sahte arka uç eşzamanlı döner
             StartCoroutine(StoryCheck());   // Ö4: sırası gelen hikâye sahnesi
         }
 
@@ -503,7 +503,7 @@ namespace Pofi.Screens
                 var (dx, dz) = _terrain.Door(v.Region);
                 var icon = ResidentIcons.TryGetValue(d.Who, out var ic) ? ic : "ui_gift";
                 var id = d.Id;
-                var b = Candy.Round(_gLayer, Candy.White, icon, 120f, Vector2.zero, Vector2.zero, () => GoTo(dx, dz, () => RequestCard(id)));
+                var b = Candy.Round(_labelLayer, Candy.White, icon, 120f, Vector2.zero, Vector2.zero, () => GoTo(dx, dz, () => RequestCard(id)));
                 Hover.On(b, 7f);
                 var gem = Ui.Rect(b.transform, "Need", new Vector2(1f, 1f), new Vector2(52f, 52f), new Vector2(-6f, -6f));
                 Ui.Panel(gem, Theme.Hex("#FFD23F"), 26f).raycastTarget = false;
@@ -806,7 +806,7 @@ namespace Pofi.Screens
             await App.RefreshMail();
             if (this == null || _mailbox == null) return;
             _mailbox.Unread = App.MailUnread > 0;
-            if (App.MailUnread > 0 && !_mailToldThisSession) { _mailToldThisSession = true; _toast.Say(T("mail.new", App.MailUnread)); }
+            if (App.MailUnread > 0 && !_mailToldThisSession && _toast != null) { _mailToldThisSession = true; _toast.Say(T("mail.new", App.MailUnread)); }
         }
 
         /// <summary>Sürpriz bulundu (O3): ödül günde bir kez (küçük XP), kısa söz; puan ya da seri yok.</summary>
