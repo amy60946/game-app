@@ -295,6 +295,8 @@ namespace Pofi.Core
         public event System.Action<int> XpGained;
         /// <summary>Yeni rozet kazanıldı (adet): adada pet sevinir, kupa göstergesi yaylanır (XP takibi M4).</summary>
         public event System.Action<int> BadgeEarned;
+        /// <summary>Günün son oyun içi görevi bitti: günlük sandık açılabilir (S2); Görev düğmesi parlar.</summary>
+        public event System.Action ChestReady;
 
         public XpResult GrantXp(int amount, XpSource source)
         {
@@ -315,7 +317,8 @@ namespace Pofi.Core
             var r = Activity.Record(State, Data, Levels, counter, n, LocalNow);
             foreach (var b in r.NewBadges) Toast.Post(Overlay.transform, Theme, Loc.Get("badge.earned", b.Name));
             if (r.NewBadges.Count > 0) BadgeEarned?.Invoke(r.NewBadges.Count);
-            foreach (var q in r.QuestsDone) Toast.Post(Overlay.transform, Theme, q.Text + "  " + Loc.Get("xp.gain", q.Xp));
+            for (var i = 0; i < r.QuestsDone.Count; i++) Toast.Post(Overlay.transform, Theme, r.QuestsDone[i].Text + "  " + Loc.Get("xp.gain", r.QuestXpEach[i]));
+            if (r.ChestReady) { Toast.Post(Overlay.transform, Theme, Loc.Get("chest.ready")); ChestReady?.Invoke(); }
             if (r.BadgeXp > 0) GrantXp(r.BadgeXp, XpSource.Achievement);
             if (r.QuestXp > 0) GrantXp(r.QuestXp, XpSource.DailyQuest);
             // rehberli zincir (Sv1–3): sırası gelen adım bu eylemle bittiyse kısa kutlama + XP

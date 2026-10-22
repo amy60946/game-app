@@ -165,6 +165,19 @@ namespace Pofi.Screens
             else GainFx.AroundPet(kind, amount, w.transform, PetHeight, done);
         }
 
+        /// <summary>Günlük sandık (S2): adada petin önünde 3B sandık açılır, ödül pete akar.</summary>
+        protected override void PlayChest(Sprite prize, System.Action done)
+        {
+            var w = _world != null ? _world.Walker : null;
+            if (w == null || _overview) { base.PlayChest(prize, done); return; }
+            ChestFx.Play(w.transform, PetHeight, prize, () =>
+            {
+                if (this == null) return;
+                if (_world != null && _world.Walker != null) _world.Walker.Cheer();
+                done?.Invoke();
+            });
+        }
+
         /// <summary>Senkronda gelen Güneş Taşı (ebeveyn onayı): altın kristaller gökten pete iner.</summary>
         private void OnSyncedFx(Logic.State.SyncReport r)
         {

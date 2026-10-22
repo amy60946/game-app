@@ -148,13 +148,44 @@ namespace Pofi.Screens
                 Ui.Label(box, q.Text, Th.Font(40), done ? Theme.Hex("#2E9E4F") : Th.Text, new Vector2(0.4f, y), new Vector2(640f, 70f), FontStyle.Bold, TextAnchor.MiddleLeft);
                 // ödül: yıldız simgesi + XP (coin değil: oyun içi görevler yıldız verir)
                 Ui.IconImage(box, "ui_star", new Vector2(0.77f, y), 54f);
-                Ui.Label(box, T("xp.star", q.Xp), Th.Font(36), Th.Text, new Vector2(0.83f, y), new Vector2(110f, 60f), FontStyle.Bold);
+                Ui.Label(box, T("xp.star", Logic.App.Activity.QuestXp(App.State, App.Levels, q)), Th.Font(36), Th.Text, new Vector2(0.83f, y), new Vector2(110f, 60f), FontStyle.Bold);
                 Ui.Label(box, done ? T("home.daily_done") : prog + "/" + q.Target, Th.Font(34), Th.SubtleText, new Vector2(0.93f, y), new Vector2(120f, 60f), FontStyle.Bold);
                 var bar = Ui.Bar(box, new Vector2(0.5f, y - 0.055f), new Vector2(860f, 16f), new Color(0f, 0f, 0f, 0.08f), Th.Primary, 8f);
                 Ui.SetBar(bar, (float)prog / q.Target);
                 i++;
             }
-            Ui.Button(box, Th, T("common.ok"), new Vector2(0.5f, 0.1f), new Vector2(360f, 110f), () => Destroy(root.gameObject), false, default, 44);
+            // günlük sandık (S2): üç görev bitince bir kez açılır; şans oranları her zaman görünür
+            var dq = App.State.DailyQuests;
+            var ready = Logic.Meta.DailyChest.Ready(dq);
+            Ui.IconImage(box, "ui_gift", new Vector2(0.1f, 0.22f), 84f);
+            Ui.Label(box, T(dq.ChestOpened ? "chest.opened" : ready ? "chest.open_hint" : "chest.locked"), Th.Font(34), Th.Text,
+                new Vector2(0.43f, 0.245f), new Vector2(560f, 56f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            Ui.Label(box, T("chest.odds"), Th.Font(26), Th.SubtleText, new Vector2(0.43f, 0.19f), new Vector2(560f, 44f), FontStyle.Normal, TextAnchor.MiddleLeft);
+            if (ready)
+            {
+                var b = Ui.Button(box, Th, T("chest.open"), new Vector2(0.86f, 0.22f), new Vector2(220f, 96f), () =>
+                {
+                    Destroy(root.gameObject);
+                    var level = App.Levels.LevelFor(App.State.Xp.TotalXp);
+                    var prize = Logic.Meta.DailyChest.Open(App.State.DailyQuests, App.Data, App.State.Inventory, level, App.State.ChildId ?? "");
+                    App.Save();
+                    var item = prize != null ? App.Data.Item(prize.ItemId) : null;
+                    PlayChest(item != null ? Ui.Icon(item.Id) : null, () =>
+                    {
+                        Audio.Sfx.Play(Audio.SfxKind.Success);
+                        if (item != null) Toast.Post(App.Overlay.transform, Th, T(prize.Quantity > 1 ? "chest.got_n" : "chest.got", item.Name, prize.Quantity));
+                    });
+                }, true, default, 40);
+                Hover.On(b.GetComponent<RectTransform>(), 6f, 0.08f);
+            }
+            Ui.Button(box, Th, T("common.ok"), new Vector2(0.5f, 0.07f), new Vector2(360f, 100f), () => Destroy(root.gameObject), false, default, 44);
+        }
+
+        /// <summary>Sandık açılış gösterisi; adada 3B (MapScreen), başka ekranda hemen biter.</summary>
+        protected virtual void PlayChest(Sprite prize, System.Action done)
+        {
+            StarSparkles.Around(App.Overlay.transform, new Vector2(0.5f, 0.55f), new Vector2(0.2f, 0.22f), 12, 77);
+            done?.Invoke();
         }
 
         /// <summary>Bugün henüz tamamlanmamış oyun içi görev sayısı (Görev rozeti).</summary>

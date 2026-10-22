@@ -49,6 +49,54 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
+        public void Gunluk_gorev_XPsi_seviyeye_oranli_ve_sinira_sayilmaz()
+        {
+            var d = TestData.Load();
+            var levels = new LevelTable(d.Levels);
+            var q = d.DailyQuests.First(x => x.Id == "dq_feed_2");   // 15 XP
+            int Need(int lv) => levels.TotalXpFor(lv + 1) - levels.TotalXpFor(lv);
+            Assert.AreEqual(15, DailyQuests.XpFor(q, Need(1)), "alt seviyede verideki sayının altına inmez");
+            var high = DailyQuests.XpFor(q, Need(14));
+            Assert.AreEqual((int)Math.Round(Need(14) * 0.04), high, "Sv14: seviyenin %4'ü");
+            Assert.Greater(high, 100);
+            var xp = new Pofi.Logic.Economy.XpSystem();
+            xp.Add(300, Pofi.Logic.Economy.XpSource.MiniGame, Local, 300);
+            Assert.AreEqual(high, xp.Add(high, Pofi.Logic.Economy.XpSource.DailyQuest, Local, 300).Granted, "günlük görev sınıra takılmaz");
+            Assert.IsTrue(d.DailyQuests.Any(x => x.Id == "dq_harvest_2" && x.Counter == "harvests" && x.Unlock == "region_garden"), "bahçe görevi (M3)");
+        }
+
+        [Test]
+        public void Gunluk_sandik_uc_gorev_bitince_bir_kez_acilir_coin_vermez()
+        {
+            var d = TestData.Load();
+            var inv = new Inventory();
+            var st = new DailyQuestState { Day = 20000, Ids = new List<string> { "dq_feed_2", "dq_wash_1", "dq_play_3" } };
+            Assert.IsFalse(DailyChest.Ready(st));
+            st.Claimed.AddRange(new[] { "dq_feed_2", "dq_wash_1" });
+            Assert.IsNull(DailyChest.Open(st, d, inv, 5, "c"), "üç görev bitmeden açılmaz");
+            st.Claimed.Add("dq_play_3");
+            Assert.IsTrue(DailyChest.Ready(st));
+            var a = DailyChest.Roll(st, d, inv, 5, "c");
+            Assert.AreEqual(a.ItemId, DailyChest.Roll(st, d, inv, 5, "c").ItemId, "aynı gün aynı sonuç");
+            var p = DailyChest.Open(st, d, inv, 5, "c");
+            Assert.IsNotNull(p);
+            Assert.IsTrue(inv.Owns(p.ItemId), "ödül envantere girer");
+            Assert.IsTrue(new[] { ChestPrize.Food, ChestPrize.Seed, ChestPrize.Surprise }.Contains(p.Kind));
+            Assert.IsNull(DailyChest.Open(st, d, inv, 5, "c"), "günde bir kez");
+            Assert.AreEqual(100, DailyChest.Odds.Sum(o => o.Percent), "görünür oranlar %100");
+            // dağılım: çok günde üç tür de çıkar, sürpriz eşya seviyesi açık ve sahip olunmayan
+            var kinds = new HashSet<string>();
+            for (var day = 0; day < 400; day++)
+            {
+                var s2 = new DailyQuestState { Day = 20000 + day, Ids = new List<string> { "x" }, Claimed = new List<string> { "x" } };
+                var r = DailyChest.Roll(s2, d, inv, 3, "c");
+                kinds.Add(r.Kind);
+                if (r.Kind == ChestPrize.Surprise) Assert.LessOrEqual(d.Item(r.ItemId).Level, 3);
+            }
+            Assert.AreEqual(3, kinds.Count);
+        }
+
+        [Test]
         public void Garden_plant_water_grow_harvest()
         {
             var d = TestData.Load();

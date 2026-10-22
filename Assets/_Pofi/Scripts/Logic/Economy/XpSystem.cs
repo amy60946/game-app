@@ -29,7 +29,8 @@ namespace Pofi.Logic.Economy
 
         public static int DayNumber(DateTime local) => (int)(local.Date.Ticks / TimeSpan.TicksPerDay);
 
-        public static bool CountsTowardCap(XpSource s) => s != XpSource.TaskStreak && s != XpSource.Achievement && s != XpSource.RealTask;
+        // Günlük oyun içi görevler (günde 3) kendiliğinden sınırlıdır; seviyeye oranlı XP'leri (S2) sınıra takılmasın diye sayılmaz.
+        public static bool CountsTowardCap(XpSource s) => s != XpSource.TaskStreak && s != XpSource.Achievement && s != XpSource.RealTask && s != XpSource.DailyQuest;
 
         public int RemainingToday(DateTime local, int dailyCap)
         {

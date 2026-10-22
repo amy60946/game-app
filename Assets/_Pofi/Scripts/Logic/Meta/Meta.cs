@@ -60,6 +60,58 @@ namespace Pofi.Logic.Meta
         public int Day;
         public List<string> Ids = new List<string>();
         public List<string> Claimed = new List<string>();
+        public bool ChestOpened;   // günün 3 görevi bitince açılan günlük sandık (S2) bugün açıldı mı
+    }
+
+    /// <summary>Günlük sandıktan çıkan tek ödül (S2; coin değil — coin yalnız gerçek görevden).</summary>
+    public sealed class ChestPrize
+    {
+        public const string Food = "food", Seed = "seed", Surprise = "surprise";
+        public string Kind;
+        public string ItemId;
+        public int Quantity;
+    }
+
+    /// <summary>
+    /// Günlük sandık (S2, kullanıcı onayı 22 Ekim 2026): günün bütün oyun içi görevleri bitince bir kez açılır, içinden tek ödül çıkar.
+    /// Şans oranları sabit ve sandıkta görünür (kumar algısı olmasın): yiyecek %60 (2 adet), tohum %25 (2 adet), sürpriz eşya %15
+    /// (henüz sahip olunmayan, seviyesi açık, coin'li bir aksesuar/süs; yoksa yiyecek). Para yok, coin yok.
+    /// Sonuç gün + çocuktan belirlenir (yeniden açınca değişmez).
+    /// </summary>
+    public static class DailyChest
+    {
+        public static readonly (string Kind, int Percent)[] Odds = { (ChestPrize.Food, 60), (ChestPrize.Seed, 25), (ChestPrize.Surprise, 15) };
+
+        public static bool Ready(DailyQuestState st) => st.Ids.Count > 0 && !st.ChestOpened && st.Ids.All(st.Claimed.Contains);
+
+        public static ChestPrize Roll(DailyQuestState st, GameData data, Shop.Inventory inv, int level, string childId)
+        {
+            var rng = new Random(st.Day * 17 + 5 + DailyQuests.StableHash(childId));
+            var roll = rng.Next(100);
+            var kind = roll < Odds[0].Percent ? ChestPrize.Food : roll < Odds[0].Percent + Odds[1].Percent ? ChestPrize.Seed : ChestPrize.Surprise;
+            List<ItemDef> Pick(Func<ItemDef, bool> f) => data.Items.Where(i => f(i) && i.Level <= level).OrderBy(i => i.Id, StringComparer.Ordinal).ToList();
+            if (kind == ChestPrize.Surprise)
+            {
+                var pool = Pick(i => (i.Category == ItemCategory.Accessory || i.Category == ItemCategory.Decor) && !i.Premium && i.Price > 0 && !inv.Owns(i.Id));
+                if (pool.Count > 0) return new ChestPrize { Kind = kind, ItemId = pool[rng.Next(pool.Count)].Id, Quantity = 1 };
+                kind = ChestPrize.Food;
+            }
+            var list = Pick(i => i.Category == (kind == ChestPrize.Seed ? ItemCategory.Seed : ItemCategory.Food));
+            if (list.Count == 0) list = Pick(i => i.Category == ItemCategory.Food);
+            if (list.Count == 0) return null;
+            return new ChestPrize { Kind = kind, ItemId = list[rng.Next(list.Count)].Id, Quantity = 2 };
+        }
+
+        /// <summary>Sandığı açar: ödülü envantere ekler, bugün için kapatır. Hazır değilse null.</summary>
+        public static ChestPrize Open(DailyQuestState st, GameData data, Shop.Inventory inv, int level, string childId)
+        {
+            if (!Ready(st)) return null;
+            var p = Roll(st, data, inv, level, childId);
+            st.ChestOpened = true;
+            var item = p != null ? data.Item(p.ItemId) : null;
+            if (item != null) inv.Add(item, p.Quantity);
+            return p;
+        }
     }
 
     /// <summary>
@@ -76,10 +128,21 @@ namespace Pofi.Logic.Meta
             var rng = new Random(day * 31 + StableHash(childId));
             st.Day = day;
             st.Claimed.Clear();
+            st.ChestOpened = false;
             st.Ids = pool.OrderBy(_ => rng.Next()).Take(data.DailyQuestsPerDay).Select(q => q.Id).ToList();
         }
 
         public static int Progress(DailyQuestDef q, Counters c) => Math.Min(q.Target, c.TodayCount(q.Counter));
+
+        /// <summary>Görev başına seviye payı (S2): 3 görevin toplamı o seviyenin gereken XP'sinin ~%12'si.</summary>
+        public const double ShareOfLevel = 0.04;
+
+        /// <summary>
+        /// Görevin bugünkü XP'si (S2, 22 Ekim 2026): sabit sayı üst seviyede önemini yitiriyordu (Sv14'te seviyenin %1'i).
+        /// O seviyenin gereken XP'sinin %4'ü, görevin göreli ağırlığıyla (ortalama 15 = 1); hiçbir zaman verideki sayının altına inmez.
+        /// </summary>
+        public static int XpFor(DailyQuestDef q, int levelNeed) =>
+            Math.Max(q.Xp, (int)Math.Round(levelNeed * ShareOfLevel * q.Xp / 15.0));
 
         /// <summary>Tamamlanmış ve henüz alınmamış görevlerin XP'si (alındı olarak işaretlenir).</summary>
         public static List<DailyQuestDef> Claim(DailyQuestState st, GameData data, Counters c)
@@ -95,7 +158,7 @@ namespace Pofi.Logic.Meta
             return done;
         }
 
-        private static int StableHash(string s)
+        internal static int StableHash(string s)
         {
             unchecked
             {
