@@ -130,7 +130,7 @@ namespace Pofi.Screens
         {
             var game = new CoconutCatch(App.Session.AgeBand, Difficulty, seed);
             Backdrop(Theme.Hex("#8FDBFF"), Theme.Hex("#F6D79A"), 0.16f);
-            var basketW = App.Session.AgeBand == AgeBand.A ? 0.28f : App.Session.AgeBand == AgeBand.B ? 0.24f : 0.2f;
+            var basketW = App.Session.AgeBand.Young() ? 0.28f : App.Session.AgeBand == AgeBand.B ? 0.24f : 0.2f;
             const float BasketY = 0.2f;
             // kıyı manzarası: iki yanda iri palmiyeler (ekranı doldurur)
             Ui.IconImage(_area, "decor_palm", new Vector2(0.04f, 0.42f), 620f);

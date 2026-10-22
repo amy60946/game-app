@@ -69,6 +69,7 @@ namespace Pofi.Logic.Data
     {
         [JsonProperty("maxLevel")] public int MaxLevel;
         [JsonProperty("xpToNext")] public List<int> XpToNext = new List<int>();
+        [JsonProperty("xpToNextByBand")] public Dictionary<string, List<int>> XpToNextByBand = new Dictionary<string, List<int>>();
         [JsonProperty("growth")] public Dictionary<string, int> Growth = new Dictionary<string, int>();
         [JsonProperty("unlocks")] public Dictionary<string, List<string>> Unlocks = new Dictionary<string, List<string>>();
     }

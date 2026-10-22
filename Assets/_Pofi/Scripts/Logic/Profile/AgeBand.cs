@@ -3,10 +3,17 @@ using System;
 namespace Pofi.Logic.Profile
 {
     /// <summary>
-    /// Yaş bandı (A 6–8 / B 9–12 / C 13–15; sözleşme: ortak/sozlesme/durumlar.md §4): ebeveyn seçer ya da doğum
-    /// gününden önerilir, giriş yanıtında gelir. Yalnız zorluk/arayüz ayarıdır; raporlar gerçek yaşı kullanır.
+    /// Yaş grubu (22 Ekim 2026, XP takibi S1: K 5 ve altı / A 6–8 / B 9–12 / C 13 ve üstü; sözleşme: ortak/sozlesme/durumlar.md §4):
+    /// ebeveyn seçer ya da doğum gününden önerilir, giriş yanıtında gelir. Yalnız zorluk/arayüz/seviye hızı ayarıdır; raporlar gerçek yaşı kullanır.
+    /// K sona eklendi (kayıtlardaki sayısal değerler değişmesin).
     /// </summary>
-    public enum AgeBand { A, B, C }
+    public enum AgeBand { A, B, C, K }
+
+    public static class AgeBands
+    {
+        /// <summary>En küçük iki grup (K, A): oyunlar ve kapılar A ayarlarını kullanır.</summary>
+        public static bool Young(this AgeBand b) => b == AgeBand.A || b == AgeBand.K;
+    }
 
     /// <summary>
     /// Yaş bandına göre arayüz ve oyun ayarları (FR-VOICE-2, FR-ECO-4, tema). Değerler veri dosyasıyla
@@ -34,6 +41,7 @@ namespace Pofi.Logic.Profile
         {
             switch (band)
             {
+                case AgeBand.K: return new AgeBandProfile(band, "rounded_icons", true, true, true, 0.2f, 200, 1.3f);
                 case AgeBand.A: return new AgeBandProfile(band, "rounded_icons", true, true, true, 0.3f, 250, 1.25f);
                 case AgeBand.B: return new AgeBandProfile(band, "balanced", false, true, true, 0.6f, 300, 1.0f);
                 case AgeBand.C: return new AgeBandProfile(band, "compact", false, false, true, 0.85f, 350, 0.9f);
@@ -41,13 +49,14 @@ namespace Pofi.Logic.Profile
             }
         }
 
-        /// <summary>Sunucudan gelen "A"/"B"/"C" metnini çözer; bilinmeyen değerde en güvenli bant (A).</summary>
+        /// <summary>Sunucudan gelen "K"/"A"/"B"/"C" metnini çözer; bilinmeyen değerde en güvenli bant (A).</summary>
         public static AgeBand Parse(string value)
         {
             switch ((value ?? "").Trim().ToUpperInvariant())
             {
                 case "B": return AgeBand.B;
                 case "C": return AgeBand.C;
+                case "K": return AgeBand.K;
                 default: return AgeBand.A;
             }
         }

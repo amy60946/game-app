@@ -149,6 +149,7 @@ namespace Pofi.Core
         {
             Session = session;
             Theme = Theme.For(session.AgeBand);
+            Levels.UseBand(session.AgeBand);   // seviye eşikleri yaş grubuna göre (S1)
             var saved = SaveCodec.Deserialize(Store.Get(SaveKey(session.ChildId)));
             Adopt(AppFlow.BelongsTo(saved, session) ? saved : GameState.NewFor(session.ChildId, UtcNow));
 
@@ -157,7 +158,7 @@ namespace Pofi.Core
                 Backend = null;
                 _remote = new SupabaseGameService(Server.Url, Server.PublishableKey, _http, () => Router.Server.AccessToken, Store);
                 _remoteChecked = false;
-                Sync = new SyncCoordinator(_remote, _remote, _remote, Data, _remote);
+                Sync = new SyncCoordinator(_remote, _remote, _remote, Data, _remote) { Levels = Levels };
             }
             else
             {
@@ -167,7 +168,7 @@ namespace Pofi.Core
                 Backend.Import(Store.Get(ServerKey(session.ChildId)));
                 DemoParent.EnsureToday(Backend, LocalNow);
                 DemoParent.EnsureRewards(Backend);
-                Sync = new SyncCoordinator(Backend, Backend, Backend, Data, Backend);
+                Sync = new SyncCoordinator(Backend, Backend, Backend, Data, Backend) { Levels = Levels };
             }
             Page = AppPage.Map;
             _ = SyncNow();

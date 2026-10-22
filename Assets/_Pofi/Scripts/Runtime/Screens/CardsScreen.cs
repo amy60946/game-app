@@ -133,7 +133,7 @@ namespace Pofi.Screens
         private void StartColorMatch()
         {
             _cm = new ColorMatchRules();
-            var opts = App.Session.AgeBand == Logic.Profile.AgeBand.A ? ColorMatchOptions.ForBandA : new ColorMatchOptions();
+            var opts = Logic.Profile.AgeBands.Young(App.Session.AgeBand) ? ColorMatchOptions.ForBandA : new ColorMatchOptions();
             _cms = ColorMatchRules.NewGame(opts, _rng.Next());
             _cmBot = new ColorMatchBot(_difficulty);
             DrawColorMatch();
@@ -287,7 +287,7 @@ namespace Pofi.Screens
         private void StartDomino()
         {
             _dm = new DominoRules();
-            _dms = DominoRules.NewGame(2, _rng.Next(), App.Session.AgeBand == Logic.Profile.AgeBand.A ? 5 : 7);
+            _dms = DominoRules.NewGame(2, _rng.Next(), Logic.Profile.AgeBands.Young(App.Session.AgeBand) ? 5 : 7);
             _dmBot = new DominoBot(_difficulty);
             DrawDomino();
             if (_dms.Current != 0) BotAfter(0.9f, BotDomino);
@@ -403,7 +403,7 @@ namespace Pofi.Screens
         private TowerState _tws;
         private TowerBot _twBot;
 
-        private float ChildPrecision => App.Session.AgeBand == Logic.Profile.AgeBand.A ? 0.95f : App.Session.AgeBand == Logic.Profile.AgeBand.B ? 0.9f : 0.85f;
+        private float ChildPrecision => Logic.Profile.AgeBands.Young(App.Session.AgeBand) ? 0.95f : App.Session.AgeBand == Logic.Profile.AgeBand.B ? 0.9f : 0.85f;
 
         private void StartTower()
         {

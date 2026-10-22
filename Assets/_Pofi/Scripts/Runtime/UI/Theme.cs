@@ -30,6 +30,7 @@ namespace Pofi.UI
             var t = new Theme { Band = band, Scale = p.ButtonScale, Panel = new Color(1f, 1f, 1f, 0.94f), Danger = Hex("#E8453C") };
             switch (band)
             {
+                case AgeBand.K:
                 case AgeBand.A:
                     t.Radius = 56f;
                     t.Primary = Hex("#FF8A2A"); t.PrimaryText = Color.white;

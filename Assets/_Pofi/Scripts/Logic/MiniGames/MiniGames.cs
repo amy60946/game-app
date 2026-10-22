@@ -42,9 +42,9 @@ namespace Pofi.Logic.MiniGames
         public CoconutCatch(AgeBand band, float difficulty, int seed)
         {
             var rng = new Random(seed);
-            var bandBase = band == AgeBand.A ? 0.0f : band == AgeBand.B ? 0.35f : 0.65f;
+            var bandBase = band.Young() ? 0.0f : band == AgeBand.B ? 0.35f : 0.65f;
             var d = Math.Max(0f, Math.Min(1f, bandBase + difficulty * 0.35f));
-            DurationMs = band == AgeBand.A ? 30000 : band == AgeBand.B ? 40000 : 45000;
+            DurationMs = band.Young() ? 30000 : band == AgeBand.B ? 40000 : 45000;
             FallSeconds = 3.2f - 1.6f * d;
             var interval = (int)(1300 - 750 * d);
             var lastX = 0.5f;
@@ -85,8 +85,8 @@ namespace Pofi.Logic.MiniGames
 
         public HelpPetSearch(AgeBand band, int seed)
         {
-            Columns = band == AgeBand.A ? 3 : 4;
-            Rows = band == AgeBand.A ? 2 : band == AgeBand.B ? 3 : 4;
+            Columns = band.Young() ? 3 : 4;
+            Rows = band.Young() ? 2 : band == AgeBand.B ? 3 : 4;
             Hidden = new Random(seed).Next(Columns * Rows);
         }
 
@@ -123,7 +123,7 @@ namespace Pofi.Logic.MiniGames
         {
             GameId = gameId;
             var rng = new Random(seed);
-            var bandBase = band == AgeBand.A ? 0.0f : band == AgeBand.B ? 0.35f : 0.65f;
+            var bandBase = band.Young() ? 0.0f : band == AgeBand.B ? 0.35f : 0.65f;
             var d = Math.Max(0f, Math.Min(1f, bandBase + difficulty * 0.35f));
             RowsPerSecond = 1.6f + 2.2f * d;
             var obstacleChance = 0.25 + 0.35 * d;

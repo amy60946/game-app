@@ -21,7 +21,7 @@ namespace Pofi.Logic.Fishing
         public FishingRound(Random rng, AgeBand band, int level, bool? night, IEnumerable<CollectionEntryDef> collection)
         {
             BiteAtMs = 1500 + rng.Next(3500);
-            WindowMs = band == AgeBand.A ? 1400 : band == AgeBand.B ? 1000 : 700;
+            WindowMs = band.Young() ? 1400 : band == AgeBand.B ? 1000 : 700;
             Fish = Pick(rng, level, night, collection);
         }
 

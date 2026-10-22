@@ -36,7 +36,9 @@ namespace Pofi.Logic.State
         private readonly IWalletService _wallet;
         private readonly ISaveService _save;
         private readonly GameData _data;
-        private readonly Progression.LevelTable _levels;
+        private Progression.LevelTable _levels;
+        /// <summary>Seviye tablosu (yaş grubuna göre; oyun girişte kendi tablosunu verir).</summary>
+        public Progression.LevelTable Levels { get => _levels; set { if (value != null) _levels = value; } }
         private readonly Rewards.IRewardService _rewards;
 
         public SyncCoordinator(ITaskService tasks, IWalletService wallet, ISaveService save, GameData data, Rewards.IRewardService rewards = null)

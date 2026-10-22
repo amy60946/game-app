@@ -28,6 +28,7 @@ namespace Pofi.Logic.Safety
             int a, b;
             switch (band)
             {
+                case AgeBand.K:
                 case AgeBand.A: a = rng.Next(6, 10); b = rng.Next(6, 10); break;     // 6–9 × 6–9
                 case AgeBand.B: a = rng.Next(11, 20); b = rng.Next(3, 10); break;    // 11–19 × 3–9
                 default: a = rng.Next(12, 30); b = rng.Next(12, 20); break;          // 12–29 × 12–19
@@ -36,7 +37,7 @@ namespace Pofi.Logic.Safety
             var options = new HashSet<int> { answer };
             while (options.Count < 4)
             {
-                var off = rng.Next(1, 4) * (rng.Next(2) == 0 ? -1 : 1) * (band == AgeBand.A ? 1 : b);
+                var off = rng.Next(1, 4) * (rng.Next(2) == 0 ? -1 : 1) * (band.Young() ? 1 : b);
                 if (answer + off > 0) options.Add(answer + off);
             }
             return new GateChallenge

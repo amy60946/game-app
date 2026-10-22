@@ -49,5 +49,30 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual(GrowthStage.Genc, T.StageFor(5));
             Assert.AreEqual(GrowthStage.Yetiskin, T.StageFor(10));
         }
+
+        [Test]
+        public void Seviye_esikleri_yas_grubuna_gore()
+        {
+            var d = TestData.Load();
+            var b = new LevelTable(d.Levels);
+            Assert.AreEqual(100, b.TotalXpFor(2), "genel tablo = B");
+            Assert.AreEqual(18791, b.TotalXpFor(15));
+            var k = new LevelTable(d.Levels, Pofi.Logic.Profile.AgeBand.K);
+            Assert.AreEqual(70, k.TotalXpFor(2));
+            Assert.AreEqual(13140, k.TotalXpFor(15), "5 ve altı toplam");
+            Assert.AreEqual(85, new LevelTable(d.Levels, Pofi.Logic.Profile.AgeBand.A).TotalXpFor(2));
+            Assert.AreEqual(18791, new LevelTable(d.Levels, Pofi.Logic.Profile.AgeBand.B).TotalXpFor(15), "B bugünküyle aynı");
+            var c = new LevelTable(d.Levels, Pofi.Logic.Profile.AgeBand.C);
+            Assert.AreEqual(21610, c.TotalXpFor(15), "13 ve üstü toplam");
+            Assert.AreEqual(1, c.LevelFor(114));
+            Assert.AreEqual(2, k.LevelFor(114));
+            k.UseBand(null);
+            Assert.AreEqual(100, k.TotalXpFor(2), "grup kaldırılınca genel tablo");
+            Assert.AreEqual(b.UnlockLevel("region_garden"), c.UnlockLevel("region_garden"), "açılış seviyeleri gruptan bağımsız");
+            Assert.AreEqual(Pofi.Logic.Profile.AgeBand.K, Pofi.Logic.Profile.AgeBandProfile.Parse("K"));
+            Assert.AreEqual(200, Pofi.Logic.Profile.AgeBandProfile.For(Pofi.Logic.Profile.AgeBand.K).DailyXpCap);
+            Assert.IsTrue(Pofi.Logic.Profile.AgeBands.Young(Pofi.Logic.Profile.AgeBand.K));
+            Assert.IsFalse(Pofi.Logic.Profile.AgeBands.Young(Pofi.Logic.Profile.AgeBand.C));
+        }
     }
 }

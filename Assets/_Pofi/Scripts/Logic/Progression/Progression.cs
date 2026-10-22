@@ -28,8 +28,25 @@ namespace Pofi.Logic.Progression
         {
             _def = def;
             _cumulative = new int[def.MaxLevel];
-            for (var i = 1; i < def.MaxLevel; i++) _cumulative[i] = _cumulative[i - 1] + def.XpToNext[i - 1];
+            UseBand(null);
         }
+
+        public LevelTable(LevelTableDef def, Profile.AgeBand band) : this(def) => UseBand(band);
+
+        /// <summary>
+        /// Seviye eşiklerini yaş grubuna göre seçer (S1, 22 Ekim 2026): küçük yaşta seviye daha az XP ister.
+        /// Grup tablosu yoksa ya da null verilirse genel tablo (= B). Açılış seviyeleri gruptan bağımsızdır.
+        /// </summary>
+        public void UseBand(Profile.AgeBand? band)
+        {
+            var steps = _def.XpToNext;
+            if (band.HasValue && _def.XpToNextByBand != null && _def.XpToNextByBand.TryGetValue(band.Value.ToString(), out var b)
+                && b != null && b.Count >= _def.MaxLevel - 1) steps = b;
+            Band = band;
+            for (var i = 1; i < _def.MaxLevel; i++) _cumulative[i] = _cumulative[i - 1] + steps[i - 1];
+        }
+
+        public Profile.AgeBand? Band { get; private set; }
 
         public int MaxLevel => _def.MaxLevel;
         public int TotalXpFor(int level) => _cumulative[Math.Max(1, Math.Min(level, MaxLevel)) - 1];

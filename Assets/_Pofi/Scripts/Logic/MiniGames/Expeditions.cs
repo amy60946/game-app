@@ -24,10 +24,10 @@ namespace Pofi.Logic.MiniGames
         public CaveExplore(AgeBand band, int seed)
         {
             var rng = new Random(seed);
-            Width = band == AgeBand.A ? 5 : 6;
-            Height = band == AgeBand.A ? 5 : band == AgeBand.B ? 7 : 8;
-            var gems = band == AgeBand.A ? 3 : 4;
-            Lights = gems + (band == AgeBand.A ? 4 : band == AgeBand.B ? 3 : 2);
+            Width = band.Young() ? 5 : 6;
+            Height = band.Young() ? 5 : band == AgeBand.B ? 7 : 8;
+            var gems = band.Young() ? 3 : 4;
+            Lights = gems + (band.Young() ? 4 : band == AgeBand.B ? 3 : 2);
             while (Gems.Count < gems) Gems.Add(rng.Next(Width * Height));
         }
 
@@ -76,7 +76,7 @@ namespace Pofi.Logic.MiniGames
         public HikeRoute(AgeBand band, int seed)
         {
             var rng = new Random(seed);
-            Layers = band == AgeBand.A ? 6 : band == AgeBand.B ? 8 : 10;
+            Layers = band.Young() ? 6 : band == AgeBand.B ? 8 : 10;
             Value = new int[Layers, Columns];
             for (var l = 1; l < Layers; l++)
             for (var c = 0; c < Columns; c++)
