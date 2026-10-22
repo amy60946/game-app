@@ -129,7 +129,7 @@ def terrain_colors(L, B):
     # göl kıyısı
     dl = np.hypot(X - TV.LAKE['x'], Z - TV.LAKE['z'])
     c = mix(c, C3('#7a6a48'), ss(0.35, 0.0, np.abs(h - TV.LAKE['level'])) * (dl < TV.LAKE['r'] + 6) * 0.6)
-    L.fb, L.fo = (fb * sp).astype(np.float32), (fo * (1 - sp)).astype(np.float32); L.snw = snw.astype(np.float32)
+    L.fb, L.fo = (fb * sp).astype(np.float32), (fo * (1 - sp)).astype(np.float32); L.fbr, L.fo_r = fb.astype(np.float32), fo.astype(np.float32); L.snw = snw.astype(np.float32)
     L.gw = np.clip((1 - rw) * (1 - np.clip(d['sand'] * 1.3, 0, 1)) * (1 - ss(2.0, 1.0, d['pathd']) * 0.97) * (1 - ss(6.6, 5.4, dc) * 0.95) * (1 - ss(0.01, 0.08, d['snow'])) * (h > 0.5), 0, 1).astype(np.float32)
     return c.astype(np.float32), rw.astype(np.float32)
 

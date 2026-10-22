@@ -196,7 +196,8 @@ def write_mask(L, W, H):
     cob = np.clip(np.clip(L.d['canyon'], 0, 1) * 1.15, 0, 1) * (1 - np.clip(L.rw * 1.5, 0, 1))
     im = Image.fromarray((cob * 255).astype(np.uint8)[::-1]).resize((W, H), Image.BILINEAR).filter(ImageFilter.GaussianBlur(1.5))
     rgb = np.zeros((H, W, 3), np.uint8); rgb[..., 0] = np.asarray(im)
-    for ch, f in ((1, L.fb), (2, L.fo)):
+    gw = getattr(L, 'gw', 1.0)
+    for ch, f in ((1, L.fbr * gw), (2, L.fo_r * gw * 0.6)):
         fl = Image.fromarray((np.clip(f, 0, 1) * 255).astype(np.uint8)[::-1]).resize((W, H), Image.BILINEAR)
         rgb[..., ch] = np.asarray(fl)
     out = os.path.join(ENV, 'ground_v6'); os.makedirs(out, exist_ok=True)

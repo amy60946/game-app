@@ -154,10 +154,10 @@ Shader "Pofi/Ground"
                 float cob = mk.r * _Cobble * (1.0 - steep);
                 float camd = distance(GetCameraPositionWS(), i.positionWS);
                 // çiçek tarlası (maske g: çan çiçeği, b: turuncu): yakında 3B öbekler (GrassField) var, uzakta zemin rengi olarak
-                float far = smoothstep(7.0, 13.0, camd) * _Cobble * (1.0 - steep);
+                float farF = smoothstep(7.0, 13.0, camd) * _Cobble * (1.0 - steep);
                 float speck = smoothstep(0.35, 0.75, vnoise(p * 2.3) * 0.6 + vnoise(p * 7.0) * 0.4);
-                albedo = lerp(albedo, lerp(Lin(float3(0.26, 0.29, 0.72)), Lin(float3(0.40, 0.37, 0.82)), speck), saturate(mk.g * 1.4) * lerp(0.55, 0.9, speck) * far);
-                albedo = lerp(albedo, Lin(float3(0.90, 0.56, 0.26)), saturate(mk.b * 1.2) * speck * 0.6 * far);
+                albedo = lerp(albedo, lerp(Lin(float3(0.26, 0.29, 0.72)), Lin(float3(0.40, 0.37, 0.82)), speck), saturate(mk.g * 1.4) * lerp(0.55, 0.9, speck) * farF);
+                albedo = lerp(albedo, Lin(float3(0.90, 0.56, 0.26)), saturate(mk.b * 1.2) * speck * 0.6 * farF);
                 cob *= smoothstep(38.0, 18.0, camd);
                 if (cob > 0.001)
                 {
