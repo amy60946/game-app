@@ -59,6 +59,9 @@ namespace Pofi.Core
                     case "hud":         // görsel karşılaştırma çekimleri: arayüz katmanlarını gizle/göster
                         app.Canvas.enabled = arg != "0"; app.Overlay.enabled = arg != "0";
                         break;
+                    case "showall":     // görsel karşılaştırma: kilitli bölgeler sissiz/boyasız (ada kurulmadan önce verilir)
+                        World.MapWorld.DebugShowAll = arg != "0";
+                        break;
                     case "wear":        // test: eşyayı ver ve giydir ("wear hat_straw glasses_round …")
                         foreach (var id in arg.Split(' '))
                         {

@@ -222,6 +222,7 @@ def child(name, out):
     sys.path.insert(0, HERE); sys.path.insert(0, os.path.join(HERE, '..'))
     import proxy_bake as PB
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    import kit_v6; kit_v6.BAKE_LOOK = True
     high, low, opts = build(ASSETS[name][0])
     bpy.ops.object.select_all(action='SELECT')
     try: bpy.ops.object.duplicates_make_real()
@@ -251,7 +252,8 @@ def child(name, out):
     cage, ray = (leaf * 0.9, leaf * 2.2) if leaf else (0.02, 0.08)
     tris = PB.export_proxy(os.path.join(out, name), high, low, target=target, size=tex, nsize=max(256, tex // 2),
                            cage=cage, ray=ray, ao_strength=0.5 if leaf is None else 0.7, ds_low=True,
-                           tone=1.2 if ASSETS[name][0].split(':')[0] in ('boulder', 'boulderB', 'pebW', 'cave', 'pool') else 1.0)
+                           tone=1.2 if ASSETS[name][0].split(':')[0] in ('boulder', 'boulderB', 'pebW', 'cave', 'pool') else 1.0,
+                           fix_normals=ASSETS[name][0].split(':')[0] in ('stump', 'log', 'driftwood', 'boulder', 'boulderB', 'pebW'))
     print('üçgen', tris, flush=True)
 
 def export(name):

@@ -13,7 +13,9 @@ def _join(objs, name, keep_materials=True):
     sc = bpy.context.scene; dg = bpy.context.evaluated_depsgraph_get(); parts = []
     for o in objs:
         if o.type not in ('MESH', 'CURVE'): continue
-        me = bpy.data.meshes.new_from_object(o.evaluated_get(dg), depsgraph=dg); me.transform(o.matrix_world)
+        me = bpy.data.meshes.new_from_object(o.evaluated_get(dg), depsgraph=dg)
+        _keep_coords(me)
+        me.transform(o.matrix_world)
         if not keep_materials: me.materials.clear()
         p = bpy.data.objects.new(name, me); sc.collection.objects.link(p); parts.append(p)
     for o in objs:
@@ -26,6 +28,31 @@ def _join(objs, name, keep_materials=True):
     if len(parts) > 1: bpy.ops.object.join()
     ob = bpy.context.view_layer.objects.active; ob.name = name
     return ob
+
+
+def _keep_coords(me):
+    """Birleştirmeden önce nesnenin kendi doku koordinatlarını (Object, Generated) köşe niteliği olarak sakla. Taslakta kaya deseni her
+    örneğin kendi boyuna göre ölçekleniyordu; birleşik ağda Object koordinatı dünya metresi olur ve desen 3 kat sıklaşıp tuğla gibi görünüyordu."""
+    n = len(me.vertices)
+    if n == 0: return
+    co = np.empty(n * 3, np.float32); me.vertices.foreach_get('co', co); co = co.reshape(n, 3)
+    lo, hi = co.min(0), co.max(0); gen = (co - lo) / np.maximum(hi - lo, 1e-6)
+    for nm, arr in (('ocoord', co), ('gcoord', gen)):
+        a = me.attributes.new(nm, 'FLOAT_VECTOR', 'POINT'); a.data.foreach_set('vector', arr.ravel())
+
+
+def _remap_coords(ob):
+    """Malzeme kopyalarında Texture Coordinate → Object/Generated bağlarını saklanan niteliklere çevirir."""
+    if 'ocoord' not in ob.data.attributes: return
+    for i, m in enumerate(ob.data.materials):
+        if m is None or not m.use_nodes: continue
+        m = m.copy(); ob.data.materials[i] = m; nt = m.node_tree
+        for tc in [n for n in nt.nodes if n.type == 'TEX_COORD']:
+            for out, nm in (('Object', 'ocoord'), ('Generated', 'gcoord')):
+                links = list(tc.outputs[out].links)
+                if not links: continue
+                at = nt.nodes.new('ShaderNodeAttribute'); at.attribute_type = 'GEOMETRY'; at.attribute_name = nm
+                for l in links: nt.links.new(at.outputs['Vector'], l.to_socket)
 
 
 def _decimate(ob, target):
@@ -63,18 +90,22 @@ def _emission_restore(undo):
 
 
 def export_proxy(path_noext, high, low=None, target=1500, size=1024, nsize=None, cage=0.03, ray=0.12,
-                 ao_strength=0.65, ao_dist=0.35, normal_strength=1.0, margin=8, ds_low=None, tone=1.0):
+                 ao_strength=0.65, ao_dist=0.35, normal_strength=1.0, margin=8, ds_low=None, tone=1.0, fix_normals=False):
     """high: kaynak nesneler (taslak malzemeleriyle). low: hedef nesneler ya da None (kaynağın kopyası bütçeye indirilir).
     Çıktı: <yol>.fbx, <yol>_basecolor.png (renk × yumuşak AO), <yol>_normal.png (teğet uzayı, OpenGL +Y). Üçgen sayısını döndürür."""
     size = int(os.environ.get('POFI_TEX', '0') or 0) or size; nsize = nsize or size
     sc = bpy.context.scene; sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = 32
     if sc.world is None: sc.world = bpy.data.worlds.new('w')
-    H = _join(high, 'high')
+    H = _join(high, 'high'); _remap_coords(H)
     if low is None:
         me = H.data.copy(); me.materials.clear(); L = bpy.data.objects.new('model', me); sc.collection.objects.link(L)
     else:
         L = _join(low, 'model', keep_materials=False)
     L.name = 'model'
+    if fix_normals:
+        # kapalı katı modeller (kütük, kök): parça parça dışa bakan normaller. Taslak iki yüzlü çizildiği için ters yüzler görünmüyordu;
+        # oyun arka yüzleri çizmez → kütük kapağı/kabuğu oyuk görünüyordu
+        b2 = bmesh.new(); b2.from_mesh(L.data); bmesh.ops.recalc_face_normals(b2, faces=b2.faces); b2.to_mesh(L.data); b2.free()
     tris = _decimate(L, target)
     # UV: yalnız hedefte
     for l in list(L.data.uv_layers): L.data.uv_layers.remove(l)
@@ -125,7 +156,7 @@ def export_proxy(path_noext, high, low=None, target=1500, size=1024, nsize=None,
             res = bmesh.ops.duplicate(b2, geom=faces); nf = [g for g in res['geom'] if isinstance(g, bmesh.types.BMFace)]
             bmesh.ops.reverse_faces(b2, faces=nf); b2.normal_update()
         b2.to_mesh(L.data); b2.free()
-    for k in [k for k in L.data.attributes.keys() if k in ('ds',)]: L.data.attributes.remove(L.data.attributes[k])
+    for k in [k for k in L.data.attributes.keys() if k in ('ds', 'ocoord', 'gcoord')]: L.data.attributes.remove(L.data.attributes[k])
     for ca in list(L.data.color_attributes): L.data.color_attributes.remove(ca)
     L.data.materials.clear()
     bpy.data.objects.remove(H)

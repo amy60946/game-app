@@ -96,7 +96,7 @@ Shader "Pofi/Water"
                 float2 rip = float2(sin(p.x * 3.1 + t * 2.1) + sin(p.y * 2.3 - t * 1.7), cos(p.y * 3.7 + t * 1.5) + cos(p.x * 2.9 + p.y * 1.3 - t * 2.4)) * 0.035;
                 // uzakta ince ayrıntı söner: piksel başına dalgacık/pırıltı/kıyı çizgisi kuşbakışında zikzak hare yapıyordu
                 float camDist = distance(GetCameraPositionWS(), i.positionWS);
-                float nearF = saturate(1.0 - (camDist - 25.0) / 45.0);
+                float nearF = saturate(1.0 - (camDist - 18.0) / 24.0);   // kuşbakışı (~60 m) tamamen sakin
                 rip *= nearF;
                 float3 n = normalize(i.normalWS + float3(rip.x, 0, rip.y));
                 float3 viewDir = normalize(GetCameraPositionWS() - i.positionWS);
@@ -124,8 +124,8 @@ Shader "Pofi/Water"
                 float lace = Cells(p * 2.6 + float2(t * 0.15, 0), t * 0.5);
                 float foam = saturate(band * (0.55 + 0.45 * pulse) - noise * 0.3 - lace * 0.35) * 1.6;
                 float lines = frac(shallow * 3.0 - t * 0.22);
-                float wl = smoothstep(0.0, 0.05, lines) * smoothstep(0.14, 0.05, lines) * smoothstep(0.45, 0.85, shallow) * (1.0 - band) * smoothstep(0.25, 0.6, noise);
-                col = lerp(col, _Foam.rgb, saturate(foam + wl * 0.55 * nearF));
+                float wl = smoothstep(0.0, 0.05, lines) * smoothstep(0.14, 0.05, lines) * smoothstep(0.70, 0.92, shallow) * (1.0 - band) * smoothstep(0.25, 0.6, noise);   // yalnız kıyı dibinde (açıkta taban çizgisi zikzak yapıyordu)
+                col = lerp(col, _Foam.rgb, saturate(foam + wl * 0.4 * nearF));
 
                 // güneş parıltısı (ölçülü) + seyrek göz kırpan pırıltılar (yalnız güneş tarafında)
                 float3 hv = normalize(light.direction + viewDir);

@@ -88,7 +88,9 @@ namespace Pofi.World
             var root = new GameObject(name).transform;
             root.SetParent(parent, false);
             var go = Object.Instantiate(prefab, root, false);
-            go.transform.localRotation = Quaternion.Euler(0f, yaw, 0f) * go.transform.localRotation;
+            // Blender→FBX (ileri −Z, yukarı Y) + Unity'nin X çevirmesi: Blender (x, y) → Unity (−x, −y). Taslak koordinatı (x, z) = Blender (x, y)
+            // olduğundan model 180° döndürülür (mağara ağzı, tapınak önü, kayak bayrakları taslaktaki yöne bakar).
+            go.transform.localRotation = Quaternion.Euler(0f, 180f + yaw, 0f) * go.transform.localRotation;
             // FBX birim ölçeği içe aktarmada farklı yorumlanabilir: gerçek boy tablosuna (Data/env_v6_sizes.json) göre düzelt
             var fix = 1f;
             if (V6Sizes().TryGetValue(name, out var real) && real > 0.0001f)

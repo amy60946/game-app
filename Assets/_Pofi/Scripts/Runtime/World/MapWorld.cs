@@ -387,16 +387,20 @@ namespace Pofi.World
         {
             var size = Terrain.Baked != null ? 400 : 192;   // büyük ada: kıyı köpüğü aynı incelikte
             var t = Terrain;
-            var px = new Color32[size * size];
+            var hs = new float[size * size];
             for (var j = 0; j < size; j++)
             for (var i = 0; i < size; i++)
+                hs[j * size + i] = t.Height(t.MinX + (i + 0.5f) / size * (t.MaxX - t.MinX), t.MinZ + (j + 0.5f) / size * (t.MaxZ - t.MinZ));
+            // v6 pişmiş arazide deniz tabanı her yerde −0,6 m'de kesik: yükseklikten sığlık bütün denizi "orta sığ" yapıyordu
+            // (açık deniz turkuaz + taban çizgileri kuşbakışında zikzak). Sığlık burada kıyıya uzaklıktan: ~14 m'de derin mavi.
+            float[] dist = t.Baked != null ? CoastDistance(hs, size, (t.MaxX - t.MinX) / size) : null;
+            var px = new Color32[size * size];
+            for (var k = 0; k < hs.Length; k++)
             {
-                var x = t.MinX + (i + 0.5f) / size * (t.MaxX - t.MinX);
-                var z = t.MinZ + (j + 0.5f) / size * (t.MaxZ - t.MinZ);
-                var h = t.Height(x, z);
-                var shallow = h >= 0f ? 1f : Mathf.Clamp01(1f + h / 1.4f);
+                var h = hs[k];
+                var shallow = h >= 0f ? 1f : dist != null ? Mathf.Pow(Mathf.Clamp01(1f - dist[k] / 14f), 1.6f) : Mathf.Clamp01(1f + h / 1.4f);
                 var foam = h >= 0f ? 1f : Mathf.Pow(Mathf.Clamp01(1f + h / 0.45f), 2f);
-                px[j * size + i] = new Color32((byte)(shallow * 255), (byte)(foam * 255), 0, 255);
+                px[k] = new Color32((byte)(shallow * 255), (byte)(foam * 255), 0, 255);
             }
             var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
             tex.SetPixels32(px);
@@ -404,11 +408,41 @@ namespace Pofi.World
             return tex;
         }
 
+        /// <summary>Kara hücrelerine yaklaşık uzaklık (metre; iki geçişli 3-4 pah dönüşümü).</summary>
+        private static float[] CoastDistance(float[] hs, int n, float cell)
+        {
+            var d = new float[n * n];
+            const float big = 1e6f, a = 1f, b = 1.4142f;
+            for (var k = 0; k < d.Length; k++) d[k] = hs[k] >= 0f ? 0f : big;
+            for (var j = 0; j < n; j++)
+            for (var i = 0; i < n; i++)
+            {
+                var k = j * n + i; var v = d[k];
+                if (i > 0) v = Mathf.Min(v, d[k - 1] + a);
+                if (j > 0) { v = Mathf.Min(v, d[k - n] + a); if (i > 0) v = Mathf.Min(v, d[k - n - 1] + b); if (i < n - 1) v = Mathf.Min(v, d[k - n + 1] + b); }
+                d[k] = v;
+            }
+            for (var j = n - 1; j >= 0; j--)
+            for (var i = n - 1; i >= 0; i--)
+            {
+                var k = j * n + i; var v = d[k];
+                if (i < n - 1) v = Mathf.Min(v, d[k + 1] + a);
+                if (j < n - 1) { v = Mathf.Min(v, d[k + n] + a); if (i < n - 1) v = Mathf.Min(v, d[k + n + 1] + b); if (i > 0) v = Mathf.Min(v, d[k + n - 1] + b); }
+                d[k] = v;
+            }
+            for (var k = 0; k < d.Length; k++) d[k] *= cell;
+            return d;
+        }
+
         // ------------------------------------------------------------------ bölgeler
+
+        /// <summary>Görsel karşılaştırma çekimleri (PofiDebug "showall"): kilitli bölgeler gri boya ve sis olmadan, açık hâliyle kurulur.</summary>
+        public static bool DebugShowAll;
 
         private void BuildRegion(RegionView v)
         {
             var r = v.Region;
+            var shown = v.Unlocked || DebugShowAll;
             var root = new GameObject(r.Id).transform;
             root.SetParent(transform, false);
             var baseY = r.Water ? 0f : Terrain.PadHeight(r);
@@ -439,12 +473,12 @@ namespace Pofi.World
             {
                 var m = RealAssets.EnvFootprint(asset, root, r.Size, 180f + r.Yaw);   // ham önü +z → güneye dön, sonra bölge açısı
             }
-            if (root.childCount == 0) Placeholder(root, r, v.Unlocked);
+            if (root.childCount == 0) Placeholder(root, r, shown);
             var poolPad = root.Find("pool_pad");
-            if (!v.Unlocked) RealAssets.Tint(root, new Color(0.62f, 0.64f, 0.72f));
+            if (!shown) RealAssets.Tint(root, new Color(0.62f, 0.64f, 0.72f));
             // Güneş Taşı ile açılan kilitli bölge: yere yakın, yapıyı saran yoğun sis (kullanıcı, 19 Ekim 2026: gökyüzündeki
             // bulutlar sis gibi okunmuyordu; sis bölgenin üstünde, kamera hizasında olmalı). Taş yerleşince bölge yeniden kurulur, sis kalkar.
-            if (!v.Unlocked && v.Spot != null)
+            if (!shown && v.Spot != null)
                 Clouds.Spawn(transform, new Vector3(r.X, Terrain.Height(r.X, r.Z) + 0.4f, r.Z), r.Size * 0.42f, 7, 0f, r.Size * 0.25f, r.Size * 0.32f,
                     r.Id.GetHashCode(), 0f, 360f, true);
 

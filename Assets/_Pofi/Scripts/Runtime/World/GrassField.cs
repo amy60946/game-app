@@ -12,7 +12,7 @@ namespace Pofi.World
     /// </summary>
     public sealed class GrassField : MonoBehaviour
     {
-        private const float Radius = 10f, Cell = 0.32f, Rebuild = 3f, BitCell = 0.55f;
+        private const float Radius = 11f, Cell = 0.28f, Rebuild = 3f, BitCell = 0.55f;   // taslaktaki sık çimene yakın (önce 10 m, 0,32 m)
         private MapWorld _world;
         private Mesh _clump, _pebble, _blob, _bell, _daisy;
         private Material _mat, _bitsMat;
@@ -227,8 +227,8 @@ namespace Pofi.World
                 if (g < 0.6f) continue;
                 // çimsiz açıklıklar: iri ölçekli gürültü; kenarında seyrek ve kısa çim
                 var bare = Noise(x * 0.42f, z * 0.42f);
-                if (bare < 0.24f) continue;
-                var edge = Mathf.Clamp01((bare - 0.24f) / 0.14f);
+                if (bare < 0.16f) continue;   // taslakta çimsiz açıklık az
+                var edge = Mathf.Clamp01((bare - 0.16f) / 0.14f);
                 if (Hash(gx + 3, gz - 5) > edge) continue;
                 if (t.BuildingAt(x, z) != null) continue;
                 var pos = _world.transform.TransformPoint(new Vector3(x, t.Height(x, z) - 0.01f, z));
@@ -282,7 +282,7 @@ namespace Pofi.World
                 {
                     // toprak birikintisi (koyu kahve) ya da kum (açık) lekesi
                     var dark = Hash(gx - 9, gz + 4) < 0.6f;
-                    var col = dark ? new Color(0.45f, 0.33f, 0.22f, 0.55f) : new Color(0.86f, 0.76f, 0.58f, 0.5f);
+                    var col = (dark ? new Color(0.45f, 0.33f, 0.22f, 0.55f) : new Color(0.86f, 0.76f, 0.58f, 0.5f)).linear;   // köşe rengi doğrusal uzayda
                     var r = 0.25f + Hash(gx + 5, gz + 5) * 0.35f;
                     list.Add(new Placed { M = Matrix4x4.TRS(Pos(x, y + 0.012f, z), yaw, new Vector3(r, 1f, r * (0.6f + h1))), C = col, Mesh = _blob });
                 }
@@ -299,6 +299,7 @@ namespace Pofi.World
                         var tone = Hash(gz + k * 3, gx - k);
                         var col = tone < 0.5f ? Color.Lerp(new Color(0.62f, 0.62f, 0.6f), new Color(0.78f, 0.77f, 0.73f), tone * 2f)
                             : Color.Lerp(new Color(0.72f, 0.62f, 0.5f), new Color(0.55f, 0.45f, 0.36f), (tone - 0.5f) * 2f);
+                        col = col.linear;   // .linear olmadan çakıllar patikada beyaz benek gibi parlıyordu
                         list.Add(new Placed { M = Matrix4x4.TRS(Pos(x + ox, t.Height(x + ox, z + oz) - 0.005f, z + oz), yaw * Quaternion.Euler(0f, k * 70f, 0f),
                             new Vector3(sz, sz * (0.7f + tone * 0.6f), sz * (0.8f + h2))), C = col, Mesh = _pebble });
                     }

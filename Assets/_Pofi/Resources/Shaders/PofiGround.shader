@@ -72,19 +72,20 @@ Shader "Pofi/Ground"
                 float cell = floor(u), fu = u - cell;
                 float rnd = hash12(float2(cell, floor(ly * 0.5)));
                 float crack = smoothstep(0.05, 0.0, fu) + smoothstep(0.95, 1.0, fu);
-                float under = smoothstep(0.08, 0.0, fr) * 0.55;                           // tabaka altı (hafif)
+                float under = smoothstep(0.10, 0.0, fr) * 0.8;                            // tabaka altı oyuğu
                 float lip = smoothstep(0.88, 0.97, fr) * (1.0 - smoothstep(0.97, 1.0, fr));
-                // dikey perde oluklar: yatayda yüksek, dikeyde çok düşük frekans
-                float drape = vnoise(float2(along * 2.2, y * 0.12)) * 0.6 + vnoise(float2(along * 6.5, y * 0.35)) * 0.4;
-                float fold = smoothstep(0.35, 0.75, drape);
-                groove = saturate(max(crack * 0.9, under) + smoothstep(0.32, 0.12, drape) * 0.5);
-                float3 dark = Lin(float3(0.40, 0.41, 0.45)), mid = Lin(float3(0.58, 0.59, 0.62)), light = Lin(float3(0.76, 0.76, 0.77));
-                float3 rk = lerp(mid, light, saturate(fold * 0.8 + (rnd - 0.5) * 0.35));
-                rk = lerp(rk, dark, smoothstep(0.30, 0.10, drape) * 0.6);
-                rk = lerp(rk, Lin(float3(0.86, 0.86, 0.85)), lip * 0.45);
-                rk = lerp(rk, Lin(float3(0.36, 0.35, 0.38)), smoothstep(1.6, 0.0, y) * 0.55);
-                rk = lerp(rk, Lin(float3(0.20, 0.20, 0.24)), groove * 0.75);
-                tilt = float2((fold - 0.5) * 0.6 + (rnd - 0.5) * 0.3, (hash12(float2(floor(ly * 0.5), cell + 9.0)) - 0.5) * 0.25);
+                // dikey perde oluklar: geniş (ince kıvrık çizgi gibi okunmasın), dikeyde çok düşük frekans
+                float drape = vnoise(float2(along * 0.9, y * 0.10)) * 0.65 + vnoise(float2(along * 3.2, y * 0.3)) * 0.35;
+                float fold = smoothstep(0.30, 0.80, drape);
+                groove = saturate(max(crack * 0.95, under) + smoothstep(0.34, 0.16, drape) * 0.35);
+                // taslaktaki yar: orta-koyu serin gri bloklar, tabaka üstü açık pah, altı koyu (oyunda açık ton soluk/pembe okunuyordu)
+                float3 dark = Lin(float3(0.30, 0.31, 0.35)), mid = Lin(float3(0.50, 0.51, 0.55)), light = Lin(float3(0.66, 0.67, 0.69));
+                float3 rk = lerp(mid, light, saturate(fold * 0.75 + (rnd - 0.5) * 0.5));
+                rk = lerp(rk, dark, smoothstep(0.32, 0.14, drape) * 0.5);
+                rk = lerp(rk, Lin(float3(0.80, 0.80, 0.80)), lip * 0.5);
+                rk = lerp(rk, Lin(float3(0.30, 0.30, 0.33)), smoothstep(1.6, 0.0, y) * 0.55);
+                rk = lerp(rk, Lin(float3(0.16, 0.16, 0.20)), groove * 0.8);
+                tilt = float2((fold - 0.5) * 0.7 + (rnd - 0.5) * 0.6, (hash12(float2(floor(ly * 0.5), cell + 9.0)) - 0.5) * 0.35 + 0.1);
                 return rk;
             }
 
@@ -103,11 +104,10 @@ Shader "Pofi/Ground"
                 return a * wx + b * wz;
             }
 
-            // kanyon kaldırımı: dünya koordinatlı Voronoi taşları (0,22 m), aralarda kahve toprak; uzakta söner (titreme olmasın)
             // kanyon kaldırımı: dünya koordinatlı Voronoi taşları (~0,15 m), aralarda kahve toprak; uzakta söner (titreme olmasın)
             float3 Cobbles(float2 p, out float edge)
             {
-                float2 g = p / 0.15; float2 c = floor(g), f = g - c;
+                float2 g = p / 0.13; float2 c = floor(g), f = g - c;
                 float d1 = 8.0, d2 = 8.0; float2 id = 0;
                 [unroll] for (int y = -1; y <= 1; y++)
                 [unroll] for (int x = -1; x <= 1; x++)
@@ -118,9 +118,10 @@ Shader "Pofi/Ground"
                 }
                 edge = smoothstep(0.16, 0.04, sqrt(d2) - sqrt(d1));
                 float h = hash12(id);
-                float3 stone = lerp(Lin(float3(0.48, 0.48, 0.50)), Lin(float3(0.72, 0.71, 0.70)), h);
-                stone = lerp(stone, Lin(float3(0.62, 0.52, 0.42)), step(0.72, hash12(id + 5.0)) * 0.7);
-                float3 dirt = Lin(float3(0.40, 0.30, 0.21));
+                // taslaktaki kaldırım: orta-koyu gri taşlar (açık bej değil), arada koyu toprak derzi
+                float3 stone = lerp(Lin(float3(0.36, 0.37, 0.40)), Lin(float3(0.60, 0.60, 0.61)), h * h);
+                stone = lerp(stone, Lin(float3(0.52, 0.46, 0.40)), step(0.8, hash12(id + 5.0)) * 0.5);
+                float3 dirt = Lin(float3(0.27, 0.22, 0.17));
                 return lerp(stone, dirt, edge);
             }
 
@@ -146,17 +147,23 @@ Shader "Pofi/Ground"
                     float3 rk = Strata(i.positionWS, n, groove, bend);
                     albedo = lerp(albedo, rk, steep);
                     // blok eğimi + oyuk gölgesi (normal aşağı/içe bükülür): tabaka altları ve çatlaklar ışık almaz
-                    n = normalize(n + (bend * 0.55 - float3(0, 0.45, 0) * groove) * steep);
+                    n = normalize(n + (bend * 0.9 - float3(0, 0.6, 0) * groove) * steep);
                 }
                 // kanyon tabanı kaldırım taşı (maske dokusu r), kameraya yakınken
-                float cob = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, i.uv).r * _Cobble * (1.0 - steep);
+                float4 mk = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, i.uv);
+                float cob = mk.r * _Cobble * (1.0 - steep);
                 float camd = distance(GetCameraPositionWS(), i.positionWS);
+                // çiçek tarlası (maske g: çan çiçeği, b: turuncu): yakında 3B öbekler (GrassField) var, uzakta zemin rengi olarak
+                float far = smoothstep(7.0, 13.0, camd) * _Cobble * (1.0 - steep);
+                float speck = smoothstep(0.35, 0.75, vnoise(p * 2.3) * 0.6 + vnoise(p * 7.0) * 0.4);
+                albedo = lerp(albedo, lerp(Lin(float3(0.26, 0.29, 0.72)), Lin(float3(0.40, 0.37, 0.82)), speck), saturate(mk.g * 1.4) * lerp(0.55, 0.9, speck) * far);
+                albedo = lerp(albedo, Lin(float3(0.90, 0.56, 0.26)), saturate(mk.b * 1.2) * speck * 0.6 * far);
                 cob *= smoothstep(38.0, 18.0, camd);
                 if (cob > 0.001)
                 {
                     float edge;
                     float3 cb = Cobbles(p, edge);
-                    albedo = lerp(albedo, cb * lerp(0.9, 1.1, tex.g), cob * 0.9);
+                    albedo = lerp(albedo, cb * lerp(0.9, 1.1, tex.g), cob * 0.95);
                     n = normalize(n + float3(0, -0.25, 0) * edge * cob);
                 }
                 // ıslak kum: suya yakın alçak kum koyulaşır

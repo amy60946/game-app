@@ -85,6 +85,10 @@ def bark_mat(name='bark_v6', base='#6e4b33', dark='#3f2a1e', light='#9a7352', wh
     bn = N.new('ShaderNodeBump'); bn.inputs['Strength'].default_value = 0.4 if not white else 0.1; L.new(nz.outputs['Fac'], bn.inputs['Height']); L.new(bn.outputs['Normal'], b.inputs['Normal'])
     return m
 
+# Oyun pişirmesi (assets_v6_game): taslakta çatlak oyuğu gerçek kabartmayla gölgelenir; düşük çokgen hedefte kabartma yok,
+# çatlak dudağındaki parıltı tek başına beyaz şerit gibi okunuyordu → pişirmede çatlak ortası koyu, dudak parıltısı zayıf.
+BAKE_LOOK = False
+
 def rock_mat(name, base='#b0a5a6', dark='#7d7184', light='#cfc4bc', moss='#6aa33e', moss_amt=0.2, cracks=0.5):
     """İri kaya: açık sıcak gri-leylak düzlemler, koyu soğuk çatlaklar (voronoi kenarı), üst yüzlerde yosun tozu."""
     m, N, L, b = _mat(name)
@@ -94,7 +98,7 @@ def rock_mat(name, base='#b0a5a6', dark='#7d7184', light='#cfc4bc', moss='#6aa33
     r.elements[0].position = 0.3; r.elements[0].color = srgb(dark) + (1,); r.elements[1].position = 0.72; r.elements[1].color = srgb(light) + (1,)
     e = r.elements.new(0.5); e.color = srgb(base) + (1,); L.new(n1.outputs['Fac'], c1.inputs[0])
     vo = N.new('ShaderNodeTexVoronoi'); vo.feature = 'DISTANCE_TO_EDGE'; vo.inputs['Scale'].default_value = 0.7; vo.inputs['Randomness'].default_value = 1.0; L.new(tc.outputs['Object'], vo.inputs['Vector'])
-    crk = N.new('ShaderNodeMapRange'); crk.inputs[1].default_value = 0.0; crk.inputs[2].default_value = 0.018; crk.inputs[3].default_value = 1.0 - cracks * 0.4; crk.inputs[4].default_value = 1.0
+    crk = N.new('ShaderNodeMapRange'); crk.inputs[1].default_value = 0.0; crk.inputs[2].default_value = 0.026 if BAKE_LOOK else 0.018; crk.inputs[3].default_value = 1.0 - cracks * (0.8 if BAKE_LOOK else 0.4); crk.inputs[4].default_value = 1.0
     L.new(vo.outputs['Distance'], crk.inputs[0])
     mul = N.new('ShaderNodeMix'); mul.data_type = 'RGBA'; mul.blend_type = 'MULTIPLY'; mul.inputs['Factor'].default_value = 1.0
     L.new(c1.outputs['Color'], mul.inputs[6]); cmb = N.new('ShaderNodeCombineXYZ')
@@ -118,7 +122,9 @@ def rock_mat(name, base='#b0a5a6', dark='#7d7184', light='#cfc4bc', moss='#6aa33
     cr2 = N.new('ShaderNodeMapRange'); cr2.inputs[1].default_value = 0.02; cr2.inputs[2].default_value = 0.035; L.new(vo.outputs['Distance'], cr2.inputs[0])
     cr3 = N.new('ShaderNodeMapRange'); cr3.inputs[1].default_value = 0.075; cr3.inputs[2].default_value = 0.045; L.new(vo.outputs['Distance'], cr3.inputs[0])
     clip_ = N.new('ShaderNodeMath'); clip_.operation = 'MINIMUM'; L.new(cr2.outputs[0], clip_.inputs[0]); L.new(cr3.outputs[0], clip_.inputs[1])
-    rimsum = N.new('ShaderNodeMath'); rimsum.operation = 'ADD'; rimsum.use_clamp = True; L.new(edg.outputs[0], rimsum.inputs[0]); L.new(clip_.outputs[0], rimsum.inputs[1])
+    rimsum = N.new('ShaderNodeMath'); rimsum.operation = 'MULTIPLY_ADD' if BAKE_LOOK else 'ADD'; rimsum.use_clamp = True
+    if BAKE_LOOK: L.new(clip_.outputs[0], rimsum.inputs[0]); rimsum.inputs[1].default_value = 0.25; L.new(edg.outputs[0], rimsum.inputs[2])
+    else: L.new(edg.outputs[0], rimsum.inputs[0]); L.new(clip_.outputs[0], rimsum.inputs[1])
     rimf = N.new('ShaderNodeMath'); rimf.operation = 'MULTIPLY'; rimf.inputs[1].default_value = 0.7; L.new(rimsum.outputs[0], rimf.inputs[0])
     lit = N.new('ShaderNodeMix'); lit.data_type = 'RGBA'; lit.inputs[7].default_value = srgb('#f1ebe4') + (1,)
     L.new(rimf.outputs[0], lit.inputs['Factor']); L.new(fin.outputs[2], lit.inputs[6])

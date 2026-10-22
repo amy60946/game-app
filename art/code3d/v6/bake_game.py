@@ -190,11 +190,15 @@ def clear_paths(lay):
     PROPS[:] = keep; IV.log('patikadan kaldırılan', gone)
 
 def write_mask(L, W, H):
-    """ground_v6_mask.png (r: kanyon kaldırımı; oyun gölgelendiricisi dünya koordinatlı taş döşer)."""
+    """ground_v6_mask.png (r: kanyon kaldırımı; oyun gölgelendiricisi dünya koordinatlı taş döşer; g/b: çan çiçeği / turuncu çiçek
+    yoğunluğu — 3B çiçekler yalnız yakında, uzakta tarla zeminde renk olarak görünür)."""
     from PIL import Image, ImageFilter
     cob = np.clip(np.clip(L.d['canyon'], 0, 1) * 1.15, 0, 1) * (1 - np.clip(L.rw * 1.5, 0, 1))
     im = Image.fromarray((cob * 255).astype(np.uint8)[::-1]).resize((W, H), Image.BILINEAR).filter(ImageFilter.GaussianBlur(1.5))
     rgb = np.zeros((H, W, 3), np.uint8); rgb[..., 0] = np.asarray(im)
+    for ch, f in ((1, L.fb), (2, L.fo)):
+        fl = Image.fromarray((np.clip(f, 0, 1) * 255).astype(np.uint8)[::-1]).resize((W, H), Image.BILINEAR)
+        rgb[..., ch] = np.asarray(fl)
     out = os.path.join(ENV, 'ground_v6'); os.makedirs(out, exist_ok=True)
     Image.fromarray(rgb, 'RGB').save(os.path.join(out, 'ground_v6_mask.png'), optimize=True)
 
