@@ -15,11 +15,11 @@ ASSETS = {
     't_cypress': ('cypress', 1800, 1024), 't_birch': ('birch', 1600, 1024),
     't_pine0': ('pine:0', 1700, 1024), 't_pine1': ('pine:1', 1700, 1024), 't_pine2': ('pine:2', 1700, 1024), 't_pine_snow': ('pine_snow', 1700, 1024),
     't_palm_tall0': ('palm2:0', 2600, 1024), 't_palm_tall1': ('palm2:1', 2600, 1024), 't_palm_tall2': ('palm2:2', 2600, 1024),
-    't_bush': ('bush', 700, 512),
+    't_bush': ('bush', 700, 512), 't_blossom': ('blossom', 2600, 1024),
     'r_boulder': ('boulder', 900, 512), 'r_boulder_b': ('boulderB', 900, 512), 'r_pebble': ('pebW', 300, 256),
     'p_campfire': ('campfire', 2600, 512), 'p_log_v6': ('log', 900, 512), 'p_stump_v6': ('stump', 800, 512),
     'p_driftwood': ('driftwood', 1400, 512), 'p_starfish': ('starfish', 300, 256), 'p_crab': ('crab', 700, 256),
-    'p_pool': ('pool', 7000, 1024), 'b_temple': ('temple', 32000, 2048),
+    'p_pool': ('pool', 7000, 1024), 'b_temple': ('temple', 60000, 2048),
     'p_trail_pole': ('pole', 120, 128), 'p_snow_lump': ('snowlump', 200, 256),
     'b_cave_v6': ('cave', 7000, 1024), 'b_ski_v6': ('skiset', 3000, 512), 'b_summit_v6': ('summit', 2600, 512),
 }
@@ -35,7 +35,7 @@ def build(spec):
     kind, _, k = spec.partition(':'); k = int(k or 0)
     low = []
     opts = {}
-    if kind in ('round', 'birch', 'bush', 'cypress') and not getattr(K, '_proxy_crown', False):
+    if kind in ('round', 'birch', 'bush', 'cypress', 'blossom') and not getattr(K, '_proxy_crown', False):
         orig = K.crown
         def proxy_crown(name, clusters, center, radii, palette, leaf=0.35, density=320, seed=0, col=None, mat=None, droop=0.35, shell=0.86, flat_top=0.0, cw=0.45):
             hi = orig(name, clusters, center, radii, palette, leaf=leaf, density=density, seed=seed, col=col, mat=mat, droop=droop, shell=shell, flat_top=flat_top, cw=cw)
@@ -54,6 +54,8 @@ def build(spec):
     if kind == 'round':
         pals = [K.PAL_BROAD, K.PAL_BROAD2, K.PAL_BROAD3, K.PAL_BROAD4]
         K.round_tree('rt', 1.0, 10 + k, col=col, palette=pals[k], spread=0.85 + 0.12 * k, fol=K.foliage_mat('fol_broad'), bark=bark, clumps=8 + k)
+    elif kind == 'blossom':   # tapınak avlusundaki pembe çiçekli ağaç (kit3_v6.temple ile aynı)
+        K.round_tree('bl', 1.0, 77, col=col, palette=K3.PAL_BLOSSOM, spread=1.2, fol=K.foliage_mat('fol_blossom', translucent=0.35), bark=bark, clumps=13)
     elif kind == 'cypress': K.cypress('cy', 1.0, 30, col=col, fol=K.foliage_mat('fol_cyp', translucent=0.15), bark=bark)
     elif kind == 'birch': K.birch('bi', 1.0, 40, col=col, fol=K.foliage_mat('fol_broad'))
     elif kind in ('pine', 'pine_snow'):
@@ -83,8 +85,10 @@ def build(spec):
         K2.swim_pool('pool', col=col, seed=3, mats=(rmA, rmB))
     elif kind == 'temple':
         K3.temple(col)
+        # avludaki ot telleri (600 bin üçgen) ve çiçek öbekleri oyunda GrassField/zemin işi: modelde kalırsa sadeleştirme
+        # bütçeyi onlara harcayıp binayı siliyordu (tapınak oyunda görünmüyordu, 22 Ekim 2026 karşılaştırması)
         for o in list(bpy.context.scene.objects):
-            if o.type == 'LIGHT': bpy.data.objects.remove(o)
+            if o.type == 'LIGHT' or o.name.startswith('tmp_grass') or o.name.startswith('tmp_flw'): bpy.data.objects.remove(o)
     elif kind == 'pole':
         v, f = K.tube_data([(0, 0, 0), (0, 0, 1.35)], [0.045, 0.04], 6, 0); K.mesh_obj('pole', v, f, K.bark_mat('pole_bark', base='#7a5536', dark='#4a3222', light='#a67c55'), col=col)
         cap = bpy.data.materials.new('pole_cap'); cap.use_nodes = True; cap.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = K.srgb('#f07a1a') + (1,)
