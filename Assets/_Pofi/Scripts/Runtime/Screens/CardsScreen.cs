@@ -116,7 +116,7 @@ namespace Pofi.Screens
             var xpAmount = CardSession.Finish(App.State, _game, App.Session.AgeBand, won);
             var xp = App.GrantXp(xpAmount, XpSource.CardGame);
             App.RecordActivity("card_games_played");
-            var root = Modal(640f, out var box);
+            var root = Modal(640f, out var box, closeOutside: false);
             var title = winner < 0 ? T("cards.draw_game") : won ? T("cards.won", xp.Grant.Granted) : T("cards.lost", xp.Grant.Granted);
             Ui.Label(box, title, Th.Font(56), Th.Text, new Vector2(0.5f, 0.7f), new Vector2(880f, 240f), FontStyle.Bold);
             if (won) App.Stage.Hop();
@@ -243,7 +243,7 @@ namespace Pofi.Screens
                 AfterColorMatchMove();
                 return;
             }
-            var root = Modal(560f, out var box);
+            var root = Modal(560f, out var box, closeOutside: false);
             Ui.Label(box, T("cards.pick_color"), Th.Font(56), Th.Text, new Vector2(0.5f, 0.82f), new Vector2(880f, 90f), FontStyle.Bold);
             var colors = new[] { CardColor.Red, CardColor.Yellow, CardColor.Green, CardColor.Blue };
             for (var i = 0; i < 4; i++)

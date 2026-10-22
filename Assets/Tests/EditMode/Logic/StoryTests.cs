@@ -153,6 +153,39 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
+        public void Surprizler_kiyida_ya_da_iceride_belirlenimci_yerde()
+        {
+            var terrain = TestData.Terrain();
+            var defs = Book.Surprises;
+            var a = SurprisePlaces.Place(defs, 300, "c1", terrain);
+            var b = SurprisePlaces.Place(defs, 300, "c1", terrain);
+            Assert.GreaterOrEqual(a.Count, defs.Count - 1, "neredeyse hepsine yer bulunur");
+            CollectionAssert.AreEqual(a.Select(s => s.X), b.Select(s => s.X));
+            foreach (var s in a)
+            {
+                Assert.IsTrue(terrain.Walkable(s.X, s.Z), s.Def.Id);
+                var h = terrain.Height(s.X, s.Z);
+                if (SurprisePlaces.Shore(s.Def.Kind)) Assert.LessOrEqual(h, SurprisePlaces.ShoreTop, s.Def.Id + " kıyıda");
+                else Assert.Greater(h, SurprisePlaces.ShoreTop, s.Def.Id + " içeride");
+            }
+        }
+
+        [Test]
+        public void Bekcinin_sayfalari_bolum_acilinca_yerinde_bulunur()
+        {
+            var st = new StoryState();
+            Assert.IsNull(LorePages.OnRegion(Book, st, 4, "region_pier"), "5. bölümden önce iskele sayfası yok");
+            Assert.AreEqual("page_5", LorePages.OnRegion(Book, st, 5, "region_pier").Id);
+            Assert.IsNull(LorePages.OnRegion(Book, st, 5, "region_pier"), "bir kez");
+            Assert.AreEqual("page_2", LorePages.OnSparkle(Book, st, 5, 100).Id);
+            Assert.IsNull(LorePages.OnSparkle(Book, st, 5, 100), "parıltıdan günde bir");
+            Assert.AreEqual("page_4", LorePages.OnSparkle(Book, st, 5, 101).Id);
+            Assert.AreEqual("page_1", LorePages.OnPlace(Book, st, 9, LorePages.Tosbi).Id);
+            CollectionAssert.AreEqual(new[] { 1, 2, 4, 5 }, LorePages.Found(Book, st).Select(p => p.Number));
+            Assert.AreEqual("page_9", LorePages.OnPlace(Book, st, 9, LorePages.Lighthouse).Id);
+        }
+
+        [Test]
         public void Okti_tepkisi_art_arda_ayni_olmaz()
         {
             var st = new StoryState(); string last = null;

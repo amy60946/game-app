@@ -32,6 +32,9 @@ namespace Pofi.World
         public PetWalker Walker { get; private set; }
         /// <summary>Patika ve kumda solan ayak izleri (PetWalker adım temasında ekler).</summary>
         public Footprints Prints { get; private set; }
+        /// <summary>Dokununca tepki veren süsler (O4): yerel (x, z) konumuyla; MapScreen dokunuş noktasına en yakını dürter.</summary>
+        public readonly List<(Vector2 At, float Radius, Wobble W)> Reactive = new List<(Vector2, float, Wobble)>();
+        public readonly List<(Vector2 At, CrabFlee C)> Crabs = new List<(Vector2, CrabFlee)>();
 
         private readonly List<Object> _owned = new List<Object>();
 
@@ -496,6 +499,7 @@ namespace Pofi.World
             if (root.childCount == 0) Placeholder(root, r, shown);
             var poolPad = root.Find("pool_pad");
             if (!shown) RealAssets.Tint(root, new Color(0.62f, 0.64f, 0.72f));
+            SeasonLook.Mark(root, false);   // kışın çatı karlanır
             // Güneş Taşı ile açılan kilitli bölge: yere yakın, yapıyı saran yoğun sis (kullanıcı, 19 Ekim 2026: gökyüzündeki
             // bulutlar sis gibi okunmuyordu; sis bölgenin üstünde, kamera hizasında olmalı). Taş yerleşince bölge yeniden kurulur, sis kalkar.
             if (!shown && v.Spot != null)
@@ -537,7 +541,11 @@ namespace Pofi.World
                 if (t == null) continue;
                 t.localPosition = new Vector3(p.X, float.IsNaN(p.Y) ? Terrain.Height(p.X, p.Z) : p.Y, p.Z) - cell.localPosition;
                 if (clear != null && (p.Asset.StartsWith("t_") || p.Asset == "palm" || (p.Asset.StartsWith("r_boulder") && p.Size > 1.6f))) clear.Add(t);
-                if (p.Asset == "p_crab") t.gameObject.AddComponent<CrabFlee>().Init(this);
+                SeasonLook.Mark(t, p.Asset.StartsWith("t_round") || p.Asset == "t_birch" || p.Asset == "t_bush");
+                if (p.Asset.StartsWith("t_") || p.Asset == "palm")
+                    Reactive.Add((new Vector2(p.X, p.Z), Mathf.Max(1.2f, p.Size * 0.45f), Wobble.Add(t, p.Asset == "t_bush" ? Wobble.Kind.Shake : Wobble.Kind.Sway)));
+                else if (p.Asset == "p_starfish") Reactive.Add((new Vector2(p.X, p.Z), 1.0f, Wobble.Add(t, Wobble.Kind.Flip)));
+                if (p.Asset == "p_crab") { var cf = t.gameObject.AddComponent<CrabFlee>(); cf.Init(this); Crabs.Add((new Vector2(p.X, p.Z), cf)); }
                 else if (p.Asset == "p_campfire") Campfire.Light(t, p.Size);
                 else if (p.Asset == "p_starfish" || p.Asset == "p_snow_lump") { foreach (var r in t.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; }
             }
@@ -713,9 +721,50 @@ namespace Pofi.World
             if (RealAssets.Play(_pet, "happy")) _clip = null;
         }
 
+        // A1 Okti'nin tepki dili (23 Ekim 2026): dokununca sıradaki tepki (Logic.Story.OktiReactions), art arda aynısı gelmez
+        private float _hold, _wiggle, _clap;
+        private Vector3 _baseScale = Vector3.one;   // evre boyu (PlacePet tutucunun ölçeğini verir)
+
+        /// <summary>Dokunuş tepkisi: jump, wave, tickle, clap, ink_heart. Yürürken de olur, yürüyüşü durdurmaz.</summary>
+        public void React(string kind)
+        {
+            if (_jump > 0f || _hold > 0f) return;
+            switch (kind)
+            {
+                case Logic.Story.OktiReactions.Wave:
+                    if (!PlayFor("wave", 1.6f)) Cheer();
+                    Audio.Sfx.Play(Audio.SfxKind.Chime);
+                    break;
+                case Logic.Story.OktiReactions.Tickle:
+                    _wiggle = 1f; PlayFor("happy", 0.9f);
+                    Audio.Sfx.Play(Audio.SfxKind.Pop);
+                    break;
+                case Logic.Story.OktiReactions.Clap:
+                    _clap = 1f; PlayFor("happy", 1.0f);
+                    Audio.Sfx.Play(Audio.SfxKind.Tap);
+                    break;
+                case Logic.Story.OktiReactions.InkHeart:
+                    PlayFor("happy", 1.0f);
+                    InkHeart.Spawn(transform, 1.9f * _baseScale.y);
+                    Audio.Sfx.Play(Audio.SfxKind.Sparkle);
+                    break;
+                default:
+                    Jump();
+                    break;
+            }
+            Audio.Haptics.Light();
+        }
+
+        private bool PlayFor(string clip, float seconds)
+        {
+            if (!RealAssets.Play(_pet, clip, false)) return false;
+            _clip = clip; _hold = seconds;
+            return true;
+        }
+
         public void Init(MapWorld world, Transform pet, float x, float z)
         {
-            _world = world; _pet = pet;
+            _world = world; _pet = pet; _baseScale = transform.localScale;
             Teleport(x, z, 180f);
         }
 
@@ -753,6 +802,14 @@ namespace Pofi.World
         {
             if (_jump > 0f) { _jump = Mathf.Max(0f, _jump - Time.deltaTime / 0.75f); Apply(); }
             if (_swing > 0f) { _swing = Mathf.Max(0f, _swing - Time.deltaTime / 0.35f); Apply(); }
+            if (_wiggle > 0f) { _wiggle = Mathf.Max(0f, _wiggle - Time.deltaTime / 0.8f); Apply(); }
+            if (_clap > 0f) { _clap = Mathf.Max(0f, _clap - Time.deltaTime / 0.9f); Apply(); }
+            if (_hold > 0f && (_hold -= Time.deltaTime) <= 0f)
+            {
+                _hold = 0f;
+                if (_direct.sqrMagnitude <= 0.0004f && _route.Count == 0) { _clip = null; Play("idle"); }
+                else _clip = null;   // yürüyorsa bir sonraki karede yürüme klibi yeniden seçilir
+            }
             if (_direct.sqrMagnitude > 0.0004f)
             {
                 _steering = true;
@@ -843,7 +900,11 @@ namespace Pofi.World
             transform.localPosition = new Vector3(_x, _world.Terrain.Height(_x, _z) + hop, _z);
             // gerçek pet modeli kameraya dönük (180°) kurulu; yürüme yönüne bakması için ön = +z kabul edilir
             var lean = _swing > 0f ? Mathf.Sin((1f - _swing) * Mathf.PI * 2f) * 12f : 0f;
-            transform.localRotation = Quaternion.Euler(0f, _yaw + 180f, 0f) * Quaternion.Euler(lean, 0f, 0f);
+            // gıdıklanma: sağa sola hızlı kıvrılma; alkış: üç kısa ezilip uzama (vantuzlar birbirine değer gibi)
+            var roll = _wiggle > 0f ? Mathf.Sin((1f - _wiggle) * Mathf.PI * 9f) * 9f * _wiggle : 0f;
+            transform.localRotation = Quaternion.Euler(0f, _yaw + 180f, 0f) * Quaternion.Euler(lean, 0f, roll);
+            var sq = _clap > 0f ? Mathf.Abs(Mathf.Sin((1f - _clap) * Mathf.PI * 3f)) * 0.12f * _clap : 0f;
+            transform.localScale = Vector3.Scale(_baseScale, new Vector3(1f + sq * 0.6f, 1f - sq, 1f + sq * 0.6f));
         }
 
         private void Play(string clip, string fallback = null)

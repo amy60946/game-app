@@ -45,7 +45,7 @@ namespace Pofi.Screens
         private void Intro()
         {
             Ui.Clear(Root);
-            var root = Modal(760f, out var box);
+            var root = Modal(760f, out var box, closeOutside: false);
             Ui.Label(box, Title, Th.Font(80), Th.Text, new Vector2(0.5f, 0.84f), new Vector2(880f, 120f), FontStyle.Bold);
             var howKey = _id == "swim" || _id == "surf" || _id == "ski" ? "mg.lane.howto" : "mg." + _id + ".howto";
             Ui.Label(box, T(howKey, App.State.PetName), Th.Font(42), Th.SubtleText, new Vector2(0.5f, 0.56f), new Vector2(840f, 260f));
@@ -91,8 +91,9 @@ namespace Pofi.Screens
             _tick = null;
             var xp = App.GrantXp(res.SuggestedXp, XpSource.MiniGame);
             if (counter != null) App.RecordActivity(counter, counterAmount);
+            App.RecordActivity("minigames_played");   // Okti'nin günlüğü (H5)
 
-            var root = Modal(820f, out var box);
+            var root = Modal(820f, out var box, closeOutside: false);
             Ui.Label(box, T("mg.result_title"), Th.Font(84), Th.Text, new Vector2(0.5f, 0.85f), new Vector2(880f, 120f), FontStyle.Bold);
             Ui.Label(box, T("mg.score", res.Score), Th.Font(56), Th.Text, new Vector2(0.5f, 0.68f), new Vector2(880f, 90f), FontStyle.Bold);
             Ui.Label(box, T("xp.gain", xp.Grant.Granted), Th.Font(64), Th.Primary, new Vector2(0.5f, 0.55f), new Vector2(880f, 100f), FontStyle.Bold);

@@ -106,6 +106,7 @@ namespace Pofi.Screens
                 var bg = row.gameObject.AddComponent<Image>(); bg.sprite = Ui.Rounded; bg.type = Image.Type.Sliced; bg.color = new Color(1f, 0.98f, 0.93f, 0.95f); bg.raycastTarget = false;
                 row.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
                 Ui.IconImage(row, MatIcon(m), new Vector2(1f, 0.5f), 86f, new Vector2(-52f, 6f));
+                RewardFlight.Register(m, row);   // O1: toplanan malzeme kendi satırına uçar
                 _trackNum[i] = Ui.Label(row, "", Th.Font(36), new Color(0.24f, 0.2f, 0.18f), new Vector2(0f, 0.5f), new Vector2(230f, 60f), FontStyle.Bold);
                 ((RectTransform)_trackNum[i].transform).anchoredPosition = new Vector2(130f, 14f);
                 _trackNum[i].alignment = TextAnchor.MiddleLeft;
@@ -121,8 +122,10 @@ namespace Pofi.Screens
 
         private void RefreshTracker()
         {
-            if (_tracker == null) return;
             var st = App.State.Gather;
+            if (_site != null && !st.HutBuilt)
+                _site.SetProgress(Gathering.Count(st, Gathering.Wood), Gathering.Count(st, Gathering.Branch), Gathering.Count(st, Gathering.Stone), Gathering.HutProgress(st));
+            if (_tracker == null) return;
             _tracker.gameObject.SetActive(!st.HutBuilt && !_overview);
             for (var i = 0; i < Gathering.HutRecipe.Length; i++)
             {
@@ -258,6 +261,8 @@ namespace Pofi.Screens
             if (got > 0)
             {
                 Gain(rule.Material, got, spot);
+                var from = App.Stage.Camera.WorldToScreenPoint(spot.transform.position + Vector3.up * (spot.Top * 0.6f));
+                RewardFlight.Fly(App.Overlay.transform, rule.Material, MatIcon(rule.Material), got, from);
                 Audio.Sfx.Play(Audio.SfxKind.Pop);
                 App.RecordActivity("gathered", got);
                 CalmBubbles();

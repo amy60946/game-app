@@ -77,6 +77,7 @@ namespace Pofi.Screens
                     Audio.Sfx.Play(Audio.SfxKind.Pop);
                     lit++;
                     if (lit < IslandEvents.FestivalLanterns) return;
+                    App.RecordActivity("festival_lit");   // hikâye: 7. bölüm kapanışı
                     if (IslandEvents.ClaimFestival(App.State.Events, Day))
                     {
                         CoinBurst.Play(App.Overlay.transform, Th, T("event.festival.reward", IslandEvents.FestivalXp));
@@ -130,6 +131,8 @@ namespace Pofi.Screens
                     CoinBurst.Play(App.Overlay.transform, Th, T("event.lighthouse.final", App.State.PetName));
                     App.GrantXp(IslandEvents.FinalXp, XpSource.Achievement);
                     App.RecordActivity("lighthouse_lit");
+                    var page = Logic.Story.LorePages.OnPlace(App.Data.Story, App.State.Story, App.Data.Story.ChapterFor(App.Level), Logic.Story.LorePages.Lighthouse);
+                    if (page != null) { App.Save(); Toast.Post(App.Overlay.transform, Th, T("lore.found", page.Number)); }
                 }
             }, true, default, 56, false);
         }

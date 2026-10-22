@@ -354,19 +354,28 @@ namespace Pofi.UI
         }
     }
 
-    /// <summary>Basınca hafif küçülüp bırakınca geri gelen düğme hissi.</summary>
+    /// <summary>
+    /// Basınca ezilir (biraz alçalır ve yayılır), bırakınca yaylanıp hafifçe aşarak yerine oturur (A3, 23 Ekim 2026).
+    /// Ses ve titreşim düğmenin kendi eyleminden gelir; burada yalnız biçim.
+    /// </summary>
     public sealed class PressBounce : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
     {
-        private float _target = 1f;
+        private bool _down;
+        private float _sq, _v;   // ezilme: 1 basılı, 0 serbest; bırakınca yayla eksiye aşar (uzama)
 
-        public void OnPointerDown(PointerEventData e) => _target = Theme.ReduceMotion ? 1f : 0.94f;
-        public void OnPointerUp(PointerEventData e) => _target = 1f;
-        public void OnPointerExit(PointerEventData e) => _target = 1f;
+        public void OnPointerDown(PointerEventData e) => _down = !Theme.ReduceMotion;
+        public void OnPointerUp(PointerEventData e) => _down = false;
+        public void OnPointerExit(PointerEventData e) => _down = false;
 
         private void Update()
         {
-            var s = Mathf.Lerp(transform.localScale.x, _target, 1f - Mathf.Exp(-20f * Time.unscaledDeltaTime));
-            transform.localScale = new Vector3(s, s, 1f);
+            var dt = Mathf.Min(Time.unscaledDeltaTime, 0.05f);
+            _v += ((_down ? 1f : 0f) - _sq) * 520f * dt - _v * 17f * dt;
+            _sq += _v * dt;
+            if (!_down && Mathf.Abs(_sq) < 0.002f && Mathf.Abs(_v) < 0.02f) { _sq = 0f; _v = 0f; }
+            var target = 1f - 0.06f * _sq;
+            var s = Mathf.Lerp(transform.localScale.x, target, 1f - Mathf.Exp(-26f * Time.unscaledDeltaTime));
+            transform.localScale = new Vector3(s, s * (1f - 0.05f * _sq), 1f);
         }
     }
 

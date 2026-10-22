@@ -28,6 +28,8 @@ Shader "Pofi/Grass"
                 float4 _Root, _Tip;
                 float _Wind;
             CBUFFER_END
+            half _PofiAutumn;   // mevsim (H6): çimen biraz kurur, altın tona kayar
+            half _PofiSnow;
 
             struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; float4 color : COLOR; UNITY_VERTEX_INPUT_INSTANCE_ID };
             struct Varyings { float4 positionCS : SV_POSITION; float3 positionWS : TEXCOORD0; float h : TEXCOORD1; float3 tint : TEXCOORD2; float bloom : TEXCOORD3; };
@@ -52,6 +54,11 @@ Shader "Pofi/Grass"
             half4 frag(Varyings i) : SV_Target
             {
                 float3 albedo = i.bloom > 0.5 ? i.tint * (0.8 + 0.2 * i.h) : lerp(_Root.rgb, _Tip.rgb, i.h) * i.tint;
+                if (i.bloom < 0.5)
+                {
+                    albedo = lerp(albedo, albedo.ggg * float3(1.05, 0.88, 0.45), 0.28 * _PofiAutumn);
+                    albedo = lerp(albedo, float3(0.9, 0.94, 1.0), 0.45 * _PofiSnow * i.h);
+                }
                 Light light = GetMainLight(TransformWorldToShadowCoord(i.positionWS));
                 float3 col = albedo * (SampleSH(float3(0, 1, 0)) + light.color * 0.75 * light.shadowAttenuation);
                 return half4(col, 1);

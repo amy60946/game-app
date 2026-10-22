@@ -143,6 +143,23 @@ namespace Pofi.World
 
         public void Init(MapWorld world) { _world = world; _home = transform.localPosition; }
 
+        /// <summary>Dokununca (O4): dokunulan yerden uzağa, denize doğru kaçar.</summary>
+        public void Scare(Vector2 from)
+        {
+            if (_state != State.Idle || _world == null) return;
+            var parent = transform.parent;
+            var wpos = parent != null ? parent.localPosition + transform.localPosition : transform.localPosition;
+            var me = new Vector2(wpos.x, wpos.z);
+            var away = me - from; if (away.sqrMagnitude < 0.01f) away = Random.insideUnitCircle;
+            var e = 1.5f;
+            var grad = new Vector2(_world.Terrain.Height(me.x + e, me.y) - _world.Terrain.Height(me.x - e, me.y),
+                                   _world.Terrain.Height(me.x, me.y + e) - _world.Terrain.Height(me.x, me.y - e));
+            _dir = (away.normalized - grad.normalized).normalized;
+            if (_dir.sqrMagnitude < 0.01f) _dir = away.normalized;
+            _state = State.Flee;
+            Audio.Sfx.Play(Audio.SfxKind.Pop);
+        }
+
         private void Update()
         {
             if (_world == null || _world.Walker == null) return;

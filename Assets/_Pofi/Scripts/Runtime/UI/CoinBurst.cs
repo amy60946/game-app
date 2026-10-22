@@ -12,7 +12,11 @@ namespace Pofi.UI
         private float _t;
         private const float Duration = 2.2f;
 
-        public static void Play(Transform overlay, Theme th, string text)
+        /// <summary>
+        /// <paramref name="coins"/> &gt; 0: dağılan paralar yerine kazanılan coin ortadan sayaca uçar (O1, RewardFlight);
+        /// yalnız yazı kalır. 0: eski kutlama (dağılan paralar).
+        /// </summary>
+        public static void Play(Transform overlay, Theme th, string text, int coins = 0)
         {
             Audio.Sfx.Play(Audio.SfxKind.Coin);
             var root = Ui.Fill(overlay, "CoinBurst");
@@ -20,7 +24,8 @@ namespace Pofi.UI
             var group = root.gameObject.AddComponent<CanvasGroup>();
             group.blocksRaycasts = false;
             group.interactable = false;
-            cb._coins = new RectTransform[Theme.ReduceMotion ? 0 : 18];
+            if (coins > 0) RewardFlight.Fly(overlay, "coin", "ui_coin", coins, new Vector2(Screen.width * 0.5f, Screen.height * 0.5f));
+            cb._coins = new RectTransform[Theme.ReduceMotion || coins > 0 ? 0 : 18];
             cb._vel = new Vector2[cb._coins.Length];
             for (var i = 0; i < cb._coins.Length; i++)
             {

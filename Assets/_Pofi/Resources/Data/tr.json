@@ -9,14 +9,12 @@
     "fit.reason.flipper_glove": "{0} yüzgeçlerine eldiven olmaz.",
     "fit.reason.not_owned": "Önce dükkandan almalısın.",
     "fit.reason.unknown_slot": "Bu eşya giyilemez.",
-
     "shop.locked": "Seviye {0} açılır!",
     "shop.not_enough_coins": "Görevlerini tamamlayınca coin kazanırsın.",
     "shop.go_to_tasks": "Görev panosuna git",
     "shop.already_owned": "Bu sende zaten var.",
     "shop.buy_confirm": "{0} - {1} coin. Alalım mı?",
     "shop.pending": "Gönderiliyor...",
-
     "care.ok.feed": "Mmm, çok lezzetli!",
     "care.ok.wash": "Mis gibi oldum!",
     "care.ok.play": "Yaşasın, oyun!",
@@ -28,7 +26,6 @@
     "care.sad.cleanliness": "Biraz yıkansam iyi olur.",
     "care.sad.happiness": "Benimle oynar mısın?",
     "care.sad.home": "Evimizi biraz düzenleyelim mi?",
-
     "task.done": "Yaptım",
     "task.decline": "Yapamam",
     "task.undo": "Geri al",
@@ -39,12 +36,10 @@
     "task.new": "Yeni bir görevin var!",
     "task.streak": "{0} günlük seri! +{1} XP",
     "task.streak_restart": "Yeni bir seri başlıyor!",
-
     "level.up": "Seviye {0}!",
     "level.unlocked": "Yeni açılanlar",
     "level.locked_hint": "Seviye {0} açılır!",
     "xp.rest": "{0} biraz yoruldu. Yarın devam edelim!",
-
     "pet.name.too_short": "İsim en az 2 harf olmalı.",
     "pet.name.too_long": "İsim en fazla 12 harf olabilir.",
     "pet.name.invalid": "Sadece harf ve boşluk kullanabilirsin.",
@@ -69,7 +64,6 @@
     "home.tidy": "Topla",
     "home.coins": "{0}",
     "home.level": "Seviye {0}",
-
     "auth.code_prompt": "Sihirli kodunu yaz",
     "auth.title": "Pofi Adası",
     "auth.button": "Adaya gir",
@@ -445,18 +439,15 @@
     "auth.offline": "İnternet yok gibi görünüyor. Bağlanınca tekrar deneyelim.",
     "auth.expired": "Bu kodun süresi doldu (kodlar 15 dakika geçerli). Ebeveyninden yeni kod iste.",
     "auth.used": "Bu kod daha önce kullanıldı. Ebeveyninden yeni kod iste.",
-
     "gate.title": "Ebeveyn sorusu",
     "gate.hint": "Bu bölüm ebeveynler için.",
     "gate.wrong": "Olmadı, yeni bir soru deneyelim.",
     "gate.wait": "Biraz bekleyelim: {0} saniye sonra tekrar dene.",
-
     "minigame.result": "{0} puan · +{1} XP",
     "minigame.again": "Tekrar oyna",
     "minigame.exit": "Çık",
     "cards.lost": "Bu sefer kazanamadın ama çok iyi oynadın! +{0} XP",
     "cards.won": "Kazandın! +{0} XP",
-
     "collection.new": "Yeni! {0} deftere eklendi.",
     "chest.ready": "Günlük sandık hazır! Görev'e dokun, aç.",
     "chest.locked": "Bugünün görevlerini bitir, sandığı aç!",
@@ -476,6 +467,28 @@
     "boost.try": "Deneyeceğim",
     "boost.later": "Şimdi değil",
     "tasks.xp_goal": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin coin ve Güneş Taşı kazandırmaya devam ediyor!",
-    "badge.earned": "Yeni rozet: {0}! Kartına dokun, gör."
+    "badge.earned": "Yeni rozet: {0}! Kartına dokun, gör.",
+    "album.tab.diary": "Günlük",
+    "album.tab.story": "Hikâye",
+    "diary.empty": "Günlüğüm bugün birlikte yaptıklarımızla dolacak!",
+    "diary.task": "Bugün evde {0} iyilik yaptık. Ada biraz daha parladı.",
+    "diary.stone": "Sisli bir yere Güneş Taşı koyduk, sis çekildi.",
+    "diary.hut": "Kendi kulübemizi yaptık!",
+    "diary.gathered": "Kulübe için {0} malzeme topladık.",
+    "diary.harvest": "Bahçeden {0} ürün topladık.",
+    "diary.bought": "Dükkândan yeni bir şey aldık.",
+    "diary.cards": "Kart oynadık, çok güldük.",
+    "diary.minigame": "{0} kez oyun oynadık.",
+    "diary.tidy": "Evi topladık, her yer pırıl pırıl.",
+    "diary.dressed": "Yeni bir kıyafet denedik.",
+    "diary.fed": "Karnımı doyurdun, teşekkürler!",
+    "diary.washed": "Köpüklü bir banyo yaptık.",
+    "story.chapter": "{0}. Bölüm · {1}",
+    "story.chapter_locked": "{0}. Bölüm · Seviye {1}'de açılır",
+    "story.replay": "Oku",
+    "story.intro": "Giriş: Işık Adası'nın hikâyesi",
+    "lore.found": "Fener bekçisinin günlüğünden {0}. sayfayı buldun! Defter'de.",
+    "lore.title": "Bekçinin günlüğü ({0}/{1})",
+    "lore.none": "Henüz sayfa bulunmadı. Açılan yerlerde ve parıltılarda saklı."
   }
 }

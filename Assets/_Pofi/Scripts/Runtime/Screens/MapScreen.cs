@@ -54,6 +54,7 @@ namespace Pofi.Screens
             _views = App.Map.View(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             World.PropCuller.Radius = 95f;
             _world = MapWorld.Create(_views, _terrain);
+            SeasonLook.Apply(_world, App.LocalNow);   // H6: gerçek takvimle mevsim
 
             // Pet: bir pencereden dönülüyorsa kaldığı yerde; yoksa en son girilen bölgenin kapısında (yoksa evin önünde) belirir
             var start = _terrain.Regions.FirstOrDefault(r => r.Id == App.State.LastRegion) ?? _terrain.Regions.FirstOrDefault(r => r.Id == "region_home");
@@ -72,6 +73,17 @@ namespace Pofi.Screens
                 _sparkles = Sparkles.Open(App.State.Sparkles, Day, Sparkles.ForDay(Day, App.State.ChildId, App.Level,
                     Logic.Pet.PetCare.CollectTime(App.LocalNow), App.Data.Collection, _terrain));
                 foreach (var sp in _sparkles) _sparkleObjs[sp.Index] = _world.AddSparkle(sp.Index, sp.X, sp.Z, !App.State.Collection.Contains(sp.EntryId));
+            }
+
+            // O3 günün küçük sürprizleri: bugün alınmamış olanlar adada belirir
+            var todays = Logic.Story.DailySurprises.ForDay(App.Data.Story.Surprises, Day, App.State.ChildId, App.Level);
+            _surprises = Logic.Story.SurprisePlaces.Place(todays, Day, App.State.ChildId, _terrain);
+            var taken = App.State.Story.SurpriseDay == Day ? App.State.Story.SurprisesTaken : null;
+            for (var i = 0; i < _surprises.Count; i++)
+            {
+                var sp = _surprises[i];
+                if (taken != null && taken.Contains(sp.Def.Id)) continue;
+                SurpriseView.Create(_world.transform, i, sp.Def.Kind, new Vector3(sp.X, _terrain.Height(sp.X, sp.Z), sp.Z));
             }
 
             _labelLayer = Ui.Fill(Root, "Labels");
@@ -255,7 +267,7 @@ namespace Pofi.Screens
         {
             var cam = App.Stage.Camera;
             cam.transform.SetPositionAndRotation(_camPos, Quaternion.LookRotation(_camLook - _camPos));
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, fov, 0.15f);
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, fov - World.HitStop.Zoom, 0.15f);
         }
 
         private void Update()
@@ -264,6 +276,7 @@ namespace Pofi.Screens
             // dokunma başka ekran açtıysa (ör. pete dokun → Dolap) bu karede kamerayı geri çekme: dolapta pet görünmüyordu
             if (!gameObject.activeInHierarchy) return;
             UpdateGather();
+            UpdateDressBubble();
             UpdateHud();
             TargetCamera(out var pos, out var look, out var fov);
             var lag = _overview ? 0.25f : 0.16f;
@@ -393,22 +406,30 @@ namespace Pofi.Screens
             var ray = App.Stage.Camera.ScreenPointToRay(screen);
             // pet ve parıltı öncelikli: bina dokunma kutuları geniş, pet kapı önündeyken ışını önce onlar yakalıyordu
             var hits = Physics.RaycastAll(ray, 400f);
-            if (hits.Length == 0) return;
+            if (hits.Length == 0) { if (!_overview) TapWater(ray); return; }
             System.Array.Sort(hits, (x, y) => x.distance.CompareTo(y.distance));
             var hit = hits[0];
             foreach (var h in hits) if (h.collider.gameObject.name == "pet") { hit = h; break; }
             if (hit.collider.gameObject.name != "pet")
                 foreach (var h in hits) if (h.collider.gameObject.name.StartsWith("sparkle_")) { hit = h; break; }
+            if (hit.collider.gameObject.name != "pet" && !hit.collider.gameObject.name.StartsWith("sparkle_"))
+                foreach (var h in hits) if (h.collider.gameObject.name.StartsWith("surprise_")) { hit = h; break; }
             var go = hit.collider.gameObject;
             if (go.name == "pet" && !_overview)
             {
-                TipDone(Onboarding.Wardrobe);
-                App.Stage.SetPetVisible(true);
-                App.Open(AppPage.Wardrobe);   // giydirme: pete dokununca
+                // A1: her dokunuşta sıradaki küçük tepki; giydirme pete dokununca açılan baloncuktan (3,5 sn kalır)
+                _world.Walker.React(Logic.Story.OktiReactions.Next(App.State.Story));
+                ShowDressBubble();
                 return;
             }
             if (go.name == "gather_site") { TapSite(); return; }
             if (go.name.StartsWith("gather_") && int.TryParse(go.name.Substring("gather_".Length), out var gi)) { TapNode(gi); return; }
+            if (go.name.StartsWith("surprise_"))
+            {
+                var spot = _world.Local(go.transform.position);
+                GoTo(spot.x, spot.y, () => { if (go != null) CollectSurprise(go); });
+                return;
+            }
             if (go.name.StartsWith("sparkle_"))
             {
                 var spot = _world.Local(go.transform.position);
@@ -425,10 +446,70 @@ namespace Pofi.Screens
             }
             if (go.name == "ground")
             {
-                TipDone(Onboarding.Walk);
                 var p = _world.Local(hit.point);
+                if (!_overview && _terrain.Height(p.x, p.y) < -0.05f) { TapWater(ray); return; }   // denizin dibi: suya dokunuldu
+                if (!_overview) PokeNear(ray, hit.distance, p);
+                TipDone(Onboarding.Walk);
                 GoTo(p.x, p.y, null);
             }
+        }
+
+        // ------------------------------------------------------------------ dokunuş tepkileri (A1, O4; 23 Ekim 2026)
+        private Button _dressBubble;
+        private float _dressFor;
+
+        private void ShowDressBubble()
+        {
+            if (_dressBubble == null)
+            {
+                _dressBubble = Candy.Round(_gLayer, Candy.White, "hoodie_soft", 118f, Vector2.zero, Vector2.zero, () =>
+                {
+                    TipDone(Onboarding.Wardrobe);
+                    App.Stage.SetPetVisible(true);
+                    App.Open(AppPage.Wardrobe);
+                });
+                Hover.On(_dressBubble, 6f);
+            }
+            _dressFor = 3.5f;
+            _dressBubble.gameObject.SetActive(true);
+            Bump.Play(_dressBubble.transform, 0.3f);
+            UpdateDressBubble();
+        }
+
+        private void UpdateDressBubble()
+        {
+            if (_dressBubble == null || !_dressBubble.gameObject.activeSelf) return;
+            if ((_dressFor -= Time.deltaTime) <= 0f || _overview || _world.Walker == null) { _dressBubble.gameObject.SetActive(false); return; }
+            var sp = App.Stage.Camera.WorldToScreenPoint(_world.Walker.transform.position + Vector3.up * 2.6f * _world.Walker.transform.localScale.y);
+            if (sp.z <= 0f) return;
+            var k = Root.rect.width / Mathf.Max(1f, Screen.width);
+            ((RectTransform)_dressBubble.transform).anchoredPosition = new Vector2(sp.x * k + 90f, sp.y * k);
+        }
+
+        /// <summary>Dokunma ışınına en yakın süs (ağaç, palmiye, çalı, deniz yıldızı) dürtülür; yakındaki yengeçler kaçar.</summary>
+        private void PokeNear(Ray ray, float groundDist, Vector2 at)
+        {
+            Wobble best = null; var bestT = float.MaxValue;
+            foreach (var (pos, rad, w) in _world.Reactive)
+            {
+                if (w == null || !w.gameObject.activeInHierarchy) continue;
+                var c = _world.World(pos.x, pos.y) + Vector3.up * rad;   // gövde ortası kabaca
+                var t = Vector3.Dot(c - ray.origin, ray.direction);
+                if (t <= 0f || t > groundDist + rad * 2f) continue;
+                var d = Vector3.Distance(ray.origin + ray.direction * t, c);
+                if (d < rad * 1.1f && t < bestT) { bestT = t; best = w; }
+            }
+            if (best != null) best.Poke(ray.origin);
+            foreach (var (pos, crab) in _world.Crabs)
+                if (crab != null && Vector2.Distance(pos, at) < 2.2f) crab.Scare(at);
+        }
+
+        /// <summary>Suya dokununca halka (yürünmez).</summary>
+        private void TapWater(Ray ray)
+        {
+            var plane = new Plane(Vector3.up, _world.transform.position);   // deniz yüzeyi: yerel y = 0
+            if (!plane.Raycast(ray, out var d) || d > 220f) return;
+            Ripple.Spawn(ray.GetPoint(d));
         }
 
         /// <summary>Yürü modunda yürür; kuşbakışında hemen oraya geçer (hızlı geçiş) ve yürü moduna döner.</summary>
@@ -458,6 +539,9 @@ namespace Pofi.Screens
 
         private void EnterRegion(RegionView v)
         {
+            // H3: bölgede bekçinin günlük sayfası (bölümü açıldıysa) — Defter'de birleşir
+            var page = Logic.Story.LorePages.OnRegion(App.Data.Story, App.State.Story, App.Data.Story.ChapterFor(App.Level), v.Region.Id);
+            if (page != null) Toast.Post(App.Overlay.transform, Th, T("lore.found", page.Number));
             App.State.VisitedRegions.Add(v.Region.Id);
             App.State.LastRegion = v.Region.Id;
             App.Save();
@@ -482,9 +566,29 @@ namespace Pofi.Screens
             var entry = App.Data.Collection.FirstOrDefault(e => e.Id == sp.EntryId);
             if (entry == null) return;
             var isNew = Logic.Meta.CollectionBook.Discover(App.State.Collection, entry, App.State.Counters);
+            var page = Logic.Story.LorePages.OnSparkle(App.Data.Story, App.State.Story, App.Data.Story.ChapterFor(App.Level), Day);
+            if (page != null) Toast.Post(App.Overlay.transform, Th, T("lore.found", page.Number));
             _toast.Say(isNew ? T("map.sparkle_new", entry.Name) : T("map.sparkle_again", entry.Name));
             App.Save();
             App.GrantXp(isNew ? 10 : 3, Logic.Economy.XpSource.Achievement);
+        }
+
+        private List<Logic.Story.SurpriseSpot> _surprises = new List<Logic.Story.SurpriseSpot>();
+
+        /// <summary>Sürpriz bulundu (O3): ödül günde bir kez (küçük XP), kısa söz; puan ya da seri yok.</summary>
+        private void CollectSurprise(GameObject go)
+        {
+            if (!int.TryParse(go.name.Substring("surprise_".Length), out var idx) || idx < 0 || idx >= _surprises.Count) return;
+            var def = _surprises[idx].Def;
+            var view = go.GetComponent<SurpriseView>();
+            if (view != null) view.React();
+            if (_world.Walker != null) { _world.Walker.Face(go.transform.position.x - _world.transform.position.x, go.transform.position.z - _world.transform.position.z); _world.Walker.Cheer(); }
+            if (!Logic.Story.DailySurprises.Take(App.State.Story, Day, def.Id)) return;
+            _toast.Say(def.Say);
+            _xpFrom = go.transform.position + Vector3.up * 0.6f;
+            App.RecordActivity("surprise_found");
+            App.Save();
+            App.GrantXp(def.Xp, Logic.Economy.XpSource.Achievement);
         }
 
         /// <summary>Hata ayıklama/test: kamera modunu değiştir, ada üzerinde bir noktaya yürü.</summary>

@@ -17,6 +17,8 @@ Shader "Pofi/Toon"
         _Rim ("Kenar ışığı", Float) = 1
         _BumpScale ("Normal gücü", Float) = 0.5
         _Fade ("Soldurma (kamera önü)", Float) = 1
+        _Foliage ("Yaprak (mevsim tonu)", Float) = 0
+        _Env ("Ada süsü/yapısı (kışın karlanır)", Float) = 0
     }
 
     HLSLINCLUDE
@@ -31,7 +33,12 @@ Shader "Pofi/Toon"
         half _Rim;
         half _BumpScale;
         half _Fade;
+        half _Foliage;
+        half _Env;
     CBUFFER_END
+    // mevsim (H6, World/SeasonLook): 0..1, Shader.SetGlobalFloat; gerçek takvimden
+    half _PofiAutumn;
+    half _PofiSnow;
     TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
     TEXTURE2D(_BumpMap); SAMPLER(sampler_BumpMap);
     ENDHLSL
@@ -95,6 +102,19 @@ Shader "Pofi/Toon"
                 }
                 half3 albedo = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, i.uv).rgb * _BaseColor.rgb;
                 float3 n = normalize(i.normalWS);
+                // sonbahar: yeşil yapraklar ağaç ağaç altın/turuncu/kızıla döner (dörtte biri yeşil kalır)
+                if (_PofiAutumn * _Foliage > 0.001)
+                {
+                    half green = saturate((albedo.g - max(albedo.r, albedo.b)) * 5.0);
+                    float cell = frac(sin(dot(floor(i.positionWS.xz / 5.0), float2(12.9898, 78.233))) * 43758.5453);
+                    half3 gold = half3(albedo.g * 1.22, albedo.g * 0.78, albedo.b * 0.35);
+                    half3 red = half3(albedo.g * 1.3, albedo.g * 0.42, albedo.b * 0.3);
+                    half3 autumn = lerp(gold, red, step(0.62, cell));
+                    albedo = lerp(albedo, autumn, green * _PofiAutumn * _Foliage * step(0.25, cell));
+                }
+                // kış: ada süslerinin ve yapıların üste bakan yüzleri karla örtülür (pet ve eşya karlanmaz)
+                if (_PofiSnow * _Env > 0.001)
+                    albedo = lerp(albedo, half3(0.93, 0.96, 1.0), _PofiSnow * _Env * smoothstep(0.55, 0.85, n.y));
             #if defined(_NORMALMAP)
                 // doku ayrıntısı: pet/eşyada yarım güç (boyalı yüzey sakin), taslaktan pişmiş çevre modellerinde tam (RealAssets)
                 half3 nts = UnpackNormalScale(SAMPLE_TEXTURE2D(_BumpMap, sampler_BumpMap, i.uv), _BumpScale);

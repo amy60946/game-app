@@ -101,7 +101,7 @@ namespace Pofi.World
             var o = Mathf.Clamp01(t / OpenT);
             _lid.localRotation = Quaternion.Euler(-110f * (1f - (1f - o) * (1f - o)), 0f, 0f);
             _glow.localScale = Vector3.one * (o * 1.6f * (1f + Mathf.Sin(_t * 6f) * 0.08f));
-            if (o > 0f && _prize != null && !_prize.gameObject.activeSelf) { _prize.gameObject.SetActive(true); Audio.Sfx.Play(Audio.SfxKind.Sparkle); }
+            if (o > 0f && _prize != null && !_prize.gameObject.activeSelf) { _prize.gameObject.SetActive(true); Audio.Sfx.Play(Audio.SfxKind.Sparkle); HitStop.Do(); }
             t -= OpenT;
             // 4) ödül yükselir (döner gibi esner)
             if (_prize != null && t > 0f)

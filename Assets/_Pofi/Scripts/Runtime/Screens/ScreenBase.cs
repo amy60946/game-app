@@ -149,14 +149,24 @@ namespace Pofi.Screens
             return Ui.Label(coin, App.State.Wallet.Available.ToString(), Th.Font(46), Theme.Hex("#5A3B00"), new Vector2(0.62f, 0.5f), new Vector2(150f, 80f), FontStyle.Bold);
         }
 
-        /// <summary>Ekranı karartan ortalanmış kutu (onay, ebeveyn kapısı, panel). Kökü döndürür; kutuya .GetChild(0) ile erişilir.</summary>
-        protected RectTransform Modal(float height, out RectTransform box)
+        /// <summary>
+        /// Ekranı karartan ortalanmış kutu (onay, ebeveyn kapısı, panel). Kökü döndürür; kutuya .GetChild(0) ile erişilir.
+        /// P5 (23 Ekim 2026): kutunun dışına dokununca kapanır (vazgeç ile aynı); <paramref name="closeOutside"/> false ise kapanmaz.
+        /// </summary>
+        protected RectTransform Modal(float height, out RectTransform box, bool closeOutside = true)
         {
             var root = Ui.Fill(Root, "Modal");
             root.gameObject.AddComponent<Image>().color = new Color(0f, 0.08f, 0.2f, 0.5f);
             box = Ui.Rect(root, "Box", new Vector2(0.5f, 0.5f), new Vector2(960f, Mathf.Min(height, 980f)));
             Candy.Shell(box, new Color(1f, 0.99f, 0.96f)).raycastTarget = true;   // kabarık beyaz kutu
             box.GetComponent<Image>().raycastTarget = true;
+            if (closeOutside)
+            {
+                var outside = root.gameObject.AddComponent<Button>();
+                outside.transition = Selectable.Transition.None;
+                outside.onClick.AddListener(() => { if (root != null) Destroy(root.gameObject); });
+                box.gameObject.AddComponent<ClickSink>();   // kutunun içine dokunuş dışarıya taşmasın
+            }
             return root;
         }
 
@@ -357,5 +367,11 @@ namespace Pofi.Screens
             var s = Mathf.Lerp(transform.localScale.x, 1f, 1f - Mathf.Exp(-12f * Time.deltaTime));
             transform.localScale = new Vector3(s, s, 1f);
         }
+    }
+
+    /// <summary>Dokunuşu yutar: üstteki kapatma düğmesine (Modal dışı) taşmasın.</summary>
+    public sealed class ClickSink : MonoBehaviour, UnityEngine.EventSystems.IPointerClickHandler
+    {
+        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData e) { }
     }
 }

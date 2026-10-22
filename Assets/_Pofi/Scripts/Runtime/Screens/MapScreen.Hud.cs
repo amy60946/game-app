@@ -68,6 +68,8 @@ namespace Pofi.Screens
             TopCenter(_stoneText, -170f);
             _coinText = Candy.CoinPlate(hud, Vector2.zero, 300f);
             TopCenter(_coinText, 170f);
+            RewardFlight.Register("coin", (RectTransform)_coinText.transform.parent);    // O1: kazanılan coin buraya uçar
+            RewardFlight.Register("stone", (RectTransform)_stoneText.transform.parent);
 
             // sağ üst: Harita (kuşbakışı / yürü) ve Ayarlar
             // kenarlara yakın (kullanıcı, 20 Ekim 2026)
@@ -215,7 +217,8 @@ namespace Pofi.Screens
                 if (f > _gauges[i].fillAmount + 0.02f) Bump.Play(_gauges[i].transform.parent, 0.18f);   // besleyince/yıkayınca halka zıplar
                 _gauges[i].fillAmount = f;
             }
-            var coins = st.Wallet.Available; var stones = Logic.Island.SunStoneBook.Available(st.SunStones);
+            // uçuştaki ödül sayaçtan düşülür: parçalar geldikçe sayı tek tek artar (O1)
+            var coins = st.Wallet.Available - RewardFlight.Pending("coin"); var stones = Logic.Island.SunStoneBook.Available(st.SunStones) - RewardFlight.Pending("stone");
             if (_lastCoins >= 0 && coins != _lastCoins) Bump.Play(_coinText.transform.parent);
             if (_lastStones >= 0 && stones != _lastStones) Bump.Play(_stoneText.transform.parent, 0.3f);
             _lastCoins = coins; _lastStones = stones;
@@ -227,8 +230,8 @@ namespace Pofi.Screens
                 _trophyCount.text = nb.ToString();
                 _trophyCount.transform.parent.gameObject.SetActive(nb > 0);
             }
-            _coinText.text = st.Wallet.Available.ToString();
-            _stoneText.text = Logic.Island.SunStoneBook.Available(st.SunStones).ToString();
+            _coinText.text = coins.ToString();
+            _stoneText.text = stones.ToString();
             Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
             if ((_questT -= Time.deltaTime) <= 0f) { _questT = 1f; SetCount(_questCount, OpenQuests()); }
             SetCount(_feedCount, Count(ItemCategory.Food));

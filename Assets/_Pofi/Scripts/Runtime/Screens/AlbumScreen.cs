@@ -8,26 +8,31 @@ using UnityEngine.UI;
 
 namespace Pofi.Screens
 {
-    /// <summary>Defter (M7, FR-META-1/2): koleksiyon (böcek, kabuk, ada sakini, balık) ve rozetler.</summary>
+    /// <summary>
+    /// Defter (M7, FR-META-1/2): koleksiyon (böcek, kabuk, ada sakini, balık), rozetler, Okti'nin günlüğü (H5) ve hikâye
+    /// (izlenen sahneler + fener bekçisinin bulunan sayfaları, H3).
+    /// </summary>
     public sealed class AlbumScreen : ScreenBase
     {
-        private static bool _badges;
+        private const int TabCollection = 0, TabBadges = 1, TabDiary = 2, TabStory = 3;
+        private static int _tab;
 
         /// <summary>Defter rozetler sekmesiyle açılsın (adadaki pet kartına dokununca, XP takibi M4).</summary>
-        public static void ShowBadges() => _badges = true;
+        public static void ShowBadges() => _tab = TabBadges;
         private RectTransform _list;
-        private Button _tabC, _tabB;
+        private readonly Button[] _tabs = new Button[4];
         private static readonly string[] Cats = { "bug", "shell", "resident", "fish" };
 
         protected override void Build()
         {
             App.Stage.SetPetVisible(false);
             Header(T("album.title"));
-            _tabC = Ui.Button(Root, Th, T("album.tab.collection"), new Vector2(0f, 1f), new Vector2(300f, 96f), () => { _badges = false; Fill(); }, !_badges, default, 36, false);
-            _tabB = Ui.Button(Root, Th, T("album.tab.badges"), new Vector2(0f, 1f), new Vector2(300f, 96f), () => { _badges = true; Fill(); }, _badges, default, 36, false);
-            foreach (var (b, i) in new[] { (_tabC, 0), (_tabB, 1) })
+            var names = new[] { "album.tab.collection", "album.tab.badges", "album.tab.diary", "album.tab.story" };
+            for (var i = 0; i < _tabs.Length; i++)
             {
-                var rt = (RectTransform)b.transform;
+                var k = i;
+                _tabs[i] = Ui.Button(Root, Th, T(names[i]), new Vector2(0f, 1f), new Vector2(300f, 96f), () => { _tab = k; Fill(); }, _tab == i, default, 36, false);
+                var rt = (RectTransform)_tabs[i].transform;
                 rt.pivot = new Vector2(0f, 1f);
                 rt.anchoredPosition = new Vector2(36f, -(HeaderHeight + 10f) - i * 110f);
             }
@@ -44,10 +49,12 @@ namespace Pofi.Screens
 
         private void Fill()
         {
-            Tab(_tabC, !_badges);
-            Tab(_tabB, _badges);
+            for (var i = 0; i < _tabs.Length; i++) Tab(_tabs[i], _tab == i);
             Ui.Clear(_list);
-            if (_badges) Badges(); else Collection();
+            if (_tab == TabBadges) Badges();
+            else if (_tab == TabDiary) DiaryPage();
+            else if (_tab == TabStory) StoryPage();
+            else Collection();
         }
 
         private void Collection()
@@ -80,6 +87,91 @@ namespace Pofi.Screens
                     Ui.Label(cell, have ? e.Name : "Sv " + e.Level, Th.Font(28), Th.Text, new Vector2(0.5f, 0.17f), new Vector2(220f, 70f), FontStyle.Bold);
                 }
             }
+        }
+
+        // ------------------------------------------------------------------ H5 Okti'nin günlüğü
+        private void DiaryPage()
+        {
+            Logic.Story.Diary.Record(App.State.Story, App.State.Counters, App.LocalNow);   // bugünün sayfası güncel
+            var days = App.State.Story.Diary;
+            if (days.Count == 0) { Note(T("diary.empty", App.State.PetName)); return; }
+            for (var i = days.Count - 1; i >= 0; i--)
+            {
+                var e = days[i];
+                var date = new System.DateTime(e.Day * System.TimeSpan.TicksPerDay);
+                var h = 96f + e.Lines.Count * 66f;
+                var row = Ui.Row(_list, "Day" + e.Day, h);
+                Ui.Panel(row, new Color(1f, 0.97f, 0.88f, 0.96f), Th.Radius);
+                Ui.Label(row, date.ToString("d MMMM", new System.Globalization.CultureInfo("tr-TR")), Th.Font(40), Theme.Hex("#8A5A22"),
+                    new Vector2(0.5f, 1f), new Vector2(1180f, 80f), FontStyle.Bold, TextAnchor.MiddleLeft).rectTransform.anchoredPosition = new Vector2(0f, -44f);
+                for (var j = 0; j < e.Lines.Count; j++)
+                {
+                    var l = e.Lines[j];
+                    var t = Ui.Label(row, "• " + T(l.Key, l.Args), Th.Font(38), Theme.Hex("#4A2C0A"), new Vector2(0.5f, 1f), new Vector2(1180f, 64f), FontStyle.Normal, TextAnchor.MiddleLeft);
+                    t.rectTransform.anchoredPosition = new Vector2(0f, -110f - j * 66f);
+                }
+            }
+        }
+
+        // ------------------------------------------------------------------ hikâye: bölümler, izlenen sahneler, bekçinin sayfaları
+        private void StoryPage()
+        {
+            var book = App.Data.Story;
+            var st = App.State.Story;
+            var chapter = book.ChapterFor(App.Level);
+            foreach (var c in book.Chapters)
+            {
+                var open = c.Number <= chapter;
+                var row = Ui.Row(_list, "Ch" + c.Number, 90f);
+                Ui.Stretch(Ui.Label(row, open ? T("story.chapter", c.Number, c.Title) : T("story.chapter_locked", c.Number, c.Level), Th.Font(42),
+                    open ? Color.white : new Color(1f, 1f, 1f, 0.6f), new Vector2(0.5f, 0.5f), Vector2.zero, FontStyle.Bold, TextAnchor.MiddleLeft).rectTransform);
+                if (!open) continue;
+                foreach (var sc in book.Scenes)
+                {
+                    if (sc.Chapter != c.Number || !st.Seen.Contains(sc.Id)) continue;
+                    var r = Ui.Row(_list, sc.Id, 110f);
+                    Ui.Panel(r, Th.Panel, Th.Radius);
+                    Ui.Label(r, sc.Summary, Th.Font(36), Th.Text, new Vector2(0.45f, 0.5f), new Vector2(1000f, 100f), FontStyle.Normal, TextAnchor.MiddleLeft);
+                    var scene = sc;
+                    Ui.Button(r, Th, T("story.replay"), new Vector2(0.9f, 0.5f), new Vector2(200f, 80f), () => Replay(scene), true, default, 32, false);
+                }
+            }
+            if (st.IntroSeen && book.Scenes.Count > 0 && book.Scenes[0].Trigger == Logic.Story.StoryDirector.Intro)
+            {
+                var r = Ui.Row(_list, "intro", 110f);
+                Ui.Panel(r, Th.Panel, Th.Radius);
+                Ui.Label(r, T("story.intro"), Th.Font(36), Th.Text, new Vector2(0.45f, 0.5f), new Vector2(1000f, 100f), FontStyle.Normal, TextAnchor.MiddleLeft);
+                var intro = book.Scenes[0];
+                Ui.Button(r, Th, T("story.replay"), new Vector2(0.9f, 0.5f), new Vector2(200f, 80f), () => Replay(intro), true, default, 32, false);
+            }
+            var pages = Logic.Story.LorePages.Found(book, st);
+            var head = Ui.Row(_list, "PagesHead", 90f);
+            Ui.Stretch(Ui.Label(head, T("lore.title", pages.Count, book.Pages.Count), Th.Font(42), Color.white, new Vector2(0.5f, 0.5f), Vector2.zero, FontStyle.Bold, TextAnchor.MiddleLeft).rectTransform);
+            if (pages.Count == 0) { Note(T("lore.none")); return; }
+            foreach (var p in pages)
+            {
+                var r = Ui.Row(_list, p.Id, 150f);
+                Ui.Panel(r, new Color(1f, 0.95f, 0.82f, 0.97f), Th.Radius);
+                Ui.Label(r, p.Number + ".  " + p.Text, Th.Font(34), Theme.Hex("#4A2C0A"), new Vector2(0.5f, 0.5f), new Vector2(1220f, 140f), FontStyle.Italic, TextAnchor.MiddleLeft);
+            }
+        }
+
+        /// <summary>İzlenmiş sahneyi yeniden oku (yaş grubuna göre metin). Sahne sunumu (S1/S2) onaylanınca oyun içi sunumla değişir.</summary>
+        private void Replay(Logic.Story.StoryScene scene)
+        {
+            var root = Modal(1100f, out var box);
+            var band = Th.Band;
+            var lines = scene.Lines.Select(l => (l.Who == "narrator" ? "" : App.Data.Story.NameOf(l.Who).Replace("{pet}", App.State.PetName) + ": ") + Logic.Story.StoryDirector.Text(l, band));
+            var t = Ui.Label(box, string.Join("\n\n", lines), Th.Font(38), Th.Text, new Vector2(0.5f, 0.56f), new Vector2(1000f, 560f), FontStyle.Normal, TextAnchor.MiddleLeft);
+            t.horizontalOverflow = HorizontalWrapMode.Wrap;
+            Ui.Button(box, Th, T("common.ok"), new Vector2(0.5f, 0.1f), new Vector2(300f, 100f), () => Destroy(root.gameObject), true, default, 40, false);
+        }
+
+        private void Note(string text)
+        {
+            var row = Ui.Row(_list, "Note", 180f);
+            Ui.Panel(row, Th.Panel, Th.Radius);
+            Ui.Stretch(Ui.Label(row, text, Th.Font(40), Th.SubtleText, new Vector2(0.5f, 0.5f), Vector2.zero).rectTransform);
         }
 
         private static Color RarityColor(int r) => r >= 3 ? Theme.Hex("#A77BFF") : r == 2 ? Theme.Hex("#3DC9FF") : Theme.Hex("#7BD66B");

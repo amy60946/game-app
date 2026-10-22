@@ -249,8 +249,12 @@ namespace Pofi.Core
             if (report.Offline && await CheckRevoked()) return report;
             if (Session != null && Backend != null) Store.Set(ServerKey(Session.ChildId), Backend.Export());
             Save();
-            if (report.CoinsEarned > 0) CoinBurst.Play(Overlay.transform, Theme, Loc.Get("tasks.earned", report.CoinsEarned));
-            if (report.SunStonesEarned > 0) Toast.Post(Overlay.transform, Theme, Loc.Get("stones.earned", report.SunStonesEarned));
+            if (report.CoinsEarned > 0) CoinBurst.Play(Overlay.transform, Theme, Loc.Get("tasks.earned", report.CoinsEarned), report.CoinsEarned);
+            if (report.SunStonesEarned > 0)
+            {
+                Toast.Post(Overlay.transform, Theme, Loc.Get("stones.earned", report.SunStonesEarned));
+                RewardFlight.Fly(Overlay.transform, "stone", "ui_sunstone", report.SunStonesEarned, new Vector2(Screen.width * 0.5f, Screen.height * 0.42f));   // O1
+            }
             var shown = 0;
             foreach (var rw in report.RealTaskRewards)
             {
@@ -326,6 +330,7 @@ namespace Pofi.Core
         {
             if (State == null) return;
             var r = Activity.Record(State, Data, Levels, counter, n, LocalNow);
+            Logic.Story.Diary.Record(State.Story, State.Counters, LocalNow);   // H5: günün 2–3 anısı (puan yok)
             foreach (var b in r.NewBadges) Toast.Post(Overlay.transform, Theme, Loc.Get("badge.earned", b.Name));
             if (r.NewBadges.Count > 0) BadgeEarned?.Invoke(r.NewBadges.Count);
             for (var i = 0; i < r.QuestsDone.Count; i++) Toast.Post(Overlay.transform, Theme, r.QuestsDone[i].Text + "  " + Loc.Get("xp.gain", r.QuestXpEach[i]));

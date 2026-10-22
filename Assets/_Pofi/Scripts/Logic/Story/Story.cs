@@ -149,6 +149,7 @@ namespace Pofi.Logic.Story
         public bool IntroSeen;
         public HashSet<string> Seen = new HashSet<string>();
         public HashSet<string> Pages = new HashSet<string>();
+        public int PageDay;          // parıltıdan sayfa en son hangi gün çıktı (günde bir)
         public List<OpenRequest> Requests = new List<OpenRequest>();
         public int RequestDay;
         public Dictionary<string, int> Friendship = new Dictionary<string, int>();

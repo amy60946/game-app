@@ -69,7 +69,7 @@ namespace Pofi.Screens
         /// <summary>İlk açılış (Ö5): kısa hikâye girişi. Bir kez gösterilir.</summary>
         private void StoryCard()
         {
-            var root = Modal(720f, out var box);
+            var root = Modal(720f, out var box, closeOutside: false);
             Candy.Caption(box, T("story.title"), 72, new Vector2(0.5f, 0.85f), new Vector2(880f, 100f), Vector2.zero, Candy.Deep(Candy.Orange));
             Ui.Label(box, T("story.body"), Th.Font(38), Th.Text, new Vector2(0.5f, 0.52f), new Vector2(840f, 330f));
             Ui.Button(box, Th, T("story.start"), new Vector2(0.5f, 0.13f), new Vector2(520f, 120f), () =>

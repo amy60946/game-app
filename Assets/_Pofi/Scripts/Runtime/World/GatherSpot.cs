@@ -106,9 +106,78 @@ namespace Pofi.World
             Animate(0f, 1f, 0.45f, hide: false);
         }
 
+        // ------------------------------------------------------------------ O2 şantiye (23 Ekim 2026)
+        // Teslim edilen her odun, dal ve taş yerdeki yığına eklenir; köşe direkleri malzeme geldikçe yükselir, malzeme tamamsa
+        // üst kirişler de yerinde durur. Sayılar sayaç panelinde değil, gözle görülür.
+        private Transform _stack;
+        private int _pw = -1, _pb = -1, _ps = -1;
+        private float _stackPop;
+        private static Material _logMat, _endMat, _barkMat, _stoneMat;
+
+        public void SetProgress(int wood, int branch, int stone, float progress)
+        {
+            if (!IsSite || Radius > 0f) return;   // kulübe yapıldıysa yığın yok
+            wood = Mathf.Min(wood, 6); branch = Mathf.Min(branch, 4); stone = Mathf.Min(stone, 3);
+            if (wood == _pw && branch == _pb && stone == _ps) return;
+            var grew = _pw >= 0 && (wood > _pw || branch > _pb || stone > _ps);
+            _pw = wood; _pb = branch; _ps = stone;
+            if (_stack != null) Destroy(_stack.gameObject);
+            _stack = new GameObject("stack").transform;
+            _stack.SetParent(transform, false);
+            if (_logMat == null)
+            {
+                _logMat = PetModels.NewMaterial(new Color(0.62f, 0.4f, 0.22f), 0.35f);
+                _endMat = PetModels.NewMaterial(new Color(0.93f, 0.78f, 0.52f), 0.35f);
+                _barkMat = PetModels.NewMaterial(new Color(0.45f, 0.3f, 0.18f), 0.3f);
+                _stoneMat = PetModels.NewMaterial(new Color(0.66f, 0.67f, 0.7f), 0.4f);
+            }
+            // odun: 3-2-1 piramit (sol arka)
+            int[] row = { 0, 0, 0, 1, 1, 2 };
+            float[] col = { -1f, 0f, 1f, -0.5f, 0.5f, 0f };
+            for (var i = 0; i < wood; i++)
+            {
+                var at = new Vector3(-2.1f, 0.16f + row[i] * 0.27f, 0.7f + col[i] * 0.3f);
+                Piece(PrimitiveType.Cylinder, at, Quaternion.Euler(0f, 0f, 90f), new Vector3(0.28f, 0.48f, 0.28f), _logMat);
+                Piece(PrimitiveType.Cylinder, at + new Vector3(0.49f, 0f, 0f), Quaternion.Euler(0f, 0f, 90f), new Vector3(0.24f, 0.01f, 0.24f), _endMat);
+            }
+            // dal demeti (sağ arka): çapraz duran ince dallar
+            for (var i = 0; i < branch; i++)
+                Piece(PrimitiveType.Cylinder, new Vector3(2.0f + (i - 1.5f) * 0.12f, 0.12f + i * 0.05f, 0.8f), Quaternion.Euler(0f, 25f * (i % 2 == 0 ? 1f : -1f), 86f),
+                    new Vector3(0.08f, 0.55f, 0.08f), _barkMat);
+            // taşlar (önde): yassı yuvarlak
+            for (var i = 0; i < stone; i++)
+                Piece(PrimitiveType.Sphere, new Vector3((i - 1f) * 0.5f, 0.15f, -2.0f), Quaternion.Euler(0f, i * 40f, 0f),
+                    new Vector3(0.48f, 0.3f, 0.42f) * (1f - i * 0.08f), _stoneMat);
+            // köşe direkleri ve tamamlanınca üst kirişler
+            var h = Mathf.Lerp(0.15f, 2.1f, Mathf.Clamp01(progress));
+            for (var i = 0; i < 4; i++)
+            {
+                var x = (i % 2 == 0 ? -1f : 1f) * 1.25f; var z = (i < 2 ? -1f : 1f) * 1.25f;
+                Piece(PrimitiveType.Cylinder, new Vector3(x, h * 0.5f, z), Quaternion.identity, new Vector3(0.16f, h * 0.5f, 0.16f), _logMat);
+            }
+            if (progress >= 0.999f)
+                for (var i = 0; i < 4; i++)
+                {
+                    var along = i % 2 == 0; var off = (i < 2 ? -1f : 1f) * 1.25f;
+                    Piece(PrimitiveType.Cylinder, along ? new Vector3(0f, h, off) : new Vector3(off, h, 0f),
+                        Quaternion.Euler(along ? 0f : 90f, 0f, along ? 90f : 0f), new Vector3(0.12f, 1.33f, 0.12f), _logMat);
+                }
+            if (grew) { _stackPop = 1f; Puff(transform.position + new Vector3(0f, 0.4f, 0f), 1.1f); }
+        }
+
+        private void Piece(PrimitiveType type, Vector3 at, Quaternion rot, Vector3 scale, Material m)
+        {
+            var go = GameObject.CreatePrimitive(type);
+            Destroy(go.GetComponent<Collider>());
+            go.transform.SetParent(_stack, false);
+            go.transform.localPosition = at; go.transform.localRotation = rot; go.transform.localScale = scale;
+            var r = go.GetComponent<MeshRenderer>(); r.sharedMaterial = m;
+        }
+
         /// <summary>İnşa: alan kaybolur, kulübe toz bulutuyla büyüyerek yükselir.</summary>
         public void BuildHut()
         {
+            if (_stack != null) { Destroy(_stack.gameObject); _stack = null; }
             SetSiteModel(true);
             Animate(0.05f, 1f, 0.9f, hide: false);
             for (var i = 0; i < 10; i++)
@@ -130,6 +199,13 @@ namespace Pofi.World
         private void Update()
         {
             if (_model == null) return;
+            if (_stackPop > 0f && _stack != null)
+            {
+                // yeni parça gelince yığın kısa bir "pop" yapar (ezilip yaylanır)
+                _stackPop = Mathf.Max(0f, _stackPop - Time.deltaTime / 0.45f);
+                var k = Mathf.Sin((1f - _stackPop) * Mathf.PI * 2f) * _stackPop * 0.12f;
+                _stack.localScale = new Vector3(1f + k, 1f - k, 1f + k);
+            }
             var bs = BaseScale;
             if (_scaleT < 1f)
             {

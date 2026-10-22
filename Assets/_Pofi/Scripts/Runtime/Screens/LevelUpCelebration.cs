@@ -14,6 +14,7 @@ namespace Pofi.Screens
         public static void Show(GameBootstrap app, LevelUp up)
         {
             var th = app.Theme;
+            World.HitStop.Do();   // A4: büyük an
             Audio.Sfx.Play(Audio.SfxKind.Success);
             var root = Ui.Fill(app.Overlay.transform, "LevelUp");
             root.gameObject.AddComponent<Image>().color = new Color(0.04f, 0.08f, 0.12f, 0.62f);

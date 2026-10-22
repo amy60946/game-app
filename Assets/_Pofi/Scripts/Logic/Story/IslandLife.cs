@@ -137,6 +137,83 @@ namespace Pofi.Logic.Story
         }
     }
 
+    public sealed class SurpriseSpot
+    {
+        public SurpriseDef Def;
+        public float X, Z;
+    }
+
+    public static class SurprisePlaces
+    {
+        /// <summary>Kıyıda durması gerekenler (kumsal: deniz seviyesine yakın yürünebilir yer).</summary>
+        public static bool Shore(string kind) => kind == "bottle" || kind == "crabs" || kind == "shells" || kind == "starfish";
+
+        public const float ShoreTop = 0.9f;
+
+        /// <summary>
+        /// Günün sürprizlerine belirlenimci yer: kıyı türleri kumsalda (yükseklik ≤ 0,9 m), diğerleri içeride; bölgelere ve
+        /// birbirine yakın değil. Yer bulunamayan sürpriz o gün çıkmaz.
+        /// </summary>
+        public static List<SurpriseSpot> Place(IList<SurpriseDef> todays, int day, string childId, Island.IslandTerrain terrain)
+        {
+            var list = new List<SurpriseSpot>();
+            var rng = new Random(ResidentRequests.StableHash((childId ?? "") + "@" + day));
+            foreach (var d in todays)
+            {
+                var shore = Shore(d.Kind);
+                for (var tries = 0; tries < 600; tries++)
+                {
+                    var x = (float)(terrain.MinX + rng.NextDouble() * (terrain.MaxX - terrain.MinX));
+                    var z = (float)(terrain.MinZ + rng.NextDouble() * (terrain.MaxZ - terrain.MinZ));
+                    if (!terrain.Walkable(x, z)) continue;
+                    var h = terrain.Height(x, z);
+                    if (shore ? h > ShoreTop || h < 0.05f : h < ShoreTop + 0.3f) continue;
+                    if (terrain.Regions.Any(r => Dist(r.X, r.Z, x, z) < r.Size * 0.8f + 2f) || list.Any(s => Dist(s.X, s.Z, x, z) < 10f)) continue;
+                    list.Add(new SurpriseSpot { Def = d, X = x, Z = z });
+                    break;
+                }
+            }
+            return list;
+        }
+
+        private static float Dist(float ax, float az, float bx, float bz) => (float)Math.Sqrt((ax - bx) * (ax - bx) + (az - bz) * (az - bz));
+    }
+
+    /// <summary>
+    /// Fener bekçisinin günlük sayfaları (H3): sayfa bölümü açılınca bulunabilir hâle gelir; yerine göre bulunur
+    /// (bölgeye girince, günün parıltısında günde bir, Tosbi Dede'den, fener yanınca). Bulunan sayfa Defter'de sırayla birleşir.
+    /// </summary>
+    public static class LorePages
+    {
+        public const string Sparkle = "sparkle", Tosbi = "tosbi", Lighthouse = "lighthouse";
+
+        /// <summary>Bölgeye girince: o bölgenin sayfası (bölüm açıksa ve bulunmadıysa).</summary>
+        public static LorePageDef OnRegion(StoryBook book, StoryState st, int chapter, string regionId) =>
+            Find(book, st, chapter, p => p.Where == "region:" + regionId);
+
+        /// <summary>Parıltı açılınca: bulunmamış en küçük numaralı parıltı sayfası, günde en çok bir.</summary>
+        public static LorePageDef OnSparkle(StoryBook book, StoryState st, int chapter, int day)
+        {
+            if (st.PageDay == day) return null;
+            var p = Find(book, st, chapter, x => x.Where == Sparkle);
+            if (p != null) st.PageDay = day;
+            return p;
+        }
+
+        /// <summary>Tosbi Dede ya da fener (olay): o yerin sayfası.</summary>
+        public static LorePageDef OnPlace(StoryBook book, StoryState st, int chapter, string where) => Find(book, st, chapter, p => p.Where == where);
+
+        private static LorePageDef Find(StoryBook book, StoryState st, int chapter, Func<LorePageDef, bool> where)
+        {
+            var p = book.Pages.Where(x => x.Chapter <= chapter && !st.Pages.Contains(x.Id) && where(x)).OrderBy(x => x.Number).FirstOrDefault();
+            if (p != null) st.Pages.Add(p.Id);
+            return p;
+        }
+
+        /// <summary>Defter: bulunan sayfalar numara sırasıyla.</summary>
+        public static List<LorePageDef> Found(StoryBook book, StoryState st) => book.Pages.Where(p => st.Pages.Contains(p.Id)).OrderBy(p => p.Number).ToList();
+    }
+
     /// <summary>Okti'ye dokununca tepki (A1): her dokunuşta sıradaki, art arda aynısı gelmez.</summary>
     public static class OktiReactions
     {
