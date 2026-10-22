@@ -109,6 +109,7 @@ namespace Pofi.Screens
 
             SnapCamera();
             _toast.Say(T("map.hint_walk"));
+            StartCoroutine(StoryCheck());   // Ö4: sırası gelen hikâye sahnesi
         }
 
         private void ToggleMode()
@@ -475,6 +476,38 @@ namespace Pofi.Screens
                 if (!_overview) PokeNear(ray, hit.distance, p);
                 TipDone(Onboarding.Walk);
                 GoTo(p.x, p.y, null);
+            }
+        }
+
+        // ------------------------------------------------------------------ Ö4 hikâye sahneleri (23 Ekim 2026)
+
+        /// <summary>
+        /// Sırası gelen sahneyi oynatır (seviye, onarım noktası, olay). Bölüm açılışı sinema (S1), diğerleri ada üstü (S2) sunuşla;
+        /// hikâye kapalıysa yalnız tek satırlık özet. Başka bir kutlama ekrandayken bekler. Ardışık en çok iki sahne.
+        /// </summary>
+        private System.Collections.IEnumerator StoryCheck()
+        {
+            yield return new WaitForSeconds(1.2f);
+            var book = App.Data.Story; var st = App.State.Story;
+            if (book == null || st == null || book.Scenes.Count == 0) yield break;
+            var spots = new HashSet<string>(App.Data.SunBook.Spots.Where(s => App.Data.SunBook.IsRepaired(App.State.SunStones, s.Id)).Select(s => s.Id));
+            System.Func<string, bool> ev = e => App.State.Counters.Total(e) > 0;
+            var existing = App.Level > 1 || App.State.Xp.TotalXp > 0;
+            Logic.Story.StoryDirector.Init(st, book, existing, App.Level, spots, ev);
+            for (var n = 0; n < 2; n++)
+            {
+                while (_cine || StoryPlayer.Playing || App.Overlay.transform.Find("LevelUp") != null) yield return new WaitForSeconds(0.5f);
+                var scene = Logic.Story.StoryDirector.Next(book, st, App.Level, spots, ev);
+                if (scene == null) yield break;
+                Logic.Story.StoryDirector.MarkSeen(st, scene);
+                App.Save();
+                if (!App.State.Settings.StoryOn) { _toast.Say(scene.Summary); yield break; }
+                var done = false;
+                if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
+                var mode = scene.Trigger == Logic.Story.StoryDirector.Level || scene.Trigger == Logic.Story.StoryDirector.Intro ? StoryPlayer.Mode.Cinema : StoryPlayer.Mode.Island;
+                StoryPlayer.Play(App.Overlay.transform, Th, book, scene, mode, Th.Band, App.State.PetName, App.State.PetId, T("story.go"), T("story.skip"), () => done = true);
+                while (!done) yield return null;
+                yield return new WaitForSeconds(0.6f);
             }
         }
 

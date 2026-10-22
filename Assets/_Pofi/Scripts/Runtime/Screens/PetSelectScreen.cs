@@ -75,6 +75,8 @@ namespace Pofi.Screens
             Ui.Button(box, Th, T("story.start"), new Vector2(0.5f, 0.13f), new Vector2(520f, 120f), () =>
             {
                 Logic.App.Onboarding.Done(App.State, Logic.App.Onboarding.Story);
+                // giriş hikâyesi bu kartla anlatıldı: adada yeniden oynamasın (giriş filmi onaylanınca kartın yerini alır)
+                App.State.Story.IntroSeen = true; App.State.Story.Seen.Add(Logic.Story.StoryDirector.Intro);
                 App.Save();
                 Destroy(root.gameObject);
             });

@@ -506,6 +506,9 @@
     "mail.err_too_long": "Mesaj biraz uzun; 500 harfe kadar yaz.",
     "mail.err_not_allowed": "Bir çıkartma seçerek cevap ver.",
     "mail.err_server": "Mesaj gönderilemedi, biraz sonra dene.",
-    "mail.new": "Posta kutunda {0} yeni mektup var!"
+    "mail.new": "Posta kutunda {0} yeni mektup var!",
+    "story.go": "Hadi!",
+    "story.skip": "Atla »",
+    "settings.story": "Hikâye sahneleri"
   }
 }

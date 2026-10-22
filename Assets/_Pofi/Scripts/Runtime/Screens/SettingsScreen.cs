@@ -34,6 +34,8 @@ namespace Pofi.Screens
                 i => { st.TextScale = i == 0 ? 1f : 1.15f; App.Theme.TextScale = st.TextScale; });
             Choice(T("settings.motion"), new[] { T("settings.on"), T("settings.off") }, st.ReduceMotion ? 1 : 0,
                 i => { st.ReduceMotion = i == 1; Theme.ReduceMotion = st.ReduceMotion; });
+            // hikâye sahneleri (kapalıyken yalnız tek satırlık özet balonu; Defter'den yine okunur)
+            Choice(T("settings.story"), new[] { T("settings.on"), T("settings.off") }, st.StoryOn ? 0 : 1, i => st.StoryOn = i == 0);
 
             Action(T("settings.change_pet"), T("settings.change_pet_hint"), () =>
             {
