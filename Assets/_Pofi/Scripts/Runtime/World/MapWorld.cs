@@ -394,6 +394,7 @@ namespace Pofi.World
             // v6 pişmiş arazide deniz tabanı her yerde −0,6 m'de kesik: yükseklikten sığlık bütün denizi "orta sığ" yapıyordu
             // (açık deniz turkuaz + taban çizgileri kuşbakışında zikzak). Sığlık burada kıyıya uzaklıktan: ~22 m'de derin mavi (taslakta adacığa kadar açık turkuaz).
             float[] dist = t.Baked != null ? CoastDistance(hs, size, (t.MaxX - t.MinX) / size) : null;
+            if (dist != null) for (var pass = 0; pass < 3; pass++) dist = Blur(dist, size);   // pah dönüşümü köşeli (sekizgen) sığ kenarı verir
             var px = new Color32[size * size];
             for (var k = 0; k < hs.Length; k++)
             {
@@ -406,6 +407,25 @@ namespace Pofi.World
             tex.SetPixels32(px);
             tex.Apply(false, true);
             return tex;
+        }
+
+        private static float[] Blur(float[] a, int n)
+        {
+            var b = new float[a.Length];
+            for (var j = 0; j < n; j++)
+            for (var i = 0; i < n; i++)
+            {
+                float sum = 0f; var c = 0;
+                for (var dj = -2; dj <= 2; dj++)
+                for (var di = -2; di <= 2; di++)
+                {
+                    int x = i + di, y = j + dj;
+                    if (x < 0 || y < 0 || x >= n || y >= n) continue;
+                    sum += a[y * n + x]; c++;
+                }
+                b[j * n + i] = sum / c;
+            }
+            return b;
         }
 
         /// <summary>Kara hücrelerine yaklaşık uzaklık (metre; iki geçişli 3-4 pah dönüşümü).</summary>

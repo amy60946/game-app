@@ -80,10 +80,10 @@ Shader "Pofi/Ground"
                 groove = saturate(max(crack * 0.95, under) + smoothstep(0.34, 0.16, drape) * 0.35);
                 // taslaktaki yar: orta-koyu serin gri bloklar, tabaka üstü açık pah, altı koyu (oyunda açık ton soluk/pembe okunuyordu)
                 // güneş sıcak (1, .95, .86) + renk süzgeci: albedo serine kaydırılır ki yar ekranda pembe-bej değil gri okunsun (ölçüm: 167,153,146)
-                float3 dark = Lin(float3(0.26, 0.28, 0.33)), mid = Lin(float3(0.43, 0.45, 0.51)), light = Lin(float3(0.58, 0.60, 0.65));
+                float3 dark = Lin(float3(0.21, 0.23, 0.28)), mid = Lin(float3(0.37, 0.40, 0.46)), light = Lin(float3(0.51, 0.54, 0.60));
                 float3 rk = lerp(mid, light, saturate(fold * 0.75 + (rnd - 0.5) * 0.5));
                 rk = lerp(rk, dark, smoothstep(0.32, 0.14, drape) * 0.5);
-                rk = lerp(rk, Lin(float3(0.74, 0.75, 0.78)), lip * 0.5);
+                rk = lerp(rk, Lin(float3(0.68, 0.70, 0.74)), lip * 0.5);
                 rk = lerp(rk, Lin(float3(0.30, 0.30, 0.33)), smoothstep(1.6, 0.0, y) * 0.55);
                 rk = lerp(rk, Lin(float3(0.16, 0.16, 0.20)), groove * 0.8);
                 tilt = float2((fold - 0.5) * 0.7 + (rnd - 0.5) * 0.6, (hash12(float2(floor(ly * 0.5), cell + 9.0)) - 0.5) * 0.35 + 0.1);
