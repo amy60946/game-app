@@ -6,7 +6,7 @@ Shader "Pofi/Water"
 {
     Properties
     {
-        _Deep ("Derin", Color) = (0.07, 0.39, 0.66, 1)
+        _Deep ("Derin", Color) = (0.16, 0.52, 0.76, 1)
         _Shallow ("Sığ", Color) = (0.24, 0.78, 0.82, 1)
         _Sky ("Gökyüzü yansıması", Color) = (0.55, 0.75, 0.95, 1)
         _Foam ("Köpük", Color) = (0.97, 0.99, 1, 1)
@@ -49,7 +49,9 @@ Shader "Pofi/Water"
             {
                 const float2 d1 = float2(0.8, 0.6), d2 = float2(-0.5, 0.86), d3 = float2(0.2, -0.98);
                 const float k1 = 0.55, k2 = 0.9, k3 = 1.6;
-                float a1 = 1.0, a2 = 0.55, a3 = 0.25;
+                // üçüncü (3,9 m) dalga kaldırıldı: büyük adada ağ adımı 2,56 m, bu dalga köşelerde örneklenince kuşbakışında
+                // zikzak kırık + güneş lekesi yapıyordu (ince ayrıntı piksel başına dalgacıkta)
+                float a1 = 1.0, a2 = 0.55, a3 = 0.0;
                 float p1 = dot(d1, p) * k1 + t * 0.9, p2 = dot(d2, p) * k2 + t * 1.3, p3 = dot(d3, p) * k3 + t * 1.9;
                 float h = a1 * sin(p1) + a2 * sin(p2) + a3 * sin(p3);
                 grad = a1 * k1 * cos(p1) * d1 + a2 * k2 * cos(p2) * d2 + a3 * k3 * cos(p3) * d3;
@@ -130,7 +132,7 @@ Shader "Pofi/Water"
                 // güneş parıltısı (ölçülü) + seyrek göz kırpan pırıltılar (yalnız güneş tarafında)
                 float3 hv = normalize(light.direction + viewDir);
                 float nh = saturate(dot(n, hv));
-                float spec = pow(nh, _Gloss) * _SpecStrength;
+                float spec = pow(nh, _Gloss) * _SpecStrength * lerp(0.2, 1.0, nearF);   // uzakta dalga sırtı parlaması kuşbakışında zikzak beyaz leke yapıyordu
                 float2 gc = floor(p * 6.0);
                 float tw = hash21(gc + floor(t * 2.0));
                 float glint = step(0.985, tw) * step(0.9, pow(nh, 8.0) + 0.6) * facingSun * (1.0 - shallow * 0.5) * nearF;

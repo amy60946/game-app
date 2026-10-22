@@ -392,13 +392,13 @@ namespace Pofi.World
             for (var i = 0; i < size; i++)
                 hs[j * size + i] = t.Height(t.MinX + (i + 0.5f) / size * (t.MaxX - t.MinX), t.MinZ + (j + 0.5f) / size * (t.MaxZ - t.MinZ));
             // v6 pişmiş arazide deniz tabanı her yerde −0,6 m'de kesik: yükseklikten sığlık bütün denizi "orta sığ" yapıyordu
-            // (açık deniz turkuaz + taban çizgileri kuşbakışında zikzak). Sığlık burada kıyıya uzaklıktan: ~14 m'de derin mavi.
+            // (açık deniz turkuaz + taban çizgileri kuşbakışında zikzak). Sığlık burada kıyıya uzaklıktan: ~22 m'de derin mavi (taslakta adacığa kadar açık turkuaz).
             float[] dist = t.Baked != null ? CoastDistance(hs, size, (t.MaxX - t.MinX) / size) : null;
             var px = new Color32[size * size];
             for (var k = 0; k < hs.Length; k++)
             {
                 var h = hs[k];
-                var shallow = h >= 0f ? 1f : dist != null ? Mathf.Pow(Mathf.Clamp01(1f - dist[k] / 14f), 1.6f) : Mathf.Clamp01(1f + h / 1.4f);
+                var shallow = h >= 0f ? 1f : dist != null ? Mathf.Pow(Mathf.Clamp01(1f - dist[k] / 22f), 1.3f) : Mathf.Clamp01(1f + h / 1.4f);
                 var foam = h >= 0f ? 1f : Mathf.Pow(Mathf.Clamp01(1f + h / 0.45f), 2f);
                 px[k] = new Color32((byte)(shallow * 255), (byte)(foam * 255), 0, 255);
             }

@@ -68,7 +68,7 @@ Shader "Pofi/Ground"
                 float ly = y / 1.6 + wob / 6.2832;
                 float layer = floor(ly), fr = ly - layer;
                 float bw = lerp(1.4, 3.6, hash12(float2(floor(ly * 0.5), 7.1)));
-                float u = along / bw + vnoise(float2(y * 0.55, along * 0.2)) * 0.9 + hash12(float2(floor(ly * 0.5), 3.3)) * 10.0;
+                float u = along / bw + vnoise(float2(y * 0.55, along * 0.2)) * 0.3 + hash12(float2(floor(ly * 0.5), 3.3)) * 10.0;
                 float cell = floor(u), fu = u - cell;
                 float rnd = hash12(float2(cell, floor(ly * 0.5)));
                 float crack = smoothstep(0.05, 0.0, fu) + smoothstep(0.95, 1.0, fu);
@@ -79,10 +79,11 @@ Shader "Pofi/Ground"
                 float fold = smoothstep(0.30, 0.80, drape);
                 groove = saturate(max(crack * 0.95, under) + smoothstep(0.34, 0.16, drape) * 0.35);
                 // taslaktaki yar: orta-koyu serin gri bloklar, tabaka üstü açık pah, altı koyu (oyunda açık ton soluk/pembe okunuyordu)
-                float3 dark = Lin(float3(0.30, 0.31, 0.35)), mid = Lin(float3(0.50, 0.51, 0.55)), light = Lin(float3(0.66, 0.67, 0.69));
+                // güneş sıcak (1, .95, .86) + renk süzgeci: albedo serine kaydırılır ki yar ekranda pembe-bej değil gri okunsun (ölçüm: 167,153,146)
+                float3 dark = Lin(float3(0.26, 0.28, 0.33)), mid = Lin(float3(0.43, 0.45, 0.51)), light = Lin(float3(0.58, 0.60, 0.65));
                 float3 rk = lerp(mid, light, saturate(fold * 0.75 + (rnd - 0.5) * 0.5));
                 rk = lerp(rk, dark, smoothstep(0.32, 0.14, drape) * 0.5);
-                rk = lerp(rk, Lin(float3(0.80, 0.80, 0.80)), lip * 0.5);
+                rk = lerp(rk, Lin(float3(0.74, 0.75, 0.78)), lip * 0.5);
                 rk = lerp(rk, Lin(float3(0.30, 0.30, 0.33)), smoothstep(1.6, 0.0, y) * 0.55);
                 rk = lerp(rk, Lin(float3(0.16, 0.16, 0.20)), groove * 0.8);
                 tilt = float2((fold - 0.5) * 0.7 + (rnd - 0.5) * 0.6, (hash12(float2(floor(ly * 0.5), cell + 9.0)) - 0.5) * 0.35 + 0.1);
@@ -147,7 +148,7 @@ Shader "Pofi/Ground"
                     float3 rk = Strata(i.positionWS, n, groove, bend);
                     albedo = lerp(albedo, rk, steep);
                     // blok eğimi + oyuk gölgesi (normal aşağı/içe bükülür): tabaka altları ve çatlaklar ışık almaz
-                    n = normalize(n + (bend * 0.9 - float3(0, 0.6, 0) * groove) * steep);
+                    n = normalize(n + (bend * 1.3 - float3(0, 0.6, 0) * groove) * steep);
                 }
                 // kanyon tabanı kaldırım taşı (maske dokusu r), kameraya yakınken
                 float4 mk = SAMPLE_TEXTURE2D(_MaskMap, sampler_MaskMap, i.uv);

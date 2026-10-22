@@ -98,7 +98,7 @@ namespace Pofi.World
                 {
                     if (!e.R[0].gameObject.activeInHierarchy) continue;
                     if (!Blocks(e, a, b)) continue;
-                    e.Target = 0.15f;
+                    e.Target = 0f;   // tam kaybolur: 0,15 bırakınca büyük yaprak kartları gökyüzünde noktalı karo gibi kalıyordu
                     if (!_active.Contains(e)) _active.Add(e);
                 }
             }
