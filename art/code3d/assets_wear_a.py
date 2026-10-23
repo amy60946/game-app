@@ -378,7 +378,7 @@ def m_rind(name='rind'):
         dark = G.mix(G.rng(G.noise(o, 9, 4), 0.3, 0.7), '#1f5a2a', '#2c7334')
         col = G.mix(st, base, dark)
         col = G.mix(G.rng(G.vor(o, 40), 0.06, 0.02, 0, 0.25), col, '#a8dc7a')     # açık benekler
-        col = vinyl(G, col, '#4f9a3a', 0.5, top=0.1, low=0.15)
+        col = vinyl(G, col, '#4f9a3a', 0.22, top=0.1, low=0.15, lo=0.95, hi=0.995)      # büyük kubbe: parlama küçük ve hafif (leke gibi durmasın)
         l.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 
@@ -510,13 +510,13 @@ def w_hat_crown_tilt():
     tilt_all(objs, 18, (0, 0, 0.1))
     # kadife yastık (yatık değil): ağız başa oturur, kubbe dişlerin arasından görünür; dikiş çizgileri altın
     VEL = m_velvet()
-    prof = [(0.43, 0.0), (0.44, 0.05), (0.43, 0.12), (0.4, 0.2), (0.33, 0.28), (0.22, 0.34), (0.1, 0.37), (0.001, 0.375)]
+    prof = [(0.43, 0.0), (0.44, 0.05), (0.43, 0.11), (0.4, 0.18), (0.33, 0.24), (0.22, 0.285), (0.1, 0.305), (0.001, 0.31)]
     def rf(a, i, r, z):
         x = (a % (2 * math.pi / 8)) / (2 * math.pi / 8)
         return r * (1 - 0.035 * math.exp(-((min(x, 1 - x)) / 0.06) ** 2) * (1 if 0 < i < 7 else 0))
     revolve('cushion', prof, [VEL], segs=96, rfun=rf)
     revolve('cushin', cavity_down(1.04, rim=(0.43, 0.0)), [m_fabric('#8a1a2a', name='velin')], segs=48)
-    blob('tuft', (0, 0, 0.372), (0.04, 0.04, 0.018), GOLD, sub=0, seg=16)
+    blob('tuft', (0, 0, 0.308), (0.04, 0.04, 0.018), GOLD, sub=0, seg=16)
     return 'yamuk taç'
 
 # ------------------------------------------------------------------ 5. kova şapka
@@ -533,8 +533,19 @@ def m_shell(name='wshell'):
 def m_starfish(name='starfish'):
     def b(nt, bsdf):
         G = A._G(nt); o = G.obj()
-        col = G.mix(G.rng(G.vor(o, 90), 0.2, 0.1), '#ff7a45', '#ffc27a')
+        col = G.mix(G.rng(G.vor(o, 90), 0.2, 0.1), '#ff5a36', '#ffb070')
         col = vinyl(G, col, '#ff8a4a', 0.4)
+        G.l.new(col, bsdf.inputs['Base Color'])
+    return nodes_mat(name, b)
+
+def m_sandy(name='sandy', hexc='#e9cf98'):
+    """Kum: sıcak bej, iri taneli (koyu ve açık benekler), topak gölgesi."""
+    def b(nt, bsdf):
+        G = A._G(nt); o = G.obj()
+        col = G.mix(G.rng(G.noise(o, 9, 4), 0.35, 0.7), _shade(hexc, 0.88), _shade(hexc, 1.06))
+        col = G.mix(G.rng(G.vor(o, 160), 0.2, 0.08, 0, 0.7), col, '#b08a52')
+        col = G.mix(G.rng(G.vor(G.mapping(o, (1.3, 1.3, 1.3)), 140), 0.16, 0.06, 0, 0.6), col, '#fff3d6')
+        col = vinyl(G, col, hexc, 0.0, top=0.1, low=0.15)
         G.l.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 
@@ -543,7 +554,7 @@ def m_bucket(hexc, a0, z0, name='bucket'):
     def b(nt, bsdf):
         G = A._G(nt); n = nt.nodes; l = nt.links; o = G.obj()
         col = G.mix(0.05, hexc, G.noise(o, 5, 2, out='Color'), 'OVERLAY')
-        col = vinyl(G, col, hexc, 0.55)
+        col = vinyl(G, col, hexc, 0.3, lo=0.95, hi=0.995)
         sep = n.new('ShaderNodeSeparateXYZ'); l.new(o, sep.inputs[0])
         at = G.math('ARCTAN2', sep.outputs['Y'], sep.outputs['X'])
         d = G.math('COSINE', G.math('SUBTRACT', at, a0))
@@ -586,8 +597,8 @@ def w_hat_bucket():
         pts.append((math.cos(t) * (LR + 0.02), -s * (LR + 0.02) * math.cos(al) - 0.012 * s, LZ + s * (LR + 0.02) * math.sin(al)))
     tube('handle', pts, [0.017] * len(pts), YEL, res=2)
     # tepede kum yığını + yandan dökülen taneler
-    SND = T.m_sand('bsand', '#ecd29a'); WET = T.m_sand('bsandwet', '#d8b47a')
-    s = blob('sand', (0.02, 0.03, H + 0.03), (0.27, 0.25, 0.07), SND, sub=1, seg=20); wobble(s, 0.02, 7.0, 3)
+    SND = m_sandy('bsand'); WET = m_sandy('bsandwet', '#d6b075')
+    s = blob('sand', (0.02, 0.03, H + 0.03), (0.28, 0.26, 0.1), SND, sub=1, seg=24); wobble(s, 0.03, 6.0, 3)
     for k in range(4):
         a = R.uniform(0, 6.28); rr = R.uniform(0.05, 0.16)
         o = blob('lump', (math.cos(a) * rr, math.sin(a) * rr + 0.02, H + 0.07 + R.uniform(0, 0.02)), (0.05, 0.045, 0.03), SND, sub=0, seg=12); wobble(o, 0.008, 12.0, k)
@@ -604,14 +615,14 @@ def w_hat_bucket():
         rr = wall_r(z) + 0.004
         blob('grain', (math.cos(a) * rr, math.sin(a) * rr, z), (0.009, 0.009, 0.009), SND, sub=0, seg=6)
     # deniz yıldızı (kum yığınının üstünde, hafif eğik)
-    SF = m_starfish(); cz = H + 0.105; parts = []
-    parts.append(blob('sfc', (0, 0, cz), (0.055, 0.055, 0.03), SF, sub=0, seg=16))
+    SF = m_starfish(); cz = H + 0.165; parts = []
+    parts.append(blob('sfc', (0, 0, cz), (0.07, 0.07, 0.036), SF, sub=0, seg=20))
     for k in range(5):
         a = math.pi / 2 + k * 2 * math.pi / 5 + 0.2
-        o = blob('arm', (math.cos(a) * 0.085, math.sin(a) * 0.085, cz - 0.006), (0.09, 0.034, 0.022), SF, rot=(0, -8, math.degrees(a)), sub=0, seg=16)
+        o = blob('arm', (math.cos(a) * 0.105, math.sin(a) * 0.105, cz - 0.006), (0.11, 0.044, 0.026), SF, rot=(0, -8, math.degrees(a)), sub=0, seg=16)
         parts.append(o)
-    tilt_all(parts, -22, (0, 0, cz), 'X'); tilt_all(parts, 8, (0, 0, cz), 'Y')
-    for o in parts: o.location += V((-0.05, -0.05, 0.0))
+    tilt_all(parts, -30, (0, 0, cz), 'X'); tilt_all(parts, 8, (0, 0, cz), 'Y')
+    for o in parts: o.location += V((-0.02, -0.04, 0.0))
     # yanda deniz kabuğu (sol-ön duvara yapışık)
     a = math.radians(-145); z = 0.3; c = V((math.cos(a), math.sin(a), 0)); rr = wall_r(z)
     sh = blob('shell', tuple(c * (rr + 0.014) + V((0, 0, z))), (0.08, 0.068, 0.02), m_shell(), sub=0, seg=20)

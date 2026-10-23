@@ -47,9 +47,11 @@ def m_hair(c1, c2, name):
     """Gür kıl (kaş, bıyık): yatay uzun lif çizgileri + koyu dip, açık uçlar."""
     def b(nt, bsdf):
         G = A._G(nt); o = G.obj()
-        st = G.noise(G.mapping(o, (2.5, 70, 55)), 1.0, 3, 0.6)
-        col = G.mix(G.rng(st, 0.35, 0.65), c1, c2)
-        col = G.mix(G.rng(G.noise(o, 9, 3), 0.45, 0.7, 0, 0.35), col, _shade(c1, 0.6), 'MIX')
+        st = G.noise(G.mapping(o, (3.0, 95, 80)), 1.0, 4, 0.65)
+        col = G.mix(G.rng(st, 0.38, 0.62), c1, c2)
+        col = G.mix(G.rng(st, 0.3, 0.36, 0.55, 0), col, A._shade(c1, 0.55))              # koyu lif araları
+        col = G.mix(G.rng(G.nz(), 0.35, 0.95, 0, 0.45), col, A._shade(c2, 1.25))         # üstte parlak (vinyl)
+        col = G.mix(G.rng(G.nz(), -0.2, -0.8, 0, 0.35), col, A._shade(c1, 0.6))          # altta gölgeli
         nt.links.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 
@@ -108,9 +110,9 @@ def realize(o):
 def finalize():
     """Her şey mesh, dönüşümler uygulanmış, U kat büyük (dışa aktarım ve önizleme aynı koordinatı görür)."""
     for o in list(bpy.context.scene.objects):
-        if o.type not in ('MESH', 'CURVE'): continue
+        if o.type not in ('MESH', 'CURVE') or o.get('fin'): continue
         o = realize(o)
-        o.data.transform(Matrix.Scale(U, 4))
+        o.data.transform(Matrix.Scale(U, 4)); o['fin'] = 1
         for p in o.data.polygons: p.use_smooth = True
         o.data.update()
 
@@ -198,19 +200,21 @@ def _bowl_glass():
     def meniscus(G, X, Y, Z): return smooth_in(G, Z, ZW - 0.004, ZW + 0.002, 0.0015)
     def gravel(G, X, Y, Z):
         nz = G.noise(G.obj(), 3.0, 2)
-        return G.rng(G.math('ADD', Z, G.math('MULTIPLY', nz, 0.02)), 0.085, 0.07)
+        th = G.math('ARCTAN2', Y, X)
+        wave = G.math('MULTIPLY', G.math('SINE', G.math('MULTIPLY', th, 3.0)), 0.012)
+        return G.rng(G.math('ADD', G.math('ADD', Z, G.math('MULTIPLY', nz, 0.03)), wave), 0.098, 0.088)
     def gravel_col(G, X, Y, Z):
         # çakıl taneleri: hücre rengi (mercan, kum sarısı, krem, deniz yeşili, lila) cam rengiyle yumuşatılmış
-        cell = G.vor(G.obj(), 13.0, out='Color')
+        cell = G.vor(G.obj(), 24.0, out='Color')
         rp = G.n.new('ShaderNodeValToRGB'); rp.color_ramp.interpolation = 'CONSTANT'
         el = rp.color_ramp.elements
         stops = [(0.0, '#f08a78'), (0.2, '#f2cf7a'), (0.4, '#f6ecd8'), (0.6, '#5cc2a8'), (0.8, '#b79ae0')]
         while len(el) < len(stops): el.new(0.5)
         for e, (p, c) in zip(el, stops): e.position = p; e.color = srgb(c)
         sp = G.n.new('ShaderNodeSeparateColor'); G.l.new(cell, sp.inputs[0]); G.l.new(sp.outputs[0], rp.inputs['Fac'])
-        edge = G.rng(G.vor(G.obj(), 13.0, 'DISTANCE_TO_EDGE'), 0.0, 0.08)
-        c = G.mix(0.25, rp.outputs[0], '#8fdcd2')
-        return G.mix(edge, '#5aa8a0', c)
+        edge = G.rng(G.vor(G.obj(), 24.0, 'DISTANCE_TO_EDGE'), 0.0, 0.1)
+        c = G.mix(0.2, rp.outputs[0], '#62c9d0')
+        return G.mix(edge, '#3f9aa6', c)
     def theta_band(t0, w, z0, z1, soft=0.012):
         def fn(G, X, Y, Z):
             th = G.math('ARCTAN2', Y, X)
@@ -225,7 +229,8 @@ def _bowl_glass():
     hl = []
     for off in (0, 180):          # önden ve arkadan bakınca (oyun kamerası arkada) parlama görünsün
         hl += [theta_band(-128 + off, 8, 0.07, 0.31), theta_band(-104 + off, 3.2, 0.2, 0.3), theta_band(-58 + off, 2.5, 0.1, 0.2)]
-    layers = [(below, '#8ad8cf'), (gravel, gravel_col), (wline, '#3e9fa3'), (meniscus, '#e9fbf7'), (union(*hl), '#ffffff')]
+    def depth(G, X, Y, Z): return G.rng(Z, ZW - 0.02, 0.1, 0, 0.45)
+    layers = [(below, '#74d2d8'), (depth, '#4fb9cf'), (gravel, gravel_col), (wline, '#3e9fa3'), (meniscus, '#e9fbf7'), (union(*hl), '#ffffff')]
     return m_paint('bowlglass', '#d6f3ef', layers, var=0.03)
 
 def _water():
@@ -290,15 +295,15 @@ def fishbowl(spin=False):
         SW = A.m_leaf('#2f8f45', '#45b45a', '#8edc6a', '#b9ea8a', 'weed')
         def weeds(bm):
             out = []
-            for k, (a, L) in enumerate(((-0.3, 0.13), (1.9, 0.105), (3.9, 0.09), (5.2, 0.075))):
+            for k, (a, L) in enumerate(((-0.3, 0.17), (1.9, 0.135), (3.9, 0.115), (5.2, 0.09), (0.9, 0.07))):
                 base = V((math.cos(a) * 0.014, math.sin(a) * 0.014, WATER + 0.01))
                 d = V((math.cos(a) * 0.25, math.sin(a) * 0.25, 1)).normalized(); side = V((-math.sin(a), math.cos(a), 0))
                 rows = []
                 segs = 6
                 for i in range(segs + 1):
                     s = i / segs
-                    c = base + d * (L * s) + V((math.cos(a + 1.6) * 0.012 * math.sin(s * 6.0 + k), math.sin(a + 1.6) * 0.012 * math.sin(s * 6.0 + k), 0))
-                    w = 0.011 * math.sin(math.pi * min(1.0, 0.25 + s * 0.75)) if i < segs else 0.0
+                    c = base + d * (L * s) + V((math.cos(a + 1.6) * 0.016 * math.sin(s * 6.5 + k), math.sin(a + 1.6) * 0.016 * math.sin(s * 6.5 + k), 0))
+                    w = 0.016 * math.sin(math.pi * min(1.0, 0.25 + s * 0.75)) if i < segs else 0.0
                     rows.append(((bm.verts.new(c + side * w), (s, 1.0)), (bm.verts.new(c + V((0, 0, 0.002))), (s, 0.0)), (bm.verts.new(c - side * w), (s, -1.0))))
                 for i in range(segs):
                     (l0, c0, r0), (l1, c1, r1) = rows[i], rows[i + 1]
@@ -319,20 +324,22 @@ def fishbowl(spin=False):
             M = Matrix.Rotation(math.radians(yaw), 4, 'Z')
             def P(x, y, z): return tuple(M @ V((x, y, z)))
             # balık +y yönüne yüzer, yörüngenin x = +FISH_R noktasında
-            cx = FISH_R; zc = WATER - 0.004
-            b = blob('fish', P(cx, 0.0, zc), (0.02, 0.036, 0.021), OR, rot=(0, 0, yaw), sub=1, seg=16)
-            blob('head', P(cx, 0.02, zc + 0.002), (0.019, 0.022, 0.019), OR, rot=(0, 0, yaw), sub=1, seg=14)
+            cx = FISH_R; zc = WATER - 0.005; F = 1.3          # F: balık boyu (telefonda okunsun)
+            def Q(dx, dy, dz): return P(cx + dx * F, dy * F, zc + dz * F)
+            def S(*r): return tuple(x * F for x in r)
+            blob('fish', Q(0, 0.0, 0), S(0.02, 0.036, 0.021), OR, rot=(0, 0, yaw), sub=1, seg=16)
+            blob('head', Q(0, 0.02, 0.002), S(0.019, 0.022, 0.019), OR, rot=(0, 0, yaw), sub=1, seg=14)
             # sırt yüzgeci (yuvarlak yelpaze) ve kuyruk (iki loblu)
-            d = T.prism('dorsal', [(0.0, 0.0), (0.012, 0.022), (-0.012, 0.03), (-0.03, 0.012), (-0.026, 0.0)], 0.006, FIN, loc=(0, 0, 0), bevel=0.0025)
-            d.rotation_euler = (0, 0, math.radians(90 + yaw)); d.location = P(cx, 0.0, zc + 0.016)
+            d = T.prism('dorsal', [(x * F, z * F) for x, z in ((0.0, 0.0), (0.012, 0.022), (-0.012, 0.03), (-0.03, 0.012), (-0.026, 0.0))], 0.006 * F, FIN, bevel=0.0025)
+            d.rotation_euler = (0, 0, math.radians(90 + yaw)); d.location = Q(0, 0.0, 0.016)
             for s2 in (1, -1):
-                t = T.prism('tail', [(0.0, 0.0), (-0.026, 0.024 * s2), (-0.036, 0.012 * s2), (-0.03, 0.0)], 0.006, FIN, bevel=0.0025)
-                t.rotation_euler = (0, 0, math.radians(90 + yaw)); t.location = P(cx, -0.03, zc + 0.006)
+                t = T.prism('tail', [(x * F, z * F) for x, z in ((0.0, 0.0), (-0.026, 0.024 * s2), (-0.036, 0.012 * s2), (-0.03, 0.0))], 0.006 * F, FIN, bevel=0.0025)
+                t.rotation_euler = (0, 0, math.radians(90 + yaw)); t.location = Q(0, -0.03, 0.006)
             # iri gözler (başın üstünde, sudan dışarıda)
             for ex in (-1, 1):
-                blob('eyew', P(cx + ex * 0.012, 0.028, zc + 0.016), (0.0095, 0.0095, 0.0095), WH, sub=1, seg=12)
-                blob('eyeb', P(cx + ex * 0.0145, 0.033, zc + 0.019), (0.0055, 0.0055, 0.0055), BK, sub=0, seg=10)
-                blob('glint', P(cx + ex * 0.0135, 0.0365, zc + 0.0225), (0.0018, 0.0018, 0.0018), WH, sub=0, seg=6)
+                blob('eyew', Q(ex * 0.012, 0.028, 0.016), S(0.0095, 0.0095, 0.0095), WH, sub=1, seg=12)
+                blob('eyeb', Q(ex * 0.0145, 0.033, 0.019), S(0.0055, 0.0055, 0.0055), BK, sub=0, seg=10)
+                blob('glint', Q(ex * 0.0135, 0.0365, 0.0225), S(0.0018, 0.0018, 0.0018), WH, sub=0, seg=6)
     finalize()
     report('fishbowl_spin' if spin else 'fishbowl')
     return 'akvaryum kask'
@@ -342,15 +349,27 @@ def w_hat_fishbowl_spin(): return fishbowl(True)
 
 # ------------------------------------------------------------------ 2) Kalp gözlük
 
-def heart_pts(w, h, n=72, fat=0.0):
-    """Tombul kalp: klasik eğri, alt ucu kısaltılmış, lobları dolgun; (w, h) kutusuna, merkez (0, 0)."""
-    pts = []
-    for i in range(n):
-        t = i / n * 2 * math.pi
+def heart_pts(w, h, n=120, smooth_it=10):
+    """Tombul kalp: klasik eğri (alt ucu kısaltılmış), eşit aralıkla örneklenip yumuşatılır (sivri tepe girintisi ve uç
+    yuvarlanır: 2B pah sivri köşede diken yapıyordu); (w, h) kutusuna, merkez (0, 0)."""
+    raw = []
+    for i in range(720):
+        t = i / 720 * 2 * math.pi
         x = 16 * math.sin(t) ** 3
         z = 13 * math.cos(t) - 5 * math.cos(2 * t) - 2 * math.cos(3 * t) - math.cos(4 * t)
-        if z < -6: z = -6 + (z + 6) * 0.72          # sivri alt ucu kısa, tombul
-        pts.append((x * (1 + fat * math.cos(t) ** 2), z))
+        if z < -6: z = -6 + (z + 6) * 0.72
+        raw.append((x, z))
+    L = [0.0]
+    for i in range(1, len(raw) + 1):
+        a, b = raw[i - 1], raw[i % len(raw)]; L.append(L[-1] + math.hypot(b[0] - a[0], b[1] - a[1]))
+    pts = []; j = 0
+    for k in range(n):
+        s = L[-1] * k / n
+        while L[j + 1] < s: j += 1
+        a, b = raw[j], raw[(j + 1) % len(raw)]; f = (s - L[j]) / max(1e-9, L[j + 1] - L[j])
+        pts.append((a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f))
+    for _ in range(smooth_it):
+        pts = [(0.25 * pts[i - 1][0] + 0.5 * pts[i][0] + 0.25 * pts[(i + 1) % n][0], 0.25 * pts[i - 1][1] + 0.5 * pts[i][1] + 0.25 * pts[(i + 1) % n][1]) for i in range(n)]
     xs = [p[0] for p in pts]; zs = [p[1] for p in pts]
     sx = w / (max(xs) - min(xs)); sz = h / (max(zs) - min(zs)); cz = (max(zs) + min(zs)) / 2
     return [(x * sx, (z - cz) * sz) for x, z in pts]
@@ -360,8 +379,8 @@ def w_glasses_heart():
     W, H, CX, YAW = 0.176, 0.152, 0.094, 13.0
     for sgn in (-1, 1):
         cx = sgn * CX
-        outer = heart_pts(W, H, fat=0.04)
-        inner = [(x * 0.74, z * 0.72 - 0.004) for x, z in heart_pts(W, H, fat=0.04)]
+        outer = heart_pts(W, H)
+        inner = [(x * 0.74, z * 0.72 - 0.004) for x, z in heart_pts(W, H, smooth_it=14)]
         fb = face_back(cx, 0) + 0.0
         y0 = fb - 0.012                                   # çerçeve ortası: arka yüzü yüzün önünde
         flat_shape('frame', [outer, [p for p in reversed(inner)]], 0.02, 0.0075, FR, bres=3, loc=(cx, y0, 0), yaw=sgn * YAW)
@@ -383,7 +402,7 @@ def w_glasses_heart():
 def w_glasses_nose():
     hl_rings = union(stroke(-0.088, 0.026, 52, 0.03, 0.005, bow=10.0), stroke(0.026, 0.026, 52, 0.03, 0.005, bow=10.0))
     FR = m_paint('noseframe', '#26222b', [(hl_rings, '#77727f')], var=0.03)
-    CX = 0.057; RM, RN = 0.044, 0.0115
+    CX = 0.057; RM, RN = 0.043, 0.0135
     for sgn in (-1, 1):
         cx = sgn * CX
         bpy.ops.mesh.primitive_torus_add(major_radius=RM, minor_radius=RN, major_segments=40, minor_segments=12, location=(cx, 0, 0))
@@ -394,27 +413,27 @@ def w_glasses_nose():
         ytube('arm', [(ox, face_back(ox, 0) - 0.02, 0.012), (ox + sgn * 0.006, 0.04, 0.016), (ox + sgn * 0.01, 0.085, 0.012)], [0.008, 0.0075, 0.007], FR, res=4)
     blob('bridge', (0, face_back(0, 0) - 0.012, 0.014), (0.012, 0.008, 0.008), FR, sub=1, seg=12)
     # gür kaşlar (kahverengi, yay biçimi, kıl yumruları)
-    HB = m_hair('#4b2e1c', '#7a5236', 'brow')
+    HB = m_hair('#5e3820', '#9a6236', 'brow')
     for sgn in (-1, 1):
         pts = [(sgn * 0.012, 0, 0.062), (sgn * 0.045, 0, 0.082), (sgn * 0.08, 0, 0.083), (sgn * 0.112, 0, 0.066)]
         pts = [(x, face_back(x, z) - 0.02, z) for x, _, z in pts]
-        o = ytube('brow', pts, [0.012, 0.017, 0.015, 0.008], HB, res=6, bres=4)
-        fur(o, 0.006, 90.0, seed=sgn + 3)
+        o = ytube('brow', pts, [0.014, 0.021, 0.019, 0.01], HB, res=6, bres=4)
+        fur(o, 0.0045, 110.0, seed=sgn + 3)
     # iri pembe plastik burun (köprüden sarkar, ağzın üstüne oturur)
-    NS = m_paint('nose', '#f39aa6', [(dot(-0.014, -0.02, 0.006), '#ffd6dc'), (lambda G, X, Y, Z: G.rng(Z, -0.05, -0.068, 0, 0.5), '#d77486')], var=0.03)
+    NS = m_paint('nose', '#f2879a', [(dot(-0.014, -0.022, 0.0065), '#fff3f5'), (lambda G, X, Y, Z: G.rng(Z, -0.05, -0.068, 0, 0.5), '#d77486')], var=0.03)
     blob('nosebridge', (0, -0.028, -0.004), (0.016, 0.022, 0.026), NS, rot=(-28, 0, 0), sub=1, seg=14)
-    blob('nose', (0, -0.058, -0.036), (0.031, 0.034, 0.029), NS, sub=1, seg=18)
+    blob('nose', (0, -0.06, -0.037), (0.035, 0.037, 0.032), NS, sub=1, seg=18)
     for sgn in (-1, 1):
         blob('wing', (sgn * 0.027, -0.044, -0.045), (0.014, 0.016, 0.014), NS, sub=1, seg=12)
     NO = gloss('#8a3a4a', 'nostril')
     for sgn in (-1, 1):
         blob('nostril', (sgn * 0.013, -0.06, -0.062), (0.007, 0.009, 0.004), NO, sub=0, seg=10)
     # gür bıyık: burnun altında, ağzın üst dudağına konar; uçları yanlara ve yukarı kıvrık
-    HM = m_hair('#5a3622', '#8a5a3a', 'stache')
+    HM = m_hair('#5e3820', '#9a6236', 'stache')
     for sgn in (-1, 1):
         pts = [(sgn * 0.004, -0.083, -0.062), (sgn * 0.045, -0.072, -0.07), (sgn * 0.095, -0.04, -0.062), (sgn * 0.135, -0.01, -0.04), (sgn * 0.148, 0.0, -0.016)]
-        o = ytube('stache', pts, [0.019, 0.02, 0.015, 0.009, 0.005], HM, res=8, bres=4)
-        fur(o, 0.005, 95.0, seed=sgn + 9)
+        o = ytube('stache', pts, [0.022, 0.025, 0.019, 0.011, 0.006], HM, res=8, bres=4)
+        fur(o, 0.004, 115.0, seed=sgn + 9)
     finalize(); report('glasses_nose')
     return 'bıyıklı burun gözlük'
 
@@ -455,9 +474,9 @@ def w_glasses_snorkel():
                                     (lambda G, X, Y, Z: smooth_in(G, Z, 0.1, 0.115, 0.002), '#fff6ea')], var=0.04)
     pts = [(0.055, -0.092, -0.098), (0.09, -0.078, -0.132), (0.15, -0.045, -0.128), (0.188, -0.008, -0.075), (0.196, 0.008, 0.0),
            (0.192, 0.03, 0.08), (0.175, 0.07, 0.132)]
-    ytube('snorkel', pts, [0.014, 0.0145, 0.0145, 0.0145, 0.0145, 0.0145, 0.0145], TB, res=10, bres=3)
+    ytube('snorkel', pts, [0.016, 0.018, 0.018, 0.018, 0.018, 0.018, 0.018], TB, res=10, bres=3)
     CP = gloss('#2fb6c4', 'cap')
-    blob('cap', (0.172, 0.076, 0.142), (0.024, 0.022, 0.02), CP, rot=(-25, 0, 10), sub=1, seg=14)
+    blob('cap', (0.172, 0.076, 0.142), (0.027, 0.025, 0.022), CP, rot=(-25, 0, 10), sub=1, seg=14)
     MP = gloss('#2fb6c4', 'mouthp')
     blob('mouthpiece', (0.048, -0.098, -0.096), (0.02, 0.013, 0.016), MP, rot=(0, 0, -30), sub=1, seg=12)
     # boruyu kayışa bağlayan küçük klips
@@ -468,7 +487,7 @@ def w_glasses_snorkel():
 # ------------------------------------------------------------------ 5) Kahraman maskesi
 
 def w_mask_hero():
-    half = [(0.0, 0.046), (0.05, 0.055), (0.11, 0.062), (0.165, 0.068), (0.212, 0.074), (0.2, 0.03), (0.178, -0.022),
+    half = [(0.0, 0.046), (0.05, 0.055), (0.11, 0.062), (0.163, 0.068), (0.205, 0.072), (0.194, 0.03), (0.178, -0.022),
             (0.15, -0.062), (0.118, -0.06), (0.085, -0.04), (0.05, -0.034), (0.02, -0.028), (0.0, -0.016)]
     outline = catmull(mirror_half(half), n=10)
     zc = (max(z for _, z in outline) + min(z for _, z in outline)) / 2
@@ -478,7 +497,7 @@ def w_mask_hero():
         hole = []
         for i in range(48):
             t = i / 48 * 2 * math.pi
-            x = 0.037 * math.cos(t); z = 0.025 * math.sin(t) * (1 - 0.18 * math.cos(t) * sgn)
+            x = 0.04 * math.cos(t); z = 0.028 * math.sin(t) * (1 - 0.18 * math.cos(t) * sgn)
             a = math.radians(sgn * 9)
             hole.append((cx + x * math.cos(a) - z * math.sin(a), cz + x * math.sin(a) + z * math.cos(a)))
         holes.append(list(reversed(hole)))

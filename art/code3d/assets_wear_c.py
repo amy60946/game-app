@@ -27,6 +27,20 @@ def _frame(n, hint=(0, 0, 1)):
     t1 = (h - n * n.dot(h)).normalized(); t2 = n.cross(t1)
     return t1, t2
 
+def _grow(k):
+    """Sahnedeki her şeyi orijine göre k kat büyüt (dönüşümler köşelere işlenir). Oyun eşyayı sınır kutusuyla ölçekler; büyütme
+    yalnız pişirmedeki AO mesafesini (0,35) eşyaya oranla küçültür (yoğun şerit/çiçek kararmasın). Nesne-koordinatlı gürültüler
+    pişirmede dünya koordinatıyla okunur: malzemelerde ölçek buna göre (PSC)."""
+    to_mesh_all()
+    for o in list(bpy.context.scene.objects):
+        if o.type != 'MESH': continue
+        bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active = o
+        for m in list(o.modifiers):
+            try: bpy.ops.object.modifier_apply(modifier=m.name)
+            except Exception: pass
+        o.data.transform(o.matrix_world); o.matrix_world = mathutils.Matrix.Identity(4)
+        o.data.transform(mathutils.Matrix.Scale(k, 4))
+
 # ------------------------------------------------------------------ malzemeler
 
 def m_knit(stops, ztop, L, heel=None, name='knit', cols=40, rows=30):
@@ -70,14 +84,14 @@ def m_foil(base, light, dark, name):
     def b(nt, bsdf):
         n = nt.nodes; l = nt.links; G = A._G(nt)
         uv = uv_node(nt); sp = n.new('ShaderNodeSeparateXYZ'); l.new(uv.outputs[0], sp.inputs[0])
-        rp = ramp(nt, [(0.0, dark), (0.35, base), (1.0, _shade(base, 1.1))]); l.new(sp.outputs['X'], rp.inputs['Fac'])
+        rp = ramp(nt, [(0.0, _shade(base, 0.8)), (0.25, base), (1.0, _shade(base, 1.1))]); l.new(sp.outputs['X'], rp.inputs['Fac'])
         col = rp.outputs[0]
         o = G.obj()
         cr = G.noise(G.mapping(uv.outputs[0], (9.0, 0.6, 1.0)), 2.2, 3)
-        col = G.mix(G.rng(cr, 0.56, 0.68, 0, 0.75), col, light)
+        col = G.mix(G.rng(cr, 0.58, 0.7, 0, 0.5), col, light)
         col = G.mix(G.rng(cr, 0.42, 0.32, 0, 0.35), col, dark, 'MULTIPLY')
         col = G.mix(G.rng(G.math('ABSOLUTE', sp.outputs['Y']), 0.7, 1.0, 0, 0.3), col, dark)
-        col = G.mix(G.rng(G.noise(o, 7, 3), 0.55, 0.7, 0, 0.25), col, light, 'SCREEN')
+        col = G.mix(G.rng(G.noise(o, 2.4, 3), 0.58, 0.7, 0, 0.12), col, light, 'SCREEN')
         l.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 
@@ -154,61 +168,69 @@ def w_socks_arm():
 # ------------------------------------------------------------------ 2) ponpon
 
 def w_pompom():
-    """Amigo ponponu (tek; oyun iki ele koyar): merkezden dışa 84 parlak yassı şerit (pembe + altın, kıvrık, burgulu,
-    kırışık), içte dolgu topu; ÜSTTE (+Z) elin tuttuğu kısa sap + halka. Top kol ucunun ötesinde durur."""
+    """Amigo ponponu (tek; oyun iki ele koyar): merkezden dışa 90 parlak ince yassı şerit (pembe + altın; düz kesik uçlu,
+    burgulu, uca doğru kıvrık, kırışık folyo), içte pembe dolgu topu; ÜSTTE (+Z) elin tuttuğu kısa sap + halka.
+    Top kol ucunun ötesinde durur (oturma: fwd)."""
     R = random.Random(7)
-    PK = m_foil('#ec5b98', '#ffd3e6', '#a8305e', 'foilpink')
-    GD = m_foil('#e3ad38', '#fff0b8', '#9a6a1a', 'foilgold')
-    N = 84; RAD = 0.235
+    PK = m_foil('#f0569c', '#ffc4de', '#b8396e', 'foilpink')
+    GD = m_foil('#f4bc3a', '#ffeaa0', '#c48a26', 'foilgold')
+    N = 90; RAD = 0.25
     def build(bm):
         out = []
         ga = math.pi * (3 - math.sqrt(5))
         for k in range(N):
             zz = 1 - 2 * (k + 0.5) / N; rr = math.sqrt(1 - zz * zz); a = k * ga
             d = V((math.cos(a) * rr, math.sin(a) * rr, zz))
-            d = (d + V((R.uniform(-1, 1), R.uniform(-1, 1), R.uniform(-1, 1))) * 0.12).normalized()
+            d = (d + V((R.uniform(-1, 1), R.uniform(-1, 1), R.uniform(-1, 1))) * 0.1).normalized()
             t1, t2 = _frame(d, (R.uniform(-1, 1), R.uniform(-1, 1), 1))
             ba = R.uniform(0, TAU); bend = t1 * math.cos(ba) + t2 * math.sin(ba)
-            L = RAD * R.uniform(0.86, 1.04) * (0.8 if d.z > 0.75 else 1.0)          # sapın çevresi biraz kısa
-            tw = R.uniform(-1.9, 1.9); cb = R.uniform(0.15, 0.45)
+            L = RAD * R.uniform(0.85, 1.05) * (0.78 if d.z > 0.8 else 1.0)          # sapın çevresi biraz kısa
+            tw = R.uniform(-2.6, 2.6); cb = R.uniform(0.35, 0.9)
             mi = 0 if (k % 5) not in (1, 3) else 1                                   # 3/5 pembe, 2/5 altın
-            segs = 4; rows = []
+            segs = 5; rows = []
             for i in range(segs + 1):
                 s = i / segs
                 dd = (d + bend * cb * s * s).normalized()
-                c = dd * (0.035 + L * s) + V((0, 0, -0.03 * s * s))
+                c = d * 0.05 + dd * (L * s) + V((0, 0, -0.035 * s * s))
                 sd0 = t1 * math.cos(tw * s) + t2 * math.sin(tw * s)
                 sd = (sd0 - dd * dd.dot(sd0)).normalized()
-                w = (0.014 + 0.05 * math.sin(math.pi * min(1.0, 0.25 + s * 0.75))) * (0.72 if i == segs else 1.0)
-                nrm = dd.cross(sd)
-                c = c + nrm * (0.007 * (1 if i % 2 else -1) * s)                     # kırışık
+                w = 0.026 * (0.45 if i == 0 else 1.0)
+                c = c + dd.cross(sd) * (0.006 * (1 if i % 2 else -1) * s)               # kırışık
                 rows.append(((bm.verts.new(c + sd * w), (s, 1.0)), (bm.verts.new(c - sd * w), (s, -1.0))))
             for i in range(segs):
                 (l0, r0), (l1, r1) = rows[i], rows[i + 1]
                 out.append(([l0, l1, r1, r0], mi))
         return out
     mesh_from_blades('strips', build, [PK, GD])
-    blob('core', (0, 0, 0), (0.1, 0.1, 0.1), A.m_flat('#c8467e', 0.12, 9, 'pomcore'), sub=0, seg=10)
+    # dolgu: topaklı iç kütle (kısa şerit yığını gibi), pembe-altın benekli folyo
+    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=2, radius=0.165, location=(0, 0, -0.005))
+    co = bpy.context.object; co.name = 'core'
+    for v in co.data.vertices: v.co += v.co.normalized() * (0.05 * mnoise.noise(v.co * 14 + V((3, 1, 7))) + 0.02 * mnoise.noise(v.co * 40))
+    def core_b(nt, bsdf):
+        G = A._G(nt); o = G.obj()
+        col = G.mix(G.rng(G.noise(o, 3.0, 3), 0.5, 0.62), '#e2619c', '#ecb948')
+        col = G.mix(G.rng(G.noise(G.mapping(o, (10, 10, 10)), 1.0, 2), 0.58, 0.7, 0, 0.35), col, '#ffc4de', 'SCREEN')
+        nt.links.new(col, bsdf.inputs['Base Color'])
+    co.data.materials.append(nodes_mat('pomcore', core_b)); smooth(co)
     HD = A.m_flat('#f7f0f4', 0.06, 8, 'pomhandle')
-    tube('handle', [(0, 0, 0.12), (0, 0, 0.27)], [0.024, 0.022], HD, res=1)
-    blob('cap', (0, 0, 0.275), (0.03, 0.03, 0.018), HD, sub=0, seg=8)
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.034, minor_radius=0.009, location=(0, 0, 0.3), rotation=(math.radians(90), 0, 0),
+    tube('handle', [(0, 0, 0.12), (0, 0, 0.29)], [0.024, 0.022], HD, res=1)
+    blob('cap', (0, 0, 0.295), (0.03, 0.03, 0.018), HD, sub=0, seg=8)
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.034, minor_radius=0.009, location=(0, 0, 0.32), rotation=(math.radians(90), 0, 0),
                                      major_segments=12, minor_segments=4)
-    bpy.context.object.data.materials.append(A.m_flat('#e3ad38', 0.1, 8, 'pomring'))
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.03, minor_radius=0.008, location=(0, 0, 0.14), major_segments=12, minor_segments=4)
-    bpy.context.object.data.materials.append(A.m_flat('#e3ad38', 0.1, 8, 'pomring'))
+    bpy.context.object.data.materials.append(A.m_flat('#e9b43c', 0.1, 8, 'pomring'))
+    _grow(3.0)
     return 'ponpon'
 
 # ------------------------------------------------------------------ 3) çiçek kolye + çim etek
 
 BODY_Y = 0.04                                       # çocuk Okti gövde ekseni (y)
 
-def petal_flower(name, c, nrm, kind, size, R, mats, roll=0.0):
+def petal_flower(name, c, nrm, kind, size, R, mats, roll=0.0, P=8):
     """Tombul çiçek: 5 kubbeli taç yaprağı (her biri 10 köşeli yelpaze, üstü şişkin) + göbek; grain uv: u = göbekten uca.
     kind: 'hib' (geniş, çanak, uzun sarı başçık) | 'fra' (oval, çark gibi bindirmeli)."""
     n = V(nrm).normalized(); t1, t2 = _frame(n)
     bm = bmesh.new(); uvl = bm.loops.layers.uv.new('grain')
-    P, M = 10, 5
+    M = 5
     for k in range(M):
         a = roll + k * TAU / M
         rad = t1 * math.cos(a) + t2 * math.sin(a); acr = n.cross(rad)
@@ -244,9 +266,10 @@ def petal_flower(name, c, nrm, kind, size, R, mats, roll=0.0):
     return o
 
 def w_outfit_hula():
-    """Çiçek kolye ve çim etek: ÜSTTE başın jöle eteğinin hemen altında göğse sarkan tombul kolye (pembe hibiskus, beyaz ve
-    sarı frangipani, aralarda yeşil yapraklar; arkası yüksek, önü U gibi sarkık), ALTTA kalçada halat bel bandı + iki kat
-    savrulan çim/saman şerit etek, kalçada büyük pembe hibiskus. Arası boş: göbek görünür."""
+    """Çiçek kolye ve çim etek: ÜSTTE başın jöle eteğinin hemen altında göğse sarkan tombul kolye (yeşil yapraklı kordon
+    üstünde iri pembe hibiskus, beyaz ve sarı frangipani; arkası yüksek — baş eteğinin içinde —, önü U gibi sarkık), ALTTA
+    kalçada halat bel bandı + iki kat, uca doğru açılan ve dalgalı savrulan çim/saman şerit etek, kalçada büyük pembe hibiskus.
+    Arası boş: göbek görünür."""
     R = random.Random(23)
     HIB = [m_petal('#b8204e', '#ee5a8a', '#ff9dbc', 'hibpetal'), A.m_flat('#d83a6a', 0.1, 8, 'hibc'), A.m_flat('#f7d14a', 0.08, 8, 'hibst'), A.m_flat('#ffc42e', 0.1, 10, 'hibpol')]
     FRW = [m_petal('#f2b631', '#fff3d8', '#fffaf1', 'frawhite', vein='#e8dccb'), A.m_flat('#f2b631', 0.1, 8, 'fracw')]
@@ -255,36 +278,49 @@ def w_outfit_hula():
     # kolye yolu: arkada yüksek (baş eteğinin içinde), önde U gibi sarkar
     def lei(th):
         f = (1 - math.sin(th)) / 2
-        z = 0.875 - 0.205 * f ** 1.8
-        rr = 0.305 + 0.018 * f
+        z = 0.88 - 0.2 * f ** 1.6
+        rr = 0.3 + 0.022 * f
         return V((math.cos(th) * rr, BODY_Y + math.sin(th) * rr, z))
-    offs = [0, 23, 46, 70, 96, 126, 156]
-    kinds = ['hib', 'fra_w', 'fra_y', 'hib', 'fra_w', 'fra_y', 'hib']
-    spots = []
-    for k, d in enumerate(offs):
+    # yeşil kordon (yapraklı dolgu, çiçeklerin arası boş görünmesin)
+    NM, NS, rc = 32, 4, 0.027
+    bm = bmesh.new(); uvl = bm.loops.layers.uv.new('grain')
+    ring = []
+    for i in range(NM):
+        th = i / NM * TAU; c = lei(th); tg = (lei(th + 0.01) - lei(th - 0.01)).normalized()
+        n1 = (c - V((0, BODY_Y, c.z))).normalized(); n1 = (n1 - tg * tg.dot(n1)).normalized(); n2 = tg.cross(n1)
+        ring.append([bm.verts.new(c + (n1 * math.cos(j / NS * TAU) + n2 * math.sin(j / NS * TAU)) * rc * (1 + 0.25 * math.sin(i * 2.3 + j))) for j in range(NS)])
+    for i in range(NM):
+        for j in range(NS):
+            i2, j2 = (i + 1) % NM, (j + 1) % NS
+            f = bm.faces.new((ring[i][j], ring[i2][j], ring[i2][j2], ring[i][j2]))
+            for lp, (ii, jj) in zip(f.loops, ((i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1))): lp[uvl].uv = ((jj / NS) * 0.6 + 0.2, (ii % 2) * 2 - 1)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    smooth(link_mesh('cord', bm, [A.m_flat('#3d8a3c', 0.3, 18, 'leicord')]))
+    # çiçekler: önde iri ve sık (görünen kısım), arkada seyrek
+    spots = [(0, 'hib', 0.118), (21, 'fra_w', 0.104), (42, 'fra_y', 0.102), (64, 'hib', 0.104), (90, 'fra_w', 0.092), (125, 'fra_y', 0.085), (160, 'hib', 0.085)]
+    placed = []
+    for d, kind, size in spots:
         for sg in ((1,) if d == 0 else (1, -1)):
-            th = math.radians(-90 + sg * d); spots.append((th, kinds[k], k))
-    for i, (th, kind, k) in enumerate(spots):
-        p = lei(th); nrm = V((math.cos(th), math.sin(th), 0.55 + 0.25 * (1 - math.sin(th)) / 2))
-        size = 0.085 if k < 3 else 0.078
-        mats = HIB if kind == 'hib' else (FRW if kind == 'fra_w' else FRY)
-        petal_flower('lei%d' % i, p, nrm, 'hib' if kind == 'hib' else 'fra', size, R, mats, roll=R.uniform(0, TAU))
-    # yapraklar: çiçek aralarında, yol boyunca iki yana
+            th = math.radians(-90 + sg * d); placed.append(th)
+            p = lei(th); nrm = V((math.cos(th), math.sin(th), 0.5 + 0.3 * (1 - math.sin(th)) / 2))
+            mats = HIB if kind == 'hib' else (FRW if kind == 'fra_w' else FRY)
+            petal_flower('lei%d_%d' % (d, sg), p + nrm.normalized() * 0.012, nrm, 'hib' if kind == 'hib' else 'fra', size, R, mats, roll=R.uniform(0, TAU), P=8 if d < 100 else 6)
+    # yapraklar: her çiçek arasında bir yaprak, yol boyunca dışa
     def leaves(bm):
         out = []
-        ths = sorted(th for th, _, _ in spots)
-        for a, b2 in zip(ths, ths[1:] + [ths[0] + TAU]):
+        ths = sorted(placed)
+        for k, (a, b2) in enumerate(zip(ths, ths[1:] + [ths[0] + TAU])):
             th = (a + b2) / 2; p = lei(th)
-            tg = (lei(th + 0.01) - lei(th - 0.01)).normalized(); nrm = V((math.cos(th), math.sin(th), 0.5)).normalized()
-            for sg in (1, -1):
-                d = (tg * sg * 0.75 + nrm * 0.35 + V((0, 0, -0.25))).normalized()
-                side = d.cross(nrm).normalized()
-                for f in blade(bm, p - nrm * 0.01, d, side, R.uniform(0.09, 0.11), 0.026, 0.25, segs=3): out.append((f, 0))
+            tg = (lei(th + 0.01) - lei(th - 0.01)).normalized(); nrm = V((math.cos(th), math.sin(th), 0.45)).normalized()
+            sg = 1 if k % 2 else -1
+            d = (tg * sg * 0.55 + nrm * 0.6 + V((0, 0, -0.35))).normalized()
+            side = d.cross(nrm).normalized()
+            for f in blade(bm, p, d, side, R.uniform(0.1, 0.12), 0.034, 0.2, segs=3): out.append((f, 0))
         return out
     mesh_from_blades('leaves', leaves, [LF])
     # bel bandı: halat (kendi grain uv'si: u = çevre, v = kesit)
-    ZB, RB, rb = 0.505, 0.335, 0.03
-    bm = bmesh.new(); uvl = bm.loops.layers.uv.new('grain'); NM, NS = 36, 6
+    ZB, RB, rb = 0.485, 0.333, 0.028
+    bm = bmesh.new(); uvl = bm.loops.layers.uv.new('grain'); NM, NS = 26, 4
     vs = [[bm.verts.new((math.cos(i / NM * TAU) * (RB + rb * math.cos(j / NS * TAU)), BODY_Y + math.sin(i / NM * TAU) * (RB + rb * math.cos(j / NS * TAU)) * 0.98,
                          ZB + rb * 1.15 * math.sin(j / NS * TAU))) for j in range(NS)] for i in range(NM)]
     for i in range(NM):
@@ -294,25 +330,27 @@ def w_outfit_hula():
             for lp, (ii, jj) in zip(f.loops, ((i, j), (i + 1, j), (i + 1, j + 1), (i, j + 1))): lp[uvl].uv = (ii / NM * TAU * RB * 3, jj / NS * 0.3)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     smooth(link_mesh('band', bm, [m_rope('#d4b06a', 'hulaband', age=0.35)]))
-    # etek: iki kat şerit; hafif dalgalı savrulma (çevre boyunca dalga + şerit başına rastgele)
+    # etek: iki kat şerit; uca doğru açılır, çevre boyunca dalgalı savrulma + şerit başına rastgele boy/açı
     GR = [m_leaf('#3f8a3a', '#5fae48', '#9ad064', '#c4e692', 'grassA'), m_leaf('#4f9440', '#76b84e', '#b2d870', '#d2eb9a', 'grassB'),
           m_leaf('#9a8440', '#c9ae62', '#e2cd88', '#efe2b0', 'straw')]
     def strands(bm):
         out = []
-        for layer, (Nn, r0, r1, z0, z1, wt) in enumerate(((50, 0.322, 0.372, ZB + 0.012, 0.245, 0.044), (50, 0.343, 0.405, ZB + 0.028, 0.262, 0.046))):
+        for layer, (Nn, r0, r1, z0, z1, wt) in enumerate(((42, 0.318, 0.42, ZB + 0.005, 0.215, 0.058), (44, 0.34, 0.47, ZB - 0.012, 0.232, 0.06))):
             for k in range(Nn):
-                th = (k + 0.5 * layer + R.uniform(-0.2, 0.2)) / Nn * TAU
+                th = (k + 0.5 * layer + R.uniform(-0.3, 0.3)) / Nn * TAU
                 rad = V((math.cos(th), math.sin(th), 0)); tg = V((-math.sin(th), math.cos(th), 0))
-                ze = z1 + R.uniform(-0.03, 0.02); re = r1 + R.uniform(-0.012, 0.02)
-                ph = math.sin(th * 3 + 0.7) * 0.034 + R.uniform(-0.012, 0.012)
-                mi = R.choices((0, 1, 2), (0.42, 0.3, 0.28))[0]
+                ze = z1 + R.uniform(-0.045, 0.03) + 0.022 * math.sin(th * 2 + 1.0)
+                re = r1 + R.uniform(-0.03, 0.03) + 0.02 * math.sin(th * 3 + 0.4)
+                ph = math.sin(th * 2.0 + 0.7) * 0.07 + R.uniform(-0.04, 0.04)          # savrulma: dalga + rastgele yatış
+                wk = wt * R.uniform(0.8, 1.2); tws = R.uniform(-0.5, 0.5)
+                mi = R.choices((0, 1, 2), (0.4, 0.3, 0.3))[0]
                 rows = []
                 for i in range(5):
                     s = (0.0, 0.3, 0.6, 0.85, 1.0)[i]
-                    rr = r0 + (re - r0) * s ** 0.85
-                    c = V((rad.x * rr, BODY_Y + rad.y * rr * 0.97, z0 + (ze - z0) * s)) + tg * (ph * s * s)
-                    w = wt * (1 - 0.35 * s) * (0.35 if i == 4 else 1.0)
-                    tgs = (tg + rad * (0.18 * math.sin(th * 7 + s * 2))).normalized()
+                    rr = r0 + (re - r0) * s ** 1.35
+                    c = V((rad.x * rr, BODY_Y + rad.y * rr * 0.93, z0 + (ze - z0) * s)) + tg * (ph * s * s)
+                    w = wk * (1 - 0.3 * s) * (0.3 if i == 4 else 1.0)
+                    tgs = (tg + rad * (0.3 * math.sin(th * 7 + k) + tws * s)).normalized()
                     rows.append(((bm.verts.new(c + tgs * w * 0.5), (s, 1.0)), (bm.verts.new(c - tgs * w * 0.5), (s, -1.0))))
                 for i in range(4):
                     (l0, r0_), (l1, r1_) = rows[i], rows[i + 1]
@@ -320,8 +358,9 @@ def w_outfit_hula():
         return out
     mesh_from_blades('skirt', strands, GR)
     # kalçada büyük hibiskus (petin sol önü)
-    th = math.radians(-38)
-    petal_flower('hip', V((math.cos(th) * (RB + 0.03), BODY_Y + math.sin(th) * (RB + 0.03), ZB + 0.01)), V((math.cos(th), math.sin(th), 0.25)), 'hib', 0.095, R, HIB, roll=0.4)
+    th = math.radians(-36)
+    petal_flower('hip', V((math.cos(th) * (RB + 0.035), BODY_Y + math.sin(th) * (RB + 0.035), ZB + 0.005)), V((math.cos(th), math.sin(th), 0.25)), 'hib', 0.1, R, HIB, roll=0.4)
+    _grow(1.5)
     return 'hula'
 
 BUILDERS = {'w_socks_arm': (w_socks_arm, 512, None), 'w_pompom': (w_pompom, 512, None), 'w_outfit_hula': (w_outfit_hula, 512, None)}
