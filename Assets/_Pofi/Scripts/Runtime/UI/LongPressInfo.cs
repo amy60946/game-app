@@ -41,7 +41,10 @@ namespace Pofi.UI
 
         private void Update()
         {
-            if (_down < 0f || _bubble != null || Time.unscaledTime - _down < Hold) return;
+            if (_down < 0f) return;
+            // parmak kalktıysa (bırakma olayı kaçsa bile) baloncuk açık kalmasın
+            if (Input.touchCount == 0 && !Input.GetMouseButton(0)) { Release(); return; }
+            if (_bubble != null || Time.unscaledTime - _down < Hold) return;
             Show();
         }
 
@@ -49,16 +52,19 @@ namespace Pofi.UI
         {
             var layer = _layer != null ? _layer : GetComponentInParent<Canvas>()?.transform;
             if (layer == null) return;
-            _bubble = Candy.Banner(layer, Candy.Blue, null, Vector2.zero, Vector2.zero, 760f, 34, true);
-            _bubble.SetText(Text);
             var root = (RectTransform)layer;
             var k = root.rect.width / Mathf.Max(1f, Screen.width);
             var sp = RectTransformUtility.WorldToScreenPoint(null, transform.position);
+            var h = ((RectTransform)transform).rect.height * transform.lossyScale.y / Mathf.Max(0.0001f, root.lossyScale.y);
+            // üstte yer varsa düğmenin üstünde (kuyruk aşağı), yoksa altında (üst kenardaki coin, Harita): baloncuk düğmeyi örtmesin
+            const float bh = 34f * 3.5f;   // iki satırlık baloncuk yüksekliği (Banner)
+            var above = sp.y * k + h * 0.5f + bh + 30f < root.rect.height;
+            _bubble = Candy.Banner(layer, Candy.Blue, null, Vector2.zero, Vector2.zero, 760f, 34, above);
+            _bubble.SetText(Text);
             var rt = _bubble.Rect;
             rt.anchorMin = rt.anchorMax = Vector2.zero;
-            var h = ((RectTransform)transform).rect.height * transform.lossyScale.y / Mathf.Max(0.0001f, root.lossyScale.y);
             var x = Mathf.Clamp(sp.x * k, rt.sizeDelta.x * 0.5f + 20f, root.rect.width - rt.sizeDelta.x * 0.5f - 20f);
-            var y = Mathf.Min(sp.y * k + h * 0.5f + rt.sizeDelta.y * 0.5f + 24f, root.rect.height - rt.sizeDelta.y * 0.5f - 20f);
+            var y = above ? sp.y * k + h * 0.5f + rt.sizeDelta.y * 0.5f + 24f : Mathf.Max(sp.y * k - h * 0.5f - rt.sizeDelta.y * 0.5f - 18f, rt.sizeDelta.y * 0.5f + 20f);
             rt.anchoredPosition = new Vector2(x, y);
             rt.gameObject.AddComponent<PopIn>();
             var cg = rt.gameObject.AddComponent<CanvasGroup>(); cg.blocksRaycasts = false;
