@@ -111,8 +111,8 @@ namespace Pofi.World
         /// <summary>Evre başına göz hizası (petin boyuna oran, tabandan) ve göz hizasında yüzün önü (Head kemiğinden ileri, boya oran).</summary>
         private static readonly Dictionary<GrowthStage, Vector2> OktiEyes = new Dictionary<GrowthStage, Vector2>
         {
-            // kıyafetsiz modeller (23 Ekim 2026), göz noktaları dokudan ölçüldü; yüzün önü oyunda ağdan ölçülür (FaceFront), bu yedek
-            [GrowthStage.Yavru] = new Vector2(0.817f, 0.252f), [GrowthStage.Genc] = new Vector2(0.862f, 0.202f), [GrowthStage.Yetiskin] = new Vector2(0.889f, 0.196f),
+            // kıyafetsiz modeller (23 Ekim 2026): göz noktaları dokudan, yüzün önü göz hizasında ağdan (fit_test_okti.py report face_front_at_eye)
+            [GrowthStage.Yavru] = new Vector2(0.817f, 0.253f), [GrowthStage.Genc] = new Vector2(0.862f, 0.173f), [GrowthStage.Yetiskin] = new Vector2(0.889f, 0.163f),
         };
         /// <summary>Eşya başına boy çarpanı, yukarı ve ileri kayma (Okti'de; çift el eşyasında ileri = kol boyunca uca doğru).</summary>
         private static readonly Dictionary<string, Vector3> OktiItem = new Dictionary<string, Vector3>
@@ -227,46 +227,41 @@ namespace Pofi.World
             return true;
         }
 
-        // ---- petin gerçek şekli (oturma denemesi art/meshy/scripts/fit_test_okti.py ile aynı ölçü) ----
+        // ---- petin gerçek boyu: kemiklerden (oturma denemesi art/meshy/scripts/fit_test_okti.py ağı ölçer; oyunda çizici sınırı
+        // deri ağında %14'e kadar büyük çıkıyordu, ağ pişirme de ölçekte şaşıyordu → 23 Ekim 2026 gözlük/maske yüzün içinde kaldı)
         private static readonly List<Vector3> Verts = new List<Vector3>();
-        private static readonly List<Vector3> Tmp = new List<Vector3>();
-        private static Bounds _geoBounds; private static bool _geoOk; private static Mesh _bake;
+        private static Bounds _geoBounds; private static bool _geoOk;
         private static readonly System.Text.StringBuilder Report = new System.Text.StringBuilder();
+        /// <summary>Evre başına Head ve Hips kemiklerinin yüksekliği (ağ boyuna oran, tabandan; Blender'da dinlenme pozunda ölçüldü).</summary>
+        private static readonly Dictionary<GrowthStage, Vector2> OktiBones = new Dictionary<GrowthStage, Vector2>
+        {
+            [GrowthStage.Yavru] = new Vector2(0.5184f, 0.3049f), [GrowthStage.Genc] = new Vector2(0.6888f, 0.4284f), [GrowthStage.Yetiskin] = new Vector2(0.7227f, 0.4764f),
+        };
 
-        /// <summary>
-        /// Deri ağı o anki pozla pişirilir, dünya köşeleri alınır: boy, göz hizası ve yüzün önü buradan ölçülür (deri ağında
-        /// çizici sınırı gerçek ağdan farklı olabiliyor; 23 Ekim 2026 oyunda gözlük/maske yüzün içinde kaldı). Ağ okunamıyorsa
-        /// eski yol (çizici sınırları + sabit oranlar).
-        /// </summary>
         private static void Capture(Transform pet, Transform root)
         {
             Verts.Clear(); _geoOk = false; Report.Length = 0;
             Bounds rb = default; var rany = false;
-            foreach (var smr in pet.GetComponentsInChildren<SkinnedMeshRenderer>())
+            foreach (var r in pet.GetComponentsInChildren<Renderer>())
             {
-                if (smr.transform.IsChildOf(root) || smr.GetComponentInParent<RealCosmetic>() != null) continue;
-                var mesh = smr.sharedMesh;
-                if (mesh == null || !mesh.isReadable) continue;
-                if (_bake == null) _bake = new Mesh();
-                smr.BakeMesh(_bake, false);
-                _bake.GetVertices(Tmp);
-                var m = smr.transform.localToWorldMatrix;
-                foreach (var v in Tmp) Verts.Add(m.MultiplyPoint3x4(v));
-                if (!rany) { rb = smr.bounds; rany = true; } else rb.Encapsulate(smr.bounds);
+                if (r.transform.IsChildOf(root) || r.GetComponentInParent<RealCosmetic>() != null) continue;
+                if (!rany) { rb = r.bounds; rany = true; } else rb.Encapsulate(r.bounds);
             }
-            if (Verts.Count == 0) { Report.Append("ağ=yok "); return; }
-            _geoBounds = new Bounds(Verts[0], Vector3.zero);
-            foreach (var v in Verts) _geoBounds.Encapsulate(v);
-            // pişirme ölçeğini doğrula: çizici sınırıyla boy 2 kattan fazla farklıysa bu ölçüye güvenme
-            var ratio = rb.size.y > 1e-5f ? _geoBounds.size.y / rb.size.y : 0f;
-            _geoOk = ratio > 0.5f && ratio < 2f;
-            Report.Append($"ağ={Verts.Count} boy={_geoBounds.size.y:0.###} çizici={rb.size.y:0.###} {(_geoOk ? "ağ" : "çizici")} ");
+            var head = FindDeep(pet, "Head"); var hips = FindDeep(pet, "Hips");
+            if (_petId != "pet_13" || head == null || hips == null || !OktiBones.TryGetValue(_stage, out var fr)) { Report.Append("kemik=yok "); return; }
+            var h = (head.position.y - hips.position.y) / (fr.x - fr.y);
+            if (h <= 1e-4f || (rany && (h < rb.size.y * 0.5f || h > rb.size.y * 1.5f))) { Report.Append($"kemik boyu şüpheli {h:0.###} "); return; }
+            var minY = hips.position.y - fr.y * h;
+            var c = rany ? rb.center : head.position;
+            _geoBounds = new Bounds(new Vector3(c.x, minY + h / 2f, c.z), new Vector3(rany ? rb.size.x : h, h, rany ? rb.size.z : h));
+            _geoOk = true;
+            Report.Append($"kemik boyu={h:0.###} çizici={(rany ? rb.size.y : 0f):0.###} ");
         }
 
         /// <summary>Göz hizasında, ortadaki şeritte yüzün en ön noktası: kemikten ileri uzaklık. Ölçü yoksa yedek.</summary>
         private static float FaceFront(Vector3 origin, Vector3 front, Vector3 right, float eyeY, float h, float fallback)
         {
-            if (!_geoOk) return fallback;
+            if (Verts.Count == 0) return fallback;
             var best = float.MinValue;
             foreach (var v in Verts)
             {
