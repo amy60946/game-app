@@ -9,7 +9,7 @@ namespace Pofi.Logic.Services.Mock
 {
     /// <summary>
     /// Sahte arka uç: geliştirme ve testler için. Tanımlı kodlar tek kullanımlık değildir (deneme kolaylığı).
-    /// Varsayılan kodlar: A1A1A1 (6–8), B2B2B2 (9–12), C3C3C3 (13–15).
+    /// Varsayılan kodlar: K4K4K4 (5 ve altı), A1A1A1 (6–8), B2B2B2 (9–12), C3C3C3 (13 ve üstü).
     /// </summary>
     public sealed class MockAuthService : IAuthService
     {
@@ -28,6 +28,7 @@ namespace Pofi.Logic.Services.Mock
             _clock = utcClock ?? (() => DateTime.UtcNow);
             _codes = new Dictionary<string, ChildSession>
             {
+                ["K4K4K4"] = new ChildSession("child_k", "Ela", AgeBand.K, "flamingo"),
                 ["A1A1A1"] = new ChildSession("child_a", "Nazlı", AgeBand.A, "flamingo"),
                 ["B2B2B2"] = new ChildSession("child_b", "Arven", AgeBand.B, "keçi"),
                 ["C3C3C3"] = new ChildSession("child_c", "Deniz", AgeBand.C, "kurt"),

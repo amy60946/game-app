@@ -22,7 +22,7 @@ namespace Pofi.Logic.App
         {
             var before = s.Xp.TotalXp;
             var g = s.Xp.Add(amount, source, local, AgeBandProfile.For(band).DailyXpCap);
-            return new XpResult { Grant = g, LevelUp = levels.Check(before, s.Xp.TotalXp) };
+            return new XpResult { Grant = g, LevelUp = levels.Check(s.Xp, before) };
         }
 
         public static void MarkCelebrated(GameState s, LevelUp up)

@@ -74,5 +74,29 @@ namespace Pofi.Tests.Logic
             Assert.IsTrue(Pofi.Logic.Profile.AgeBands.Young(Pofi.Logic.Profile.AgeBand.K));
             Assert.IsFalse(Pofi.Logic.Profile.AgeBands.Young(Pofi.Logic.Profile.AgeBand.C));
         }
-    }
+    
+        [Test]
+        public void Seviye_yas_grubu_buyuyunce_dusmez()
+        {
+            // 23 Ekim 2026 (ortak 20261023040000): K'de 170 XP Sv3; 6. doğum gününde grup A olur, aynı XP A tablosunda Sv2.
+            var d = TestData.Load();
+            var t = new LevelTable(d.Levels, Pofi.Logic.Profile.AgeBand.K);
+            var xp = new Pofi.Logic.Economy.XpSystem { TotalXp = 170 };
+            t.Remember(xp);
+            Assert.AreEqual(3, t.Level(xp));
+            t.UseBand(Pofi.Logic.Profile.AgeBand.A);
+            Assert.AreEqual(2, t.LevelFor(170), "A tablosunda 170 XP Sv2");
+            Assert.AreEqual(3, t.Level(xp), "ulaşılan seviye korunur");
+            // A'da Sv3 eşiğine (200) ulaşınca ikinci kez kutlama yok; Sv4'te (A: 355) kutlama var
+            var before = xp.TotalXp; xp.TotalXp = 210;
+            Assert.IsNull(t.Check(xp, before), "Sv3 zaten kutlandı");
+            before = xp.TotalXp; xp.TotalXp = 360;
+            var up = t.Check(xp, before);
+            Assert.IsNotNull(up); Assert.AreEqual(3, up.From); Assert.AreEqual(4, up.To);
+            Assert.AreEqual(4, xp.BestLevel);
+            // eski kayıt (en yüksek seviye yok) bugünkü seviyeyle başlar
+            var old = new Pofi.Logic.Economy.XpSystem { TotalXp = 120 };
+            Assert.AreEqual(t.LevelFor(120), t.Level(old));
+        }
+}
 }

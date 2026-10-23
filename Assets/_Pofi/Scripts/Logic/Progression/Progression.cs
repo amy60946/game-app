@@ -92,6 +92,26 @@ namespace Pofi.Logic.Progression
         }
 
         /// <summary>XP değişince seviye atlama bilgisi (birden fazla seviye birden atlanabilir). Atlama yoksa null.</summary>
+        /// <summary>Etkin seviye: XP'nin bugünkü gruba göre verdiği seviye ya da ulaşılan en yüksek seviye (büyüğü).</summary>
+        public int Level(Economy.XpSystem xp) => xp == null ? 1 : Math.Max(LevelFor(xp.TotalXp), Math.Max(1, Math.Min(xp.BestLevel, MaxLevel)));
+
+        /// <summary>Ulaşılan seviyeyi kaydeder (grup değişmeden önce ve her XP artışında).</summary>
+        public void Remember(Economy.XpSystem xp)
+        {
+            if (xp != null) xp.BestLevel = Level(xp);
+        }
+
+        /// <summary>XP arttıktan sonra seviye atlandı mı: en yüksek seviyenin üstüne çıkıldıysa kutlama (aynı seviye ikinci kez kutlanmaz).</summary>
+        public LevelUp Check(Economy.XpSystem xp, int oldXp)
+        {
+            var from = Math.Max(LevelFor(oldXp), Math.Max(1, Math.Min(xp.BestLevel, MaxLevel)));
+            var up = Check(LevelTotal(from), xp.TotalXp);
+            Remember(xp);
+            return up;
+        }
+
+        private int LevelTotal(int level) => TotalXpFor(level);
+
         public LevelUp Check(int oldXp, int newXp)
         {
             int from = LevelFor(oldXp), to = LevelFor(newXp);

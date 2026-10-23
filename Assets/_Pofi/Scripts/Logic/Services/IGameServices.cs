@@ -18,6 +18,7 @@ namespace Pofi.Logic.Services
     {
         public int Coins;
         public int? SunStones;
+        public string AgeBand;   // child_me.age_band: K/A/B/C (ebeveyn seçimi ya da doğum gününden)
     }
 
     /// <summary>Coin cüzdanı (sunucu). İstemci coin ekleyemez; yalnızca harcar.</summary>

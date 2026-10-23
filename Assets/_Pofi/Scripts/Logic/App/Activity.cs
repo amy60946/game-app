@@ -24,7 +24,7 @@ namespace Pofi.Logic.App
     {
         public static ActivityResult Record(GameState s, GameData data, LevelTable levels, string counter, int n, DateTime local)
         {
-            var level = levels.LevelFor(s.Xp.TotalXp);
+            var level = levels.Level(s.Xp);
             if (n > 0) s.Counters.Add(counter, n, local);
             s.Counters.SetMax("level", level);
             s.Counters.SetMax("best_streak", s.Streak.Count);
@@ -43,13 +43,13 @@ namespace Pofi.Logic.App
         /// <summary>Bu seviyede görevin vereceği XP (panel gösterimi için; S2).</summary>
         public static int QuestXp(GameState s, LevelTable levels, DailyQuestDef q)
         {
-            var level = levels.LevelFor(s.Xp.TotalXp);
+            var level = levels.Level(s.Xp);
             return DailyQuests.XpFor(q, levels.TotalXpFor(level + 1) - levels.TotalXpFor(level));
         }
 
         public static void EnsureQuests(GameState s, GameData data, LevelTable levels, DateTime local)
         {
-            var level = levels.LevelFor(s.Xp.TotalXp);
+            var level = levels.Level(s.Xp);
             DailyQuests.EnsureForToday(s.DailyQuests, data, id => string.IsNullOrEmpty(id) || data.SunBook.IsOpen(id, level, levels, s.SunStones), s.ChildId ?? "", local);
         }
     }

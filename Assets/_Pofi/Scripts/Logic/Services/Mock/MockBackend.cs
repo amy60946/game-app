@@ -23,6 +23,8 @@ namespace Pofi.Logic.Services.Mock
 
         public int Coins { get; private set; }
         public int SunStones { get; private set; }
+        /// <summary>child_me.age_band karşılığı (deneme: ebeveyn grubu değiştirdi / doğum günü); null = sunucu bilgi vermiyor.</summary>
+        public string AgeBand { get; set; }
         public bool Offline { get; set; }
 
         public MockBackend(GameData data, int startCoins = 0)
@@ -85,7 +87,7 @@ namespace Pofi.Logic.Services.Mock
         public Task<BalanceSnapshot> GetBalancesAsync(CancellationToken ct = default)
         {
             if (Offline) throw new OperationCanceledException("çevrimdışı");
-            return Task.FromResult(new BalanceSnapshot { Coins = Coins, SunStones = SunStones });
+            return Task.FromResult(new BalanceSnapshot { Coins = Coins, SunStones = SunStones, AgeBand = AgeBand });
         }
 
         public Task<SpendResponse> SpendAsync(string txId, string itemId, int quantity, CancellationToken ct = default)

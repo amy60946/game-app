@@ -142,7 +142,7 @@ namespace Pofi.Screens
             if (this == null) return;
             if (r != null && r.Ok)
             {
-                var level = App.Levels.LevelFor(App.State.Xp.TotalXp);
+                var level = App.Levels.Level(App.State.Xp);
                 var xp = Logic.Tasks.WeeklyGoal.XpFor(App.Levels.TotalXpFor(level + 1) - App.Levels.TotalXpFor(level));
                 Audio.Sfx.Play(Audio.SfxKind.Success);
                 StarSparkles.Around(App.Overlay.transform, new Vector2(0.5f, 0.6f), new Vector2(0.22f, 0.22f), 14, 61);

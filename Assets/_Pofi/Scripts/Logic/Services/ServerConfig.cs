@@ -15,7 +15,7 @@ namespace Pofi.Logic.Services
         public string Url = "";
         public string PublishableKey = "";
 
-        /// <summary>Deneme kodları (A1A1A1, B2B2B2, C3C3C3) sahte arka uçla açılsın mı (önizleme ve "Test: her şeyi aç").</summary>
+        /// <summary>Deneme kodları (K4K4K4, A1A1A1, B2B2B2, C3C3C3) sahte arka uçla açılsın mı (önizleme ve "Test: her şeyi aç").</summary>
         public bool DemoCodes = true;
 
         public bool IsConfigured =>

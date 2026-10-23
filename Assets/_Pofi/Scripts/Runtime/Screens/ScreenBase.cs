@@ -221,7 +221,7 @@ namespace Pofi.Screens
                 var b = Ui.Button(box, Th, T("chest.open"), new Vector2(0.86f, 0.22f), new Vector2(220f, 96f), () =>
                 {
                     Destroy(root.gameObject);
-                    var level = App.Levels.LevelFor(App.State.Xp.TotalXp);
+                    var level = App.Levels.Level(App.State.Xp);
                     var prize = Logic.Meta.DailyChest.Open(App.State.DailyQuests, App.Data, App.State.Inventory, level, App.State.ChildId ?? "");
                     App.Save();
                     var item = prize != null ? App.Data.Item(prize.ItemId) : null;

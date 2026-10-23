@@ -164,6 +164,19 @@ namespace Pofi.Logic.Services.Supabase
             return Task.CompletedTask; // oyun kaydı silinmez (FR-AUTH-4)
         }
 
+        /// <summary>Sunucunun bugünkü yaş grubu (child_me) değiştiyse saklanan oturum da güncellenir: uygulama yeniden açılınca eski grupla başlamasın.</summary>
+        public void RememberAgeBand(string band)
+        {
+            if (Current == null || string.IsNullOrEmpty(band)) return;
+            StoredChild stored;
+            try { stored = JsonConvert.DeserializeObject<StoredChild>(_store.Get(ChildKey) ?? ""); }
+            catch (JsonException) { return; }
+            if (stored == null || stored.ChildId != Current.ChildId || stored.AgeBand == band) return;
+            stored.AgeBand = band;
+            _store.Set(ChildKey, JsonConvert.SerializeObject(stored));
+            Current = stored.ToSession();
+        }
+
         private sealed class StoredChild
         {
             public string ChildId, Name, Avatar, AgeBand;

@@ -15,7 +15,7 @@ namespace Pofi.Logic.Story
         [JsonProperty("who")] public string Who;      // narrator, okti, kiskac, pitir, hisir, mavi, tosbi, nur, pus
         [JsonProperty("text")] public string Text;
         [JsonProperty("a")] public string Short;      // A (6–8) ve K (≤5)
-        [JsonProperty("c")] public string Teen;       // C (13–15)
+        [JsonProperty("c")] public string Teen;       // C (13 ve üstü)
         [JsonProperty("mood")] public string Mood;    // happy, surprised, sad, think (portre ifadesi)
     }
 

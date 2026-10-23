@@ -8,7 +8,7 @@ using Pofi.Logic.Services.Supabase;
 namespace Pofi.Logic.Services
 {
     /// <summary>
-    /// Giriş yönlendirici (M4): deneme kodları (A1A1A1, B2B2B2, C3C3C3) sahte arka uca, diğer kodlar gerçek sunucuya gider.
+    /// Giriş yönlendirici (M4): deneme kodları (K4K4K4, A1A1A1, B2B2B2, C3C3C3) sahte arka uca, diğer kodlar gerçek sunucuya gider.
     /// Sunucu ayarı yoksa her şey sahte arka uçtadır. Hangi tarafla girildiği cihazda saklanır; açılışta o taraf
     /// sessizce geri yüklenir, böylece kod yalnızca bir kez sorulur (FR-AUTH-2).
     /// </summary>

@@ -58,7 +58,7 @@ namespace Pofi.Logic.Services.Supabase
             var r = await Rpc("child_me", null, ct);
             if (!Ok(r)) throw new OperationCanceledException(r.Status == 0 ? "çevrimdışı" : "sunucu: " + r.Status);
             var o = JObject.Parse(r.Body);
-            return new BalanceSnapshot { Coins = (int?)o["balance"] ?? 0, SunStones = (int?)o["sun_stones"] };
+            return new BalanceSnapshot { Coins = (int?)o["balance"] ?? 0, SunStones = (int?)o["sun_stones"], AgeBand = (string)o["age_band"] };
         }
 
         public async Task<SpendResponse> SpendAsync(string txId, string itemId, int quantity, CancellationToken ct = default)

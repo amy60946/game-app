@@ -19,6 +19,11 @@ namespace Pofi.Logic.Economy
     public sealed class XpSystem
     {
         public int TotalXp;
+        /// <summary>
+        /// Ulaşılan en yüksek seviye (23 Ekim 2026, ortak 20261023040000): yaş grubu büyüyünce aynı XP daha küçük seviyeye denk
+        /// gelebilir; seviye düşmez, açılan yerler ve eşyalar geri alınmaz. Sunucu seviye kilidi de bunu okur (Xp.BestLevel).
+        /// </summary>
+        public int BestLevel;
         public int Day;          // yerel tarih gün numarası
         public int XpToday;      // bugün sınıra sayılan XP
         public int InGameToday;  // bugün oyun içinden gelen XP (gerçek görev ve seri hariç; sınıra sayılmayan rozet/parıltı dahil)

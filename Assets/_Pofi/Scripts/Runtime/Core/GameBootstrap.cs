@@ -166,7 +166,7 @@ namespace Pofi.Core
         public DateTime UtcNow => DateTime.UtcNow;
         public DateTime LocalNow => DateTime.Now;
 
-        public int Level => Levels.LevelFor(State != null ? State.Xp.TotalXp : 0);
+        public int Level => State != null ? Levels.Level(State.Xp) : 1;   // ulaşılan en yüksek seviye düşmez (yaş grubu büyüyünce)
         public GrowthStage Growth => Levels.StageFor(Level);
 
         /// <summary>Girişten sonra: tema, çocuğa ait kayıt (yoksa yeni) ve ekran.</summary>
@@ -178,6 +178,7 @@ namespace Pofi.Core
             Levels.UseBand(session.AgeBand);   // seviye eşikleri yaş grubuna göre (S1)
             var saved = SaveCodec.Deserialize(Store.Get(SaveKey(session.ChildId)));
             Adopt(AppFlow.BelongsTo(saved, session) ? saved : GameState.NewFor(session.ChildId, UtcNow));
+            Levels.Remember(State.Xp);   // eski kayıtlarda en yüksek seviye yok: bugünkü seviye taban olur
 
             if (OnServer)
             {
@@ -287,11 +288,30 @@ namespace Pofi.Core
             if (report.RealTaskGoalReached) Toast.Post(Overlay.transform, Theme, Loc.Get("tasks.xp_goal"));
             if (report.SelfStarted > 0) { Toast.Post(Overlay.transform, Theme, Loc.Get("tasks.self_started")); RecordActivity("self_started", report.SelfStarted); }
             if (report.LevelUp != null) { Data.SunBook.FilterLevelUp(report.LevelUp); LevelUpCelebration.Show(this, report.LevelUp); }
+            if (!string.IsNullOrEmpty(report.AgeBand)) ApplyAgeBand(Logic.Profile.AgeBandProfile.Parse(report.AgeBand), report.AgeBand);
             var approved = 0;
             foreach (var ev in report.TaskEvents) if (ev.Kind == Logic.Tasks.TaskEventKind.Approved) approved++;
             if (approved > 0) RecordActivity("tasks_approved", approved);
             Synced?.Invoke(report);
             return report;
+        }
+
+        /// <summary>
+        /// Yaş grubu sunucuda değişti (ebeveyn seçti ya da doğum günü; ortak 20261023040000): önce ulaşılan seviye kaydedilir
+        /// (seviye düşmez), sonra eşikler, tema ve saklanan oturum yeni gruba geçer. Açık ekran olduğu gibi kalır.
+        /// </summary>
+        private void ApplyAgeBand(Logic.Profile.AgeBand band, string raw)
+        {
+            if (Session == null || State == null || Session.AgeBand == band) return;
+            Levels.Remember(State.Xp);
+            Session = new ChildSession(Session.ChildId, Session.DisplayName, band, Session.Avatar);
+            Theme = Theme.For(band);
+            Theme.TextScale = State.Settings.TextScale;
+            Theme.ReduceMotion = State.Settings.ReduceMotion;
+            Stage.SetSky(Theme.Sky);
+            Levels.UseBand(band);
+            Router?.Server?.RememberAgeBand(raw);
+            Save();
         }
 
         /// <summary>Haritadaki bölgeye gir. Henüz yapılmamış yerler için petin söyleyeceği cümle <paramref name="say"/>'e gider.</summary>

@@ -23,6 +23,7 @@ namespace Pofi.Logic.State
         public int SelfStarted;            // hatırlatmadan önce yapılıp onaylanan görev sayısı (Y5)   // görünmez günlük pay doldu: "bugünkü yıldız hedefine ulaştın" (M7)
         public int SunStonesEarned;      // bu senkronda yeni gelen Güneş Taşı (Ö1)
         public Progression.LevelUp LevelUp;   // görev XP'siyle seviye atlandıysa (kutlama)
+        public string AgeBand;                // sunucunun bugünkü yaş grubu (child_me; null = bilinmiyor)
         public List<Rewards.RewardEvent> RewardEvents = new List<Rewards.RewardEvent>();   // verilen / bekleyecek gerçek ödüller (Ö7)
     }
 
@@ -102,13 +103,14 @@ namespace Pofi.Logic.State
                     if (reward.SelfStarted) report.SelfStarted++;
                     report.RealTaskRewards.Add(reward);
                 }
-                report.LevelUp = _levels.Check(xpBefore, s.Xp.TotalXp);
+                report.LevelUp = _levels.Check(s.Xp, xpBefore);
                 TaskBoosts.RecordOutcomes(s.Boosts ?? (s.Boosts = new BoostState()), s.Tasks.Tasks, local);
 
                 // 4) Bakiye ve Güneş Taşı (sunucu esastır)
                 var balances = await _wallet.GetBalancesAsync(ct);
                 report.CoinsEarned = s.Wallet.ApplyServerSnapshot(balances.Coins, Array.Empty<string>());
                 report.SunStonesEarned = Island.SunStoneBook.ApplyServerTotal(s.SunStones, balances.SunStones);
+                report.AgeBand = balances.AgeBand;   // yaş grubu her eşitlemede sunucudan (doğum günü / ebeveyn değişikliği)
 
                 // 4b) Gerçek ödüller (Güneş Taşı): liste, istekler, harcanabilir taş, taş düşürmeler
                 // Ödül listesi alınamazsa (sunucu hatası, bozuk yanıt) senkronun geri kalanı ve yedek etkilenmez.
