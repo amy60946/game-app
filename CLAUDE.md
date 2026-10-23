@@ -72,7 +72,7 @@
   İpucu paneli artık ALT şeritte; "Kuşbakışı" düğmesi = "Harita"; bölge düğmesi (Gir/Oyna) yapının her kenarından açılır;
   Güneş Taşı bölgelerinde yer sisi (`Clouds.Spawn(..., fog:true)`); bahçe ekranı v3 görünüm; zemin/çim tonları sakin.
   ⚠️ HATIRLAT: kullanıcı "filtreleme sistemi" için ek geri bildirim verecek (19 Ekim 2026) — gelince sor/uygula.
-  Seedance/Higgsfield kullanılmadı (bu ortamda erişim/anahtar yok); animasyonlar kodla. Meshy kredisi en az 100 kalmalı (kullanıcı kuralı).
+  Seedance/Higgsfield kullanılmadı (bu ortamda erişim/anahtar yok); animasyonlar kodla. Meshy kredisi alt sınırı kaldırıldı (kullanıcı, 23 Ekim 2026): gerektiğinde, en az krediyle (3x3 sayfa, önce taslak) kullanılır.
 - **Tek pet Okti** (20 Ekim 2026, kullanıcı): ahtapot `pet_13`, üç evre ayrı Meshy modeli (web sitesinden: çocuk → `Pets/pet_13_yavru`, ergen → `_genc`,
   yetişkin → `_yetiskin`; `RealAssets.StageModel`). Dönüştürme: `art/meshy/scripts/prepare_stages.py <glb> Assets/_Pofi/Resources/Pets <ad>`
   (7 klip: idle, walk, run, happy, wave, sleep, jump; kırpılmaz; ayak temasları `PetWalker.ModelContacts`). Diğer 12 pet `retired`
@@ -133,7 +133,7 @@
   Komik eşyalar F1–F17 (19 eşya, items.json `fancy: true`): Meshy ile 6 (hat_shark, hat_banana, outfit_burger, outfit_chicken, float_flamingo, backpack_rocket; görselden 3B 30 kredi, kalan 135), kodla 13 (`art/code3d/assets_wear_a/b/c.py`, `export_game.py <id>`).
   Simge: `art/code3d/wear_icon.py -- <id>` (oyundaki modelden). Oturma: `fit_test_okti.py` + `okti_fit_rules.json` (`item:<id>` ya da evreye özel `genc:item:<id>`) = `CosmeticModels.OktiItem` / `OktiItemStage` (boy, yukarı, ileri).
   `pair: true` (kol çorabı, ponpon): tek model iki ele, altı kol ucuna (`BuildPair`). `Items/<id>/<id>_spin` dönen parça (`RealAssets.ArmSpin`, `SpinSpeed`: pervane, akvaryum balıkları). Ters dönük dosya: `CosmeticModels.Reversed` (backpack_small).
-  Meshy kredisi en az 100 kuralı: 135 kaldı (23 Ekim).
+  Meshy kredisi: alt sınır yok (kullanıcı, 23 Ekim 2026), gerektiğinde en az krediyle.
 - **Temel giysi + ek hareketler + simge** (23 Ekim 2026, kullanıcı):
   Okti hiç çıplak kalmaz: sarı tişört (`Items/base_top`) + mercan şort (`Items/base_bottom`, `art/code3d/assets_base.py`), envanterde yok (`CosmeticModels.BuildBase`). Giysi kategorisinde bir gövde eşyası giyilince tişört kalkar, çıkarınca geri gelir; çim etek/hamburger/tavuk (`CoversBottom`) şortun yerine geçer. Kalça yuvası `hips` evre başına.
   Ek Meshy hareketleri evre dosyasına göre (`prepare_stages.py` CLIPS; çocuk: spin · ergen: + dance, strut · yetişkin: + dance2 YMCA, genie, squat, tumble; yetişkin happy = iki elle tezahürat). Klipler yerinde (`in_place`: kalça yatay kayması dinlenme konumuna sabit). Oyunda: dokunma tepkisi "Dans" (`OktiReactions.Dance`), 14–26 sn beklemede kendiliğinden gösteri (`PetWalker.Fidget`), yetişkin gıdıklanınca %35 devrilir (`_recover` yavaş kalkış), ev ekranı zıplamasında arada dans. Kullanılmayan: heyecanlı yürüyüş, özgüvenli yürüyüş (yürüme hızına uymuyor; ileride yürüyüş stili olabilir).
