@@ -309,14 +309,13 @@ namespace Pofi.Screens
             var pet = _world.Walker != null ? _world.Walker.transform : null;
             System.Func<float, float, float> ground = (x, z) => _terrain.Height(x, z);
             var seen = App.State.Story.Seen;
-            // Kıskaç: dükkânın kapısının yanında, dışarı bakar
+            // Kıskaç: dükkânın meydana bakan önünde (meydandan gelen çocuk hemen görür), meydana döner
             var shop = _terrain.Regions.FirstOrDefault(r => r.Id == "region_shop");
             if (shop != null)
             {
-                var (sx, sz) = _terrain.Door(shop);
-                var d = new Vector2(sx - shop.X, sz - shop.Z); d = d.sqrMagnitude > 0.01f ? d.normalized : Vector2.up;
-                var side = new Vector2(d.y, -d.x) * 2.4f;
-                var p = new Vector2(sx, sz) + side + d * 0.6f;
+                var d = new Vector2(_terrain.PlazaX - shop.X, _terrain.PlazaZ - shop.Z); d = d.sqrMagnitude > 0.01f ? d.normalized : Vector2.up;
+                var side = new Vector2(d.y, -d.x) * 1.8f;
+                var p = new Vector2(shop.X, shop.Z) + d * (shop.Size * 0.5f + 1.1f) + side;
                 var w = _terrain.NearestWalkable(p.x, p.y);
                 if (!float.IsNaN(w.x)) p = new Vector2(w.x, w.z);
                 _kiskac = Resident3D.Create(_world.transform, "kiskac", "res_kiskac", new Vector3(p.x, _terrain.Height(p.x, p.y), p.y), 1.25f,
