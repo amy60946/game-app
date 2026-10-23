@@ -199,6 +199,9 @@ namespace Pofi.World
         private Transform _scenery, _backdrop;
 
         /// <summary>Petin arkasına büyük bir yapı koyar (ör. dükkân tezgâhı); adacık süsleri gizlenir. null: kaldırır.</summary>
+        /// <summary>Arka plan yapısının kökü (yoksa null): dükkânda Kıskaç tezgâhın yanına konur.</summary>
+        public Transform Backdrop => _backdrop;
+
         public void SetBackdrop(string asset, float footprint = 5f, float z = 3.2f)
         {
             if (_backdrop != null) { Destroy(_backdrop.gameObject); _backdrop = null; }

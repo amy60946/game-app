@@ -15,6 +15,8 @@ namespace Pofi.UI
     {
         public enum Mode { Cinema, Island }
         public static bool Playing { get; private set; }
+        /// <summary>Konuşan değişince (K: adadaki 3B adalı kendisi tepki verir).</summary>
+        public static event System.Action<string> Speaker;
         private static StoryPlayer _current;
 
         /// <summary>Oynayan sahneyi bitir (ada ekranı kapanırken: sahne başka pencerenin üstünde kalmasın).</summary>
@@ -145,7 +147,7 @@ namespace Pofi.UI
             _portrait.gameObject.SetActive(pic != null);
             // konuşan solda (adalı) ya da sağda (Okti); yeni konuşan alttan yükselir
             _portrait.anchorMin = _portrait.anchorMax = new Vector2(okti ? 0.82f : 0.18f, 0f);
-            if (_lastWho != l.Who) _rise = 0f;
+            if (_lastWho != l.Who) { _rise = 0f; Speaker?.Invoke(l.Who); }
             _lastWho = l.Who;
             // balon/kutu yazının ihtiyacı kadar (kullanıcı, 23 Ekim 2026: "gereksiz yer kaplamasın"); daktilo boyunca boyut sabit
             if (_mode == Mode.Island)

@@ -253,7 +253,8 @@ namespace Pofi.Screens
 
         private RectTransform Btn(RectTransform row, string text, bool primary, Vector2 offsetFromBottomRight, Vector2 size, System.Action onClick)
         {
-            var b = Ui.Button(row, Th, text, new Vector2(1f, 0f), size, onClick, primary, default, 40, false);
+            // E dili (23 Ekim 2026): her görevde tek yeşil ana düğme ("Yaptım"); ikincil düğme krem
+            var b = Ui.Button(row, Th, text, new Vector2(1f, 0f), size, onClick, primary, default, 40, false, primary ? Candy.Green : (Color?)null);
             var rt = (RectTransform)b.transform;
             rt.pivot = new Vector2(1f, 0f);
             rt.anchoredPosition = offsetFromBottomRight;

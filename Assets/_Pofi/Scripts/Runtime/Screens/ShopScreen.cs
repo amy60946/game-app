@@ -21,7 +21,7 @@ namespace Pofi.Screens
         private const string RealTab = "real";
         private static readonly string[] Tabs = { ItemCategory.Food, ItemCategory.Cleaning, ItemCategory.Clothes, ItemCategory.Accessory, ItemCategory.Seed, ItemCategory.Home, RealTab };
         private static readonly string[] TabIcons = { "food_apple", "clean_soap", "shirt_stripes", "glasses_round", "seed_carrot", "home_lamp", "ui_gift" };
-        private const int PerPage = 5;
+        private const int PerPage = 10;   // E2a: 5 × 2 ızgara
 
         /// <summary>"Ev" sekmesi ev eşyalarıyla birlikte dekorları da gösterir.</summary>
         private static bool InTab(string category, string tab) => category == tab || (tab == ItemCategory.Home && category == ItemCategory.Decor);
@@ -38,9 +38,12 @@ namespace Pofi.Screens
             // Sahne: pet dükkân tezgâhının önünde, ürünler tezgâhın üstünde süzülür (14 Ekim 2026 taslağı)
             var def = App.Data.Pet(App.State.PetId);
             App.Stage.AllowDrag = false;
-            PetCamera(0.5f, 0.05f, 0.42f);
+            // E2a (23 Ekim 2026): Okti solda, tezgâh ortada görünür; ürünler tezgâhın altında çanta baloncuğunun ikizi küçük ızgarada
+            PetCamera(0.2f, 0.05f, 0.5f);
             App.Stage.ShowPet(def, App.Growth, App.State.Inventory.Equipped.Values);
             App.Stage.SetBackdrop("b_shop", 6f, 3.4f);
+            if (App.Stage.Backdrop != null)   // K: dükkâncı Kıskaç tezgâhın yanında
+                World.Resident3D.Create(App.Stage.Backdrop, "kiskac", "res_kiskac", new Vector3(2.25f, -0.1f, 2.3f), 1.15f, 200f, null, null);
 
             Candy.Caption(Root, T("shop.title"), 64, new Vector2(0.5f, 1f), new Vector2(600f, 90f), new Vector2(0f, -66f));
             _coins = Candy.Badge(Root, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(CoinRight, -24f), 84f, 250f);
@@ -59,7 +62,7 @@ namespace Pofi.Screens
             Fill();
             if (_tab == RealTab) _ = RefreshRewards();
             if (Onboarding.Pending(App.State, Onboarding.Shop))
-                _coach = Coach.Show(Root, Onboarding.Shop, T("tip.shop"), TipGesture.Tap, () => new Vector2(Screen.width * 0.62f, Screen.height * 0.72f));
+                _coach = Coach.Show(Root, Onboarding.Shop, T("tip.shop"), TipGesture.Tap, () => new Vector2(Screen.width * 0.42f, Screen.height * 0.26f));   // ızgaranın ilk ürünü
         }
 
         private Coach _coach;
@@ -99,37 +102,53 @@ namespace Pofi.Screens
             if (count <= 0) { Preview(null); return; }
             _selected = Mathf.Clamp(_selected, 0, count - 1);
 
-            // yay biçiminde süzülen ürün baloncukları
+            // E2a tezgâh baloncuğu: krem kart içinde 5 × 2 ızgara; her üründe küçük fiyat etiketi. Seç → tek yeşil "Al"
+            const float tile = 136f, gap = 14f;
+            var cols = Mathf.Min(5, count); var rows = Mathf.CeilToInt(count / (float)cols);
+            var w = cols * tile + (cols - 1) * gap + 48f; var h = rows * tile + (rows - 1) * gap + 48f + 20f;
+            var card = Ui.Rect(_shelf, "Counter", new Vector2(0.58f, 0f), new Vector2(w, h), new Vector2(0f, 60f + h * 0.5f));
+            var cimg = card.gameObject.AddComponent<Image>();
+            if (Skin.Card != null) { Skin.Apply(cimg, Skin.Card, Mathf.Min(h, 360f)); cimg.color = Color.white; }
+            else { cimg.sprite = Ui.Rounded; cimg.type = Image.Type.Sliced; cimg.color = new Color(1f, 0.96f, 0.86f); }
+            card.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -8f);
             for (var k = 0; k < count; k++)
             {
                 var v = views[start + k];
                 var sel = k == _selected;
-                var off = k - (count - 1) / 2f;
-                var pos = new Vector2(off * 270f, 250f - off * off * 34f);
-                var size = sel ? 210f : 160f;
+                var c = k % cols; var r = k / cols;
+                var pos = new Vector2(-w * 0.5f + 24f + c * (tile + gap) + tile * 0.5f, h * 0.5f - 24f - r * (tile + gap) - tile * 0.5f);
                 var idx = k;
-                var b = Candy.Round(_shelf, sel ? new Color(1f, 0.93f, 0.6f) : Candy.White, v.Item.Id, size, new Vector2(0.5f, 0.5f), pos, () => { _selected = idx; ShopTipDone(); Fill(); });
+                var cell = Ui.Rect(card, "Item " + v.Item.Id, new Vector2(0.5f, 0.5f), new Vector2(tile, tile), pos);
+                var bg = cell.gameObject.AddComponent<Image>(); bg.sprite = Ui.Rounded; bg.type = Image.Type.Sliced;
+                bg.color = sel ? new Color(1f, 0.9f, 0.55f) : new Color(1f, 1f, 1f, 0.85f);
+                if (sel) { var o = cell.gameObject.AddComponent<Outline>(); o.effectColor = new Color(0.95f, 0.65f, 0.12f); o.effectDistance = new Vector2(4f, -4f); }
+                Ui.IconImage(cell, v.Item.Id, new Vector2(0.5f, 0.6f), 96f);
                 var dim = v.State == BuyCheck.LevelLocked || v.State == BuyCheck.DoesNotFitPet;
-                if (dim) foreach (var img in b.GetComponentsInChildren<Image>()) img.color *= new Color(1f, 1f, 1f, 0.55f);
-                // altında fiyat / durum
+                if (dim) foreach (var img in cell.GetComponentsInChildren<Image>()) img.color *= new Color(1f, 1f, 1f, 0.5f);
+                // küçük fiyat / durum etiketi
                 var tag = v.State == BuyCheck.LevelLocked ? T("shop.level_short", v.LockedUntilLevel)
                     : v.State == BuyCheck.AlreadyOwned ? T("shop.owned") : v.Item.Price.ToString();
-                Candy.Badge(b.transform, v.State == BuyCheck.AlreadyOwned || v.State == BuyCheck.LevelLocked ? "ui_star" : "ui_coin", tag,
-                    new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), new Vector2(0f, 6f), 56f, 170f);
+                Candy.Badge(cell, v.State == BuyCheck.AlreadyOwned || v.State == BuyCheck.LevelLocked ? "ui_star" : "ui_coin", tag,
+                    new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2(0f, 4f), 44f, 118f);
                 if (v.Item.IsConsumable && App.State.Inventory.CountOf(v.Item.Id) > 0)
-                    Candy.Count(b.transform).text = App.State.Inventory.CountOf(v.Item.Id).ToString();
+                    Candy.Count(cell).text = App.State.Inventory.CountOf(v.Item.Id).ToString();
+                var btn = cell.gameObject.AddComponent<Button>(); btn.targetGraphic = bg;
+                btn.onClick.AddListener(() => { Audio.Sfx.Play(Audio.SfxKind.Tap); _selected = idx; ShopTipDone(); Fill(); });
+                cell.gameObject.AddComponent<PressBounce>();
+                LongPressInfo.Add(cell.gameObject, v.Item.Name);
             }
             if (pages > 1)
             {
-                Candy.Pill(_shelf, Candy.White, "<", new Vector2(0.5f, 0.5f), new Vector2(110f, 110f), new Vector2(-780f, 160f), () => { _page = (_page + pages - 1) % pages; _selected = 0; Fill(); }, null, 56);
-                Candy.Pill(_shelf, Candy.White, ">", new Vector2(0.5f, 0.5f), new Vector2(110f, 110f), new Vector2(780f, 160f), () => { _page = (_page + 1) % pages; _selected = 0; Fill(); }, null, 56);
+                Candy.Pill(card, Candy.White, "<", new Vector2(0f, 0.5f), new Vector2(84f, 84f), new Vector2(-50f, 0f), () => { _page = (_page + pages - 1) % pages; _selected = 0; Fill(); }, null, 44);
+                Candy.Pill(card, Candy.White, ">", new Vector2(1f, 0.5f), new Vector2(84f, 84f), new Vector2(50f, 0f), () => { _page = (_page + 1) % pages; _selected = 0; Fill(); }, null, 44);
             }
 
-            // seçilen ürün: adı + Al düğmesi
+            // seçilen ürünün adı kartın üstünde; tek yeşil "Al" kartın sağında (alınamıyorsa soluk)
             var cur = views[start + _selected];
-            Candy.Caption(_shelf, cur.Item.Name, 48, new Vector2(0.5f, 0.5f), new Vector2(900f, 70f), new Vector2(0f, 40f));
+            Candy.Caption(card, cur.Item.Name, 44, new Vector2(0.5f, 1f), new Vector2(w, 64f), new Vector2(0f, 40f));
             var label = cur.State == BuyCheck.AlreadyOwned ? T("shop.owned") : T("shop.buy", cur.Item.Price);
-            Candy.Pill(_shelf, cur.State == BuyCheck.Ok ? Candy.Green : Candy.White, label, new Vector2(0.5f, 0.5f), new Vector2(320f, 120f), new Vector2(0f, -60f), () => OnTap(cur), "ui_coin", 50);
+            var buy = Candy.Pill(_shelf, Candy.Green, label, new Vector2(0.58f, 0f), new Vector2(300f, 116f), new Vector2(w * 0.5f + 190f, 60f + 58f), () => OnTap(cur), "ui_coin", 46);
+            if (cur.State != BuyCheck.Ok) buy.targetGraphic.color = new Color(0.72f, 0.72f, 0.72f, 0.9f);
             Preview(cur);
         }
 

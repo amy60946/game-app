@@ -22,6 +22,21 @@ namespace Pofi.UI
             rt.anchoredPosition = new Vector2(x, rt.anchoredPosition.y);
         }
 
+        /// <summary>
+        /// G sade gösterge (23 Ekim 2026, kullanıcı onayı): adada müzik avatar menüsünde; ada ekranı düğmeyi gizler,
+        /// <see cref="GameBootstrap.Route"/> her ekran değişiminde geri açar. Gizliyken de kayıttaki tercih uygulanır.
+        /// </summary>
+        public static void SetVisible(bool on)
+        {
+            if (_instance == null) return;
+            var g = _instance.GetComponent<CanvasGroup>();
+            if (g == null) g = _instance.gameObject.AddComponent<CanvasGroup>();
+            g.alpha = on ? 1f : 0f; g.interactable = on; g.blocksRaycasts = on;
+        }
+
+        /// <summary>Avatar menüsünden müzik aç/kapa.</summary>
+        public static void ToggleMusic() { if (_instance != null) _instance.Toggle(); else Audio.Music.SetVolume(Audio.Music.On ? 0f : Audio.Music.DefaultVolume); }
+
         public static MusicButton Create(Transform overlay, GameBootstrap app)
         {
             var b = Candy.Round(overlay, Candy.Blue, null, 92f, new Vector2(1f, 1f), new Vector2(-386f, -66f), null);

@@ -199,11 +199,11 @@ namespace Pofi.UI
         }
 
         public static Button Button(Transform parent, Theme th, string text, Vector2 anchor, Vector2 size, Action onClick,
-            bool primary = true, Vector2 offset = default, int fontSize = 52, bool scaleSize = true)
+            bool primary = true, Vector2 offset = default, int fontSize = 52, bool scaleSize = true, Color? color = null)
         {
             // Yaş bandı ölçeği (A: iri) yalnızca serbest yerleşimde; yan yana dizilen düğmelerde (scaleSize=false) taşmasın.
             var rt = Rect(parent, "Button " + text, anchor, scaleSize ? size * th.Scale : size, offset);
-            var img = Candy.Shell(rt, primary ? th.Primary : th.Secondary);   // 3B şeker görünüm (14 Ekim 2026)
+            var img = Candy.Shell(rt, color ?? (primary ? th.Primary : th.Secondary));   // 3B şeker görünüm (14 Ekim 2026); E dili: ana düğme yeşil verilebilir
             var btn = rt.gameObject.AddComponent<Button>();
             btn.targetGraphic = img;
             var colors = btn.colors;

@@ -98,6 +98,7 @@ namespace Pofi.Screens
                 _mailbox.Unread = App.MailUnread > 0;
             }
 
+            BuildResidents();   // K: Kıskaç, Mavi, Pus (3B)
             _labelLayer = Ui.Fill(Root, "Labels");
             BuildRequests();   // H4: adalı istekleri (kapıda baloncuk)
             foreach (var v in _views) _labels[v.Region.Id] = Label(v);
@@ -455,6 +456,7 @@ namespace Pofi.Screens
                 ShowDressBubble();
                 return;
             }
+            if (go.name.StartsWith("resident_")) { TapResident(go); return; }   // K: 3B adalılar
             if (go.name == "gather_site") { TapSite(); return; }
             if (go.name.StartsWith("gather_") && int.TryParse(go.name.Substring("gather_".Length), out var gi)) { TapNode(gi); return; }
             if (go.name == "mailbox")
@@ -968,6 +970,7 @@ namespace Pofi.Screens
         /// <summary>Ekrandan çıkarken (pencere açıldı, bölgeye girildi) petin yerini hatırla.</summary>
         private void OnDisable()
         {
+            StoryPlayer.Speaker -= OnSpeaker;
             StoryPlayer.Stop();   // sahne yalnız adada oynar
             if (App == null || _world == null || _world.Walker == null) return;
             var p = _world.Walker.Position;

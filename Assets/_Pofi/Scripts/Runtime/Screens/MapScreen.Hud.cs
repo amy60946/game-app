@@ -49,11 +49,11 @@ namespace Pofi.Screens
             // pet kartı: madalyon + isim plakası + seviye yıldızı + XP kapsülü (Candy.PetPlate)
             var pet = App.Data.Pet(App.State.PetId);
             _levelBadge = Candy.PetPlate(hud, App.State.PetId, Theme.Hex(pet.MainColor), new Vector2(10f, -10f), out _levelText, out _levelNum, out _xpFill);
-            // pet kartı dokunulur: Defter rozetler sekmesiyle açılır (XP takibi M4: "rozetleri oyunda göremedim").
+            // pet kartına dokununca küçük menü (G, 23 Ekim 2026): Defter (rozetler), Ayarlar, Müzik.
             // XP kapsülünün sağında küçük kupa + kazanılan rozet sayısı.
             var plateHit = _levelBadge.gameObject.AddComponent<Image>(); plateHit.color = new Color(1f, 1f, 1f, 0f);
             var plateBtn = _levelBadge.gameObject.AddComponent<Button>(); plateBtn.targetGraphic = plateHit; plateBtn.transition = Selectable.Transition.None;
-            plateBtn.onClick.AddListener(() => { Audio.Sfx.Play(Audio.SfxKind.Tap); AlbumScreen.ShowBadges(); App.Open(AppPage.Album); });
+            plateBtn.onClick.AddListener(ToggleAvatarMenu);
             _trophy = Ui.Rect(_levelBadge, "Trophy", new Vector2(0f, 1f), new Vector2(84f, 84f), new Vector2(506f, -116f));
             var ti = Ui.IconImage(_trophy, "ui_trophy", new Vector2(0.5f, 0.5f), 84f);
             if (ti != null) ti.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -4f);
@@ -80,18 +80,13 @@ namespace Pofi.Screens
             _modeText = map.GetComponentInChildren<Text>();
             _mapBtn = (RectTransform)map.transform;
             LongPressInfo.Add(map.gameObject, T("info.map"));
-            // Ayarlar (kullanıcı, 19 Ekim 2026: "oyundan çıkamıyorum"): ses, pet değiştir, çıkış; Evim'e gitmeden. Ebeveyn sorusuyla açılır.
-            // müzik düğmesinin (UI.MusicButton: sağ üst −386, −66, 92 birim) solunda, aynı boyda ve yazısız
-            Candy.Round(hud, Candy.White, "ui_settings", 92f, new Vector2(1f, 1f), new Vector2(-496f, -66f),
-                () => ParentGate(() => App.Open(AppPage.Settings), msg => _toast.Say(msg)));
-
-            // sol sütun: oyun içi görevler ve ebeveynin Ev Görevleri
-            var tasks = Candy.Round(hud, Candy.White, "ui_star", 150f, new Vector2(0f, 1f), new Vector2(132f, -400f), GoTasks, T("hud.tasks"));
+            // G (23 Ekim 2026): Ayarlar ve müzik avatar menüsünde; Ev Görevleri adadaki panodan ve Görev penceresinin sekmesinden açılır.
+            MusicButton.SetVisible(false);
+            // sağ üst: Görev (oyun içi günlük görevler), Harita'nın solunda
+            var tasks = Candy.Round(hud, Candy.White, "ui_star", 150f, new Vector2(1f, 1f), new Vector2(-268f, -100f), GoTasks, T("hud.tasks"));
             _tasksBtn = (RectTransform)tasks.transform;
             _questCount = Candy.Count(tasks.transform);   // bugün açık oyun içi görev sayısı
             LongPressInfo.Add(tasks.gameObject, T("info.tasks"));
-            var board = Candy.Round(hud, Candy.White, "ui_board", 150f, new Vector2(0f, 1f), new Vector2(132f, -605f), () => App.Open(AppPage.Tasks), T("tasks.title"));
-            LongPressInfo.Add(board.gameObject, T("info.board"));
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             if (next != null)
                 Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
@@ -107,7 +102,8 @@ namespace Pofi.Screens
             _actionText = act.GetComponentInChildren<Text>();
             var ai = act.transform.Find("Icon act_jump");
             _actionIcon = ai != null ? ai.GetComponent<Image>() : null;
-            BuildTracker(hud);
+            BuildBag(hud);    // Ç: sağdaki malzeme paneli yerine sol kenarda çanta
+            BuildNeed(hud);   // İ1 + İ4
 
             // sol alt: yüzen joystick (parmak değince belirir)
             _stickBase = Ui.Rect(hud, "Stick", Vector2.zero, new Vector2(250f, 250f));
@@ -274,6 +270,7 @@ namespace Pofi.Screens
             _coinText.text = coins.ToString();
             _stoneText.text = stones.ToString();
             Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
+            RefreshBag();
             if ((_questT -= Time.deltaTime) <= 0f) { _questT = 1f; SetCount(_questCount, OpenQuests()); }
         }
 
@@ -296,6 +293,8 @@ namespace Pofi.Screens
             var walking = !_overview && _world.Walker != null;
             UpdateSmartHide(Time.deltaTime);
             UpdatePathGuide(Time.deltaTime);
+            UpdateNeed(Time.deltaTime);
+            UpdateHomeBtn(Time.deltaTime);
             _action.gameObject.SetActive(walking);
             if (!walking) { CloseTray(); return; }
             UpdateAction();
@@ -480,11 +479,13 @@ namespace Pofi.Screens
             var stepId = guide?.Id;
             if (stepId != _pathStep) { _pathStep = stepId; _path.Hide(); }
             var pos = _world.Walker.Position;
+            var arrived = target != null && Vector2.Distance(pos, target.Value) < 4f;
             if (target == null) _path.Hide();
-            else if (Vector2.Distance(pos, target.Value) < 4f) _path.Hide();   // vardı
+            else if (arrived) _path.Hide();                                    // vardı
             else if (_path.Active) _path.Show(target.Value);                   // hedef kayabilir (en yakın kütük)
             else if (_idleFor > 8f) _path.Show(target.Value);
             _path.Tick(pos, App.Stage.Camera, dt);
+            UpdateMaviGuide(_path.Active && target != null, target ?? Vector2.zero, arrived);   // N2: Mavi önden uçar
         }
 
         /// <summary>En yakın toplanabilir kütük/çalı/taş (ekran noktası); yoksa pet.</summary>

@@ -468,6 +468,7 @@ namespace Pofi.Core
             Stage.SetBackdrop(null);
             Stage.Swiped = null;
             MusicButton.Place(MusicButton.DefaultX);   // pencere çarpısı yanına kaymışsa geri al
+            MusicButton.SetVisible(true);              // adada gizlenir (avatar menüsünde)
             var root = Ui.Fill(Canvas.transform, "Screen " + next);
             root.gameObject.AddComponent<SafeArea>();                // iPhone çentiği / ev çubuğu
             switch (next)

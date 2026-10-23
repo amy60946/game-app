@@ -142,9 +142,10 @@ namespace Pofi.Screens
         /// <summary>Üst başlık şeridi + sağda coin rozeti. Coin metnini döndürür.</summary>
         protected Text Header(string title)
         {
-            // Şerit yok: başlık sahne üstünde kenarlı yazı, coin sağ üstte rozet (14 Ekim 2026 arayüz kararı)
-            var t = Candy.Caption(Root, title, 64, new Vector2(0f, 1f), new Vector2(900f, 110f), new Vector2(480f, -62f));
-            t.alignment = TextAnchor.MiddleLeft;
+            // E dili (23 Ekim 2026): başlık sol üstte mavi kurdelede; coin sağ üstte rozet
+            var t = Candy.Ribbon(Root, title, new Vector2(0f, 1f), Vector2.zero, 124f, 50);
+            var rr = (RectTransform)t.transform.parent;
+            rr.anchoredPosition = new Vector2(rr.sizeDelta.x * 0.5f + 20f, -70f);
             var coins = Candy.Badge(Root, "ui_coin", App.State.Wallet.Available.ToString(), new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(CoinRight, -20f), 84f, 250f);
             coins.gameObject.AddComponent<CoinLive>().Init(App, coins);   // coin sayısı her zaman görünür ve güncel (festival vb. ekranlarda boş kalıyordu)
             return coins;
@@ -203,6 +204,10 @@ namespace Pofi.Screens
             var root = Modal(760f, out var box);
             ModalTitle(box, T("home.daily"));
             ModalClose(box, () => Destroy(root.gameObject));
+            // G (23 Ekim 2026): Ev Görevleri bu pencerenin ikinci sekmesi (adadaki pano da açar)
+            Candy.Pill(box, Candy.Blue, T("quests.tab_game"), new Vector2(0.5f, 1f), new Vector2(320f, 72f), new Vector2(-170f, -104f), null, "ui_star", 30);
+            Candy.Pill(box, Candy.White, T("tasks.title"), new Vector2(0.5f, 1f), new Vector2(320f, 72f), new Vector2(170f, -104f),
+                () => { Destroy(root.gameObject); App.Open(AppPage.Tasks); }, "ui_board", 30);
             var i = 0;
             foreach (var id in App.State.DailyQuests.Ids)
             {
