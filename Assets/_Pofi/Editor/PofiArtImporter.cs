@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 11;   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
+        public override uint GetVersion() => 12;   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -48,7 +48,7 @@ namespace Pofi.EditorTools
             m.useFileScale = true;
             m.importCameras = false;
             m.importLights = false;
-            m.isReadable = false;
+            m.isReadable = IsStagePet;   // evre petleri: CosmeticModels deri ağını pişirip gerçek boyu/yüzü ölçer
             // çevre modellerinde normal haritası var: yüksek sıkıştırma UV/teğetleri kaydırıp pişmiş dikişleri belli ediyordu
             m.meshCompression = assetPath.Replace('\\', '/').Contains("/Resources/Env/") ? ModelImporterMeshCompression.Low : ModelImporterMeshCompression.High;
             var isAnim = Path.GetFileNameWithoutExtension(assetPath).Contains("@");

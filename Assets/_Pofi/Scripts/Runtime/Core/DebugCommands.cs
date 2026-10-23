@@ -65,6 +65,9 @@ namespace Pofi.Core
                     case "showall":     // görsel karşılaştırma: kilitli bölgeler sissiz/boyasız (ada kurulmadan önce verilir)
                         World.MapWorld.DebugShowAll = arg != "0";
                         break;
+                    case "cos":         // son giydirmenin ölçüleri: pet ağı, yüzün önü, eşyaların alt/üst/genişlik (pet boyuna oran)
+                        Debug.Log("[PofiDebug] cos " + World.CosmeticModels.Describe());
+                        break;
                     case "wear":        // test: eşyayı ver ve giydir ("wear hat_straw glasses_round …")
                         foreach (var id in arg.Split(' '))
                         {

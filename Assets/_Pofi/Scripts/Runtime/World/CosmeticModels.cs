@@ -46,6 +46,7 @@ namespace Pofi.World
             root.SetParent(pet, false);
             if (items == null) return;
             _petId = def?.Id; _stage = stage;
+            Capture(pet, root);
             foreach (var item in items)
             {
                 if (item == null) continue;
@@ -119,7 +120,7 @@ namespace Pofi.World
             ["hat_crown_tilt"] = new Vector3(1.05f, -0.09f), ["hat_bucket"] = new Vector3(0.95f, -0.03f), ["hat_fishbowl"] = new Vector3(0.81f, 0.09f),
             // gözlükte ileri = yüzün önüne (fit_test_okti.py'de göz için işaret ters: −fwd)
             ["glasses_heart"] = new Vector3(0.98f, 0f, 0.0125f), ["glasses_nose"] = new Vector3(0.77f, 0f, 0.089f), ["glasses_snorkel"] = new Vector3(1.05f, 0f, 0.097f),
-            ["mask_hero"] = new Vector3(1.06f, 0f, 0.005f), ["socks_arm"] = new Vector3(1.163f, 0f, 0.016f), ["pompom"] = new Vector3(1.6f, 0f, 0.22f),
+            ["mask_hero"] = new Vector3(1.06f, 0f, 0.005f), ["socks_arm"] = new Vector3(1.163f, 0f, 0.016f), ["pompom"] = new Vector3(1.3f, 0f, 0.12f),
             ["outfit_hula"] = new Vector3(0.925f, -0.034f, -0.05f),
         };
         /// <summary>Evreye özel eşya ayarı ("genc:&lt;id&gt;"; varsa <see cref="OktiItem"/> yerine). Genç/yetişkin şimdilik eski giyinik modeller:
@@ -176,13 +177,14 @@ namespace Pofi.World
             var bone = FindDeep(pet, rule.Bone);
             if (bone == null || !RealAssets.HasItem(item.Id)) return false;
 
-            // petin dünyadaki boyu ve yönü (eşyalar hariç)
-            Bounds pb = default; var any = false;
-            foreach (var r in pet.GetComponentsInChildren<Renderer>())
-            {
-                if (r.transform.IsChildOf(root) || r.GetComponentInParent<RealCosmetic>() != null) continue;   // eşyalar ölçüye girmesin
-                if (!any) { pb = r.bounds; any = true; } else pb.Encapsulate(r.bounds);
-            }
+            // petin dünyadaki boyu ve yönü (eşyalar hariç): önce gerçek ağdan (Capture), olmazsa çizici sınırlarından
+            Bounds pb = _geoBounds; var any = _geoOk;
+            if (!any)
+                foreach (var r in pet.GetComponentsInChildren<Renderer>())
+                {
+                    if (r.transform.IsChildOf(root) || r.GetComponentInParent<RealCosmetic>() != null) continue;   // eşyalar ölçüye girmesin
+                    if (!any) { pb = r.bounds; any = true; } else pb.Encapsulate(r.bounds);
+                }
             if (!any) return false;
             var h = pb.size.y;
             var front = pet.TransformDirection(Vector3.back);   // gerçek pet kameraya (−z) dönük kurulu
@@ -211,7 +213,8 @@ namespace Pofi.World
                 if (item.Slot == "head") target.y = pb.max.y + rule.Up * h;                                // uç kemik yok: ağın tepesi
                 if (item.Slot == "eyes" && OktiEyes.TryGetValue(_stage, out var ey))
                 {
-                    target = bone.position + front * (ey.y * h); target.y = pb.min.y + ey.x * h;            // yüzün önü, göz hizası
+                    var eyeY = pb.min.y + ey.x * h;
+                    target = bone.position + front * FaceFront(bone.position, front, right, eyeY, h, ey.y * h); target.y = eyeY;   // yüzün önü, göz hizası
                     var depth = Mathf.Abs(front.x) * ib.extents.x + Mathf.Abs(front.z) * ib.extents.z;         // camlar yüzün önünde
                     target += front * (rule.Fwd * h - depth);
                 }
@@ -222,8 +225,73 @@ namespace Pofi.World
             t.SetParent(rule.Bone == "head_end" && headBone != null ? headBone : bone, true);
             t.gameObject.AddComponent<RealCosmetic>();
             if (SpinSpeed.TryGetValue(item.Id, out var spin)) RealAssets.ArmSpin(t, spin);
+            Note(item.Id, t, pb);
             return true;
         }
+
+        // ---- petin gerçek şekli (oturma denemesi art/meshy/scripts/fit_test_okti.py ile aynı ölçü) ----
+        private static readonly List<Vector3> Verts = new List<Vector3>();
+        private static readonly List<Vector3> Tmp = new List<Vector3>();
+        private static Bounds _geoBounds; private static bool _geoOk; private static Mesh _bake;
+        private static readonly System.Text.StringBuilder Report = new System.Text.StringBuilder();
+
+        /// <summary>
+        /// Deri ağı o anki pozla pişirilir, dünya köşeleri alınır: boy, göz hizası ve yüzün önü buradan ölçülür (deri ağında
+        /// çizici sınırı gerçek ağdan farklı olabiliyor; 23 Ekim 2026 oyunda gözlük/maske yüzün içinde kaldı). Ağ okunamıyorsa
+        /// eski yol (çizici sınırları + sabit oranlar).
+        /// </summary>
+        private static void Capture(Transform pet, Transform root)
+        {
+            Verts.Clear(); _geoOk = false; Report.Length = 0;
+            Bounds rb = default; var rany = false;
+            foreach (var smr in pet.GetComponentsInChildren<SkinnedMeshRenderer>())
+            {
+                if (smr.transform.IsChildOf(root) || smr.GetComponentInParent<RealCosmetic>() != null) continue;
+                var mesh = smr.sharedMesh;
+                if (mesh == null || !mesh.isReadable) continue;
+                if (_bake == null) _bake = new Mesh();
+                smr.BakeMesh(_bake, false);
+                _bake.GetVertices(Tmp);
+                var m = smr.transform.localToWorldMatrix;
+                foreach (var v in Tmp) Verts.Add(m.MultiplyPoint3x4(v));
+                if (!rany) { rb = smr.bounds; rany = true; } else rb.Encapsulate(smr.bounds);
+            }
+            if (Verts.Count == 0) { Report.Append("ağ=yok "); return; }
+            _geoBounds = new Bounds(Verts[0], Vector3.zero);
+            foreach (var v in Verts) _geoBounds.Encapsulate(v);
+            // pişirme ölçeğini doğrula: çizici sınırıyla boy 2 kattan fazla farklıysa bu ölçüye güvenme
+            var ratio = rb.size.y > 1e-5f ? _geoBounds.size.y / rb.size.y : 0f;
+            _geoOk = ratio > 0.5f && ratio < 2f;
+            Report.Append($"ağ={Verts.Count} boy={_geoBounds.size.y:0.###} çizici={rb.size.y:0.###} {(_geoOk ? "ağ" : "çizici")} ");
+        }
+
+        /// <summary>Göz hizasında, ortadaki şeritte yüzün en ön noktası: kemikten ileri uzaklık. Ölçü yoksa yedek.</summary>
+        private static float FaceFront(Vector3 origin, Vector3 front, Vector3 right, float eyeY, float h, float fallback)
+        {
+            if (!_geoOk) return fallback;
+            var best = float.MinValue;
+            foreach (var v in Verts)
+            {
+                if (Mathf.Abs(v.y - eyeY) > 0.03f * h) continue;
+                var rel = v - origin;
+                if (Mathf.Abs(Vector3.Dot(rel, right)) > 0.12f * h) continue;
+                var d = Vector3.Dot(rel, front);
+                if (d > best) best = d;
+            }
+            if (best == float.MinValue) return fallback;
+            Report.Append($"yüz={best / h:0.###}h(yedek {fallback / h:0.###}h) ");
+            return best;
+        }
+
+        private static void Note(string id, Transform t, Bounds pb)
+        {
+            var b = RealAssets.WorldBounds(t);
+            var h = Mathf.Max(1e-5f, pb.size.y);
+            Report.Append($"| {id} alt={(b.min.y - pb.min.y) / h:0.##} üst={(b.max.y - pb.min.y) / h:0.##} gen={b.size.x / h:0.##} ");
+        }
+
+        /// <summary>Son giydirmenin ölçüleri (ayıklama komutu "cos").</summary>
+        public static string Describe() => Report.ToString();
 
         /// <summary>
         /// Çift eşya (pair: kol çorabı, ponpon): tek model iki ele birden. Modelin altı önkol → el yönüne (kol ucuna), önü petin önüne;
@@ -253,6 +321,7 @@ namespace Pofi.World
                 t.position += hand.position + d * (rule.Fwd * h) - ib.center;
                 t.SetParent(hand, true);
                 t.gameObject.AddComponent<RealCosmetic>();
+                Note(item.Id + "_" + side, t, new Bounds(hand.position, Vector3.one * h));
                 any = true;
             }
             return any;
