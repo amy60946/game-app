@@ -27,7 +27,8 @@ namespace Pofi.Logic.App
         public const string Walk = "walk", Look = "look", Jump = "jump", Enter = "enter", Play = "play", Feed = "feed", Wash = "wash",
             Tasks = "tasks", Xp = "xp", Wardrobe = "wardrobe", Sparkle = "sparkle", Overview = "overview",
             Shop = "shop", WardrobeSpots = "wardrobe_spots", Home = "home",
-            Story = "story", Board = "board", Mark = "mark", Stone = "stone";   // ilk gün akışı (App/FirstDay, Ö5)
+            Story = "story", Board = "board", Mark = "mark", Stone = "stone",   // ilk gün akışı (App/FirstDay, Ö5)
+            Plant = "plant", Harvest = "harvest";                              // bahçe sürükleme ipuçları (D2, 23 Ekim 2026)
 
         public static readonly IReadOnlyList<TipDef> All = new List<TipDef>
         {
@@ -50,6 +51,8 @@ namespace Pofi.Logic.App
             new TipDef { Id = Board, Gesture = TipGesture.Tap, Where = "island", Trigger = "ilk gün: yürüme ve besleme bitti", DoneWhen = "Ev Görevleri panosu açıldı" },
             new TipDef { Id = Mark, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "ilk gün: panoda yapılacak görev var", DoneWhen = "Yaptım'a basıldı" },
             new TipDef { Id = Stone, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "yerleştirilecek Güneş Taşı var", DoneWhen = "ilk taş yerleştirildi" },
+            new TipDef { Id = Plant, Gesture = TipGesture.Drag, Where = "garden", Trigger = "bahçede boş tarla ve tohum var", DoneWhen = "tohum sürüklenerek ekildi" },
+            new TipDef { Id = Harvest, Gesture = TipGesture.Drag, Where = "garden", Trigger = "ilk kez hasada hazır ürün", DoneWhen = "orak sürüklenerek toplandı" },
         };
 
         public static TipDef Get(string id) => All.FirstOrDefault(t => t.Id == id);

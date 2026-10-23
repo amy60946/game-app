@@ -14,6 +14,8 @@ namespace Pofi.UI
         public string IconId;
         public RectTransform Layer;                 // kopyanın çizileceği katman (ekran kökü)
         public Func<Vector2, bool> Dropped;
+        /// <summary>Sürüklerken her konumda (ör. bahçede tohumu tarlaların üstünden geçirince ekim, D2).</summary>
+        public Action<Vector2> Dragging;
         public Action Tapped;
         private RectTransform _ghost;
         private bool _dragging;
@@ -27,7 +29,7 @@ namespace Pofi.UI
             transform.localScale = Vector3.one * 0.85f;
         }
 
-        public void OnDrag(PointerEventData e) => Move(e.position);
+        public void OnDrag(PointerEventData e) { Move(e.position); Dragging?.Invoke(e.position); }
 
         private void Move(Vector2 screen)
         {

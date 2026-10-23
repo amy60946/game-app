@@ -12,9 +12,12 @@ namespace Pofi.Screens
     /// <summary>Bahçe (M7, FR-MINI-4): tohum ek → sula → gerçek zamanda büyür → hasat (yiyecek). Tarla sayısı seviyeyle artar.</summary>
     public sealed class GardenScreen : ScreenBase
     {
-        private RectTransform _grid;
+        private RectTransform _grid, _tools;
         private SpeechBubble _bubble;
         private float _refresh;
+        private readonly System.Collections.Generic.List<RectTransform> _cells = new System.Collections.Generic.List<RectTransform>();
+        private Coach _coach;
+        private int _dragDone;   // bu sürüklemede ekilen/toplanan tarla sayısı
 
         protected override void Build()
         {
@@ -23,9 +26,98 @@ namespace Pofi.Screens
             Header(T("garden.title"));
             _bubble = Bubble(new Vector2(0.5f, 0.9f));
             _grid = ContentArea("Plots");
+            // D2 (23 Ekim 2026): alt rafta tohum torbaları ve toplama eli; tarlaların üstünden sürükleyince eker / toplar.
+            // Tarlaya dokunmak da çalışır (sula, tek tek ek).
+            _tools = Ui.Rect(Root, "Tools", new Vector2(0.5f, 0f), new Vector2(1200f, 170f), new Vector2(0f, 110f));
             NavBar(AppPage.Map);
             Fill();
         }
+
+        private void BuildTools()
+        {
+            Ui.Clear(_tools);
+            var seeds = App.State.Inventory.Counts.Where(kv => kv.Value > 0).Select(kv => App.Data.Item(kv.Key))
+                .Where(it => it != null && it.Category == ItemCategory.Seed).Take(5).ToList();
+            var n = seeds.Count + 1;
+            for (var i = 0; i < n; i++)
+            {
+                var x = (i - (n - 1) / 2f) * 170f;
+                var harvest = i == seeds.Count;
+                var seed = harvest ? null : seeds[i];
+                var b = Candy.Round(_tools, Candy.White, harvest ? "tool_hand" : seed.Id, 140f, new Vector2(0.5f, 0.5f), new Vector2(x, 0f), null);
+                if (!harvest) Candy.Count(b.transform).text = App.State.Inventory.CountOf(seed.Id).ToString();
+                b.gameObject.AddComponent<PressBounce>();
+                var d = b.gameObject.AddComponent<DragItem>();
+                d.IconId = harvest ? "tool_hand" : seed.Id; d.Layer = Root;
+                d.Dragging = pos => Sweep(pos, seed);
+                d.Dropped = pos => { var any = _dragDone > 0; EndSweep(seed); return any; };
+                d.Tapped = () => _bubble.Say(T(harvest ? "tip.harvest" : "tip.plant"));
+            }
+        }
+
+        /// <summary>Sürüklerken parmağın altındaki tarla: tohumla boşsa ekilir, elle hazırsa toplanır (tarla parlar, zıplar).</summary>
+        private void Sweep(Vector2 screen, ItemDef seed)
+        {
+            var g = App.State.Garden;
+            for (var i = 0; i < _cells.Count && i < g.Plots.Count; i++)
+            {
+                if (_cells[i] == null || !RectTransformUtility.RectangleContainsScreenPoint(_cells[i], screen, null)) continue;
+                var p = g.Plots[i];
+                var cur = string.IsNullOrEmpty(p.SeedId) ? null : App.Data.Item(p.SeedId);
+                var state = cur == null ? PlotState.Empty : p.StateAt(App.UtcNow, cur);
+                if (seed != null && state == PlotState.Empty && App.State.Inventory.CountOf(seed.Id) > 0 && g.Plant(i, seed, App.State.Inventory) == GardenResult.Ok)
+                {
+                    _dragDone++; Bump.Play(_cells[i], 0.2f); Audio.Sfx.Play(Audio.SfxKind.Tap); Audio.Haptics.Light();
+                }
+                else if (seed == null && state == PlotState.Ready && g.Harvest(i, App.UtcNow, App.Data.Item, App.State.Inventory, out _) == GardenResult.Ok)
+                {
+                    _dragDone++; Bump.Play(_cells[i], 0.2f); Audio.Sfx.Play(Audio.SfxKind.Coin); Audio.Haptics.Light();
+                    App.RecordActivity("harvests");
+                }
+                return;
+            }
+        }
+
+        private void EndSweep(ItemDef seed)
+        {
+            if (_dragDone == 0) return;
+            _bubble.Say(seed != null ? T("garden.planted") : T("garden.harvested", GardenState.HarvestYield * _dragDone, "ürün"));
+            Onboarding.Done(App.State, seed != null ? Onboarding.Plant : Onboarding.Harvest);
+            if (_coach != null) { _coach.Done(); _coach = null; }
+            _dragDone = 0;
+            App.Save();
+            Fill();
+        }
+
+        /// <summary>D2 parmak ipucu: ilk kez boş tarla + tohum (ek) ya da hasada hazır ürün (topla) varken el aleti tutup tarlaya sürükler.</summary>
+        private void DragHint()
+        {
+            if (_coach != null || _tools.childCount == 0) return;
+            var g = App.State.Garden;
+            int empty = -1, ready = -1;
+            for (var i = 0; i < g.Plots.Count && i < _cells.Count; i++)
+            {
+                var p = g.Plots[i];
+                var cur = string.IsNullOrEmpty(p.SeedId) ? null : App.Data.Item(p.SeedId);
+                var st = cur == null ? PlotState.Empty : p.StateAt(App.UtcNow, cur);
+                if (st == PlotState.Empty && empty < 0) empty = i;
+                if (st == PlotState.Ready && ready < 0) ready = i;
+            }
+            var seedTool = _tools.childCount > 1 ? (RectTransform)_tools.GetChild(0) : null;
+            var hand = (RectTransform)_tools.GetChild(_tools.childCount - 1);
+            if (ready >= 0 && Onboarding.Pending(App.State, Onboarding.Harvest))
+            {
+                var to = _cells[ready];
+                _coach = Coach.Show(Root, Onboarding.Harvest, T("tip.harvest"), TipGesture.Drag, () => ScreenOf(hand), () => ScreenOf(to));
+            }
+            else if (empty >= 0 && seedTool != null && Onboarding.Pending(App.State, Onboarding.Plant))
+            {
+                var to = _cells[empty];
+                _coach = Coach.Show(Root, Onboarding.Plant, T("tip.plant"), TipGesture.Drag, () => ScreenOf(seedTool), () => ScreenOf(to));
+            }
+        }
+
+        private static Vector2 ScreenOf(RectTransform rt) => rt != null ? RectTransformUtility.WorldToScreenPoint(null, rt.position) : Vector2.zero;
 
         private void OnDestroy()
         {
@@ -35,12 +127,14 @@ namespace Pofi.Screens
         private void Update()
         {
             _refresh += Time.deltaTime;
-            if (_refresh > 5f) { _refresh = 0f; Fill(); }
+            var dragging = Input.touchCount > 0 || Input.GetMouseButton(0);   // sürükleme sürerken raf yeniden kurulmasın
+            if (_refresh > 5f && !dragging) { _refresh = 0f; Fill(); }
         }
 
         private void Fill()
         {
             Ui.Clear(_grid);
+            _cells.Clear();
             var g = App.State.Garden;
             g.EnsurePlots(App.Level);
             for (var i = 0; i < g.Plots.Count; i++)
@@ -53,6 +147,7 @@ namespace Pofi.Screens
                 var row = i / 3;
                 var cell = Ui.Rect(_grid, "Plot" + i, new Vector2(0.5f, 0.5f), new Vector2(440f, 360f),
                     new Vector2((col - 1) * 480f, row == 0 ? 195f : -195f));
+                _cells.Add(cell);
                 // v3 görünüm (kullanıcı, 19 Ekim 2026: bahçede görseller görünmüyordu): krem kart, içinde toprak yatağı; ekili
                 // tohumun simgesi büyüdükçe büyür, hasada hazır ürün zıplar; boş yatakta silik "+"
                 var card = cell.gameObject.AddComponent<Image>(); card.raycastTarget = false;
@@ -102,6 +197,9 @@ namespace Pofi.Screens
                 var b = Ui.Button(cell, Th, label, new Vector2(0.5f, 0.15f), new Vector2(380f, 100f), () => Tap(idx), state != PlotState.Growing, default, 40, false);
                 b.interactable = state != PlotState.Growing;
             }
+            BuildTools();
+            if (_coach != null) { _coach.Done(); _coach = null; }   // tarlalar yeniden kuruldu: ipucu yeni hedefe
+            DragHint();
         }
 
         private void Tap(int i)

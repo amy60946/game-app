@@ -90,6 +90,24 @@ namespace Pofi.UI
             skip.transform.SetAsLastSibling();
         }
 
+        /// <summary>Kutuyu tam metne göre boyutlar: tek satır sığarsa genişlik yazı kadar, sığmazsa en geniş ve satır sayısı kadar yükseklik.</summary>
+        private void Fit(RectTransform box, float maxW, float minW, float padX, float padY, float minH)
+        {
+            var tr = _text.rectTransform;
+            _text.text = _full;
+            _text.horizontalOverflow = HorizontalWrapMode.Overflow;
+            var pref = _text.preferredWidth;
+            var w = Mathf.Clamp(pref + padX * 2f, minW, maxW);
+            tr.sizeDelta = new Vector2(w - padX * 2f, 10f);
+            _text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            var h = Mathf.Max(minH, _text.preferredHeight + padY * 2f);
+            box.sizeDelta = new Vector2(w, h);
+            tr.anchorMin = tr.anchorMax = new Vector2(0.5f, 0.5f);
+            tr.anchoredPosition = new Vector2(0f, -4f);
+            tr.sizeDelta = new Vector2(w - padX * 2f, h - padY * 2f + 8f);
+            _text.text = "";
+        }
+
         private RectTransform Bar(bool top)
         {
             var b = Ui.Rect(_root, top ? "BarTop" : "BarBottom", new Vector2(0.5f, top ? 1f : 0f), Vector2.zero);
@@ -129,11 +147,14 @@ namespace Pofi.UI
             _portrait.anchorMin = _portrait.anchorMax = new Vector2(okti ? 0.82f : 0.18f, 0f);
             if (_lastWho != l.Who) _rise = 0f;
             _lastWho = l.Who;
+            // balon/kutu yazının ihtiyacı kadar (kullanıcı, 23 Ekim 2026: "gereksiz yer kaplamasın"); daktilo boyunca boyut sabit
             if (_mode == Mode.Island)
             {
-                _bubble.anchoredPosition = new Vector2(pic == null ? 0f : okti ? -260f : 260f, 520f);
+                Fit(_bubble, 900f, 380f, 46f, 34f, 130f);
+                _bubble.anchoredPosition = new Vector2(pic == null ? 0f : okti ? -260f : 260f, 470f + _bubble.sizeDelta.y * 0.5f);
                 if (_go != null) _go.gameObject.SetActive(false);
             }
+            else Fit(_box, 1640f, 760f, 70f, 40f, 150f);
             Audio.Sfx.Play(Audio.SfxKind.Tap);
         }
 

@@ -24,6 +24,10 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual(acc, TurkishSuffix.Accusative(name));
         }
 
+        [TestCase("Okti", "Okti'ye")] [TestCase("Pofi", "Pofi'ye")] [TestCase("Arlo", "Arlo'ya")] [TestCase("Boncuk", "Boncuk'a")]
+        [TestCase("Gümüş", "Gümüş'e")] [TestCase("Şeker Kız", "Şeker Kız'a")]
+        public void Name_dative(string name, string dat) => Assert.AreEqual(dat, TurkishSuffix.Dative(name));
+
         [TestCase(1, "1'de")] [TestCase(3, "3'te")] [TestCase(4, "4'te")] [TestCase(5, "5'te")] [TestCase(6, "6'da")]
         [TestCase(9, "9'da")] [TestCase(10, "10'da")] [TestCase(13, "13'te")] [TestCase(15, "15'te")] [TestCase(40, "40'ta")]
         public void Number_locative(int n, string expected) => Assert.AreEqual(expected, TurkishSuffix.Locative(n));

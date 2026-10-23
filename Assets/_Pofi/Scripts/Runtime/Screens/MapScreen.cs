@@ -693,35 +693,111 @@ namespace Pofi.Screens
         }
 
         // ------------------------------------------------------------------ dokunuş tepkileri (A1, O4; 23 Ekim 2026)
-        private Button _dressBubble;
-        private float _dressFor;
+        // ------------------------------------------------------------------ G2 Okti'ye dokun + G1 ihtiyaç baloncuğu (23 Ekim 2026, onaylı)
+        // Besle/Yıka düğmeleri kalktı. Okti'ye dokununca çevresinde üç baloncuk açılır (Besle, Yıka, Giydir); Okti acıkınca ya da
+        // kirlenince başının üstünde tek düşünce baloncuğu belirir, dokununca yiyecek/sabun tepsisi açılır (yoksa dükkâna koşar).
+        private readonly List<(Button B, Vector2 Off)> _careBubbles = new List<(Button, Vector2)>();
+        private float _careFor;
+        private Button _needBubble;
+        private Image _needIcon;
+        private Logic.Pet.StatKind? _need;
+        private float _needCheck;
+        private const float NeedBelow = 35f;   // gösterge bunun altına inince baloncuk (üzgün eşiğinden biraz önce, cezasız)
 
         private void ShowDressBubble()
         {
-            if (_dressBubble == null)
+            if (_careBubbles.Count == 0)
             {
-                _dressBubble = Candy.Round(_gLayer, Candy.White, "hoodie_soft", 118f, Vector2.zero, Vector2.zero, () =>
+                Add("food_apple", T("hud.feed"), new Vector2(-170f, 40f), () => { HideCare(); TipDone(Onboarding.Feed); OnFeed(); });
+                Add("clean_soap", T("hud.wash"), new Vector2(0f, 120f), () => { HideCare(); OnWash(); });
+                Add("hoodie_soft", T("hud.dress"), new Vector2(170f, 40f), () =>
                 {
+                    HideCare();
                     TipDone(Onboarding.Wardrobe);
                     App.Stage.SetPetVisible(true);
                     App.Open(AppPage.Wardrobe);
                 });
-                Hover.On(_dressBubble, 6f);
             }
-            _dressFor = 3.5f;
-            _dressBubble.gameObject.SetActive(true);
-            Bump.Play(_dressBubble.transform, 0.3f);
-            UpdateDressBubble();
+            _careFor = 4f;
+            var i = 0;
+            foreach (var (b, _) in _careBubbles) { b.gameObject.SetActive(true); Bump.Play(b.transform, 0.25f + i++ * 0.05f); }
+            UpdateCareBubbles();
+
+            void Add(string icon, string label, Vector2 off, System.Action act)
+            {
+                var b = Candy.Round(_gLayer, Candy.White, icon, 118f, Vector2.zero, Vector2.zero, () => act(), label);
+                Hover.On(b, 6f);
+                b.gameObject.AddComponent<PressBounce>();
+                _careBubbles.Add((b, off));
+            }
         }
 
-        private void UpdateDressBubble()
+        private void HideCare()
         {
-            if (_dressBubble == null || !_dressBubble.gameObject.activeSelf) return;
-            if ((_dressFor -= Time.deltaTime) <= 0f || _overview || _world.Walker == null) { _dressBubble.gameObject.SetActive(false); return; }
-            var sp = App.Stage.Camera.WorldToScreenPoint(_world.Walker.transform.position + Vector3.up * 2.6f * _world.Walker.transform.localScale.y);
+            _careFor = 0f;
+            foreach (var (b, _) in _careBubbles) if (b != null) b.gameObject.SetActive(false);
+        }
+
+        private Vector3 PetHeadWorld => _world.Walker.transform.position + Vector3.up * 2.6f * _world.Walker.transform.localScale.y;
+
+        private void UpdateDressBubble() => UpdateCareBubbles();
+
+        private void UpdateCareBubbles()
+        {
+            UpdateNeedBubble();
+            if (_careBubbles.Count == 0 || !_careBubbles[0].B.gameObject.activeSelf) return;
+            if ((_careFor -= Time.deltaTime) <= 0f || _overview || _cine || _world.Walker == null || _world.Walker.Moving) { HideCare(); return; }
+            var sp = App.Stage.Camera.WorldToScreenPoint(PetHeadWorld);
             if (sp.z <= 0f) return;
             var k = Root.rect.width / Mathf.Max(1f, Screen.width);
-            ((RectTransform)_dressBubble.transform).anchoredPosition = new Vector2(sp.x * k + 90f, sp.y * k);
+            foreach (var (b, off) in _careBubbles) ((RectTransform)b.transform).anchoredPosition = new Vector2(sp.x * k, sp.y * k) + off;
+        }
+
+        /// <summary>G1: en düşük bakım göstergesi (tokluk, temizlik) eşiğin altındaysa başının üstünde düşünce baloncuğu.</summary>
+        private void UpdateNeedBubble()
+        {
+            if (_world.Walker == null) return;
+            if ((_needCheck -= Time.deltaTime) <= 0f)
+            {
+                _needCheck = 1f;
+                var st = App.State.Stats;
+                Logic.Pet.StatKind? need = null;
+                if (st[Logic.Pet.StatKind.Fullness] < NeedBelow) need = Logic.Pet.StatKind.Fullness;
+                else if (st[Logic.Pet.StatKind.Cleanliness] < NeedBelow) need = Logic.Pet.StatKind.Cleanliness;
+                if (need != _need)
+                {
+                    _need = need;
+                    if (need != null)
+                    {
+                        if (_needBubble == null)
+                        {
+                            _needBubble = Candy.Round(_gLayer, Candy.White, "food_apple", 112f, Vector2.zero, Vector2.zero, () =>
+                            {
+                                if (_need == Logic.Pet.StatKind.Cleanliness) OnWash(); else OnFeed();
+                            });
+                            Hover.On(_needBubble, 5f);
+                            _needBubble.gameObject.AddComponent<PressBounce>();
+                            // düşünce kuyruğu: başa doğru iki küçük nokta
+                            for (var i = 0; i < 2; i++)
+                            {
+                                var dot = Ui.Rect(_needBubble.transform, "Dot", new Vector2(0.2f, 0f), new Vector2(i == 0 ? 30f : 18f, i == 0 ? 30f : 18f), new Vector2(-14f - i * 22f, -12f - i * 26f));
+                                Ui.Panel(dot, Color.white, 15f).raycastTarget = false;
+                            }
+                            _needIcon = _needBubble.transform.Find("Icon food_apple")?.GetComponent<Image>();
+                        }
+                        if (_needIcon != null) _needIcon.sprite = Ui.Icon(need == Logic.Pet.StatKind.Cleanliness ? "clean_soap" : "food_apple");
+                        Bump.Play(_needBubble.transform, 0.3f);
+                    }
+                }
+            }
+            var show = _need != null && !_overview && !_cine && _tray == null && (_careBubbles.Count == 0 || !_careBubbles[0].B.gameObject.activeSelf);
+            if (_needBubble == null) return;
+            if (_needBubble.gameObject.activeSelf != show) _needBubble.gameObject.SetActive(show);
+            if (!show) return;
+            var sp = App.Stage.Camera.WorldToScreenPoint(PetHeadWorld + Vector3.up * 0.35f);
+            if (sp.z <= 0f) return;
+            var k = Root.rect.width / Mathf.Max(1f, Screen.width);
+            ((RectTransform)_needBubble.transform).anchoredPosition = new Vector2(sp.x * k + 110f, sp.y * k + 40f);
         }
 
         /// <summary>Dokunma ışınına en yakın süs (ağaç, palmiye, çalı, deniz yıldızı) dürtülür; yakındaki yengeçler kaçar.</summary>

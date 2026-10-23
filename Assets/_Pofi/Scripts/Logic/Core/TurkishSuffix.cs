@@ -65,6 +65,14 @@ namespace Pofi.Logic.Core
             return w + "'" + (EndsWithVowel(w) ? "y" : "") + v;
         }
 
+        /// <summary>Yönelme hâli: Pofi'ye, Boncuk'a, Arlo'ya, Okti'ye.</summary>
+        public static string Dative(string name)
+        {
+            var w = name.Trim();
+            var v = Low(LastVowel(w));
+            return w + "'" + (EndsWithVowel(w) ? "y" : "") + v;
+        }
+
         /// <summary>Bulunma hâli sayıyla: 1'de, 3'te, 6'da, 10'da, 40'ta.</summary>
         public static string Locative(int n)
         {

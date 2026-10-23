@@ -91,14 +91,9 @@ namespace Pofi.Screens
             if (next != null)
                 Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
 
-            // sol kenar: Besle, Yıka
+            // Besle/Yıka düğmeleri yok (G1 + G2, 23 Ekim 2026): bakım Okti'ye dokununca açılan baloncuklardan ve ihtiyaç baloncuğundan.
+            // Tepsi bu katmanda açılır.
             _leftBar = Ui.Rect(hud, "Care", Vector2.zero, new Vector2(420f, 260f), new Vector2(196f, 172f));
-            var feed = Candy.Round(_leftBar, Candy.White, "food_apple", 150f, new Vector2(0.3f, 0.6f), Vector2.zero, OnFeed, T("hud.feed"));
-            _feedBtn = (RectTransform)feed.transform;
-            _feedCount = Candy.Count(feed.transform);
-            var wash = Candy.Round(_leftBar, Candy.White, "clean_soap", 124f, new Vector2(0.75f, 0.42f), Vector2.zero, OnWash, T("hud.wash"));
-            _washBtn = (RectTransform)wash.transform;
-            _washCount = Candy.Count(wash.transform);
 
             // sağ alt: bağlamsal eylem
             // simgesi o anki eyleme göre değişir (balta, el, kazma, çekiç, zıpla, kapı, oyna); altında kısa yazı
@@ -122,6 +117,46 @@ namespace Pofi.Screens
             App.Synced += OnSyncedFx;
             App.BadgeEarned += OnBadge;
             RefreshHud();
+            CollectSmartHide(hud);
+        }
+
+        // ------------------------------------------------------------------ G akıllı gizlenme (onaylı, 22–23 Ekim 2026)
+        // Yürürken kenardaki göstergeler kendi kenarlarına çekilip solar; durunca geri gelir. Eylem tuşu ve joystick hep kalır.
+        private readonly List<(RectTransform Rt, CanvasGroup G, Vector2 Base, Vector2 Dir)> _hideables = new List<(RectTransform, CanvasGroup, Vector2, Vector2)>();
+        private float _hideT, _moveFor, _stillFor;
+        private Vector2 _lastPetPos;
+
+        private void CollectSmartHide(RectTransform hud)
+        {
+            _hideables.Clear();
+            foreach (RectTransform c in hud)
+            {
+                if (c == _action || c == _stickBase || c == _leftBar) continue;
+                var a = (c.anchorMin + c.anchorMax) * 0.5f;
+                Vector2 dir = a.x < 0.34f ? Vector2.left : a.x > 0.66f ? Vector2.right : a.y > 0.5f ? Vector2.up : Vector2.down;
+                var g = c.GetComponent<CanvasGroup>(); if (g == null) g = c.gameObject.AddComponent<CanvasGroup>();
+                _hideables.Add((c, g, c.anchoredPosition, dir));
+            }
+        }
+
+        private void UpdateSmartHide(float dt)
+        {
+            if (_world.Walker == null) return;
+            var p = _world.Walker.Position;
+            var speed = (p - _lastPetPos).magnitude / Mathf.Max(0.0001f, dt);
+            _lastPetPos = p;
+            var moving = !_overview && !_cine && speed > 0.6f;
+            if (moving) { _moveFor += dt; _stillFor = 0f; } else { _stillFor += dt; _moveFor = 0f; }
+            var hide = _moveFor > 0.35f || (_hideT > 0f && _stillFor < 0.6f);   // kısa duraklamada geri zıplamasın
+            _hideT = Mathf.MoveTowards(_hideT, hide ? 1f : 0f, dt / (hide ? 0.25f : 0.35f));
+            var e = _hideT * _hideT * (3f - 2f * _hideT);
+            foreach (var (rt, g, b, d) in _hideables)
+            {
+                if (rt == null) continue;
+                rt.anchoredPosition = b + d * (260f * e);
+                g.alpha = 1f - 0.92f * e;
+                g.blocksRaycasts = e < 0.5f;
+            }
         }
 
         /// <summary>Kaynak göstergesini (Candy.ResourcePlate) üst ortaya taşır: x merkeze göre.</summary>
@@ -235,8 +270,6 @@ namespace Pofi.Screens
             _stoneText.text = stones.ToString();
             Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
             if ((_questT -= Time.deltaTime) <= 0f) { _questT = 1f; SetCount(_questCount, OpenQuests()); }
-            SetCount(_feedCount, Count(ItemCategory.Food));
-            SetCount(_washCount, Count(ItemCategory.Cleaning));
         }
 
         private static void SetCount(Text t, int n)
@@ -256,7 +289,8 @@ namespace Pofi.Screens
             if (_hudTick >= 0.5f) { _hudTick = 0f; RefreshHud(); }
 
             var walking = !_overview && _world.Walker != null;
-            _leftBar.gameObject.SetActive(walking);
+            UpdateSmartHide(Time.deltaTime);
+            UpdatePathGuide(Time.deltaTime);
             _action.gameObject.SetActive(walking);
             if (!walking) { CloseTray(); return; }
             UpdateAction();
@@ -267,6 +301,7 @@ namespace Pofi.Screens
         // ------------------------------------------------------------------ tanıtım ipuçları (docs/ONBOARDING.md)
 
         private string PetGen => Logic.Core.TurkishSuffix.Genitive(App.State.PetName);
+        private string PetDat => Logic.Core.TurkishSuffix.Dative(App.State.PetName);
 
         // Tanıtım sırası (kullanıcı isteği, 15 Ekim 2026): hepsi arka arkaya değil, biri tamamlanınca kısa ara, sonra sıradaki;
         // panelde "adım/toplam" görünür. Bağlamsal olanlar (kapı, oyun yeri, parıltı) uygun anda araya girer.
@@ -281,6 +316,8 @@ namespace Pofi.Screens
             var i = System.Array.IndexOf(TipSeq, id);
             var step = i >= 0 ? (i + 1) + "/" + TipSeq.Length : null;
             _coach = Coach.Show(Root, id, T(key ?? Onboarding.Get(id).CaptionKey, arg ?? App.State.PetName), g, from, to, 3, step, prop);
+            // D3 ışık halkası: yeni düğme ilk kez gösterilirken (Görev, Harita) ekran kısılır, düğme aydınlık kalır
+            if (id == Onboarding.Tasks || id == Onboarding.Overview) Spotlight.Show((RectTransform)_coach.transform, from, 120f);
         }
 
         /// <summary>İpucu tamamlandı (id null: yalnız ekrandakini kapat).</summary>
@@ -350,8 +387,8 @@ namespace Pofi.Screens
                 case Onboarding.Wardrobe:  // pete dokun → giydirme; dokundukça başının üstünde şapka belirir
                     Tip(next, TipGesture.Tap, PetScreen, null, PetGen, Ui.Icon("hat_straw"));
                     break;
-                case Onboarding.Feed:      // önce Besle'ye dokun; tepsi açılınca sürükleme ipucu gelir
-                    Tip(next, TipGesture.Tap, () => UiScreen(_feedBtn), null, PetGen, null, "tip.feed_open");
+                case Onboarding.Feed:      // önce Okti'ye dokun (G2), elmaya dokun; tepsi açılınca sürükleme ipucu gelir
+                    Tip(next, TipGesture.Tap, PetScreen, null, PetDat, null, "tip.feed_open");
                     break;
                 case Onboarding.Tasks:
                     Tip(next, TipGesture.Tap, () => UiScreen(_tasksBtn));
@@ -366,7 +403,8 @@ namespace Pofi.Screens
         private void GuideTip(GuideStep g)
         {
             var step = (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count;
-            _coach = Coach.Show(Root, "guide_" + g.Id, T(g.TextKey, App.State.PetName) + "  " + T("guide.reward", g.Xp), TipGesture.Tap, GuideTarget(g), null, 3, step);
+            var arg = g.Id == "feed" || g.Id == "wash" ? PetDat : App.State.PetName;   // "Okti'ye dokun" (G2)
+            _coach = Coach.Show(Root, "guide_" + g.Id, T(g.TextKey, arg) + "  " + T("guide.reward", g.Xp), TipGesture.Tap, GuideTarget(g), null, 3, step);
             _tipGap = -4f;   // panel kapanınca birkaç saniye nefes
         }
 
@@ -374,8 +412,7 @@ namespace Pofi.Screens
         {
             switch (g.Id)
             {
-                case "feed": return () => UiScreen(_feedBtn);
-                case "wash": return () => UiScreen(_washBtn);
+                case "feed": case "wash": return PetScreen;   // Okti'ye dokun → Besle / Yıka baloncukları (G2)
                 case "home": case "tidy": return () => RegionScreen("region_home");
                 case "wear": return PetScreen;
                 case "board": return () => RegionScreen("region_task_board");
@@ -387,6 +424,62 @@ namespace Pofi.Screens
                 case "cards": return () => RegionScreen("region_game_hut");
                 default: return PetScreen;
             }
+        }
+
+        // ------------------------------------------------------------------ N1 + N3 yol gösterme (23 Ekim 2026, onaylı)
+        private World.PathGuide _path;
+        private float _idleFor;
+        private string _pathStep;
+
+        /// <summary>Rehber adımının adadaki hedefi (yürünecek yer); pete dokunulan adımlarda (besle, yıka, giydir) yok.</summary>
+        private Vector2? GuideWorld(GuideStep g)
+        {
+            switch (g.Id)
+            {
+                case "home": case "tidy": return DoorOf("region_home");
+                case "board": return DoorOf("region_task_board");
+                case "stone": return DoorOf(App.Data.SunBook.Next(App.State.SunStones)?.Region ?? "region_task_board");
+                case "gather":
+                {
+                    var p = _world.Walker.Position; GatherNode best = null; var bd = float.MaxValue;
+                    foreach (var n in _gNodes) { var d = Vector2.Distance(p, new Vector2(n.X, n.Z)); if (d < bd) { bd = d; best = n; } }
+                    return best != null ? new Vector2(best.X, best.Z) : (Vector2?)null;
+                }
+                case "hut": return new Vector2(_sitePos.x, _sitePos.z);
+                case "coconut": return DoorOf("region_coconut_grove");
+                case "shop": return DoorOf("region_shop");
+                case "cards": return DoorOf("region_game_hut");
+                default: return null;
+            }
+        }
+
+        private Vector2? DoorOf(string regionId)
+        {
+            var r = _terrain.Regions.FirstOrDefault(x => x.Id == regionId);
+            if (r == null) return null;
+            var (x, z) = _terrain.Door(r);
+            return new Vector2(x, z);
+        }
+
+        /// <summary>Rehberli adımda çocuk 8 sn hareketsiz kalınca oklar açılır; yürürken kalır, hedefe varınca ya da adım değişince söner.</summary>
+        private void UpdatePathGuide(float dt)
+        {
+            if (_world.Walker == null) return;
+            if (_path == null) _path = World.PathGuide.Create(_world);
+            var touching = Input.touchCount > 0 || Input.GetMouseButton(0);
+            var moving = _world.Walker.Moving || _moveFor > 0f;
+            _idleFor = touching || moving ? 0f : _idleFor + dt;
+            var basicsDone = !Onboarding.Pending(App.State, Onboarding.Walk) && !Onboarding.Pending(App.State, Onboarding.Look);
+            var guide = basicsDone && !_overview && !_cine ? Guide.Current(App.State, App.Level) : null;
+            var target = guide != null ? GuideWorld(guide) : null;
+            var stepId = guide?.Id;
+            if (stepId != _pathStep) { _pathStep = stepId; _path.Hide(); }
+            var pos = _world.Walker.Position;
+            if (target == null) _path.Hide();
+            else if (Vector2.Distance(pos, target.Value) < 4f) _path.Hide();   // vardı
+            else if (_path.Active) _path.Show(target.Value);                   // hedef kayabilir (en yakın kütük)
+            else if (_idleFor > 8f) _path.Show(target.Value);
+            _path.Tick(pos, App.Stage.Camera, dt);
         }
 
         /// <summary>En yakın toplanabilir kütük/çalı/taş (ekran noktası); yoksa pet.</summary>
