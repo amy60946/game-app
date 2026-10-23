@@ -238,12 +238,16 @@ def main():
             mine = {k: v for k, v in cache.items() if not part or k in {q["key"] for j, q in enumerate(lines) if j % part[1] == part[0]}}
             json.dump(mine, open(cache_p, "w"), ensure_ascii=False, indent=1)
             print(f"[{i + 1}/{len(lines)}] {l['role']:8s} hata %{100 * x['cer']:4.1f} | {l['text']}  ←  {x.get('asr', '')}", flush=True)
-        if c and os.path.exists(master):
-            l["sec"] = round(encode(master, os.path.join(DST, f"v_{l['key']}.bytes")), 2)
-            l.update(seed=c.get("seed"), cer=c.get("cer"))
     if part:
         print(f"parça {part[0]}/{part[1]} bitti", flush=True)
         return
+    # oyun dosyaları yalnız sonda yazılır (üretim sürerken depo değişmesin)
+    for l in lines:
+        c = cache.get(l["key"])
+        master = os.path.join(work, f"m_{l['key']}.mp3")
+        if c and c.get("sig") == f"{VERSION}|{l['role']}|{l['tts']}" and os.path.exists(master):
+            l["sec"] = round(encode(master, os.path.join(DST, f"v_{l['key']}.bytes")), 2)
+            l.update(seed=c.get("seed"), cer=c.get("cer"))
     keep = {f"v_{l['key']}.bytes" for l in lines if "sec" in l}
     for f in os.listdir(DST):
         if f.startswith("v_") and f.endswith(".bytes") and f not in keep:
