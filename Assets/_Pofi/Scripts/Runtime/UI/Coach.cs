@@ -19,6 +19,7 @@ namespace Pofi.UI
         private int _loops;
         private float _t, _life;
         private string _said;
+        private static readonly System.Collections.Generic.HashSet<string> Spoken = new System.Collections.Generic.HashSet<string>();
         public string Id { get; private set; }
 
         /// <param name="voice">Sesli okunacak cümle (varsayılan: altyazının kendisi; rehberde ödül eki okunmaz).</param>
@@ -39,7 +40,7 @@ namespace Pofi.UI
             c._said = voice ?? caption;
             // sesli okuma: köşede hoparlör (sıra rozeti köşedeyse onun altında, sağ kenarda), ipucu bir kez okunur
             VoiceButton.Attach(banner.Rect, string.IsNullOrEmpty(step) ? (Vector2?)null : new Vector2(46f, -50f)).SetText(c._said);
-            Audio.Voice.Say(c._said);
+            if (Spoken.Add(id + "|" + c._said)) Audio.Voice.Say(c._said);   // aynı ipucu oturumda bir kez kendiliğinden okunur (tekrar: hoparlör)
             Hover.On(banner.Rect, 5f, 0.02f);                                   // öğretici baloncuklar canlı (S5)
             if (!string.IsNullOrEmpty(step))
             {
