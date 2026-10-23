@@ -45,7 +45,7 @@ section { background: var(--card); border: 1px solid var(--line); border-radius:
 .opt b i { font-style: normal; color: var(--accent); margin-right: 6px; }
 .opt p { color: var(--muted); font-size: 14.5px; }
 .opt.rec { border: 2px solid var(--accent); }
-.rec-tag { font: 900 11.5px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.rec-tag { display: block; font: 900 11.5px var(--body); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
 .note { font-size: 14px; color: var(--muted); }
 .ask { border: 2px solid var(--accent); }
 .ask ol { margin: 0; padding-left: 22px; display: grid; gap: 4px; }
@@ -302,6 +302,150 @@ table.map th { font: 900 12.5px var(--body); letter-spacing: .05em; text-transfo
 .k-list b { font-family: var(--display); font-size: 18px; }
 .k-list p { font-size: 14.5px; color: var(--muted); }
 
+/* ---- V7 · 23 Ekim seçimleri ---- */
+.oa-pop, .ob-chip, .oc-big, .od-edge, .note7, .shop-cell, .e2b-bub, .okbtn { font-family: 'Baloo 2', sans-serif; font-weight: 800; }
+.opt a, .q a, section > p a { color: var(--accent); font-weight: 800; }
+.v7-tag { font: 900 11.5px var(--body); letter-spacing: .06em; text-transform: uppercase; color: #fff; background: var(--good); border-radius: 999px; padding: 2px 9px; }
+.v7-hero { border: 2px solid var(--accent); }
+.okl { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 4px 20px; }
+.okl li { padding-left: 24px; position: relative; min-width: 0; }
+.okl li::before { content: "✓"; position: absolute; left: 2px; font-weight: 900; color: var(--good); }
+.v7-mini { display: flex; flex-wrap: wrap; gap: 8px; }
+.v7-mini a { font: 800 14px var(--body); color: var(--fg); text-decoration: none; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
+.v7-mini a b { color: var(--accent); margin-right: 4px; }
+.q { border-left: 4px solid var(--warn); padding: 6px 12px; background: var(--bg); border-radius: 0 10px 10px 0; font-size: 15px; }
+.q b { color: var(--warn); }
+/* Ç · çanta */
+.c-bag { position: absolute; width: 128px; height: 128px; z-index: 5; transition: left .35s ease, top .35s ease, right .35s ease, bottom .35s ease, width .35s ease, height .35s ease; }
+.cv1 .c-bag { left: 40px; top: 568px; }
+.cv2 .c-bag { left: 1198px; top: 96px; width: 104px; height: 104px; }
+.c-bag .gem { transition: transform .15s ease; }
+.c-joy { left: 210px; top: 520px; width: 170px; height: 170px; border-radius: 50%; border: 5px solid rgba(255,255,255,.55); background: radial-gradient(circle, rgba(255,255,255,.35) 0 26%, rgba(255,255,255,.12) 27%); }
+.cv2 .c-joy { left: 80px; }
+.c-pop { position: absolute; z-index: 6; display: grid; grid-template-columns: repeat(3, 96px); gap: 10px; padding: 14px; border-radius: 26px; background: rgba(255,248,228,.97); box-shadow: 0 6px 0 #C9A25A, 0 12px 24px rgba(0,0,0,.28); transform: scale(0); transition: transform .28s cubic-bezier(.2,1.5,.4,1); }
+.c-pop.on { transform: scale(1); }
+.cv1 .c-pop { left: 40px; top: 330px; transform-origin: 8% 100%; }
+.cv2 .c-pop { left: 970px; top: 214px; transform-origin: 80% 0; }
+.c-pop::after { content: ""; position: absolute; border: 14px solid transparent; }
+.cv1 .c-pop::after { left: 44px; bottom: -26px; border-top: 16px solid rgba(255,248,228,.97); }
+.cv2 .c-pop::after { left: 260px; top: -28px; border-bottom: 16px solid rgba(255,248,228,.97); }
+.c-cell { width: 96px; height: 96px; border-radius: 20px; background: #fff; display: grid; place-items: center; position: relative; box-shadow: inset 0 -4px 0 #E6CF98; }
+.c-cell img { width: 74px; height: 74px; }
+.c-cell span { position: absolute; right: 6px; bottom: 0; font-size: 26px; color: #5A3410; }
+.c-cell.ask { background: rgba(255,255,255,.55); box-shadow: inset 0 0 0 3px #E0B878; }
+.c-cell.ask::before { content: "?"; position: absolute; left: 6px; top: 0; font-size: 22px; color: #C9731E; }
+.c-cell.bump { animation: cb .35s ease; }
+@keyframes cb { 50% { transform: scale(1.12); } }
+.c-tool { left: 1330px; top: 382px; width: 110px; height: 118px; z-index: 4; }
+.c-tool .bb { position: absolute; inset: 0 0 14px; border-radius: 50%; background: #fff; box-shadow: 0 6px 12px rgba(0,0,0,.25); display: grid; place-items: center; }
+.c-tool .bb::after { content: ""; position: absolute; left: 44px; bottom: -16px; border: 10px solid transparent; border-top: 14px solid #fff; }
+.c-tool img { width: 72px; height: 72px; animation: fl 1.8s ease-in-out infinite; }
+.c-plus { position: absolute; z-index: 7; font-size: 40px; pointer-events: none; }
+.c-hint { left: 50%; top: 22px; transform: translateX(-50%); height: 52px; padding: 0 22px; border-radius: 26px; background: rgba(10,24,60,.55); font-size: 24px; display: flex; align-items: center; gap: 8px; z-index: 5; }
+.c-hint img { width: 40px; height: 40px; }
+/* E1 · Ev Görevleri */
+.v7e > [data-v7view] { display: none; }
+.v7e.e1a [data-v7view="e1a"], .v7e.e1b [data-v7view="e1b"], .v7e.e1c [data-v7view="e1c"],
+.v7e.e2a [data-v7view="e2a"], .v7e.e2b [data-v7view="e2b"], .v7e.e2c [data-v7view="e2c"] { display: block; }
+.note7 { position: absolute; width: 132px; height: 128px; border-radius: 8px; background: linear-gradient(#FFFDF3, #F6EAC4); box-shadow: 0 6px 10px rgba(60,30,0,.35); display: grid; justify-items: center; align-content: center; gap: 0; color: #5A3410; font-size: 22px; cursor: pointer; border: 0; padding: 0; transition: transform .25s cubic-bezier(.2,1.5,.4,1); z-index: 3; }
+.note7 .em { font-size: 52px; line-height: 1.1; }
+.note7 .cn { display: flex; align-items: center; gap: 2px; font-size: 24px; color: #8A5A22; }
+.note7 .cn img { width: 32px; height: 32px; }
+.note7::before { content: ""; position: absolute; top: -9px; left: 50%; width: 22px; height: 22px; margin-left: -11px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #FF9A9A, #D72E46); box-shadow: 0 2px 3px rgba(0,0,0,.35); }
+.note7.big { transform: scale(1.35) rotate(0deg) !important; z-index: 6; }
+.note7 .stamp { position: absolute; inset: 0; display: none; place-items: center; font-size: 26px; color: #fff; background: rgba(35,145,74,.82); border-radius: 8px; text-shadow: 0 2px 0 #17652A; }
+.note7.done .stamp { display: grid; }
+.e1a-go { position: absolute; z-index: 7; transform: scale(0); transition: transform .25s cubic-bezier(.2,1.6,.4,1); height: 64px; font-size: 26px; padding: 0 24px; }
+.e1a-go.on { transform: scale(1); }
+.e1b-tray { left: 50%; bottom: 26px; transform: translateX(-50%); display: flex; gap: 16px; padding: 12px; border-radius: 30px; background: rgba(255,248,228,.95); box-shadow: 0 6px 0 #C9A25A, 0 12px 24px rgba(0,0,0,.28); z-index: 4; }
+.e1b-chip { display: flex; align-items: center; gap: 10px; height: 96px; padding: 0 10px 0 14px; border-radius: 24px; background: #fff; box-shadow: inset 0 -4px 0 #E6CF98; color: #4A2C0A; font-size: 26px; white-space: nowrap; }
+.e1b-chip .em { font-size: 46px; }
+.e1b-chip .cn { display: flex; align-items: center; gap: 2px; font-size: 24px; color: #8A5A22; }
+.e1b-chip .cn img { width: 34px; height: 34px; }
+.okbtn { width: 74px; height: 74px; border-radius: 50%; border: 4px solid transparent; cursor: pointer; display: grid; place-items: center; font: 800 38px 'Baloo 2', sans-serif; color: #fff; text-shadow: 0 2px 0 #17652A; background: linear-gradient(#8EEB78, #2AA548) padding-box, var(--gold) border-box; box-shadow: inset 0 -5px 0 #1E8A36, 0 5px 0 #8A5A10; }
+.okbtn.wait { background: linear-gradient(#FFE7A6, #F2B53C) padding-box, var(--gold) border-box; box-shadow: inset 0 -5px 0 #C98A1E, 0 5px 0 #8A5A10; font-size: 30px; text-shadow: 0 2px 0 #9A5A06; }
+.e1c-card { right: 40px; top: 120px; width: 390px; padding: 34px 26px 22px; display: grid; justify-items: center; gap: 8px; z-index: 4; transition: transform .35s cubic-bezier(.2,1.2,.4,1), opacity .25s ease; }
+.e1c-card.out { transform: translateX(60px); opacity: 0; }
+.e1c-card .em { font-size: 92px; line-height: 1; }
+.e1c-card .nm { font-size: 34px; line-height: 1.1; text-align: center; color: #4A2C0A; }
+.e1c-card .cn { display: flex; align-items: center; gap: 4px; font-size: 30px; color: #8A5A22; }
+.e1c-card .cn img { width: 42px; height: 42px; }
+.e1c-dots { display: flex; gap: 8px; margin-top: 4px; }
+.e1c-dots i { width: 14px; height: 14px; border-radius: 50%; background: #E0C68E; }
+.e1c-dots i.on { background: #1F6FD6; }
+.e1c-next { position: absolute; right: -28px; top: 46%; width: 64px; height: 64px; border-radius: 50%; border: 0; cursor: pointer; font: 800 40px 'Baloo 2', sans-serif; color: #fff; background: linear-gradient(#4A86FF, #1C49CC); box-shadow: 0 4px 0 #102E86; }
+/* E2 · Dükkân */
+.e2a-pop { left: 905px; top: 96px; z-index: 5; display: grid; grid-template-columns: repeat(3, 116px); gap: 12px; padding: 16px; border-radius: 28px; background: rgba(255,248,228,.97); box-shadow: 0 6px 0 #C9A25A, 0 12px 24px rgba(0,0,0,.28); transform-origin: 0 30%; animation: pop .3s cubic-bezier(.2,1.5,.4,1) both; }
+.e2a-pop::after { content: ""; position: absolute; left: -28px; top: 90px; border: 14px solid transparent; border-right: 16px solid rgba(255,248,228,.97); }
+.shop-cell { width: 116px; height: 128px; border-radius: 22px; background: #fff; box-shadow: inset 0 -4px 0 #E6CF98; display: grid; justify-items: center; align-content: center; gap: 2px; border: 0; padding: 0; cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+.shop-cell img.it { width: 74px; height: 74px; }
+.shop-cell .pr { display: flex; align-items: center; gap: 2px; font: 800 24px 'Baloo 2', sans-serif; color: #5A3410; }
+.shop-cell .pr img { width: 30px; height: 30px; }
+.shop-cell.sel { box-shadow: inset 0 -4px 0 #E6CF98, 0 0 0 5px #2AA548; transform: scale(1.05); }
+.e2a-buy { grid-column: 1 / -1; justify-self: center; height: 64px; font-size: 28px; padding: 0 30px; }
+.e2b-bub { position: absolute; z-index: 4; width: 128px; height: 150px; border: 0; background: none; cursor: pointer; padding: 0; }
+.e2b-bub .bb { position: absolute; left: 0; top: 0; width: 128px; height: 128px; border-radius: 50%; background: rgba(255,255,255,.92); box-shadow: 0 6px 12px rgba(0,0,0,.25), inset 0 -6px 0 rgba(200,170,110,.35); display: grid; place-items: center; animation: fl 3s ease-in-out infinite; animation-delay: var(--dl, 0s); }
+.e2b-bub .bb img { width: 84px; height: 84px; }
+.e2b-bub .tag { position: absolute; left: 50%; bottom: 0; transform: translateX(-50%); height: 36px; padding: 0 12px 0 4px; border-radius: 18px; background: linear-gradient(#FFF8E4, #F3DDA6); box-shadow: 0 3px 0 #B8751A; display: flex; align-items: center; gap: 2px; font-size: 22px; color: #5A3410; white-space: nowrap; }
+.e2b-bub .tag img { width: 28px; height: 28px; }
+.e2b-bub.sel .bb { box-shadow: 0 0 0 6px #2AA548, 0 6px 12px rgba(0,0,0,.25); transform: scale(1.12); }
+.e2b-buy { position: absolute; z-index: 6; height: 64px; font-size: 28px; padding: 0 26px; transform: scale(0); transition: transform .25s cubic-bezier(.2,1.6,.4,1); }
+.e2b-buy.on { transform: scale(1); }
+.e2c-shelf { left: 0; right: 0; bottom: 0; height: 163px; z-index: 4; display: flex; align-items: center; gap: 22px; padding: 0 40px; background: linear-gradient(#C99558, #9A6A35); box-shadow: inset 0 8px 0 #E0B878, 0 -8px 20px rgba(0,0,0,.25); }
+.e2c-shelf .shop-cell { width: 110px; height: 128px; }
+.e2c-buy { margin-left: auto; height: 70px; font-size: 30px; }
+/* O · ihtiyaç */
+.o-ava.calm .arc { opacity: .35; }
+.o-hidering .arc { opacity: 0 !important; }
+.o-pulse .arc { animation: op 1.6s ease-in-out infinite; }
+@keyframes op { 0%, 100% { filter: drop-shadow(0 2px 2px rgba(10,30,90,.4)); } 50% { filter: drop-shadow(0 0 10px rgba(255,170,60,.95)); } }
+.oa-pop { left: 156px; top: 26px; height: 92px; display: flex; align-items: center; gap: 8px; padding: 0 22px 0 8px; border-radius: 46px; background: #fff; box-shadow: 0 6px 12px rgba(0,0,0,.25); font-size: 30px; color: #8A4A10; transform: scale(0); transform-origin: 0 50%; transition: transform .3s cubic-bezier(.2,1.6,.4,1); z-index: 5; cursor: pointer; }
+.oa-pop img { width: 74px; height: 74px; animation: fl 1.6s ease-in-out infinite; }
+.oa-pop.on { transform: scale(1); }
+.ob-chips { left: 26px; top: 150px; display: grid; gap: 8px; z-index: 5; }
+.ob-chip { height: 64px; display: flex; align-items: center; gap: 8px; padding: 0 14px 0 6px; border-radius: 32px; background: rgba(255,255,255,.95); box-shadow: 0 4px 10px rgba(0,0,0,.2); transform: scale(0); transform-origin: 0 50%; transition: transform .3s cubic-bezier(.2,1.6,.4,1); cursor: pointer; }
+.ob-chip img { width: 54px; height: 54px; }
+.ob-chip i { display: block; width: 90px; height: 14px; border-radius: 7px; background: #E9E1CF; overflow: hidden; position: relative; }
+.ob-chip i::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: var(--v, 30%); border-radius: 7px; background: linear-gradient(#FFC070, #F28C28); }
+.ob-chip.on { transform: scale(1); }
+.oc-big { left: 104px; top: 92px; width: 84px; height: 84px; border-radius: 50%; background: #fff; box-shadow: 0 5px 10px rgba(0,0,0,.28); display: grid; place-items: center; z-index: 6; transform: scale(0); transition: transform .3s cubic-bezier(.2,1.6,.4,1); cursor: pointer; }
+.oc-big img { width: 64px; height: 64px; }
+.oc-big.on { transform: scale(1); animation: obb 2.4s ease-in-out infinite; }
+@keyframes obb { 0%, 80%, 100% { rotate: 0deg; } 86% { rotate: -10deg; } 93% { rotate: 8deg; } }
+.oc-face .face img { transition: transform .4s ease; }
+.oc-face.tilt .face img { transform: rotate(-9deg) translateY(4px); }
+.od-edge { left: 16px; top: 300px; width: 150px; height: 120px; z-index: 6; display: flex; align-items: center; gap: 0; opacity: 0; transition: opacity .3s ease; cursor: pointer; }
+.od-edge.on { opacity: 1; animation: oe 1.4s ease-in-out infinite; }
+@keyframes oe { 0%, 100% { translate: 0 0; } 50% { translate: -8px 0; } }
+.od-edge .tri { width: 0; height: 0; border: 26px solid transparent; border-right: 34px solid #fff; filter: drop-shadow(0 3px 4px rgba(0,0,0,.25)); }
+.od-edge .bb { width: 104px; height: 104px; border-radius: 50%; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,.25); display: grid; place-items: center; position: relative; }
+.od-edge .bb img.f { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; }
+.od-edge .bb img.n { position: absolute; right: -14px; top: -14px; width: 54px; height: 54px; background: #fff; border-radius: 50%; padding: 4px; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+.o-calm-note { left: 50%; bottom: 30px; transform: translateX(-50%); height: 52px; padding: 0 22px; border-radius: 26px; background: rgba(10,24,60,.55); font-size: 24px; display: flex; align-items: center; z-index: 5; }
+/* L7 · sınıflarla (yeniden oynatmada takılmaz) */
+#v7l-stage .l-star { transition: transform .38s cubic-bezier(.2,1.6,.4,1); }
+#v7l-stage.l7-s1 .l-star { transform: scale(1); }
+#v7l-stage.l7-s2 .l-star { transform: translateY(-40px) scale(.8); transition-duration: .4s; }
+#v7l-stage .l-rays { transition: opacity .3s ease; }
+#v7l-stage.l7-s1 .l-rays { opacity: 1; }
+#v7l-stage .l-rib { transform: translate(-50%, 30px) scale(.6); transition: opacity .3s ease, transform .3s cubic-bezier(.2,1.5,.4,1); }
+#v7l-stage.l7-s2 .l-rib { opacity: 1; transform: translate(-50%, -30px) scale(1); }
+#v7l-stage .l-rew { transform: translate(-50%, 30px); transition: opacity .3s ease, transform .3s ease; }
+#v7l-stage.l7-s3 .l-rew { opacity: 1; transform: translate(-50%, -30px); }
+#v7l-stage .l-go { transition: transform .32s cubic-bezier(.2,1.6,.4,1); }
+#v7l-stage.l7-s4 .l-go { transform: translateX(-50%) scale(1); }
+.l7-note { right: 140px; top: 32px; z-index: 12; font-size: 22px; height: 44px; padding: 0 16px; border-radius: 22px; background: rgba(10,24,60,.55); display: flex; align-items: center; opacity: 0; transition: opacity .3s ease; }
+.l7-note.on { opacity: 1; }
+/* K7 */
+.k7 td:first-child { font-weight: 800; white-space: nowrap; }
+.k7 td.y { color: var(--good); font-weight: 800; }
+.k7 td.n { color: var(--warn); font-weight: 800; }
+.k7-picks { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.k7-picks figure { margin: 0; border: 1px solid var(--line); border-radius: 14px; padding: 8px; background: var(--bg); display: grid; justify-items: center; gap: 4px; min-width: 0; }
+.k7-picks img { width: 96px; height: 96px; object-fit: contain; }
+.k7-picks figcaption { font: 800 14.5px var(--body); text-align: center; }
+.k7-picks figcaption small { display: block; font-weight: 700; color: var(--muted); }
+
 @media (prefers-reduced-motion: reduce) { .stage *, .stage *::before, .stage *::after { animation: none !important; transition-duration: .01s !important; } }
 </style>
 
@@ -312,6 +456,7 @@ table.map th { font: 900 12.5px var(--body); letter-spacing: .05em; text-transfo
   </header>
 
   <nav class="jump" aria-label="Bölümler">
+    <a href="#v7"><b>V7</b>Yeni seçimler (23 Ekim)</a>
     <a href="#yukleme"><b>Y</b>Yükleme görselleri</a>
     <a href="#film"><b>F</b>Giriş filmi</a>
     <a href="#konusma"><b>S</b>Konuşma</a>
@@ -323,6 +468,264 @@ table.map th { font: 900 12.5px var(--body); letter-spacing: .05em; text-transfo
     <a href="#adalilar"><b>K</b>Adalılar</a>
     <a href="#onay"><b>✓</b>Onay</a>
   </nav>
+
+  <!-- ================= V7 · 23 Ekim seçimleri ================= -->
+  <section id="v7" class="v7-hero">
+    <div class="head"><span class="code">V7</span><h2>Yeni seçimler (23 Ekim)</h2><span class="v7-tag">yeni</span></div>
+    <p class="insp">Geri bildirimine göre yeni taslaklar: toplanan her şey çantaya gidiyor, Ev Görevleri ve Dükkân için daha sade pencereler, Okti'nin ihtiyacı sol üstte daha görünür. Seviye atlama için önerim ve adalıların 3B değerlendirmesi de burada. Onayladıkların zaten oyuna giriyor.</p>
+    <div class="opt" style="border:2px solid var(--good)">
+      <b><i style="color:var(--good)">✓</i>Onaylananlar (23 Ekim): oyuna giriyor</b>
+      <ul class="okl" style="margin-top:6px">
+        <li>Y1–Y5 yükleme görselleri; ilk oyuncunun karakter seçme ekranı da bu dilde</li>
+        <li>F giriş filmi: 5 yaş ve altı ile 6–8 kısa metin, 9–12 ile 13 ve üstü uzun metin</li>
+        <li>S2 günlük konuşmalar, S1 büyük anlar (bölüm açılışı, fener)</li>
+        <li>Sohbet baloncukları yazının boyu kadar</li>
+        <li>N1 yerde ışıklı oklar + N3 hedefte ok ve baloncuk</li>
+        <li>D1–D4 parmak ipuçları</li>
+        <li>G1 ihtiyaç baloncuğu + G2 Okti'ye dokun (akıllı gizlenmeyle)</li>
+        <li>E3 gereksinim kartı + E4 uzun bas bilgi</li>
+        <li>Seviye ödülündeki eşya Evim düğmesine uçar</li>
+        <li>Sesli okuma: doğal Türkçe ses (örnekler ayrıca dinlemene gelecek)</li>
+        <li>Yaş grupları üç uygulamada aynı: K 5 ve altı, A 6–8, B 9–12, C 13 ve üstü</li>
+      </ul>
+    </div>
+    <nav class="v7-mini" aria-label="V7 bölümleri">
+      <a href="#canta"><b>Ç</b>Çanta</a>
+      <a href="#evgorev7"><b>E1</b>Ev Görevleri</a>
+      <a href="#dukkan7"><b>E2</b>Dükkân</a>
+      <a href="#ihtiyac7"><b>İ</b>Okti'nin ihtiyacı</a>
+      <a href="#seviye7"><b>L</b>Seviye önerisi</a>
+      <a href="#adali3b"><b>K</b>Adalılar 3B</a>
+    </nav>
+    <p><b>Nasıl onaylarsın:</b> kodları yaz, örneğin <strong>"Ç1, E1a, E2a, İ1 + İ4, L1, K 3B evet, Kıskaç a, Mavi c"</strong>.</p>
+  </section>
+
+  <!-- ================= Ç ================= -->
+  <section id="canta">
+    <div class="head"><span class="code">Ç</span><h2>Çanta: toplanan her şey içine</h2><span class="v7-tag">yeni</span></div>
+    <p class="insp">Senin fikrin: odun, dal, taş (ve sonra eklenecek her şey) toplanınca sağdaki "0/6 Odun" paneline değil, uçarak çantaya girer. Çantanın üstündeki sayı artar ve zıplar. Çantaya dokununca küçük bir baloncuk açılır: yalnız simgeler ve sayılar, büyük pencere yok. Kulübe için ne eksik, şantiyedeki gereksinim kartı (E3) söyler.</p>
+    <div class="ctrl" role="group" aria-label="Çanta yeri">
+      <button type="button" data-v7c="cv1" aria-pressed="true"><b>Ç1</b>Sol altta, joystick'in yanında</button>
+      <button type="button" data-v7c="cv2" aria-pressed="false"><b>Ç2</b>Sağ üstte, coin'in altında</button>
+    </div>
+    <div class="ctrl" role="group" aria-label="Sahnede dene">
+      <span class="lbl">Dene</span>
+      <button type="button" id="v7c-wood">Odun topla</button>
+      <button type="button" id="v7c-stone">Taş topla</button>
+      <button type="button" id="v7c-open">Çantayı aç</button>
+    </div>
+    <div class="frame" id="v7c-frame"><div class="stage cv1" id="v7c-stage">
+      <img class="bg" src="img/shot_sahil.jpg" alt="">
+      <div class="abs g-ava"><div class="arc"></div><div class="face"><img src="img/okti_face.png" alt=""></div><div class="lv">3</div></div>
+      <div class="abs g-top">
+        <div class="chip"><img src="img/ui_coin.png" alt="">35</div>
+        <button type="button" class="b3" style="width:100px;height:100px;--ex:#C26A08" aria-label="Görev"><img src="img/ui_star.png" alt=""><span class="lab">Görev</span><span class="gem">2</span></button>
+        <button type="button" class="b3" style="width:100px;height:100px;--ex:#7A4A12;--dl:.5s" aria-label="Harita"><img src="img/ui_map.png" alt=""><span class="lab">Harita</span></button>
+      </div>
+      <div class="abs c-joy" aria-hidden="true"></div>
+      <div class="abs c-tool" id="v7c-tool"><div class="bb"><img src="img/tool_axe.png" alt=""></div></div>
+      <button type="button" class="b3 g-act" id="v7c-act" style="--ex:#4E2E14" aria-label="Topla"><img src="img/tool_axe.png" alt=""><span class="lab green">Topla</span></button>
+      <button type="button" class="b3 c-bag" id="v7c-bag" style="--ex:#2F5A1C" aria-label="Çanta"><img src="img/backpack_small.png" alt=""><span class="gem" id="v7c-n">9</span></button>
+      <div class="c-pop" id="v7c-pop">
+        <div class="c-cell" data-v7m="wood"><img src="img/mat_wood.png" alt="Odun"><span>4</span></div>
+        <div class="c-cell" data-v7m="branch"><img src="img/mat_branch.png" alt="Dal"><span>4</span></div>
+        <div class="c-cell" data-v7m="stone"><img src="img/mat_stone.png" alt="Taş"><span>1</span></div>
+        <div class="c-cell ask"><img src="img/food_apple.png" alt="Elma"><span>3</span></div>
+        <div class="c-cell ask"><img src="img/clean_soap.png" alt="Sabun"><span>2</span></div>
+        <div class="c-cell ask"><img src="img/seed_carrot.png" alt="Tohum"><span>5</span></div>
+      </div>
+    </div></div>
+    <div class="opts">
+      <div class="opt rec"><span class="rec-tag">Önerim</span><b><i>Ç1</i>Sol altta</b><p>Başparmak zaten orada (joystick); çantaya bakmak için elini kaldırmaz. Sağ üst coin ve Görev için sade kalır. Yürürken (akıllı gizlenme) küçülür, durunca geri gelir.</p></div>
+      <div class="opt"><b><i>Ç2</i>Sağ üstte</b><p>Coin'in hemen altında; bütün sayılar tek köşede toplanır. Ama sağ üst kalabalıklaşır ve eylem düğmesine uzaktır.</p></div>
+    </div>
+    <ul class="facts">
+      <li>Toplanan şey 0,5 sn'de yay çizerek çantaya uçar; çanta sayısı her gelişte zıplar (O1 ödül uçuşu ile aynı his).</li>
+      <li>Baloncuk çantanın yanında açılır, dışına dokununca kapanır; başlık, çarpı ya da yazı yok.</li>
+      <li>Sağdaki malzeme paneli kalkar. Kulübe şantiyesine yaklaşınca E3 kartı eksikleri resimle gösterir.</li>
+    </ul>
+    <p class="q"><b>Soru:</b> Yiyecek, sabun ve tohum da çantada dursun mu? Baloncukta kesik çizgili kutular bunlar. "Evet" dersen G1'deki ihtiyaç baloncuğu yiyeceği de buradan alır.</p>
+  </section>
+
+  <!-- ================= E1 alternatifleri ================= -->
+  <section id="evgorev7">
+    <div class="head"><span class="code">E1</span><h2>Ev Görevleri: daha sade üç yol</h2><span class="v7-tag">yeni</span></div>
+    <p class="insp">Ada ve pano görünür kalır, yazı en az, her görevde tek yeşil düğme. Görev "Yaptım" deyince ebeveyn onayına gider ("Bekliyor"); coin ve Güneş Taşı onaydan sonra gelir.</p>
+    <div class="ctrl" role="group" aria-label="Ev Görevleri biçimi">
+      <button type="button" data-v7e1="e1a" aria-pressed="true"><b>E1a</b>Panoda kâğıtlar</button>
+      <button type="button" data-v7e1="e1b" aria-pressed="false"><b>E1b</b>Alt şerit</button>
+      <button type="button" data-v7e1="e1c" aria-pressed="false"><b>E1c</b>Tek görev kartı</button>
+    </div>
+    <div class="frame" id="v7e1-frame"><div class="stage v7e e1a" id="v7e1-stage">
+      <img class="bg" src="img/shot_board.jpg" alt="">
+      <div data-v7view="e1a">
+        <button type="button" class="note7" style="left:540px;top:70px;transform:rotate(-6deg)" data-v7note><span class="em">🪥</span><span class="cn"><img src="img/ui_coin.png" alt="">5</span><span class="stamp">✓ Bekliyor</span></button>
+        <button type="button" class="note7" style="left:690px;top:100px;transform:rotate(4deg)" data-v7note><span class="em">🧸</span><span class="cn"><img src="img/ui_coin.png" alt="">5</span><span class="stamp">✓ Bekliyor</span></button>
+        <button type="button" class="note7" style="left:840px;top:64px;transform:rotate(-3deg)" data-v7note><span class="em">📖</span><span class="cn"><img src="img/ui_coin.png" alt="">10</span><span class="stamp">✓ Bekliyor</span></button>
+        <button type="button" class="wb e1a-go" id="v7e1a-go">✓ Yaptım</button>
+      </div>
+      <div data-v7view="e1b">
+        <div class="abs e1b-tray">
+          <div class="e1b-chip"><span class="em">🪥</span>Diş fırçala<span class="cn"><img src="img/ui_coin.png" alt="">5</span><button type="button" class="okbtn" data-v7ok aria-label="Yaptım">✓</button></div>
+          <div class="e1b-chip"><span class="em">🧸</span>Oyuncaklar<span class="cn"><img src="img/ui_coin.png" alt="">5</span><button type="button" class="okbtn" data-v7ok aria-label="Yaptım">✓</button></div>
+          <div class="e1b-chip"><span class="em">📖</span>Kitap oku<span class="cn"><img src="img/ui_coin.png" alt="">10</span><button type="button" class="okbtn" data-v7ok aria-label="Yaptım">✓</button></div>
+        </div>
+      </div>
+      <div data-v7view="e1c">
+        <div class="abs cream e1c-card" id="v7e1c-card">
+          <span class="em" id="v7e1c-em">🪥</span>
+          <span class="nm" id="v7e1c-nm">Dişlerini fırçala</span>
+          <span class="cn"><img src="img/ui_coin.png" alt=""><span id="v7e1c-cn">5</span></span>
+          <button type="button" class="wb" id="v7e1c-go">✓ Yaptım</button>
+          <div class="e1c-dots" id="v7e1c-dots"><i class="on"></i><i></i><i></i></div>
+          <button type="button" class="e1c-next" id="v7e1c-next" aria-label="Sonraki">›</button>
+        </div>
+      </div>
+    </div></div>
+    <div class="opts">
+      <div class="opt rec"><span class="rec-tag">Önerim</span><b><i>E1a</i>Panoda kâğıtlar</b><p>Pencere hiç yok: görevler adadaki panoda iğneli kâğıt. Kâğıda dokun, büyür ve altında "Yaptım" çıkar. Yapılan kâğıt yeşil damgayla panoda kalır. Ev Görevleri gerçekten "adadaki pano" olur.</p></div>
+      <div class="opt"><b><i>E1b</i>Alt şerit</b><p>Ekranın altında ince bir şerit, 2–3 görev çipi; her çipte büyük yuvarlak ✓. Ekranın yalnız yüzde 18'i.</p></div>
+      <div class="opt"><b><i>E1c</i>Tek görev kartı</b><p>Sağda küçük kart, her seferinde tek görev; "›" ile sıradaki. Küçük çocukta seçim yükü yok, ama çok görevde yavaş.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= E2 alternatifleri ================= -->
+  <section id="dukkan7">
+    <div class="head"><span class="code">E2</span><h2>Dükkân: çanta kadar sade</h2><span class="v7-tag">yeni</span></div>
+    <p class="insp">Kıskaç'ın tezgâhı adada görünür kalır. Ürüne dokun, seç; tek yeşil "Al" düğmesi çıkar. Fiyat yalnız küçük coin etiketi. Onaylı E3 (gereksinim kartı) ve E4 (uzun bas bilgi) aynı kalıyor.</p>
+    <div class="ctrl" role="group" aria-label="Dükkân biçimi">
+      <button type="button" data-v7e2="e2a" aria-pressed="true"><b>E2a</b>Tezgâh baloncuğu</button>
+      <button type="button" data-v7e2="e2b" aria-pressed="false"><b>E2b</b>Süzülen ürünler</button>
+      <button type="button" data-v7e2="e2c" aria-pressed="false"><b>E2c</b>İnce raf</button>
+    </div>
+    <div class="frame" id="v7e2-frame"><div class="stage v7e e2a" id="v7e2-stage">
+      <img class="bg" src="img/shot_koy.jpg" alt="">
+      <div data-v7view="e2a">
+        <div class="abs e2a-pop" id="v7e2a-pop">
+          <button type="button" class="shop-cell" data-v7buy="2"><img class="it" src="img/food_apple.png" alt="Elma"><span class="pr"><img src="img/ui_coin.png" alt="">2</span></button>
+          <button type="button" class="shop-cell" data-v7buy="3"><img class="it" src="img/food_carrot.png" alt="Havuç"><span class="pr"><img src="img/ui_coin.png" alt="">3</span></button>
+          <button type="button" class="shop-cell" data-v7buy="4"><img class="it" src="img/food_coconut.png" alt="Hindistan cevizi"><span class="pr"><img src="img/ui_coin.png" alt="">4</span></button>
+          <button type="button" class="shop-cell" data-v7buy="2"><img class="it" src="img/seed_carrot.png" alt="Tohum"><span class="pr"><img src="img/ui_coin.png" alt="">2</span></button>
+          <button type="button" class="shop-cell" data-v7buy="20"><img class="it" src="img/hoodie_soft.png" alt="Kapüşonlu"><span class="pr"><img src="img/ui_coin.png" alt="">20</span></button>
+          <button type="button" class="shop-cell" data-v7buy="15"><img class="it" src="img/decor_sandcastle.png" alt="Kumdan kale"><span class="pr"><img src="img/ui_coin.png" alt="">15</span></button>
+          <button type="button" class="wb e2a-buy off" id="v7e2a-buy">Al</button>
+        </div>
+      </div>
+      <div data-v7view="e2b">
+        <button type="button" class="e2b-bub" style="left:520px;top:70px;--dl:0s" data-v7bub="2"><span class="bb"><img src="img/food_apple.png" alt="Elma"></span><span class="tag"><img src="img/ui_coin.png" alt="">2</span></button>
+        <button type="button" class="e2b-bub" style="left:660px;top:16px;--dl:.4s" data-v7bub="3"><span class="bb"><img src="img/food_carrot.png" alt="Havuç"></span><span class="tag"><img src="img/ui_coin.png" alt="">3</span></button>
+        <button type="button" class="e2b-bub" style="left:800px;top:16px;--dl:.8s" data-v7bub="20"><span class="bb"><img src="img/hoodie_soft.png" alt="Kapüşonlu"></span><span class="tag"><img src="img/ui_coin.png" alt="">20</span></button>
+        <button type="button" class="e2b-bub" style="left:940px;top:70px;--dl:1.2s" data-v7bub="15"><span class="bb"><img src="img/decor_sandcastle.png" alt="Kumdan kale"></span><span class="tag"><img src="img/ui_coin.png" alt="">15</span></button>
+        <button type="button" class="wb e2b-buy" id="v7e2b-buy">Al</button>
+      </div>
+      <div data-v7view="e2c">
+        <div class="abs e2c-shelf">
+          <button type="button" class="shop-cell" data-v7buy="2"><img class="it" src="img/food_apple.png" alt="Elma"><span class="pr"><img src="img/ui_coin.png" alt="">2</span></button>
+          <button type="button" class="shop-cell" data-v7buy="3"><img class="it" src="img/food_carrot.png" alt="Havuç"><span class="pr"><img src="img/ui_coin.png" alt="">3</span></button>
+          <button type="button" class="shop-cell" data-v7buy="4"><img class="it" src="img/food_coconut.png" alt="Hindistan cevizi"><span class="pr"><img src="img/ui_coin.png" alt="">4</span></button>
+          <button type="button" class="shop-cell" data-v7buy="2"><img class="it" src="img/seed_carrot.png" alt="Tohum"><span class="pr"><img src="img/ui_coin.png" alt="">2</span></button>
+          <button type="button" class="shop-cell" data-v7buy="20"><img class="it" src="img/hoodie_soft.png" alt="Kapüşonlu"><span class="pr"><img src="img/ui_coin.png" alt="">20</span></button>
+          <button type="button" class="shop-cell" data-v7buy="15"><img class="it" src="img/decor_sandcastle.png" alt="Kumdan kale"><span class="pr"><img src="img/ui_coin.png" alt="">15</span></button>
+          <button type="button" class="wb e2c-buy off" id="v7e2c-buy">Al</button>
+        </div>
+      </div>
+      <div class="abs chip" style="right:26px;top:18px;z-index:6"><img src="img/ui_coin.png" alt=""><span id="v7e2-coin">35</span></div>
+    </div></div>
+    <div class="opts">
+      <div class="opt rec"><span class="rec-tag">Önerim</span><b><i>E2a</i>Tezgâh baloncuğu</b><p>Çanta baloncuğunun ikizi: tezgâhın altında küçük ızgara, ürün ve küçük fiyat. Seç, "Al" yeşillenir. Dil aynı olduğu için çocuk ikisini hemen tanır.</p></div>
+      <div class="opt"><b><i>E2b</i>Süzülen ürünler</b><p>Pencere hiç yok: ürünler tezgâhın üstünde baloncuk olarak süzülür (arayüz kararındaki "tezgâhta süzülen baloncuklar"). 4–5 ürünü geçince sığmaz.</p></div>
+      <div class="opt"><b><i>E2c</i>İnce raf</b><p>Altta ekranın yüzde 22'si kadar ahşap raf; sola kaydırınca daha çok ürün. En çok ürün sığar, en az "ada" hissi verir.</p></div>
+      <div class="opt" style="border:2px solid var(--good)"><span class="rec-tag" style="color:var(--good)">Onaylı</span><b><i>E3 · E4</i>Aynı kalıyor</b><p>E3 gereksinim kartı (Kulübe) ve E4 uzun bas bilgi. Yukarıdaki <a href="#pencere">E bölümünde</a> görülebilir.</p></div>
+    </div>
+  </section>
+
+  <!-- ================= O · ihtiyaç ================= -->
+  <section id="ihtiyac7">
+    <div class="head"><span class="code">İ</span><h2>Okti'nin ihtiyacı: sol üstte görünür</h2><span class="v7-tag">yeni</span></div>
+    <p class="insp">Nabız fikri kalıyor (halkadaki dilim yumuşakça parlar), ama tek başına küçük kalıyordu. Dört yol: hepsinde ihtiyaca dokununca Okti yer ya da yıkanır (G1). Kırmızı uyarı, üzgün yüz ya da "seni bekledi" yok.</p>
+    <div class="ctrl" role="group" aria-label="İhtiyaç gösterimi">
+      <button type="button" data-v7o="oa" aria-pressed="true"><b>İ1</b>Yanında simge</button>
+      <button type="button" data-v7o="ob" aria-pressed="false"><b>İ2</b>Altta çip</button>
+      <button type="button" data-v7o="oc" aria-pressed="false"><b>İ3</b>Tek büyük simge</button>
+      <button type="button" data-v7o="od" aria-pressed="false"><b>İ4</b>Dünyada + kenar oku</button>
+    </div>
+    <div class="ctrl" role="group" aria-label="Sahnede dene">
+      <span class="lbl">Dene</span>
+      <button type="button" id="v7o-hungry" aria-pressed="true">Okti acıksın</button>
+      <button type="button" id="v7o-away" aria-pressed="false">Okti ekran dışına çıksın</button>
+    </div>
+    <div class="frame" id="v7o-frame"><div class="stage" id="v7o-stage">
+      <img class="bg" src="img/shot_sahil.jpg" alt="" style="transition:transform .6s ease">
+      <div class="abs g-ava o-ava" id="v7o-ava"><div class="arc"></div><div class="face"><img src="img/okti_face.png" alt=""></div><div class="lv">3</div></div>
+      <button type="button" class="abs oa-pop" id="v7o-a" aria-label="Besle"><img src="img/food_apple.png" alt="">Acıktım</button>
+      <div class="abs ob-chips" id="v7o-b">
+        <button type="button" class="ob-chip" style="--v:22%" aria-label="Besle"><img src="img/food_apple.png" alt=""><i></i></button>
+      </div>
+      <button type="button" class="abs oc-big" id="v7o-c" aria-label="Besle"><img src="img/food_apple.png" alt=""></button>
+      <div class="abs g-need" id="v7o-d" style="left:735px;top:250px"><div class="bb"><img src="img/food_apple.png" alt=""></div><i></i><i></i></div>
+      <button type="button" class="abs od-edge" id="v7o-edge" aria-label="Okti'ye git"><span class="tri"></span><span class="bb"><img class="f" src="img/okti_face.png" alt=""><img class="n" src="img/food_apple.png" alt=""></span></button>
+      <div class="abs o-calm-note" id="v7o-note">Okti acıktı: elmaya dokun</div>
+    </div></div>
+    <div class="opts">
+      <div class="opt rec"><span class="rec-tag">Önerim: İ1 + İ4</span><b><i>İ1</i>Yanında simge</b><p>İhtiyaç olunca avatarın yanından tek simge ve tek kelime çıkar ("Acıktım"); her 3 sn'de bir hafifçe zıplar. Dokununca Okti yer. Her şey yolundaysa hiçbir şey yok.</p></div>
+      <div class="opt"><b><i>İ2</i>Altta çip</b><p>Avatarın altında yalnız eksilen ihtiyaç için küçük çip ve dolum çubuğu. Birden çok ihtiyaç üst üste dizilir.</p></div>
+      <div class="opt"><b><i>İ3</i>Tek büyük simge</b><p>Dört dilimli halka kalkar; avatar başını hafifçe eğer ve yanında tek büyük ihtiyaç simgesi durur. En sade, ama hangi ihtiyacın ne kadar dolu olduğu görünmez.</p></div>
+      <div class="opt"><b><i>İ4</i>Dünyada + kenar oku</b><p>İhtiyaç Okti'nin başının üstünde (G1). Okti ekranda değilse ekran kenarında Okti'nin yüzü ve simgesi olan küçük bir ok çıkar; dokununca kamera Okti'ye döner.</p></div>
+    </div>
+    <ul class="facts">
+      <li>İ1 ve İ4 birlikte: sol üstte görünür, Okti'nin yanında da görünür, Okti ekran dışındaysa kenarda.</li>
+      <li class="w">Nabız 1,6 sn'de bir, yumuşak turuncu parıltı; ses ya da titreşim yok. Uzun süre bakılmasa da ceza ya da üzgün yüz yok.</li>
+    </ul>
+  </section>
+
+  <!-- ================= L önerisi ================= -->
+  <section id="seviye7">
+    <div class="head"><span class="code">L</span><h2>Seviye atlama: önerim L1</h2><span class="v7-tag">yeni</span></div>
+    <p class="insp">Sorduğun L1 ile L2 arasında önerim <b>L1 (penceresiz)</b>. Seviye en büyük an: yıldız ortada patlar, tek ödül görünür, büyük düğme. Pencere açılmadığı için bütün "küçük pencere" diline uyar ve 3 sn'de biter. L2 kartını yalnız aynı anda iki ya da daha çok şey açıldığında kullanırım. Gördüğün ayrıntı da burada: eşya "Harika!" deyince Evim düğmesine uçar.</p>
+    <div class="ctrl" role="group" aria-label="Seviye önerisi">
+      <button type="button" id="v7l-play"><b>▶</b>Oynat</button>
+    </div>
+    <div class="frame" id="v7l-frame"><div class="stage" id="v7l-stage">
+      <img class="bg" src="img/shot_sahil.jpg" alt="">
+      <div class="abs l-bar"><i id="v7l-xp"></i></div>
+      <button type="button" class="b3" id="v7l-home" style="right:30px;top:14px;width:100px;height:100px;z-index:11;--ex:#7A4A12" aria-label="Evim"><img src="img/ui_home.png" alt=""><span class="lab" style="bottom:-14px">Evim</span><span class="gem" id="v7l-cn" hidden>1</span></button>
+      <div class="abs l7-note" id="v7l-note">Kumdan kale Evim'e gitti</div>
+      <div class="l-veil"></div>
+      <div class="abs l-rays" id="v7l-rays"></div>
+      <div class="abs l-star" id="v7l-star"><img src="img/ui_star_big.png" alt=""><b>4</b></div>
+      <div class="ribbon red l-rib" id="v7l-rib">Seviye 4!</div>
+      <div class="abs l-rew" id="v7l-rew"><div class="rw"><img src="img/decor_sandcastle.png" alt=""><span>+1</span></div></div>
+      <button type="button" class="abs wb l-go" id="v7l-go">Harika!</button>
+    </div></div>
+    <ul class="facts">
+      <li class="t">Kısma 0,12 sn → yıldız 0,4 sn'de sıçrar → yazı ve tek ödül → düğme 1 sn sonra → eşya 1,1 sn'de Evim'e uçar.</li>
+      <li>Açılan yer (ör. Bahçe) ödül değil, haritada ışıkla gösterilir (N1 okları oraya akar).</li>
+      <li class="w">Ödül coin ya da Güneş Taşı değil: bir eşya ve açılan yer.</li>
+    </ul>
+  </section>
+
+  <!-- ================= K 3B ================= -->
+  <section id="adali3b">
+    <div class="head"><span class="code">K</span><h2>Adalılar 3B olsun mu?</h2><span class="v7-tag">yeni</span></div>
+    <p class="insp">Değerlendirdim: 3B adalılar adayı canlı bir köy yapar; çocuk onları kapılarının önünde görür, dokununca el sallarlar, S2 konuşmalarında portre yerine kendileri konuşur. Kredi kuralına da uyuyor.</p>
+    <div class="tw"><table class="map k7">
+      <thead><tr><th></th><th>2B portre (şimdi)</th><th>3B (Meshy, görselden 3B + iskelet)</th></tr></thead>
+      <tbody>
+        <tr><td>Kredi</td><td class="y">0</td><td>Karakter başına ~30–35; Kıskaç + Mavi ≈ 65–70 (Pus da olursa ≈ 100). 613 → ~510–545, 100 sınırının çok üstünde.</td></tr>
+        <tr><td>Adada durur</td><td class="n">Hayır, yalnız baloncuk</td><td class="y">Evet: Kıskaç dükkânın önünde, Mavi posta kutusunda</td></tr>
+        <tr><td>Tepki</td><td class="n">Yok</td><td class="y">El sallama, sevinme, Okti'ye dönme (A1 ile aynı dil)</td></tr>
+        <tr><td>S2 konuşma</td><td>Portre alttan yükselir</td><td class="y">Kamera adalıya döner, kendisi konuşur</td></tr>
+        <tr><td>Risk</td><td class="y">Düşük</td><td class="n">Çokgen bütçesi (telefon), yengeç ve kuşta iskelet kalitesi; bulutta iskelet gereksiz</td></tr>
+      </tbody>
+    </table></div>
+    <div class="opt rec"><span class="rec-tag">Önerim</span><b>Kıskaç ve Mavi 3B, gerisi kodla</b><p>Kıskaç ve Mavi Meshy ile 3B ve iskeletli (≈ 65–70 kredi). Pus kodla yumuşak bir bulut olur, iskelet gerekmez, kredisiz. Tosbi Dede (mevcut model + gözlük, olta) ve yüzlü palmiyeler Pıtır ile Hışır da kodla. Önce birini yapıp oyunda gösteririm, beğenirsen ikincisine geçerim.</p></div>
+    <p><b>Seçmen gereken:</b> hangi taslaktan? Kıskaç a / b / c ve Mavi a / b / c. Yukarıdaki <a href="#adalilar">K bölümündeki</a> sayfada hepsi var.</p>
+    <div class="k7-picks">
+      <figure><img src="img/por_kiskac.png" alt=""><figcaption>Kıskaç<small>dükkâncı yengeç · a / b / c</small></figcaption></figure>
+      <figure><img src="img/por_mavi.png" alt=""><figcaption>Mavi<small>posta martısı · a / b / c</small></figcaption></figure>
+      <figure><img src="img/por_pus.png" alt=""><figcaption>Pus<small>kodla bulut · kredisiz</small></figcaption></figure>
+    </div>
+  </section>
 
   <!-- ================= Y ================= -->
   <section id="yukleme">
@@ -632,7 +1035,7 @@ table.map th { font: 900 12.5px var(--body); letter-spacing: .05em; text-transfo
   <!-- ================= Onay ================= -->
   <section id="onay" class="ask">
     <div class="head"><span class="code">✓</span><h2>Nasıl onaylarsın</h2></div>
-    <p>Sohbete beğendiğin kodları yaz. Örnek: <strong>"Y1–Y5, F, S1+S2, N1+N2+N3, D1+D2+D3, G1+G2, E1+E2+E3+E4, L1, Kıskaç a, Mavi c"</strong>. Değişiklik istediğin yeri kısaca yazman yeter.</p>
+    <p>Bu sayfadaki ilk seçimler 23 Ekim'de yapıldı (yukarıda <a href="#v7">V7</a> bölümündeki "Onaylananlar"). Şimdi beklenen yeni kodlar: <strong>Ç1 / Ç2, E1a / E1b / E1c, E2a / E2b / E2c, İ1 / İ2 / İ3 / İ4, L1 / L2, K 3B evet / hayır, Kıskaç a / b / c, Mavi a / b / c</strong>. Örnek: <strong>"Ç1, E1a, E2a, İ1 + İ4, L1, K 3B evet, Kıskaç a, Mavi c"</strong>. Değişiklik istediğin yeri kısaca yazman yeter.</p>
     <p class="note">Önceki fikir sayfasındaki onaylı maddeler (P1–P5, O1–O4, A1–A4, H1–H6) oyuna giriyor; bu sayfadaki seçimler onların görünüşünü belirler:</p>
     <div class="tw"><table class="map">
       <thead><tr><th>Onaylı madde</th><th>Bu sayfada görünüşü</th></tr></thead>
@@ -941,5 +1344,185 @@ table.map th { font: 900 12.5px var(--body); letter-spacing: .05em; text-transfo
   $('#l-go').onclick = lClaim; $('#l-go2').onclick = lClaim; $('#l-play').onclick = lPlay;
   $$('[data-l]').forEach(b => b.onclick = () => { lMode = b.dataset.l; $$('[data-l]').forEach(x => x.setAttribute('aria-pressed', x === b)); lBusy = false; lReset(); lPlay(); });
   setTimeout(lPlay, 600);
+})();
+</script>
+<script>
+/* ===== V7 · 23 Ekim seçimleri ===== */
+(() => {
+  const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const wait = ms => new Promise(r => setTimeout(r, reduce ? Math.min(ms, 60) : ms));
+  const D = ms => (reduce ? 10 : ms);
+  const pressIn = (btns, on) => btns.forEach(b => b.setAttribute('aria-pressed', b === on));
+  const bump = el => el.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.22)' }, { transform: 'scale(1)' }], { duration: D(320), easing: 'ease-out' });
+  // stage koordinatında bir öğenin merkezi
+  const center = (el, st) => { const a = el.getBoundingClientRect(), b = st.getBoundingClientRect(), k = b.width / 1600; return [(a.left + a.width / 2 - b.left) / k, (a.top + a.height / 2 - b.top) / k]; };
+
+  /* ---- Ç · çanta ---- */
+  const cSt = $('#v7c-stage'), cBag = $('#v7c-bag'), cN = $('#v7c-n'), cPop = $('#v7c-pop');
+  let cCount = 9, cBusy = false;
+  $$('[data-v7c]').forEach(b => b.onclick = () => { pressIn($$('[data-v7c]'), b); cSt.classList.remove('cv1', 'cv2'); cSt.classList.add(b.dataset.v7c); });
+  async function cGather(kind) {
+    if (cBusy) return; cBusy = true;
+    const icon = kind === 'stone' ? 'mat_stone' : 'mat_wood';
+    $('#v7c-tool img').src = kind === 'stone' ? 'img/tool_hand.png' : 'img/tool_axe.png';
+    $('#v7c-act img').src = kind === 'stone' ? 'img/tool_hand.png' : 'img/tool_axe.png';
+    bump($('#v7c-act'));
+    const from = [1390, 520];
+    const plus = document.createElement('div'); plus.className = 'c-plus ink'; plus.textContent = '+1'; plus.style.left = '1420px'; plus.style.top = '440px'; cSt.appendChild(plus);
+    plus.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-60px)', opacity: 0 }], { duration: D(900), easing: 'ease-out', fill: 'forwards' }).finished.then(() => plus.remove());
+    const f = document.createElement('div'); f.className = 'g-fly'; f.innerHTML = `<img src="img/${icon}.png" alt="">`; cSt.appendChild(f);
+    await wait(120);
+    const to = center(cBag, cSt);
+    const mid = [(from[0] + to[0]) / 2, Math.min(from[1], to[1]) - 220];
+    await f.animate([
+      { left: from[0] + 'px', top: from[1] + 'px', transform: 'scale(.4)' },
+      { left: from[0] + 'px', top: (from[1] - 70) + 'px', transform: 'scale(1.25)', offset: .25 },
+      { left: mid[0] + 'px', top: mid[1] + 'px', transform: 'scale(1)', offset: .62 },
+      { left: to[0] + 'px', top: to[1] + 'px', transform: 'scale(.6)' }], { duration: D(1000), easing: 'ease-in', fill: 'forwards' }).finished;
+    f.remove();
+    cCount++; cN.textContent = cCount; bump(cBag);
+    const cell = $(`[data-v7m="${kind}"]`, cPop);
+    if (cell) { const s = $('span', cell); s.textContent = (+s.textContent) + 1; cell.classList.remove('bump'); void cell.offsetWidth; cell.classList.add('bump'); }
+    cBusy = false;
+  }
+  $('#v7c-wood').onclick = () => cGather('wood');
+  $('#v7c-stone').onclick = () => cGather('stone');
+  $('#v7c-act').onclick = () => cGather('wood');
+  const cToggle = () => cPop.classList.toggle('on');
+  $('#v7c-open').onclick = cToggle; cBag.onclick = e => { e.stopPropagation(); cToggle(); };
+  cSt.addEventListener('click', e => { if (e.target.classList.contains('bg')) cPop.classList.remove('on'); });
+  // kendiliğinden kısa döngü: topla → topla → çantayı aç → kapat
+  (async () => {
+    await wait(1200);
+    while (true) {
+      if (document.hidden) { await wait(1000); continue; }
+      await cGather('wood'); await wait(900); await cGather('wood'); await wait(900);
+      cPop.classList.add('on'); await wait(2600); cPop.classList.remove('on'); await wait(3500);
+    }
+  })();
+
+  /* ---- E1 · Ev Görevleri ---- */
+  const e1St = $('#v7e1-stage');
+  $$('[data-v7e1]').forEach(b => b.onclick = () => { pressIn($$('[data-v7e1]'), b); e1St.classList.remove('e1a', 'e1b', 'e1c'); e1St.classList.add(b.dataset.v7e1); e1aClose(); });
+  const go = $('#v7e1a-go'); let e1Note = null;
+  function e1aClose() { $$('[data-v7note]', e1St).forEach(n => n.classList.remove('big')); go.classList.remove('on'); e1Note = null; }
+  $$('[data-v7note]', e1St).forEach(n => n.onclick = e => {
+    e.stopPropagation();
+    if (n.classList.contains('done')) return;
+    const was = e1Note === n; e1aClose(); if (was) return;
+    n.classList.add('big'); e1Note = n;
+    go.style.left = (parseFloat(n.style.left) - 4) + 'px'; go.style.top = (parseFloat(n.style.top) + 200) + 'px'; go.classList.add('on');
+  });
+  go.onclick = e => { e.stopPropagation(); if (!e1Note) return; e1Note.classList.add('done'); bump(e1Note); e1aClose(); };
+  e1St.addEventListener('click', e => { if (e.target.classList.contains('bg')) e1aClose(); });
+  $$('[data-v7ok]', e1St).forEach(b => b.onclick = () => { if (b.classList.contains('wait')) return; b.classList.add('wait'); b.textContent = '…'; b.setAttribute('aria-label', 'Bekliyor'); bump(b); });
+  const T1 = [['🪥', 'Dişlerini fırçala', 5], ['🧸', 'Oyuncaklarını topla', 5], ['📖', '10 dakika kitap oku', 10]];
+  let tI = 0;
+  async function e1cShow(i, done) {
+    const card = $('#v7e1c-card');
+    card.classList.add('out'); await wait(250);
+    tI = (i + T1.length) % T1.length; const t = T1[tI];
+    $('#v7e1c-em').textContent = t[0]; $('#v7e1c-nm').textContent = t[1]; $('#v7e1c-cn').textContent = t[2];
+    $$('#v7e1c-dots i').forEach((d, k) => d.classList.toggle('on', k === tI));
+    const btn = $('#v7e1c-go'); btn.textContent = '✓ Yaptım'; btn.classList.remove('off');
+    card.classList.remove('out');
+  }
+  $('#v7e1c-next').onclick = () => e1cShow(tI + 1);
+  $('#v7e1c-go').onclick = async () => { const b = $('#v7e1c-go'); if (b.classList.contains('off')) return; b.textContent = '✓ Bekliyor'; b.classList.add('off'); await wait(800); e1cShow(tI + 1); };
+
+  /* ---- E2 · Dükkân ---- */
+  const e2St = $('#v7e2-stage'); let coins = 35;
+  const coin = $('#v7e2-coin');
+  $$('[data-v7e2]').forEach(b => b.onclick = () => { pressIn($$('[data-v7e2]'), b); e2St.classList.remove('e2a', 'e2b', 'e2c'); e2St.classList.add(b.dataset.v7e2); e2Reset(); });
+  function e2Reset() { $$('.sel', e2St).forEach(x => x.classList.remove('sel')); $('#v7e2a-buy').classList.add('off'); $('#v7e2c-buy').classList.add('off'); $('#v7e2b-buy').classList.remove('on'); $('#v7e2a-buy').textContent = 'Al'; $('#v7e2c-buy').textContent = 'Al'; }
+  function pick(group, cell, buyBtn) {
+    $$('.sel', group).forEach(x => x.classList.remove('sel'));
+    cell.classList.add('sel'); buyBtn.classList.remove('off'); buyBtn.textContent = 'Al · ' + cell.dataset.v7buy; buyBtn.dataset.p = cell.dataset.v7buy;
+  }
+  function buy(btn, src) {
+    if (btn.classList.contains('off') || !btn.dataset.p) return;
+    const p = +btn.dataset.p; if (coins < p) { btn.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-8px)' }, { transform: 'translateX(8px)' }, { transform: 'translateX(0)' }], D(260)); return; }
+    coins -= p; coin.textContent = coins; bump(coin.parentElement);
+    const img = src ? $('img', src) : null;
+    if (img) {
+      const [x, y] = center(img, e2St), f = document.createElement('div'); f.className = 'g-fly'; f.innerHTML = `<img src="${img.getAttribute('src')}" alt="">`; e2St.appendChild(f);
+      f.animate([{ left: x + 'px', top: y + 'px', transform: 'scale(1)' }, { left: '160px', top: '700px', transform: 'scale(.5)', opacity: .2 }], { duration: D(800), easing: 'ease-in', fill: 'forwards' }).finished.then(() => f.remove());
+    }
+    e2Reset();
+  }
+  const aPop = $('#v7e2a-pop');
+  $$('.shop-cell', aPop).forEach(c => c.onclick = () => pick(aPop, c, $('#v7e2a-buy')));
+  $('#v7e2a-buy').onclick = () => buy($('#v7e2a-buy'), $('.sel', aPop));
+  const shelf = $('.e2c-shelf', e2St);
+  $$('.shop-cell', shelf).forEach(c => c.onclick = () => pick(shelf, c, $('#v7e2c-buy')));
+  $('#v7e2c-buy').onclick = () => buy($('#v7e2c-buy'), $('.sel', shelf));
+  const bBuy = $('#v7e2b-buy');
+  $$('[data-v7bub]', e2St).forEach(b => b.onclick = e => {
+    e.stopPropagation();
+    $$('[data-v7bub]', e2St).forEach(x => x.classList.toggle('sel', x === b));
+    bBuy.dataset.p = b.dataset.v7bub; bBuy.textContent = 'Al · ' + b.dataset.v7bub;
+    bBuy.style.left = (parseFloat(b.style.left) + 8) + 'px'; bBuy.style.top = (parseFloat(b.style.top) + 170) + 'px'; bBuy.classList.add('on');
+  });
+  bBuy.onclick = e => { e.stopPropagation(); buy(bBuy, $('[data-v7bub].sel', e2St)); bBuy.classList.remove('on'); };
+  e2St.addEventListener('click', e => { if (e.target.classList.contains('bg')) e2Reset(); });
+
+  /* ---- O · ihtiyaç ---- */
+  const oSt = $('#v7o-stage'), ava = $('#v7o-ava'), note = $('#v7o-note');
+  let oMode = 'oa', hungry = true, away = false;
+  function oRender() {
+    const H = hungry;
+    ava.classList.toggle('o-pulse', H); ava.classList.toggle('o-hidering', oMode === 'oc'); ava.classList.toggle('calm', !H && oMode !== 'oc'); ava.classList.toggle('oc-face', oMode === 'oc'); ava.classList.toggle('tilt', oMode === 'oc' && H);
+    $('#v7o-a').classList.toggle('on', H && oMode === 'oa');
+    $$('.ob-chip', oSt).forEach(c => c.classList.toggle('on', H && oMode === 'ob'));
+    $('#v7o-c').classList.toggle('on', H && oMode === 'oc');
+    $('#v7o-d').classList.toggle('on', oMode === 'od' && H && !away);
+    $('#v7o-edge').classList.toggle('on', oMode === 'od' && H && away);
+    $('.bg', oSt).style.transformOrigin = '100% 55%'; $('.bg', oSt).style.transform = away ? 'scale(2.4)' : '';
+    note.textContent = !H ? 'Okti tok ve temiz: sol üst sakin' : away && oMode === 'od' ? 'Okti ekranda yok: kenardaki oka dokun' : away ? 'Okti ekranda yok (bu yolda kenar oku yok)' : oMode === 'od' ? 'Okti acıktı: başının üstündeki elmaya dokun' : 'Okti acıktı: elmaya dokun';
+  }
+  $$('[data-v7o]').forEach(b => b.onclick = () => { pressIn($$('[data-v7o]'), b); oMode = b.dataset.v7o; oRender(); });
+  const hb = $('#v7o-hungry'), ab = $('#v7o-away');
+  hb.onclick = () => { hungry = !hungry; hb.setAttribute('aria-pressed', hungry); oRender(); };
+  ab.onclick = () => { away = !away; ab.setAttribute('aria-pressed', away); oRender(); };
+  async function feed(from) {
+    if (!hungry) return;
+    const [x, y] = center(from, oSt), f = document.createElement('div'); f.className = 'g-fly'; f.innerHTML = '<img src="img/food_apple.png" alt="">'; oSt.appendChild(f);
+    hungry = false; hb.setAttribute('aria-pressed', false); oRender();
+    const to = away ? [84, 78] : [800, 470];
+    await f.animate([{ left: x + 'px', top: y + 'px', transform: 'scale(1)' }, { left: to[0] + 'px', top: to[1] + 'px', transform: 'scale(.4)', opacity: .2 }], { duration: D(700), easing: 'ease-in', fill: 'forwards' }).finished;
+    f.remove(); bump(ava);
+    await wait(2600); hungry = true; hb.setAttribute('aria-pressed', true); oRender();
+  }
+  ['#v7o-a', '#v7o-c', '#v7o-d'].forEach(s => $(s).onclick = e => { e.stopPropagation(); feed($(s)); });
+  $$('.ob-chip', oSt).forEach(c => c.onclick = e => { e.stopPropagation(); feed(c); });
+  $('#v7o-edge').onclick = e => { e.stopPropagation(); away = false; ab.setAttribute('aria-pressed', false); oRender(); };
+  $('#v7o-d').style.cursor = 'pointer';
+  oRender();
+
+  /* ---- L · öneri ---- */
+  const lSt = $('#v7l-stage'); let lBusy = false, lTok = 0;
+  const S = ['l7-s1', 'l7-s2', 'l7-s3', 'l7-s4'];
+  function lReset() { lSt.classList.remove('l-on', ...S); $('#v7l-xp').style.width = '86%'; $('#v7l-cn').hidden = true; $('#v7l-note').classList.remove('on'); }
+  async function lPlay() {
+    if (lBusy) return; lBusy = true; const tok = ++lTok; lReset();
+    const step = async (cls, ms) => { if (tok !== lTok) return false; lSt.classList.add(cls); await wait(ms); return tok === lTok; };
+    await wait(50); $('#v7l-xp').style.width = '100%'; await wait(650);
+    lSt.classList.add('l-on'); await wait(120);
+    if (await step('l7-s1', 1280) && await step('l7-s2', 300) && await step('l7-s3', 1000)) await step('l7-s4', 320);
+    lBusy = false;
+  }
+  async function lClaim() {
+    if (lBusy || !lSt.classList.contains('l7-s4')) return; lBusy = true; lTok++;
+    lSt.classList.remove('l-on', ...S);
+    const c = document.createElement('div'); c.className = 'coinfly'; c.style.width = '96px'; c.style.height = '96px'; c.style.margin = '-48px'; c.innerHTML = '<img src="img/decor_sandcastle.png" alt="">'; lSt.appendChild(c);
+    const to = center($('#v7l-home'), lSt);
+    await c.animate([{ left: '800px', top: '560px', transform: 'scale(1)' }, { left: '800px', top: '500px', transform: 'scale(1.5)', offset: .3 }, { left: to[0] + 'px', top: to[1] + 'px', transform: 'scale(.6)' }], { duration: D(1100), easing: 'ease-in', fill: 'forwards' }).finished;
+    c.remove(); $('#v7l-cn').hidden = false; bump($('#v7l-home')); $('#v7l-note').classList.add('on');
+    $('#v7l-xp').style.transition = 'none'; $('#v7l-xp').style.width = '4%'; void $('#v7l-xp').offsetWidth; $('#v7l-xp').style.transition = '';
+    lBusy = false;
+  }
+  $('#v7l-go').onclick = lClaim; $('#v7l-play').onclick = lPlay;
+  setTimeout(lPlay, 900);
 })();
 </script>
