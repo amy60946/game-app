@@ -43,7 +43,7 @@ namespace Pofi.Screens
             App.Stage.ShowPet(def, App.Growth, App.State.Inventory.Equipped.Values);
             App.Stage.SetBackdrop("b_shop", 6f, 3.4f);
             if (App.Stage.Backdrop != null)   // K: dükkâncı Kıskaç tezgâhın yanında
-                World.Resident3D.Create(App.Stage.Backdrop, "kiskac", "res_kiskac", new Vector3(0.9f, 0.42f, 3.85f), 1.15f, 180f, null, null);   // tezgâhın arkasında, başı tezgâhın üstünde
+                World.Resident3D.Create(App.Stage.Backdrop, "kiskac", "res_kiskac", new Vector3(0.7f, 0.9f, 3.6f), 1.15f, 180f, null, null);   // tezgâhın arkasında, başı ve kabuğu tezgâhın üstünde
 
             Candy.Caption(Root, T("shop.title"), 64, new Vector2(0.5f, 1f), new Vector2(600f, 90f), new Vector2(0f, -66f));
             _coins = Candy.Badge(Root, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(CoinRight, -24f), 84f, 250f);

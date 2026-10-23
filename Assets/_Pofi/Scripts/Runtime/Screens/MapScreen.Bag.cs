@@ -24,7 +24,7 @@ namespace Pofi.Screens
         private Text _bagNum, _needWord;
         private Image _needChipIcon, _edgeNeed;
         private int _bagLast = -1;
-        private float _needBounce;
+        private float _needBounce, _edgeOff;
         private readonly Image[] _gaugeGlow = new Image[4];
         private Resident3D _kiskac, _mavi, _pus;
 
@@ -255,7 +255,9 @@ namespace Pofi.Screens
             var cam = App.Stage.Camera;
             var sp = cam.WorldToScreenPoint(_world.Walker.transform.position + Vector3.up * PetHeight * 0.5f);
             var inView = sp.z > 0f && sp.x > 0f && sp.x < Screen.width && sp.y > 0f && sp.y < Screen.height;
-            var show = !inView && !_cine && App.State.PetName != null;
+            // yarım saniyeden uzun ekran dışındaysa (kamera bir an geride kalınca yanıp sönmesin)
+            _edgeOff = inView ? 0f : _edgeOff + Time.deltaTime;
+            var show = _edgeOff > 0.6f && !_cine && App.State.PetName != null;
             if (_edge.gameObject.activeSelf != show) _edge.gameObject.SetActive(show);
             if (!show) return;
             var k = Root.rect.width / Mathf.Max(1f, Screen.width);
