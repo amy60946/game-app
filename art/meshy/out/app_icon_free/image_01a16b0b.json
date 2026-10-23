@@ -1,0 +1,16 @@
+{
+ "id": "01a16b0b-bd70-719a-a58d-0d8920f247a0",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A single square mobile game app icon, full-bleed square artwork (no rounded corners, no border, no frame, no text, no letters, no numbers, no logo). The hero is an original, very cute baby octopus character designed for a cozy kids island game: a big glossy light-blue round head, huge shiny dark eyes with bright white sparkles, rosy pink cheeks, a wide happy open smile, short chubby tentacles, one tentacle raised in a cheerful wave, wearing a plain sunny-yellow T-shirt. Composition: a big friendly close-up of the octopus head and shoulders filling about two thirds of the icon, slightly turned toward the viewer, looking straight at the viewer. Background: a warm golden-orange tropical sunrise sky with a soft radial sunburst behind the head, a green palm tree with leaves curving in from the left edge, a small red-and-white lighthouse on a tiny island at the lower right, a strip of sparkling turquoise sea at the very bottom. Vivid premium 3D mobile game icon style like the most successful top-grossing casual games, soft vinyl toy materials, soft toon lighting with clean crisp shadows and a gentle rim light, saturated but balanced colors (not washed out, not glaring), strong contrast between the blue character and the warm background, one clear focal point, simple bold shapes that read clearly at very small size.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792797293946,
+ "started_at": 1792797293954,
+ "finished_at": 1792797308055,
+ "expires_at": 1793056508055,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16b0b-bd70-719a-a58d-0d8920f247a0_0.png?Expires=1793056508&Signature=hVI2weOTBr75YyoFyqjIFQbAIY5aNoX0zmU-79Gv-BAD38-~6suH0OKvnHBDKhIwLQA~Fa2ANZJ2z2nFeIiUyVtATk6jKumlMx4gmBnp0JXJW40C37lHwuYcMdBaWsqF8qqkKFCgjX~N2pyqJK92-FExQDcGSmmv5f0~P2jsvbrkONFxW01XlpxEQ8yNuiQmQkbMFORyMcUin7X7EbTDrE2LyXgHZ8OXyXAwr89lMrhcY4mjaQ5s2zQfPFomw5nm9tnXAXfBKTnae2p7d9EPmPBBwAxVkRpZ~ncuejGNvRPsAKATGwuS1kaif4HnsnIpOYvpWnz-WM7SlS8lHGKr2g__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
