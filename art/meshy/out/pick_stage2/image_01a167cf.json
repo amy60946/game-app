@@ -1,0 +1,16 @@
+{
+ "id": "01a167cf-f9f0-759d-b54b-f9c8e826b7d0",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Full-bleed cinematic landscape image that fills the entire frame edge to edge, same soft 3D vinyl-toy cartoon render style and lighting as the reference image. Eye-level view of a sunny tropical beach: smooth warm sand in the whole lower half with an open empty space in the left-center foreground, a few pastel seashells and a starfish near the bottom edge, two curved palm trees on the far left reaching out of frame, turquoise sea with gentle white foam waves across the middle, a green hill on the far right with a small red-and-white striped lighthouse, big fluffy white clouds in a clear blue sky. Vivid but balanced colors, soft shadows, no glare. Absolutely no characters, no octopus, no animals, no people, no text, no border, no frame, no white or grey background, no diorama, no platform.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792743045746,
+ "started_at": 1792743045751,
+ "finished_at": 1792743084162,
+ "expires_at": 1793002284162,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a167cf-f9f0-759d-b54b-f9c8e826b7d0_0.png?Expires=1793002284&Signature=Hc0sYoK~qSWs9Zs5v~nQc9gvj~pZJSNrVP7D4kvTDswGH6dMpjpX22X8w3fAXO1JmK65i0FDj8~rxAKUVr~Q0QLHyh6qSWk-eDxsJ4WgZ-LpGjZM7jjdJ2W4mgfkU1qHxDKFfW0n90EWDtypOnc6TyFt1fTgFTWDKbUtphyxV3jXT-M9wah6YfJbNkfHlYQ77OvDSfpXfht1Q1kAt9-UGKjdNVhaWzwbLxpI7oWQIne8uhHqfTS2ixsWPYKiiD~pRTTN4A78Mc8tjAXtOg-czt02cVam~Q08fcVQMqX1HzgrkUshCa-YIIxHBP194rIWURDyQtTYNhGCi690E7isrA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

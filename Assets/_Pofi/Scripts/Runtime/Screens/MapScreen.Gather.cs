@@ -25,6 +25,11 @@ namespace Pofi.Screens
         private Button _siteBubble;
         private (float x, float z) _sitePos;
         private RectTransform _gLayer, _tracker;
+        private RectTransform _req;                         // E3 gereksinim kartı (kulübe yerinde)
+        private readonly Text[] _reqNum = new Text[3];
+        private readonly Outline[] _reqEdge = new Outline[3];
+        private readonly GameObject[] _reqOk = new GameObject[3];
+        private Button _reqGo;
         private readonly Text[] _trackNum = new Text[3];
         private readonly RectTransform[] _trackFill = new RectTransform[3];
         private float _respawnT;
@@ -34,6 +39,7 @@ namespace Pofi.Screens
         private const float Reach = 2.1f, SiteReach = 4.4f, BubbleRange = 11f;
 
         private static string ToolIcon(string tool) => tool == "axe" ? "tool_axe" : tool == "pickaxe" ? "tool_pickaxe" : "tool_hand";
+        private string ToolInfo(string tool) => tool == "axe" ? T("info.tool_axe") : tool == "pickaxe" ? T("info.tool_pickaxe") : T("info.tool_hand");
         private static string MatIcon(string m) => m == Gathering.Wood ? "mat_wood" : m == Gathering.Branch ? "mat_branch" : "mat_stone";
 
         private void BuildGather()
@@ -61,11 +67,13 @@ namespace Pofi.Screens
                 var b = Candy.Round(_gLayer, Candy.White, ToolIcon(Gathering.Rule(n.Kind).Tool), 112f, Vector2.zero, Vector2.zero, () => TapNode(i));
                 b.gameObject.SetActive(false);
                 Hover.On(b, 6f);
+                LongPressInfo.Add(b.gameObject, ToolInfo(Gathering.Rule(n.Kind).Tool));   // E4: "Balta: kütükten odun"
                 _gBubbles[i] = b;
             }
             _siteBubble = Candy.Round(_gLayer, Candy.White, "tool_hammer", 124f, Vector2.zero, Vector2.zero, TapSite);
             _siteBubble.gameObject.SetActive(false);
             Hover.On(_siteBubble, 6f);
+            BuildReqCard();
             CalmBubbles();
         }
 
@@ -120,13 +128,71 @@ namespace Pofi.Screens
             RefreshTracker();
         }
 
+        /// <summary>
+        /// E3 gereksinim kartı (23 Ekim 2026, kullanıcı onayı): kulübe yerine gelince şantiyenin üstünde küçük krem kart.
+        /// Her malzeme resimli bir kutu; tamamlanan yeşil kenar + tik, eksik turuncu kenar. Hepsi tamamsa tek yeşil "Yap" açılır.
+        /// </summary>
+        private void BuildReqCard()
+        {
+            const float slot = 150f, gap = 18f;
+            var n = Gathering.HutRecipe.Length;
+            var w = n * slot + (n - 1) * gap + 60f;
+            _req = Ui.Rect(_gLayer, "HutNeeds", Vector2.zero, new Vector2(w, 330f));
+            _req.pivot = new Vector2(0.5f, 0f);
+            var bg = _req.gameObject.AddComponent<Image>(); bg.raycastTarget = true;   // kartın üstüne dokununca yere yürümesin
+            if (Skin.Card != null) { Skin.Apply(bg, Skin.Card, 330f); bg.color = Color.white; }
+            else { bg.sprite = Ui.Rounded; bg.type = Image.Type.Sliced; bg.color = new Color(1f, 0.96f, 0.86f); }
+            _req.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -8f);
+            var title = Ui.Rect(_req, "Title", new Vector2(0.5f, 1f), new Vector2(240f, 64f), new Vector2(0f, 4f));
+            Candy.Tag(title, T("gather.hut_short"), new Color(0.1f, 0.42f, 0.78f, 0.95f), 34, 64f);
+            Ui.IconImage(title, "ui_hut", new Vector2(0f, 0.5f), 76f, new Vector2(-10f, 4f));
+            for (var i = 0; i < n; i++)
+            {
+                var (m, _) = Gathering.HutRecipe[i];
+                var x = -((n - 1) * (slot + gap)) * 0.5f + i * (slot + gap);
+                var c = Ui.Rect(_req, "Need " + m, new Vector2(0.5f, 1f), new Vector2(slot, slot), new Vector2(x, -128f));
+                var ci = c.gameObject.AddComponent<Image>(); ci.sprite = Ui.Rounded; ci.type = Image.Type.Sliced; ci.color = new Color(1f, 1f, 1f, 0.92f); ci.raycastTarget = false;
+                _reqEdge[i] = c.gameObject.AddComponent<Outline>(); _reqEdge[i].effectDistance = new Vector2(5f, -5f);
+                Ui.IconImage(c, MatIcon(m), new Vector2(0.5f, 0.6f), 96f);
+                _reqNum[i] = Ui.Label(c, "", Th.Font(34), new Color(0.35f, 0.2f, 0.06f), new Vector2(0.5f, 0f), new Vector2(slot, 48f), FontStyle.Bold);
+                ((RectTransform)_reqNum[i].transform).anchoredPosition = new Vector2(0f, 26f);
+                var ok = Ui.IconImage(c, "ui_check", new Vector2(1f, 1f), 58f, new Vector2(-6f, -6f));
+                _reqOk[i] = ok != null ? ok.gameObject : null;
+                LongPressInfo.Add(c.gameObject, T("gather." + m));   // E4: malzemenin adı
+            }
+            _reqGo = Candy.Pill(_req, Candy.Green, T("gather.make"), new Vector2(0.5f, 0f), new Vector2(230f, 84f), new Vector2(0f, 12f), BuildHut);
+            _req.gameObject.AddComponent<PopIn>();
+            _req.gameObject.SetActive(false);
+            RefreshReq();
+        }
+
+        private void RefreshReq()
+        {
+            if (_req == null) return;
+            var st = App.State.Gather;
+            for (var i = 0; i < Gathering.HutRecipe.Length; i++)
+            {
+                var (m, need) = Gathering.HutRecipe[i];
+                var have = Gathering.Count(st, m);
+                var done = have >= need;
+                _reqNum[i].text = Mathf.Min(have, need) + "/" + need;
+                _reqNum[i].color = done ? new Color(0.13f, 0.5f, 0.24f) : new Color(0.72f, 0.33f, 0.04f);
+                _reqEdge[i].effectColor = done ? new Color(0.25f, 0.72f, 0.35f, 0.95f) : new Color(1f, 0.55f, 0.12f, 0.95f);
+                if (_reqOk[i] != null) _reqOk[i].SetActive(done);
+            }
+            var can = Gathering.CanBuild(st);
+            _reqGo.interactable = can;
+            _reqGo.targetGraphic.color = can ? Color.white : new Color(0.72f, 0.72f, 0.72f, 0.85f);
+        }
+
         private void RefreshTracker()
         {
             var st = App.State.Gather;
             if (_site != null && !st.HutBuilt)
                 _site.SetProgress(Gathering.Count(st, Gathering.Wood), Gathering.Count(st, Gathering.Branch), Gathering.Count(st, Gathering.Stone), Gathering.HutProgress(st));
+            RefreshReq();
             if (_tracker == null) return;
-            _tracker.gameObject.SetActive(!st.HutBuilt && !_overview);
+            _tracker.gameObject.SetActive(!st.HutBuilt && !_overview && (_req == null || !_req.gameObject.activeSelf));
             for (var i = 0; i < Gathering.HutRecipe.Length; i++)
             {
                 var (m, need) = Gathering.HutRecipe[i];
@@ -147,7 +213,7 @@ namespace Pofi.Screens
                 var now = App.UtcNow;
                 foreach (var n in _gNodes)
                     if (!_gSpots[n.Index].gameObject.activeSelf && Gathering.Available(st, n.Index, now)) _gSpots[n.Index].PopIn();
-                if (_tracker != null) _tracker.gameObject.SetActive(!st.HutBuilt && !_overview);
+                if (_tracker != null) _tracker.gameObject.SetActive(!st.HutBuilt && !_overview && (_req == null || !_req.gameObject.activeSelf));
             }
             var p = _world.Walker.Position;
             // en yakın erişilebilir hedef
@@ -170,9 +236,21 @@ namespace Pofi.Screens
                 if (show) show = Place(b, s, cam, k, n.Index == _gTarget);
                 if (b.gameObject.activeSelf != show) b.gameObject.SetActive(show);
             }
-            var siteShow = !_overview && !st.HutBuilt && Vector2.Distance(p, new Vector2(_sitePos.x, _sitePos.z)) < BubbleRange + 4f;
-            if (siteShow) siteShow = Place(_siteBubble, _site, cam, k, _gTarget == -1);
+            // E3: şantiyedeyken alet baloncuğu yerine gereksinim kartı
+            var atSite = !_overview && !st.HutBuilt && _gTarget == -1;
+            var siteShow = !_overview && !st.HutBuilt && !atSite && Vector2.Distance(p, new Vector2(_sitePos.x, _sitePos.z)) < BubbleRange + 4f;
+            if (siteShow) siteShow = Place(_siteBubble, _site, cam, k, false);
             if (_siteBubble.gameObject.activeSelf != siteShow) _siteBubble.gameObject.SetActive(siteShow);
+            if (_req != null)
+            {
+                var reqShow = atSite && PlaceReq(cam, k);
+                if (_req.gameObject.activeSelf != reqShow)
+                {
+                    _req.gameObject.SetActive(reqShow);
+                    if (reqShow) RefreshReq();
+                    if (_tracker != null) _tracker.gameObject.SetActive(!st.HutBuilt && !_overview && !reqShow);
+                }
+            }
 
             // ilk yaklaşmada kısa ipucu (her alet için bir kez)
             if (_gTarget >= 0)
@@ -192,6 +270,18 @@ namespace Pofi.Screens
             rt.anchoredPosition = new Vector2(sp.x * k, sp.y * k);   // süzülme + nefes: Hover
             rt.localScale = Vector3.one * (target ? 1.25f : 0.9f);
             b.targetGraphic.color = target ? new Color(0.62f, 0.93f, 0.72f) : Candy.White;
+            return true;
+        }
+
+        /// <summary>Kart şantiyenin üstünde, ekran içinde kalır (üstte HUD'a, yanlarda kenara taşmaz).</summary>
+        private bool PlaceReq(Camera cam, float k)
+        {
+            var sp = cam.WorldToScreenPoint(_site.transform.position + Vector3.up * (_site.Top + 0.4f));
+            if (sp.z <= 0f) return false;
+            var half = _req.sizeDelta.x * 0.5f;
+            var x = Mathf.Clamp(sp.x * k, half + 40f, Root.rect.width - half - 40f);
+            var y = Mathf.Clamp(sp.y * k, 160f, Root.rect.height - _req.sizeDelta.y - 190f);
+            _req.anchoredPosition = new Vector2(x, y);
             return true;
         }
 

@@ -71,12 +71,15 @@ namespace Pofi.Screens
             TopCenter(_coinText, 170f);
             RewardFlight.Register("coin", (RectTransform)_coinText.transform.parent);    // O1: kazanılan coin buraya uçar
             RewardFlight.Register("sunstone", (RectTransform)_stoneText.transform.parent);
+            LongPressInfo.Add(_stoneText.transform.parent.gameObject, T("info.stones"));   // E4
+            LongPressInfo.Add(_coinText.transform.parent.gameObject, T("info.coins"));
 
             // sağ üst: Harita (kuşbakışı / yürü) ve Ayarlar
             // kenarlara yakın (kullanıcı, 20 Ekim 2026)
             var map = Candy.Round(hud, Candy.White, "ui_map", 160f, new Vector2(1f, 1f), new Vector2(-92f, -100f), ToggleMode, T("map.overview"));
             _modeText = map.GetComponentInChildren<Text>();
             _mapBtn = (RectTransform)map.transform;
+            LongPressInfo.Add(map.gameObject, T("info.map"));
             // Ayarlar (kullanıcı, 19 Ekim 2026: "oyundan çıkamıyorum"): ses, pet değiştir, çıkış; Evim'e gitmeden. Ebeveyn sorusuyla açılır.
             // müzik düğmesinin (UI.MusicButton: sağ üst −386, −66, 92 birim) solunda, aynı boyda ve yazısız
             Candy.Round(hud, Candy.White, "ui_settings", 92f, new Vector2(1f, 1f), new Vector2(-496f, -66f),
@@ -86,7 +89,9 @@ namespace Pofi.Screens
             var tasks = Candy.Round(hud, Candy.White, "ui_star", 150f, new Vector2(0f, 1f), new Vector2(98f, -400f), GoTasks, T("hud.tasks"));
             _tasksBtn = (RectTransform)tasks.transform;
             _questCount = Candy.Count(tasks.transform);   // bugün açık oyun içi görev sayısı
-            Candy.Round(hud, Candy.White, "ui_board", 150f, new Vector2(0f, 1f), new Vector2(98f, -605f), () => App.Open(AppPage.Tasks), T("tasks.title"));
+            LongPressInfo.Add(tasks.gameObject, T("info.tasks"));
+            var board = Candy.Round(hud, Candy.White, "ui_board", 150f, new Vector2(0f, 1f), new Vector2(98f, -605f), () => App.Open(AppPage.Tasks), T("tasks.title"));
+            LongPressInfo.Add(board.gameObject, T("info.board"));
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             if (next != null)
                 Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
@@ -651,6 +656,7 @@ namespace Pofi.Screens
                 d.IconId = it.Id; d.Layer = Root;
                 d.Dropped = pos => { if (!OverPet(pos)) return false; Care(action, it); return true; };
                 d.Tapped = () => { _toast.Say(T("tip." + tip, PetGen)); TipDone(null); ShowDragTip(tip, (RectTransform)b.transform, true); };
+                LongPressInfo.Add(b.gameObject, it.Name);
                 if (first == null) first = (RectTransform)b.transform;
             }
             ShowDragTip(tip, first, false);

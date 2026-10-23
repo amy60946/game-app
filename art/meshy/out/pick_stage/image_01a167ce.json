@@ -1,0 +1,16 @@
+{
+ "id": "01a167ce-a644-77cf-9733-8d9e526be329",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Stylized 3D cartoon render in the same soft vinyl-toy style as the reference image. A sunny sandy beach clearing on a small tropical island seen at eye level, landscape. The left-center foreground is an empty smooth patch of warm sand like a small stage, with a few pastel seashells and a starfish at its edges. Two curved palm trees frame the far left. Gentle turquoise waves with white foam behind the sand. On the right, far away on a green hill, a small red-and-white striped lighthouse. Fluffy white clouds, clear blue sky, warm morning sunlight, soft shadows, vivid but balanced colors, no glare. The right third of the frame is calm sea and sky. No characters, no animals, no people, no text, no logo.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792742958793,
+ "started_at": 1792742958802,
+ "finished_at": 1792742993656,
+ "expires_at": 1793002193656,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a167ce-a644-77cf-9733-8d9e526be329_0.png?Expires=1793002193&Signature=lYULVr7aGiOmFxa210xn95APf1hZWc1gyWKeZtw0hpoVhrZ4qxVZHadXeZL6U4Bwp-bJCAOQlgfplQkoTS4tp02yQiL7pueN0kg46SRk3R77J~n~DNdj3bGSBh4b0JuyW1yM301nr82H9tPOQipKiaOw0HaTZQ9P-RMEZqgi3bwjgtmnbezEH7FsLwhHEwoHAv3gfZzmA0rtYF~wtKQIdzRlmauaiZa9zMCmpklLDKktvUjVNBAptFWQMkLRAAyAmoEcAWmpwnaVUub6JXN7BPAtxkmT6TKSM5hJL79pEXvYZ9u-6ThoKUne3q9QUM-s03C3E0pEqiGiM7pEU-TAPg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

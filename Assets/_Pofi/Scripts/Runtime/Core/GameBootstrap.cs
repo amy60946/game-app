@@ -143,6 +143,7 @@ namespace Pofi.Core
             var safeOverlay = Ui.Fill(Overlay.transform, "Safe");     // iPhone çentiği: köşe düğmeleri güvenli alanda
             safeOverlay.gameObject.AddComponent<SafeArea>();
             MusicButton.Create(safeOverlay, this);
+            LongPressInfo.UseLayer(Overlay.transform);              // E4 uzun bas bilgi baloncukları en üstte
             LookToggle.Create(safeOverlay);                          // görsel stil çalışması (kapalı: Look.StudyToggle)
 #if !UNITY_WEBGL || UNITY_EDITOR
             var cover = ShowLoadingCover();                          // Y1–Y5 (WebGL'de index.html gösterir)
