@@ -12,7 +12,8 @@ Eşleşme: oyunda ekrana yazılan metin → anahtar (Logic/Audio/VoiceKey: etike
 Her kayıt Whisper ile denetlenir; hatalıysa başka tohumla yeniden üretilir (en çok 6 deneme), en iyisi kalır; uzun duraktan
 sonraki kuyruk kesilir; ses düzeyi −18 LUFS'ye eşitlenir.
 
-Kullanım: <venv>/bin/python -I art/voice/build_voice.py <çalışma_klasörü> [--list] [--only anahtar,...]
+Kullanım: <venv>/bin/python -I art/voice/build_voice.py <çalışma_klasörü> [--list] [--only anahtar,...] [--part i/n]
+  (--part: n paralel iş; hepsi bitince bir kez --part olmadan çalıştırılır: dosyalar ve index.txt yazılır)
 Çalışma klasörü önbellektir: metni ve sesi değişmeyen satır yeniden üretilmez. Satır listesi ve sonuçlar art/voice/manifest.json.
 """
 import json, os, re, struct, subprocess, sys, time
@@ -28,8 +29,9 @@ MANIFEST = os.path.join(HERE, "manifest.json")
 VERSION = 1            # ses ayarı değişirse artır: önbellek geçersizleşir
 PET = "Okti"
 RATE = 22050
-LIMIT = 0.03           # kabul edilen harf hata oranı
-SEEDS = (7, 100, 101, 102, 103, 104)
+LIMIT = 0.03           # kabul edilen harf hata oranı …
+EDITS = 2              # … ya da en çok 2 harf farkı (Whisper adları biraz farklı yazar: "Kıskaç" → "kızkaç")
+SEEDS = (7, 100, 101, 102)
 OKTI_PITCH = 1.22
 
 TIP_SKIP = {"guide.reward", "guide.done", "tip.stone_go"}   # sayı ya da yer adı alan, önceden kaydedilemeyen metinler
@@ -118,6 +120,17 @@ def take(line, seed):
     return G.adali_take("adali", k, tts, seed)
 
 
+def _fold(t):
+    """Whisper'ın karıştırdığı sesler bir sayılır: s/z ("sise" ↔ "size", "sis" ↔ "siz"), ğ düşer."""
+    return G._norm(t).replace("z", "s").replace("ğ", "")
+
+
+def good(x):
+    a, b = _fold(x["text"]), _fold(x.get("asr", ""))
+    edits = G._cer(a, b) * len(a)
+    return edits <= max(EDITS, LIMIT * len(a)) + 0.01
+
+
 def make(line):
     """En iyi kaydı m_<anahtar>.mp3 olarak bırakır."""
     master = os.path.join(G.OUT, f"m_{line['key']}.mp3")
@@ -127,10 +140,10 @@ def make(line):
         if best is None or x["cer"] < best["cer"]:
             best = x
             os.replace(os.path.join(G.OUT, x["file"]), master)
-        if best["cer"] <= LIMIT:
+        if good(best):
             break
     best = dict(best, file=os.path.basename(master))
-    best = G.trim(best, limit=LIMIT)
+    best = G.trim(best, limit=max(LIMIT, best["cer"]))
     return best
 
 
@@ -192,22 +205,36 @@ def main():
         print(len(lines), "satır")
         return
     only = set(sys.argv[sys.argv.index("--only") + 1].split(",")) if "--only" in sys.argv else None
-    cache_p = os.path.join(work, "cache.json")
-    cache = json.load(open(cache_p)) if os.path.exists(cache_p) else {}
+    # --part i/n: n paralel işten i'ncisi (satır sırası % n == i); her iş kendi önbelleğine yazar, hepsi birlikte okunur
+    part = tuple(int(v) for v in sys.argv[sys.argv.index("--part") + 1].split("/")) if "--part" in sys.argv else None
+    if part:
+        import torch
+        torch.set_num_threads(max(1, (os.cpu_count() or 4) // part[1]))
+    cache_p = os.path.join(work, f"cache_{part[0]}.json" if part else "cache.json")
+    cache = {}
+    for f in sorted(os.listdir(work)):
+        if f.startswith("cache") and f.endswith(".json"):
+            cache.update(json.load(open(os.path.join(work, f))))
     os.makedirs(DST, exist_ok=True)
     t0 = time.time()
     for i, l in enumerate(lines):
+        if part and i % part[1] != part[0]:
+            continue
         sig = f"{VERSION}|{l['role']}|{l['tts']}"
         c = cache.get(l["key"])
         master = os.path.join(work, f"m_{l['key']}.mp3")
         if (only is None or l["key"] in only) and not (c and c.get("sig") == sig and os.path.exists(master) and (only is None)):
             x = make(l)
             c = cache[l["key"]] = {"sig": sig, "seed": x.get("seed"), "cer": x["cer"], "asr": x.get("asr", "")}
-            json.dump(cache, open(cache_p, "w"), ensure_ascii=False, indent=1)
+            mine = {k: v for k, v in cache.items() if not part or k in {q["key"] for j, q in enumerate(lines) if j % part[1] == part[0]}}
+            json.dump(mine, open(cache_p, "w"), ensure_ascii=False, indent=1)
             print(f"[{i + 1}/{len(lines)}] {l['role']:8s} hata %{100 * x['cer']:4.1f} | {l['text']}  ←  {x.get('asr', '')}", flush=True)
         if c and os.path.exists(master):
             l["sec"] = round(encode(master, os.path.join(DST, f"v_{l['key']}.bytes")), 2)
             l.update(seed=c.get("seed"), cer=c.get("cer"))
+    if part:
+        print(f"parça {part[0]}/{part[1]} bitti", flush=True)
+        return
     keep = {f"v_{l['key']}.bytes" for l in lines if "sec" in l}
     for f in os.listdir(DST):
         if f.startswith("v_") and f.endswith(".bytes") and f not in keep:
