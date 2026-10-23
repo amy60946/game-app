@@ -144,10 +144,45 @@ namespace Pofi.Core
             safeOverlay.gameObject.AddComponent<SafeArea>();
             MusicButton.Create(safeOverlay, this);
             LookToggle.Create(safeOverlay);                          // görsel stil çalışması (kapalı: Look.StudyToggle)
+#if !UNITY_WEBGL || UNITY_EDITOR
+            var cover = ShowLoadingCover();                          // Y1–Y5 (WebGL'de index.html gösterir)
+#endif
 
             var restored = await Auth.RestoreAsync();
             if (restored != null) OnSignedIn(restored, route: false);
             Route();
+#if !UNITY_WEBGL || UNITY_EDITOR
+            if (cover != null) cover.Close();
+#endif
+        }
+
+        private const string LoadArtKey = "pofi.loadart", LoadChapterKey = "pofi.loadart.chapter";
+
+        /// <summary>Açılış görseli: ulaşılan bölümden (son oturumda kaydedilir), bir öncekinden farklı; görseli olmayan atlanır.</summary>
+        private LoadingCover ShowLoadingCover()
+        {
+            var book = Data.Story;
+            if (book == null) return null;
+            var st = new Logic.Story.StoryState { LastArt = PlayerPrefs.GetString(LoadArtKey, "") };
+            var chapter = PlayerPrefs.GetInt(LoadChapterKey, 0);
+            var missing = new System.Collections.Generic.HashSet<string>();
+            for (var i = 0; i < 12; i++)
+            {
+                var def = Logic.Story.LoadingArts.Pick(book, st, chapter, Environment.TickCount + i * 7919, id => !missing.Contains(id));
+                if (def == null) break;
+                var art = Ui.Art("Art/" + def.Id);
+                if (art == null) { missing.Add(def.Id); continue; }
+                PlayerPrefs.SetString(LoadArtKey, def.Id);
+                return LoadingCover.Show(Overlay.transform, Theme, art, def.Tip);
+            }
+            return LoadingCover.Show(Overlay.transform, Theme, null, null);
+        }
+
+        /// <summary>Bir sonraki açılışın görsel havuzu: çocuğun ulaştığı bölüm.</summary>
+        private void RememberChapter()
+        {
+            if (Data.Story == null || State == null) return;
+            PlayerPrefs.SetInt(LoadChapterKey, Data.Story.ChapterFor(Level));
         }
 
         private static string ReadData(string file)
@@ -413,6 +448,7 @@ namespace Pofi.Core
         {
             if (Session == null || State == null) return;
             Store.Set(SaveKey(Session.ChildId), SaveCodec.Serialize(State, UtcNow));
+            RememberChapter();   // sonraki açılışın yükleme görseli havuzu
             _autosave = 0f;
         }
 

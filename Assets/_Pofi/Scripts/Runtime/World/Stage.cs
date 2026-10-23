@@ -210,6 +210,43 @@ namespace Pofi.World
             if (m != null) m.localPosition = new Vector3(0f, -0.1f, z);
         }
 
+        private Transform _picture;
+        private float _pictureAspect = 16f / 9f;
+
+        /// <summary>
+        /// Petin arkasına tam ekran 3B çizim görseli (pet seçme: kumsal sahnesi; 23 Ekim 2026). Kameraya bağlı uzak bir yüzey,
+        /// ekranı her oranda doldurur; adacık süsleri gizlenir. null: kaldırır.
+        /// </summary>
+        public void SetPicture(Texture2D tex)
+        {
+            if (_picture != null) { Destroy(_picture.gameObject); _picture = null; }
+            if (_scenery != null) _scenery.gameObject.SetActive(tex == null && _backdrop == null);
+            if (tex == null || Camera == null) return;
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            Destroy(q.GetComponent<Collider>());
+            q.name = "Picture";
+            _picture = q.transform;
+            _picture.SetParent(Camera.transform, false);
+            var r = q.GetComponent<MeshRenderer>();
+            r.sharedMaterial = InkHeart.SpriteMat(tex);
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+            _pictureAspect = tex.width / (float)Mathf.Max(1, tex.height);
+            FitPicture();
+        }
+
+        private void FitPicture()
+        {
+            if (_picture == null || Camera == null) return;
+            const float d = 40f;
+            var h = 2f * d * Mathf.Tan(Camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
+            var w = h * Camera.aspect;
+            float sw, sh;
+            if (Camera.aspect > _pictureAspect) { sw = w; sh = w / _pictureAspect; } else { sh = h; sw = h * _pictureAspect; }
+            _picture.localPosition = new Vector3(0f, 0f, d);
+            _picture.localRotation = Quaternion.identity;
+            _picture.localScale = new Vector3(sw * 1.02f, sh * 1.02f, 1f);
+        }
+
         public void SetPetVisible(bool visible)
         {
             _holder.gameObject.SetActive(visible);
@@ -274,6 +311,7 @@ namespace Pofi.World
         private void Update()
         {
             var dt = Time.deltaTime;
+            if (_picture != null) FitPicture();   // ekran döndü / kamera görüş açısı değişti
             HandleDrag(dt);
 
             if (!_dragging)

@@ -8,8 +8,18 @@ html, body { height: 100%; }
 body { margin: 0; background: var(--sky); color: var(--ink); font-family: -apple-system, "SF Pro Rounded", "Segoe UI", Roboto, sans-serif; overflow: hidden; }
 #stage { position: fixed; inset: 0; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 #unity-canvas { width: 100%; height: 100%; display: block; background: var(--sky); touch-action: none; }
-#loader { position: fixed; inset: 0; display: grid; align-items: start; justify-items: center; background: var(--sky) url('keyart.jpg') center 70% / cover no-repeat; padding: max(18px, env(safe-area-inset-top)) 24px 24px; text-align: center; }
-#loader::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10,40,80,.45), rgba(10,40,80,0) 38%); }   /* yazı üstte: tavşan açıkta kalsın */
+#loader { position: fixed; inset: 0; display: grid; align-items: start; justify-items: center; background: var(--sky) url('keyart.jpg') center 60% / cover no-repeat; padding: max(18px, env(safe-area-inset-top)) 24px 24px; text-align: center; overflow: hidden; transition: opacity .6s ease .45s; }
+/* Y1–Y5 (23 Ekim 2026, onaylı): her açılışta hikâyeyle eşleşen başka bir 3B görsel; yazı üstte, ipucu altta */
+#loader::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(10,40,80,.45), rgba(10,40,80,0) 34%, rgba(10,40,80,0) 70%, rgba(10,40,80,.42)); }
+#loader .tip { position: absolute; left: 50%; bottom: max(18px, env(safe-area-inset-bottom)); transform: translateX(-50%); width: min(620px, calc(100% - 32px)); padding: 10px 18px; border-radius: 999px; background: rgba(255,255,255,.88); color: var(--ink); font-size: 15px; font-weight: 800; box-shadow: 0 4px 0 rgba(0,0,0,.12); }
+#loader .cloud { position: absolute; top: -10%; bottom: -10%; width: 62%; pointer-events: none; opacity: 0; transition: transform 1s cubic-bezier(.2,.7,.2,1), opacity .5s; background:
+  radial-gradient(closest-side, #fff 62%, rgba(255,255,255,0)) 10% 20% / 46% 34% no-repeat, radial-gradient(closest-side, #fff 62%, rgba(255,255,255,0)) 40% 55% / 58% 40% no-repeat,
+  radial-gradient(closest-side, #fff 62%, rgba(255,255,255,0)) 15% 85% / 50% 34% no-repeat, radial-gradient(closest-side, #fff 62%, rgba(255,255,255,0)) 70% 30% / 44% 32% no-repeat; }
+#loader .cloud.l { left: -12%; } #loader .cloud.r { right: -12%; transform: scaleX(-1); }
+/* yükleme bitti: bulutlar kenarlardan ortaya gelir, sonra iki yana aralanır (sis temamız), ekran açılır */
+#loader.closing .cloud { opacity: 1; } #loader.closing .cloud.l { transform: translateX(18%); } #loader.closing .cloud.r { transform: scaleX(-1) translateX(18%); }
+#loader.open .cloud { opacity: 1; } #loader.open .cloud.l { transform: translateX(-110%); } #loader.open .cloud.r { transform: scaleX(-1) translateX(-110%); }
+#loader.open { opacity: 0; }
 #loader .box { position: relative; }
 #loader .box { display: grid; gap: 12px; width: min(420px, 100%); }
 #loader h1 { margin: 0; font-size: 44px; font-weight: 900; color: var(--white); letter-spacing: .5px; text-shadow: 0 4px 0 #E8761A, 0 8px 18px rgba(0,0,0,.35); }
@@ -28,10 +38,12 @@ body { margin: 0; background: var(--sky); color: var(--ink); font-family: -apple
 <div id="loader" role="status" aria-live="polite">
   <div class="box">
     <h1>Pofi Adası</h1>
-    <p id="msg">Ada hazırlanıyor… (ilk açılış biraz sürebilir)</p>
+    <p id="msg">Işık Adası'nın hikâyesi · ilk açılış biraz sürebilir</p>
     <div class="bar" aria-hidden="true"><i id="fill"></i></div>
     <div id="err"></div>
   </div>
+  <div class="cloud l" aria-hidden="true"></div><div class="cloud r" aria-hidden="true"></div>
+  <div class="tip" id="tip"></div>
 </div>
 
 <script>
@@ -42,6 +54,28 @@ body { margin: 0; background: var(--sky); color: var(--ink); font-family: -apple
   var msg = document.getElementById('msg');
   var err = document.getElementById('err');
   var loader = document.getElementById('loader');
+  // Y1–Y5: ada hayatı, ahtapot, kırmızı fener, ada sakinleri, palmiyeler; art arda aynısı gelmez (yalnız bu tarayıcıda hatırlanır)
+  var ARTS = [
+    ['load_beach', "Okti'ye dokun, sana bir hareket yapsın."],
+    ['load_okti', 'Evde yaptığın her iyilik bir Güneş Taşı olur.'],
+    ['load_lighthouse', 'Sisli yere Güneş Taşı koyunca sis kalkar.'],
+    ['load_residents', "Kıskaç'ın dükkânında yeni şeyler var."],
+    ['load_palms', 'Palmiyelere dokun: sallanıp hışırdarlar.']
+  ];
+  var last = null; try { last = localStorage.getItem('pofi.loadart'); } catch (e) {}
+  var pool = ARTS.filter(function (a) { return a[0] !== last; });
+  var art = pool[Math.floor(Math.random() * pool.length)];
+  try { localStorage.setItem('pofi.loadart', art[0]); } catch (e) {}
+  loader.style.backgroundImage = "url('load/" + art[0] + ".jpg'), url('keyart.jpg')";
+  document.getElementById('tip').textContent = art[1];
+  var shownAt = Date.now();
+  function reveal() {
+    // en az 1,2 sn görünür; bulutlar 1 sn'de aralanır
+    setTimeout(function () {
+      loader.classList.add('closing');
+      setTimeout(function () { loader.classList.remove('closing'); loader.classList.add('open'); setTimeout(function () { loader.style.display = 'none'; }, 1100); }, 450);
+    }, Math.max(0, 1200 - (Date.now() - shownAt)));
+  }
   function fail(text) {
     msg.textContent = 'Önizleme açılamadı.';
     err.style.display = 'block';
@@ -80,7 +114,7 @@ body { margin: 0; background: var(--sky); color: var(--ink); font-family: -apple
   s.onerror = function () { fail('Oyun dosyaları yüklenemedi.'); };
   s.onload = function () {
     createUnityInstance(canvas, config, function (p) { fill.style.width = Math.round(50 + p * 50) + '%'; })
-      .then(function (inst) { window.unityInstance = inst; loader.style.display = 'none'; })
+      .then(function (inst) { window.unityInstance = inst; fill.style.width = '100%'; reveal(); })
       .catch(function (e) { fail('Hata: ' + (e && e.message ? e.message : e)); });
   };
   loadData(function () { document.body.appendChild(s); });

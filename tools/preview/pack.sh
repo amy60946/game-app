@@ -20,5 +20,6 @@ echo "{\"parts\": $n}" > "$OUT/Build/parts.json"
 cp "$B/PofiAdasi.wasm.unityweb" "$OUT/Build/PofiAdasi.code.wasm"
 cp "$ROOT/tools/preview/index.html" "$OUT/index.html"
 cp "$ROOT/tools/preview/keyart.jpg" "$OUT/keyart.jpg"   # yükleme ekranı tam ekran görseli (art/scripts/keyart.py)
+mkdir -p "$OUT/load" && cp "$ROOT"/Assets/_Pofi/Resources/Art/load_*.jpg "$OUT/load/"   # Y1–Y5 dönüşümlü yükleme görselleri
 cat "$TMP/preview.json"; echo
 ls -la "$OUT/Build"

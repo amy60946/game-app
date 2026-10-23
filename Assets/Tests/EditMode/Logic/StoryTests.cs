@@ -221,7 +221,9 @@ namespace Pofi.Tests.Logic
                 Assert.AreNotEqual(last, a.Id);
                 last = a.Id;
             }
-            Assert.AreEqual("load_beach", LoadingArts.Pick(Book, new StoryState(), 0, 5).Id);
+            CollectionAssert.Contains(new[] { "load_beach", "load_okti", "load_lighthouse" }, LoadingArts.Pick(Book, new StoryState(), 0, 5).Id, "giriş bölümü: Y1–Y3");
+            var ready = new System.Collections.Generic.HashSet<string> { "load_okti" };
+            Assert.AreEqual("load_okti", LoadingArts.Pick(Book, new StoryState(), 9, 3, ready.Contains).Id, "görseli olmayan seçilmez");
         }
 
         [Test]

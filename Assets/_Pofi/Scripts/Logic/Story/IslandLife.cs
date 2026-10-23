@@ -259,9 +259,10 @@ namespace Pofi.Logic.Story
     /// <summary>Açılışta yükleme görseli: ulaşılmış bölümlerden, bir öncekinden farklı.</summary>
     public static class LoadingArts
     {
-        public static LoadingArtDef Pick(StoryBook book, StoryState st, int chapter, int seed)
+        /// <param name="available">görseli oyunda olanlar (henüz üretilmemiş görseller seçilmez); null = hepsi</param>
+        public static LoadingArtDef Pick(StoryBook book, StoryState st, int chapter, int seed, System.Func<string, bool> available = null)
         {
-            var pool = book.Arts.Where(a => a.Chapter <= chapter).ToList();
+            var pool = book.Arts.Where(a => a.Chapter <= chapter && (available == null || available(a.Id))).ToList();
             if (pool.Count == 0) return null;
             if (pool.Count > 1) pool = pool.Where(a => a.Id != st.LastArt).ToList();
             var pick = pool[(int)((uint)seed % (uint)pool.Count)];

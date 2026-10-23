@@ -840,9 +840,24 @@
    "tip": "Okti'ye dokun, sana bir hareket yapsın."
   },
   {
+   "id": "load_okti",
+   "chapter": 0,
+   "tip": "Evde yaptığın her iyilik bir Güneş Taşı olur."
+  },
+  {
+   "id": "load_lighthouse",
+   "chapter": 0,
+   "tip": "Sisli yere Güneş Taşı koyunca sis kalkar."
+  },
+  {
+   "id": "load_residents",
+   "chapter": 1,
+   "tip": "Kıskaç'ın dükkânında yeni şeyler var."
+  },
+  {
    "id": "load_palms",
    "chapter": 1,
-   "tip": "Palmiyelere dokun: Pıtır ve Hışır dans eder."
+   "tip": "Palmiyelere dokun: sallanıp hışırdarlar."
   },
   {
    "id": "load_shop",
@@ -873,11 +888,6 @@
    "id": "load_festival",
    "chapter": 7,
    "tip": "Festival fenerlerini yak!"
-  },
-  {
-   "id": "load_lighthouse",
-   "chapter": 9,
-   "tip": "Fener bütün adayı aydınlatıyor."
   }
  ]
 }

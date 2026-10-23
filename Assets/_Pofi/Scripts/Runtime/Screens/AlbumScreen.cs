@@ -142,7 +142,7 @@ namespace Pofi.Screens
                 Ui.Panel(r, Th.Panel, Th.Radius);
                 Ui.Label(r, T("story.intro"), Th.Font(36), Th.Text, new Vector2(0.45f, 0.5f), new Vector2(1000f, 100f), FontStyle.Normal, TextAnchor.MiddleLeft);
                 var intro = book.Scenes[0];
-                Ui.Button(r, Th, T("story.replay"), new Vector2(0.9f, 0.5f), new Vector2(200f, 80f), () => Replay(intro), true, default, 32, false);
+                Ui.Button(r, Th, T("story.replay"), new Vector2(0.9f, 0.5f), new Vector2(200f, 80f), () => UI.FilmPlayer.Play(App.Overlay.transform, Th, intro, Th.Band, App.State.PetName, T("story.skip"), T("story.go"), null), true, default, 32, false);   // giriş filmi (F)
             }
             var pages = Logic.Story.LorePages.Found(book, st);
             var head = Ui.Row(_list, "PagesHead", 90f);
