@@ -125,7 +125,7 @@ namespace Pofi.World
         {
             ["head"] = new Rule("Head", 0.42f, up: -0.14f, bottom: true), ["eyes"] = new Rule("Head", 0.256f, fwd: 0.015f),
             ["body"] = new Rule("Spine1", 0.50f, up: -0.03f), ["back"] = new Rule("Spine1", 0.24f, up: -0.04f, fwd: -0.11f),
-            ["hand"] = new Rule("RightHand", 0.17f, side: 0.03f),
+            ["hand"] = new Rule("RightHand", 0.17f, side: 0.03f), ["hips"] = new Rule("Hips", 0.31f, up: -0.04f),
         };
         /// <summary>Kıyafetsiz çocuk Okti (23 Ekim 2026): gövde başın etek kısmının altında kalıyordu → gövde eşyaları Spine1'de,
         /// görünen gövdeyi saracak boyda (fit_test_okti.py + okti_fit_rules.json "yavru:body").</summary>
