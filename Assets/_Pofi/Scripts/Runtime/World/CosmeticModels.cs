@@ -217,12 +217,16 @@ namespace Pofi.World
             if (item.Pair) return BuildPair(pet, root, item, rule, h, front);
 
             var t = RealAssets.Item(item.Id, root);
-            t.rotation = Quaternion.LookRotation(Reversed.Contains(item.Id) ? -front : front, Vector3.up);   // eşyanın önü (+z) petin önüne
+            var face = Quaternion.LookRotation(Reversed.Contains(item.Id) ? -front : front, Vector3.up);   // eşyanın önü (+z) petin önüne
+            // ölçüler eşyanın kendi ekseninde: pet yana dönükken (dolap, ada) dünya kutusu şişiyor, gözlük yüze gömülüyor,
+            // şapka küçülüyordu (23 Ekim 2026); Blender oturma denemesi dönüksüz ölçer
+            t.rotation = Quaternion.identity;
             var ib = RealAssets.WorldBounds(t);
             var w = Mathf.Max(ib.size.x, ib.size.z);
             if (w < 0.0001f) return false;
             t.localScale *= rule.Size * h / w;
             ib = RealAssets.WorldBounds(t);
+            var off = ib.center - t.position;
             var up = rule.Up + (variant == "raised" ? 0.05f : 0f);
             var target = bone.position + Vector3.up * (up * h) + front * (rule.Fwd * h) + right * (rule.Side * h);
             var headBone = FindDeep(pet, "Head");
@@ -239,12 +243,13 @@ namespace Pofi.World
                 {
                     var eyeY = pb.min.y + ey.x * h;
                     target = bone.position + front * FaceFront(bone.position, front, right, eyeY, h, ey.y * h); target.y = eyeY;   // yüzün önü, göz hizası
-                    var depth = Mathf.Abs(front.x) * ib.extents.x + Mathf.Abs(front.z) * ib.extents.z;         // camlar yüzün önünde
-                    target += front * (rule.Fwd * h - depth);
+                    target += front * (rule.Fwd * h - ib.extents.z);                                          // camlar yüzün önünde
                 }
             }
-            var y = rule.Bottom ? target.y - (ib.min.y - t.position.y) : target.y - (ib.center.y - t.position.y);
-            t.position = new Vector3(target.x - (ib.center.x - t.position.x), y, target.z - (ib.center.z - t.position.z));
+            t.rotation = face;
+            var c = face * off;                                       // dönüş yalnız dikey eksende: düşey kayma aynı
+            var y = rule.Bottom ? target.y - (off.y - ib.extents.y) : target.y - off.y;
+            t.position = new Vector3(target.x - c.x, y, target.z - c.z);
             // head_end bir uç kemik: animasyonlarda ölçeği bozulabiliyor → kafa eşyaları asıl Head kemiğine takılır
             t.SetParent(rule.Bone == "head_end" && headBone != null ? headBone : bone, true);
             t.gameObject.AddComponent<RealCosmetic>();
@@ -330,7 +335,7 @@ namespace Pofi.World
                 d.Normalize();
                 var t = RealAssets.Item(item.Id, root);
                 if (t == null) return any;
-                t.rotation = face;
+                t.rotation = Quaternion.identity;                     // boy eşyanın kendi ekseninde (pet dönükken kutu şişmesin)
                 var ib = RealAssets.WorldBounds(t);
                 var w = Mathf.Max(ib.size.x, ib.size.z);
                 if (w < 0.0001f) { Object.Destroy(t.gameObject); continue; }
