@@ -123,12 +123,12 @@ def _sock_radius(s, th):
     if s <= 0.16:                                   # lastikli bilek (ağızda hafif genişler)
         rx, ry = 0.128 + 0.006 * sstep(0.05, 0.0, s), 0.152 + 0.006 * sstep(0.05, 0.0, s)
     elif s <= 0.4:                                  # bilek → topuk üstü hafif incelir
-        t = sstep(0.16, 0.4, s); rx, ry = lerp(0.128, 0.116, t), lerp(0.152, 0.142, t)
+        t = sstep(0.16, 0.4, s); rx, ry = lerp(0.128, 0.105, t), lerp(0.152, 0.142, t)
     else:                                           # ayak: pençe üstünde genişler
-        t = sstep(0.38, 0.62, s); rx, ry = lerp(0.116, 0.128, t), lerp(0.142, 0.198, t)
+        t = sstep(0.38, 0.62, s); rx, ry = lerp(0.105, 0.13, t), lerp(0.142, 0.198, t)
     r = 1.0 / math.sqrt((c / rx) ** 2 + (sn / ry) ** 2)         # elips
     if s <= 0.15: r += 0.0055 * math.cos(th * 12)                 # fitil
-    if c < 0: r += 0.042 * math.exp(-((s - 0.45) / 0.1) ** 2) * (-c) ** 1.4     # topuk (−X: kolun üst/dış yanı)
+    if c < 0: r += 0.062 * math.exp(-((s - 0.47) / 0.09) ** 2) * (-c) ** 1.3     # topuk (−X: kolun üst/dış yanı)
     if s > 0.8: r *= math.sqrt(max(0.0, 1 - ((s - 0.8) / 0.2) ** 2)) ** 0.9       # yuvarlak burun
     return r, 0.024 * sstep(0.55, 1.0, s)          # burun hafifçe +X'e (topuğun tersine) kıvrılır
 
