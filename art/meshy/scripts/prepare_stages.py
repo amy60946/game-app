@@ -12,8 +12,9 @@ TEX = 1024
 CLIPS = {"Idle_3": "idle", "Walking": "walk", "Running": "run", "Cheer_with_Both_Hands_Up": "happy",
          "Wave_One_Hand": "wave", "Sleep_Normally": "sleep", "Regular_Jump": "jump"}
 # dosyada asıl klip yoksa yerine geçen (kıyafetsiz çocuk Okti, 23 Ekim 2026: sevinç = 360° dönerek zıplama).
-# Hiç karşılığı olmayan klibin (idle, sleep) eski dosyası klasörde kalır: Legacy klipler kemik adıyla bağlanır.
-FALLBACK = {"Cheer_with_Both_Hands_Up": "_360_Power_Spin_Jump"}
+# Bekleme (idle) dosyada yoksa kodla üretilir (make_idle). Eski dosyanın klipleri KULLANILAMAZ: iskelet ölçüsü farklıysa
+# (eski 0,01 ölçekli santim, yeni metre) kemik konumları 100 kat kayar ve pet ekrandan kaybolur (23 Ekim 2026).
+FALLBACK = {"Cheer_with_Both_Hands_Up": "_360_Power_Spin_Jump", "Sleep_Normally": "Cough_While_Sleeping"}
 TRIS = int(os.environ.get("POFI_TRIS", "12500"))   # oyun bütçesi (eski evreler ~12,4 bin üçgen)
 outdir = os.path.join(root, name)
 os.makedirs(outdir, exist_ok=True)
@@ -113,6 +114,60 @@ for a in bpy.data.actions:
 ad = arm.animation_data or arm.animation_data_create()
 for track in list(ad.nla_tracks):
     ad.nla_tracks.remove(track)
+
+def rest_pose():
+    for pb in arm.pose.bones:
+        pb.rotation_mode = "QUATERNION"
+        pb.location = (0, 0, 0); pb.rotation_quaternion = (1, 0, 0, 0); pb.scale = (1, 1, 1)
+
+def make_idle(walk, frames=60):
+    """Kodla bekleme klibi (2 sn döngü): kollar yürüyüşteki ortalama duruşta (yanlarda), gövde nefes alır gibi hafifçe esner,
+    baş hafifçe yana sallanır, kalça çok az iner kalkar. Tüm kemikler anahtarlanır (yürüyüşten geçişte bacak açık kalmasın)."""
+    import math, mathutils
+    sc = bpy.context.scene
+    arms = ["mixamorig:" + sd + part for sd in ("Left", "Right") for part in ("Shoulder", "Arm", "ForeArm", "Hand")]
+    acc = {}
+    if walk is not None:
+        ad.action = walk
+        f0, f1 = int(walk.frame_range[0]), int(walk.frame_range[1])
+        for f in range(f0, f1):
+            sc.frame_set(f)
+            for n in arms:
+                pb = arm.pose.bones.get(n)
+                if pb is None: continue
+                q = pb.rotation_quaternion.copy() if pb.rotation_mode == "QUATERNION" else pb.rotation_euler.to_quaternion()
+                if n in acc:
+                    if acc[n].dot(q) < 0: q.negate()
+                    acc[n] = mathutils.Quaternion([acc[n][i] + q[i] for i in range(4)])
+                else:
+                    acc[n] = q
+    mean = {n: q.normalized() for n, q in acc.items()}
+    ad.action = None; rest_pose()
+    idle = bpy.data.actions.new("Idle_3"); ad.action = idle
+    R = math.radians
+    for f in range(0, frames + 1, 5):
+        t = f / frames * 2 * math.pi
+        rest_pose()
+        for pb in arm.pose.bones:
+            n = pb.name
+            if n in mean:
+                sway = mathutils.Quaternion((0, 0, 1), R(2.0 * math.sin(t + (0 if "Left" in n else math.pi))))
+                pb.rotation_quaternion = mean[n] @ sway
+            elif n.endswith(("Spine", "Spine1", "Spine2")):
+                pb.rotation_quaternion = mathutils.Quaternion((1, 0, 0), R(1.2 * math.sin(t)))
+            elif n.endswith("Neck"):
+                pb.rotation_quaternion = mathutils.Quaternion((1, 0, 0), R(-0.8 * math.sin(t)))
+            elif n.endswith("Head"):
+                pb.rotation_quaternion = mathutils.Quaternion((0, 0, 1), R(2.2 * math.sin(t + 0.7)))
+            elif n.endswith("Hips"):
+                pb.location = (0, 0.004 * (pb.bone.length or 1.0) * math.sin(2 * t), 0)
+            pb.keyframe_insert("rotation_quaternion", frame=f); pb.keyframe_insert("location", frame=f)
+    ad.action = None; rest_pose()
+    print("ÜRETİLDİ idle", frames, "kare")
+    return idle
+
+if "Idle_3" not in actions:
+    actions["Idle_3"] = make_idle(actions.get("Walking"))
 
 # 1) model: dinlenme pozu, animasyonsuz
 ad.action = None

@@ -124,5 +124,122 @@
  },
  "item:backpack_small": {
   "flip": true
+ },
+ "item:hat_propeller": {
+  "size": 0.95,
+  "up": -0.02
+ },
+ "item:hat_cake": {
+  "size": 0.95,
+  "up": -0.02
+ },
+ "item:hat_watermelon": {
+  "size": 0.95,
+  "up": -0.03
+ },
+ "item:hat_crown_tilt": {
+  "size": 1.05,
+  "up": -0.09
+ },
+ "item:hat_bucket": {
+  "size": 0.95,
+  "up": -0.03
+ },
+ "genc:item:hat_propeller": {
+  "size": 0.741,
+  "up": 0.04
+ },
+ "yetiskin:item:hat_propeller": {
+  "size": 0.741,
+  "up": 0.04
+ },
+ "genc:item:hat_cake": {
+  "size": 0.741,
+  "up": 0.04
+ },
+ "yetiskin:item:hat_cake": {
+  "size": 0.741,
+  "up": 0.04
+ },
+ "genc:item:hat_watermelon": {
+  "size": 0.741,
+  "up": 0.03
+ },
+ "yetiskin:item:hat_watermelon": {
+  "size": 0.741,
+  "up": 0.03
+ },
+ "genc:item:hat_crown_tilt": {
+  "size": 0.819,
+  "up": -0.03
+ },
+ "yetiskin:item:hat_crown_tilt": {
+  "size": 0.819,
+  "up": -0.03
+ },
+ "genc:item:hat_bucket": {
+  "size": 0.741,
+  "up": 0.03
+ },
+ "yetiskin:item:hat_bucket": {
+  "size": 0.741,
+  "up": 0.03
+ },
+ "item:hat_fishbowl": {
+  "size": 0.81,
+  "up": 0.09
+ },
+ "item:glasses_heart": {
+  "size": 0.98,
+  "fwd": -0.0125
+ },
+ "item:glasses_nose": {
+  "size": 0.77,
+  "fwd": -0.089
+ },
+ "item:glasses_snorkel": {
+  "size": 1.05,
+  "fwd": -0.097
+ },
+ "item:mask_hero": {
+  "size": 1.06,
+  "fwd": -0.005
+ },
+ "genc:item:hat_fishbowl": {
+  "size": 0.68,
+  "up": 0.11
+ },
+ "genc:item:glasses_nose": {
+  "size": 0.77,
+  "fwd": -0.045
+ },
+ "genc:item:glasses_snorkel": {
+  "size": 1.0,
+  "fwd": -0.05
+ },
+ "yetiskin:item:hat_fishbowl": {
+  "size": 0.68,
+  "up": 0.11
+ },
+ "yetiskin:item:glasses_nose": {
+  "size": 0.77,
+  "fwd": -0.045
+ },
+ "yetiskin:item:glasses_snorkel": {
+  "size": 1.0,
+  "fwd": -0.05
+ },
+ "item:socks_arm": {
+  "size": 1.163,
+  "fwd": 0.016
+ },
+ "item:pompom": {
+  "size": 1.6,
+  "fwd": 0.22
+ },
+ "item:outfit_hula": {
+  "size": 0.925,
+  "up": -0.034,
+  "fwd": -0.05
  }
 }

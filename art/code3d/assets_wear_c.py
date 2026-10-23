@@ -1,7 +1,8 @@
 # Komik giyilebilir eşyalar C (kullanıcı, 23 Ekim 2026): kol çorabı, ponpon, çiçek kolye + çim etek — kodla, özgün tasarım.
 # Aynı dil (assets_items): dokulu kumaş/örgü, yaprak, halat; yumuşak AO; parlak "vinyl oyuncak" havası; dış çizgi yok.
-# Ölçü: çocuk Okti biriminde (boy 1,70; gövde ekseni (0, 0.04)). Oyun eşyayı sınır kutusuyla ölçekler/yerleştirir
-# (okti_fit_rules "item:<id>"), birim serbest. Ön = −Y, yukarı = +Z.
+# Ölçü: çocuk Okti biriminde (boy 1,70; gövde ekseni (0, 0.04)); ponpon ×3, etek ×1,5 büyütülür (_grow: AO). Oyun eşyayı sınır
+# kutusuyla ölçekler/yerleştirir (okti_fit_rules "item:<id>"), birim serbest. Ön = −Y, yukarı = +Z.
+# Oturma (çocuk): socks_arm size 1.163 fwd 0.016 · pompom size 1.6 fwd 0.22 · outfit_hula size 0.925 up −0.034 fwd −0.05.
 # Kullanım: python -I assets_wear_c.py -- <çıktı_klasörü> [w_socks_arm ...]   (oyuna: export_game.py socks_arm pompom outfit_hula)
 import sys, os, math, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -30,7 +31,7 @@ def _frame(n, hint=(0, 0, 1)):
 def _grow(k):
     """Sahnedeki her şeyi orijine göre k kat büyüt (dönüşümler köşelere işlenir). Oyun eşyayı sınır kutusuyla ölçekler; büyütme
     yalnız pişirmedeki AO mesafesini (0,35) eşyaya oranla küçültür (yoğun şerit/çiçek kararmasın). Nesne-koordinatlı gürültüler
-    pişirmede dünya koordinatıyla okunur: malzemelerde ölçek buna göre (PSC)."""
+    pişirmede dünya koordinatıyla okunur: büyütülen eşyanın malzemelerinde gürültü ölçeği buna göre küçük."""
     to_mesh_all()
     for o in list(bpy.context.scene.objects):
         if o.type != 'MESH': continue
@@ -46,7 +47,7 @@ def _grow(k):
 def m_knit(stops, ztop, L, heel=None, name='knit', cols=40, rows=30):
     """Örgü çorap: boy boyunca (nesne Z) renk bantları (CONSTANT; kenarı örgü zikzağı), ilmek 'V' deseni (sütun × sıra),
     lastikli bilekte dikey fitiller, hafif tüylenme. stops: [(s, '#renk')], s = (ztop − z) / L (0 ağız, 1 burun).
-    heel: (s0, s1, x_eşik, '#renk') −X yanında topuk yaması."""
+    heel: (s0, s1, açı_yarı_genişliği, '#renk') −X yanında elips topuk yaması."""
     def b(nt, bsdf):
         n = nt.nodes; l = nt.links; G = A._G(nt); o = G.obj()
         sp = n.new('ShaderNodeSeparateXYZ'); l.new(o, sp.inputs[0])
@@ -226,7 +227,7 @@ def w_pompom():
 BODY_Y = 0.04                                       # çocuk Okti gövde ekseni (y)
 
 def petal_flower(name, c, nrm, kind, size, R, mats, roll=0.0, P=8):
-    """Tombul çiçek: 5 kubbeli taç yaprağı (her biri 10 köşeli yelpaze, üstü şişkin) + göbek; grain uv: u = göbekten uca.
+    """Tombul çiçek: 5 kubbeli taç yaprağı (her biri P köşeli yelpaze, üstü şişkin) + göbek; grain uv: u = göbekten uca.
     kind: 'hib' (geniş, çanak, uzun sarı başçık) | 'fra' (oval, çark gibi bindirmeli)."""
     n = V(nrm).normalized(); t1, t2 = _frame(n)
     bm = bmesh.new(); uvl = bm.loops.layers.uv.new('grain')

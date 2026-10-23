@@ -115,6 +115,12 @@ namespace Pofi.World
             // komik eşyalar (23 Ekim 2026, F1–F17): çocuk Okti'de fit_test_okti.py ile ayarlandı
             ["hat_shark"] = new Vector3(1.35f, -0.03f), ["hat_banana"] = new Vector3(1.05f, -0.02f), ["outfit_burger"] = new Vector3(1.08f, 0f),
             ["outfit_chicken"] = new Vector3(1.3f, -0.07f), ["float_flamingo"] = new Vector3(1.12f, -0.02f), ["backpack_rocket"] = new Vector3(1.6f, 0.08f),
+            ["hat_propeller"] = new Vector3(0.95f, -0.02f), ["hat_cake"] = new Vector3(0.95f, -0.02f), ["hat_watermelon"] = new Vector3(0.95f, -0.03f),
+            ["hat_crown_tilt"] = new Vector3(1.05f, -0.09f), ["hat_bucket"] = new Vector3(0.95f, -0.03f), ["hat_fishbowl"] = new Vector3(0.81f, 0.09f),
+            // gözlükte ileri = yüzün önüne (fit_test_okti.py'de göz için işaret ters: −fwd)
+            ["glasses_heart"] = new Vector3(0.98f, 0f, 0.0125f), ["glasses_nose"] = new Vector3(0.77f, 0f, 0.089f), ["glasses_snorkel"] = new Vector3(1.05f, 0f, 0.097f),
+            ["mask_hero"] = new Vector3(1.06f, 0f, 0.005f), ["socks_arm"] = new Vector3(1.163f, 0f, 0.016f), ["pompom"] = new Vector3(1.6f, 0f, 0.22f),
+            ["outfit_hula"] = new Vector3(0.925f, -0.034f, -0.05f),
         };
         /// <summary>Evreye özel eşya ayarı ("genc:&lt;id&gt;"; varsa <see cref="OktiItem"/> yerine). Genç/yetişkin şimdilik eski giyinik modeller:
         /// başları gövdeye oranla küçük, çocuğa göre ayarlanan iri şapkalar gözleri örtüyordu.</summary>
@@ -123,6 +129,14 @@ namespace Pofi.World
             ["genc:hat_shark"] = new Vector3(0.95f, 0.1f), ["yetiskin:hat_shark"] = new Vector3(0.95f, 0.1f),
             ["genc:hat_banana"] = new Vector3(0.85f, 0f), ["yetiskin:hat_banana"] = new Vector3(0.85f, 0f),
             ["genc:outfit_chicken"] = new Vector3(1.05f, -0.08f), ["yetiskin:outfit_chicken"] = new Vector3(1.1f, -0.1f),
+            ["genc:hat_propeller"] = new Vector3(0.741f, 0.04f), ["yetiskin:hat_propeller"] = new Vector3(0.741f, 0.04f),
+            ["genc:hat_cake"] = new Vector3(0.741f, 0.04f), ["yetiskin:hat_cake"] = new Vector3(0.741f, 0.04f),
+            ["genc:hat_watermelon"] = new Vector3(0.741f, 0.03f), ["yetiskin:hat_watermelon"] = new Vector3(0.741f, 0.03f),
+            ["genc:hat_crown_tilt"] = new Vector3(0.819f, -0.03f), ["yetiskin:hat_crown_tilt"] = new Vector3(0.819f, -0.03f),
+            ["genc:hat_bucket"] = new Vector3(0.741f, 0.03f), ["yetiskin:hat_bucket"] = new Vector3(0.741f, 0.03f),
+            ["genc:hat_fishbowl"] = new Vector3(0.68f, 0.11f), ["yetiskin:hat_fishbowl"] = new Vector3(0.68f, 0.11f),
+            ["genc:glasses_nose"] = new Vector3(0.77f, 0f, 0.045f), ["yetiskin:glasses_nose"] = new Vector3(0.77f, 0f, 0.045f),
+            ["genc:glasses_snorkel"] = new Vector3(1f, 0f, 0.05f), ["yetiskin:glasses_snorkel"] = new Vector3(1f, 0f, 0.05f),
         };
         /// <summary>Dosyada ters dönük eşyalar: sırt çantasının cebi önde, askıları arkada modellenmiş → petin sırtında askılar gövdeye dönsün.</summary>
         private static readonly HashSet<string> Reversed = new HashSet<string> { "backpack_small" };
