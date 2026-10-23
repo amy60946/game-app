@@ -30,11 +30,102 @@ for o in list(bpy.context.scene.objects):   # iskelete bağlı olmayan yardımc�
 # Bu kadar indirgeme UV dikişlerini kaydırıyor (yüzde ince koyu çatlaklar, 23 Ekim 2026) → indirgenmiş meshe yeni UV açılır ve
 # renk dokusu yüksek çokgen kopyadan yeniden pişirilir (POFI_REBAKE=0 ile kapatılır).
 import math
+from mathutils import Vector
 REBAKE = os.environ.get("POFI_REBAKE", "1") == "1"
+
+def deband(o, ya, yb, edge=0.03):
+    """Ergen/yetişkin Okti'nin başında yandan yana geçen ince "kulaklık" bandını siler (kullanıcı, 23 Ekim 2026: çocuktaki gibi olsun).
+    POFI_DEBAND="ya,yb": bandın derinlik dilimi (dünya y, önden arkaya; art/meshy/scripts ile ölçülür). Dilimdeki her köşe, başın
+    merkezinden aynı açıda, dilimin hemen önündeki ve arkasındaki yüzeyin yarıçapına (derinliğe göre ara değer) çekilir; dışarı
+    taşmayan (kol gibi kalın) parçalar kalır. Taşınan köşelere değen her yüz, en yakın taşınmamış baş köşesinin rengini alır
+    (UV o noktaya): bandın rengi kalmaz."""
+    from mathutils import kdtree
+    mw = o.matrix_world; inv = mw.inverted(); me = o.data
+    bones = {b.name.split(":")[-1]: arm.matrix_world @ b.head_local for b in arm.data.bones}
+    nz = bones["Neck"].z; hz = bones["Head"].z
+    W = [mw @ v.co for v in me.vertices]
+    top = max(w.z for w in W)
+    zlo = nz - float(os.environ.get("POFI_DEBAND_LOW", "0.08")) * (top - nz)   # bandın en alt ucu (kollara inmesin)
+    head = [i for i, w in enumerate(W) if w.z > zlo]
+    cx = (min(W[i].x for i in head) + max(W[i].x for i in head)) / 2; cz = hz + (top - hz) * 0.35
+    def polar(w): return math.degrees(math.atan2(w.z - cz, w.x - cx)) % 360, math.hypot(w.x - cx, w.z - cz)
+    rf = [0.0] * 360; rb = [0.0] * 360
+    # kubbe profili: açı (2°) × derinlik (dilimin iki yanında 4'er şerit) → en büyük yarıçap; dilim içinde ikinci derece eğri
+    NB, SW = 4, edge / 2
+    prof = {}
+    for i in head:
+        w = W[i]
+        if ya - NB * SW <= w.y < ya or yb < w.y <= yb + NB * SW:
+            a, r = polar(w); k = int(a) % 360
+            if w.y < ya and w.y >= ya - edge: rf[k] = max(rf[k], r)
+            if w.y > yb and w.y <= yb + edge: rb[k] = max(rb[k], r)
+            j = int((w.y - ya) // SW) if w.y < ya else int((w.y - yb) // SW) + 1000
+            key = (k // 2, j); prof[key] = max(prof.get(key, 0.0), r)
+    import numpy as np
+    curve = {}
+    for kk in range(180):
+        ys, rs = [], []
+        for j in list(range(-NB, 0)) + list(range(1000, 1000 + NB)):
+            r = prof.get((kk, j))
+            if r: ys.append(ya + (j + 0.5) * SW if j < 0 else yb + (j - 1000 + 0.5) * SW); rs.append(r)
+        if len(ys) >= 5 and min(ys) < ya and max(ys) > yb:
+            curve[kk] = np.polyfit(ys, rs, 2)
+    def near(arr, k):
+        for n in range(2, 12):
+            vals = [arr[(k + d) % 360] for d in range(-n, n + 1) if arr[(k + d) % 360] > 0]
+            if vals: return max(vals)
+        return 0.0
+    moved = set()
+    for i in head:
+        w = W[i]
+        if not (ya <= w.y <= yb): continue
+        a, r = polar(w); k = int(a) % 360
+        f, b = near(rf, k), near(rb, k)
+        if f <= 0 or b <= 0: continue
+        t = (w.y - ya) / max(1e-6, yb - ya); rt = f + (b - f) * t
+        c = curve.get(k // 2)
+        if c is not None:
+            rq = float(np.polyval(c, w.y))
+            if min(f, b) * 0.95 <= rq <= max(f, b) * 1.15: rt = rq   # kubbe eğrisi makulse onu kullan (düz çizgi çukur bırakıyordu)
+        if r <= rt + 0.002: continue
+        s = rt / r
+        nw = w.copy(); nw.x = cx + (w.x - cx) * s; nw.z = cz + (w.z - cz) * s
+        me.vertices[i].co = inv @ nw; W[i] = nw
+        moved.add(i)
+    # renk: taşınan köşeye değen yüz → en yakın taşınmamış baş köşesinin UV'si (tek renk; küçük yüzlerde göze batmaz)
+    cm = float(os.environ.get("POFI_DEBAND_COLOR", "0"))   # renk kaynağı dilimden bu kadar uzakta (bant kenarındaki renk karışmasın)
+    keep = [i for i in head if i not in moved and not (ya - cm <= W[i].y <= yb + cm)]
+    kd = kdtree.KDTree(len(keep))
+    for n, i in enumerate(keep): kd.insert(W[i], n)
+    kd.balance()
+    uv = me.uv_layers.active.data
+    first = {}
+    for l in me.loops: first.setdefault(l.vertex_index, l.index)
+    faces = 0
+    for p in me.polygons:
+        if not any(v in moved for v in p.vertices): continue
+        c = sum((W[v] for v in p.vertices), Vector((0, 0, 0))) / len(p.vertices)
+        _, n, _ = kd.find(c)
+        src = uv[first[keep[n]]].uv.copy()
+        for li in p.loop_indices: uv[li].uv = src
+        faces += 1
+    me.update()
+    # dilim kenarındaki sırtı ve sivrilikleri yumuşat (dilim ± kenar, baş bölgesi; taşınan köşelerin çevresi)
+    import bmesh
+    bm = bmesh.new(); bm.from_mesh(me); bm.verts.ensure_lookup_table()
+    ring = set(moved)
+    for _ in range(int(os.environ.get("POFI_DEBAND_RING", "5"))):
+        ring |= {e.other_vert(bm.verts[i]).index for i in list(ring) for e in bm.verts[i].link_edges}
+    sel = [bm.verts[i] for i in ring if W[i].z > zlo and ya - edge <= W[i].y <= yb + edge]
+    for _ in range(int(os.environ.get("POFI_DEBAND_SMOOTH", "12"))):
+        bmesh.ops.smooth_vert(bm, verts=sel, factor=0.5, use_axis_x=True, use_axis_y=True, use_axis_z=True)
+    bm.to_mesh(me); bm.free(); me.update()
+    print("BANT SİLİNDİ", len(moved), "köşe,", faces, "yüz boyandı,", len(sel), "köşe yumuşatıldı")
+
 baked = None
 for o in [o for o in bpy.context.scene.objects if o.type == "MESH"]:
     tris = sum(len(p.vertices) - 2 for p in o.data.polygons)
-    if tris > TRIS * 1.1:
+    if tris > TRIS * 1.1 or os.environ.get("POFI_DEBAND"):
         # glTF içe aktarımı UV dikişlerinde köşeleri ayırır: indirgemede dikişler ayrı ayrı çöker ve yüzeyde ince yarıklar açılır
         # (yüzde koyu çatlaklar, 23 Ekim 2026) → önce aynı yerdeki köşeleri kaynak (UV köşe başına kalır)
         bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o
@@ -42,7 +133,40 @@ for o in [o for o in bpy.context.scene.objects if o.type == "MESH"]:
         bpy.ops.mesh.remove_doubles(threshold=max(o.dimensions) * 1e-5)
         bpy.ops.object.mode_set(mode="OBJECT")
         hi = None
-        if REBAKE:
+        if os.environ.get("POFI_DEBAND"):
+            sub = int(os.environ.get("POFI_SUBDIV", "0"))
+            if sub:
+                bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o
+                sd = o.modifiers.new("subdiv", "SUBSURF"); sd.levels = sub; sd.render_levels = sub
+                bpy.ops.object.modifier_move_to_index(modifier="subdiv", index=0); bpy.ops.object.modifier_apply(modifier="subdiv")
+                print("ALT BÖLÜNDÜ", len(o.data.polygons), "yüz")
+            deband(o, *[float(x) for x in os.environ["POFI_DEBAND"].split(",")])
+            # bant yerinde katlanan yüzler ince koyu çizgi bırakıyordu → yüzey voksel ile yeniden örülür (temiz, kapalı yüzey),
+            # deri ağırlıkları eski ağdan aktarılır; renk aşağıda eski ağdan yeniden pişirilir
+            hi = o.copy(); hi.data = o.data.copy(); bpy.context.scene.collection.objects.link(hi)
+            bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o
+            rm = o.modifiers.new("remesh", "REMESH"); rm.mode = "VOXEL"; rm.voxel_size = max(o.dimensions) * float(os.environ.get("POFI_VOXEL", "0.0035"))
+            bpy.ops.object.modifier_move_to_index(modifier="remesh", index=0); bpy.ops.object.modifier_apply(modifier="remesh")
+            o.vertex_groups.clear()
+            for g in hi.vertex_groups: o.vertex_groups.new(name=g.name)
+            dt = o.modifiers.new("weights", "DATA_TRANSFER"); dt.object = hi; dt.use_vert_data = True
+            dt.data_types_verts = {"VGROUP_WEIGHTS"}; dt.vert_mapping = "POLYINTERP_NEAREST"
+            dt.layers_vgroup_select_src = "ALL"; dt.layers_vgroup_select_dst = "NAME"
+            bpy.ops.object.modifier_move_to_index(modifier="weights", index=0); bpy.ops.object.modifier_apply(modifier="weights")
+            if not o.data.uv_layers: o.data.uv_layers.new(name="UVMap")
+            # örülen yüzeyde dilim kenarlarındaki ince oluklar: yalnız bant şeridinde yumuşat, sonra yumuşak gölgelendirme
+            import bmesh
+            ya, yb = [float(x) for x in os.environ["POFI_DEBAND"].split(",")]
+            mw = o.matrix_world; nzz = (arm.matrix_world @ next(b for b in arm.data.bones if b.name.endswith("Neck")).head_local).z
+            bm = bmesh.new(); bm.from_mesh(o.data)
+            band = [v for v in bm.verts if (mw @ v.co).z > nzz and ya - 0.06 <= (mw @ v.co).y <= yb + 0.06]
+            for _ in range(int(os.environ.get("POFI_DEBAND_SMOOTH2", "25"))):
+                bmesh.ops.smooth_vert(bm, verts=band, factor=0.5, use_axis_x=True, use_axis_y=True, use_axis_z=True)
+            bm.to_mesh(o.data); bm.free()
+            o.data.shade_smooth()
+            tris = sum(len(p.vertices) - 2 for p in o.data.polygons)
+            print("YENİDEN ÖRÜLDÜ", tris, "üçgen")
+        if REBAKE and hi is None:
             hi = o.copy(); hi.data = o.data.copy(); bpy.context.scene.collection.objects.link(hi)
         bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o
         d = o.modifiers.new("decimate", "DECIMATE"); d.ratio = TRIS / tris
@@ -84,7 +208,16 @@ for o in [o for o in bpy.context.scene.objects if o.type == "MESH"]:
         print("YENIDEN PIŞIRILDI", o.name)
 
 # doku: tek temel renk dokusu → 1024 px JPEG (yeniden pişirildiyse o)
-for img in ([baked] if baked is not None else list(bpy.data.images)):
+def base_color_images():
+    out = []
+    for m in bpy.data.materials:
+        if not m.use_nodes: continue
+        for n in m.node_tree.nodes:
+            if n.type == "BSDF_PRINCIPLED":
+                for l in n.inputs["Base Color"].links:
+                    if l.from_node.type == "TEX_IMAGE" and l.from_node.image: out.append(l.from_node.image)
+    return out + [i for i in bpy.data.images if i not in out]
+for img in ([baked] if baked is not None else base_color_images()):
     if img.size[0] == 0:
         continue
     if max(img.size) > TEX:

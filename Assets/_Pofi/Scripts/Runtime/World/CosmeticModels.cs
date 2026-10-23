@@ -88,12 +88,19 @@ namespace Pofi.World
             ["back"] = new Rule("Spine1", 0.36f, up: -0.04f, fwd: -0.2f),
             ["hand"] = new Rule("RightHand", 0.2f, side: 0.03f),
         };
-        /// <summary>Yetişkin Okti: gövdesi uzun, başı alçak, sırtında kendi çantası var. Gövde eşyaları omuz hizasının üstüne
-        /// taşıyordu (kullanıcı, 22 Ekim 2026) → daha alçak, dar ve önde; sırt eşyaları kendi çantasının arkasında.</summary>
+        /// <summary>Kıyafetsiz ergen ve yetişkin Okti (23 Ekim 2026, kullanıcı yüklemesi; baştaki bant silindi): başları ve gövdeleri
+        /// çocuğa göre boya oranla küçük → evre başına tüm yuvalar (fit_test_okti.py + okti_fit_rules.json "genc:&lt;yuva&gt;").</summary>
+        private static readonly Dictionary<string, Rule> OktiGenc = new Dictionary<string, Rule>
+        {
+            ["head"] = new Rule("Head", 0.465f, up: -0.14f, bottom: true), ["eyes"] = new Rule("Head", 0.29f, fwd: 0.015f),
+            ["body"] = new Rule("Spine1", 0.53f, up: -0.03f), ["back"] = new Rule("Spine1", 0.25f, up: -0.04f, fwd: -0.11f),
+            ["hand"] = new Rule("RightHand", 0.17f, side: 0.03f),
+        };
         private static readonly Dictionary<string, Rule> OktiAdult = new Dictionary<string, Rule>
         {
-            ["body"] = new Rule("Spine2", 0.60f, up: -0.10f, fwd: 0.035f),
-            ["back"] = new Rule("Spine1", 0.34f, up: -0.07f, fwd: -0.27f),
+            ["head"] = new Rule("Head", 0.42f, up: -0.14f, bottom: true), ["eyes"] = new Rule("Head", 0.256f, fwd: 0.015f),
+            ["body"] = new Rule("Spine1", 0.50f, up: -0.03f), ["back"] = new Rule("Spine1", 0.24f, up: -0.04f, fwd: -0.11f),
+            ["hand"] = new Rule("RightHand", 0.17f, side: 0.03f),
         };
         /// <summary>Kıyafetsiz çocuk Okti (23 Ekim 2026): gövde başın etek kısmının altında kalıyordu → gövde eşyaları Spine1'de,
         /// görünen gövdeyi saracak boyda (fit_test_okti.py + okti_fit_rules.json "yavru:body").</summary>
@@ -104,8 +111,8 @@ namespace Pofi.World
         /// <summary>Evre başına göz hizası (petin boyuna oran, tabandan) ve göz hizasında yüzün önü (Head kemiğinden ileri, boya oran).</summary>
         private static readonly Dictionary<GrowthStage, Vector2> OktiEyes = new Dictionary<GrowthStage, Vector2>
         {
-            // çocuk: kıyafetsiz model (23 Ekim 2026), göz noktaları dokudan ölçüldü
-            [GrowthStage.Yavru] = new Vector2(0.817f, 0.252f), [GrowthStage.Genc] = new Vector2(0.727f, 0.256f), [GrowthStage.Yetiskin] = new Vector2(0.769f, 0.225f),
+            // kıyafetsiz modeller (23 Ekim 2026), göz noktaları dokudan ölçüldü; yüzün önü oyunda ağdan ölçülür (FaceFront), bu yedek
+            [GrowthStage.Yavru] = new Vector2(0.817f, 0.252f), [GrowthStage.Genc] = new Vector2(0.862f, 0.202f), [GrowthStage.Yetiskin] = new Vector2(0.889f, 0.196f),
         };
         /// <summary>Eşya başına boy çarpanı, yukarı ve ileri kayma (Okti'de; çift el eşyasında ileri = kol boyunca uca doğru).</summary>
         private static readonly Dictionary<string, Vector3> OktiItem = new Dictionary<string, Vector3>
@@ -123,21 +130,11 @@ namespace Pofi.World
             ["mask_hero"] = new Vector3(1.06f, 0f, 0.005f), ["socks_arm"] = new Vector3(1.163f, 0f, 0.016f), ["pompom"] = new Vector3(1.3f, 0f, 0.12f),
             ["outfit_hula"] = new Vector3(0.925f, -0.034f, -0.05f),
         };
-        /// <summary>Evreye özel eşya ayarı ("genc:&lt;id&gt;"; varsa <see cref="OktiItem"/> yerine). Genç/yetişkin şimdilik eski giyinik modeller:
-        /// başları gövdeye oranla küçük, çocuğa göre ayarlanan iri şapkalar gözleri örtüyordu.</summary>
+        /// <summary>Evreye özel eşya ayarı ("genc:&lt;id&gt;"; varsa <see cref="OktiItem"/> yerine): köpekbalığı kapüşonu ve bere ergen/yetişkinde gözü örtmesin.</summary>
         private static readonly Dictionary<string, Vector3> OktiItemStage = new Dictionary<string, Vector3>
         {
-            ["genc:hat_shark"] = new Vector3(0.95f, 0.1f), ["yetiskin:hat_shark"] = new Vector3(0.95f, 0.1f),
-            ["genc:hat_banana"] = new Vector3(0.85f, 0f), ["yetiskin:hat_banana"] = new Vector3(0.85f, 0f),
-            ["genc:outfit_chicken"] = new Vector3(1.05f, -0.08f), ["yetiskin:outfit_chicken"] = new Vector3(1.1f, -0.1f),
-            ["genc:hat_propeller"] = new Vector3(0.741f, 0.04f), ["yetiskin:hat_propeller"] = new Vector3(0.741f, 0.04f),
-            ["genc:hat_cake"] = new Vector3(0.741f, 0.04f), ["yetiskin:hat_cake"] = new Vector3(0.741f, 0.04f),
-            ["genc:hat_watermelon"] = new Vector3(0.741f, 0.03f), ["yetiskin:hat_watermelon"] = new Vector3(0.741f, 0.03f),
-            ["genc:hat_crown_tilt"] = new Vector3(0.819f, -0.03f), ["yetiskin:hat_crown_tilt"] = new Vector3(0.819f, -0.03f),
-            ["genc:hat_bucket"] = new Vector3(0.741f, 0.03f), ["yetiskin:hat_bucket"] = new Vector3(0.741f, 0.03f),
-            ["genc:hat_fishbowl"] = new Vector3(0.68f, 0.11f), ["yetiskin:hat_fishbowl"] = new Vector3(0.68f, 0.11f),
-            ["genc:glasses_nose"] = new Vector3(0.77f, 0f, 0.045f), ["yetiskin:glasses_nose"] = new Vector3(0.77f, 0f, 0.045f),
-            ["genc:glasses_snorkel"] = new Vector3(1f, 0f, 0.05f), ["yetiskin:glasses_snorkel"] = new Vector3(1f, 0f, 0.05f),
+            ["genc:hat_shark"] = new Vector3(1.35f, 0.04f), ["yetiskin:hat_shark"] = new Vector3(1.35f, 0.04f),
+            ["genc:hat_beanie"] = new Vector3(0.92f, 0f), ["yetiskin:hat_beanie"] = new Vector3(0.92f, 0f),
         };
         /// <summary>Dosyada ters dönük eşyalar: sırt çantasının cebi önde, askıları arkada modellenmiş → petin sırtında askılar gövdeye dönsün.</summary>
         private static readonly HashSet<string> Reversed = new HashSet<string> { "backpack_small" };
@@ -171,6 +168,7 @@ namespace Pofi.World
             var okti = petId == "pet_13";
             if (item.Slot == null || !(okti ? OktiRules : Rules).TryGetValue(item.Slot, out var rule)) return false;
             if (okti && _stage == GrowthStage.Yetiskin && OktiAdult.TryGetValue(item.Slot, out var adult)) rule = adult;
+            if (okti && _stage == GrowthStage.Genc && OktiGenc.TryGetValue(item.Slot, out var teen)) rule = teen;
             if (okti && _stage == GrowthStage.Yavru && OktiChild.TryGetValue(item.Slot, out var child)) rule = child;
             if (okti && (OktiItemStage.TryGetValue(StageKey(_stage) + ":" + item.Id, out var io) || OktiItem.TryGetValue(item.Id, out io)))
             { rule.Size *= io.x; rule.Up += io.y; rule.Fwd += io.z; }

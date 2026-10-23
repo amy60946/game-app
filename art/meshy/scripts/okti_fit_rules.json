@@ -28,8 +28,8 @@
  },
  "eyeline": {
   "yavru": 0.62,
-  "genc": 0.22,
-  "yetiskin": 0.22
+  "genc": 0.556,
+  "yetiskin": 0.6
  },
  "item:vest_explorer": {
   "size": 0.82
@@ -60,18 +60,6 @@
  "item:hand_flag": {
   "size": 1.6
  },
- "yetiskin:body": {
-  "bone": "Spine02",
-  "size": 0.6,
-  "up": -0.1,
-  "fwd": 0.035
- },
- "yetiskin:back": {
-  "bone": "Spine01",
-  "size": 0.34,
-  "up": -0.07,
-  "fwd": -0.27
- },
  "yavru:body": {
   "bone": "Spine1",
   "size": 0.62,
@@ -100,28 +88,6 @@
   "size": 1.6,
   "up": 0.08
  },
- "genc:item:hat_shark": {
-  "size": 0.95,
-  "up": 0.1
- },
- "genc:item:hat_banana": {
-  "size": 0.85
- },
- "yetiskin:item:hat_shark": {
-  "size": 0.95,
-  "up": 0.1
- },
- "yetiskin:item:hat_banana": {
-  "size": 0.85
- },
- "genc:item:outfit_chicken": {
-  "size": 1.05,
-  "up": -0.08
- },
- "yetiskin:item:outfit_chicken": {
-  "size": 1.1,
-  "up": -0.1
- },
  "item:backpack_small": {
   "flip": true
  },
@@ -145,46 +111,6 @@
   "size": 0.95,
   "up": -0.03
  },
- "genc:item:hat_propeller": {
-  "size": 0.741,
-  "up": 0.04
- },
- "yetiskin:item:hat_propeller": {
-  "size": 0.741,
-  "up": 0.04
- },
- "genc:item:hat_cake": {
-  "size": 0.741,
-  "up": 0.04
- },
- "yetiskin:item:hat_cake": {
-  "size": 0.741,
-  "up": 0.04
- },
- "genc:item:hat_watermelon": {
-  "size": 0.741,
-  "up": 0.03
- },
- "yetiskin:item:hat_watermelon": {
-  "size": 0.741,
-  "up": 0.03
- },
- "genc:item:hat_crown_tilt": {
-  "size": 0.819,
-  "up": -0.03
- },
- "yetiskin:item:hat_crown_tilt": {
-  "size": 0.819,
-  "up": -0.03
- },
- "genc:item:hat_bucket": {
-  "size": 0.741,
-  "up": 0.03
- },
- "yetiskin:item:hat_bucket": {
-  "size": 0.741,
-  "up": 0.03
- },
  "item:hat_fishbowl": {
   "size": 0.81,
   "up": 0.09
@@ -205,30 +131,6 @@
   "size": 1.06,
   "fwd": -0.005
  },
- "genc:item:hat_fishbowl": {
-  "size": 0.68,
-  "up": 0.11
- },
- "genc:item:glasses_nose": {
-  "size": 0.77,
-  "fwd": -0.045
- },
- "genc:item:glasses_snorkel": {
-  "size": 1.0,
-  "fwd": -0.05
- },
- "yetiskin:item:hat_fishbowl": {
-  "size": 0.68,
-  "up": 0.11
- },
- "yetiskin:item:glasses_nose": {
-  "size": 0.77,
-  "fwd": -0.045
- },
- "yetiskin:item:glasses_snorkel": {
-  "size": 1.0,
-  "fwd": -0.05
- },
  "item:socks_arm": {
   "size": 1.163,
   "fwd": 0.016
@@ -241,5 +143,75 @@
   "size": 0.925,
   "up": -0.034,
   "fwd": -0.05
+ },
+ "genc:head": {
+  "bone": "head_end",
+  "size": 0.465,
+  "up": -0.14,
+  "bottom": true
+ },
+ "genc:eyes": {
+  "bone": "headfront",
+  "size": 0.29,
+  "fwd": -0.015
+ },
+ "genc:body": {
+  "bone": "Spine1",
+  "size": 0.53,
+  "up": -0.03
+ },
+ "genc:back": {
+  "bone": "Spine1",
+  "size": 0.25,
+  "up": -0.04,
+  "fwd": -0.11
+ },
+ "genc:hand": {
+  "bone": "RightHand",
+  "size": 0.17,
+  "side": 0.03
+ },
+ "yetiskin:head": {
+  "bone": "head_end",
+  "size": 0.42,
+  "up": -0.14,
+  "bottom": true
+ },
+ "yetiskin:eyes": {
+  "bone": "headfront",
+  "size": 0.256,
+  "fwd": -0.015
+ },
+ "yetiskin:body": {
+  "bone": "Spine1",
+  "size": 0.5,
+  "up": -0.03
+ },
+ "yetiskin:back": {
+  "bone": "Spine1",
+  "size": 0.24,
+  "up": -0.04,
+  "fwd": -0.11
+ },
+ "yetiskin:hand": {
+  "bone": "RightHand",
+  "size": 0.17,
+  "side": 0.03
+ },
+ "genc:item:hat_shark": {
+  "size": 1.35,
+  "up": 0.04
+ },
+ "genc:item:hat_beanie": {
+  "size": 0.92,
+  "up": 0.0
+ },
+ "yetiskin:item:hat_shark": {
+  "size": 1.35,
+  "up": 0.04
+ },
+ "yetiskin:item:hat_beanie": {
+  "size": 0.92,
+  "up": 0.0
  }
 }
