@@ -47,3 +47,154 @@ d891c4d4459471ea	adali	Ben Mavi, postacıyım!
 e91a5666218d9ed7	adali	Sana mektup yazacağım!
 433bc960333ef7d5	adali	Bir yere gitmek istersen önden uçarım, izimi takip et.
 8610f0059f45b19d	adali	Ben önden uçarım, beni izle!
+edc7686b691ac879	anlatici	Tepeden bir kartopu yuvarlanıp önünde durdu.
+a85f252b160546d0	anlatici	Bir kartopu geldi!
+3a5068c2859246ed	adali	Pus üşüyünce kar yağdırır!
+ba8866d752ec5a2a	adali	Pus üşüyünce kar yağar!
+21178e50bad5c59c	adali	...kar yağdırır.
+b07c21e8a8f5c21f	adali	...kar yağar.
+5e27ed3a9482d935	okti	O zaman kayak zamanı!
+169cd86a6ccc69fb	okti	Kayak zamanı!
+a666797eb4cc1b5c	anlatici	Okti'nin çevresinde bir ışık sarmalı döndü.
+aa7337729e1c9eb6	anlatici	Işık sarmalı döndü!
+03ba698761b5720d	okti	Bakın, kollarım uzadı!
+6c9924bebab426a7	okti	Büyüdüm!
+1c5988950e9c61f9	adali	Bizden bile uzun olacak!
+ab922894c58beae3	adali	Çok büyümüş!
+3164053c0657c073	adali	...bizden bile uzun.
+a2fadf4a8f21b7be	adali	...çok büyümüş.
+69f3580183d629bc	anlatici	Denizden yaşlı bir kaplumbağa yavaşça yaklaştı.
+6dd8a59df6984e49	anlatici	Yaşlı bir kaplumbağa geldi.
+87a9741a44ca1492	adali	Merhaba evlat. Ben Tosbi. Bu köprüyü çok eskiden bilirim.
+17050930140e2503	adali	Ben Tosbi Dede.
+bd893c1376c2fed6	adali	Köprü onarılırsa sana bir sır göstereceğim.
+c6ef1131d076fcf0	adali	Köprü onarılırsa sır var!
+e22e8a3ae4a73a0a	okti	Güneş Taşları köprüyü onarır mı?
+e9591e9036556da2	okti	Taşlar köprüyü onarır mı?
+b9123ee75e68d4a7	adali	Dört taş, dört tahta. Acele yok, ben beklerim.
+6387129f78fd7bee	adali	Dört taş yeter. Ben beklerim.
+d4b153d5984db801	anlatici	Son tahta da yerine oturdu.
+fd9b69c7f55267a3	anlatici	Köprü onarıldı!
+4dece97301502d0a	adali	İşte söz verdiğim sır: Bekçi Nur'un günlüğünden bir sayfa.
+87cf730f2d9ed6d3	adali	İşte bir günlük sayfası.
+d0ae759a77f43dc2	adali	"Bu ada bir zamanlar ışıkla dolardı..."
+d8d92227164de03d	adali	"Bu ada ışıkla dolardı..."
+5337c91d74326cfa	adali	Diğer sayfalar adaya dağıldı. Belki sen bulursun.
+d262b6a6334196bd	adali	Diğerlerini sen bul!
+e5a70e7645f2071c	adali	Nur her gece bir sayfa yazardı.
+355bec57074f0093	adali	Nur her gece yazardı.
+3f59a2ced7ce2973	adali	Fırtına sayfaları adaya dağıttı. Parıltıların yanına bak.
+1d15ab0b9e9e50e1	adali	Parıltıların yanına bak!
+3d8a222c7e1ffd9b	okti	Hepsini bulup Defter'e koyacağım!
+14465e13b024947b	okti	Hepsini bulacağım!
+c25ca1ae9b225acb	anlatici	Okti artık yetişkin bir ahtapot. Evi de büyüdü.
+8bba0dd88defd9ae	anlatici	Okti yetişkin oldu!
+28b9c2bd22cb8cfe	adali	"Fenerin büyük camı mağaraya yuvarlandı."
+557a7c8936e9d0d0	adali	"Cam mağarada."
+fb551cf43078c699	okti	Mağara! Ama yolu sisle kapalı...
+b436b80c9d99c584	okti	Mağara sisli...
+8b65632350026fa7	anlatici	Mağaranın ağzını kalın bir sis kapatmış.
+2662194df042e798	anlatici	Mağara sisli.
+1c7256a912cc6677	okti	Sanki biri burada uyuyor...
+f2a605296184f4a4	okti	Biri uyuyor...
+0f1261b640c0676b	anlatici	Yoldaki altı ışık direği taş bekliyor.
+7cacdcbee04b639a	anlatici	Altı direk taş bekliyor.
+1ec902add8d2d4b8	anlatici	Direkler sırayla yandı. Mağaranın dibinde bir şey parladı.
+7b562cb260f19e21	anlatici	Direkler yandı!
+82977c4d51452e57	okti	Fenerin camı! Buldum!
+ae7c5111c5abe8be	okti	Cam burada!
+f52ed7e003511b60	adali	Herkes benden kaçtı...
+3fd965fcf5d321e2	adali	Herkes kaçtı...
+150f3323075b456d	okti	Ben kaçmam. Gel, birlikte ısınalım.
+65d82fb0e9178760	okti	Ben kaçmam. Gel!
+5c75500a6cd558f1	adali	Mektuplarım uzak kıyılara ulaştı!
+613414978b6ac7e2	adali	Mektuplar ulaştı!
+1509f069d323ca2f	anlatici	Ufuktan küçük tekneler görünüyor.
+5717887df922d95d	anlatici	Tekneler geliyor!
+f3a53735fdc4ddce	adali	Festival zamanı! Fenerleri hazırlayın!
+ef10c54c6eca2cdc	adali	Festival zamanı!
+6dfc988be6c81123	anlatici	Fenerler birer birer yandı.
+030cafabd17d217a	anlatici	Fenerler yandı!
+22c8d7b0b1ba65ec	adali	Ben de gelebilir miyim?
+88854437241d18e6	okti	Elbette! Bak, ışıkta renk renk oldun!
+d9b5c787ac624478	okti	Elbette! Renk renk oldun!
+f5b236ea7c07d278	anlatici	Gökyüzünde bir gökkuşağı belirdi.
+96db06935ad093a1	anlatici	Gökkuşağı çıktı!
+3d7e46200e7dfe6b	adali	Fırtına zirvede doğdu. Ben de oradan koptum.
+72321645bc084cd7	adali	Ben zirvede doğdum.
+bd3f6932cbca4f5c	adali	Fenerin aynası hâlâ orada.
+474ce65f121a433d	adali	Ayna zirvede.
+b5368c9daacc0b04	okti	O zaman tırmanalım!
+0e17b49dc26b911e	okti	Tırmanalım!
+01cd8de16d90677a	anlatici	Zirveden bütün ada göründü.
+e767cb2a60382d02	anlatici	Bütün ada göründü!
+6e8cc9f39055add3	okti	Ayna burada! Bir de... ufukta bir ışık var.
+bc3b44de61416172	okti	Ayna burada! Ufukta ışık var.
+9318b99bf5ca82d9	adali	Biri adaya yolunu arıyor.
+36dcb9ad576151fb	adali	Biri yol arıyor.
+be5211d069f86ab0	anlatici	Kıskaç, Mavi, Tosbi Dede, palmiyeler ve Pus fenerin kapısında.
+660f3e26f5726e57	anlatici	Herkes fenerde!
+941d141f6788dbf0	okti	Camı ve aynayı yerine taktım. Şimdi son taşlar!
+17d1c50bb3395a7b	okti	Son taşlar kaldı!
+8f6a2665167dc0ed	adali	Nur görseydi çok sevinirdi.
+b0d7e0f127819103	adali	Nur sevinirdi.
+6c4a4e53a5a07f5d	anlatici	Fener yandı. Işık bütün adayı süpürdü, kalan sis kalktı.
+1cda32f7b6488133	anlatici	Fener yandı!
+192989ab55774ed9	adali	Artık sis değilim... yağmur bulutuyum! Bahçeyi sularım.
+5c046400b5941514	adali	Ben yağmur bulutuyum!
+b0e68b4e8117f74c	anlatici	Ufuktaki tekne ışığı izleyip kıyıya yanaştı.
+a60ea843049f1512	anlatici	Bir tekne geldi.
+f05216db88ada874	adali	Fenerimi kim yaktı? Teşekkür ederim, Okti.
+512e186c9e61203a	adali	Teşekkür ederim, Okti!
+80d698810d5f7a3c	anlatici	Işık Adası yeniden ışıkla doldu.
+eb0d89ab3beeca8a	anlatici	Ada yeniden ışıkla doldu!
+9db75e244531594c	adali	Vitrinim için 3 taş bulur musun?
+9905c2d26bee0297	adali	Posta çantamı onarmak için 2 dal lazım.
+cb0d9b5a755e788f	adali	Yanımıza bir oturak yapar mısın? 4 odun yeter.
+baed8c409a68650a	adali	Bana 2 balık getirirsen sana bir şey anlatacağım.
+342041033c38978e	adali	Tezgâhıma 2 hindistan cevizi koyalım mı?
+b3ef9d6fb897e531	adali	...bir havuç alabilir miyiz?
+41eddac1de9e54dd	anlatici	Solda kaydır: Okti yürüsün!
+e7a13a31fa34f049	anlatici	Sağda kaydır: etrafa bak!
+8bc1266c6462a624	anlatici	Sağ alttaki tuş: zıpla!
+24382daabf71dae3	anlatici	Sağ alttaki kapıya bas, içeri gir!
+e22a64590b11f64a	anlatici	Oyun var! Oyna'ya bas.
+02149f0896a7bc66	anlatici	Yiyeceği Okti'nin üstüne sürükle!
+54f798c96e2782e3	adali	Merhaba Okti! Dükkânım hep açık.
+c6949d848aabec6b	adali	Mektup var mı diye posta kutusuna bak!
+40c323cd16b976c4	adali	Ben Pus. Artık fırtına değil, dostum!
+f2403054ebc3577b	anlatici	Tohumu tarlaların üstünden geçir!
+03893fce448ecef7	anlatici	Orağı ürünlerin üstünden geçir!
+97afde5670a92b87	anlatici	Okti'ye dokun, sonra elmaya!
+6845d52fda361844	anlatici	Sabunu Okti'nin üstüne sürükle!
+cbffecd0e3bea7e3	anlatici	Görev yap, yıldız kazan!
+38d37cbecd6663dd	anlatici	Yıldız topla, seviye atla! Rozetlerin için kartına dokun.
+5769bdbd50616088	anlatici	Okti'nin üstünü değiştir: ona dokun!
+7554903fc00be311	anlatici	Parıltıya git, topla!
+29d4ac3b81076939	anlatici	Haritadan hemen git!
+9792488b7a80106e	anlatici	Ürüne dokun, Al'a bas.
+c583cadde22634ac	anlatici	Noktaya dokun, giydir!
+f66c3550451f9bc6	anlatici	Topla'ya bas, ev toplansın!
+6e6f2e4eb5114c20	anlatici	Fırtınadan sonra ada sisle kaplandı. Gel, birlikte canlandıralım!
+404b379f29660f61	anlatici	Ev Görevleri panosuna git!
+c1e92621bc4aa7b7	anlatici	Okti'ye dokun, elmayı seç: karnı doysun!
+add097760df22d24	anlatici	Okti'ye dokun, sabunu seç: tertemiz olsun!
+462a9ecdeef7023d	anlatici	Evim'e yürü ve içeri gir.
+31f11c759c99153e	anlatici	Evim'e gir, Topla'ya dokun.
+3d2af0057d91d8ed	anlatici	Okti'nin üstüne dokun, bir aksesuar tak.
+404b309f2966037c	anlatici	Ev Görevleri panosuna git.
+986861ff6bb381cf	anlatici	Kütük, çalı ya da taş topla.
+2de73e7b5d5c8766	anlatici	Malzemeleri getir, kulübeyi yap!
+9d5b8f4f5287bcc5	anlatici	Hindistan cevizi bahçesinde oyna.
+81a748c12f0e08c6	anlatici	Dükkândan bir şey al.
+35bc91f37f24d239	anlatici	Güneş Taşını sisli yere götür, koy!
+033a78424b23deb6	anlatici	Oyun kulübesinde bir oyun oyna.
+e6660ad2dc4dfa59	anlatici	Görevi yapınca Yaptım'a bas!
+970acf480b821ac6	anlatici	Güneş Taşını yerleştir, sis kalksın!
+9095eb9334346648	anlatici	Sisli yere git, taşı koy!
+b65baf7ff2c9c9dd	anlatici	Baltayla kütüğü kes! Sağ alttaki tuşa bas.
+1737784373ccc38c	anlatici	Çalıdan dal topla!
+359fa97bca847a94	anlatici	Kazmayla taşı kır!
+530e750890342c0c	anlatici	Kulübe yeri! Odun, dal ve taş topla.
+c7038c441d42f2c6	anlatici	Malzemeler tamam! Yap'a bas.
+e3ca72e419c1755a	anlatici	Malzemeler tamam! Kulübe yerine git.
