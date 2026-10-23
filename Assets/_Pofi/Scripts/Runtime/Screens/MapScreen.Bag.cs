@@ -337,8 +337,8 @@ namespace Pofi.Screens
             // Pus: 1. bölüm kapanışından sonra adanın üstünde süzülür (gülümseyen, gökkuşaklı hâli)
             if (seen.Contains("ch1_close") || App.Level >= 2)
             {
-                var x = _terrain.PlazaX + 7f; var z = _terrain.PlazaZ + 6f;
-                _pus = Resident3D.Create(_world.transform, "pus", "res_pus", new Vector3(x, _terrain.Height(x, z) + 5.5f, z), 1.6f, 200f, ground, pet);
+                var x = _terrain.PlazaX + 6f; var z = _terrain.PlazaZ + 4f;   // meydanın üstünde, yürürken görüş alanında (3 m)
+                _pus = Resident3D.Create(_world.transform, "pus", "res_pus", new Vector3(x, _terrain.Height(x, z) + 3f, z), 1.9f, 200f, ground, pet);
             }
         }
 
