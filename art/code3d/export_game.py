@@ -61,6 +61,7 @@ WEAR = {
     'socks_arm': ('assets_wear_c.py', 'w_socks_arm', 1500, 512), 'pompom': ('assets_wear_c.py', 'w_pompom', 3000, 512),
     'outfit_hula': ('assets_wear_c.py', 'w_outfit_hula', 4000, 512),
 }
+WEAR['base_bottom'] = ('assets_base.py', 'w_base_bottom', 2500, 512)   # Okti'nin temel şortu (çıkarılamaz, CosmeticModels.Base)
 ITEMS.update(WEAR)
 ITEMS_DIR = os.path.normpath(os.path.join(HERE, '../../Assets/_Pofi/Resources/Items'))
 REMOVE = ['t_beach', 't_cliff', 't_grass', 'g_log', 'g_site', 'g_hut']   # artık kullanılmayan eski varlıklar

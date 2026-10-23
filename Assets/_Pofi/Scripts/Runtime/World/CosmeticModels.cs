@@ -44,10 +44,13 @@ namespace Pofi.World
             foreach (var tag in pet.GetComponentsInChildren<RealCosmetic>(true)) Object.Destroy(tag.gameObject);   // kemiklere takılı gerçek eşyalar
             var root = new GameObject(RootName).transform;
             root.SetParent(pet, false);
-            if (items == null) return;
+            if (items == null) items = System.Array.Empty<ItemDef>();   // eşyasız da temel giysi giyilir
             _petId = def?.Id; _stage = stage;
             Capture(pet, root);
-            foreach (var item in items)
+            var list = new List<ItemDef>();
+            foreach (var item in items) if (item != null) list.Add(item);
+            BuildBase(pet, root, list);
+            foreach (var item in list)
             {
                 if (item == null) continue;
                 var fit = CosmeticFit.Evaluate(def, item);
@@ -55,6 +58,27 @@ namespace Pofi.World
                 Build(pet, root, item, fit.Variant ?? "normal");
             }
             foreach (var c in root.GetComponentsInChildren<Collider>()) Object.Destroy(c);
+        }
+
+        // ---- temel giysi (kullanıcı, 23 Ekim 2026: "karakter kıyafetsiz kalmasın"): Okti hep sarı tişört + mercan şortla görünür.
+        // Başka bir üst (giysi kategorisinde gövde eşyası) tişörtün yerine geçer, çıkarınca tişört geri gelir; altı da kaplayan
+        // kostümler şortun yerine geçer. Envanterde değil, dolapta çıkarılamaz; her evrede o evrenin bedenine göre oturur.
+        private static readonly ItemDef BaseTop = new ItemDef { Id = "base_top", Name = "Temel tişört", Category = ItemCategory.Clothes, Slot = "body", Cut = "full" };
+        private static readonly ItemDef BaseBottom = new ItemDef { Id = "base_bottom", Name = "Temel şort", Category = ItemCategory.Clothes, Slot = "hips" };
+        /// <summary>Altı da kaplayan eşyalar (çim etek, hamburger, tavuk kostümü): şort giyilmez.</summary>
+        private static readonly HashSet<string> CoversBottom = new HashSet<string> { "outfit_hula", "outfit_burger", "outfit_chicken" };
+
+        private static void BuildBase(Transform pet, Transform root, List<ItemDef> items)
+        {
+            if (_petId != "pet_13") return;
+            var top = true; var bottom = true;
+            foreach (var i in items)
+            {
+                if (i.Slot == Slot.Body && i.Category == ItemCategory.Clothes) top = false;
+                if (CoversBottom.Contains(i.Id)) bottom = false;
+            }
+            if (top) BuildReal(pet, root, BaseTop, "normal", _petId);
+            if (bottom) BuildReal(pet, root, BaseBottom, "normal", _petId);
         }
 
         /// <summary>Gerçek eşya yerleşim kuralı: kemik, boy (pet boyuna oran), yukarı/ileri/yan kayma, alttan mı oturur.</summary>
@@ -87,6 +111,7 @@ namespace Pofi.World
             ["body"] = new Rule("Spine2", 0.72f, up: -0.02f),
             ["back"] = new Rule("Spine1", 0.36f, up: -0.04f, fwd: -0.2f),
             ["hand"] = new Rule("RightHand", 0.2f, side: 0.03f),
+            ["hips"] = new Rule("Hips", 0.46f, up: -0.07f),   // temel şort
         };
         /// <summary>Kıyafetsiz ergen ve yetişkin Okti (23 Ekim 2026, kullanıcı yüklemesi; baştaki bant silindi): başları ve gövdeleri
         /// çocuğa göre boya oranla küçük → evre başına tüm yuvalar (fit_test_okti.py + okti_fit_rules.json "genc:&lt;yuva&gt;").</summary>
@@ -94,7 +119,7 @@ namespace Pofi.World
         {
             ["head"] = new Rule("Head", 0.465f, up: -0.14f, bottom: true), ["eyes"] = new Rule("Head", 0.29f, fwd: 0.015f),
             ["body"] = new Rule("Spine1", 0.53f, up: -0.03f), ["back"] = new Rule("Spine1", 0.25f, up: -0.04f, fwd: -0.11f),
-            ["hand"] = new Rule("RightHand", 0.17f, side: 0.03f),
+            ["hand"] = new Rule("RightHand", 0.17f, side: 0.03f), ["hips"] = new Rule("Hips", 0.33f, up: -0.05f),
         };
         private static readonly Dictionary<string, Rule> OktiAdult = new Dictionary<string, Rule>
         {
@@ -128,13 +153,14 @@ namespace Pofi.World
             // gözlükte ileri = yüzün önüne (fit_test_okti.py'de göz için işaret ters: −fwd)
             ["glasses_heart"] = new Vector3(0.98f, 0f, 0.0125f), ["glasses_nose"] = new Vector3(0.77f, 0f, 0.089f), ["glasses_snorkel"] = new Vector3(1.05f, 0f, 0.097f),
             ["mask_hero"] = new Vector3(1.06f, 0f, 0.005f), ["socks_arm"] = new Vector3(1.163f, 0f, 0.016f), ["pompom"] = new Vector3(1.3f, 0f, 0.12f),
-            ["outfit_hula"] = new Vector3(0.925f, -0.034f, -0.05f),
+            ["outfit_hula"] = new Vector3(0.925f, -0.034f, -0.05f), ["base_top"] = new Vector3(1f, 0.04f),
         };
         /// <summary>Evreye özel eşya ayarı ("genc:&lt;id&gt;"; varsa <see cref="OktiItem"/> yerine): köpekbalığı kapüşonu ve bere ergen/yetişkinde gözü örtmesin.</summary>
         private static readonly Dictionary<string, Vector3> OktiItemStage = new Dictionary<string, Vector3>
         {
             ["genc:hat_shark"] = new Vector3(1.35f, 0.04f), ["yetiskin:hat_shark"] = new Vector3(1.35f, 0.04f),
             ["genc:hat_beanie"] = new Vector3(0.92f, 0f), ["yetiskin:hat_beanie"] = new Vector3(0.92f, 0f),
+            ["genc:base_top"] = new Vector3(1.06f, 0.04f),
         };
         /// <summary>Dosyada ters dönük eşyalar: sırt çantasının cebi önde, askıları arkada modellenmiş → petin sırtında askılar gövdeye dönsün.</summary>
         private static readonly HashSet<string> Reversed = new HashSet<string> { "backpack_small" };

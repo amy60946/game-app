@@ -14,6 +14,8 @@ rules_path = sys.argv[sys.argv.index('--') + 2] if '--' in sys.argv and len(sys.
 os.makedirs(out, exist_ok=True)
 items = [i for i in json.load(open(os.path.join(RES, 'Data', 'items.json')))['items'] if i.get('slot')]
 if os.environ.get('ONLY'): items = [i for i in items if i['id'] in os.environ['ONLY'].split(',')]   # yalnız bu eşyalar
+# temel giysi (oyunda CosmeticModels.Base, items.json'da yok): EXTRA="base_top:body,base_bottom:hips"
+if os.environ.get('EXTRA'): items += [{'id': x.split(':')[0], 'slot': x.split(':')[1]} for x in os.environ['EXTRA'].split(',')]
 # oyundaki kural (Meshy kemik adlarıyla) — Okti'de karşılıkları
 GAME = {'head': ('head_end', 0.55, -0.07, 0, 0, True), 'eyes': ('headfront', 0.32, 0, -0.03, 0, False), 'body': ('Spine02', 0.44, 0.02, 0, 0, False),
         'back': ('Spine01', 0.30, -0.08, -0.12, 0, False), 'hand': ('RightHand', 0.16, 0, 0, 0.04, False)}
@@ -36,7 +38,7 @@ def bounds(objs):
     pts = [o.matrix_world @ V(c) for o in objs if o.type == 'MESH' for c in o.bound_box]
     return V((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts))), V((max(p.x for p in pts), max(p.y for p in pts), max(p.z for p in pts)))
 
-MAP = {'head_end': 'Head', 'headfront': 'Head', 'Spine02': 'Spine2', 'Spine01': 'Spine1', 'RightHand': 'RightHand'}
+MAP = {'head_end': 'Head', 'headfront': 'Head', 'Spine02': 'Spine2', 'Spine01': 'Spine1', 'RightHand': 'RightHand', 'Hips': 'Hips'}
 
 def face_front(objs, z, h):
     ys = [(o.matrix_world @ v.co).y for o in objs if o.type == 'MESH' for v in o.data.vertices if abs((o.matrix_world @ v.co).z - z) < 0.03 * h and abs((o.matrix_world @ v.co).x) < 0.12 * h]
