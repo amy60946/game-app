@@ -10,11 +10,15 @@ import os, sys, bpy
 src, root, name = sys.argv[1:4]
 TEX = 1024
 CLIPS = {"Idle_3": "idle", "Walking": "walk", "Running": "run", "Cheer_with_Both_Hands_Up": "happy",
-         "Wave_One_Hand": "wave", "Sleep_Normally": "sleep", "Regular_Jump": "jump"}
+         "Wave_One_Hand": "wave", "Sleep_Normally": "sleep", "Regular_Jump": "jump",
+         # ek hareketler (kullanıcı, 23 Ekim 2026: çocukta az, ergende orta, yetişkinde çok): dosyada varsa ayrı klip, oyunda
+         # dokunma tepkisi "Dans" ve beklerken kendiliğinden oynanır (PetWalker.FunClips)
+         "_360_Power_Spin_Jump": "spin", "Step_Hip_Hop_Dance": "dance", "ymca_dance": "dance2", "Magic_Genie": "genie",
+         "air_squat": "squat", "Confident_Strut": "strut", "Knock_Down": "tumble"}
 # dosyada asıl klip yoksa yerine geçen (kıyafetsiz çocuk Okti, 23 Ekim 2026: sevinç = 360° dönerek zıplama).
 # Bekleme (idle) dosyada yoksa kodla üretilir (make_idle). Eski dosyanın klipleri KULLANILAMAZ: iskelet ölçüsü farklıysa
 # (eski 0,01 ölçekli santim, yeni metre) kemik konumları 100 kat kayar ve pet ekrandan kaybolur (23 Ekim 2026).
-FALLBACK = {"Cheer_with_Both_Hands_Up": "_360_Power_Spin_Jump", "Sleep_Normally": "Cough_While_Sleeping"}
+FALLBACK = {"Cheer_with_Both_Hands_Up": ("Cheer_with_Both_Hands", "_360_Power_Spin_Jump"), "Sleep_Normally": ("Cough_While_Sleeping",)}
 TRIS = int(os.environ.get("POFI_TRIS", "12500"))   # oyun bütçesi (eski evreler ~12,4 bin üçgen)
 outdir = os.path.join(root, name)
 os.makedirs(outdir, exist_ok=True)
@@ -239,11 +243,12 @@ def export(path, bake):
 
 # glTF içe aktarıcı eylem adına nesne adını ekler ("Idle_3_target_character"): öneki eşle
 actions = {}
-for a in bpy.data.actions:
-    for k in CLIPS:
-        for src in (k, FALLBACK.get(k)):
-            if src and (a.name == src or a.name.startswith(src + "_")) and (k not in actions or src == k):
-                actions[k] = a
+def _match(a, src): return a.name == src or a.name.startswith(src + "_target") or a.name.startswith(src + "_Armature")
+for k in CLIPS:
+    for src in (k,) + tuple(FALLBACK.get(k, ())):            # önce asıl klip, sonra sırayla yedekler
+        hit = next((a for a in bpy.data.actions if _match(a, src)), None)
+        if hit is not None:
+            actions[k] = hit; break
 ad = arm.animation_data or arm.animation_data_create()
 for track in list(ad.nla_tracks):
     ad.nla_tracks.remove(track)
@@ -299,6 +304,30 @@ def make_idle(walk, frames=60):
     print("ÜRETİLDİ idle", frames, "kare")
     return idle
 
+def in_place(act, f0, f1):
+    """Yerinde oynat: kalça kemiğinin yatay kayması (dönerek zıplama ~1,9 m, hip hop ~0,7 m ileri gidiyordu, sonunda geri
+    sıçrıyordu) her karede dinlenme pozundaki yatay konuma sabitlenir; dikey hareket (zıplama, düşme) kalır."""
+    pb = arm.pose.bones.get("mixamorig:Hips")
+    if pb is None: return
+    mw = arm.matrix_world; inv = mw.inverted()
+    base = (mw @ pb.bone.matrix_local).translation.copy()   # dinlenme pozundaki yatay yer (devrilme klibi 1 m yanda başlıyordu)
+    drift = 0.0; mats = []
+    for f in range(f0, f1 + 1):
+        scene.frame_set(f)
+        w = mw @ pb.matrix
+        drift = max(drift, abs(w.translation.x - base.x) + abs(w.translation.y - base.y))
+        w.translation.x = base.x; w.translation.y = base.y
+        mats.append((f, inv @ w))
+    if drift < 0.05: return
+    for fc in [fc for fc in act.fcurves if fc.data_path == 'pose.bones["mixamorig:Hips"].location']:
+        act.fcurves.remove(fc)
+    for f, m in mats:
+        pb.matrix = m
+        bpy.context.view_layer.update()
+        pb.keyframe_insert("location", frame=f)
+    print("YERİNDE", act.name, "yatay kayma", round(drift, 2))
+
+scene = bpy.context.scene
 if "Idle_3" not in actions:
     actions["Idle_3"] = make_idle(actions.get("Walking"))
 
@@ -320,10 +349,13 @@ for src_name, clip in CLIPS.items():
     act = actions.get(src_name)
     if act is None:
         print("YOK", src_name); continue
+    act = act.copy()                                          # aynı eylem iki klibe giderse (sevinç = dönüş) adlar çakışmasın
     act.name = clip
     ad.action = act
     f0, f1 = int(act.frame_range[0]), int(act.frame_range[1])
     scene.frame_start, scene.frame_end = f0, f1
+    if clip not in ("walk", "run"):
+        in_place(act, f0, f1)
     export(os.path.join(outdir, f"{name}@{clip}.fbx"), True)
     if clip in ("walk", "run"):
         # ayak temas anları: ayak kemiğinin dünya yüksekliği en alçak kare

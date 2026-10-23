@@ -300,7 +300,11 @@ namespace Pofi.World
         public void Hop()
         {
             Audio.Sfx.Play(Audio.SfxKind.Pop);
-            if (RealAssets.Play(Pet, "happy")) return;   // gerçek modelde zıplama animasyonu
+            // gerçek modelde sevinç; evrede ek hareket varsa arada bir onlardan biri (dans, dönerek zıplama…)
+            var fun = new[] { "dance", "dance2", "spin", "genie" };
+            var pick = fun[UnityEngine.Random.Range(0, fun.Length)];
+            if (UnityEngine.Random.value < 0.4f && RealAssets.Play(Pet, pick)) return;
+            if (RealAssets.Play(Pet, "happy")) return;
             if (!UI.Theme.ReduceMotion) _hop = 1f;
         }
 

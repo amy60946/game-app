@@ -744,8 +744,15 @@ namespace Pofi.World
                     if (!PlayFor("wave", 1.6f)) Cheer();
                     Audio.Sfx.Play(Audio.SfxKind.Chime);
                     break;
+                case Logic.Story.OktiReactions.Dance:
+                    if (!PlayFun(DanceClips)) Cheer();
+                    Audio.Sfx.Play(Audio.SfxKind.Sparkle);
+                    break;
                 case Logic.Story.OktiReactions.Tickle:
-                    _wiggle = 1f; PlayFor("happy", 0.9f);
+                    // yetişkin Okti gıdıklanınca bazen gülmekten devrilir (ek hareket), sonra yavaşça kalkar
+                    if (Random.value < 0.35f && RealAssets.HasClip(_pet, "tumble") && PlayFor("tumble", RealAssets.ClipLength(_pet, "tumble")))
+                        _recover = 0.7f;
+                    else { _wiggle = 1f; PlayFor("happy", 0.9f); }
                     Audio.Sfx.Play(Audio.SfxKind.Pop);
                     break;
                 case Logic.Story.OktiReactions.Clap:
@@ -767,8 +774,39 @@ namespace Pofi.World
         private bool PlayFor(string clip, float seconds)
         {
             if (!RealAssets.Play(_pet, clip, false)) return false;
-            _clip = clip; _hold = seconds;
+            _clip = clip; _hold = seconds; _idleFor = 0f;
             return true;
+        }
+
+        // Ek hareketler (kullanıcı, 23 Ekim 2026; Meshy dosyalarında evreye göre: çocukta dönerek zıplama, ergende + hip hop,
+        // yetişkinde + YMCA, sihirli cin, squat, devrilme). Dokununca "Dans" tepkisi ve uzun beklemede kendiliğinden gösteri.
+        private static readonly string[] DanceClips = { "dance", "dance2", "genie", "squat", "spin" };
+        private static readonly string[] FidgetClips = { "wave", "spin", "dance", "dance2", "genie", "squat" };
+        private float _idleFor, _nextFidget = 16f, _recover;
+        private string _lastFun;
+
+        /// <summary>Listeden modelde olan, bir öncekinden farklı bir klibi sonuna kadar oynatır.</summary>
+        private bool PlayFun(string[] pool)
+        {
+            var have = new List<string>();
+            foreach (var c in pool) if (RealAssets.HasClip(_pet, c) && c != _lastFun) have.Add(c);
+            if (have.Count == 0) foreach (var c in pool) if (RealAssets.HasClip(_pet, c)) have.Add(c);
+            if (have.Count == 0) return false;
+            var pick = have[Random.Range(0, have.Count)];
+            if (!PlayFor(pick, Mathf.Min(5f, RealAssets.ClipLength(_pet, pick)))) return false;
+            _lastFun = pick;
+            return true;
+        }
+
+        /// <summary>Uzun süre kıpırdamadan durunca arada bir kendiliğinden gösteri (14–26 sn'de bir).</summary>
+        private void Fidget()
+        {
+            var still = _route.Count == 0 && _direct.sqrMagnitude <= 0.0004f && _hold <= 0f && _jump <= 0f && _clip == "idle";
+            if (!still) { _idleFor = 0f; return; }
+            _idleFor += Time.deltaTime;
+            if (_idleFor < _nextFidget) return;
+            _nextFidget = Random.Range(14f, 26f);
+            PlayFun(FidgetClips);
         }
 
         public void Init(MapWorld world, Transform pet, float x, float z)
@@ -816,9 +854,11 @@ namespace Pofi.World
             if (_hold > 0f && (_hold -= Time.deltaTime) <= 0f)
             {
                 _hold = 0f;
-                if (_direct.sqrMagnitude <= 0.0004f && _route.Count == 0) { _clip = null; Play("idle"); }
+                if (_recover > 0f) { RealAssets.BlendToIdle(_pet, _recover); _recover = 0f; _clip = "idle"; }   // devrildikten sonra yavaş kalkış
+                else if (_direct.sqrMagnitude <= 0.0004f && _route.Count == 0) { _clip = null; Play("idle"); }
                 else _clip = null;   // yürüyorsa bir sonraki karede yürüme klibi yeniden seçilir
             }
+            Fidget();
             if (_direct.sqrMagnitude > 0.0004f)
             {
                 _steering = true;

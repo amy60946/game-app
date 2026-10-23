@@ -250,8 +250,8 @@ namespace Pofi.Logic.Story
     /// <summary>Okti'ye dokununca tepki (A1): her dokunuşta sıradaki, art arda aynısı gelmez.</summary>
     public static class OktiReactions
     {
-        public const string Jump = "jump", Wave = "wave", Tickle = "tickle", Clap = "clap", InkHeart = "ink_heart";
-        public static readonly string[] All = { Jump, Wave, Tickle, Clap, InkHeart };
+        public const string Jump = "jump", Wave = "wave", Tickle = "tickle", Clap = "clap", InkHeart = "ink_heart", Dance = "dance";
+        public static readonly string[] All = { Jump, Wave, Dance, Tickle, Clap, InkHeart };
 
         public static string Next(StoryState st) => All[st.Reactions++ % All.Length];
     }

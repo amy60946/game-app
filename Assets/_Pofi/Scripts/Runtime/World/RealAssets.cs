@@ -328,6 +328,28 @@ namespace Pofi.World
             return Mathf.Repeat(anim[clip].normalizedTime, 1f);
         }
 
+        /// <summary>Petin modelinde bu klip var mı (evre dosyasına göre: ek hareketler yalnız bazı evrelerde).</summary>
+        public static bool HasClip(Transform pet, string clip)
+        {
+            var anim = pet == null ? null : pet.GetComponentInChildren<Animation>();
+            return anim != null && anim.GetClip(clip) != null;
+        }
+
+        /// <summary>Klibin süresi (sn); yoksa 0.</summary>
+        public static float ClipLength(Transform pet, string clip)
+        {
+            var anim = pet == null ? null : pet.GetComponentInChildren<Animation>();
+            var c = anim == null ? null : anim.GetClip(clip);
+            return c == null ? 0f : c.length;
+        }
+
+        /// <summary>Bekleme klibine verilen sürede geç (devrildikten sonra yavaşça kalkış).</summary>
+        public static void BlendToIdle(Transform pet, float seconds)
+        {
+            var anim = pet == null ? null : pet.GetComponentInChildren<Animation>();
+            if (anim != null && anim.GetClip("idle") != null) anim.CrossFade("idle", seconds);
+        }
+
         public static bool Play(Transform pet, string clip, bool returnToIdle = true)
         {
             if (pet == null) return false;
