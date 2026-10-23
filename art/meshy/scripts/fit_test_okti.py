@@ -13,6 +13,7 @@ out = sys.argv[sys.argv.index('--') + 1] if '--' in sys.argv else sys.argv[1]
 rules_path = sys.argv[sys.argv.index('--') + 2] if '--' in sys.argv and len(sys.argv) > sys.argv.index('--') + 2 else None
 os.makedirs(out, exist_ok=True)
 items = [i for i in json.load(open(os.path.join(RES, 'Data', 'items.json')))['items'] if i.get('slot')]
+if os.environ.get('ONLY'): items = [i for i in items if i['id'] in os.environ['ONLY'].split(',')]   # yalnız bu eşyalar
 # oyundaki kural (Meshy kemik adlarıyla) — Okti'de karşılıkları
 GAME = {'head': ('head_end', 0.55, -0.07, 0, 0, True), 'eyes': ('headfront', 0.32, 0, -0.03, 0, False), 'body': ('Spine02', 0.44, 0.02, 0, 0, False),
         'back': ('Spine01', 0.30, -0.08, -0.12, 0, False), 'hand': ('RightHand', 0.16, 0, 0, 0.04, False)}

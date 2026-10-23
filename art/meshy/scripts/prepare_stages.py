@@ -11,6 +11,10 @@ src, root, name = sys.argv[1:4]
 TEX = 1024
 CLIPS = {"Idle_3": "idle", "Walking": "walk", "Running": "run", "Cheer_with_Both_Hands_Up": "happy",
          "Wave_One_Hand": "wave", "Sleep_Normally": "sleep", "Regular_Jump": "jump"}
+# dosyada asıl klip yoksa yerine geçen (kıyafetsiz çocuk Okti, 23 Ekim 2026: sevinç = 360° dönerek zıplama).
+# Hiç karşılığı olmayan klibin (idle, sleep) eski dosyası klasörde kalır: Legacy klipler kemik adıyla bağlanır.
+FALLBACK = {"Cheer_with_Both_Hands_Up": "_360_Power_Spin_Jump"}
+TRIS = int(os.environ.get("POFI_TRIS", "12500"))   # oyun bütçesi (eski evreler ~12,4 bin üçgen)
 outdir = os.path.join(root, name)
 os.makedirs(outdir, exist_ok=True)
 
@@ -20,6 +24,16 @@ arm = next(o for o in bpy.context.scene.objects if o.type == "ARMATURE")
 for o in list(bpy.context.scene.objects):   # iskelete bağlı olmayan yardımcı mesh'ler (ör. "Icosphere") gitsin
     if o.type == "MESH" and not any(m.type == "ARMATURE" for m in o.modifiers):
         bpy.data.objects.remove(o, do_unlink=True)
+
+# yeni Meshy dışa aktarımları ~200 bin üçgen: deri ağırlıklarıyla birlikte bütçeye indir (Decimate, Armature'dan önce)
+for o in [o for o in bpy.context.scene.objects if o.type == "MESH"]:
+    tris = sum(len(p.vertices) - 2 for p in o.data.polygons)
+    if tris > TRIS * 1.1:
+        bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o
+        d = o.modifiers.new("decimate", "DECIMATE"); d.ratio = TRIS / tris
+        bpy.ops.object.modifier_move_to_index(modifier="decimate", index=0)
+        bpy.ops.object.modifier_apply(modifier="decimate")
+        print("AZALTILDI", o.name, tris, "→", sum(len(p.vertices) - 2 for p in o.data.polygons), "üçgen")
 
 # doku: tek temel renk dokusu → 1024 px JPEG
 for img in list(bpy.data.images):
@@ -46,8 +60,9 @@ def export(path, bake):
 actions = {}
 for a in bpy.data.actions:
     for k in CLIPS:
-        if a.name == k or a.name.startswith(k + "_"):
-            actions[k] = a
+        for src in (k, FALLBACK.get(k)):
+            if src and (a.name == src or a.name.startswith(src + "_")) and (k not in actions or src == k):
+                actions[k] = a
 ad = arm.animation_data or arm.animation_data_create()
 for track in list(ad.nla_tracks):
     ad.nla_tracks.remove(track)

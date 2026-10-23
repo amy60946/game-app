@@ -27,7 +27,7 @@
   "side": 0.03
  },
  "eyeline": {
-  "yavru": 0.42,
+  "yavru": 0.62,
   "genc": 0.22,
   "yetiskin": 0.22
  },
@@ -71,5 +71,10 @@
   "size": 0.34,
   "up": -0.07,
   "fwd": -0.27
+ },
+ "yavru:body": {
+  "bone": "Spine1",
+  "size": 0.62,
+  "up": -0.03
  }
 }

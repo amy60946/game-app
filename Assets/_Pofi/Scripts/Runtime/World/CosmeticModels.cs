@@ -94,10 +94,17 @@ namespace Pofi.World
             ["body"] = new Rule("Spine2", 0.60f, up: -0.10f, fwd: 0.035f),
             ["back"] = new Rule("Spine1", 0.34f, up: -0.07f, fwd: -0.27f),
         };
+        /// <summary>Kıyafetsiz çocuk Okti (23 Ekim 2026): gövde başın etek kısmının altında kalıyordu → gövde eşyaları Spine1'de,
+        /// görünen gövdeyi saracak boyda (fit_test_okti.py + okti_fit_rules.json "yavru:body").</summary>
+        private static readonly Dictionary<string, Rule> OktiChild = new Dictionary<string, Rule>
+        {
+            ["body"] = new Rule("Spine1", 0.62f, up: -0.03f),
+        };
         /// <summary>Evre başına göz hizası (petin boyuna oran, tabandan) ve göz hizasında yüzün önü (Head kemiğinden ileri, boya oran).</summary>
         private static readonly Dictionary<GrowthStage, Vector2> OktiEyes = new Dictionary<GrowthStage, Vector2>
         {
-            [GrowthStage.Yavru] = new Vector2(0.711f, 0.293f), [GrowthStage.Genc] = new Vector2(0.727f, 0.256f), [GrowthStage.Yetiskin] = new Vector2(0.769f, 0.225f),
+            // çocuk: kıyafetsiz model (23 Ekim 2026), göz noktaları dokudan ölçüldü
+            [GrowthStage.Yavru] = new Vector2(0.817f, 0.252f), [GrowthStage.Genc] = new Vector2(0.727f, 0.256f), [GrowthStage.Yetiskin] = new Vector2(0.769f, 0.225f),
         };
         /// <summary>Eşya başına boy çarpanı ve yukarı kayma (Okti'de).</summary>
         private static readonly Dictionary<string, Vector2> OktiItem = new Dictionary<string, Vector2>
@@ -132,6 +139,7 @@ namespace Pofi.World
             var okti = petId == "pet_13";
             if (item.Slot == null || !(okti ? OktiRules : Rules).TryGetValue(item.Slot, out var rule)) return false;
             if (okti && _stage == GrowthStage.Yetiskin && OktiAdult.TryGetValue(item.Slot, out var adult)) rule = adult;
+            if (okti && _stage == GrowthStage.Yavru && OktiChild.TryGetValue(item.Slot, out var child)) rule = child;
             if (okti && OktiItem.TryGetValue(item.Id, out var io)) { rule.Size *= io.x; rule.Up += io.y; }
             var bone = FindDeep(pet, rule.Bone);
             if (bone == null || !RealAssets.HasItem(item.Id)) return false;

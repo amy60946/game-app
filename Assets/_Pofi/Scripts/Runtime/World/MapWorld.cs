@@ -867,7 +867,7 @@ namespace Pofi.World
         // Okti evreleri (Meshy web "All Animations", prepare_stages.py ölçümü): model başına sol/sağ temas
         private static readonly Dictionary<string, float[][]> ModelContacts = new Dictionary<string, float[][]>
         {
-            { "pet_13_yavru", new[] { new[] { 0.52f, 0.96f }, new[] { 0.38f, 0.88f } } },
+            { "pet_13_yavru", new[] { new[] { 0.29f, 0.83f }, new[] { 0.40f, 0.93f } } },   // kıyafetsiz çocuk (23 Ekim 2026)
             { "pet_13_genc", new[] { new[] { 0.40f, 0.92f }, new[] { 0.38f, 0.88f } } },
             { "pet_13_yetiskin", new[] { new[] { 0.20f, 0.64f }, new[] { 0.01f, 0.44f } } },
         };
