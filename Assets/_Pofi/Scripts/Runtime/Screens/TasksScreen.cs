@@ -276,7 +276,7 @@ namespace Pofi.Screens
         private void OpenDemoPanel()
         {
             var root = Modal(820f, out var box);
-            Ui.Label(box, T("demo.title"), Th.Font(54), Th.Text, new Vector2(0.5f, 0.9f), new Vector2(880f, 80f), FontStyle.Bold);
+            ModalTitle(box, T("demo.title"));
             Ui.Label(box, T("demo.info"), Th.Font(32), Th.SubtleText, new Vector2(0.5f, 0.79f), new Vector2(860f, 110f));
             var pending = Ui.Label(box, T("demo.pending", DemoParent.Pending(App.Backend)), Th.Font(44), Th.Text, new Vector2(0.5f, 0.64f), new Vector2(860f, 70f), FontStyle.Bold);
             Ui.Button(box, Th, T("demo.approve_all"), new Vector2(0.5f, 0.5f), new Vector2(700f, 120f), async () =>

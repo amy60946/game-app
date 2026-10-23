@@ -237,8 +237,7 @@ namespace Pofi.Screens
                 .Where(it => it != null && it.Category == ItemCategory.Seed).ToList();
             if (seeds.Count == 0) { _bubble.Say(T("garden.no_seed")); return; }
             var root = Modal(300f + seeds.Count * 150f, out var box);
-            Ui.Label(box, T("garden.pick_seed"), Th.Font(52), Th.Text, new Vector2(0.5f, 1f), new Vector2(880f, 120f), FontStyle.Bold)
-                .rectTransform.anchoredPosition = new Vector2(0f, -80f);
+            ModalTitle(box, T("garden.pick_seed"));
             for (var i = 0; i < seeds.Count; i++)
             {
                 var seed = seeds[i];

@@ -27,6 +27,8 @@ namespace Pofi.UI
         public static Sprite Card => Panel("card");
         public static Sprite RoundButton => Plain("round");
         public static Sprite Ribbon => Plain("ribbon");
+        /// <summary>Başlık kurdelesi: kıvrık uçlar (genişliğin %27'si) korunur, orta bant yazıya göre uzar.</summary>
+        public static Sprite RibbonBand => Load("ribbon", (w, h) => new Vector4(w * 0.27f, 0f, w * 0.27f, 0f), "ribbon#band");
         public static Sprite Plank => Capsule("plank");
 
         /// <summary>Renge en yakın düğme: yeşil, mavi, turuncu (altın dahil), pembe; açık renkler (beyaz, krem) kart.</summary>
@@ -53,9 +55,10 @@ namespace Pofi.UI
             else img.preserveAspect = true;
         }
 
-        private static Sprite Load(string name, System.Func<float, float, Vector4> border)
+        private static Sprite Load(string name, System.Func<float, float, Vector4> border, string key = null)
         {
-            if (Cache.TryGetValue(name, out var s)) return s;
+            key ??= name;
+            if (Cache.TryGetValue(key, out var s)) return s;
             var tex = Resources.Load<Texture2D>("UI/" + name);
             if (tex != null)
             {
@@ -63,7 +66,7 @@ namespace Pofi.UI
                 var b = border != null ? border(tex.width, tex.height) : Vector4.zero;
                 s = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, b);
             }
-            Cache[name] = s;
+            Cache[key] = s;
             return s;
         }
     }

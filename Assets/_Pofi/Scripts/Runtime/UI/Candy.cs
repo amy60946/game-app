@@ -314,6 +314,25 @@ namespace Pofi.UI
             return t;
         }
 
+        /// <summary>
+        /// Mavi kurdele başlık (E dili, 22 Ekim 2026 onayı): v3 kurdelesi, uçlar sabit, orta bant yazı kadar uzar; yazı beyaz, koyu mavi kontur.
+        /// Kurdele yoksa mavi etiket. Genişlik yazıya göre; yazıyı döndürür.
+        /// </summary>
+        public static Text Ribbon(Transform parent, string text, Vector2 anchor, Vector2 offset, float height = 120f, int fontSize = 46)
+        {
+            var rt = Ui.Rect(parent, "Ribbon", anchor, new Vector2(400f, height), offset);
+            var band = Skin.RibbonBand;
+            if (band == null) return Tag(rt, text, new Color(0.13f, 0.47f, 0.85f, 1f), fontSize, height * 0.6f);
+            var img = rt.gameObject.AddComponent<Image>();
+            img.sprite = band; img.type = Image.Type.Sliced; img.raycastTarget = false;
+            img.pixelsPerUnitMultiplier = band.rect.height / Mathf.Max(1f, height);
+            var t = Caption(rt, text, fontSize, new Vector2(0.5f, 0.6f), new Vector2(1200f, height * 0.6f), Vector2.zero, new Color(0.06f, 0.22f, 0.47f, 1f));
+            t.horizontalOverflow = HorizontalWrapMode.Overflow;
+            var ends = band.border.x / Mathf.Max(1f, img.pixelsPerUnitMultiplier);   // bir ucun ekrandaki genişliği
+            rt.sizeDelta = new Vector2(Mathf.Max(t.preferredWidth + ends * 2f + 20f, ends * 2f + 60f), height);
+            return t;
+        }
+
         /// <summary>Kırmızı sayı rozeti (düğmenin sağ üstü).</summary>
         public static Text Count(Transform parent, float size = 46f)
         {

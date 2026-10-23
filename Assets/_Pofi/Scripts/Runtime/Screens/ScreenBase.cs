@@ -182,6 +182,17 @@ namespace Pofi.Screens
             return root;
         }
 
+        /// <summary>E dili: pencere başlığı kutunun üst kenarına oturan mavi kurdele.</summary>
+        protected Text ModalTitle(RectTransform box, string title) => Candy.Ribbon(box, title, new Vector2(0.5f, 1f), new Vector2(0f, 4f));
+
+        /// <summary>E dili: kutunun sağ üst köşesine taşan 3B kırmızı çarpı.</summary>
+        protected Button ModalClose(RectTransform box, System.Action onClose)
+        {
+            var b = CloseButton(box, onClose, 96f);
+            ((RectTransform)b.transform).anchoredPosition = new Vector2(-14f, -14f);
+            return b;
+        }
+
         /// <summary>
         /// Oyun içi görevler (sağ üst "Görev"; kullanıcı kararı 14 Ekim 2026): seviyeye göre açılan günlük görevler, her biri yıldız (XP) verir.
         /// Ebeveynin gerçek hayat görevleri ayrı: adadaki "Ev Görevleri" panosunda.
@@ -190,7 +201,8 @@ namespace Pofi.Screens
         {
             Logic.App.Activity.EnsureQuests(App.State, App.Data, App.Levels, App.LocalNow);
             var root = Modal(760f, out var box);
-            Ui.Label(box, T("home.daily"), Th.Font(60), Th.Text, new Vector2(0.5f, 0.88f), new Vector2(880f, 90f), FontStyle.Bold);
+            ModalTitle(box, T("home.daily"));
+            ModalClose(box, () => Destroy(root.gameObject));
             var i = 0;
             foreach (var id in App.State.DailyQuests.Ids)
             {
@@ -233,7 +245,6 @@ namespace Pofi.Screens
                 }, true, default, 40);
                 Hover.On(b.GetComponent<RectTransform>(), 6f, 0.08f);
             }
-            Ui.Button(box, Th, T("common.ok"), new Vector2(0.5f, 0.07f), new Vector2(360f, 100f), () => Destroy(root.gameObject), false, default, 44);
         }
 
         /// <summary>Sandık açılış gösterisi; adada 3B (MapScreen), başka ekranda hemen biter.</summary>
@@ -262,8 +273,9 @@ namespace Pofi.Screens
             RectTransform root = null;
             void Close() { if (root != null) Destroy(root.gameObject); App.Stage.AllowDrag = true; }
             root = Modal(860f, out var box, true, Close);
-            Ui.Label(box, T("gate.title"), Th.Font(56), Th.Text, new Vector2(0.5f, 0.9f), new Vector2(880f, 80f), FontStyle.Bold);
-            Ui.Label(box, T("gate.hint"), Th.Font(34), Th.SubtleText, new Vector2(0.5f, 0.82f), new Vector2(880f, 60f));
+            ModalTitle(box, T("gate.title"));
+            ModalClose(box, Close);
+            Ui.Label(box, T("gate.hint"), Th.Font(34), Th.SubtleText, new Vector2(0.5f, 0.84f), new Vector2(880f, 60f));
             Ui.Label(box, ch.Prompt, Th.Font(48), Th.Text, new Vector2(0.5f, 0.69f), new Vector2(880f, 140f), FontStyle.Bold);
             for (var i = 0; i < ch.Options.Count; i++)
             {
@@ -276,7 +288,6 @@ namespace Pofi.Screens
                     else { _gateLock.Fail(System.DateTime.UtcNow); onFail?.Invoke(T("gate.wrong")); }
                 }, false, default, 56, false);
             }
-            Ui.Button(box, Th, "X", new Vector2(0.5f, 0.09f), new Vector2(160f, 100f), Close, false, default, 48);
         }
 
         /// <summary>

@@ -324,7 +324,7 @@ namespace Pofi.Screens
             var root = Modal(560f, out var box);
             Ui.Label(box, T("shop.not_enough_coins"), Th.Font(48), Th.Text, new Vector2(0.5f, 0.72f), new Vector2(860f, 200f), FontStyle.Bold);
             Ui.Button(box, Th, T("shop.go_to_tasks"), new Vector2(0.5f, 0.3f), new Vector2(640f, 130f), () => App.Open(AppPage.Tasks));
-            Ui.Button(box, Th, "X", new Vector2(0.92f, 0.9f), new Vector2(90f, 90f), () => Destroy(root.gameObject), false, default, 44);
+            ModalClose(box, () => Destroy(root.gameObject));
         }
 
         private void Info(string text)
