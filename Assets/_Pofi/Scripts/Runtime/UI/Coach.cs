@@ -18,10 +18,12 @@ namespace Pofi.UI
         private Logic.App.TipGesture _gesture;
         private int _loops;
         private float _t, _life;
+        private string _said;
         public string Id { get; private set; }
 
+        /// <param name="voice">Sesli okunacak cümle (varsayılan: altyazının kendisi; rehberde ödül eki okunmaz).</param>
         public static Coach Show(RectTransform root, string id, string caption, Logic.App.TipGesture gesture, Func<Vector2> from, Func<Vector2> to = null, int loops = 3,
-            string step = null, Sprite prop = null)
+            string step = null, Sprite prop = null, string voice = null)
         {
             var rt = Ui.Fill(root, "Coach " + id);
             var c = rt.gameObject.AddComponent<Coach>();
@@ -34,6 +36,10 @@ namespace Pofi.UI
             var banner = Candy.Banner(rt, Candy.Blue, "ui_hand", new Vector2(0.5f, 0f), new Vector2(0f, 150f), 760f, 36, false);
             banner.SetText(caption);
             banner.Rect.gameObject.AddComponent<PopIn>();
+            c._said = voice ?? caption;
+            // sesli okuma: köşede hoparlör (sıra rozeti köşedeyse onun altında, sağ kenarda), ipucu bir kez okunur
+            VoiceButton.Attach(banner.Rect, string.IsNullOrEmpty(step) ? (Vector2?)null : new Vector2(46f, -50f)).SetText(c._said);
+            Audio.Voice.Say(c._said);
             Hover.On(banner.Rect, 5f, 0.02f);                                   // öğretici baloncuklar canlı (S5)
             if (!string.IsNullOrEmpty(step))
             {
@@ -123,6 +129,8 @@ namespace Pofi.UI
         }
 
         public void Done() { if (this != null) Destroy(gameObject); }
+
+        private void OnDestroy() => Audio.Voice.StopIf(_said);
     }
 
     /// <summary>Açılışta hafif zıplayarak büyüme (0,8 → 1).</summary>

@@ -3,6 +3,8 @@ Sesli okuma örnekleri (V7, 23 Ekim 2026): aynı cümleler ücretsiz Türkçe se
   cb / cb_canli) Chatterbox Multilingual (Resemble AI, MIT; model ağırlıkları da MIT): doğal, duygulu; bulutta önceden
      kaydedilir, oyuna ses dosyası olarak girer. cb sakin anlatıcı, cb_canli daha coşkulu (çocuklara).
   ahenk_adali) ahenk_neseli'nin perdesi ×1,18 (adalılar için).
+  vc_c / vc_b) adalı sesi (kullanıcı kararı): C (ya da B) kaydı Chatterbox VC ile F tonuna dönüştürülür; söyleyiş aynı kalır.
+     Hedef örnek art/voice/ref/adali_f.mp3 (Ahenk'ten türetildi, CC BY 4.0 atıf).
   karakter) cb_canli'nin perdesi yükseltilmiş hali (Kıskaç gibi adalılar için; aynı tempo).
   bark_s<n>) Bark (Suno, MIT): nefesli, daha insan gibi tonlama; kendi Türkçe hazır sesleri; kararsız, denetimle seçilir.
   ema) EMA Lightning (Apache-2.0 kod + ağırlık): yerli Türkçe küçük model, tek ses, işlemcide gerçek zamandan hızlı.
@@ -12,13 +14,20 @@ Sesli okuma örnekleri (V7, 23 Ekim 2026): aynı cümleler ücretsiz Türkçe se
      oyuna girmez, başka sese örnek olarak da verilmez.
   Kalite: her kayıt Whisper'a dinletilir (cümle ↔ yazıya döküm, harf hata oranı); hatalı kayıt başka tohumla yeniden
      üretilir, en iyisi kalır (Chatterbox her seferinde biraz farklı okur; kısa cümlelerde arada kelime bozulur).
-Kullanım: <venv>/bin/python -I gen_samples.py <çıkış_klasörü> [all|piper|cb|cb_canli|karakter|denetle|duzelt|kirp|bark_tara|bark_s<n>|ema|ahenk_neseli,ahenk_sakin,...]
+Kullanım: <venv>/bin/python -I gen_samples.py <çıkış_klasörü> [all|piper|cb|cb_canli|karakter|denetle|duzelt|kirp|bark_tara|bark_s<n>|ema|ahenk_neseli,ahenk_sakin,...|adali_vc]
 Çıktı: <ad>.mp3 + samples.json (cümle, ses, süre).
 """
 import json, os, subprocess, sys, time, urllib.request
 
-OUT = sys.argv[1]
-os.makedirs(OUT, exist_ok=True)
+OUT = sys.argv[1] if __name__ == "__main__" else None   # build_voice.py içe aktarınca set_out ile verir
+if OUT:
+    os.makedirs(OUT, exist_ok=True)
+
+
+def set_out(d):
+    global OUT
+    OUT = d
+    os.makedirs(d, exist_ok=True)
 
 LINES = [
     ("anlatici_1", "Bir zamanlar mavi denizin ortasında Işık Adası vardı."),
@@ -62,7 +71,8 @@ def piper():
     return res
 
 
-STYLES = {"cb": (0.5, 0.5), "cb_canli": (0.8, 0.3)}   # (exaggeration, cfg_weight)
+STYLES = {"cb": (0.5, 0.5), "cb_canli": (0.8, 0.3), "_adali_b": (0.8, 0.3)}   # (exaggeration, cfg_weight)
+ADALI_PITCH = 1.22   # C: B'nin perdesi
 
 
 def cb_model():
@@ -159,6 +169,7 @@ def ahenk_take(tag, name, text, seed):
 
 
 def take(tag, name, text, seed):
+    if tag == "adali": return adali_take(tag, name, text, seed)
     if tag.startswith("bark_"): return bark_take(tag, name, text, seed)
     if tag.startswith("ema"): return ema_take(tag, name, text, seed)
     if tag.startswith("ahenk_"): return ahenk_take(tag, name, text, seed)
@@ -172,6 +183,66 @@ def regen(tag):
         res.append(check(take(tag, name, text, 7)))
         print(tag, name, res[-1]["sec"], "sn,", res[-1]["gen"], "sn üretim, hata", res[-1]["cer"], "|", res[-1]["asr"], flush=True)
     return res
+
+
+def f_ref(out=None):
+    """Adalı hedef sesi (F tonu): ahenk_adali kayıtlarından ~10 sn tek örnek. Repoda art/voice/ref/adali_f.mp3 olarak durur."""
+    repo = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ref", "adali_f.mp3")
+    if os.path.exists(repo):
+        return repo
+    os.makedirs(os.path.dirname(repo), exist_ok=True)
+    parts = [os.path.join(OUT, f"ahenk_adali_{n}.mp3") for n in ("anlatici_2", "anlatici_6", "anlatici_1")]
+    inp, flt = [], ""
+    for i, q in enumerate(parts):
+        inp += ["-i", q]
+        flt += f"[{i}:a]apad=pad_dur=0.25[a{i}];"
+    flt += "".join(f"[a{i}]" for i in range(len(parts))) + f"concat=n={len(parts)}:v=0:a=1,atrim=0:10.5[o]"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error"] + inp + ["-filter_complex", flt, "-map", "[o]", "-ac", "1", "-ar", "24000", "-b:a", "96k", repo], check=True)
+    return repo
+
+
+def vc_take(tag, name, text, src_tag):
+    """Ses dönüştürme (Chatterbox VC, MIT): src_tag kaydının söyleyişi aynen kalır, ses rengi F'ye döner."""
+    import torchaudio
+    from chatterbox.vc import ChatterboxVC
+    if not hasattr(vc_take, "m"):
+        vc_take.m = ChatterboxVC.from_pretrained("cpu")
+    t0 = time.time()
+    wav = vc_take.m.generate(audio=os.path.join(OUT, f"{src_tag}_{name}.mp3"), target_voice_path=f_ref())
+    p = os.path.join(OUT, f"{tag}_{name}.wav")
+    torchaudio.save(p, wav, vc_take.m.sr)
+    out = os.path.join(OUT, f"{tag}_{name}.mp3"); mp3(p, out)
+    return {"id": name, "voice": tag, "text": text, "file": os.path.basename(out), "sec": duration(out), "gen": round(time.time() - t0, 1), "src": src_tag}
+
+
+def pitch_file(src, out, pitch):
+    f = f"asetrate=24000*{pitch},aresample=24000,atempo={1 / pitch:.4f}"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", src, "-af", f, "-ac", "1", "-b:a", "64k", out], check=True)
+
+
+def adali_take(tag, name, text, seed):
+    """Adalı cümlesi: B üslubuyla oku → perdeyi yükselt (C) → F tonuna dönüştür (VC). Söyleyiş C, ses rengi F."""
+    t0 = time.time()
+    cb_take("_adali_b", name, text, seed)
+    pitch_file(os.path.join(OUT, f"_adali_b_{name}.mp3"), os.path.join(OUT, f"_adali_c_{name}.mp3"), ADALI_PITCH)
+    x = vc_take(tag, name, text, "_adali_c")
+    x.update(seed=seed, gen=round(time.time() - t0, 1))
+    return x
+
+
+def similarity(files, ref):
+    """Ses rengi benzerliği (Chatterbox VoiceEncoder, kosinüs; 1 = aynı ses)."""
+    import librosa, numpy as np, torch
+    from huggingface_hub import hf_hub_download
+    from chatterbox.models.voice_encoder import VoiceEncoder
+    if not hasattr(similarity, "ve"):
+        ve = VoiceEncoder()
+        ve.load_state_dict(torch.load(hf_hub_download("ResembleAI/chatterbox", "ve.pt"), map_location="cpu", weights_only=True))
+        similarity.ve = ve.eval()
+    load = lambda f: librosa.load(f, sr=16000)[0]
+    e = similarity.ve.embeds_from_wavs([load(ref)] + [load(f) for f in files], sample_rate=16000)
+    e = e / np.linalg.norm(e, axis=1, keepdims=True)
+    return [round(float(e[0] @ v), 3) for v in e[1:]]
 
 
 def _norm(t):
@@ -230,11 +301,12 @@ def trim(x, limit=0.03, gap=0.6):
     return x
 
 
-def fix(done, limit=0.03, tries=5):
-    """Hatalı Chatterbox kaydını başka tohumlarla yeniden üretir, en düşük hatalıyı tutar."""
+def fix(done, limit=0.03, tries=5, only=None):
+    """Hatalı kaydı başka tohumlarla yeniden üretir, en düşük hatalıyı tutar."""
     out = []
     for x in done:
-        if (x["voice"] in STYLES or x["voice"].startswith(("bark_", "ema", "ahenk_"))) and x.get("cer", 1) > limit:
+        ok = x["voice"] in only if only else (x["voice"] in STYLES or x["voice"] == "adali" or x["voice"].startswith(("bark_", "ema", "ahenk_")))
+        if ok and x.get("cer", 1) > limit:
             best, keep = x, os.path.join(OUT, "_best.mp3")
             os.replace(os.path.join(OUT, x["file"]), keep)
             for k in range(tries):
@@ -281,6 +353,26 @@ if __name__ == "__main__":
     if which.startswith(("bark_s", "ema", "ahenk_")):
         for tag in which.split(","):
             done = [x for x in done if x["voice"] != tag] + regen(tag)
+    if which == "adali_vc":
+        # C'nin söyleyişi + F'nin ses tonu (kullanıcı, 23 Ekim): kaynak C (karakter) ve B (cb_canli) denenir
+        for src, tag in (("karakter", "vc_c"), ("cb_canli", "vc_b")):
+            made = [check(vc_take(tag, n, t, src)) for n, t in LINES]
+            done = [x for x in done if x["voice"] != tag] + made
+        ref = f_ref()
+        for tag in ("ahenk_adali", "karakter", "vc_c", "vc_b"):
+            xs = [x for x in done if x["voice"] == tag]
+            sims = similarity([os.path.join(OUT, x["file"]) for x in xs], ref)
+            for x, v in zip(xs, sims): x["sim_f"] = v
+            print(f"{tag:12s} F'ye benzerlik ort. {sum(sims)/len(sims):.3f} | hata ort. %{100*sum(x.get('cer',0) for x in xs)/len(xs):.1f}", flush=True)
+    if which == "adali":
+        # ilk deneme: adali_vc'nin vc_c kayıtları (tohum 7); hatalılar baştan (B → C → F) yeniden üretilir, sonra kuyruk kırpılır
+        base = [dict(x, voice="adali", file="adali_" + x["file"][len("vc_c_"):]) for x in done if x["voice"] == "vc_c"]
+        for x in base:
+            subprocess.run(["cp", os.path.join(OUT, "vc_c_" + x["id"] + ".mp3"), os.path.join(OUT, x["file"])], check=True)
+        done = [x for x in done if x["voice"] != "adali"] + fix(base, only={"adali"})
+        done = [trim(x) if x["voice"] == "adali" else x for x in done]
+        xs = [x for x in done if x["voice"] == "adali"]
+        for x, v in zip(xs, similarity([os.path.join(OUT, x["file"]) for x in xs], f_ref())): x["sim_f"] = v
     if which in ("all", "denetle", "duzelt"):
         done = [check(x) if "cer" not in x or which == "denetle" else x for x in done]
     if which in ("all", "duzelt"):

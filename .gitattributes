@@ -21,6 +21,8 @@
 *.ogg   filter=lfs diff=lfs merge=lfs -text
 # Oyun müziği küçük (<1 MB) ve CI her derlemede indirir: LFS yok (fbx gibi)
 Assets/_Pofi/Resources/Audio/*.ogg -filter -diff -merge binary
+# Sesli okuma adalı ses rengi örneği (127 KB, build_voice.py okur): LFS yok
+art/voice/ref/*.mp3 -filter -diff -merge binary
 *.ttf   filter=lfs diff=lfs merge=lfs -text
 *.otf   filter=lfs diff=lfs merge=lfs -text
 *.exr   filter=lfs diff=lfs merge=lfs -text

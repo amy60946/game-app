@@ -246,6 +246,8 @@ namespace Pofi.Core
             Theme.TextScale = State.Settings.TextScale;
             Theme.ReduceMotion = State.Settings.ReduceMotion;
             Audio.Sfx.Volume = State.Settings.SfxVolume;
+            Audio.Voice.Enabled = State.Settings.VoiceOn;   // sesli okuma: herkeste açık, kayıttaki tercih
+            Audio.Voice.Persist = on => { if (State == null) return; State.Settings.VoiceOn = on; Save(); };
             Stage.SetSky(Theme.Sky);
             State.Stats.Tick(UtcNow, Decay);
             FirstDay.Start(State, UtcNow);   // ilk gün akışı (Ö5); pet'i olan eski oyuncuda kapanır
@@ -468,6 +470,7 @@ namespace Pofi.Core
             Stage.SetBackdrop(null);
             Stage.Swiped = null;
             MusicButton.Place(MusicButton.DefaultX);   // pencere çarpısı yanına kaymışsa geri al
+            Audio.Voice.Stop();                         // ekran değişince önceki ekranın cümlesi susar
             MusicButton.SetVisible(true);              // adada gizlenir (avatar menüsünde)
             var root = Ui.Fill(Canvas.transform, "Screen " + next);
             root.gameObject.AddComponent<SafeArea>();                // iPhone çentiği / ev çubuğu

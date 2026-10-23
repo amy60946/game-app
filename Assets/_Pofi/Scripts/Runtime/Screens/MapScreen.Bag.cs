@@ -153,18 +153,34 @@ namespace Pofi.Screens
             _avatarMenu = Ui.Fill(Root, "AvatarMenu");
             var catcher = _avatarMenu.gameObject.AddComponent<Image>(); catcher.color = new Color(0f, 0f, 0f, 0f);
             var close = _avatarMenu.gameObject.AddComponent<Button>(); close.transition = Selectable.Transition.None; close.onClick.AddListener(CloseAvatarMenu);
-            var pop = Ui.Rect(_avatarMenu, "Pop", new Vector2(0f, 1f), new Vector2(560f, 230f), new Vector2(300f, -420f));
+            var pop = Ui.Rect(_avatarMenu, "Pop", new Vector2(0f, 1f), new Vector2(740f, 230f), new Vector2(390f, -420f));
             CreamCard(pop, 230f);
             pop.gameObject.AddComponent<ClickSink>();
-            Item("ui_album", T("menu.diary"), -175f, () => { CloseAvatarMenu(); AlbumScreen.ShowBadges(); App.Open(AppPage.Album); });
-            Item("ui_settings", T("menu.settings"), 0f, () => { CloseAvatarMenu(); ParentGate(() => App.Open(AppPage.Settings), msg => _toast.Say(msg)); });
-            var music = Item("ui_music", T("menu.music"), 175f, null);
-            var slash = Ui.Rect(music.transform, "Off", new Vector2(0.5f, 0.52f), new Vector2(96f, 13f));
-            slash.localRotation = Quaternion.Euler(0f, 0f, 45f);
-            var si = slash.gameObject.AddComponent<Image>(); si.sprite = Ui.Rounded; si.type = Image.Type.Sliced; si.color = Candy.Pink; si.raycastTarget = false;
-            slash.gameObject.SetActive(!Audio.Music.On);
-            music.onClick.AddListener(() => { MusicButton.ToggleMusic(); if (slash != null) slash.gameObject.SetActive(!Audio.Music.On); });
+            Item("ui_album", T("menu.diary"), -270f, () => { CloseAvatarMenu(); AlbumScreen.ShowBadges(); App.Open(AppPage.Album); });
+            Item("ui_settings", T("menu.settings"), -90f, () => { CloseAvatarMenu(); ParentGate(() => App.Open(AppPage.Settings), msg => _toast.Say(msg)); });
+            var music = Item("ui_music", T("menu.music"), 90f, null);
+            var musicOff = Slash(music);
+            musicOff.SetActive(!Audio.Music.On);
+            music.onClick.AddListener(() => { MusicButton.ToggleMusic(); if (musicOff != null) musicOff.SetActive(!Audio.Music.On); });
+            // sesli okuma aç/kapa (kullanıcı, 23 Ekim 2026): Müzik'in yanında; balon köşesindeki hoparlörle aynı ayar
+            var voice = Item("ui_voice", T("menu.voice"), 270f, null);
+            var voiceOff = Slash(voice);
+            voiceOff.SetActive(!Audio.Voice.Enabled);
+            voice.onClick.AddListener(() =>
+            {
+                Audio.Voice.SetEnabled(!Audio.Voice.Enabled);
+                if (voiceOff != null) voiceOff.SetActive(!Audio.Voice.Enabled);
+                _toast.Say(T(Audio.Voice.Enabled ? "voice.on" : "voice.off"));
+            });
             pop.gameObject.AddComponent<PopIn>();
+
+            GameObject Slash(Button b)
+            {
+                var slash = Ui.Rect(b.transform, "Off", new Vector2(0.5f, 0.52f), new Vector2(96f, 13f));
+                slash.localRotation = Quaternion.Euler(0f, 0f, 45f);
+                var si = slash.gameObject.AddComponent<Image>(); si.sprite = Ui.Rounded; si.type = Image.Type.Sliced; si.color = Candy.Pink; si.raycastTarget = false;
+                return slash.gameObject;
+            }
 
             Button Item(string icon, string label, float x, System.Action act)
             {

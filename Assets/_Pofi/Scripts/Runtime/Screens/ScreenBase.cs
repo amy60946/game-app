@@ -366,6 +366,7 @@ namespace Pofi.Screens
     {
         private CandyBanner _banner;
         private CanvasGroup _group;
+        private VoiceButton _voice;
         private float _left;
 
         public static SpeechBubble Create(Transform parent, Theme th, Vector2 anchor)
@@ -377,6 +378,7 @@ namespace Pofi.Screens
             b._group.alpha = 0f;
             b._group.blocksRaycasts = false;
             Hover.On(banner, 4f, 0.015f);   // bilgilendirici baloncuk canlı (S5)
+            b._voice = VoiceButton.Attach(banner.Rect);   // adalı selamı ve ipuçları sesli okunur
             return b;
         }
 
@@ -384,6 +386,8 @@ namespace Pofi.Screens
         {
             if (string.IsNullOrEmpty(text)) return;
             _banner.SetText(text);
+            _voice.SetText(text);
+            if (Audio.Voice.Say(text)) seconds = Mathf.Max(seconds, 4.5f);   // okunurken balon erken solmasın
             _left = seconds;
             transform.localScale = Vector3.one * 0.85f;
         }

@@ -37,6 +37,7 @@ namespace Pofi.UI
         private Text _text, _nameText;
         private Image _portraitImg;
         private Button _go;
+        private VoiceButton _voice;
         private float _bars, _rise;
         private string _lastWho, _goText, _skipText;
 
@@ -81,6 +82,7 @@ namespace Pofi.UI
                 _go.gameObject.SetActive(false);
             }
             _text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _voice = VoiceButton.Attach(_mode == Mode.Cinema ? _box : _bubble);   // sesli okuma hoparlörü balonun köşesinde
             _portrait = Ui.Rect(_root, "Portrait", new Vector2(0f, 0f), new Vector2(520f, 520f));
             _portrait.pivot = new Vector2(0.5f, 0f);
             _portraitImg = _portrait.gameObject.AddComponent<Image>(); _portraitImg.preserveAspect = true; _portraitImg.raycastTarget = false;
@@ -133,6 +135,8 @@ namespace Pofi.UI
             var l = _scene.Lines[_i];
             _full = StoryDirector.Text(l, _band).Replace("{pet}", _petName);
             _shown = 0f; _typing = true; _text.text = ""; _wait = 0f;
+            _voice.SetText(_full);
+            Audio.Voice.Say(_full, true);   // önceden kaydedilmiş ses (anlatıcı / Okti / adalı); kaydı yoksa önceki satırın sesi de susar
             var narrator = l.Who == "narrator";
             _name.gameObject.SetActive(!narrator);
             _nameText.text = narrator ? "" : _book.NameOf(l.Who).Replace("{pet}", _petName);
@@ -180,7 +184,7 @@ namespace Pofi.UI
                 _wait += dt;
                 if (_go != null && _i == _scene.Lines.Count - 1 && !_go.gameObject.activeSelf && _wait > 0.3f) { _go.gameObject.SetActive(true); Bump.Play(_go.transform, 0.3f); }
                 var auto = StoryDirector.AutoAdvance(_band);
-                if (auto > 0f && _wait > auto) Next();
+                if (auto > 0f && _wait > auto && !Audio.Voice.IsSpeaking(_full)) Next();   // okuma bitmeden geçmez
             }
         }
 
@@ -189,12 +193,14 @@ namespace Pofi.UI
             if (_done == null) return;
             var d = _done; _done = null;
             Playing = false;
+            Audio.Voice.StopIf(_full);
             Destroy(gameObject);
             d();
         }
 
         private void OnDestroy()
         {
+            Audio.Voice.StopIf(_full);
             Playing = false;
             if (_current == this) _current = null;
             if (_done != null) { var d = _done; _done = null; d(); }

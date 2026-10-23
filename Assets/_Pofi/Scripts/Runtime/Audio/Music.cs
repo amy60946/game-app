@@ -13,8 +13,13 @@ namespace Pofi.Audio
     {
         private static AudioSource _src;
         public const float DefaultVolume = 0.55f;
+        private static float _vol;
+        private static bool _duck;
 
-        public static bool On => _src != null && _src.volume > 0.001f;
+        /// <summary>Sesli okuma sürerken müzik bu orana kısılır (<see cref="Voice"/>).</summary>
+        public const float DuckLevel = 0.35f;
+
+        public static bool On => _src != null && _vol > 0.001f;
 
         public static void Init(float volume)
         {
@@ -27,8 +32,21 @@ namespace Pofi.Audio
                 _src = go.AddComponent<AudioSource>();
                 _src.clip = clip; _src.loop = true; _src.playOnAwake = false; _src.spatialBlend = 0f; _src.priority = 0;
             }
-            _src.volume = Mathf.Clamp01(volume);
+            _vol = Mathf.Clamp01(volume);
+            Apply();
             if (!_src.isPlaying) _src.Play();   // WebGL: tarayıcı ilk dokunuşta sesi açar
+        }
+
+        /// <summary>Sesli okuma başlarken/bitince: müzik kısılır, sonra eski düzeyine döner.</summary>
+        public static void Duck(bool on)
+        {
+            _duck = on;
+            Apply();
+        }
+
+        private static void Apply()
+        {
+            if (_src != null) _src.volume = _vol * (_duck ? DuckLevel : 1f);
         }
 
         /// <summary>Durum (test/hata ayıklama): çalıyor mu, süre ve konum.</summary>
@@ -52,15 +70,16 @@ namespace Pofi.Audio
         /// <summary>Ses oturumu yeniden kurulunca (iOS) ya da uygulamaya dönünce: açıksa çalmaya devam et.</summary>
         public static void Resume()
         {
-            if (_src == null || _src.volume <= 0.001f || _src.isPlaying) return;
+            if (_src == null || _vol <= 0.001f || _src.isPlaying) return;
             _src.Play();
         }
 
         public static void SetVolume(float volume)
         {
             if (_src == null) { Init(volume); return; }
-            _src.volume = Mathf.Clamp01(volume);
-            if (_src.volume > 0f && !_src.isPlaying) _src.Play();
+            _vol = Mathf.Clamp01(volume);
+            Apply();
+            if (_vol > 0f && !_src.isPlaying) _src.Play();
         }
     }
 }

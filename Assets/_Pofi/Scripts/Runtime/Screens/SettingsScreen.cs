@@ -36,6 +36,8 @@ namespace Pofi.Screens
                 i => { st.ReduceMotion = i == 1; Theme.ReduceMotion = st.ReduceMotion; });
             // hikâye sahneleri (kapalıyken yalnız tek satırlık özet balonu; Defter'den yine okunur)
             Choice(T("settings.story"), new[] { T("settings.on"), T("settings.off") }, st.StoryOn ? 0 : 1, i => st.StoryOn = i == 0);
+            // sesli okuma (herkeste açık; çocuk balon köşesindeki hoparlörden de kapatır)
+            Choice(T("settings.voice"), new[] { T("settings.on"), T("settings.off") }, st.VoiceOn ? 0 : 1, i => Voice.SetEnabled(i == 0));
 
             Action(T("settings.change_pet"), T("settings.change_pet_hint"), () =>
             {
@@ -59,6 +61,9 @@ namespace Pofi.Screens
                     Fill();
                 });
 
+            // sesli okuma atfı (Ahenk CC BY 4.0 zorunlu; seslerin yapay olduğu belirtilir)
+            var credits = Ui.Row(_list, "Credits", 190f);
+            Ui.Stretch(Ui.Label(credits, T("settings.voice_credits"), Th.Font(26), Color.white, new Vector2(0.5f, 0.5f), Vector2.zero).rectTransform);
             var info = Ui.Row(_list, "Info", 140f);
             Ui.Stretch(Ui.Label(info, App.BuildLabel + "\n" + T("settings.child", App.Session.DisplayName), Th.Font(30), Color.white,
                 new Vector2(0.5f, 0.5f), Vector2.zero).rectTransform);

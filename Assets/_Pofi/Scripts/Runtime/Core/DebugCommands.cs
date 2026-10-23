@@ -124,6 +124,10 @@ namespace Pofi.Core
                     case "petpos":      // adadaki petin ekran konumu (piksel, sol alt köken) — gerçek dokunma testi için
                         Debug.Log("[PofiDebug] petpos " + Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugPetScreen());
                         break;
+                    case "voice":       // sesli okuma: kayıt sayısı, açık mı, son okunan; "voice on|off" aç/kapa
+                        if (arg == "on" || arg == "off") Audio.Voice.SetEnabled(arg == "on");
+                        Debug.Log("[PofiDebug] voice " + Audio.Voice.Describe() + " hoparlör=" + Object.FindObjectsByType<UI.VoiceButton>(FindObjectsSortMode.None).Length);
+                        break;
                     case "lp":          // E4 uzun bas: sayaçlar; "lp <metin>" o yazılı düğmenin bilgisini açar
                         var lps = Object.FindObjectsByType<UI.LongPressInfo>(FindObjectsSortMode.None);
                         if (!string.IsNullOrEmpty(arg))

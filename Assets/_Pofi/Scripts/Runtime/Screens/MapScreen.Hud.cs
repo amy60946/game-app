@@ -407,8 +407,10 @@ namespace Pofi.Screens
         private void GuideTip(GuideStep g)
         {
             var step = (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count;
-            var arg = g.Id == "feed" || g.Id == "wash" ? PetDat : App.State.PetName;   // "Okti'ye dokun" (G2)
-            _coach = Coach.Show(Root, "guide_" + g.Id, T(g.TextKey, arg) + "  " + T("guide.reward", g.Xp), TipGesture.Tap, GuideTarget(g), null, 3, step);
+            // "Okti'ye dokun" (G2), "Okti'nin üstüne dokun" (giydir)
+            var arg = g.Id == "feed" || g.Id == "wash" ? PetDat : g.Id == "wear" ? PetGen : App.State.PetName;
+            var say = T(g.TextKey, arg);
+            _coach = Coach.Show(Root, "guide_" + g.Id, say + "  " + T("guide.reward", g.Xp), TipGesture.Tap, GuideTarget(g), null, 3, step, null, say);
             _tipGap = -4f;   // panel kapanınca birkaç saniye nefes
         }
 

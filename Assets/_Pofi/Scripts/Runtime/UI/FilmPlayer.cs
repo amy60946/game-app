@@ -39,6 +39,7 @@ namespace Pofi.UI
         private CanvasGroup[] _fades = new CanvasGroup[2];
         private int _layer, _shot = -1, _lineInShot, _line = -1;
         private float _shotT, _wait;
+        private VoiceButton _voice;
         private string _full = "";
         private float _shown;
         private bool _typing;
@@ -78,6 +79,7 @@ namespace Pofi.UI
             var sg = shade.gameObject.AddComponent<RawImage>(); sg.raycastTarget = false; sg.texture = Fade(); sg.color = new Color(0f, 0f, 0f, 0.62f);
             _sub = Ui.Label(_root, "", _th.Font(52), Color.white, new Vector2(0.5f, 0f), new Vector2(1700f, 220f), FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0f, 230f));
             _sub.horizontalOverflow = HorizontalWrapMode.Wrap;
+            _voice = VoiceButton.Attach(_sub.rectTransform);   // sesli okuma hoparlörü altyazının sağ üstünde
             var sh = _sub.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0f, 0f, 0f, 0.6f); sh.effectDistance = new Vector2(0f, -4f);
             _barTop = Bar(true); _barBottom = Bar(false);
             var skip = Ui.Button(_root, _th, skipText, new Vector2(1f, 1f), new Vector2(220f, 76f), Finish, false, new Vector2(-160f, -60f), 34, false);
@@ -116,6 +118,8 @@ namespace Pofi.UI
             var l = _scene.Lines[_line];
             _full = StoryDirector.Text(l, _band).Replace("{pet}", _petName);
             _shown = 0f; _typing = true; _sub.text = ""; _wait = 0f;
+            _voice.SetText(_full);
+            Audio.Voice.Say(_full, true);
             Audio.Sfx.Play(Audio.SfxKind.Tap);
         }
 
@@ -179,7 +183,7 @@ namespace Pofi.UI
             if (_go.gameObject.activeSelf) return;
             _wait += dt;
             var hold = Mathf.Max(Hold, StoryDirector.AutoAdvance(_band));
-            if (_wait > hold) NextLine();
+            if (_wait > hold && !Audio.Voice.IsSpeaking(_full)) NextLine();   // anlatıcı cümlesini bitirmeden sahne geçmez
         }
 
         private void Finish()
@@ -187,12 +191,14 @@ namespace Pofi.UI
             if (_done == null) return;
             var d = _done; _done = null;
             Playing = false;
+            Audio.Voice.StopIf(_full);
             Destroy(gameObject);
             d();
         }
 
         private void OnDestroy()
         {
+            Audio.Voice.StopIf(_full);
             Playing = false;
             if (_current == this) _current = null;
             if (_done != null) { var d = _done; _done = null; d(); }

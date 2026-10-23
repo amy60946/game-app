@@ -548,6 +548,11 @@
     "resident.give": "Ver",
     "resident.later": "Toplayınca gel",
     "resident.thanks": "{0}: Teşekkürler, çok iyi geldi!",
-    "resident.thanks_item": "{0}: Teşekkürler! Sana {1} hediye."
+    "resident.thanks_item": "{0}: Teşekkürler! Sana {1} hediye.",
+    "menu.voice": "Sesli okuma",
+    "voice.on": "Sesli okuma açık",
+    "voice.off": "Sesli okuma kapalı",
+    "settings.voice": "Sesli okuma",
+    "settings.voice_credits": "Sesli okuma yapay zekâ ile üretilmiş seslerdir; gerçek bir kişinin sesi değildir. Anlatıcı: Chatterbox (Resemble AI, MIT). Adalı sesi: Ahenk (https://github.com/ozguradmin/ahenk-turkish-tts), CC BY 4.0, ses rengi örneği olarak kullanıldı; Alania Turkish Synthetic Speech by PatientDesk AI, CC BY 4.0."
   }
 }

@@ -551,7 +551,9 @@ namespace Pofi.Screens
             var who = book.NameOf(d.Who).Replace("{pet}", App.State.PetName);
             if (ResidentIcons.TryGetValue(d.Who, out var icon)) Ui.IconImage(box, icon, new Vector2(0.14f, 0.78f), 150f);
             Candy.Caption(box, who, 54, new Vector2(0.55f, 0.84f), new Vector2(600f, 80f), Vector2.zero, Candy.Deep(Candy.Orange));
-            Ui.Label(box, d.Text, Th.Font(42), Th.Text, new Vector2(0.55f, 0.64f), new Vector2(660f, 140f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            var said = Ui.Label(box, d.Text, Th.Font(42), Th.Text, new Vector2(0.55f, 0.64f), new Vector2(660f, 140f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            VoiceButton.Attach(said.rectTransform, new Vector2(30f, 30f)).SetText(d.Text);   // adalının isteği sesli okunur
+            Audio.Voice.Say(d.Text);
             var have = Logic.Story.Residents.Have(App.State, d.Need);
             var needIcon = Logic.Story.Residents.IsMaterial(d.Need) ? MatIcon(d.Need) : d.Need;
             Ui.IconImage(box, needIcon, new Vector2(0.36f, 0.38f), 120f);
@@ -560,6 +562,7 @@ namespace Pofi.Screens
             var ok = have >= d.Count;
             var btn = Ui.Button(box, Th, ok ? T("resident.give") : T("resident.later"), new Vector2(0.5f, 0.12f), new Vector2(380f, 110f), () =>
             {
+                Audio.Voice.StopIf(d.Text);
                 Destroy(root.gameObject);
                 if (!ok) return;
                 var done = Logic.Story.Residents.Fulfill(App.State, App.Data, id);
