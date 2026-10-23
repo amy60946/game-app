@@ -64,6 +64,7 @@ def place(pet_objs, arm, item, stage, rule):
     for o in new:
         if o.parent is None: o.parent = root
     # oyunda: pet ve eşya dosyada aynı yöne (+z) bakar, ikisi de 180° çevrilir → göreli yön aynı, döndürme yok
+    if io.get('flip'): root.rotation_euler = (0, 0, math.pi)   # oyunda CosmeticModels.Reversed
     bpy.context.view_layer.update()
     imn, imx = bounds(new); w = max(imx.x - imn.x, imx.y - imn.y)
     root.scale = V((1, 1, 1)) * (size * h / max(w, 1e-4)); bpy.context.view_layer.update()

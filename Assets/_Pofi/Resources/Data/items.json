@@ -69,7 +69,7 @@
     { "id": "pompom",              "name": "Ponponlar",                 "category": "accessory", "slot": "hand", "price": 30,  "level": 3,   "glove": true, "pair": true, "fancy": true },
     { "id": "glasses_snorkel",     "name": "Şnorkel ve dalış gözlüğü",  "category": "accessory", "slot": "eyes", "price": 40,  "level": 4,   "variants": ["normal"], "fancy": true },
     { "id": "mask_hero",           "name": "Kahraman maskesi",          "category": "accessory", "slot": "eyes", "price": 30,  "level": 4,   "variants": ["normal"], "fancy": true },
-    { "id": "float_flamingo",      "name": "Flamingo simidi",           "category": "accessory", "slot": "body", "price": 50,  "level": 4,   "fancy": true },
+    { "id": "float_flamingo",      "name": "Flamingo simidi",           "category": "accessory", "slot": "body", "price": 50,  "level": 4,   "cut": "full", "fancy": true },
     { "id": "hat_crown_tilt",      "name": "Yamuk taç",                 "category": "accessory", "slot": "head", "price": 45,  "level": 5,   "variants": ["normal"], "fancy": true },
     { "id": "outfit_hula",         "name": "Çiçek kolye ve çim etek",   "category": "clothes",   "slot": "body", "price": 45,  "level": 5,   "cut": "full", "fancy": true },
     { "id": "hat_fishbowl",        "name": "Akvaryum kask",             "category": "accessory", "slot": "head", "price": 60,  "level": 6,   "variants": ["normal"], "fancy": true },

@@ -124,6 +124,8 @@ namespace Pofi.World
             ["genc:hat_banana"] = new Vector3(0.85f, 0f), ["yetiskin:hat_banana"] = new Vector3(0.85f, 0f),
             ["genc:outfit_chicken"] = new Vector3(1.05f, -0.08f), ["yetiskin:outfit_chicken"] = new Vector3(1.1f, -0.1f),
         };
+        /// <summary>Dosyada ters dönük eşyalar: sırt çantasının cebi önde, askıları arkada modellenmiş → petin sırtında askılar gövdeye dönsün.</summary>
+        private static readonly HashSet<string> Reversed = new HashSet<string> { "backpack_small" };
         /// <summary>Dönen parçası olan eşyalar (Items/&lt;id&gt;/&lt;id&gt;_spin): derece/sn.</summary>
         private static readonly Dictionary<string, float> SpinSpeed = new Dictionary<string, float> { ["hat_propeller"] = 620f, ["hat_fishbowl"] = 40f };
 
@@ -175,7 +177,7 @@ namespace Pofi.World
             if (item.Pair) return BuildPair(pet, root, item, rule, h, front);
 
             var t = RealAssets.Item(item.Id, root);
-            t.rotation = Quaternion.LookRotation(front, Vector3.up);   // eşyanın önü (+z) petin önüne
+            t.rotation = Quaternion.LookRotation(Reversed.Contains(item.Id) ? -front : front, Vector3.up);   // eşyanın önü (+z) petin önüne
             var ib = RealAssets.WorldBounds(t);
             var w = Mathf.Max(ib.size.x, ib.size.z);
             if (w < 0.0001f) return false;

@@ -25,18 +25,65 @@ for o in list(bpy.context.scene.objects):   # iskelete bağlı olmayan yardımc�
     if o.type == "MESH" and not any(m.type == "ARMATURE" for m in o.modifiers):
         bpy.data.objects.remove(o, do_unlink=True)
 
-# yeni Meshy dışa aktarımları ~200 bin üçgen: deri ağırlıklarıyla birlikte bütçeye indir (Decimate, Armature'dan önce)
+# yeni Meshy dışa aktarımları ~200 bin üçgen: deri ağırlıklarıyla birlikte bütçeye indir (Decimate, Armature'dan önce).
+# Bu kadar indirgeme UV dikişlerini kaydırıyor (yüzde ince koyu çatlaklar, 23 Ekim 2026) → indirgenmiş meshe yeni UV açılır ve
+# renk dokusu yüksek çokgen kopyadan yeniden pişirilir (POFI_REBAKE=0 ile kapatılır).
+import math
+REBAKE = os.environ.get("POFI_REBAKE", "1") == "1"
+baked = None
 for o in [o for o in bpy.context.scene.objects if o.type == "MESH"]:
     tris = sum(len(p.vertices) - 2 for p in o.data.polygons)
     if tris > TRIS * 1.1:
+        # glTF içe aktarımı UV dikişlerinde köşeleri ayırır: indirgemede dikişler ayrı ayrı çöker ve yüzeyde ince yarıklar açılır
+        # (yüzde koyu çatlaklar, 23 Ekim 2026) → önce aynı yerdeki köşeleri kaynak (UV köşe başına kalır)
+        bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o
+        bpy.ops.object.mode_set(mode="EDIT"); bpy.ops.mesh.select_all(action="SELECT")
+        bpy.ops.mesh.remove_doubles(threshold=max(o.dimensions) * 1e-5)
+        bpy.ops.object.mode_set(mode="OBJECT")
+        hi = None
+        if REBAKE:
+            hi = o.copy(); hi.data = o.data.copy(); bpy.context.scene.collection.objects.link(hi)
         bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o
         d = o.modifiers.new("decimate", "DECIMATE"); d.ratio = TRIS / tris
         bpy.ops.object.modifier_move_to_index(modifier="decimate", index=0)
         bpy.ops.object.modifier_apply(modifier="decimate")
         print("AZALTILDI", o.name, tris, "→", sum(len(p.vertices) - 2 for p in o.data.polygons), "üçgen")
+        if hi is None:
+            continue
+        sc = bpy.context.scene
+        arm.data.pose_position = "REST"; bpy.context.view_layer.update()
+        sc.render.engine = "CYCLES"; sc.cycles.device = "CPU"; sc.cycles.samples = 4
+        old_uv = [l.name for l in o.data.uv_layers]
+        uv = o.data.uv_layers.new(name="rebake"); o.data.uv_layers.active = uv
+        bpy.ops.object.mode_set(mode="EDIT"); bpy.ops.mesh.select_all(action="SELECT")
+        bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.002)
+        bpy.ops.object.mode_set(mode="OBJECT")
+        baked = bpy.data.images.new("rebaked", TEX * 2, TEX * 2, alpha=False)
+        mat = o.data.materials[0]
+        node = mat.node_tree.nodes.new("ShaderNodeTexImage"); node.image = baked; mat.node_tree.nodes.active = node
+        # kaynak dokuyu eski UV'ye sabitle (indirgenmiş meshte etkin UV artık "rebake")
+        for n in mat.node_tree.nodes:
+            if n.type == "TEX_IMAGE" and n is not node and not n.inputs["Vector"].links:
+                uvn = mat.node_tree.nodes.new("ShaderNodeUVMap"); uvn.uv_map = old_uv[0]
+                mat.node_tree.links.new(uvn.outputs["UV"], n.inputs["Vector"])
+        dims = max(o.dimensions); hi.data.uv_layers[0].name = old_uv[0]
+        bpy.ops.object.select_all(action="DESELECT"); hi.select_set(True); o.select_set(True); bpy.context.view_layer.objects.active = o
+        sc.render.bake.use_pass_direct = False; sc.render.bake.use_pass_indirect = False; sc.render.bake.use_pass_color = True
+        sc.render.bake.use_selected_to_active = True; sc.render.bake.cage_extrusion = dims * 0.003; sc.render.bake.max_ray_distance = dims * 0.012
+        bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, margin=8, use_clear=True)
+        bpy.data.objects.remove(hi, do_unlink=True)
+        for n in old_uv:
+            o.data.uv_layers.remove(o.data.uv_layers[n])
+        o.data.uv_layers["rebake"].name = "UVMap"
+        m2 = bpy.data.materials.new("okti"); m2.use_nodes = True
+        t2 = m2.node_tree.nodes.new("ShaderNodeTexImage"); t2.image = baked
+        m2.node_tree.links.new(t2.outputs["Color"], m2.node_tree.nodes["Principled BSDF"].inputs["Base Color"])
+        o.data.materials.clear(); o.data.materials.append(m2)
+        arm.data.pose_position = "POSE"
+        print("YENIDEN PIŞIRILDI", o.name)
 
-# doku: tek temel renk dokusu → 1024 px JPEG
-for img in list(bpy.data.images):
+# doku: tek temel renk dokusu → 1024 px JPEG (yeniden pişirildiyse o)
+for img in ([baked] if baked is not None else list(bpy.data.images)):
     if img.size[0] == 0:
         continue
     if max(img.size) > TEX:
@@ -72,6 +119,9 @@ ad.action = None
 for pb in arm.pose.bones:
     pb.location = (0, 0, 0); pb.rotation_quaternion = (1, 0, 0, 0); pb.rotation_euler = (0, 0, 0); pb.scale = (1, 1, 1)
 export(os.path.join(outdir, name + ".fbx"), False)
+
+if os.environ.get("POFI_MESH_ONLY") == "1":   # yalnız model + doku (klipler aynı kalır)
+    sys.exit(0)
 
 # 2) klipler: mesh'siz, tek klip
 for o in list(bpy.context.scene.objects):
