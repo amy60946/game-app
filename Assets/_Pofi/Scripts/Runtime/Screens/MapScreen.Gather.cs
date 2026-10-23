@@ -259,7 +259,7 @@ namespace Pofi.Screens
                 var tipKey = "gather.tip_" + tool;   // gather.tip_axe / tip_hand / tip_pickaxe
                 if (_gTipShown.Add(tool)) _toast.Say(T(tipKey));
             }
-            else if (_gTarget == -1 && _gTipShown.Add("site")) _toast.Say(T(Gathering.CanBuild(st) ? "gather.tip_build" : "gather.tip_site"));
+            else if (_gTarget == -1 && _req == null && _gTipShown.Add("site")) _toast.Say(T(Gathering.CanBuild(st) ? "gather.tip_build" : "gather.tip_site"));   // E3 kartı varken gerek yok
         }
 
         private bool Place(Button b, GatherSpot s, Camera cam, float k, bool target)

@@ -17,6 +17,9 @@ namespace Pofi.UI
         private CandyBanner _bubble;
         private Button _button;
         private static Transform _layer;
+        /// <summary>Test sayaçları (PofiDebug lp): kaç basış geldi, kaç baloncuk açıldı.</summary>
+        public static int Downs, Shows;
+        public bool Pressed => _down >= 0f;
 
         /// <summary>Bilgi katmanı (oyun kurulurken: üst kanvas).</summary>
         public static void UseLayer(Transform overlay) => _layer = overlay;
@@ -32,7 +35,7 @@ namespace Pofi.UI
             return l;
         }
 
-        public void OnPointerDown(PointerEventData e) => _down = Time.unscaledTime;
+        public void OnPointerDown(PointerEventData e) { _down = Time.unscaledTime; Downs++; }
         public void OnPointerUp(PointerEventData e) => Release();
         public void OnPointerExit(PointerEventData e) => Release();
 
@@ -62,7 +65,11 @@ namespace Pofi.UI
             _button = GetComponent<Button>();
             if (_button != null) _button.enabled = false;   // uzun basış düğmenin işini yapmasın
             Audio.Haptics.Light();
+            Shows++;
         }
+
+        /// <summary>Test: basılı tutulmuş gibi baloncuğu aç (çekimler için).</summary>
+        public void DebugShow() { if (_bubble == null) Show(); }
 
         private void Release()
         {

@@ -124,6 +124,16 @@ namespace Pofi.Core
                     case "petpos":      // adadaki petin ekran konumu (piksel, sol alt köken) — gerçek dokunma testi için
                         Debug.Log("[PofiDebug] petpos " + Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugPetScreen());
                         break;
+                    case "lp":          // E4 uzun bas: sayaçlar; "lp <metin>" o yazılı düğmenin bilgisini açar
+                        var lps = Object.FindObjectsByType<UI.LongPressInfo>(FindObjectsSortMode.None);
+                        if (!string.IsNullOrEmpty(arg))
+                            foreach (var l in lps)
+                            {
+                                var lt = l.GetComponentInChildren<UnityEngine.UI.Text>();
+                                if (lt != null && lt.text == arg) { l.DebugShow(); break; }
+                            }
+                        Debug.Log($"[PofiDebug] lp adet={lps.Length} basış={UI.LongPressInfo.Downs} açılış={UI.LongPressInfo.Shows} basılı={string.Join(",", System.Linq.Enumerable.Select(System.Linq.Enumerable.Where(lps, l => l.Pressed), l => l.name))}");
+                        break;
                     case "dismiss":
                         for (var i = app.Overlay.transform.childCount - 1; i >= 0; i--)
                         {

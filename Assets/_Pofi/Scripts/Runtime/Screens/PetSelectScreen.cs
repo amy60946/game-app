@@ -45,9 +45,10 @@ namespace Pofi.Screens
 
             var card = Ui.Rect(Root, "Info", new Vector2(0.8f, single ? 0.56f : 0.64f), new Vector2(600f, 400f));
             Candy.Shell(card, Candy.White).raycastTarget = false;
-            _name = Ui.Label(card, "", Th.Font(72), Th.Text, new Vector2(0.5f, 0.82f), new Vector2(520f, 100f), FontStyle.Bold);
-            _species = Ui.Label(card, "", Th.Font(38), Th.SubtleText, new Vector2(0.5f, 0.62f), new Vector2(520f, 60f));
-            _feature = Ui.Label(card, "", Th.Font(32), Th.SubtleText, new Vector2(0.5f, 0.32f), new Vector2(500f, 160f), FontStyle.Italic);
+            _name = Ui.Label(card, "", Th.Font(72), Th.Text, new Vector2(0.5f, 0.8f), new Vector2(520f, 100f), FontStyle.Bold);
+            _species = Ui.Label(card, "", Th.Font(36), Th.SubtleText, new Vector2(0.5f, 0.6f), new Vector2(520f, 56f));
+            _feature = Ui.Label(card, "", Th.Font(36), Th.Text, new Vector2(0.5f, 0.3f), new Vector2(500f, 150f), FontStyle.Bold);
+            _feature.resizeTextForBestFit = true; _feature.resizeTextMinSize = 24; _feature.resizeTextMaxSize = Th.Font(36);   // uzun yazı kutudan taşmasın
 
             _dots = new Image[single ? 0 : _picker.Count];
             // iri şeker çerçeveli küçük resimler (ekran genişliğine göre en çok 170): çocuk kolayca seçer
