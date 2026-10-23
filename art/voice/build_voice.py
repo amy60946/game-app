@@ -75,7 +75,7 @@ def catalog():
     out, seen = [], set()
 
     def add(text, role, src):
-        if not text:
+        if not text or not re.search(r"[^\W\d_]", text):   # harfsiz satır ("...": susan adalı) okunmaz
             return
         k = key(text)
         if k in seen:
@@ -136,12 +136,18 @@ def make(line):
     master = os.path.join(G.OUT, f"m_{line['key']}.mp3")
     best = None
     for seed in SEEDS:
-        x = G.check(take(line, seed))
+        try:
+            x = G.check(take(line, seed))
+        except Exception as e:   # model bu tohumda çöktü (ör. hizalama): deneme başarısız sayılır
+            print("  deneme hatası", seed, type(e).__name__, str(e)[:80], flush=True)
+            continue
         if best is None or x["cer"] < best["cer"]:
             best = x
             os.replace(os.path.join(G.OUT, x["file"]), master)
         if good(best):
             break
+    if best is None:
+        return None
     best = dict(best, file=os.path.basename(master))
     best = G.trim(best, limit=max(LIMIT, best["cer"]))
     return best
@@ -225,6 +231,9 @@ def main():
         master = os.path.join(work, f"m_{l['key']}.mp3")
         if (only is None or l["key"] in only) and not (c and c.get("sig") == sig and os.path.exists(master) and (only is None)):
             x = make(l)
+            if x is None:
+                print(f"[{i + 1}/{len(lines)}] ATLANDI (model hatası) | {l['text']}", flush=True)
+                continue
             c = cache[l["key"]] = {"sig": sig, "seed": x.get("seed"), "cer": x["cer"], "asr": x.get("asr", "")}
             mine = {k: v for k, v in cache.items() if not part or k in {q["key"] for j, q in enumerate(lines) if j % part[1] == part[0]}}
             json.dump(mine, open(cache_p, "w"), ensure_ascii=False, indent=1)
