@@ -44,17 +44,22 @@ def face_front(objs, z, h):
 
 def place(pet_objs, arm, item, stage, rule):
     bone, size, up, fwd, side, bottom = rule
-    io = OVR.get('item:' + item['id'], {}); size *= io.get('size', 1.0); up += io.get('up', 0.0); fwd += io.get('fwd', 0.0)
+    io = OVR.get(stage + ':item:' + item['id']) or OVR.get('item:' + item['id'], {})   # evreye özel ayar önce
+    size *= io.get('size', 1.0); up += io.get('up', 0.0); fwd += io.get('fwd', 0.0)
     mn, mx = bounds(pet_objs); h = mx.z - mn.z
     bp = bone_pos(arm, bone) or bone_pos(arm, MAP.get(bone, bone))
     if bp is None: return None, 'kemik yok: ' + bone
     head, tail = bp
-    new = import_fbx(os.path.join(RES, 'Items', item['id'], item['id'] + '.fbx'))
-    jpg = os.path.join(RES, 'Items', item['id'], item['id'] + '_basecolor.jpg')
-    if os.path.exists(jpg):
-        m = tex_mat(item['id'], jpg)
-        for o in new:
-            if o.type == 'MESH': o.data.materials.clear(); o.data.materials.append(m)
+    new = []
+    for part in (item['id'], item['id'] + '_spin'):          # _spin: dönen parça (pervane, balık), aynı koordinatta
+        fbx = os.path.join(RES, 'Items', item['id'], part + '.fbx')
+        if not os.path.exists(fbx): continue
+        objs = import_fbx(fbx); new += objs
+        tex = next((p for p in (os.path.join(RES, 'Items', item['id'], part + '_basecolor.' + e) for e in ('jpg', 'png')) if os.path.exists(p)), None)
+        if tex:
+            m = tex_mat(part, tex)
+            for o in objs:
+                if o.type == 'MESH': o.data.materials.clear(); o.data.materials.append(m)
     root = bpy.data.objects.new('it_' + item['id'], None); bpy.context.scene.collection.objects.link(root)
     for o in new:
         if o.parent is None: o.parent = root
@@ -76,6 +81,44 @@ def place(pet_objs, arm, item, stage, rule):
         yy = (fy + fwd * h) - (imn.y - root.location.y)
     root.location = V((tgt.x - (c.x - root.location.x), yy, y))
     return root, None
+
+def place_pair(pet_objs, arm, item, stage, rule):
+    """Çift eşya (pair: true; kol çorabı, ponpon): iki ele birden. Eşyanın ALTI (Blender −Z) kolun ucuna doğru (önkol → el yönü),
+    önü (−Y) petin önüne. Boy: döndürmeden önceki genişlik (max x, y). fwd: kol boyunca kayma (uca doğru +)."""
+    bone, size, up, fwd, side, bottom = rule
+    io = OVR.get(stage + ':item:' + item['id']) or OVR.get('item:' + item['id'], {}); size *= io.get('size', 1.0); fwd += io.get('fwd', 0.0)
+    mn, mx = bounds(pet_objs); h = mx.z - mn.z
+    roots = []
+    for sd in ('Right', 'Left'):
+        hp = bone_pos(arm, sd + 'Hand'); fp = bone_pos(arm, sd + 'ForeArm')
+        if hp is None or fp is None: return None, 'kemik yok: ' + sd + 'Hand'
+        d = (hp[0] - fp[0]).normalized()
+        root, err = None, None
+        new = []
+        for part in (item['id'], item['id'] + '_spin'):
+            fbx = os.path.join(RES, 'Items', item['id'], part + '.fbx')
+            if not os.path.exists(fbx): continue
+            objs = import_fbx(fbx); new += objs
+            tex = next((p for p in (os.path.join(RES, 'Items', item['id'], part + '_basecolor.' + e) for e in ('jpg', 'png')) if os.path.exists(p)), None)
+            if tex:
+                m = tex_mat(part, tex)
+                for o in objs:
+                    if o.type == 'MESH': o.data.materials.clear(); o.data.materials.append(m)
+        root = bpy.data.objects.new('it_' + item['id'] + sd, None); bpy.context.scene.collection.objects.link(root)
+        for o in new:
+            if o.parent is None: o.parent = root
+        bpy.context.view_layer.update()
+        imn, imx = bounds(new); w = max(imx.x - imn.x, imx.y - imn.y); c0 = (imn + imx) / 2
+        s = size * h / max(w, 1e-4)
+        q = V((0, 0, -1)).rotation_difference(d)
+        root.rotation_mode = 'QUATERNION'; root.rotation_quaternion = q
+        root.scale = V((s, s, s))
+        bpy.context.view_layer.update()
+        imn, imx = bounds(new); c = (imn + imx) / 2
+        tgt = hp[0] + d * (fwd * h)
+        root.location = root.location + (tgt - c)
+        roots.append(root)
+    return roots, None
 
 def render(path, cam_loc, look, ortho):
     sc = bpy.context.scene; cam = sc.camera; cam.location = cam_loc; cam.rotation_euler = (V(look) - V(cam_loc)).to_track_quat('-Z', 'Y').to_euler()
@@ -103,11 +146,15 @@ for stage in os.environ.get('STAGES', 'yavru,genc,yetiskin').split(','):
     for it in items:
         rule = OVR.get(stage + ':' + it['slot']) or OVR.get(it['slot']) or GAME[it['slot']]
         if isinstance(rule, dict): rule = (rule['bone'], rule['size'], rule.get('up', 0), rule.get('fwd', 0), rule.get('side', 0), rule.get('bottom', False))
-        root, err = place(pet, arm, it, stage, rule)
+        if it.get('pair') and it['slot'] == 'hand':
+            roots, err = place_pair(pet, arm, it, stage, rule)
+        else:
+            root, err = place(pet, arm, it, stage, rule); roots = [root]
         if err: report[stage][it['id']] = err; continue
         render(os.path.join(out, '%s__%s__on.png' % (stage, it['id'])), c + V((0, -h * 3, 0)), c, h * 1.3)
         render(os.path.join(out, '%s__%s__side.png' % (stage, it['id'])), c + V((h * 3, 0, 0)), c, h * 1.3)
-        for o in list(root.children_recursive) + [root]: bpy.data.objects.remove(o, do_unlink=True)
+        for root in roots:
+            for o in list(root.children_recursive) + [root]: bpy.data.objects.remove(o, do_unlink=True)
 report['face'] = FACE
 json.dump(report, open(os.path.join(out, 'report.json'), 'w'), indent=1, ensure_ascii=False)
 print('BITTI')

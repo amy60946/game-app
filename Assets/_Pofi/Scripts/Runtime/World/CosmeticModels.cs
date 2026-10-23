@@ -106,13 +106,28 @@ namespace Pofi.World
             // çocuk: kıyafetsiz model (23 Ekim 2026), göz noktaları dokudan ölçüldü
             [GrowthStage.Yavru] = new Vector2(0.817f, 0.252f), [GrowthStage.Genc] = new Vector2(0.727f, 0.256f), [GrowthStage.Yetiskin] = new Vector2(0.769f, 0.225f),
         };
-        /// <summary>Eşya başına boy çarpanı ve yukarı kayma (Okti'de).</summary>
-        private static readonly Dictionary<string, Vector2> OktiItem = new Dictionary<string, Vector2>
+        /// <summary>Eşya başına boy çarpanı, yukarı ve ileri kayma (Okti'de; çift el eşyasında ileri = kol boyunca uca doğru).</summary>
+        private static readonly Dictionary<string, Vector3> OktiItem = new Dictionary<string, Vector3>
         {
-            ["vest_explorer"] = new Vector2(0.82f, 0f), ["headphones"] = new Vector2(1f, -0.3f), ["scarf_knit"] = new Vector2(0.62f, -0.02f),
-            ["sash_belt"] = new Vector2(0.85f, 0f), ["hat_beanie"] = new Vector2(0.92f, -0.03f), ["cape_hero"] = new Vector2(1.15f, 0f),
-            ["set_star_cape"] = new Vector2(1.15f, 0f), ["glove_mitten"] = new Vector2(1.3f, 0f), ["hand_flag"] = new Vector2(1.6f, 0f),
+            ["vest_explorer"] = new Vector3(0.82f, 0f), ["headphones"] = new Vector3(1f, -0.3f), ["scarf_knit"] = new Vector3(0.62f, -0.02f),
+            ["sash_belt"] = new Vector3(0.85f, 0f), ["hat_beanie"] = new Vector3(0.92f, -0.03f), ["cape_hero"] = new Vector3(1.15f, 0f),
+            ["set_star_cape"] = new Vector3(1.15f, 0f), ["glove_mitten"] = new Vector3(1.3f, 0f), ["hand_flag"] = new Vector3(1.6f, 0f),
+            // komik eşyalar (23 Ekim 2026, F1–F17): çocuk Okti'de fit_test_okti.py ile ayarlandı
+            ["hat_shark"] = new Vector3(1.35f, -0.03f), ["hat_banana"] = new Vector3(1.05f, -0.02f), ["outfit_burger"] = new Vector3(1.08f, 0f),
+            ["outfit_chicken"] = new Vector3(1.3f, -0.07f), ["float_flamingo"] = new Vector3(1.12f, -0.02f), ["backpack_rocket"] = new Vector3(1.6f, 0.08f),
         };
+        /// <summary>Evreye özel eşya ayarı ("genc:&lt;id&gt;"; varsa <see cref="OktiItem"/> yerine). Genç/yetişkin şimdilik eski giyinik modeller:
+        /// başları gövdeye oranla küçük, çocuğa göre ayarlanan iri şapkalar gözleri örtüyordu.</summary>
+        private static readonly Dictionary<string, Vector3> OktiItemStage = new Dictionary<string, Vector3>
+        {
+            ["genc:hat_shark"] = new Vector3(0.95f, 0.1f), ["yetiskin:hat_shark"] = new Vector3(0.95f, 0.1f),
+            ["genc:hat_banana"] = new Vector3(0.85f, 0f), ["yetiskin:hat_banana"] = new Vector3(0.85f, 0f),
+            ["genc:outfit_chicken"] = new Vector3(1.05f, -0.08f), ["yetiskin:outfit_chicken"] = new Vector3(1.1f, -0.1f),
+        };
+        /// <summary>Dönen parçası olan eşyalar (Items/&lt;id&gt;/&lt;id&gt;_spin): derece/sn.</summary>
+        private static readonly Dictionary<string, float> SpinSpeed = new Dictionary<string, float> { ["hat_propeller"] = 620f, ["hat_fishbowl"] = 40f };
+
+        private static string StageKey(GrowthStage s) => s == GrowthStage.Yavru ? "yavru" : s == GrowthStage.Yetiskin ? "yetiskin" : "genc";
 
         /// <summary>Gözlerin yüksekliği: Head kemiğinden head_end'e oranla (Blender'da 12 pet ölçüldü).</summary>
         private static readonly Dictionary<string, float> EyeLine = new Dictionary<string, float>
@@ -140,7 +155,8 @@ namespace Pofi.World
             if (item.Slot == null || !(okti ? OktiRules : Rules).TryGetValue(item.Slot, out var rule)) return false;
             if (okti && _stage == GrowthStage.Yetiskin && OktiAdult.TryGetValue(item.Slot, out var adult)) rule = adult;
             if (okti && _stage == GrowthStage.Yavru && OktiChild.TryGetValue(item.Slot, out var child)) rule = child;
-            if (okti && OktiItem.TryGetValue(item.Id, out var io)) { rule.Size *= io.x; rule.Up += io.y; }
+            if (okti && (OktiItemStage.TryGetValue(StageKey(_stage) + ":" + item.Id, out var io) || OktiItem.TryGetValue(item.Id, out io)))
+            { rule.Size *= io.x; rule.Up += io.y; rule.Fwd += io.z; }
             var bone = FindDeep(pet, rule.Bone);
             if (bone == null || !RealAssets.HasItem(item.Id)) return false;
 
@@ -156,6 +172,7 @@ namespace Pofi.World
             var front = pet.TransformDirection(Vector3.back);   // gerçek pet kameraya (−z) dönük kurulu
             front.y = 0f; front = front.sqrMagnitude > 0.001f ? front.normalized : Vector3.back;
             var right = Vector3.Cross(Vector3.up, front);
+            if (item.Pair) return BuildPair(pet, root, item, rule, h, front);
 
             var t = RealAssets.Item(item.Id, root);
             t.rotation = Quaternion.LookRotation(front, Vector3.up);   // eşyanın önü (+z) petin önüne
@@ -188,7 +205,41 @@ namespace Pofi.World
             // head_end bir uç kemik: animasyonlarda ölçeği bozulabiliyor → kafa eşyaları asıl Head kemiğine takılır
             t.SetParent(rule.Bone == "head_end" && headBone != null ? headBone : bone, true);
             t.gameObject.AddComponent<RealCosmetic>();
+            if (SpinSpeed.TryGetValue(item.Id, out var spin)) RealAssets.ArmSpin(t, spin);
             return true;
+        }
+
+        /// <summary>
+        /// Çift eşya (pair: kol çorabı, ponpon): tek model iki ele birden. Modelin altı önkol → el yönüne (kol ucuna), önü petin önüne;
+        /// boy döndürmeden önceki genişlikten, Fwd = kol boyunca uca doğru kayma (art/meshy/scripts/fit_test_okti.py place_pair ile aynı).
+        /// </summary>
+        private static bool BuildPair(Transform pet, Transform root, ItemDef item, Rule rule, float h, Vector3 front)
+        {
+            var any = false;
+            var face = Quaternion.LookRotation(front, Vector3.up);
+            foreach (var side in new[] { "Right", "Left" })
+            {
+                var hand = FindDeep(pet, side + "Hand");
+                var fore = FindDeep(pet, side + "ForeArm");
+                if (hand == null || fore == null) continue;
+                var d = hand.position - fore.position;
+                if (d.sqrMagnitude < 1e-8f) continue;
+                d.Normalize();
+                var t = RealAssets.Item(item.Id, root);
+                if (t == null) return any;
+                t.rotation = face;
+                var ib = RealAssets.WorldBounds(t);
+                var w = Mathf.Max(ib.size.x, ib.size.z);
+                if (w < 0.0001f) { Object.Destroy(t.gameObject); continue; }
+                t.localScale *= rule.Size * h / w;
+                t.rotation = Quaternion.FromToRotation(Vector3.down, d) * face;
+                ib = RealAssets.WorldBounds(t);
+                t.position += hand.position + d * (rule.Fwd * h) - ib.center;
+                t.SetParent(hand, true);
+                t.gameObject.AddComponent<RealCosmetic>();
+                any = true;
+            }
+            return any;
         }
 
         private static void Build(Transform pet, Transform root, ItemDef item, string variant)

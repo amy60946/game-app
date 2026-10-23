@@ -1,0 +1,16 @@
+{
+ "id": "01a16a51-59ff-7028-a173-d11315371552",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Item design sheet, 3x3 grid of nine separate wearable costume pieces for a small cute cartoon octopus kid character, on a plain soft cream background, each object alone and centered in its own cell with generous margin, no character and no mannequin wearing them, front three-quarter view, same soft matte vinyl toy style as the reference items (smooth rounded chunky shapes, pastel but vivid colors, soft studio light, gentle contact shadow, no outlines, no text, no labels, no logos). Row 1: (1) a plush shark hood hat shaped like a friendly blue-grey shark head with white belly, a big open smiling mouth with soft white felt triangle teeth forming the face opening, small dorsal fin on top and two tiny side fins; (2) a funny banana costume tube worn around the belly, bright yellow banana peel with three floppy peeled flaps hanging down, brown stem tip at the top edge, open at top and bottom; (3) a hamburger costume ring worn around the belly, stacked sesame bun top, green lettuce frill, melted cheese slice drips, patty, tomato and bun bottom, open in the middle. Row 2: (4) a chicken costume body ring worn around the belly, round white fluffy chicken body with two small flapping wings at the sides and a perky tail feather tuft at the back, orange felt details; (5) an inflatable pink flamingo swim ring with a long curved neck and a smiling flamingo head with a yellow beak, glossy inflatable plastic; (6) a toy rocket backpack, red and white rocket with three fins, a round blue window, two short padded shoulder straps, two small cartoon flame puffs at the bottom nozzles. Row 3: (7) a second shark hood variant in orange and white; (8) a second rocket backpack variant in teal and yellow with a star window; (9) a second chicken costume variant in soft yellow chick style with a tiny orange bow. Cute, kid-friendly for ages 6-12, original designs, simple readable silhouettes for 3D modeling.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792785078908,
+ "started_at": 1792785078915,
+ "finished_at": 1792785094526,
+ "expires_at": 1793044294526,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16a51-59ff-7028-a173-d11315371552_0.png?Expires=1793044294&Signature=RUr9BS5JmVwACvO2eVWnN8ZGM55X~XTL0VzxwK7QmXjYdfl51QKWiiuu9Xx-CLNcBAYAUXv-A0U1oHg~oZZY-7SifOn9aGncge~7eW78GdWV76YycBf7xJ9MQZd3YUc3jarVr4qnwRMsf00Iu3qVn~mhUxfaHf3TslZ88PtUeZ2ZPZVr~BjikJS5N~iyAcZSGax6a29~oDitlBc-gNZX2J9okV~bKl7BbeEJ~XfhD5Z0dO2j2enXActbTF7fdCVj5KVECn11Q6uTm0cNsbDhXZLtC47djY-Cag~tjAG57xGzrDUSPPtGGrwUavHqzcT7twFGdesDIuEmJXys6MBxwQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

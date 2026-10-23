@@ -154,7 +154,37 @@ namespace Pofi.World
             root.SetParent(parent, false);
             var go = Object.Instantiate(prefab, root, false);
             ApplyMaterial(go, $"Items/{id}/{id}", 0.3f);
+            var spin = Resources.Load<GameObject>($"Items/{id}/{id}_spin");   // dönen parça (pervane, balıklar): aynı koordinatta
+            if (spin != null)
+            {
+                var sp = Object.Instantiate(spin, root, false);
+                sp.name = SpinPart;
+                ApplyMaterial(sp, $"Items/{id}/{id}_spin", 0.3f);
+            }
             return root;
+        }
+
+        public const string SpinPart = "spin";
+
+        /// <summary>
+        /// Eşya yerine oturduktan sonra dönen parçayı kendi sınır merkezinden geçen dikey eksende (eşyanın yukarısı) döndürür.
+        /// Parça yoksa bir şey yapmaz.
+        /// </summary>
+        public static void ArmSpin(Transform item, float degPerSec)
+        {
+            var sp = item.Find(SpinPart);
+            if (sp == null) return;
+            var any = false; Bounds b = default;
+            foreach (var r in sp.GetComponentsInChildren<Renderer>())
+            {
+                if (!any) { b = r.bounds; any = true; } else b.Encapsulate(r.bounds);
+            }
+            if (!any) return;
+            var pivot = new GameObject("spin_pivot").transform;
+            pivot.SetParent(item, false);
+            pivot.position = b.center;
+            sp.SetParent(pivot, true);
+            pivot.gameObject.AddComponent<SpinAxis>().Speed = degPerSec;
         }
 
         /// <summary>Paylaşılan malzemeyi bozmadan renk çarpanı (ör. kilitli bölge grisi).</summary>

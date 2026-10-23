@@ -56,6 +56,7 @@ namespace Pofi.Logic.Data
         [JsonProperty("cut")] public string Cut;                    // gövde: full|apron
         [JsonProperty("flat")] public bool Flat;                    // sırt: düz mü
         [JsonProperty("glove")] public bool Glove;                  // el: eldiven mi
+        [JsonProperty("pair")] public bool Pair;                    // el: tek model iki ele birden, kol yönüne hizalı
         [JsonProperty("grows")] public string Grows;                // tohum → yiyecek
         [JsonProperty("growMinutes")] public int GrowMinutes;
         [JsonProperty("premium")] public bool Premium;

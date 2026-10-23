@@ -59,6 +59,15 @@ else:
         img.filepath = path
     print("DOKULAR", seen)
 
+# POFI_ROTZ=180: model dosyada ters dönükse (ör. sırt çantasının askıları arkada) dikey eksende çevrilir
+rot = float(os.environ.get("POFI_ROTZ", "0"))
+if rot:
+    import math
+    from mathutils import Matrix
+    for o in bpy.context.scene.objects:
+        if o.type == "MESH":
+            o.data.transform(Matrix.Rotation(math.radians(rot), 4, "Z"))   # glTF içe aktarımı dörtlü döndürme kullanır: veriyi çevir
+
 out = os.path.join(outdir, name + ".fbx")
 bpy.ops.export_scene.fbx(filepath=out, use_selection=False, path_mode="RELATIVE", embed_textures=False,
                          apply_scale_options="FBX_SCALE_UNITS", axis_forward="-Z", axis_up="Y",

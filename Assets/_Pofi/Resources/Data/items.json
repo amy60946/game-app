@@ -1,5 +1,5 @@
 {
-  "_doc": "Dükkan eşyaları. price: coin. level: gereken seviye. effects: gösterge artışı (fullness, cleanliness, happiness, home). Giyilebilirler: slot head|eyes|body|back|hand; hat variants, glasses variants (normal, clip), body cut full|apron, back flat true/false, hand glove true/false. Tohum: grows → hasat edilen yiyecek, growMinutes.",
+  "_doc": "Dükkan eşyaları. price: coin. level: gereken seviye. effects: gösterge artışı (fullness, cleanliness, happiness, home). Giyilebilirler: slot head|eyes|body|back|hand; hat variants, glasses variants (normal, clip), body cut full|apron, back flat true/false, hand glove true/false, pair true: tek model iki ele birden, kol yönüne hizalı (kol çorabı, ponpon). fancy: komik eşyalar (23 Ekim 2026, F1–F17). Tohum: grows → hasat edilen yiyecek, growMinutes.",
   "items": [
     { "id": "food_apple",        "name": "Elma",               "category": "food",     "price": 3,  "level": 1, "effects": { "fullness": 20 } },
     { "id": "food_coconut",      "name": "Hindistan cevizi",   "category": "food",     "price": 4,  "level": 1, "effects": { "fullness": 25, "happiness": 3 } },
@@ -57,6 +57,25 @@
 
     { "id": "set_captain",       "name": "Kaptan seti",        "category": "clothes",  "slot": "body", "price": 180, "level": 9,  "cut": "full",  "premium": true },
     { "id": "set_captain_hat",   "name": "Kaptan şapkası",     "category": "accessory","slot": "head", "price": 70,  "level": 9,  "premium": true, "variants": ["normal", "ear_holes", "center_hole", "antenna_holes", "mane_fit", "raised"] },
-    { "id": "set_star_cape",     "name": "Yıldız sırt arması", "category": "accessory","slot": "back", "price": 150, "level": 14, "premium": true, "flat": true }
+    { "id": "set_star_cape",     "name": "Yıldız sırt arması", "category": "accessory","slot": "back", "price": 150, "level": 14, "premium": true, "flat": true },
+    { "id": "hat_bucket",          "name": "Kova şapka",                "category": "accessory", "slot": "head", "price": 25,  "level": 1,   "variants": ["normal"], "fancy": true },
+    { "id": "hat_propeller",       "name": "Pervaneli bere",            "category": "accessory", "slot": "head", "price": 30,  "level": 2,   "variants": ["normal"], "fancy": true },
+    { "id": "hat_watermelon",      "name": "Karpuz şapka",              "category": "accessory", "slot": "head", "price": 30,  "level": 2,   "variants": ["normal"], "fancy": true },
+    { "id": "glasses_heart",       "name": "Kalp gözlük",               "category": "accessory", "slot": "eyes", "price": 25,  "level": 2,   "variants": ["normal"], "fancy": true },
+    { "id": "socks_arm",           "name": "Renkli kol çorapları",      "category": "accessory", "slot": "hand", "price": 25,  "level": 2,   "glove": true, "pair": true, "fancy": true },
+    { "id": "hat_cake",            "name": "Pasta şapka",               "category": "accessory", "slot": "head", "price": 35,  "level": 3,   "variants": ["normal"], "fancy": true },
+    { "id": "hat_banana",          "name": "Muz kabuğu şapka",          "category": "accessory", "slot": "head", "price": 35,  "level": 3,   "variants": ["normal"], "fancy": true },
+    { "id": "glasses_nose",        "name": "Bıyıklı burun gözlük",      "category": "accessory", "slot": "eyes", "price": 30,  "level": 3,   "variants": ["normal"], "fancy": true },
+    { "id": "pompom",              "name": "Ponponlar",                 "category": "accessory", "slot": "hand", "price": 30,  "level": 3,   "glove": true, "pair": true, "fancy": true },
+    { "id": "glasses_snorkel",     "name": "Şnorkel ve dalış gözlüğü",  "category": "accessory", "slot": "eyes", "price": 40,  "level": 4,   "variants": ["normal"], "fancy": true },
+    { "id": "mask_hero",           "name": "Kahraman maskesi",          "category": "accessory", "slot": "eyes", "price": 30,  "level": 4,   "variants": ["normal"], "fancy": true },
+    { "id": "float_flamingo",      "name": "Flamingo simidi",           "category": "accessory", "slot": "body", "price": 50,  "level": 4,   "fancy": true },
+    { "id": "hat_crown_tilt",      "name": "Yamuk taç",                 "category": "accessory", "slot": "head", "price": 45,  "level": 5,   "variants": ["normal"], "fancy": true },
+    { "id": "outfit_hula",         "name": "Çiçek kolye ve çim etek",   "category": "clothes",   "slot": "body", "price": 45,  "level": 5,   "cut": "full", "fancy": true },
+    { "id": "hat_fishbowl",        "name": "Akvaryum kask",             "category": "accessory", "slot": "head", "price": 60,  "level": 6,   "variants": ["normal"], "fancy": true },
+    { "id": "backpack_rocket",     "name": "Roket sırt çantası",        "category": "accessory", "slot": "back", "price": 70,  "level": 6,   "flat": false, "fancy": true },
+    { "id": "hat_shark",           "name": "Köpekbalığı kapüşonu",      "category": "accessory", "slot": "head", "price": 70,  "level": 7,   "variants": ["normal"], "fancy": true },
+    { "id": "outfit_burger",       "name": "Hamburger kostümü",         "category": "clothes",   "slot": "body", "price": 80,  "level": 8,   "cut": "full", "fancy": true },
+    { "id": "outfit_chicken",      "name": "Tavuk kostümü",             "category": "clothes",   "slot": "body", "price": 80,  "level": 8,   "cut": "full", "fancy": true }
   ]
 }

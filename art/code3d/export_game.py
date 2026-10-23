@@ -49,6 +49,19 @@ ITEMS = {
     'decor_palm': ('assets_items.py', 'i_palm', 1600, 512), 'decor_sandcastle': ('assets_items.py', 'i_sandcastle', 3500, 512),
     'decor_umbrella': ('assets_items.py', 'i_umbrella', 3000, 512),
 }
+# komik giyilebilir eşyalar (kullanıcı, 23 Ekim 2026: F1–F17; kodla yapılanlar). "<id>_spin" = aynı klasörde dönen parça
+# (pervane, balıklar): ana parçayla aynı koordinatta dışa aktarılır, oyun kendi sınır merkezinden dikey eksende döndürür.
+WEAR = {
+    'hat_propeller': ('assets_wear_a.py', 'w_hat_propeller', 3000, 512), 'hat_propeller_spin': ('assets_wear_a.py', 'w_hat_propeller_spin', 800, 256),
+    'hat_cake': ('assets_wear_a.py', 'w_hat_cake', 3500, 512), 'hat_watermelon': ('assets_wear_a.py', 'w_hat_watermelon', 2500, 512),
+    'hat_crown_tilt': ('assets_wear_a.py', 'w_hat_crown_tilt', 2500, 512), 'hat_bucket': ('assets_wear_a.py', 'w_hat_bucket', 3000, 512),
+    'hat_fishbowl': ('assets_wear_b.py', 'w_hat_fishbowl', 3500, 512), 'hat_fishbowl_spin': ('assets_wear_b.py', 'w_hat_fishbowl_spin', 1200, 256),
+    'glasses_heart': ('assets_wear_b.py', 'w_glasses_heart', 2000, 512), 'glasses_nose': ('assets_wear_b.py', 'w_glasses_nose', 2500, 512),
+    'glasses_snorkel': ('assets_wear_b.py', 'w_glasses_snorkel', 2500, 512), 'mask_hero': ('assets_wear_b.py', 'w_mask_hero', 1500, 512),
+    'socks_arm': ('assets_wear_c.py', 'w_socks_arm', 1500, 512), 'pompom': ('assets_wear_c.py', 'w_pompom', 3000, 512),
+    'outfit_hula': ('assets_wear_c.py', 'w_outfit_hula', 4000, 512),
+}
+ITEMS.update(WEAR)
 ITEMS_DIR = os.path.normpath(os.path.join(HERE, '../../Assets/_Pofi/Resources/Items'))
 REMOVE = ['t_beach', 't_cliff', 't_grass', 'g_log', 'g_site', 'g_hut']   # artık kullanılmayan eski varlıklar
 
@@ -62,9 +75,11 @@ def export(name):
     log = [l for l in r.stdout.splitlines() if 'üçgen' in l]
     if r.returncode != 0 or not os.path.exists(os.path.join(out, builder + '.fbx')):
         print('HATA', name, r.stdout[-1500:], r.stderr[-1500:], flush=True); return False
-    dst = os.path.join(ITEMS_DIR if item else ENV, name)
-    if os.path.isdir(dst):
-        for f in glob.glob(os.path.join(dst, '*')): os.remove(f)
+    spin = item and name.endswith('_spin')
+    dst = os.path.join(ITEMS_DIR if item else ENV, name[:-5] if spin else name)
+    if os.path.isdir(dst) and not spin:
+        for f in glob.glob(os.path.join(dst, '*')):
+            if not os.path.basename(f).startswith(name + '_spin'): os.remove(f)   # dönen parça ayrı dışa aktarılır, silinmesin
     os.makedirs(dst, exist_ok=True)
     shutil.copy(os.path.join(out, builder + '.fbx'), os.path.join(dst, name + '.fbx'))
     shutil.copy(os.path.join(out, builder + '_basecolor.png'), os.path.join(dst, name + '_basecolor.png'))
@@ -72,7 +87,7 @@ def export(name):
     return True
 
 if __name__ == '__main__':
-    names = sys.argv[1:] or list(ASSETS) + list(ITEMS)
+    names = sys.argv[1:] or list(ASSETS) + [n for n in ITEMS if n not in WEAR]   # giyilebilirler adla dışa aktarılır
     if not sys.argv[1:]:
         for n in REMOVE:
             d = os.path.join(ENV, n)

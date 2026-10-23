@@ -16,6 +16,13 @@ namespace Pofi.World
         }
     }
 
+    /// <summary>Kendi yerel dikey ekseninde sürekli döner (eşyanın dönen parçası: pervane, akvaryum balıkları).</summary>
+    public sealed class SpinAxis : MonoBehaviour
+    {
+        public float Speed = 90f;
+        private void Update() => transform.Rotate(0f, Speed * Time.deltaTime, 0f, Space.Self);
+    }
+
     /// <summary>
     /// Gezilebilir 3B ada (M5, köy ölçeği): prosedürel arazi (Pofi.Logic.IslandTerrain) + Meshy yapıları ve süsleri
     /// + adada yürüyen pet. Ana sahneden uzakta (x = 200) kurulur. Zemin "ground" adlı MeshCollider taşır,
