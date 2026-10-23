@@ -33,6 +33,7 @@ LIMIT = 0.03           # kabul edilen harf hata oranı …
 EDITS = 2              # … ya da en çok 2 harf farkı (Whisper adları biraz farklı yazar: "Kıskaç" → "kızkaç")
 SEEDS = (7, 100, 101, 102)
 OKTI_PITCH = 1.22
+TEMPO = {"mavi": 0.92}   # kullanıcı (23 Ekim): Mavi biraz yavaş konuşsun, daha kolay anlaşılsın (perde aynı)
 
 TIP_SKIP = {"guide.reward", "guide.done", "tip.stone_go"}   # sayı ya da yer adı alan, önceden kaydedilemeyen metinler
 
@@ -74,29 +75,29 @@ def catalog():
     tr = json.load(open(os.path.join(DATA, "tr.json"), encoding="utf-8"))["strings"]
     out, seen = [], set()
 
-    def add(text, role, src):
+    def add(text, role, src, who):
         if not text or not re.search(r"[^\W\d_]", text):   # harfsiz satır ("...": susan adalı) okunmaz
             return
         k = key(text)
         if k in seen:
             return
         seen.add(k)
-        out.append({"key": k, "text": normalize(text), "role": role, "src": src})
+        out.append({"key": k, "text": normalize(text), "role": role, "src": src, "who": who})
 
     for sc in story["scenes"]:
         for i, l in enumerate(sc["lines"]):
             for f in ("text", "a", "c"):
                 if f in l:
-                    add(l[f].replace("{pet}", PET), role_of(l["who"]), f"story:{sc['id']}:{i}:{f}")
+                    add(l[f].replace("{pet}", PET), role_of(l["who"]), f"story:{sc['id']}:{i}:{f}", l["who"])
     for r in story.get("requests", []):
-        add(r["text"].replace("{pet}", PET), role_of(r["who"]), f"request:{r['id']}")
+        add(r["text"].replace("{pet}", PET), role_of(r["who"]), f"request:{r['id']}", r["who"])
     for k, v in tr.items():
         if k in TIP_SKIP:
             continue
         if k.startswith(("tip.", "guide.", "gather.tip_")) or k == "gather.ready":
-            add(fill_pet(v), "anlatici", "tr:" + k)
+            add(fill_pet(v), "anlatici", "tr:" + k, "narrator")
         elif k.startswith("res.hi_"):
-            add(fill_pet(v), "adali", "tr:" + k)
+            add(fill_pet(v), "adali", "tr:" + k, k[len("res.hi_"):])
     return out
 
 
@@ -189,8 +190,13 @@ def adpcm(samples, rate):
     return b"IMA1" + struct.pack("<ii", rate, len(samples)) + body
 
 
-def encode(master, dst):
-    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", master, "-af", "loudnorm=I=-18:TP=-1.5:LRA=11", "-ac", "1", "-ar", str(RATE),
+def filters(who):
+    t = TEMPO.get(who)
+    return (f"atempo={t}," if t else "") + "loudnorm=I=-18:TP=-1.5:LRA=11"
+
+
+def encode(master, dst, who=None):
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", master, "-af", filters(who), "-ac", "1", "-ar", str(RATE),
                           "-f", "s16le", "-"], capture_output=True, check=True).stdout
     n = len(raw) // 2
     samples = struct.unpack(f"<{n}h", raw[: n * 2])
@@ -246,7 +252,7 @@ def main():
         c = cache.get(l["key"])
         master = os.path.join(work, f"m_{l['key']}.mp3")
         if c and c.get("sig") == f"{VERSION}|{l['role']}|{l['tts']}" and os.path.exists(master):
-            l["sec"] = round(encode(master, os.path.join(DST, f"v_{l['key']}.bytes")), 2)
+            l["sec"] = round(encode(master, os.path.join(DST, f"v_{l['key']}.bytes"), l.get("who")), 2)
             l.update(seed=c.get("seed"), cer=c.get("cer"))
     keep = {f"v_{l['key']}.bytes" for l in lines if "sec" in l}
     for f in os.listdir(DST):

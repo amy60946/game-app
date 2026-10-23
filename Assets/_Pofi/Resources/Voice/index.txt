@@ -1,0 +1,49 @@
+8aad7d5de8b4bc62	anlatici	Bir zamanlar mavi denizin ortasında Işık Adası vardı.
+55dc11309809b6ef	anlatici	Bir zamanlar Işık Adası vardı.
+59c64824a41a2148	anlatici	Sakinleri birbirine yardım eder, fener her gece yolları aydınlatırdı.
+3d355eb8eafc46c8	anlatici	Fener her gece yolları aydınlatırdı.
+78aa1adbc33ba4b2	anlatici	Bir gece büyük bir fırtına çıktı. Fener söndü.
+726bdfe67283eaf1	anlatici	Bir gece fırtına çıktı. Fener söndü.
+3cc85c4cff34d302	anlatici	Adaya sis çöktü, sakinler dağıldı.
+3e6e2863b4e03b97	anlatici	Adaya sis çöktü.
+de6b101089151789	anlatici	Ama bir sabah kumsala küçük bir misafir geldi...
+2cdebab5f1a7c254	anlatici	Bir sabah küçük bir misafir geldi...
+b009fc13f7ef7357	anlatici	Evde yaptığın her iyilik bir Güneş Taşı olur. Haydi, adayı birlikte uyandıralım!
+7283e966beb1527b	anlatici	Her iyilik bir Güneş Taşı olur. Haydi!
+897ff18add3ba246	adali	Hey küçük! Sen de fırtınayla mı geldin?
+cc33b723a2e7ed0b	adali	Hey küçük! Merhaba!
+bf6e9ed34a3e61a2	adali	Ben Kıskaç. Dükkânım bu kabuğun içinde, hah!
+11e4347926a71f08	adali	Ben Kıskaç, dükkâncıyım.
+85e5c68228cde2cb	adali	Ben Kıskaç. Kabuğum hem evim hem dükkânım, kira yok!
+45346f6dbb649004	okti	Merhaba Kıskaç! Ada neden bu kadar sisli?
+a81e02efd40e993e	okti	Ada neden sisli?
+ef66e398b144551f	adali	Uzun hikâye. Önce karnını doyuralım, sonra anlatırım.
+02770ae069c48983	adali	Önce bir elma ye!
+4214ec568063e929	adali	Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.
+afb1b8b7229e055e	adali	Evdeki büyüklerin buraya görev bırakır.
+72fcc3ff8aa6bbf3	adali	Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!
+a44c382dccc586d1	adali	Görevi yapınca Güneş Taşı gelir!
+263e0b64b5e6430e	okti	Taşla ne yapacağız?
+0e1421cef09e6dbe	adali	Taşı kullanarak sisi kaldırabilirsin. Sahilden başlayalım mı?
+da8b95497c23b841	adali	Taşı kullanarak sisi kaldır!
+89322a00f0a4b63b	anlatici	Taştan bir ışık halkası yayıldı, sis geri çekildi.
+1ae19a171149155d	anlatici	Işık yayıldı, sis kalktı!
+04197bdca9ee64f9	okti	Bak! Su ne kadar turkuazmış!
+a5e980f32506f038	okti	Su turkuaz!
+417a191463078df2	anlatici	Tepedeki küçük bulut biraz küçüldü ve ilk kez gülümsedi.
+4ff69746b59f56ab	anlatici	Tepedeki bulut gülümsedi.
+36f11e51049fc0d7	anlatici	Gökyüzünden bir zarf süzüldü, ardından bir martı düşer gibi kondu.
+3c5599d14a0a5b23	anlatici	Gökyüzünden bir zarf düştü!
+4a6511f16d5d8df1	adali	Ben adanın postacısı Mavi'yim! Ama kulübem uçtu!
+d891c4d4459471ea	adali	Ben Mavi, postacıyım!
+44b561a267b6bcf6	adali	Ben Mavi. Postacıyım ama adresim fırtınayla uçtu.
+1efadd37821beb91	adali	Mektupları nerede saklayacağım şimdi?
+53d552d4cd2aef90	adali	Mektuplar nerede kalacak?
+5eab34e9fa002b2c	okti	Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.
+381de71d99f97652	okti	Sana kulübe yaparım!
+859b86b35ff6e91b	adali	Kulübem bitti! Bak, posta zili bile çalıyor!
+78f1ecc65a7094ef	adali	Kulübem bitti!
+331b6790724d63b2	adali	Evinin önüne bir mektup kutusu koydum. Sana yazacağım!
+e91a5666218d9ed7	adali	Sana mektup yazacağım!
+433bc960333ef7d5	adali	Bir yere gitmek istersen önden uçarım, izimi takip et.
+8610f0059f45b19d	adali	Ben önden uçarım, beni izle!

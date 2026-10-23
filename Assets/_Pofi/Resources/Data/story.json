@@ -63,7 +63,7 @@
    "chapter": 0,
    "trigger": "intro",
    "art": "load_beach",
-   "summary": "Fırtınadan sonra ada sise büründü. Haydi, adayı birlikte uyandıralım!",
+   "summary": "Fırtınadan sonra adaya sis çöktü. Haydi, adayı birlikte uyandıralım!",
    "lines": [
     {
      "who": "narrator",
@@ -82,8 +82,8 @@
     },
     {
      "who": "narrator",
-     "text": "Ada sise büründü, sakinler dağıldı.",
-     "a": "Ada sise büründü."
+     "text": "Adaya sis çöktü, sakinler dağıldı.",
+     "a": "Adaya sis çöktü."
     },
     {
      "who": "narrator",
@@ -156,8 +156,8 @@
     },
     {
      "who": "kiskac",
-     "text": "Sise koyarsan sis kalkar. Koydan başlayalım mı?",
-     "a": "Sise koy, sis kalksın!",
+     "text": "Taşı kullanarak sisi kaldırabilirsin. Sahilden başlayalım mı?",
+     "a": "Taşı kullanarak sisi kaldır!",
      "mood": "happy"
     }
    ]
