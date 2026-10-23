@@ -1,0 +1,16 @@
+{
+ "id": "01a16b04-903b-7531-a755-0ca8e6ef1b88",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid sheet showing nine different square mobile game app icon concepts, evenly spaced on a plain light grey background, each icon a separate rounded square tile. All nine star the same character: exactly the little octopus from the reference image (light blue jelly-like dome head, coral-pink round snout, small black eyes), always cheerful with a big friendly expression and a soft rosy blush, wearing a plain sunny-yellow T-shirt. Vivid 3D game icon style like top mobile games: one clear focal subject filling most of the tile, bold saturated but balanced colors, strong contrast between character and background, soft toon lighting with clean shadows, glossy soft vinyl-toy look, no outlines, no text, no letters, no numbers, no logo, no border frame. Tile 1: extreme close-up of the octopus face and one waving tentacle, warm golden sunrise sky background with a soft sun glow, a palm leaf framing the corner. Tile 2: the octopus peeking up out of sparkling turquoise water, big smile, a small red-and-white lighthouse far behind on a tiny island. Tile 3: a tiny round island with one palm tree and a lighthouse, the octopus waving on the sand, deep blue sea around, seen from slightly above. Tile 4: the octopus hugging a big glowing amber sun stone, warm orange glow on its face, dark teal background. Tile 5: the octopus jumping out of the sea with a big splash and a small heart-shaped ink puff, bright cyan sky. Tile 6: the octopus face close-up wearing a colorful propeller beanie, fluffy clouds and blue sky. Tile 7: the octopus inside a big swim ring floating on turquoise water, palm trees on a beach behind. Tile 8: the octopus at golden sunset on the lighthouse balcony, warm pink-orange sky. Tile 9: the octopus face close-up with a palm tree and lighthouse silhouette behind, coral-orange background with a radial sunburst.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792796823742,
+ "started_at": 1792796823752,
+ "finished_at": 1792796891789,
+ "expires_at": 1793056091789,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16b04-903b-7531-a755-0ca8e6ef1b88_0.png?Expires=1793056091&Signature=n9Q11MVFTF2dGssunzCj4I2TRKRVbfRSaQqN5X0y4qdNhWlpKEWFjFJZ3na8UO7SyjqNiMs-rsnKpfm3RgiZ~VoLFReQHAVUmTO6QxxD9w14LmiF4bqN5R2o6vTvZ7c~Y-Kl7MBBC22wHJ~5pw8flmALvm-O92CmxdV7AshilDXdtI1uh7sbVwVDF1ipj3AWxjyPIzbUlbw3MC1tEEWv23ax1fBmIJl1DiLk194sxjjW9GmIpalGxxEQ-ZPRdkYo5PFFRolyD2xez-Dt8NLgx49n-qwNzyM0H8x3oZDbaYqjnK8AzQVRPGtVWwm7r6040NURMpUwSGWGd7MaeI1JOA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

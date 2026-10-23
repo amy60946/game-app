@@ -1,0 +1,16 @@
+{
+ "id": "01a16b06-2bfe-716b-8561-3179c238c200",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A single square mobile game app icon, full-bleed square artwork (no rounded corners, no border, no frame, no text, no letters, no logo). The hero is exactly the little octopus from the reference images, faithful to its design: a light blue glossy jelly-like dome head with a soft wavy jelly skirt around the bottom of the head, two small round black eyes with a tiny white sparkle, soft rosy blush on the cheeks, and its signature big round coral-red snout that protrudes forward like a short soft tube with a small dark opening in the middle (keep this snout exactly, do not replace it with a smiling mouth). It wears a plain sunny-yellow T-shirt, only the collar and shoulders visible at the bottom edge. Composition: a big friendly close-up of the octopus head and shoulders filling about two thirds of the icon, slightly turned to the viewer, one stubby light blue tentacle arm raised in a cheerful wave at the side. Background: a warm golden-orange tropical sunrise sky with a soft radial sunburst behind the head, a dark green palm tree silhouette with leaves curving in from the left edge, a small red-and-white lighthouse on a tiny island at the lower right, a strip of sparkling turquoise sea at the very bottom. Vivid premium 3D mobile game icon style, soft vinyl toy materials, soft toon lighting with clean crisp shadows and a gentle rim light, saturated but balanced colors (not washed out, not glaring), strong contrast between the blue character and the warm background, simple readable shapes that still read clearly at very small size.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792796929218,
+ "started_at": 1792796929223,
+ "finished_at": 1792796945893,
+ "expires_at": 1793056145893,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16b06-2bfe-716b-8561-3179c238c200_0.png?Expires=1793056145&Signature=YXEn8NaUEeUlP-nPPewFScl-dQlnT5xYnrCirtSzOtC73ZucrSQRYJt4CCMBtB7OFQc4BkxPQ7k4B46hdoxYhYiaAjeM6ja71U7jCO5~wa2dr-teW-JQKs73Ftn6p2kCJhF8P0RZPGwuBFN48Ogb~kbw97KrONYEzBO43NmthepVJZaG1GQ80fpjCqimxX88wPyLSxXLhDoVFX7Nr8vRNOaVSB9CyqjmStB9YffRQDUwRvZ8cWoMRhOhEiNAU7zocvCHwb6Ig75o1Xr8XOxmloCOWFlUbsXrmMn12ukqa~5BGgRIRqloVbJtAePhFoPyH0VuEXHMOSipbDtDgjZEcA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
