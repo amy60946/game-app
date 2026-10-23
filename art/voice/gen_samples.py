@@ -2,12 +2,17 @@
 Sesli okuma örnekleri (V7, 23 Ekim 2026): aynı cümleler ücretsiz Türkçe seslerle.
   cb / cb_canli) Chatterbox Multilingual (Resemble AI, MIT; model ağırlıkları da MIT): doğal, duygulu; bulutta önceden
      kaydedilir, oyuna ses dosyası olarak girer. cb sakin anlatıcı, cb_canli daha coşkulu (çocuklara).
+  ahenk_adali) ahenk_neseli'nin perdesi ×1,18 (adalılar için).
   karakter) cb_canli'nin perdesi yükseltilmiş hali (Kıskaç gibi adalılar için; aynı tempo).
+  bark_s<n>) Bark (Suno, MIT): nefesli, daha insan gibi tonlama; kendi Türkçe hazır sesleri; kararsız, denetimle seçilir.
+  ema) EMA Lightning (Apache-2.0 kod + ağırlık): yerli Türkçe küçük model, tek ses, işlemcide gerçek zamandan hızlı.
+  ahenk_neseli / ahenk_sakin / ahenk_duz) Ahenk Cep (CC BY 4.0, atıf: "Ahenk (https://github.com/ozguradmin/ahenk-turkish-tts), CC BY 4.0"):
+     tasarlanmış yapay kadın sesi f022, üslup (neşeli/sakin/düz). Üretilen sesin yapay olduğu belirtilir.
   piper) Piper tr_TR dfki: YALNIZ KARŞILAŞTIRMA. Motor MIT ama ses verisi CC BY-NC-SA 4.0 (ticari kullanım yok);
      oyuna girmez, başka sese örnek olarak da verilmez.
   Kalite: her kayıt Whisper'a dinletilir (cümle ↔ yazıya döküm, harf hata oranı); hatalı kayıt başka tohumla yeniden
      üretilir, en iyisi kalır (Chatterbox her seferinde biraz farklı okur; kısa cümlelerde arada kelime bozulur).
-Kullanım: <venv>/bin/python -I gen_samples.py <çıkış_klasörü> [all|piper|cb|cb_canli|karakter|denetle|duzelt|kirp]
+Kullanım: <venv>/bin/python -I gen_samples.py <çıkış_klasörü> [all|piper|cb|cb_canli|karakter|denetle|duzelt|kirp|bark_tara|bark_s<n>|ema|ahenk_neseli,ahenk_sakin,...]
 Çıktı: <ad>.mp3 + samples.json (cümle, ses, süre).
 """
 import json, os, subprocess, sys, time, urllib.request
@@ -88,6 +93,87 @@ def chatterbox(tag="cb"):
     return res
 
 
+def bark_model():
+    from transformers import AutoProcessor, BarkModel
+    if not hasattr(bark_model, "m"):
+        bark_model.p = AutoProcessor.from_pretrained("suno/bark")
+        bark_model.m = BarkModel.from_pretrained("suno/bark")
+        bark_model.m.eval()
+    return bark_model.p, bark_model.m
+
+
+def bark_take(tag, name, text, seed):
+    """Bark (Suno, MIT): kendi Türkçe hazır sesleri v2/tr_speaker_0..9 (gerçek kişi kopyası değil). tag = bark_s<n>."""
+    import torch, numpy as np, wave
+    proc, model = bark_model()
+    torch.manual_seed(seed)
+    t0 = time.time()
+    inputs = proc(text, voice_preset=f"v2/tr_speaker_{tag.split('_s')[1]}")
+    with torch.inference_mode():
+        audio = model.generate(**inputs, do_sample=True).cpu().numpy().squeeze()
+    sr = model.generation_config.sample_rate
+    p = os.path.join(OUT, f"{tag}_{name}.wav")
+    with wave.open(p, "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
+        w.writeframes((np.clip(audio, -1, 1) * 32767).astype(np.int16).tobytes())
+    out = os.path.join(OUT, f"{tag}_{name}.mp3"); mp3(p, out)
+    return {"id": name, "voice": tag, "text": text, "file": os.path.basename(out), "sec": duration(out), "gen": round(time.time() - t0, 1), "seed": seed}
+
+
+def _wav(name, tag, audio, sr):
+    import numpy as np, wave
+    p = os.path.join(OUT, f"{tag}_{name}.wav")
+    with wave.open(p, "wb") as w:
+        w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr)
+        w.writeframes((np.clip(np.asarray(audio, dtype="float32").squeeze(), -1, 1) * 32767).astype(np.int16).tobytes())
+    out = os.path.join(OUT, f"{tag}_{name}.mp3"); mp3(p, out)
+    return out
+
+
+def ema_take(tag, name, text, seed):
+    """EMA Lightning (Apache-2.0, kod + ağırlık): küçük Türkçe model, tek ses, işlemcide hızlı."""
+    from ema_lightning import EMA
+    if not hasattr(ema_take, "m"):
+        ema_take.m = EMA(device="cpu")
+    t0 = time.time()
+    sp = ema_take.m.say(text, seed=seed, sample_rate=24000)
+    out = _wav(name, tag, sp.audio if hasattr(sp, "audio") else sp.samples, 24000)
+    return {"id": name, "voice": tag, "text": text, "file": os.path.basename(out), "sec": duration(out), "gen": round(time.time() - t0, 1), "seed": seed}
+
+
+AHENK_STYLE = {"ahenk_neseli": "cheerful", "ahenk_sakin": "calm", "ahenk_duz": "neutral"}
+
+
+def ahenk_take(tag, name, text, seed):
+    """Ahenk Cep (ağırlıklar CC BY 4.0, atıf zorunlu): tasarlanmış yapay kadın sesi f022 (gerçek kişi değil), üslup seçilir."""
+    if not hasattr(ahenk_take, "m"):
+        from huggingface_hub import snapshot_download
+        d = snapshot_download("ozgurguler/ahenk-cep-tr", allow_patterns=["*.pt", "ahenk_cep.py"])
+        sys.path.insert(0, d)
+        from ahenk_cep import AhenkCep
+        ahenk_take.m = AhenkCep(f"{d}/student.pt", f"{d}/decoder.pt")
+    t0 = time.time()
+    audio, sr = ahenk_take.m.say(text, style=AHENK_STYLE[tag], seed=seed)
+    out = _wav(name, tag, audio, sr)
+    return {"id": name, "voice": tag, "text": text, "file": os.path.basename(out), "sec": duration(out), "gen": round(time.time() - t0, 1), "seed": seed}
+
+
+def take(tag, name, text, seed):
+    if tag.startswith("bark_"): return bark_take(tag, name, text, seed)
+    if tag.startswith("ema"): return ema_take(tag, name, text, seed)
+    if tag.startswith("ahenk_"): return ahenk_take(tag, name, text, seed)
+    return cb_take(tag, name, text, seed)
+
+
+def regen(tag):
+    """Bir sesin bütün cümleleri (tohum 7) + denetim."""
+    res = []
+    for name, text in LINES:
+        res.append(check(take(tag, name, text, 7)))
+        print(tag, name, res[-1]["sec"], "sn,", res[-1]["gen"], "sn üretim, hata", res[-1]["cer"], "|", res[-1]["asr"], flush=True)
+    return res
+
+
 def _norm(t):
     import re
     t = t.replace("İ", "i").replace("I", "ı").lower()
@@ -148,11 +234,11 @@ def fix(done, limit=0.03, tries=5):
     """Hatalı Chatterbox kaydını başka tohumlarla yeniden üretir, en düşük hatalıyı tutar."""
     out = []
     for x in done:
-        if x["voice"] in STYLES and x.get("cer", 1) > limit:
+        if (x["voice"] in STYLES or x["voice"].startswith(("bark_", "ema", "ahenk_"))) and x.get("cer", 1) > limit:
             best, keep = x, os.path.join(OUT, "_best.mp3")
             os.replace(os.path.join(OUT, x["file"]), keep)
             for k in range(tries):
-                y = check(cb_take(x["voice"], x["id"], x["text"], 100 + k))
+                y = check(take(x["voice"], x["id"], x["text"], 100 + k))
                 print(x["voice"], x["id"], "deneme", k + 1, "hata", y["cer"], "|", y["asr"], flush=True)
                 if y["cer"] < best["cer"]:
                     best = y; os.replace(os.path.join(OUT, y["file"]), keep)
@@ -187,13 +273,24 @@ if __name__ == "__main__":
         done = [x for x in done if x["voice"] != "cb"] + chatterbox()
     if which in ("all", "cb_canli"):
         done = [x for x in done if x["voice"] != "cb_canli"] + chatterbox(tag="cb_canli")
+    if which == "bark_tara":
+        # 10 Türkçe Bark sesi, ilk cümle: hangisi doğal ve anlaşılır? (samples.json'a girmez)
+        for n in range(10):
+            y = check(bark_take(f"bark_s{n}", "tara", LINES[0][1], 7))
+            print(f"bark_s{n}", y["sec"], "sn,", y["gen"], "sn üretim, hata", y["cer"], "|", y["asr"], flush=True)
+    if which.startswith(("bark_s", "ema", "ahenk_")):
+        for tag in which.split(","):
+            done = [x for x in done if x["voice"] != tag] + regen(tag)
     if which in ("all", "denetle", "duzelt"):
         done = [check(x) if "cer" not in x or which == "denetle" else x for x in done]
     if which in ("all", "duzelt"):
         done = fix(done)
     if which in ("all", "duzelt", "kirp"):
-        done = [trim(x) if x["voice"] in STYLES else x for x in done]
+        done = [trim(x) if x["voice"] in STYLES or x["voice"].startswith(("bark_", "ema", "ahenk_")) else x for x in done]
     if which in ("all", "karakter", "duzelt", "kirp"):
-        done = [x for x in done if x["voice"] != "karakter"] + [check(x) for x in character("cb_canli", "karakter", 1.22)]
+        for src, tag, pitch in (("cb_canli", "karakter", 1.22), ("ahenk_neseli", "ahenk_adali", 1.18)):
+            made = [check(x) for x in character(src, tag, pitch)]
+            if made:
+                done = [x for x in done if x["voice"] != tag] + made
     json.dump(done, open(os.path.join(OUT, "samples.json"), "w"), ensure_ascii=False, indent=1)
     print("bitti", len(done))
