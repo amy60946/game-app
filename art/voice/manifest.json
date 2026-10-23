@@ -1,0 +1,1754 @@
+{
+ "version": 1,
+ "rate": 22050,
+ "pet": "Okti",
+ "lines": [
+  {
+   "key": "8aad7d5de8b4bc62",
+   "text": "Bir zamanlar mavi denizin ortasında Işık Adası vardı.",
+   "role": "anlatici",
+   "src": "story:intro:0:text",
+   "who": "narrator",
+   "tts": "Bir zamanlar mavi denizin ortasında Işık Adası vardı.",
+   "sec": 2.93,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "55dc11309809b6ef",
+   "text": "Bir zamanlar Işık Adası vardı.",
+   "role": "anlatici",
+   "src": "story:intro:0:a",
+   "who": "narrator",
+   "tts": "Bir zamanlar Işık Adası vardı.",
+   "sec": 3.36,
+   "seed": 102,
+   "cer": 0.0
+  },
+  {
+   "key": "59c64824a41a2148",
+   "text": "Sakinleri birbirine yardım eder, fener her gece yolları aydınlatırdı.",
+   "role": "anlatici",
+   "src": "story:intro:1:text",
+   "who": "narrator",
+   "tts": "Sakinleri birbirine yardım eder, fener her gece yolları aydınlatırdı.",
+   "sec": 3.81,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "3d355eb8eafc46c8",
+   "text": "Fener her gece yolları aydınlatırdı.",
+   "role": "anlatici",
+   "src": "story:intro:1:a",
+   "who": "narrator",
+   "tts": "Fener her gece yolları aydınlatırdı.",
+   "sec": 2.45,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "78aa1adbc33ba4b2",
+   "text": "Bir gece büyük bir fırtına çıktı. Fener söndü.",
+   "role": "anlatici",
+   "src": "story:intro:2:text",
+   "who": "narrator",
+   "tts": "Bir gece büyük bir fırtına çıktı. Fener söndü.",
+   "sec": 3.76,
+   "seed": 101,
+   "cer": 0.0
+  },
+  {
+   "key": "726bdfe67283eaf1",
+   "text": "Bir gece fırtına çıktı. Fener söndü.",
+   "role": "anlatici",
+   "src": "story:intro:2:a",
+   "who": "narrator",
+   "tts": "Bir gece fırtına çıktı. Fener söndü.",
+   "sec": 3.15,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "3cc85c4cff34d302",
+   "text": "Adaya sis çöktü, sakinler dağıldı.",
+   "role": "anlatici",
+   "src": "story:intro:3:text",
+   "who": "narrator",
+   "tts": "Adaya sis çöktü, sakinler dağıldı.",
+   "sec": 2.47,
+   "seed": 7,
+   "cer": 0.062
+  },
+  {
+   "key": "3e6e2863b4e03b97",
+   "text": "Adaya sis çöktü.",
+   "role": "anlatici",
+   "src": "story:intro:3:a",
+   "who": "narrator",
+   "tts": "Adaya sis çöktü.",
+   "sec": 2.48,
+   "seed": 100,
+   "cer": 0.2
+  },
+  {
+   "key": "de6b101089151789",
+   "text": "Ama bir sabah kumsala küçük bir misafir geldi...",
+   "role": "anlatici",
+   "src": "story:intro:4:text",
+   "who": "narrator",
+   "tts": "Ama bir sabah kumsala küçük bir misafir geldi...",
+   "sec": 3.2,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "2cdebab5f1a7c254",
+   "text": "Bir sabah küçük bir misafir geldi...",
+   "role": "anlatici",
+   "src": "story:intro:4:a",
+   "who": "narrator",
+   "tts": "Bir sabah küçük bir misafir geldi...",
+   "sec": 2.4,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "b009fc13f7ef7357",
+   "text": "Evde yaptığın her iyilik bir Güneş Taşı olur. Haydi, adayı birlikte uyandıralım!",
+   "role": "anlatici",
+   "src": "story:intro:5:text",
+   "who": "narrator",
+   "tts": "Evde yaptığın her iyilik bir Güneş Taşı olur. Haydi, adayı birlikte uyandıralım!",
+   "sec": 5.16,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "7283e966beb1527b",
+   "text": "Her iyilik bir Güneş Taşı olur. Haydi!",
+   "role": "anlatici",
+   "src": "story:intro:5:a",
+   "who": "narrator",
+   "tts": "Her iyilik bir Güneş Taşı olur. Haydi!",
+   "sec": 2.64,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "897ff18add3ba246",
+   "text": "Hey küçük! Sen de fırtınayla mı geldin?",
+   "role": "adali",
+   "src": "story:ch1_open:0:text",
+   "who": "kiskac",
+   "tts": "Hey küçük! Sen de fırtınayla mı geldin?",
+   "sec": 2.04,
+   "seed": 101,
+   "cer": 0.027
+  },
+  {
+   "key": "cc33b723a2e7ed0b",
+   "text": "Hey küçük! Merhaba!",
+   "role": "adali",
+   "src": "story:ch1_open:0:a",
+   "who": "kiskac",
+   "tts": "Hey küçük! Merhaba!",
+   "sec": 2.64,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "bf6e9ed34a3e61a2",
+   "text": "Ben Kıskaç. Dükkânım bu kabuğun içinde, hah!",
+   "role": "adali",
+   "src": "story:ch1_open:1:text",
+   "who": "kiskac",
+   "tts": "Ben Kıskaç. Dükkânım bu kabuğun içinde, hah!",
+   "sec": 2.76,
+   "seed": 102,
+   "cer": 0.049
+  },
+  {
+   "key": "11e4347926a71f08",
+   "text": "Ben Kıskaç, dükkâncıyım.",
+   "role": "adali",
+   "src": "story:ch1_open:1:a",
+   "who": "kiskac",
+   "tts": "Ben Kıskaç, dükkâncıyım.",
+   "sec": 1.7,
+   "seed": 7,
+   "cer": 0.091
+  },
+  {
+   "key": "85e5c68228cde2cb",
+   "text": "Ben Kıskaç. Kabuğum hem evim hem dükkânım, kira yok!",
+   "role": "adali",
+   "src": "story:ch1_open:1:c",
+   "who": "kiskac",
+   "tts": "Ben Kıskaç. Kabuğum hem evim hem dükkânım, kira yok!",
+   "sec": 3.56,
+   "seed": 7,
+   "cer": 0.061
+  },
+  {
+   "key": "45346f6dbb649004",
+   "text": "Merhaba Kıskaç! Ada neden bu kadar sisli?",
+   "role": "okti",
+   "src": "story:ch1_open:2:text",
+   "who": "okti",
+   "tts": "Merhaba Kıskaç! Ada neden bu kadar sisli?",
+   "sec": 2.41,
+   "seed": 100,
+   "cer": 0.051
+  },
+  {
+   "key": "a81e02efd40e993e",
+   "text": "Ada neden sisli?",
+   "role": "okti",
+   "src": "story:ch1_open:2:a",
+   "who": "okti",
+   "tts": "Ada neden sisli?",
+   "sec": 1.95,
+   "seed": 7,
+   "cer": 0.133
+  },
+  {
+   "key": "ef66e398b144551f",
+   "text": "Uzun hikâye. Önce karnını doyuralım, sonra anlatırım.",
+   "role": "adali",
+   "src": "story:ch1_open:3:text",
+   "who": "kiskac",
+   "tts": "Uzun hikâye. Önce karnını doyuralım, sonra anlatırım.",
+   "sec": 4.08,
+   "seed": 7,
+   "cer": 0.02
+  },
+  {
+   "key": "02770ae069c48983",
+   "text": "Önce bir elma ye!",
+   "role": "adali",
+   "src": "story:ch1_open:3:a",
+   "who": "kiskac",
+   "tts": "Önce bir elma ye!",
+   "sec": 3.2,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "4214ec568063e929",
+   "text": "Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.",
+   "role": "adali",
+   "src": "story:ch1_board:0:text",
+   "who": "kiskac",
+   "tts": "Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.",
+   "sec": 4.36,
+   "seed": 7,
+   "cer": 0.053
+  },
+  {
+   "key": "afb1b8b7229e055e",
+   "text": "Evdeki büyüklerin buraya görev bırakır.",
+   "role": "adali",
+   "src": "story:ch1_board:0:a",
+   "who": "kiskac",
+   "tts": "Evdeki büyüklerin buraya görev bırakır.",
+   "sec": 2.24,
+   "seed": 7,
+   "cer": 0.026
+  },
+  {
+   "key": "72fcc3ff8aa6bbf3",
+   "text": "Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!",
+   "role": "adali",
+   "src": "story:ch1_board:1:text",
+   "who": "kiskac",
+   "tts": "Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!",
+   "sec": 3.24,
+   "seed": 7,
+   "cer": 0.022
+  },
+  {
+   "key": "a44c382dccc586d1",
+   "text": "Görevi yapınca Güneş Taşı gelir!",
+   "role": "adali",
+   "src": "story:ch1_board:1:a",
+   "who": "kiskac",
+   "tts": "Görevi yapınca Güneş Taşı gelir!",
+   "sec": 3.36,
+   "seed": 100,
+   "cer": 0.032
+  },
+  {
+   "key": "263e0b64b5e6430e",
+   "text": "Taşla ne yapacağız?",
+   "role": "okti",
+   "src": "story:ch1_board:2:text",
+   "who": "okti",
+   "tts": "Taşla ne yapacağız?",
+   "sec": 1.17,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "0e1421cef09e6dbe",
+   "text": "Taşı kullanarak sisi kaldırabilirsin. Sahilden başlayalım mı?",
+   "role": "adali",
+   "src": "story:ch1_board:3:text",
+   "who": "kiskac",
+   "tts": "Taşı kullanarak sisi kaldırabilirsin. Sahilden başlayalım mı?",
+   "sec": 4.52,
+   "seed": 7,
+   "cer": 0.034
+  },
+  {
+   "key": "da8b95497c23b841",
+   "text": "Taşı kullanarak sisi kaldır!",
+   "role": "adali",
+   "src": "story:ch1_board:3:a",
+   "who": "kiskac",
+   "tts": "Taşı kullanarak sisi kaldır!",
+   "sec": 1.72,
+   "seed": 100,
+   "cer": 0.037
+  },
+  {
+   "key": "89322a00f0a4b63b",
+   "text": "Taştan bir ışık halkası yayıldı, sis geri çekildi.",
+   "role": "anlatici",
+   "src": "story:ch1_close:0:text",
+   "who": "narrator",
+   "tts": "Taştan bir ışık halkası yayıldı, sis geri çekildi.",
+   "sec": 4.08,
+   "seed": 101,
+   "cer": 0.021
+  },
+  {
+   "key": "1ae19a171149155d",
+   "text": "Işık yayıldı, sis kalktı!",
+   "role": "anlatici",
+   "src": "story:ch1_close:0:a",
+   "who": "narrator",
+   "tts": "Işık yayıldı, sis kalktı!",
+   "sec": 3.68,
+   "seed": 7,
+   "cer": 0.087
+  },
+  {
+   "key": "04197bdca9ee64f9",
+   "text": "Bak! Su ne kadar turkuazmış!",
+   "role": "okti",
+   "src": "story:ch1_close:1:text",
+   "who": "okti",
+   "tts": "Bak! Su ne kadar turkuazmış!",
+   "sec": 4.04,
+   "seed": 7,
+   "cer": 0.077
+  },
+  {
+   "key": "a5e980f32506f038",
+   "text": "Su turkuaz!",
+   "role": "okti",
+   "src": "story:ch1_close:1:a",
+   "who": "okti",
+   "tts": "Su turkuaz!",
+   "sec": 2.46,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "417a191463078df2",
+   "text": "Tepedeki küçük bulut biraz küçüldü ve ilk kez gülümsedi.",
+   "role": "anlatici",
+   "src": "story:ch1_close:3:text",
+   "who": "narrator",
+   "tts": "Tepedeki küçük bulut biraz küçüldü ve ilk kez gülümsedi.",
+   "sec": 2.86,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "4ff69746b59f56ab",
+   "text": "Tepedeki bulut gülümsedi.",
+   "role": "anlatici",
+   "src": "story:ch1_close:3:a",
+   "who": "narrator",
+   "tts": "Tepedeki bulut gülümsedi.",
+   "sec": 3.52,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "36f11e51049fc0d7",
+   "text": "Gökyüzünden bir zarf süzüldü, ardından bir martı düşer gibi kondu.",
+   "role": "anlatici",
+   "src": "story:ch2_open:0:text",
+   "who": "narrator",
+   "tts": "Gökyüzünden bir zarf süzüldü, ardından bir martı düşer gibi kondu.",
+   "sec": 4.15,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "3c5599d14a0a5b23",
+   "text": "Gökyüzünden bir zarf düştü!",
+   "role": "anlatici",
+   "src": "story:ch2_open:0:a",
+   "who": "narrator",
+   "tts": "Gökyüzünden bir zarf düştü!",
+   "sec": 3.96,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "4a6511f16d5d8df1",
+   "text": "Ben adanın postacısı Mavi'yim! Ama kulübem uçtu!",
+   "role": "adali",
+   "src": "story:ch2_open:1:text",
+   "who": "mavi",
+   "tts": "Ben adanın postacısı Mavi'yim! Ama kulübem uçtu!",
+   "sec": 3.0,
+   "seed": 101,
+   "cer": 0.022
+  },
+  {
+   "key": "d891c4d4459471ea",
+   "text": "Ben Mavi, postacıyım!",
+   "role": "adali",
+   "src": "story:ch2_open:1:a",
+   "who": "mavi",
+   "tts": "Ben Mavi, postacıyım!",
+   "sec": 1.77,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "44b561a267b6bcf6",
+   "text": "Ben Mavi. Postacıyım ama adresim fırtınayla uçtu.",
+   "role": "adali",
+   "src": "story:ch2_open:1:c",
+   "who": "mavi",
+   "tts": "Ben Mavi. Postacıyım ama adresim fırtınayla uçtu.",
+   "sec": 3.99,
+   "seed": 102,
+   "cer": 0.064
+  },
+  {
+   "key": "1efadd37821beb91",
+   "text": "Mektupları nerede saklayacağım şimdi?",
+   "role": "adali",
+   "src": "story:ch2_open:2:text",
+   "who": "mavi",
+   "tts": "Mektupları nerede saklayacağım şimdi?",
+   "sec": 2.17,
+   "seed": 102,
+   "cer": 0.056
+  },
+  {
+   "key": "53d552d4cd2aef90",
+   "text": "Mektuplar nerede kalacak?",
+   "role": "adali",
+   "src": "story:ch2_open:2:a",
+   "who": "mavi",
+   "tts": "Mektuplar nerede kalacak?",
+   "sec": 2.25,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "5eab34e9fa002b2c",
+   "text": "Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.",
+   "role": "okti",
+   "src": "story:ch2_open:3:text",
+   "who": "okti",
+   "tts": "Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.",
+   "sec": 4.78,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "381de71d99f97652",
+   "text": "Sana kulübe yaparım!",
+   "role": "okti",
+   "src": "story:ch2_open:3:a",
+   "who": "okti",
+   "tts": "Sana kulübe yaparım!",
+   "sec": 2.9,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "859b86b35ff6e91b",
+   "text": "Kulübem bitti! Bak, posta zili bile çalıyor!",
+   "role": "adali",
+   "src": "story:ch2_close:0:text",
+   "who": "mavi",
+   "tts": "Kulübem bitti! Bak, posta zili bile çalıyor!",
+   "sec": 2.7,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "78f1ecc65a7094ef",
+   "text": "Kulübem bitti!",
+   "role": "adali",
+   "src": "story:ch2_close:0:a",
+   "who": "mavi",
+   "tts": "Kulübem bitti!",
+   "sec": 1.77,
+   "seed": 101,
+   "cer": 0.154
+  },
+  {
+   "key": "331b6790724d63b2",
+   "text": "Evinin önüne bir mektup kutusu koydum. Sana yazacağım!",
+   "role": "adali",
+   "src": "story:ch2_close:1:text",
+   "who": "mavi",
+   "tts": "Evinin önüne bir mektup kutusu koydum. Sana yazacağım!",
+   "sec": 3.02,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "e91a5666218d9ed7",
+   "text": "Sana mektup yazacağım!",
+   "role": "adali",
+   "src": "story:ch2_close:1:a",
+   "who": "mavi",
+   "tts": "Sana mektup yazacağım!",
+   "sec": 1.47,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "433bc960333ef7d5",
+   "text": "Bir yere gitmek istersen önden uçarım, izimi takip et.",
+   "role": "adali",
+   "src": "story:ch2_close:2:text",
+   "who": "mavi",
+   "tts": "Bir yere gitmek istersen önden uçarım, izimi takip et.",
+   "sec": 3.47,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "8610f0059f45b19d",
+   "text": "Ben önden uçarım, beni izle!",
+   "role": "adali",
+   "src": "story:ch2_close:2:a",
+   "who": "mavi",
+   "tts": "Ben önden uçarım, beni izle!",
+   "sec": 2.25,
+   "seed": 100,
+   "cer": 0.038
+  },
+  {
+   "key": "edc7686b691ac879",
+   "text": "Tepeden bir kartopu yuvarlanıp önünde durdu.",
+   "role": "anlatici",
+   "src": "story:ch3_open:0:text",
+   "who": "narrator",
+   "tts": "Tepeden bir kartopu yuvarlanıp önünde durdu."
+  },
+  {
+   "key": "a85f252b160546d0",
+   "text": "Bir kartopu geldi!",
+   "role": "anlatici",
+   "src": "story:ch3_open:0:a",
+   "who": "narrator",
+   "tts": "Bir kartopu geldi!"
+  },
+  {
+   "key": "3a5068c2859246ed",
+   "text": "Pus üşüyünce kar yağdırır!",
+   "role": "adali",
+   "src": "story:ch3_open:1:text",
+   "who": "pitir",
+   "tts": "Pus üşüyünce kar yağdırır!"
+  },
+  {
+   "key": "ba8866d752ec5a2a",
+   "text": "Pus üşüyünce kar yağar!",
+   "role": "adali",
+   "src": "story:ch3_open:1:a",
+   "who": "pitir",
+   "tts": "Pus üşüyünce kar yağar!"
+  },
+  {
+   "key": "21178e50bad5c59c",
+   "text": "...kar yağdırır.",
+   "role": "adali",
+   "src": "story:ch3_open:2:text",
+   "who": "hisir",
+   "tts": "...kar yağdırır."
+  },
+  {
+   "key": "b07c21e8a8f5c21f",
+   "text": "...kar yağar.",
+   "role": "adali",
+   "src": "story:ch3_open:2:a",
+   "who": "hisir",
+   "tts": "...kar yağar."
+  },
+  {
+   "key": "5e27ed3a9482d935",
+   "text": "O zaman kayak zamanı!",
+   "role": "okti",
+   "src": "story:ch3_open:3:text",
+   "who": "okti",
+   "tts": "O zaman kayak zamanı!"
+  },
+  {
+   "key": "169cd86a6ccc69fb",
+   "text": "Kayak zamanı!",
+   "role": "okti",
+   "src": "story:ch3_open:3:a",
+   "who": "okti",
+   "tts": "Kayak zamanı!"
+  },
+  {
+   "key": "a666797eb4cc1b5c",
+   "text": "Okti'nin çevresinde bir ışık sarmalı döndü.",
+   "role": "anlatici",
+   "src": "story:ch3_close:0:text",
+   "who": "narrator",
+   "tts": "Okti'nin çevresinde bir ışık sarmalı döndü."
+  },
+  {
+   "key": "aa7337729e1c9eb6",
+   "text": "Işık sarmalı döndü!",
+   "role": "anlatici",
+   "src": "story:ch3_close:0:a",
+   "who": "narrator",
+   "tts": "Işık sarmalı döndü!"
+  },
+  {
+   "key": "03ba698761b5720d",
+   "text": "Bakın, kollarım uzadı!",
+   "role": "okti",
+   "src": "story:ch3_close:1:text",
+   "who": "okti",
+   "tts": "Bakın, kollarım uzadı!"
+  },
+  {
+   "key": "6c9924bebab426a7",
+   "text": "Büyüdüm!",
+   "role": "okti",
+   "src": "story:ch3_close:1:a",
+   "who": "okti",
+   "tts": "Büyüdüm!"
+  },
+  {
+   "key": "1c5988950e9c61f9",
+   "text": "Bizden bile uzun olacak!",
+   "role": "adali",
+   "src": "story:ch3_close:2:text",
+   "who": "pitir",
+   "tts": "Bizden bile uzun olacak!"
+  },
+  {
+   "key": "ab922894c58beae3",
+   "text": "Çok büyümüş!",
+   "role": "adali",
+   "src": "story:ch3_close:2:a",
+   "who": "pitir",
+   "tts": "Çok büyümüş!"
+  },
+  {
+   "key": "3164053c0657c073",
+   "text": "...bizden bile uzun.",
+   "role": "adali",
+   "src": "story:ch3_close:3:text",
+   "who": "hisir",
+   "tts": "...bizden bile uzun."
+  },
+  {
+   "key": "a2fadf4a8f21b7be",
+   "text": "...çok büyümüş.",
+   "role": "adali",
+   "src": "story:ch3_close:3:a",
+   "who": "hisir",
+   "tts": "...çok büyümüş."
+  },
+  {
+   "key": "69f3580183d629bc",
+   "text": "Denizden yaşlı bir kaplumbağa yavaşça yaklaştı.",
+   "role": "anlatici",
+   "src": "story:ch4_open:0:text",
+   "who": "narrator",
+   "tts": "Denizden yaşlı bir kaplumbağa yavaşça yaklaştı."
+  },
+  {
+   "key": "6dd8a59df6984e49",
+   "text": "Yaşlı bir kaplumbağa geldi.",
+   "role": "anlatici",
+   "src": "story:ch4_open:0:a",
+   "who": "narrator",
+   "tts": "Yaşlı bir kaplumbağa geldi."
+  },
+  {
+   "key": "87a9741a44ca1492",
+   "text": "Merhaba evlat. Ben Tosbi. Bu köprüyü çok eskiden bilirim.",
+   "role": "adali",
+   "src": "story:ch4_open:1:text",
+   "who": "tosbi",
+   "tts": "Merhaba evlat. Ben Tosbi. Bu köprüyü çok eskiden bilirim."
+  },
+  {
+   "key": "17050930140e2503",
+   "text": "Ben Tosbi Dede.",
+   "role": "adali",
+   "src": "story:ch4_open:1:a",
+   "who": "tosbi",
+   "tts": "Ben Tosbi Dede."
+  },
+  {
+   "key": "bd893c1376c2fed6",
+   "text": "Köprü onarılırsa sana bir sır göstereceğim.",
+   "role": "adali",
+   "src": "story:ch4_open:2:text",
+   "who": "tosbi",
+   "tts": "Köprü onarılırsa sana bir sır göstereceğim."
+  },
+  {
+   "key": "c6ef1131d076fcf0",
+   "text": "Köprü onarılırsa sır var!",
+   "role": "adali",
+   "src": "story:ch4_open:2:a",
+   "who": "tosbi",
+   "tts": "Köprü onarılırsa sır var!"
+  },
+  {
+   "key": "e22e8a3ae4a73a0a",
+   "text": "Güneş Taşları köprüyü onarır mı?",
+   "role": "okti",
+   "src": "story:ch4_open:3:text",
+   "who": "okti",
+   "tts": "Güneş Taşları köprüyü onarır mı?"
+  },
+  {
+   "key": "e9591e9036556da2",
+   "text": "Taşlar köprüyü onarır mı?",
+   "role": "okti",
+   "src": "story:ch4_open:3:a",
+   "who": "okti",
+   "tts": "Taşlar köprüyü onarır mı?"
+  },
+  {
+   "key": "b9123ee75e68d4a7",
+   "text": "Dört taş, dört tahta. Acele yok, ben beklerim.",
+   "role": "adali",
+   "src": "story:ch4_open:4:text",
+   "who": "tosbi",
+   "tts": "Dört taş, dört tahta. Acele yok, ben beklerim."
+  },
+  {
+   "key": "6387129f78fd7bee",
+   "text": "Dört taş yeter. Ben beklerim.",
+   "role": "adali",
+   "src": "story:ch4_open:4:a",
+   "who": "tosbi",
+   "tts": "Dört taş yeter. Ben beklerim."
+  },
+  {
+   "key": "d4b153d5984db801",
+   "text": "Son tahta da yerine oturdu.",
+   "role": "anlatici",
+   "src": "story:ch4_close:0:text",
+   "who": "narrator",
+   "tts": "Son tahta da yerine oturdu."
+  },
+  {
+   "key": "fd9b69c7f55267a3",
+   "text": "Köprü onarıldı!",
+   "role": "anlatici",
+   "src": "story:ch4_close:0:a",
+   "who": "narrator",
+   "tts": "Köprü onarıldı!"
+  },
+  {
+   "key": "4dece97301502d0a",
+   "text": "İşte söz verdiğim sır: Bekçi Nur'un günlüğünden bir sayfa.",
+   "role": "adali",
+   "src": "story:ch4_close:1:text",
+   "who": "tosbi",
+   "tts": "İşte söz verdiğim sır: Bekçi Nur'un günlüğünden bir sayfa."
+  },
+  {
+   "key": "87cf730f2d9ed6d3",
+   "text": "İşte bir günlük sayfası.",
+   "role": "adali",
+   "src": "story:ch4_close:1:a",
+   "who": "tosbi",
+   "tts": "İşte bir günlük sayfası."
+  },
+  {
+   "key": "d0ae759a77f43dc2",
+   "text": "\"Bu ada bir zamanlar ışıkla dolardı...\"",
+   "role": "adali",
+   "src": "story:ch4_close:2:text",
+   "who": "nur",
+   "tts": "\"Bu ada bir zamanlar ışıkla dolardı...\""
+  },
+  {
+   "key": "d8d92227164de03d",
+   "text": "\"Bu ada ışıkla dolardı...\"",
+   "role": "adali",
+   "src": "story:ch4_close:2:a",
+   "who": "nur",
+   "tts": "\"Bu ada ışıkla dolardı...\""
+  },
+  {
+   "key": "5337c91d74326cfa",
+   "text": "Diğer sayfalar adaya dağıldı. Belki sen bulursun.",
+   "role": "adali",
+   "src": "story:ch4_close:3:text",
+   "who": "tosbi",
+   "tts": "Diğer sayfalar adaya dağıldı. Belki sen bulursun."
+  },
+  {
+   "key": "d262b6a6334196bd",
+   "text": "Diğerlerini sen bul!",
+   "role": "adali",
+   "src": "story:ch4_close:3:a",
+   "who": "tosbi",
+   "tts": "Diğerlerini sen bul!"
+  },
+  {
+   "key": "e5a70e7645f2071c",
+   "text": "Nur her gece bir sayfa yazardı.",
+   "role": "adali",
+   "src": "story:ch5_open:0:text",
+   "who": "tosbi",
+   "tts": "Nur her gece bir sayfa yazardı."
+  },
+  {
+   "key": "355bec57074f0093",
+   "text": "Nur her gece yazardı.",
+   "role": "adali",
+   "src": "story:ch5_open:0:a",
+   "who": "tosbi",
+   "tts": "Nur her gece yazardı."
+  },
+  {
+   "key": "3f59a2ced7ce2973",
+   "text": "Fırtına sayfaları adaya dağıttı. Parıltıların yanına bak.",
+   "role": "adali",
+   "src": "story:ch5_open:1:text",
+   "who": "tosbi",
+   "tts": "Fırtına sayfaları adaya dağıttı. Parıltıların yanına bak."
+  },
+  {
+   "key": "1d15ab0b9e9e50e1",
+   "text": "Parıltıların yanına bak!",
+   "role": "adali",
+   "src": "story:ch5_open:1:a",
+   "who": "tosbi",
+   "tts": "Parıltıların yanına bak!"
+  },
+  {
+   "key": "3d8a222c7e1ffd9b",
+   "text": "Hepsini bulup Defter'e koyacağım!",
+   "role": "okti",
+   "src": "story:ch5_open:2:text",
+   "who": "okti",
+   "tts": "Hepsini bulup Defter'e koyacağım!"
+  },
+  {
+   "key": "14465e13b024947b",
+   "text": "Hepsini bulacağım!",
+   "role": "okti",
+   "src": "story:ch5_open:2:a",
+   "who": "okti",
+   "tts": "Hepsini bulacağım!"
+  },
+  {
+   "key": "c25ca1ae9b225acb",
+   "text": "Okti artık yetişkin bir ahtapot. Evi de büyüdü.",
+   "role": "anlatici",
+   "src": "story:ch5_close:0:text",
+   "who": "narrator",
+   "tts": "Okti artık yetişkin bir ahtapot. Evi de büyüdü."
+  },
+  {
+   "key": "8bba0dd88defd9ae",
+   "text": "Okti yetişkin oldu!",
+   "role": "anlatici",
+   "src": "story:ch5_close:0:a",
+   "who": "narrator",
+   "tts": "Okti yetişkin oldu!"
+  },
+  {
+   "key": "28b9c2bd22cb8cfe",
+   "text": "\"Fenerin büyük camı mağaraya yuvarlandı.\"",
+   "role": "adali",
+   "src": "story:ch5_close:1:text",
+   "who": "nur",
+   "tts": "\"Fenerin büyük camı mağaraya yuvarlandı.\""
+  },
+  {
+   "key": "557a7c8936e9d0d0",
+   "text": "\"Cam mağarada.\"",
+   "role": "adali",
+   "src": "story:ch5_close:1:a",
+   "who": "nur",
+   "tts": "\"Cam mağarada.\""
+  },
+  {
+   "key": "fb551cf43078c699",
+   "text": "Mağara! Ama yolu sisle kapalı...",
+   "role": "okti",
+   "src": "story:ch5_close:2:text",
+   "who": "okti",
+   "tts": "Mağara! Ama yolu sisle kapalı..."
+  },
+  {
+   "key": "b436b80c9d99c584",
+   "text": "Mağara sisli...",
+   "role": "okti",
+   "src": "story:ch5_close:2:a",
+   "who": "okti",
+   "tts": "Mağara sisli..."
+  },
+  {
+   "key": "8b65632350026fa7",
+   "text": "Mağaranın ağzını kalın bir sis kapatmış.",
+   "role": "anlatici",
+   "src": "story:ch6_open:0:text",
+   "who": "narrator",
+   "tts": "Mağaranın ağzını kalın bir sis kapatmış."
+  },
+  {
+   "key": "2662194df042e798",
+   "text": "Mağara sisli.",
+   "role": "anlatici",
+   "src": "story:ch6_open:0:a",
+   "who": "narrator",
+   "tts": "Mağara sisli."
+  },
+  {
+   "key": "1c7256a912cc6677",
+   "text": "Sanki biri burada uyuyor...",
+   "role": "okti",
+   "src": "story:ch6_open:1:text",
+   "who": "okti",
+   "tts": "Sanki biri burada uyuyor..."
+  },
+  {
+   "key": "f2a605296184f4a4",
+   "text": "Biri uyuyor...",
+   "role": "okti",
+   "src": "story:ch6_open:1:a",
+   "who": "okti",
+   "tts": "Biri uyuyor..."
+  },
+  {
+   "key": "0f1261b640c0676b",
+   "text": "Yoldaki altı ışık direği taş bekliyor.",
+   "role": "anlatici",
+   "src": "story:ch6_open:2:text",
+   "who": "narrator",
+   "tts": "Yoldaki altı ışık direği taş bekliyor."
+  },
+  {
+   "key": "7cacdcbee04b639a",
+   "text": "Altı direk taş bekliyor.",
+   "role": "anlatici",
+   "src": "story:ch6_open:2:a",
+   "who": "narrator",
+   "tts": "Altı direk taş bekliyor."
+  },
+  {
+   "key": "1ec902add8d2d4b8",
+   "text": "Direkler sırayla yandı. Mağaranın dibinde bir şey parladı.",
+   "role": "anlatici",
+   "src": "story:ch6_close:0:text",
+   "who": "narrator",
+   "tts": "Direkler sırayla yandı. Mağaranın dibinde bir şey parladı."
+  },
+  {
+   "key": "7b562cb260f19e21",
+   "text": "Direkler yandı!",
+   "role": "anlatici",
+   "src": "story:ch6_close:0:a",
+   "who": "narrator",
+   "tts": "Direkler yandı!"
+  },
+  {
+   "key": "82977c4d51452e57",
+   "text": "Fenerin camı! Buldum!",
+   "role": "okti",
+   "src": "story:ch6_close:1:text",
+   "who": "okti",
+   "tts": "Fenerin camı! Buldum!"
+  },
+  {
+   "key": "ae7c5111c5abe8be",
+   "text": "Cam burada!",
+   "role": "okti",
+   "src": "story:ch6_close:1:a",
+   "who": "okti",
+   "tts": "Cam burada!"
+  },
+  {
+   "key": "f52ed7e003511b60",
+   "text": "Herkes benden kaçtı...",
+   "role": "adali",
+   "src": "story:ch6_close:2:text",
+   "who": "pus",
+   "tts": "Herkes benden kaçtı..."
+  },
+  {
+   "key": "3fd965fcf5d321e2",
+   "text": "Herkes kaçtı...",
+   "role": "adali",
+   "src": "story:ch6_close:2:a",
+   "who": "pus",
+   "tts": "Herkes kaçtı..."
+  },
+  {
+   "key": "150f3323075b456d",
+   "text": "Ben kaçmam. Gel, birlikte ısınalım.",
+   "role": "okti",
+   "src": "story:ch6_close:3:text",
+   "who": "okti",
+   "tts": "Ben kaçmam. Gel, birlikte ısınalım."
+  },
+  {
+   "key": "65d82fb0e9178760",
+   "text": "Ben kaçmam. Gel!",
+   "role": "okti",
+   "src": "story:ch6_close:3:a",
+   "who": "okti",
+   "tts": "Ben kaçmam. Gel!"
+  },
+  {
+   "key": "5c75500a6cd558f1",
+   "text": "Mektuplarım uzak kıyılara ulaştı!",
+   "role": "adali",
+   "src": "story:ch7_open:0:text",
+   "who": "mavi",
+   "tts": "Mektuplarım uzak kıyılara ulaştı!"
+  },
+  {
+   "key": "613414978b6ac7e2",
+   "text": "Mektuplar ulaştı!",
+   "role": "adali",
+   "src": "story:ch7_open:0:a",
+   "who": "mavi",
+   "tts": "Mektuplar ulaştı!"
+  },
+  {
+   "key": "1509f069d323ca2f",
+   "text": "Ufuktan küçük tekneler görünüyor.",
+   "role": "anlatici",
+   "src": "story:ch7_open:1:text",
+   "who": "narrator",
+   "tts": "Ufuktan küçük tekneler görünüyor."
+  },
+  {
+   "key": "5717887df922d95d",
+   "text": "Tekneler geliyor!",
+   "role": "anlatici",
+   "src": "story:ch7_open:1:a",
+   "who": "narrator",
+   "tts": "Tekneler geliyor!"
+  },
+  {
+   "key": "f3a53735fdc4ddce",
+   "text": "Festival zamanı! Fenerleri hazırlayın!",
+   "role": "adali",
+   "src": "story:ch7_open:2:text",
+   "who": "kiskac",
+   "tts": "Festival zamanı! Fenerleri hazırlayın!"
+  },
+  {
+   "key": "ef10c54c6eca2cdc",
+   "text": "Festival zamanı!",
+   "role": "adali",
+   "src": "story:ch7_open:2:a",
+   "who": "kiskac",
+   "tts": "Festival zamanı!"
+  },
+  {
+   "key": "6dfc988be6c81123",
+   "text": "Fenerler birer birer yandı.",
+   "role": "anlatici",
+   "src": "story:ch7_close:0:text",
+   "who": "narrator",
+   "tts": "Fenerler birer birer yandı."
+  },
+  {
+   "key": "030cafabd17d217a",
+   "text": "Fenerler yandı!",
+   "role": "anlatici",
+   "src": "story:ch7_close:0:a",
+   "who": "narrator",
+   "tts": "Fenerler yandı!"
+  },
+  {
+   "key": "22c8d7b0b1ba65ec",
+   "text": "Ben de gelebilir miyim?",
+   "role": "adali",
+   "src": "story:ch7_close:1:text",
+   "who": "pus",
+   "tts": "Ben de gelebilir miyim?"
+  },
+  {
+   "key": "88854437241d18e6",
+   "text": "Elbette! Bak, ışıkta renk renk oldun!",
+   "role": "okti",
+   "src": "story:ch7_close:2:text",
+   "who": "okti",
+   "tts": "Elbette! Bak, ışıkta renk renk oldun!"
+  },
+  {
+   "key": "d9b5c787ac624478",
+   "text": "Elbette! Renk renk oldun!",
+   "role": "okti",
+   "src": "story:ch7_close:2:a",
+   "who": "okti",
+   "tts": "Elbette! Renk renk oldun!"
+  },
+  {
+   "key": "f5b236ea7c07d278",
+   "text": "Gökyüzünde bir gökkuşağı belirdi.",
+   "role": "anlatici",
+   "src": "story:ch7_close:3:text",
+   "who": "narrator",
+   "tts": "Gökyüzünde bir gökkuşağı belirdi."
+  },
+  {
+   "key": "96db06935ad093a1",
+   "text": "Gökkuşağı çıktı!",
+   "role": "anlatici",
+   "src": "story:ch7_close:3:a",
+   "who": "narrator",
+   "tts": "Gökkuşağı çıktı!"
+  },
+  {
+   "key": "3d7e46200e7dfe6b",
+   "text": "Fırtına zirvede doğdu. Ben de oradan koptum.",
+   "role": "adali",
+   "src": "story:ch8_open:0:text",
+   "who": "pus",
+   "tts": "Fırtına zirvede doğdu. Ben de oradan koptum."
+  },
+  {
+   "key": "72321645bc084cd7",
+   "text": "Ben zirvede doğdum.",
+   "role": "adali",
+   "src": "story:ch8_open:0:a",
+   "who": "pus",
+   "tts": "Ben zirvede doğdum."
+  },
+  {
+   "key": "bd3f6932cbca4f5c",
+   "text": "Fenerin aynası hâlâ orada.",
+   "role": "adali",
+   "src": "story:ch8_open:1:text",
+   "who": "pus",
+   "tts": "Fenerin aynası hâlâ orada."
+  },
+  {
+   "key": "474ce65f121a433d",
+   "text": "Ayna zirvede.",
+   "role": "adali",
+   "src": "story:ch8_open:1:a",
+   "who": "pus",
+   "tts": "Ayna zirvede."
+  },
+  {
+   "key": "b5368c9daacc0b04",
+   "text": "O zaman tırmanalım!",
+   "role": "okti",
+   "src": "story:ch8_open:2:text",
+   "who": "okti",
+   "tts": "O zaman tırmanalım!"
+  },
+  {
+   "key": "0e17b49dc26b911e",
+   "text": "Tırmanalım!",
+   "role": "okti",
+   "src": "story:ch8_open:2:a",
+   "who": "okti",
+   "tts": "Tırmanalım!"
+  },
+  {
+   "key": "01cd8de16d90677a",
+   "text": "Zirveden bütün ada göründü.",
+   "role": "anlatici",
+   "src": "story:ch8_close:0:text",
+   "who": "narrator",
+   "tts": "Zirveden bütün ada göründü."
+  },
+  {
+   "key": "e767cb2a60382d02",
+   "text": "Bütün ada göründü!",
+   "role": "anlatici",
+   "src": "story:ch8_close:0:a",
+   "who": "narrator",
+   "tts": "Bütün ada göründü!"
+  },
+  {
+   "key": "6e8cc9f39055add3",
+   "text": "Ayna burada! Bir de... ufukta bir ışık var.",
+   "role": "okti",
+   "src": "story:ch8_close:1:text",
+   "who": "okti",
+   "tts": "Ayna burada! Bir de... ufukta bir ışık var."
+  },
+  {
+   "key": "bc3b44de61416172",
+   "text": "Ayna burada! Ufukta ışık var.",
+   "role": "okti",
+   "src": "story:ch8_close:1:a",
+   "who": "okti",
+   "tts": "Ayna burada! Ufukta ışık var."
+  },
+  {
+   "key": "9318b99bf5ca82d9",
+   "text": "Biri adaya yolunu arıyor.",
+   "role": "adali",
+   "src": "story:ch8_close:2:text",
+   "who": "pus",
+   "tts": "Biri adaya yolunu arıyor."
+  },
+  {
+   "key": "36dcb9ad576151fb",
+   "text": "Biri yol arıyor.",
+   "role": "adali",
+   "src": "story:ch8_close:2:a",
+   "who": "pus",
+   "tts": "Biri yol arıyor."
+  },
+  {
+   "key": "be5211d069f86ab0",
+   "text": "Kıskaç, Mavi, Tosbi Dede, palmiyeler ve Pus fenerin kapısında.",
+   "role": "anlatici",
+   "src": "story:ch9_open:0:text",
+   "who": "narrator",
+   "tts": "Kıskaç, Mavi, Tosbi Dede, palmiyeler ve Pus fenerin kapısında."
+  },
+  {
+   "key": "660f3e26f5726e57",
+   "text": "Herkes fenerde!",
+   "role": "anlatici",
+   "src": "story:ch9_open:0:a",
+   "who": "narrator",
+   "tts": "Herkes fenerde!"
+  },
+  {
+   "key": "941d141f6788dbf0",
+   "text": "Camı ve aynayı yerine taktım. Şimdi son taşlar!",
+   "role": "okti",
+   "src": "story:ch9_open:1:text",
+   "who": "okti",
+   "tts": "Camı ve aynayı yerine taktım. Şimdi son taşlar!"
+  },
+  {
+   "key": "17d1c50bb3395a7b",
+   "text": "Son taşlar kaldı!",
+   "role": "okti",
+   "src": "story:ch9_open:1:a",
+   "who": "okti",
+   "tts": "Son taşlar kaldı!"
+  },
+  {
+   "key": "8f6a2665167dc0ed",
+   "text": "Nur görseydi çok sevinirdi.",
+   "role": "adali",
+   "src": "story:ch9_open:2:text",
+   "who": "tosbi",
+   "tts": "Nur görseydi çok sevinirdi."
+  },
+  {
+   "key": "b0d7e0f127819103",
+   "text": "Nur sevinirdi.",
+   "role": "adali",
+   "src": "story:ch9_open:2:a",
+   "who": "tosbi",
+   "tts": "Nur sevinirdi."
+  },
+  {
+   "key": "6c4a4e53a5a07f5d",
+   "text": "Fener yandı. Işık bütün adayı süpürdü, kalan sis kalktı.",
+   "role": "anlatici",
+   "src": "story:ch9_close:0:text",
+   "who": "narrator",
+   "tts": "Fener yandı. Işık bütün adayı süpürdü, kalan sis kalktı."
+  },
+  {
+   "key": "1cda32f7b6488133",
+   "text": "Fener yandı!",
+   "role": "anlatici",
+   "src": "story:ch9_close:0:a",
+   "who": "narrator",
+   "tts": "Fener yandı!"
+  },
+  {
+   "key": "192989ab55774ed9",
+   "text": "Artık sis değilim... yağmur bulutuyum! Bahçeyi sularım.",
+   "role": "adali",
+   "src": "story:ch9_close:1:text",
+   "who": "pus",
+   "tts": "Artık sis değilim... yağmur bulutuyum! Bahçeyi sularım."
+  },
+  {
+   "key": "5c046400b5941514",
+   "text": "Ben yağmur bulutuyum!",
+   "role": "adali",
+   "src": "story:ch9_close:1:a",
+   "who": "pus",
+   "tts": "Ben yağmur bulutuyum!"
+  },
+  {
+   "key": "b0e68b4e8117f74c",
+   "text": "Ufuktaki tekne ışığı izleyip kıyıya yanaştı.",
+   "role": "anlatici",
+   "src": "story:ch9_close:2:text",
+   "who": "narrator",
+   "tts": "Ufuktaki tekne ışığı izleyip kıyıya yanaştı."
+  },
+  {
+   "key": "a60ea843049f1512",
+   "text": "Bir tekne geldi.",
+   "role": "anlatici",
+   "src": "story:ch9_close:2:a",
+   "who": "narrator",
+   "tts": "Bir tekne geldi."
+  },
+  {
+   "key": "f05216db88ada874",
+   "text": "Fenerimi kim yaktı? Teşekkür ederim, Okti.",
+   "role": "adali",
+   "src": "story:ch9_close:3:text",
+   "who": "nur",
+   "tts": "Fenerimi kim yaktı? Teşekkür ederim, Okti."
+  },
+  {
+   "key": "512e186c9e61203a",
+   "text": "Teşekkür ederim, Okti!",
+   "role": "adali",
+   "src": "story:ch9_close:3:a",
+   "who": "nur",
+   "tts": "Teşekkür ederim, Okti!"
+  },
+  {
+   "key": "80d698810d5f7a3c",
+   "text": "Işık Adası yeniden ışıkla doldu.",
+   "role": "anlatici",
+   "src": "story:ch9_close:4:text",
+   "who": "narrator",
+   "tts": "Işık Adası yeniden ışıkla doldu."
+  },
+  {
+   "key": "eb0d89ab3beeca8a",
+   "text": "Ada yeniden ışıkla doldu!",
+   "role": "anlatici",
+   "src": "story:ch9_close:4:a",
+   "who": "narrator",
+   "tts": "Ada yeniden ışıkla doldu!"
+  },
+  {
+   "key": "9db75e244531594c",
+   "text": "Vitrinim için 3 taş bulur musun?",
+   "role": "adali",
+   "src": "request:req_kiskac_stone",
+   "who": "kiskac",
+   "tts": "Vitrinim için üç taş bulur musun?"
+  },
+  {
+   "key": "9905c2d26bee0297",
+   "text": "Posta çantamı onarmak için 2 dal lazım.",
+   "role": "adali",
+   "src": "request:req_mavi_branch",
+   "who": "mavi",
+   "tts": "Posta çantamı onarmak için iki dal lazım."
+  },
+  {
+   "key": "cb0d9b5a755e788f",
+   "text": "Yanımıza bir oturak yapar mısın? 4 odun yeter.",
+   "role": "adali",
+   "src": "request:req_pitir_wood",
+   "who": "pitir",
+   "tts": "Yanımıza bir oturak yapar mısın? dört odun yeter."
+  },
+  {
+   "key": "baed8c409a68650a",
+   "text": "Bana 2 balık getirirsen sana bir şey anlatacağım.",
+   "role": "adali",
+   "src": "request:req_tosbi_fish",
+   "who": "tosbi",
+   "tts": "Bana iki balık getirirsen sana bir şey anlatacağım."
+  },
+  {
+   "key": "342041033c38978e",
+   "text": "Tezgâhıma 2 hindistan cevizi koyalım mı?",
+   "role": "adali",
+   "src": "request:req_kiskac_coconut",
+   "who": "kiskac",
+   "tts": "Tezgâhıma iki hindistan cevizi koyalım mı?"
+  },
+  {
+   "key": "b3ef9d6fb897e531",
+   "text": "...bir havuç alabilir miyiz?",
+   "role": "adali",
+   "src": "request:req_hisir_carrot",
+   "who": "hisir",
+   "tts": "...bir havuç alabilir miyiz?"
+  },
+  {
+   "key": "41eddac1de9e54dd",
+   "text": "Solda kaydır: Okti yürüsün!",
+   "role": "anlatici",
+   "src": "tr:tip.walk",
+   "who": "narrator",
+   "tts": "Solda kaydır: Okti yürüsün!"
+  },
+  {
+   "key": "e7a13a31fa34f049",
+   "text": "Sağda kaydır: etrafa bak!",
+   "role": "anlatici",
+   "src": "tr:tip.look",
+   "who": "narrator",
+   "tts": "Sağda kaydır: etrafa bak!"
+  },
+  {
+   "key": "8bc1266c6462a624",
+   "text": "Sağ alttaki tuş: zıpla!",
+   "role": "anlatici",
+   "src": "tr:tip.jump",
+   "who": "narrator",
+   "tts": "Sağ alttaki tuş: zıpla!"
+  },
+  {
+   "key": "24382daabf71dae3",
+   "text": "Sağ alttaki kapıya bas, içeri gir!",
+   "role": "anlatici",
+   "src": "tr:tip.enter",
+   "who": "narrator",
+   "tts": "Sağ alttaki kapıya bas, içeri gir!"
+  },
+  {
+   "key": "e22a64590b11f64a",
+   "text": "Oyun var! Oyna'ya bas.",
+   "role": "anlatici",
+   "src": "tr:tip.play",
+   "who": "narrator",
+   "tts": "Oyun var! Oyna'ya bas."
+  },
+  {
+   "key": "02149f0896a7bc66",
+   "text": "Yiyeceği Okti'nin üstüne sürükle!",
+   "role": "anlatici",
+   "src": "tr:tip.feed",
+   "who": "narrator",
+   "tts": "Yiyeceği Okti'nin üstüne sürükle!"
+  },
+  {
+   "key": "54f798c96e2782e3",
+   "text": "Merhaba Okti! Dükkânım hep açık.",
+   "role": "adali",
+   "src": "tr:res.hi_kiskac",
+   "who": "kiskac",
+   "tts": "Merhaba Okti! Dükkânım hep açık."
+  },
+  {
+   "key": "c6949d848aabec6b",
+   "text": "Mektup var mı diye posta kutusuna bak!",
+   "role": "adali",
+   "src": "tr:res.hi_mavi",
+   "who": "mavi",
+   "tts": "Mektup var mı diye posta kutusuna bak!"
+  },
+  {
+   "key": "40c323cd16b976c4",
+   "text": "Ben Pus. Artık fırtına değil, dostum!",
+   "role": "adali",
+   "src": "tr:res.hi_pus",
+   "who": "pus",
+   "tts": "Ben Pus. Artık fırtına değil, dostum!"
+  },
+  {
+   "key": "f2403054ebc3577b",
+   "text": "Tohumu tarlaların üstünden geçir!",
+   "role": "anlatici",
+   "src": "tr:tip.plant",
+   "who": "narrator",
+   "tts": "Tohumu tarlaların üstünden geçir!"
+  },
+  {
+   "key": "03893fce448ecef7",
+   "text": "Orağı ürünlerin üstünden geçir!",
+   "role": "anlatici",
+   "src": "tr:tip.harvest",
+   "who": "narrator",
+   "tts": "Orağı ürünlerin üstünden geçir!"
+  },
+  {
+   "key": "97afde5670a92b87",
+   "text": "Okti'ye dokun, sonra elmaya!",
+   "role": "anlatici",
+   "src": "tr:tip.feed_open",
+   "who": "narrator",
+   "tts": "Okti'ye dokun, sonra elmaya!"
+  },
+  {
+   "key": "6845d52fda361844",
+   "text": "Sabunu Okti'nin üstüne sürükle!",
+   "role": "anlatici",
+   "src": "tr:tip.wash",
+   "who": "narrator",
+   "tts": "Sabunu Okti'nin üstüne sürükle!"
+  },
+  {
+   "key": "cbffecd0e3bea7e3",
+   "text": "Görev yap, yıldız kazan!",
+   "role": "anlatici",
+   "src": "tr:tip.tasks",
+   "who": "narrator",
+   "tts": "Görev yap, yıldız kazan!"
+  },
+  {
+   "key": "38d37cbecd6663dd",
+   "text": "Yıldız topla, seviye atla! Rozetlerin için kartına dokun.",
+   "role": "anlatici",
+   "src": "tr:tip.xp",
+   "who": "narrator",
+   "tts": "Yıldız topla, seviye atla! Rozetlerin için kartına dokun."
+  },
+  {
+   "key": "5769bdbd50616088",
+   "text": "Okti'nin üstünü değiştir: ona dokun!",
+   "role": "anlatici",
+   "src": "tr:tip.wardrobe",
+   "who": "narrator",
+   "tts": "Okti'nin üstünü değiştir: ona dokun!"
+  },
+  {
+   "key": "7554903fc00be311",
+   "text": "Parıltıya git, topla!",
+   "role": "anlatici",
+   "src": "tr:tip.sparkle",
+   "who": "narrator",
+   "tts": "Parıltıya git, topla!"
+  },
+  {
+   "key": "29d4ac3b81076939",
+   "text": "Haritadan hemen git!",
+   "role": "anlatici",
+   "src": "tr:tip.overview",
+   "who": "narrator",
+   "tts": "Haritadan hemen git!"
+  },
+  {
+   "key": "9792488b7a80106e",
+   "text": "Ürüne dokun, Al'a bas.",
+   "role": "anlatici",
+   "src": "tr:tip.shop",
+   "who": "narrator",
+   "tts": "Ürüne dokun, Al'a bas."
+  },
+  {
+   "key": "c583cadde22634ac",
+   "text": "Noktaya dokun, giydir!",
+   "role": "anlatici",
+   "src": "tr:tip.wardrobe_spots",
+   "who": "narrator",
+   "tts": "Noktaya dokun, giydir!"
+  },
+  {
+   "key": "f66c3550451f9bc6",
+   "text": "Topla'ya bas, ev toplansın!",
+   "role": "anlatici",
+   "src": "tr:tip.home",
+   "who": "narrator",
+   "tts": "Topla'ya bas, ev toplansın!"
+  },
+  {
+   "key": "6e6f2e4eb5114c20",
+   "text": "Fırtınadan sonra ada sisle kaplandı. Gel, birlikte canlandıralım!",
+   "role": "anlatici",
+   "src": "tr:tip.story",
+   "who": "narrator",
+   "tts": "Fırtınadan sonra ada sisle kaplandı. Gel, birlikte canlandıralım!"
+  },
+  {
+   "key": "404b379f29660f61",
+   "text": "Ev Görevleri panosuna git!",
+   "role": "anlatici",
+   "src": "tr:tip.board",
+   "who": "narrator",
+   "tts": "Ev Görevleri panosuna git!"
+  },
+  {
+   "key": "c1e92621bc4aa7b7",
+   "text": "Okti'ye dokun, elmayı seç: karnı doysun!",
+   "role": "anlatici",
+   "src": "tr:guide.feed",
+   "who": "narrator",
+   "tts": "Okti'ye dokun, elmayı seç: karnı doysun!"
+  },
+  {
+   "key": "add097760df22d24",
+   "text": "Okti'ye dokun, sabunu seç: tertemiz olsun!",
+   "role": "anlatici",
+   "src": "tr:guide.wash",
+   "who": "narrator",
+   "tts": "Okti'ye dokun, sabunu seç: tertemiz olsun!"
+  },
+  {
+   "key": "462a9ecdeef7023d",
+   "text": "Evim'e yürü ve içeri gir.",
+   "role": "anlatici",
+   "src": "tr:guide.home",
+   "who": "narrator",
+   "tts": "Evim'e yürü ve içeri gir."
+  },
+  {
+   "key": "31f11c759c99153e",
+   "text": "Evim'e gir, Topla'ya dokun.",
+   "role": "anlatici",
+   "src": "tr:guide.tidy",
+   "who": "narrator",
+   "tts": "Evim'e gir, Topla'ya dokun."
+  },
+  {
+   "key": "3d2af0057d91d8ed",
+   "text": "Okti'nin üstüne dokun, bir aksesuar tak.",
+   "role": "anlatici",
+   "src": "tr:guide.wear",
+   "who": "narrator",
+   "tts": "Okti'nin üstüne dokun, bir aksesuar tak."
+  },
+  {
+   "key": "404b309f2966037c",
+   "text": "Ev Görevleri panosuna git.",
+   "role": "anlatici",
+   "src": "tr:guide.board",
+   "who": "narrator",
+   "tts": "Ev Görevleri panosuna git."
+  },
+  {
+   "key": "986861ff6bb381cf",
+   "text": "Kütük, çalı ya da taş topla.",
+   "role": "anlatici",
+   "src": "tr:guide.gather",
+   "who": "narrator",
+   "tts": "Kütük, çalı ya da taş topla."
+  },
+  {
+   "key": "2de73e7b5d5c8766",
+   "text": "Malzemeleri getir, kulübeyi yap!",
+   "role": "anlatici",
+   "src": "tr:guide.hut",
+   "who": "narrator",
+   "tts": "Malzemeleri getir, kulübeyi yap!"
+  },
+  {
+   "key": "9d5b8f4f5287bcc5",
+   "text": "Hindistan cevizi bahçesinde oyna.",
+   "role": "anlatici",
+   "src": "tr:guide.coconut",
+   "who": "narrator",
+   "tts": "Hindistan cevizi bahçesinde oyna."
+  },
+  {
+   "key": "81a748c12f0e08c6",
+   "text": "Dükkândan bir şey al.",
+   "role": "anlatici",
+   "src": "tr:guide.shop",
+   "who": "narrator",
+   "tts": "Dükkândan bir şey al."
+  },
+  {
+   "key": "35bc91f37f24d239",
+   "text": "Güneş Taşını sisli yere götür, koy!",
+   "role": "anlatici",
+   "src": "tr:guide.stone",
+   "who": "narrator",
+   "tts": "Güneş Taşını sisli yere götür, koy!"
+  },
+  {
+   "key": "033a78424b23deb6",
+   "text": "Oyun kulübesinde bir oyun oyna.",
+   "role": "anlatici",
+   "src": "tr:guide.cards",
+   "who": "narrator",
+   "tts": "Oyun kulübesinde bir oyun oyna."
+  },
+  {
+   "key": "e6660ad2dc4dfa59",
+   "text": "Görevi yapınca Yaptım'a bas!",
+   "role": "anlatici",
+   "src": "tr:tip.mark",
+   "who": "narrator",
+   "tts": "Görevi yapınca Yaptım'a bas!"
+  },
+  {
+   "key": "970acf480b821ac6",
+   "text": "Güneş Taşını yerleştir, sis kalksın!",
+   "role": "anlatici",
+   "src": "tr:tip.stone",
+   "who": "narrator",
+   "tts": "Güneş Taşını yerleştir, sis kalksın!"
+  },
+  {
+   "key": "9095eb9334346648",
+   "text": "Sisli yere git, taşı koy!",
+   "role": "anlatici",
+   "src": "tr:tip.stone_spot",
+   "who": "narrator",
+   "tts": "Sisli yere git, taşı koy!"
+  },
+  {
+   "key": "b65baf7ff2c9c9dd",
+   "text": "Baltayla kütüğü kes! Sağ alttaki tuşa bas.",
+   "role": "anlatici",
+   "src": "tr:gather.tip_axe",
+   "who": "narrator",
+   "tts": "Baltayla kütüğü kes! Sağ alttaki tuşa bas."
+  },
+  {
+   "key": "1737784373ccc38c",
+   "text": "Çalıdan dal topla!",
+   "role": "anlatici",
+   "src": "tr:gather.tip_hand",
+   "who": "narrator",
+   "tts": "Çalıdan dal topla!"
+  },
+  {
+   "key": "359fa97bca847a94",
+   "text": "Kazmayla taşı kır!",
+   "role": "anlatici",
+   "src": "tr:gather.tip_pickaxe",
+   "who": "narrator",
+   "tts": "Kazmayla taşı kır!"
+  },
+  {
+   "key": "530e750890342c0c",
+   "text": "Kulübe yeri! Odun, dal ve taş topla.",
+   "role": "anlatici",
+   "src": "tr:gather.tip_site",
+   "who": "narrator",
+   "tts": "Kulübe yeri! Odun, dal ve taş topla."
+  },
+  {
+   "key": "c7038c441d42f2c6",
+   "text": "Malzemeler tamam! Yap'a bas.",
+   "role": "anlatici",
+   "src": "tr:gather.tip_build",
+   "who": "narrator",
+   "tts": "Malzemeler tamam! Yap'a bas."
+  },
+  {
+   "key": "e3ca72e419c1755a",
+   "text": "Malzemeler tamam! Kulübe yerine git.",
+   "role": "anlatici",
+   "src": "tr:gather.ready",
+   "who": "narrator",
+   "tts": "Malzemeler tamam! Kulübe yerine git."
+  }
+ ]
+}
