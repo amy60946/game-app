@@ -86,11 +86,11 @@ namespace Pofi.Screens
                 () => ParentGate(() => App.Open(AppPage.Settings), msg => _toast.Say(msg)));
 
             // sol sütun: oyun içi görevler ve ebeveynin Ev Görevleri
-            var tasks = Candy.Round(hud, Candy.White, "ui_star", 150f, new Vector2(0f, 1f), new Vector2(98f, -400f), GoTasks, T("hud.tasks"));
+            var tasks = Candy.Round(hud, Candy.White, "ui_star", 150f, new Vector2(0f, 1f), new Vector2(132f, -400f), GoTasks, T("hud.tasks"));
             _tasksBtn = (RectTransform)tasks.transform;
             _questCount = Candy.Count(tasks.transform);   // bugün açık oyun içi görev sayısı
             LongPressInfo.Add(tasks.gameObject, T("info.tasks"));
-            var board = Candy.Round(hud, Candy.White, "ui_board", 150f, new Vector2(0f, 1f), new Vector2(98f, -605f), () => App.Open(AppPage.Tasks), T("tasks.title"));
+            var board = Candy.Round(hud, Candy.White, "ui_board", 150f, new Vector2(0f, 1f), new Vector2(132f, -605f), () => App.Open(AppPage.Tasks), T("tasks.title"));
             LongPressInfo.Add(board.gameObject, T("info.board"));
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             if (next != null)
