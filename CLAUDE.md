@@ -127,6 +127,7 @@
   ⚠️ HATIRLAT (kullanıcı, 23 Ekim): **Y6** oyunlara özel yükleme görselleri ertelendi; kullanıcı bazı mini oyunları kaldırmayı değerlendiriyor — sonra sor.
 - **Kıyafetsiz çocuk Okti + komik eşyalar** (23 Ekim 2026, kullanıcı: "tasarımlar ve seslendirmeler için her şeyi onayladım", tek derlemede oyuna):
   Çocuk evresi kıyafetsiz yeni model (`art/meshy/scripts/prepare_stages.py`: glTF dikiş köşeleri indirgemeden önce kaynar — yoksa yüzde ince yarıklar açılır —, renk dokusu yüksek çokgenden yeniden pişirilir; `POFI_MESH_ONLY=1` yalnız model). Portre bu modelden.
+  ⚠️ Başka modelin klibi yeni modele konmaz: iskelet ölçüsü farklıysa (eski 0,01 santim, yeni metre) Legacy klip kemikleri 100 kat kaydırır, pet görünmez olur (Blender denemesi bunu göstermez). Dosyada bekleme yoksa `make_idle` kodla üretir; uyku = `Cough_While_Sleeping`.
   Ergen ve yetişkin kıyafetsiz modelleri kullanıcı sonra yükleyecek: kafanın ortasındaki "kulaklık" çıkıntısı silinecek (çocuktaki gibi), sonra eşyalar yeniden oturtulacak.
   Komik eşyalar F1–F17 (19 eşya, items.json `fancy: true`): Meshy ile 6 (hat_shark, hat_banana, outfit_burger, outfit_chicken, float_flamingo, backpack_rocket; görselden 3B 30 kredi, kalan 135), kodla 13 (`art/code3d/assets_wear_a/b/c.py`, `export_game.py <id>`).
   Simge: `art/code3d/wear_icon.py -- <id>` (oyundaki modelden). Oturma: `fit_test_okti.py` + `okti_fit_rules.json` (`item:<id>` ya da evreye özel `genc:item:<id>`) = `CosmeticModels.OktiItem` / `OktiItemStage` (boy, yukarı, ileri).
