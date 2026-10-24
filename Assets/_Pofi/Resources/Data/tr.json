@@ -615,6 +615,7 @@
     "tip.map_far": "Nereye gideceğini bulamadın mı? Haritaya bak!",
     "tip.map_pin": "Sarı im, gideceğin yeri gösterir. İme dokun, oklar yolu göstersin!",
     "map.pin": "Buraya git",
-    "map.pin_go": "Oklar yolu gösteriyor. Takip et!"
+    "map.pin_go": "Oklar yolu gösteriyor. Takip et!",
+    "map.fog_here": "Sis orada: {0}. Oklar yolu gösteriyor!"
   }
 }

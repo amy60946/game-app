@@ -453,7 +453,7 @@ namespace Pofi.Screens
             var day = FirstDayNow;
             if (day == FirstDayStep.Board) { Tip(Onboarding.Board, TipGesture.Tap, () => RegionScreen("region_task_board")); return; }
             if (day == FirstDayStep.Mark) { Tip(Onboarding.Mark, TipGesture.Tap, () => RegionScreen("region_task_board"), null, null, null, "tip.board"); return; }
-            if (day == FirstDayStep.Stone) { Tip(Onboarding.Stone, TipGesture.Tap, () => RegionScreen(App.Data.SunBook.Next(App.State.SunStones)?.Region ?? "region_task_board"), null, null, null, "tip.stone_spot"); return; }
+            if (day == FirstDayStep.Stone) { Tip(Onboarding.Stone, TipGesture.Tap, StoneTipScreen, null, null, null, "tip.stone_spot"); return; }
             var next = TipSeq.FirstOrDefault(id => Onboarding.Pending(st, id) && FirstDay.AllowsTip(day, id));
             switch (next)
             {
@@ -505,7 +505,7 @@ namespace Pofi.Screens
                 case "home": case "tidy": case "play": return () => RegionScreen("region_home");
                 case "wear": return PetScreen;
                 case "board": return () => RegionScreen("region_task_board");
-                case "stone": return () => RegionScreen(App.Data.SunBook.Next(App.State.SunStones)?.Region ?? "region_task_board");
+                case "stone": return StoneTipScreen;   // sis kadrajda değilse kenardaki taş rozeti (GB18-5)
                 case "kiskac": case "deliver": return KiskacScreen;
                 case "coconut": return () => GuideWorld(g) is Vector2 c ? (Vector2)App.Stage.Camera.WorldToScreenPoint(_world.World(c.x, c.y) + Vector3.up * 0.8f) : RegionScreen("region_coconut_grove");
                 case "gather": return NearestGatherScreen;

@@ -510,11 +510,14 @@ namespace Pofi.World
             var poolPad = root.Find("pool_pad");
             if (!shown) RealAssets.Tint(root, new Color(0.62f, 0.64f, 0.72f));
             SeasonLook.Mark(root, false);   // kışın çatı karlanır
-            // Güneş Taşı ile açılan kilitli bölge: yere yakın, yapıyı saran yoğun sis (kullanıcı, 19 Ekim 2026: gökyüzündeki
-            // bulutlar sis gibi okunmuyordu; sis bölgenin üstünde, kamera hizasında olmalı). Taş yerleşince bölge yeniden kurulur, sis kalkar.
+            // Güneş Taşı ile açılan kilitli bölge: yere yapışık yarı saydam sis örtüsü + tül perdeler + uzaktan görünen ince sis sütunu
+            // (FogBank; kullanıcı 19 Ekim 2026: sis bölgenin üstünde, kamera hizasında; GB18: bulut gibi değil sis gibi, yeri uzaktan belli).
+            // Taş yerleşince bölge yeniden kurulur, sis kalkar.
             if (!shown && v.Spot != null)
-                Fog[r.Id] = Clouds.Spawn(transform, new Vector3(r.X, Terrain.Height(r.X, r.Z) + 0.4f, r.Z), r.Size * 0.42f, 7, 0f, r.Size * 0.25f, r.Size * 0.32f,
-                    r.Id.GetHashCode(), 0f, 360f, true);
+            {
+                var fog = FogBank.Spawn(transform, new Vector3(r.X, 0f, r.Z), Mathf.Max(6f, r.Size * 0.85f), r.Id.GetHashCode(), Terrain.Height);
+                if (fog != null) Fog[r.Id] = fog.transform;
+            }
 
             var b = poolPad != null ? new Bounds(root.position + Vector3.up * 0.6f, new Vector3(r.Size * 1.2f, 1.2f, r.Size * 1.2f)) : RealAssets.WorldBounds(root);
             if (poolPad != null) Destroy(poolPad.gameObject);

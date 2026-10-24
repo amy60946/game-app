@@ -154,5 +154,119 @@ namespace Pofi.Screens
             Spotlight.Show((RectTransform)_coach.transform, () => UiScreen(_mapBtn), 120f);
             return true;
         }
+
+        // ------------------------------------------------------------------ sis işareti (GB18-5)
+        // "Koydaki sisi aç" deniyor ama sis kadrajda değil: sıradaki Güneş Taşı noktasının sisi üstünde süzülen taş rozeti
+        // (kalan taş sayısıyla); sis ekran dışındaysa rozet ekran kenarına yaslanır ve ok sisin yönünü gösterir.
+        // Dokununca kamera sise döner, yerde oklar yolu gösterir.
+        private RectTransform _beacon, _beaconBob, _beaconTip;
+        private Text _beaconNum;
+        private float _beaconOff, _turnLeft;
+        private float? _turnTo;
+        private bool _beaconEdge;
+
+        private void BuildStoneBeacon()
+        {
+            _beacon = Ui.Rect(_labelLayer, "StoneBeacon", Vector2.zero, new Vector2(140f, 140f));
+            _beaconBob = Ui.Fill(_beacon, "Bob");
+            _beaconTip = Ui.Rect(_beaconBob, "Tip", new Vector2(0.5f, 0.5f), new Vector2(40f, 40f), new Vector2(0f, -62f));
+            _beaconTip.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            var ti = _beaconTip.gameObject.AddComponent<Image>(); ti.color = Theme.Hex("#F2B63A"); ti.raycastTarget = false;
+            var disc = Ui.Rect(_beaconBob, "Disc", new Vector2(0.5f, 0.5f), new Vector2(124f, 124f));
+            GoldKit.RimDisc(disc, Theme.Hex("#FFFDF2"), Theme.Hex("#FBE6B0"), 6f);
+            Ui.IconImage(disc, "ui_sunstone", new Vector2(0.5f, 0.5f), 88f);
+            _beaconNum = GoldKit.Gem(disc, 50f);
+            var hit = _beacon.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0f);
+            var b = _beacon.gameObject.AddComponent<Button>(); b.targetGraphic = hit; b.transition = Selectable.Transition.None;
+            b.onClick.AddListener(BeaconTapped);
+            _beacon.gameObject.AddComponent<PressBounce>();
+            _beacon.gameObject.SetActive(false);
+        }
+
+        /// <summary>İşaret konacak nokta: taş varken ve rehber başka işte değilken sıradaki sisli bölge.</summary>
+        private SunSpotDef BeaconSpot()
+        {
+            if (SunStoneBook.Available(App.State.SunStones) <= 0) return null;
+            var g = Guide.Current(App.State, App.Level);
+            if (g != null && g.Id != "stone") return null;
+            var spot = App.Data.SunBook.Next(App.State.SunStones);
+            return spot != null && _world.Fog.TryGetValue(spot.Region, out var f) && f != null ? spot : null;
+        }
+
+        private Vector3 BeaconWorld(SunSpotDef spot)
+        {
+            var r = App.Map.Find(spot.Region);
+            return r == null ? Vector3.zero : _world.World(r.X, r.Z) + Vector3.up * 7.5f;   // sis perdelerinin üstü
+        }
+
+        private void UpdateStoneBeacon(Camera cam, float scale, float dt)
+        {
+            if (_beacon == null) return;
+            if (_turnTo.HasValue)
+            {
+                // dokununca kamera sise yumuşakça döner
+                _camYaw = Mathf.MoveTowardsAngle(_camYaw, _turnTo.Value, dt * 140f);
+                _lookHold = 1.5f;
+                if (Mathf.Abs(Mathf.DeltaAngle(_camYaw, _turnTo.Value)) < 0.5f || (_turnLeft -= dt) <= 0f) _turnTo = null;
+            }
+            var spot = !_overview && !_cine && _world.Walker != null ? BeaconSpot() : null;
+            var on = spot != null;
+            if (on)
+            {
+                var r = App.Map.Find(spot.Region);
+                var near = Vector2.Distance(_world.Walker.Position, new Vector2(r.X, r.Z)) < 7f;   // yanındayken eylem tuşu "Taşı koy" yeter
+                var sp = cam.WorldToScreenPoint(BeaconWorld(spot));
+                var w = Root.rect.width; var h = Root.rect.height;
+                var inView = sp.z > 0f && sp.x > 0f && sp.x < Screen.width && sp.y > 0f && sp.y < Screen.height;
+                _beaconOff = inView ? 0f : _beaconOff + dt;
+                on = !near && (inView || _beaconOff > 0.6f);
+                if (on)
+                {
+                    _beaconNum.text = Mathf.Max(1, spot.Cost - SunStoneBook.PlacedIn(App.State.SunStones, spot.Id)).ToString();
+                    _beaconEdge = !inView;
+                    if (inView)
+                    {
+                        _beacon.anchoredPosition = new Vector2(sp.x * scale, sp.y * scale + 70f);
+                        _beaconTip.anchoredPosition = new Vector2(0f, -62f);
+                        _beaconBob.anchoredPosition = new Vector2(0f, Theme.ReduceMotion ? 0f : Mathf.Sin(Time.unscaledTime * 2.4f) * 8f);
+                    }
+                    else
+                    {
+                        // ekran kenarına (köşelerdeki göstergelerden uzak) yaslan, uç sise baksın
+                        var c = new Vector2(w, h) * 0.5f;
+                        var d = new Vector2(sp.x, sp.y) * scale - c;
+                        if (sp.z < 0f) d = -d;
+                        if (d.sqrMagnitude < 1f) d = Vector2.up;
+                        float mx = c.x - 170f, my = d.y > 0f ? c.y - 250f : c.y - 140f;
+                        var k = Mathf.Min(mx / Mathf.Max(0.001f, Mathf.Abs(d.x)), my / Mathf.Max(0.001f, Mathf.Abs(d.y)));
+                        _beacon.anchoredPosition = c + d * k;
+                        var a = Mathf.Atan2(d.y, d.x);
+                        _beaconTip.anchoredPosition = new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * 64f;
+                        _beaconBob.anchoredPosition = Theme.ReduceMotion ? Vector2.zero : new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * Mathf.Abs(Mathf.Sin(Time.unscaledTime * 3f)) * 10f;
+                    }
+                }
+            }
+            if (_beacon.gameObject.activeSelf != on) { _beacon.gameObject.SetActive(on); if (on) Bump.Play(_beacon, 0.3f); }
+        }
+
+        /// <summary>Rehberin / ilk gün ipucunun taş hedefi: rozet görünüyorsa rozet (kenarda da olsa), değilse bölge.</summary>
+        private Vector2 StoneTipScreen()
+        {
+            if (_beacon != null && _beacon.gameObject.activeInHierarchy) return UiScreen(_beacon);
+            return RegionScreen(App.Data.SunBook.Next(App.State.SunStones)?.Region ?? "region_task_board");
+        }
+
+        private void BeaconTapped()
+        {
+            Audio.Sfx.Play(Audio.SfxKind.Tap);
+            var spot = BeaconSpot();
+            if (spot == null || _world.Walker == null) return;
+            var r = App.Map.Find(spot.Region);
+            var p = _world.Walker.Position;
+            _turnTo = Mathf.Atan2(r.X - p.x, r.Z - p.y) * Mathf.Rad2Deg;
+            _turnLeft = 2.5f;
+            _pinGo = true;
+            _toast.Say(T("map.fog_here", r.Name));
+        }
     }
 }

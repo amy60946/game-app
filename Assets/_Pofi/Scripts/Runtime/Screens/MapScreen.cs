@@ -105,6 +105,7 @@ namespace Pofi.Screens
             BuildPlaceLabels();
             BuildHereMarker();
             BuildMapPin();       // GB18-8: kuşbakışında sıradaki işin yeri
+            BuildStoneBeacon();  // GB18-5: sıradaki sisin üstünde taş rozeti / ekran kenarında yön
             BuildBoardBalloon();
             BuildGather();   // kütük/çalı/taş + kulübe yeri, nesne üstü baloncuklar
             BuildCampfire(); // kamp ateşinin coşkusu kayıttan (GB18)
@@ -448,6 +449,7 @@ namespace Pofi.Screens
             }
             UpdateHereMarker(cam, scale);
             UpdateMapPin(cam, scale);
+            UpdateStoneBeacon(cam, scale, Time.deltaTime);
             UpdateBoardBalloon(cam, scale, petPos);
             UpdateMaviNews(Time.deltaTime);
         }
@@ -801,8 +803,9 @@ namespace Pofi.Screens
             var sp = App.Stage.Camera.WorldToScreenPoint(c + Vector3.up * 1.5f);
             StarSparkles.Around(Root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.2f, 0.26f), 14, 23);
             _world.Fog.TryGetValue(v.Region.Id, out var fog);
+            var bank = fog != null ? fog.GetComponent<FogBank>() : null;   // GB18 yer sisi: yükselip söner
             var clouds = new List<(Transform T, Vector3 P, Vector3 S)>();
-            if (fog != null) foreach (Transform cl in fog) clouds.Add((cl, cl.localPosition, cl.localScale));
+            if (fog != null && bank == null) foreach (Transform cl in fog) clouds.Add((cl, cl.localPosition, cl.localScale));
             var region = _world.Regions.TryGetValue(v.Region.Id, out var rt) ? rt : null;
             var mpb = new MaterialPropertyBlock();
             var rends = region != null ? region.GetComponentsInChildren<Renderer>(true) : new Renderer[0];
@@ -810,6 +813,7 @@ namespace Pofi.Screens
             {
                 var e = t * t * (3f - 2f * t);
                 glow.localScale = Vector3.one * Mathf.Lerp(0.5f, v.Region.Size * 1.6f, e);
+                if (bank != null) bank.SetLift(e);
                 foreach (var (cl, p0, s0) in clouds)
                 {
                     if (cl == null) continue;
