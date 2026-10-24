@@ -252,7 +252,7 @@ def moss_clump(loc, r, seed=0, nrm=(0, 0, 1), squash=0.42, lumps=3, m=None):
 def starfish(loc, r, yaw=0.0, nrm=(0, 0, 1), hexc='#f07a4a', name='starfish'):
     """Deniz yıldızı: beş kalın, uca doğru incelen kol (kubbeli sırt), sırtta açık benekler (malzeme)."""
     M = _star_mat(hexc)
-    N = 60; rings = 5; verts = []; faces = []
+    N = 50; rings = 4; verts = []; faces = []
     def rad(a): return r * (0.36 + 0.64 * abs(math.cos(2.5 * a)) ** 1.8)
     top = []
     for i in range(rings + 1):
@@ -298,7 +298,7 @@ def shell(loc, r, yaw=0.0, nrm=(0, 0, 1), hexc='#f6d9c4', band='#e59a8a', name='
         col = G.mix(G.rng(G.noise(o, 18), 0.6, 0.7, 0, 0.3), col, '#fff8ee')
         nt.links.new(col, bsdf.inputs['Base Color'])
     M = _MATS.get(('shell', hexc, band)) or nodes_mat('shell' + hexc, b); _MATS[('shell', hexc, band)] = M
-    NA, NR = 28, 6; verts = []; faces = []; rows = []
+    NA, NR = 20, 5; verts = []; faces = []; rows = []
     for i in range(NR + 1):
         t = i / NR; row = []
         for j in range(NA + 1):
@@ -343,7 +343,7 @@ def buoy(loc, r, c1='#f0663a', c2='#f6efe0', name='buoy'):
 def sand_drift(cx, cy, rx, ry, h, seed=0, lean=(0.0, 0.0), m=None, name='sand'):
     """Kum birikintisi: yere yapışık alçak tümsek (kenarı yırtık), lean yönünde yığılmış (duvar/basamak dibine rüzgârla dolmuş)."""
     M = m or SAND()
-    NR, NA = 7, 36; verts = []; faces = []; rows = []
+    NR, NA = 6, 28; verts = []; faces = []; rows = []
     for i in range(NR + 1):
         t = i / NR; row = []
         for j in range(NA):
@@ -380,6 +380,74 @@ def iron_strap(p, along, nrm, length, width=0.05, m=None, nails=2, name='strap')
         t = (k + 0.5) / nails - 0.5
         AT.nail(tuple(p + a * (t * length * 0.8) + n * 0.008), tuple(n), M, streak=abs(n.z) < 0.5)
     return o
+
+
+def rope3(pts, thick, m=None, closed=False, seg=None, around=9, twist=2.4, name='rope'):
+    """Hafif halat: TEK tüp, kesiti üç loblu ve boy boyunca burgulu (üç kollu halat görünümü); strand_rope'un üç ayrı tüpünden
+    ~4 kat ucuz. pts kaba çizgi (kendi içinde sıklaştırılır); closed → halka (çatı kuşağı). grain UV: u = boy (m), v = çevre (0..1)."""
+    M = m or ROPE()
+    P = [V(p) for p in pts]
+    if closed: P = P + [P[0]]
+    seg = seg or thick * 2.2
+    dense = []
+    for i in range(len(P) - 1):
+        L = (P[i + 1] - P[i]).length; n = max(1, int(math.ceil(L / seg)))
+        for k in range(n): dense.append(P[i].lerp(P[i + 1], k / n))
+    if not closed: dense.append(P[-1])
+    N = len(dense)
+    acc = [0.0]
+    for i in range(1, N): acc.append(acc[-1] + (dense[i] - dense[i - 1]).length)
+    bm = bmesh.new(); uvl = bm.loops.layers.uv.new('grain'); rings = []
+    prev_n = None
+    for i, c in enumerate(dense):
+        a = dense[(i + 1) % N] if closed else dense[min(i + 1, N - 1)]
+        b = dense[(i - 1) % N] if closed else dense[max(i - 1, 0)]
+        t = (a - b).normalized()
+        if prev_n is None:
+            nx = t.cross(V((0, 0, 1)));
+            if nx.length < 1e-3: nx = t.cross(V((1, 0, 0)))
+            nx.normalize()
+        else:
+            nx = (prev_n - t * prev_n.dot(t)).normalized()          # paralel taşıma: kesit dönmesin
+        prev_n = nx; ny = t.cross(nx).normalized()
+        ph = acc[i] / thick * twist
+        ring = []
+        for j in range(around):
+            th = j / around * 2 * math.pi
+            rr = thick * (0.8 + 0.2 * math.cos(3 * th - ph))
+            ring.append(bm.verts.new(c + (nx * math.cos(th) + ny * math.sin(th)) * rr))
+        rings.append(ring)
+    nr = len(rings); last = nr if closed else nr - 1
+    for i in range(last):
+        r0, r1 = rings[i], rings[(i + 1) % nr]
+        u0, u1 = acc[i], acc[i] + (dense[(i + 1) % N] - dense[i]).length
+        for j in range(around):
+            j2 = (j + 1) % around
+            f = bm.faces.new((r0[j], r0[j2], r1[j2], r1[j]))
+            for lp, uv in zip(f.loops, ((u0, j / around), (u0, (j + 1) / around), (u1, (j + 1) / around), (u1, j / around))): lp[uvl].uv = uv
+    if not closed:
+        for ring, rev in ((rings[0], True), (rings[-1], False)):
+            f = bm.faces.new(list(reversed(ring)) if rev else ring)
+            for lp in f.loops: lp[uvl].uv = (0.0, 0.0)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    o = link_mesh(name, bm, [M]); smooth(o)
+    return o
+
+
+def lash(center, r, z0, z1, turns, thick=0.012, axis='z', seed=0, m=None, tail=True):
+    """Direğe/dala sarılmış halat bağ (rope_wrap gibi ama rope3 ile): sarmal + uçta kısa sarkan kuyruk."""
+    pts = []; n = max(8, int(turns * 14))
+    for i in range(n + 1):
+        t = i / n; a = t * turns * 2 * math.pi + seed
+        q = V((math.cos(a) * r, math.sin(a) * r, z0 + (z1 - z0) * t))
+        if axis == 'x': q = V((z0 + (z1 - z0) * t, math.cos(a) * r, math.sin(a) * r))
+        elif axis == 'y': q = V((math.cos(a) * r, z0 + (z1 - z0) * t, math.sin(a) * r))
+        pts.append(V(center) + q)
+    if tail:
+        a = turns * 2 * math.pi + seed; e = pts[-1]
+        out = V((math.cos(a), math.sin(a), 0)) if axis == 'z' else V((0, 0, 0))
+        pts += [e + out * 0.03 + V((0, 0, -0.05)), e + out * 0.04 + V((0, 0, -0.12))]
+    return rope3(pts, thick, m, seg=thick * 2.6, around=6)
 
 
 def patch_plank(loc, size, rot, m, nail_nrm, seed=0):

@@ -20,7 +20,8 @@ import assets_town as AT
 import bld_kit as BK
 import proxy_bake as PB
 
-BAKE_ONLY = r'_bk$'
+BAKE_ONLY = r'_bk$'          # yalnız taslakta (dokuya işlenir, oyun ağına girmez)
+LOW_ONLY = r'_lo$'           # yalnız oyun ağında (taslakta yok: halat çekirdeği gibi sade hedef parçalar)
 
 
 def _key(name):
@@ -34,6 +35,69 @@ def bk(o):
         return o
     if o is not None and not _key(o.name).endswith('_bk'): o.name = _key(o.name) + '_bk'
     return o
+
+
+def lo(o):
+    """Nesneyi 'yalnız oyun ağı' yap (adı _lo ile biter): taslakta yok, pişirmede hedef olur."""
+    if o is not None and not _key(o.name).endswith('_lo'): o.name = _key(o.name) + '_lo'
+    return o
+
+
+def _resample(pts, step):
+    P = [V(p) for p in pts]; out = [P[0]]; acc = 0.0
+    for i in range(1, len(P)):
+        seg = (P[i] - P[i - 1]).length; acc += seg
+        if acc >= step or i == len(P) - 1:
+            out.append(P[i]); acc = 0.0
+    return out
+
+
+def rope(pts, thick, m, sides=8, name='rope'):
+    """Halat: taslakta üç kollu burgulu halat + lif uçları (yalnız pişir), oyunda aynı çizgide sade yuvarlak çekirdek (yalnız oyun):
+    burgu, kol arası gölge ve lif açıklığı normal/renk haritasına işlenir (sadeleştirilmiş kollar tırtıklı görünüyordu)."""
+    strands = AT.strand_rope(pts, thick, m, name=name)
+    bk(strands)
+    # çekirdek: strand_rope ile aynı sıklaştırma + yumuşatma, sonra seyrek örnek
+    P = [V(p) for p in pts]; dense = []
+    for i in range(len(P) - 1):
+        Ls = (P[i + 1] - P[i]).length; nseg = max(2, int(Ls / (thick * 1.8)))
+        for k in range(nseg): dense.append(P[i].lerp(P[i + 1], k / nseg))
+    dense.append(P[-1])
+    for _ in range(2):
+        dense = [dense[0]] + [(dense[i - 1] + dense[i] * 2 + dense[i + 1]) / 4 for i in range(1, len(dense) - 1)] + [dense[-1]]
+    core = _resample(dense, max(0.05, thick * 4.0))
+    o = tube(name + 'core', [tuple(p) for p in core], [thick * 0.98] * len(core), m, res=1)
+    o.data.bevel_resolution = max(0, (sides - 4) // 2)
+    for sp in o.data.splines:
+        for bp in sp.bezier_points: bp.handle_left_type = bp.handle_right_type = 'VECTOR'
+    lo(o)
+    return strands
+
+
+def plank2(name, loc, size, m, rot=(0, 0, 0), seed=None, amt=0.01, bevel=0.012):
+    """Tahta: taslakta assets_town.plank (ezik, yamukluk, köşe kırığı; yalnız pişir), oyunda aynı yerde tek kademe pahlı kutu
+    (yalnız oyun). Alt bölmeli taslak tahta sadeleştirilince kenarları tırtıklanıyordu; kutu + normal haritası daha temiz."""
+    bk(AT.plank(name, loc, size, m, rot=rot, seed=seed, amt=amt))
+    b = rbox(name, loc, size, m, rot=rot, bevel=min(bevel, min(size) * 0.3), seg=1)
+    return lo(b)
+
+
+def rope_wrap(center, r, z0, z1, turns, m, thick=0.016, seed=0, sides=6):
+    """assets_town.rope_wrap ile aynı sarım (sarmal + sarkan kuyruk), halat() ile."""
+    pts = []; n = int(turns * 12)
+    for i in range(n + 1):
+        t = i / n; a = t * turns * 2 * math.pi + seed
+        pts.append(tuple(V(center) + V((math.cos(a) * r, math.sin(a) * r, z0 + (z1 - z0) * t))))
+    end = V(pts[-1]); a = turns * 2 * math.pi + seed
+    tail = [tuple(end + V((math.cos(a) * 0.04, math.sin(a) * 0.04, -0.05))), tuple(end + V((math.cos(a) * 0.05, math.sin(a) * 0.05, -0.13)))]
+    return rope(pts + tail, thick, m, sides=sides)
+
+
+def rope_sag(a, b, sag, m, thick=0.02, n=8, sides=8):
+    pts = []
+    for i in range(n + 1):
+        t = i / n; p = V(a).lerp(V(b), t); p.z -= sag * 4 * t * (1 - t); pts.append(tuple(p))
+    return rope(pts, thick, m, sides=sides)
 
 
 def frays_bake_only():
@@ -110,7 +174,7 @@ def L_chain(*fns):
 # ------------------------------------------------------------------ küçük parçalar
 
 def m_shell(name='barnacle'):
-    return A.m_flat('#d9d2c2', 0.22, 40, name)
+    return A.m_flat('#c8c0ae', 0.3, 40, name)
 
 
 def cones(name, items, m_out, m_in, segs=8):
@@ -141,15 +205,15 @@ def cones(name, items, m_out, m_in, segs=8):
 def barnacles_on_post(cx, cy, r, z0, z1, n, seed, a0=0.0, a1=2 * math.pi, size=(0.012, 0.024)):
     """Kazık çevresinde su çizgisi midye kümesi (yalnız pişir): öbek öbek, çizgiye yakın yoğun."""
     R = random.Random(seed); items = []
-    nclu = max(2, n // 7)
+    nclu = max(2, n // 9)
     cl = [(R.uniform(a0, a1), R.uniform(z0, z1)) for _ in range(nclu)]
     for k in range(n):
         ca, cz = cl[k % nclu]
-        a = ca + R.gauss(0, 0.28); z = min(z1, max(z0, cz + R.gauss(0, 0.035)))
+        a = ca + R.gauss(0, 0.22); z = min(z1, max(z0, cz + R.gauss(0, 0.028)))
         nrm = V((math.cos(a), math.sin(a), R.uniform(-0.1, 0.25)))
         p = V((cx + math.cos(a) * r, cy + math.sin(a) * r, z))
         rb = R.uniform(*size); items.append((p, nrm, rb, rb * R.uniform(0.9, 1.3)))
-    return cones('barnacle', items, m_shell(), A.m_flat('#4a4840', 0.2, 30, 'barnhole'))
+    return cones('barnacle', items, m_shell(), A.m_flat('#6f6a5c', 0.2, 30, 'barnhole'))
 
 
 def bolt(p, nrm, m=None, r=0.018, drip=0.06, square=False):
@@ -175,16 +239,16 @@ def rust_drip(p, nrm, length=0.08, width=0.012):
 
 def rust_halo(p, r=0.03):
     """Çivi çevresinde yere sinmiş pas halesi (tahta üstü, yalnız pişir)."""
-    if 'h' not in _RUST: _RUST['h'] = A.m_flat('#7a4a2c', 0.4, 50, 'rusthalo')
+    if 'h' not in _RUST: _RUST['h'] = A.m_flat('#80583a', 0.4, 50, 'rusthalo')
     o = blob('halo', (p[0], p[1], p[2] + 0.0015), (r, r * 0.8, 0.002), _RUST['h'], rot=(0, 0, random.uniform(0, 180)), sub=0, seg=10)
     return bk(o)
 
 
-def nail_top(p, r=0.016):
-    """Tahta üstünde çivi başı + pas halesi (yalnız pişir)."""
+def nail_top(p, r=0.012):
+    """Tahta üstünde çivi başı + ince pas halesi (yalnız pişir)."""
     I = AT.m_metal('#5a5560', name='nailm')
     o = blob('nailh', (p[0], p[1], p[2] + 0.004), (r, r, 0.006), I, sub=0, seg=8)
-    return bk([o, rust_halo(p, r * 2.2)])
+    return bk([o, rust_halo(p, r * 1.7)])
 
 
 def endgrain_cap(x, y, z, r, seed=0, lichen=True):
@@ -208,7 +272,7 @@ def coil(cx, cy, z, r0, turns, thick, m, seed=0, tail=None):
         rr = r0 + thick * 2.05 * turns * t
         pts.append((cx + math.cos(a) * rr, cy + math.sin(a) * rr, z + thick + 0.004 * math.sin(a * 3)))
     if tail: pts += list(tail)
-    return AT.strand_rope(pts, thick, m)
+    return rope(pts, thick, m, sides=6)
 
 
 def m_net(name='net'):
@@ -244,12 +308,29 @@ def lumpy(name, loc, radii, m, seed=0, folds=0.25, sub=3):
 
 # ------------------------------------------------------------------ pişirme ve komut satırı
 
-def bake(out_dir, name, high, decim=(), weights=(), tex=1024, budget=None, ao_dist=0.5, ao_strength=0.6, cage=0.03, ray=0.12, **kw):
-    """bld_kit.bake ile aynı; tek fark: adı _bk ile biten taslak parçaları hedefe (oyun ağına) girmez, yalnız dokuya işlenir."""
+def drop_floor(objs, zcut):
+    """Zemine (ya da deniz tabanına) yapışık, aşağı bakan yüzleri siler: oyunda hiç görünmez (arazi/su örter) ama hiçbir yönden
+    'kapalı' sayılmadığı için gizli yüz ayıklamasından kaçıp dokuda büyük daire yer tutuyordu (fener temeli altı ~%2,5)."""
+    n = 0
+    for o in objs:
+        bm = bmesh.new(); bm.from_mesh(o.data); bm.normal_update(); mw = o.matrix_world; m3 = mw.to_3x3()
+        kill = [f for f in bm.faces if (m3 @ f.normal).normalized().z < -0.9 and max((mw @ v.co).z for v in f.verts) < zcut]
+        n += len(kill)
+        bmesh.ops.delete(bm, geom=kill, context='FACES'); bm.to_mesh(o.data); bm.free()
+    print('taban yüzü silindi', n, flush=True)
+
+
+def bake(out_dir, name, high, decim=(), weights=(), tex=1024, budget=None, ao_dist=0.5, ao_strength=0.6, cage=0.03, ray=0.12, floor=None, **kw):
+    """bld_kit.bake ile aynı; farklar: adı _bk ile biten taslak parçaları hedefe (oyun ağına) girmez, yalnız dokuya işlenir; _lo
+    parçaları yalnız hedefte; floor verilirse o yüksekliğin altındaki aşağı bakan yüzler hedeften silinir."""
     os.makedirs(out_dir, exist_ok=True)
     tex = int(os.environ.get('POFI_TEX', '0') or 0) or tex
+    hi = [o for o in high if not re.search(LOW_ONLY, _key(o.name))]
     low = BK.build_low([o for o in high if not re.search(BAKE_ONLY, _key(o.name))], decim, weights)
-    tris = PB.export_proxy(os.path.join(out_dir, name), high, low, target=budget, size=tex, nsize=tex, cage=cage, ray=ray,
+    if floor is not None: drop_floor(low, floor)
+    for o in high:
+        if re.search(LOW_ONLY, _key(o.name)): bpy.data.objects.remove(o)
+    tris = PB.export_proxy(os.path.join(out_dir, name), hi, low, target=budget, size=tex, nsize=tex, cage=cage, ray=ray,
                            cull_hidden=True, uv_weight='uvw', dilate=16, ao_dist=ao_dist, ao_strength=ao_strength, **kw)
     print(name, 'üçgen', tris, flush=True)
     return tris
@@ -310,15 +391,21 @@ def main(default_name, build, decim, weights, budget, tex=1024, draft_dist=None,
     build()
     frays_bake_only()
     high = BK.prepare()
-    lo, hi = bounds(high)
-    print('taslak sınır', tuple(round(x, 3) for x in lo), tuple(round(x, 3) for x in hi), 'boy', tuple(round(x, 3) for x in hi - lo), flush=True)
-    print('taslak üçgen', BK.tri_count(high), 'oyun adayı', BK.tri_count([o for o in high if not re.search(BAKE_ONLY, _key(o.name))]), flush=True)
+    game = [o for o in high if not re.search(BAKE_ONLY, _key(o.name))]
+    draft = [o for o in high if not re.search(LOW_ONLY, _key(o.name))]
+    b0, b1 = bounds(game)
+    print('oyun sınırı', tuple(round(x, 3) for x in b0), tuple(round(x, 3) for x in b1), 'boy', tuple(round(x, 3) for x in b1 - b0), flush=True)
+    print('taslak üçgen', BK.tri_count(draft), 'oyun adayı (sadeleşmeden)', BK.tri_count(game), flush=True)
     if '--groups' in args:
-        g = groups([o for o in high if not re.search(BAKE_ONLY, _key(o.name))])
+        g = groups(game)
+        dec = sum(int(n * BK._lookup(decim, k, 1.0)) for k, n in g.items())
+        print('sadeleşme sonrası tahmini', dec, flush=True)
         print('gruplar', list(g.items())[:40], flush=True)
     if '--draft' in args:
         png = args[args.index('--draft') + 1]
         yaw = float(args[args.index('--yaw') + 1]) if '--yaw' in args else 35.0
+        for o in high:
+            if re.search(LOW_ONLY, _key(o.name)): o.hide_render = True
         draft_render(png, yaw=yaw, dist=draft_dist)
         return
     budget = int(os.environ.get('POFI_TARGET', '0') or 0) or budget

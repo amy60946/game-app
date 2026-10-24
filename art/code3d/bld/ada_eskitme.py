@@ -86,9 +86,10 @@ def grime(z1=0.18, amt=0.45, tint='#6b5236'):
     return f
 
 
-def m_canvas(c1, c2, stripes=8.0, name='canvas', u0=0.0, mud=0.16, drip=None, fade=0.16, seam='#7d4b3a', var=0.07):
+def m_canvas(c1, c2, stripes=8.0, name='canvas', u0=0.0, mud=0.16, drip=None, fade=0.16, seam='#7d4b3a', var=0.07, bleach=None, stain=None):
     """Çadır kumaşı (grain uv: u çevre 0..1, v yukarı). Şeritler (iki renk), her şerit kendi tonunda (biri güneşte biraz açılmış),
-    şerit arasında dikiş çizgisi, ince dokuma; dipte çamur sıçraması (dünya z < mud), drip=z verilirse oradan aşağı hafif akıntı lekesi.
+    şerit arasında dikiş çizgisi, ince dokuma; dipte çamur sıçraması (dünya z < mud), drip=z verilirse oradan aşağı akıntı lekesi,
+    bleach=(z0, z1, oran): c1 şeritleri yukarı doğru güneşte açılır; stain=(z0, z1): o bantta çay rengi su lekeleri (saçak boyu).
     Renk canlı kalır: solma beyaza değil, rengin açık tonuna."""
     def b(nt, bsdf):
         n = nt.nodes; l = nt.links; G = A._G(nt)
@@ -100,7 +101,9 @@ def m_canvas(c1, c2, stripes=8.0, name='canvas', u0=0.0, mud=0.16, drip=None, fa
         wn = n.new('ShaderNodeTexWhiteNoise'); wn.noise_dimensions = '1D'; l.new(pid, wn.inputs['W'])
         r = wn.outputs['Value']
         c1v = G.mix(r, _shade(c1, 1.0 - var), _shade(c1, 1.0 + var))
-        c1v = G.mix(G.rng(r, 0.72, 0.9, 0, fade), c1v, _shade(c1, 1.22))   # birkaç şerit güneşte açılmış
+        c1v = G.mix(G.rng(r, 0.6, 0.85, 0, fade), c1v, _shade(c1, 1.24))   # birkaç şerit güneşte açılmış
+        if bleach:
+            c1v = G.mix(G.rng(wxyz(G)[2], bleach[0], bleach[1], 0, bleach[2]), c1v, _shade(c1, 1.3))
         c2v = G.mix(r, _shade(c2, 1.0 - var * 0.5), _shade(c2, 1.0 + var * 0.3))
         col = G.mix(is1, c2v, c1v)
         # dikiş: şerit kenarında ince koyu çizgi + yanında açık iz
@@ -113,10 +116,15 @@ def m_canvas(c1, c2, stripes=8.0, name='canvas', u0=0.0, mud=0.16, drip=None, fa
         if drip is not None:
             p = wpos(G); _, _, z = wxyz(G)
             st = G.rng(G.noise(G.mapping(p, (14, 14, 1.0)), 1.0, 3), 0.55, 0.7)
-            k = G.math('MULTIPLY', st, G.rng(z, drip - 0.55, drip - 0.03, 0, 0.32))
+            k = G.math('MULTIPLY', st, G.rng(z, drip - 0.6, drip - 0.03, 0, 0.55))
             col = G.mix(G.math('MULTIPLY', k, G.rng(z, drip + 0.01, drip - 0.01)), col, '#b88f68', 'MULTIPLY')
+        if stain:
+            p = wpos(G); _, _, z = wxyz(G)
+            bl = G.rng(G.noise(p, 4.5, 4, 0.6), 0.5, 0.64)
+            band = G.math('MULTIPLY', G.rng(z, stain[0], stain[0] + 0.03), G.rng(z, stain[1], stain[1] - 0.12))
+            col = G.mix(G.math('MULTIPLY', G.math('MULTIPLY', bl, band), 0.45), col, '#a98159', 'MULTIPLY')
         if mud:
-            col = grime(mud, 0.55, '#7a5a3c')(G, col)
+            col = grime(mud, 0.7, '#7a5a3c')(G, col)
         l.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 
@@ -198,7 +206,7 @@ def moss_clump(loc, r, seed=0, n=3, flat=0.42, m=None):
         o = blob('mossclump', (loc[0] + math.cos(a) * d, loc[1] + math.sin(a) * d, loc[2] + rr * flat * 0.3), (rr, rr * R.uniform(0.8, 1.0), rr * flat), M, sub=1, seg=10)
         A.smooth(o); bpy.context.view_layer.update()
         import assets_town as AT
-        AT.wobble(o, rr * 0.22, 7.0 / max(r, 0.02) * 0.1, seed * 7 + k)
+        AT.wobble(o, rr * 0.22, 8.0, seed * 7 + k)
         out.append(o)
     return out
 
@@ -229,8 +237,9 @@ def sand_ring(cx, cy, radius_fn, width, h, seed=0, m=None, a0=0.0, a1=2 * math.p
     rows = 4; cols = n + 1
     for i in range(cols):
         a = a0 + (a1 - a0) * i / n
-        hh = h * (0.55 + 0.45 * (0.5 + 0.5 * mnoise.noise(V((math.cos(a) * 2.2, math.sin(a) * 2.2, seed)))))
-        ww = width * (0.7 + 0.5 * (0.5 + 0.5 * mnoise.noise(V((math.cos(a) * 3.1, math.sin(a) * 3.1, seed + 5)))))
+        nn = mnoise.noise(V((math.cos(a) * 2.2, math.sin(a) * 2.2, seed)))
+        hh = h * max(0.12, min(1.0, 0.55 + 0.9 * nn))
+        ww = width * max(0.25, 0.85 + 0.9 * mnoise.noise(V((math.cos(a) * 3.1, math.sin(a) * 3.1, seed + 5))))
         if a1 - a0 < 2 * math.pi - 1e-3:
             e = min(i, n - i) / max(1, n * 0.08); hh *= min(1.0, e); ww *= 0.5 + 0.5 * min(1.0, e)
         r0 = radius_fn(a) - 0.015

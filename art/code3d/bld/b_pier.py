@@ -37,11 +37,12 @@ def build():
     kit.reset(); random.seed(11)
     R = random.Random(5)
     wl = L_waterline(0.0, wet=0.14)
-    PL = overlay(A.m_wood('#73553a', 'pile', age=1.3, grime=(0.1, 0.5)), wl, 'pile_k')
-    PL2 = overlay(A.m_wood('#7d5c3e', 'beam', age=1.2), L_sunbleach(0.25), 'beam_k')
-    tones = ('#b08c68', '#a3896e', '#bd9870', '#98795c')
-    DKS = [overlay(A.m_wood(c, f'pdeck{i}', age=1.25), L_sunbleach(0.34), f'pdeck{i}_k') for i, c in enumerate(tones)]
-    FRESH = overlay(A.m_wood('#d29c5e', 'pdeckfresh', age=0.45), L_sunbleach(0.1), 'pdeckfresh_k')
+    NOG = (-9.0, -8.6)            # weather() dip kiri kapalı: parçaların nesne Z'si yerel (tahtada her yer 'dip' sayılıyordu)
+    PL = overlay(A.m_wood('#73553a', 'pile', age=1.3, grime=NOG), wl, 'pile_k')
+    PL2 = overlay(A.m_wood('#7d5c3e', 'beam', age=1.2, grime=NOG), L_sunbleach(0.25), 'beam_k')
+    tones = ('#b88e64', '#a98a6a', '#c39a6c', '#9e7a58')
+    DKS = [overlay(A.m_wood(c, f'pdeck{i}', age=1.25, grime=NOG), L_sunbleach(0.24), f'pdeck{i}_k') for i, c in enumerate(tones)]
+    FRESH = overlay(A.m_wood('#d29c5e', 'pdeckfresh', age=0.45, grime=NOG), L_sunbleach(0.1), 'pdeckfresh_k')
     RP = AT.m_rope(); RPW = overlay(AT.m_rope('#c9a974', 'ropewet'), wl, 'ropewet_k')
     I = AT.m_metal('#45414b', name='iron')
 
@@ -54,7 +55,7 @@ def build():
             o = tube('pile', [(x, y, -0.15), mid, (x + 0.01, y, top)], [PR, PR * 0.96, PR * 0.92], PL, res=4)
             o.data.bevel_resolution = 2
             KK.endgrain_cap(x + 0.01, y, top, PR * 0.92, seed=sd)
-            KK.barnacles_on_post(x, y, PR * 1.0, -0.09, 0.07, 26, seed=sd, size=(0.011, 0.022))
+            KK.barnacles_on_post(x, y, PR * 1.0, -0.1, 0.05, 34, seed=sd, size=(0.01, 0.02))
             # demir çember (kazık başı) + iki cıvata
             cyl('band', (x + 0.006, y, 0.17), PR * 1.06, 0.045, I, verts=16, bevel=0.006)
             for a in (0.6, 3.6):
@@ -68,16 +69,16 @@ def build():
 
     # ---- taşıyıcılar: kazık başı kirişleri (enine) + boyuna kirişler + yan çapraz destekler
     for x in PX:
-        AT.plank('beam', (x, 0, 0.255), (0.12, WD + 0.3, 0.1), PL2, seed=int(x * 10) + 50)
+        KK.plank2('beam', (x, 0, 0.255), (0.12, WD + 0.3, 0.1), PL2, seed=int(x * 10) + 50)
         for y in (-0.42, 0.42):
             KK.bolt((x - 0.061, y, 0.255), (-1, 0, 0), I, r=0.016, drip=0.05)
     for y in (-0.45, 0.0, 0.45):
-        AT.plank('stringer', (0, y, 0.36), (L + 0.08, 0.09, 0.105), PL2, seed=int(y * 10) + 70)
+        KK.plank2('stringer', (0, y, 0.36), (L + 0.08, 0.09, 0.105), PL2, seed=int(y * 10) + 70)
     for y in PY:
         for (xa, xb) in ((PX[0], PX[1]), (PX[1], PX[2])):
             a = V((xa + 0.08, y, 0.06)); b = V((xb - 0.08, y, 0.205)); d = b - a
             ang = math.degrees(math.atan2(d.z, d.x)); c = (a + b) / 2
-            AT.plank('xbrace', tuple(c), (d.length + 0.16, 0.05, 0.085), PL2, rot=(0, -ang, 0), seed=int(xa * 9 + y * 5) + 90)
+            KK.plank2('xbrace', tuple(c), (d.length + 0.16, 0.05, 0.085), PL2, rot=(0, -ang, 0), seed=int(xa * 9 + y * 5) + 90)
             s = 1 if y > 0 else -1
             for p in (a + d.normalized() * 0.02, b - d.normalized() * 0.02):
                 KK.bolt((p.x, y + s * 0.027, p.z), (0, s, 0), I, r=0.017, drip=0.06, square=True)
@@ -92,8 +93,8 @@ def build():
         cx = x + w / 2; ln = WD + AT.R_j(k + 1) * 0.04; cy = AT.R_j(k) * 0.03; z = DECK; rot = (0, 0, AT.R_j(k) * 1.2)
         if k == 9: rot = (0, 2.2, AT.R_j(k) * 1.2); z = DECK + 0.009                  # kalkık tahta
         if k == 16: ln = WD * 0.6; cy = WD / 2 - ln / 2 + 0.02                         # kırık kısa tahta (altta kiriş görünür)
-        AT.plank('deck', (cx, cy, z), (w - 0.02, ln, 0.05), m, rot=rot, seed=k + 60)
-        for yy in (-0.45, 0.0, 0.45):
+        KK.plank2('deck', (cx, cy, z), (w - 0.02, ln, 0.05), m, rot=rot, seed=k + 60)
+        for yy in ((-0.45, 0.0, 0.45) if k % 3 == 0 else (-0.45, 0.45)):
             if abs(yy - cy) > ln / 2 - 0.04: continue
             for dx in (-w * 0.26, w * 0.26):
                 KK.nail_top((cx + dx, yy + R.uniform(-0.015, 0.015), TOP + (0.009 if k == 9 else 0.0)))
@@ -102,12 +103,12 @@ def build():
     # ---- kıyı yanı halat korkuluk (dikmelere sarılı)
     yR = PY[1]
     for xa, xb, za, zb in ((PX[0], PX[1], 0.8, 0.8), (PX[1], PX[2], 0.8, 0.7)):
-        AT.rope_sag((xa + 0.12, yR, za), (xb - 0.12, yR, zb), 0.1, RP, thick=0.02)
+        KK.rope_sag((xa + 0.12, yR, za), (xb - 0.12, yR, zb), 0.1, RP, thick=0.02)
     for x in PX[:2]:
-        AT.rope_wrap((x, yR, 0), 0.14, 0.74, 0.83, 1.6, RP, thick=0.016, seed=x)
+        KK.rope_wrap((x, yR, 0), 0.14, 0.74, 0.83, 1.6, RP, thick=0.016, seed=x)
     for x in (PX[2],):
         for y in PY:
-            AT.rope_wrap((x, y, 0), 0.14, 0.55, 0.66, 1.8, RP, thick=0.016, seed=y)
+            KK.rope_wrap((x, y, 0), 0.14, 0.55, 0.66, 1.8, RP, thick=0.016, seed=y)
 
     # ---- deniz ucu: merdiven (suya iner; alt basamaklar yosunlu)
     LX = L / 2 + 0.07
@@ -127,17 +128,17 @@ def build():
         KK.bolt(V((BX, BY, TOP + 0.012)) + n * 0.085 + V((0, 0, 0.004)), (0, 0, 1), I, r=0.014, drip=0)
     bk(blob('rustpool', (BX + 0.05, BY - 0.09, TOP + 0.0015), (0.13, 0.07, 0.002), A.m_flat('#8a4f2c', 0.4, 40, 'rustpool'), rot=(0, 0, -25), sub=0, seg=12))   # babanın dibinde pas lekesi
     loop = [(BX + math.cos(t / 12 * 2 * math.pi) * 0.092, BY + math.sin(t / 12 * 2 * math.pi) * 0.092, 0.655 + 0.012 * math.sin(t / 12 * 4 * math.pi)) for t in range(13)]
-    AT.strand_rope(loop, 0.018, RP)
-    AT.strand_rope([(BX + 0.09, BY - 0.02, 0.655), (BX + 0.3, BY - 0.15, 0.56), (1.55, -0.56, TOP + 0.03), (1.64, -0.665, TOP + 0.005),
-                    (1.72, -0.73, 0.36), (1.86, -0.84, 0.13), (2.075, -0.985, -0.13)], 0.02, RPW)
+    KK.rope(loop, 0.018, RP, sides=6)
+    KK.rope([(BX + 0.09, BY - 0.02, 0.655), (BX + 0.3, BY - 0.15, 0.56), (1.55, -0.56, TOP + 0.03), (1.64, -0.665, TOP + 0.005),
+                    (1.72, -0.73, 0.36), (1.86, -0.84, 0.13), (2.075, -0.985, -0.13)], 0.02, RPW, sides=8)
     # halat kangalı (palamarın artığı), kuyruğu babaya
     KK.coil(0.68, -0.3, TOP, 0.035, 3.2, 0.018, RP, seed=1.0, tail=[(0.86, -0.36, TOP + 0.02), (1.0, -0.33, TOP + 0.022)])
 
     # ---- usturmaça (deniz yanı, turuncu) ipiyle
     FX = 0.28
     FN = overlay(A.m_flat('#ee7a3c', 0.14, 9, 'fender'), L_streaks('#6d5a45', 0.4, z_top=0.32, length=0.3, scale=10), 'fender_k')
-    AT.strand_rope([(FX, -0.5, TOP + 0.02), (FX, -0.64, TOP + 0.03), (FX, -0.70, 0.43), (FX, -0.75, 0.33)], 0.012, RP)
-    blob('fender', (FX, -0.775, 0.21), (0.068, 0.068, 0.125), FN, sub=2, seg=20)
+    KK.rope([(FX, -0.5, TOP + 0.02), (FX, -0.64, TOP + 0.03), (FX, -0.70, 0.43), (FX, -0.75, 0.33)], 0.012, RP, sides=6)
+    blob('fender', (FX, -0.775, 0.21), (0.068, 0.068, 0.125), FN, sub=1, seg=16)
     cyl('fendercap', (FX, -0.775, 0.335), 0.03, 0.03, A.m_flat('#d8622e', 0.1, 9, 'fendercap'), verts=12)
 
     # ---- can simidi: kazıktaki çiviye asılı, dört tutamak bağı + çevre halatı
@@ -160,14 +161,14 @@ def build():
             b = j / 8 * 2 * math.pi
             rad = V((math.cos(a), 0, math.sin(a)))
             pts.append(tuple(c + rad * math.cos(b) * 0.062 + V((0, 1, 0)) * math.sin(b) * 0.062 + V((-math.sin(a), 0, math.cos(a))) * (j - 4) * 0.004))
-        AT.strand_rope(pts, 0.009, RP)
+        KK.rope(pts, 0.009, RP, sides=4)
     for i in range(4):
         a0, a1 = ties[i], ties[(i + 1) % 4] + (2 * math.pi if i == 3 else 0)
         pts = []
         for j in range(7):
             a = a0 + (a1 - a0) * j / 6; rr = 0.222 - 0.012 * math.sin(j / 6 * math.pi)
             pts.append((lx + math.cos(a) * rr, ly, lz + math.sin(a) * rr))
-        AT.strand_rope(pts, 0.009, RP)
+        KK.rope(pts, 0.009, RP, sides=4)
 
     # ---- kıyı ucu: sandık (balık işaretli), ağ yığını + mantarlar, kova
     AT.crate((-0.9, 0.25, TOP), 0.4, DKS[1], PL2, yaw=12, seed=6)
@@ -206,8 +207,10 @@ def build():
         cyl('lbar', (lx2 + math.cos(aa) * 0.055, ly2 + math.sin(aa) * 0.055, 1.255), 0.007, 0.12, I, verts=6, bevel=0)
     AT.lathe('lcap', [(0.001, 1.31), (0.072, 1.31), (0.068, 1.322), (0.035, 1.35), (0.001, 1.355)], I, segs=12).location = (lx2, ly2, 0)
     AT.lathe('lbase', [(0.001, 1.19), (0.066, 1.19), (0.07, 1.2), (0.06, 1.214), (0.001, 1.214)], I, segs=12).location = (lx2, ly2, 0)
-    ROD = A.m_wood('#c99a5e', 'rod', age=0.6)
-    tube('rod', [(1.04, 0.42, TOP + 0.01), (1.3, 0.58, 0.86), (1.56, 0.74, 1.24)], [0.014, 0.01, 0.005], ROD, res=4)
+    ROD = A.m_flat('#3b2c26', 0.15, 8, 'rod'); CORK = A.m_flat('#c8a272', 0.25, 30, 'cork')
+    a0, a1 = V((1.04, 0.42, TOP + 0.01)), V((1.56, 0.74, 1.24)); dd = (a1 - a0)
+    tube('rodgrip', [tuple(a0), tuple(a0 + dd * 0.17)], [0.02, 0.018], CORK, res=2)
+    tube('rod', [tuple(a0 + dd * 0.16), tuple(a0 + dd * 0.55), tuple(a1)], [0.012, 0.008, 0.005], ROD, res=3)
     cyl('reel', (1.1, 0.45, 0.6), 0.03, 0.022, I, rot=(90, 0, 58), verts=12, bevel=0.004)
     blob('bobber', (1.15, 0.43, 0.58), (0.022, 0.022, 0.028), A.m_flat('#e8463c', 0.1, 6, 'bobber'), sub=1, seg=10)
     blob('bobber', (1.15, 0.43, 0.6), (0.02, 0.02, 0.016), A.m_flat('#fff6ea', 0.05, 6, 'bobberw'), sub=1, seg=10)
@@ -215,14 +218,14 @@ def build():
 
 
 # nesne adı → kendi içinde sadeleştirme (eğri/yoğun parçalar; tahta kutular olduğu gibi)
-DECIM = [(r'^rope$', 0.3), (r'^(pile|ladder|rung)$', 0.55), (r'^pile_sub$', 0.25), (r'^lifering$', 0.45), (r'^net$', 0.35),
-         (r'^(deck|stringer|beam|xbrace)$', 0.55), (r'^(slat|brace|lid|edge|core)$', 0.6), (r'^(fender|float|bucket|hoop|bollard)$', 0.6),
-         (r'^(rod|handle|arm|lamppost|peg|star)$', 0.5)]
+DECIM = [(r'^(pile|ladder|rung)$', 0.55), (r'^lifering$', 0.45), (r'^net$', 0.35),
+         (r'^(slat|brace|lid|edge)$', 0.4), (r'^(fender|float|bucket|hoop|bollard)$', 0.6),
+         (r'^(rod|rodgrip|handle|arm|lamppost|peg|star|bobber)$', 0.5), (r'^band$', 0.6)]
 # nesne adı → UV yoğunluğu (yakın/önemli parçalar çok, su altı ve kiriş altı az)
-WEIGHTS = [(r'^deck$', 1.55), (r'^lifering$', 1.7), (r'^(glass|lbar|lcap|lbase|lhook)$', 1.6), (r'^(fender|fendercap)$', 1.4),
+WEIGHTS = [(r'^deck(_lo)?$', 1.55), (r'^lifering$', 1.7), (r'^(glass|lbar|lcap|lbase|lhook)$', 1.6), (r'^(fender|fendercap)$', 1.4),
            (r'^(slat|brace|lid|edge|core)$', 1.2), (r'^(net|float)$', 1.25), (r'^pile$', 1.05), (r'^pile_sub$', 0.3),
-           (r'^(stringer|beam)$', 0.55), (r'^xbrace$', 0.8), (r'^rope$', 0.8), (r'^(ladder|rung)$', 0.85), (r'^(bucket|bwater|hoop|handle)$', 1.15),
+           (r'^(stringer|beam)(_lo)?$', 0.55), (r'^xbrace(_lo)?$', 0.8), (r'^ropecore', 0.8), (r'^(ladder|rung)$', 0.85), (r'^(bucket|bwater|hoop|handle)$', 1.15),
            (r'^bollard$', 1.2), (r'^band$', 0.9)]
 
 if __name__ == '__main__':
-    KK.main('b_pier', build, DECIM, WEIGHTS, budget=13000, tex=1024)
+    KK.main('b_pier', build, DECIM, WEIGHTS, budget=13000, tex=1024, floor=-0.5)

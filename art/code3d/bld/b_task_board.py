@@ -66,6 +66,11 @@ def build():
     rbox('cork', (0, 0, 1.15), (1.1, 0.06, 0.8), CORK, bevel=0.02)
     for (x, z, sx, sz) in ((0, 0.73, 1.28, 0.08), (-0.6, 1.15, 0.08, 0.92), (0.6, 1.15, 0.08, 0.92), (0, 1.57, 1.28, 0.08)):
         AT.plank('frame', (x, -0.02, z), (sx, 0.09, sz), FR, seed=int(x * 10 + z * 10))
+    # arka kaplama: dikey tahtalar + çapraz destek (pano arkadan da yapılmış görünsün; mantarın arkası boşa doku yemesin)
+    BW = KE.m_wood2('#946139', 'backw', salt=1.0, ground=0.0)
+    for i in range(5):
+        AT.plank('back', (-0.44 + i * 0.22, 0.045, 1.15), (0.21, 0.03, 0.84), BW if i != 3 else FR, seed=40 + i, amt=0.004)
+    AT.plank('back', (0, 0.07, 1.15), (1.12, 0.025, 0.07), FR, rot=(0, -32, 0), seed=47, amt=0.004)
     # paslı köşebentler (çerçeve köşeleri, önden)
     for sx in (-1, 1):
         for zc in (0.73, 1.57):
@@ -85,8 +90,8 @@ def build():
     AT.prism('icon', [(-0.095, 0), (0.095, 0), (0, 0.075)], 0.012, CORAL, loc=onb(-0.25, 1.655), rot=(tilt, 0, 0), bevel=0.004)
     rbox('icon', onb(-0.25, 1.6, 0.004), (0.035, 0.008, 0.055), DARK, rot=(tilt, 0, 0), bevel=0.003)
     # onay işareti
-    rbox('icon', onb(0.2, 1.615), (0.05, 0.014, 0.022), GREEN, rot=(tilt, 40, 0), bevel=0.008)
-    rbox('icon', onb(0.27, 1.64), (0.13, 0.014, 0.022), GREEN, rot=(tilt, -52, 0), bevel=0.008)
+    rbox('icon', onb(0.1975, 1.6075), (0.075, 0.014, 0.03), GREEN, rot=(tilt, 45, 0), bevel=0.009)
+    rbox('icon', onb(0.275, 1.64), (0.175, 0.014, 0.03), GREEN, rot=(tilt, -45, 0), bevel=0.009)
     for x in (-0.48, 0.48):
         AT.nail((x, -0.13, 1.635), (0, -1, 0), streak=True)
     # notlar: koyu satırlar + simge + kıvrık köşe + raptiye
@@ -157,7 +162,7 @@ def build():
     cyl('ridge', (0, 0, RZ + 0.04), 0.055, 1.62, RF[1], rot=(0, 90, 0), verts=12)
     # yosun: sırtta, arka eğimde, ön saçak köşesinde
     for (p, rr, sd, nrm) in (((-0.42, 0.02, RZ + 0.08), 0.06, 1, (0, 0.2, 1)), ((0.3, 0.33, 2.0), 0.07, 2, (0, 0.55, 0.83)),
-                             ((-0.55, 0.45, 1.93), 0.06, 3, (0, 0.55, 0.83)), ((0.62, -0.42, 1.89), 0.045, 4, (0, -0.55, 0.83))):
+                             ((-0.55, 0.45, 1.93), 0.06, 3, (0, 0.55, 0.83)), ((0.55, -0.36, 1.955), 0.05, 4, (0, -0.55, 0.83))):
         KE.moss_clump(p, rr, sd, nrm)
     star((0, 0, 2.3), 0.13, 0.05, pitch=90, gold=True)
     # yeni görev zili (sağ saçak altı): halat askı, pirinç çan (yeşil pas), tokmak, çekme ipi
@@ -240,9 +245,10 @@ def _star_gold():
 
 
 # hedef: eğri/yoğun parçalar kendi içinde sadeleşir; kutular kalır
-DECIM = [(r'^shingle$', 0.16), (r'^roofbase$', 0.12), (r'^(frame|ledge|header|patch)$', 0.3), (r'^(lush|tufts|rosette)$', 0.4),
-         (r'^(pet|fc)$', 0.55), (r'^(Icosphere|moss)$', 0.4), (r'^(rope|fray)$', 0.45), (r'^(stem)$', 0.6), (r'^(nail|streak)$', 0.5),
-         (r'^(starfish|shell)$', 0.35), (r'^(sand|wornground)$', 0.35), (r'^(ridge)$', 0.6), (r'^bell$', 0.6)]
+DECIM = [(r'^shingle$', 0.12), (r'^roofbase$', 0.12), (r'^(frame|ledge|header|patch|back)$', 0.3), (r'^(lush|tufts|rosette)$', 0.3),
+         (r'^(pet|fc)$', 0.25), (r'^(Icosphere|moss)$', 0.25), (r'^rope$', 0.1), (r'^fray$', 0.5), (r'^(stem)$', 0.35), (r'^(nail|streak)$', 0.45),
+         (r'^(starfish|shell)$', 0.3), (r'^(sand|wornground)$', 0.3), (r'^(ridge)$', 0.6), (r'^bell$', 0.6), (r'^(strap|star)$', 0.4),
+         (r'^icon$', 0.4), (r'^pin$', 0.5), (r'^(pencil|cup)$', 0.6)]
 # UV önemi: okunması gereken notlar/başlık/simgeler büyük, çimen/çakıl küçük
 WEIGHTS = [(r'^(paper|line|icon|header)$', 1.9), (r'^(pin|star)$', 1.4), (r'^(cork)$', 1.3), (r'^(frame|strap)$', 1.15), (r'^(shingle|ridge)$', 1.05),
            (r'^(lush|tufts|rosette|stem|pet|fc|Icosphere|fray|sand|wornground)$', 0.5), (r'^(roofbase)$', 0.7)]
