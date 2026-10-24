@@ -123,6 +123,7 @@ def build():
     DK = overlay(A.m_wood('#7a5232', 'surfdark', age=1.3, grime=NOG), L_footwet(0.2), 'surfdark_k')
     FL = overlay(A.m_wood('#c99a66', 'surffloor', age=1.3, grime=NOG), L_chain(L_sunbleach(0.25), L_sanddust(0.5)), 'surffloor_k')
     RP = AT.m_rope('#cdae78', 'surfrope')
+    for m in W + [DK, FL]: KK.bumpify(m, 0.32, 0.006)
     for x in (-SW / 2, SW / 2):
         for y in (-SD / 2, SD / 2):
             sd = int(x * 10 + y * 7)

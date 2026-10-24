@@ -152,6 +152,7 @@ def build():
     SOFT = overlay(A.m_rock(moss_th=(1.15, 1.4), warm=('#958a7c', '#aaa092', '#c2b8a6'), name='lhstone'), L_lichen(0.35), 'lhstone_k')
     STEP = overlay(A.m_rock(moss_th=(1.42, 1.7), warm=('#958a7c', '#aaa092', '#c2b8a6'), name='lhstep'), L_lichen(0.25), 'lhstep_k')
     I = AT.m_metal('#3e3b46', name='lhiron')
+    for m in (STN, SOFT, STEP): KK.bumpify(m, 0.35, 0.008)
     # ---- taş temel (eski profil) + iki sıra kabarık taş
     prof_base = [(0.001, 0.0), (0.9, 0.0), (0.92, 0.18), (0.88, 0.42), (0.76, 0.5), (0.001, 0.5)]
     AT.lathe('base', prof_base, STN, segs=24, noise_amt=0.06)
@@ -166,6 +167,7 @@ def build():
     AT.lathe('tower', [(0.001, 0.5)] + prof + [(0.001, H)], m_tower(), segs=32, noise_amt=0.01, seed=3)
     # ---- kapı: taş kemer + ahşap kanat (soluk turkuaz) + demir menteşe + halka
     DR = A.m_wood('#b98a5a', 'lhdoor', paint='#3d9a96', age=1.5, grime=NOG)
+    KK.bumpify(DR, 0.35, 0.005)
     yd = -rad(0.85)
     for k in range(4):
         KK.plank2('door', (-0.135 + k * 0.09, yd - 0.012, 0.86), (0.085, 0.05, 0.66), DR, seed=k + 3, amt=0.004, bevel=0.008)
@@ -198,6 +200,7 @@ def build():
     # ---- pencereler
     GLASS = A.m_flat('#2e4762', 0.15, 6, 'darkglass')
     SH = A.m_wood('#b98a5a', 'lhshutter', paint='#4d9c8a', age=1.6, grime=NOG)
+    KK.bumpify(SH, 0.3, 0.004)
     for i, (z, a) in enumerate(WINDOWS):
         window(z, a, SOFT, GLASS, SH, I, 30 + i * 7)
     # ---- balkon: konsollar, döşeme, korkuluk

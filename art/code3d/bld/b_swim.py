@@ -57,6 +57,7 @@ def build():
     I = AT.m_metal('#4d4852', name='swimiron')
     DP = overlay(A.m_wood('#c9a77a', 'divepaint', paint='#2fa3a0', age=1.6, grime=NOG), L_sunbleach(0.2), 'divepaint_k')
     DW = overlay(A.m_wood('#8f5d36', 'divep', age=1.3, grime=NOG), L_waterline(WZ, wet=0.08, band=(WZ - 0.03, WZ + 0.03)), 'divep_k')
+    for m in (STN_IN, STN, DP, DW): KK.bumpify(m, 0.3, 0.007)
     KK.plank2('dive', (0.3, 0.65, 0.42), (0.36, 0.95, 0.06), DP, rot=(-4, 0, 0), seed=3, bevel=0.012)
     for y in (0.95, 1.12):
         for x in (0.18, 0.42):

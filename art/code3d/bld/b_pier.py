@@ -44,6 +44,7 @@ def build():
     DKS = [overlay(A.m_wood(c, f'pdeck{i}', age=1.25, grime=NOG), L_sunbleach(0.24), f'pdeck{i}_k') for i, c in enumerate(tones)]
     FRESH = overlay(A.m_wood('#d29c5e', 'pdeckfresh', age=0.45, grime=NOG), L_sunbleach(0.1), 'pdeckfresh_k')
     RP = AT.m_rope(); RPW = overlay(AT.m_rope('#c9a974', 'ropewet'), wl, 'ropewet_k')
+    for m in [PL, PL2, FRESH] + DKS: KK.bumpify(m, 0.3, 0.006)
     I = AT.m_metal('#45414b', name='iron')
 
     # ---- kazıklar: su altı parçası ayrı (az doku), üstü su çizgisiyle

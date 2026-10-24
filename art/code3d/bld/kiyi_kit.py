@@ -120,6 +120,18 @@ def overlay(m, fn, name=None):
     return m2
 
 
+def bumpify(m, strength=0.3, dist=0.006):
+    """Renkten kabartma: taban renginin parlaklığı yükseklik olur (koyu çatlak, damar, düğüm, boya pulu kenarı çukur) → Cycles normal
+    pişirmesi bunu da normal haritasına yazar; oyunda toon ışıkta tahta damarı ve dökülen boya kabarık okunur. Malzemeyi yerinde değiştirir."""
+    nt = m.node_tree; b = next(n for n in nt.nodes if n.type == 'BSDF_PRINCIPLED')
+    inp = b.inputs['Base Color']
+    if not inp.links or b.inputs['Normal'].links: return m
+    bw = nt.nodes.new('ShaderNodeRGBToBW'); nt.links.new(inp.links[0].from_socket, bw.inputs[0])
+    bu = nt.nodes.new('ShaderNodeBump'); bu.inputs['Strength'].default_value = strength; bu.inputs['Distance'].default_value = dist
+    nt.links.new(bw.outputs[0], bu.inputs['Height']); nt.links.new(bu.outputs['Normal'], b.inputs['Normal'])
+    return m
+
+
 def L_waterline(zw=0.0, wet=0.13, band=(-0.05, 0.05), amt=1.0, specks=True):
     """Su çizgisi (nesne Z = dünya Z olan parçalar: eğriden dönen kazık, dikme): su altı koyu-yeşilimsi, üstünde gürültülü ıslak bant,
     çizgide parlak yosun şeridi (üst kenarı tırtıklı), şeridin içinde açık midye benekleri."""
