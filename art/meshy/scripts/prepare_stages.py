@@ -145,31 +145,55 @@ for o in [o for o in bpy.context.scene.objects if o.type == "MESH"]:
                 bpy.ops.object.modifier_move_to_index(modifier="subdiv", index=0); bpy.ops.object.modifier_apply(modifier="subdiv")
                 print("ALT BÖLÜNDÜ", len(o.data.polygons), "yüz")
             deband(o, *[float(x) for x in os.environ["POFI_DEBAND"].split(",")])
-            # bant yerinde katlanan yüzler ince koyu çizgi bırakıyordu → yüzey voksel ile yeniden örülür (temiz, kapalı yüzey),
-            # deri ağırlıkları eski ağdan aktarılır; renk aşağıda eski ağdan yeniden pişirilir
+            # bant yerinde katlanan yüzler ince koyu çizgi bırakıyordu → YALNIZ BAŞ (baş kemiği ağırlığı ≥ 0,5: kubbe + jöle eteği)
+            # voksel ile yeniden örülür (ağırlıklar yalnız baştan aktarılır) ve gövdeye geri eklenir; gövde Meshy'nin özgün ağı ve
+            # ağırlıklarıyla kalır. Tüm gövdeyi örmek kolları/bacakları gövdeye kaynatıp hareket ağırlıklarını bozuyordu
+            # (ergen/yetişkinde uzuvlar kayıyordu, kullanıcı 24 Ekim 2026). Bant köşelerini temiz yüzeye oturtmak (Shrinkwrap)
+            # yetişkinde oluk çentikleri bırakıyordu. Boyunda gövdenin açık kalan ağzı kapatılır (yoksa ek yerinde koyu çatlak).
+            # Renk aşağıda eski ağdan yeniden pişirilir.
+            import bmesh
             hi = o.copy(); hi.data = o.data.copy(); bpy.context.scene.collection.objects.link(hi)
+            full = max(o.dimensions)
+            hg = {vg.index for vg in o.vertex_groups if vg.name.split(":")[-1] in ("Head", "HeadTop_End", "headfront")}
+            headv = {v.index for v in o.data.vertices if sum(e.weight for e in v.groups if e.group in hg) >= 0.5}
             bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o
-            rm = o.modifiers.new("remesh", "REMESH"); rm.mode = "VOXEL"; rm.voxel_size = max(o.dimensions) * float(os.environ.get("POFI_VOXEL", "0.0035"))
+            bpy.ops.object.mode_set(mode="EDIT"); bpy.ops.mesh.select_all(action="DESELECT"); bpy.ops.object.mode_set(mode="OBJECT")
+            for poly in o.data.polygons: poly.select = all(v in headv for v in poly.vertices)
+            bpy.ops.object.mode_set(mode="EDIT"); bpy.ops.mesh.separate(type="SELECTED"); bpy.ops.object.mode_set(mode="OBJECT")
+            head = next(x for x in bpy.context.scene.objects if x.type == "MESH" and x not in (o, hi))
+            print("BAŞ PARÇASI", head.name, len(head.data.polygons), "yüz; gövde", len(o.data.polygons))
+            # gövdenin boynundaki açıklık kapanır (baş kabuğu ile gövde arasında çatlak görünmesin)
+            bpy.ops.object.mode_set(mode="EDIT"); bpy.ops.mesh.select_all(action="SELECT"); bpy.ops.mesh.fill_holes(sides=0)
+            bpy.ops.object.mode_set(mode="OBJECT")
+            src = head.copy(); src.data = head.data.copy(); bpy.context.scene.collection.objects.link(src)
+            bpy.ops.object.select_all(action="DESELECT"); head.select_set(True); bpy.context.view_layer.objects.active = head
+            # boyundaki kesik açık: voksel örme kapalı hacim ister (açık yüzey küçük bir topağa dönüyordu) → delikleri kapat
+            bpy.ops.object.mode_set(mode="EDIT"); bpy.ops.mesh.select_all(action="SELECT"); bpy.ops.mesh.fill_holes(sides=0)
+            bpy.ops.object.mode_set(mode="OBJECT")
+            rm = head.modifiers.new("remesh", "REMESH"); rm.mode = "VOXEL"; rm.voxel_size = full * float(os.environ.get("POFI_VOXEL", "0.0035"))
             bpy.ops.object.modifier_move_to_index(modifier="remesh", index=0); bpy.ops.object.modifier_apply(modifier="remesh")
-            o.vertex_groups.clear()
-            for g in hi.vertex_groups: o.vertex_groups.new(name=g.name)
-            dt = o.modifiers.new("weights", "DATA_TRANSFER"); dt.object = hi; dt.use_vert_data = True
+            print("BAŞ ÖRÜLDÜ", len(head.data.polygons), "yüz")
+            head.vertex_groups.clear()
+            for g in src.vertex_groups: head.vertex_groups.new(name=g.name)
+            dt = head.modifiers.new("weights", "DATA_TRANSFER"); dt.object = src; dt.use_vert_data = True
             dt.data_types_verts = {"VGROUP_WEIGHTS"}; dt.vert_mapping = "POLYINTERP_NEAREST"
             dt.layers_vgroup_select_src = "ALL"; dt.layers_vgroup_select_dst = "NAME"
             bpy.ops.object.modifier_move_to_index(modifier="weights", index=0); bpy.ops.object.modifier_apply(modifier="weights")
-            if not o.data.uv_layers: o.data.uv_layers.new(name="UVMap")
-            # örülen yüzeyde dilim kenarlarındaki ince oluklar: yalnız bant şeridinde yumuşat, sonra yumuşak gölgelendirme
-            import bmesh
+            bpy.data.objects.remove(src, do_unlink=True)
+            # örülen başta dilim kenarlarındaki ince oluklar: yalnız bant şeridinde yumuşat
             ya, yb = [float(x) for x in os.environ["POFI_DEBAND"].split(",")]
-            mw = o.matrix_world; nzz = (arm.matrix_world @ next(b for b in arm.data.bones if b.name.endswith("Neck")).head_local).z
-            bm = bmesh.new(); bm.from_mesh(o.data)
+            mw = head.matrix_world; nzz = (arm.matrix_world @ next(b for b in arm.data.bones if b.name.endswith("Neck")).head_local).z
+            bm = bmesh.new(); bm.from_mesh(head.data)
             band = [v for v in bm.verts if (mw @ v.co).z > nzz and ya - 0.06 <= (mw @ v.co).y <= yb + 0.06]
             for _ in range(int(os.environ.get("POFI_DEBAND_SMOOTH2", "25"))):
                 bmesh.ops.smooth_vert(bm, verts=band, factor=0.5, use_axis_x=True, use_axis_y=True, use_axis_z=True)
-            bm.to_mesh(o.data); bm.free()
-            o.data.shade_smooth()
+            bm.to_mesh(head.data); bm.free()
+            head.data.shade_smooth()
+            if not head.data.uv_layers: head.data.uv_layers.new(name=o.data.uv_layers[0].name if o.data.uv_layers else "UVMap")
+            bpy.ops.object.select_all(action="DESELECT"); head.select_set(True); o.select_set(True); bpy.context.view_layer.objects.active = o
+            bpy.ops.object.join()
             tris = sum(len(p.vertices) - 2 for p in o.data.polygons)
-            print("YENİDEN ÖRÜLDÜ", tris, "üçgen")
+            print("BAŞ YENİDEN ÖRÜLDÜ, gövde özgün:", tris, "üçgen")
         if REBAKE and hi is None:
             hi = o.copy(); hi.data = o.data.copy(); bpy.context.scene.collection.objects.link(hi)
         bpy.ops.object.select_all(action="DESELECT"); o.select_set(True); bpy.context.view_layer.objects.active = o

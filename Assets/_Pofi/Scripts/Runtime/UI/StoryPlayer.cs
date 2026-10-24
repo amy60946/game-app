@@ -55,7 +55,7 @@ namespace Pofi.UI
             p._th = th; p._book = book; p._scene = scene; p._mode = mode; p._band = band;
             p._petName = petName; p._petId = petId; p._done = done; p._root = root; p._goText = goText; p._skipText = skipText;
             p.Build();
-            Playing = true; _current = p;
+            Playing = true; _current = p; Audio.Music.Scene(true);
             p.Next();
         }
 
@@ -201,6 +201,7 @@ namespace Pofi.UI
         private void OnDestroy()
         {
             Audio.Voice.StopIf(_full);
+            Audio.Music.Scene(false);
             Playing = false;
             if (_current == this) _current = null;
             if (_done != null) { var d = _done; _done = null; d(); }

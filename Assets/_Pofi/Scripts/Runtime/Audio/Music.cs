@@ -15,9 +15,14 @@ namespace Pofi.Audio
         public const float DefaultVolume = 0.55f;
         private static float _vol;
         private static bool _duck;
+        private static int _scene;
 
-        /// <summary>Sesli okuma sürerken müzik bu orana kısılır (<see cref="Voice"/>).</summary>
-        public const float DuckLevel = 0.35f;
+        /// <summary>Sesli okuma sürerken müzik bu orana kısılır (<see cref="Voice"/>). 0,35 anlatıcıyı bastırıyordu (kullanıcı, 24 Ekim 2026).</summary>
+        public const float DuckLevel = 0.18f;
+        /// <summary>Giriş filmi ve hikâye sahnesi boyunca (cümleler arasında da) müzik arka fonda bu düzeyde kalır.</summary>
+        public const float SceneLevel = 0.3f;
+        /// <summary>Düzey değişimi ani değil: saniyede bu kadar (tam ses oranı) kayar.</summary>
+        private const float FadeRate = 1.6f;
 
         public static bool On => _src != null && _vol > 0.001f;
 
@@ -31,6 +36,7 @@ namespace Pofi.Audio
                 Object.DontDestroyOnLoad(go);
                 _src = go.AddComponent<AudioSource>();
                 _src.clip = clip; _src.loop = true; _src.playOnAwake = false; _src.spatialBlend = 0f; _src.priority = 0;
+                go.AddComponent<Fader>();
             }
             _vol = Mathf.Clamp01(volume);
             Apply();
@@ -41,12 +47,29 @@ namespace Pofi.Audio
         public static void Duck(bool on)
         {
             _duck = on;
-            Apply();
         }
+
+        /// <summary>Film/hikâye sahnesi açılınca true, kapanınca false (iç içe sayılır): müzik arka fona çekilir.</summary>
+        public static void Scene(bool on)
+        {
+            _scene = Mathf.Max(0, _scene + (on ? 1 : -1));
+        }
+
+        private static float Target => _vol * (_duck ? DuckLevel : _scene > 0 ? SceneLevel : 1f);
 
         private static void Apply()
         {
-            if (_src != null) _src.volume = _vol * (_duck ? DuckLevel : 1f);
+            if (_src != null) _src.volume = Target;
+        }
+
+        /// <summary>Kısma/açma yumuşak geçsin (anlatıcı başlarken müzik birden düşüp sıçramasın).</summary>
+        private sealed class Fader : MonoBehaviour
+        {
+            private void Update()
+            {
+                if (_src == null) return;
+                _src.volume = Mathf.MoveTowards(_src.volume, Target, FadeRate * Mathf.Max(_vol, 0.05f) * Time.unscaledDeltaTime);
+            }
         }
 
         /// <summary>Durum (test/hata ayıklama): çalıyor mu, süre ve konum.</summary>

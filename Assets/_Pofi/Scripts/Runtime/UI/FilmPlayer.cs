@@ -57,7 +57,7 @@ namespace Pofi.UI
             var p = root.gameObject.AddComponent<FilmPlayer>();
             p._root = root; p._th = th; p._scene = intro; p._band = band; p._petName = petName ?? ""; p._done = done;
             p.Build(skipText, goText);
-            Playing = true; _current = p;
+            Playing = true; _current = p; Audio.Music.Scene(true);
             p.NextLine();
         }
 
@@ -199,6 +199,7 @@ namespace Pofi.UI
         private void OnDestroy()
         {
             Audio.Voice.StopIf(_full);
+            Audio.Music.Scene(false);
             Playing = false;
             if (_current == this) _current = null;
             if (_done != null) { var d = _done; _done = null; d(); }
