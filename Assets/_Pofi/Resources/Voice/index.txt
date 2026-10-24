@@ -19,6 +19,23 @@ bf6e9ed34a3e61a2	adali	Ben Kıskaç. Dükkânım bu kabuğun içinde, hah!
 a81e02efd40e993e	okti	Ada neden sisli?
 ef66e398b144551f	adali	Uzun hikâye. Önce karnını doyuralım, sonra anlatırım.
 02770ae069c48983	adali	Önce bir elma ye!
+23ad9c3121df33d7	adali	Hoş geldin! Karnın doydu, üstün başın tertemiz.
+33e2aebcc17b6022	adali	Hoş geldin!
+ae4747debe4afef8	adali	Ama bak, fırtına tezgâhımı bomboş bıraktı.
+a548eab3be2547b4	adali	Tezgâhım bomboş kaldı.
+10e8eec4e7e63877	adali	Fırtına tezgâhımı süpürdü. Vitrin: boş. Moral: daha boş.
+fb72ddc8f687ba7a	adali	Bana 2 hindistan cevizi getirir misin?
+99a87dd07217e8d0	adali	2 hindistan cevizi getirir misin?
+b4aee0a9cb2bbe7f	okti	Tabii! Nerede bulurum?
+7353554725dcb8b1	okti	Nerede bulurum?
+0ca4c0c0e4c3879f	adali	Kumsalda yerde arayabilir ya da bahçede toplayabilirsin!
+bca5509d2d3f6f02	adali	Kumsalda ya da bahçede bak!
+b5e05e98ebd8f7a9	adali	Harika! Tezgâhım yine şenlendi.
+46da488715ecd402	adali	Harika, teşekkürler!
+575ce0e1ebce08a3	okti	Sana yardım etmek çok güzeldi!
+41755806d2f4c910	okti	Çok güzeldi!
+1792395906e5ac4b	adali	Bak, gökyüzünde biri var... Postacı Mavi mi o?
+0e737976088173de	adali	Bak, gökyüzünde biri var!
 4214ec568063e929	adali	Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.
 afb1b8b7229e055e	adali	Evdeki büyüklerin buraya görev bırakır.
 72fcc3ff8aa6bbf3	adali	Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!
@@ -172,7 +189,7 @@ cbffecd0e3bea7e3	anlatici	Görev yap, yıldız kazan!
 38d37cbecd6663dd	anlatici	Yıldız topla, seviye atla! Rozetlerin için kartına dokun.
 5769bdbd50616088	anlatici	Okti'nin üstünü değiştir: ona dokun!
 7554903fc00be311	anlatici	Parıltıya git, topla!
-29d4ac3b81076939	anlatici	Haritadan hemen git!
+1e4450f84c035893	anlatici	Haritada adanın tamamını gör!
 9792488b7a80106e	anlatici	Ürüne dokun, Al'a bas.
 c583cadde22634ac	anlatici	Noktaya dokun, giydir!
 f66c3550451f9bc6	anlatici	Topla'ya bas, ev toplansın!
@@ -181,15 +198,14 @@ f66c3550451f9bc6	anlatici	Topla'ya bas, ev toplansın!
 c1e92621bc4aa7b7	anlatici	Okti'ye dokun, elmayı seç: karnı doysun!
 add097760df22d24	anlatici	Okti'ye dokun, sabunu seç: tertemiz olsun!
 462a9ecdeef7023d	anlatici	Evim'e yürü ve içeri gir.
-31f11c759c99153e	anlatici	Evim'e gir, Topla'ya dokun.
-3d2af0057d91d8ed	anlatici	Okti'nin üstüne dokun, bir aksesuar tak.
+985796ff433f654f	anlatici	Topla'ya dokun: ev toplansın!
+bf34ad2751ded534	anlatici	Okti'nin üstüne dokun, aksesuarını tak.
 404b309f2966037c	anlatici	Ev Görevleri panosuna git.
-986861ff6bb381cf	anlatici	Kütük, çalı ya da taş topla.
-2de73e7b5d5c8766	anlatici	Malzemeleri getir, kulübeyi yap!
-9d5b8f4f5287bcc5	anlatici	Hindistan cevizi bahçesinde oyna.
-81a748c12f0e08c6	anlatici	Dükkândan bir şey al.
+384353bbc381e0a8	anlatici	Kulübe için odun, dal ve taş topla.
+0c1ecedab996c52b	anlatici	Şantiyeye git, kulübeyi yap!
+19cc35099b517b5b	anlatici	2 hindistan cevizi bul: kumsalda ara ya da bahçede oyna.
+9c50bb1715dc8ca3	anlatici	Dükkâna git: ilk aksesuarını al!
 35bc91f37f24d239	anlatici	Güneş Taşını sisli yere götür, koy!
-033a78424b23deb6	anlatici	Oyun kulübesinde bir oyun oyna.
 e6660ad2dc4dfa59	anlatici	Görevi yapınca Yaptım'a bas!
 970acf480b821ac6	anlatici	Güneş Taşını yerleştir, sis kalksın!
 9095eb9334346648	anlatici	Sisli yere git, taşı koy!
@@ -202,3 +218,16 @@ b65baf7ff2c9c9dd	anlatici	Baltayla kütüğü kes! Sağ alttaki tuşa bas.
 530e750890342c0c	anlatici	Kulübe yeri! Odun, dal ve taş topla.
 c7038c441d42f2c6	anlatici	Malzemeler tamam! Yap'a bas.
 e3ca72e419c1755a	anlatici	Malzemeler tamam! Kulübe yerine git.
+53353ce41fe8ad46	anlatici	Oyna'ya dokun: Okti mutlu olsun!
+9539ce0707d58e71	anlatici	Bu aksesuar sana yeter! Seçili, Al'a bas.
+9856eb4453e0e995	anlatici	Kıskaç seni bekliyor: yanına git!
+e3a06c0eda726064	anlatici	Hindistan cevizlerini Kıskaç'a götür!
+df12febcc85bf2b6	anlatici	Gökyüzüne bak: biri sana uçuyor!
+efc20cc54f3c4c1a	anlatici	Kıskaç'tan hoş geldin hediyesi: 20 coin! İlk aksesuarını alabilirsin.
+d0d374892a320aeb	anlatici	Bir hindistan cevizi buldun!
+1a1ea375f8122f0c	anlatici	2 hindistan cevizin oldu! Kıskaç'a götür.
+009649398cc7a21d	anlatici	Hindistan cevizi! Topla'ya bas.
+79972de144eb410f	anlatici	Bir ödüle dokun, sonra İste'ye bas!
+bc46eaf845ecadc7	anlatici	İlk isteğin ailene gitti! Onaylayınca sana haber gelir.
+313d92e501a0422f	anlatici	Yeni: Gerçek ödüller! Dükkâna git.
+8d4c5d1cb1a05d97	anlatici	Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.

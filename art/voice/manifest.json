@@ -235,6 +235,193 @@
    "cer": 0.0
   },
   {
+   "key": "23ad9c3121df33d7",
+   "text": "Hoş geldin! Karnın doydu, üstün başın tertemiz.",
+   "role": "adali",
+   "src": "story:ch1_coconut:0:text",
+   "who": "kiskac",
+   "tts": "Hoş geldin! Karnın doydu, üstün başın tertemiz.",
+   "sec": 3.18,
+   "seed": 101,
+   "cer": 0.0
+  },
+  {
+   "key": "33e2aebcc17b6022",
+   "text": "Hoş geldin!",
+   "role": "adali",
+   "src": "story:ch1_coconut:0:a",
+   "who": "kiskac",
+   "tts": "Hoş geldin!",
+   "sec": 2.68,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "ae4747debe4afef8",
+   "text": "Ama bak, fırtına tezgâhımı bomboş bıraktı.",
+   "role": "adali",
+   "src": "story:ch1_coconut:1:text",
+   "who": "kiskac",
+   "tts": "Ama bak, fırtına tezgâhımı bomboş bıraktı.",
+   "sec": 3.72,
+   "seed": 100,
+   "cer": 0.025
+  },
+  {
+   "key": "a548eab3be2547b4",
+   "text": "Tezgâhım bomboş kaldı.",
+   "role": "adali",
+   "src": "story:ch1_coconut:1:a",
+   "who": "kiskac",
+   "tts": "Tezgâhım bomboş kaldı.",
+   "sec": 1.57,
+   "seed": 7,
+   "cer": 0.095
+  },
+  {
+   "key": "10e8eec4e7e63877",
+   "text": "Fırtına tezgâhımı süpürdü. Vitrin: boş. Moral: daha boş.",
+   "role": "adali",
+   "src": "story:ch1_coconut:1:c",
+   "who": "kiskac",
+   "tts": "Fırtına tezgâhımı süpürdü. Vitrin: boş. Moral: daha boş.",
+   "sec": 5.32,
+   "seed": 100,
+   "cer": 0.118
+  },
+  {
+   "key": "fb72ddc8f687ba7a",
+   "text": "Bana 2 hindistan cevizi getirir misin?",
+   "role": "adali",
+   "src": "story:ch1_coconut:2:text",
+   "who": "kiskac",
+   "tts": "Bana iki hindistan cevizi getirir misin?",
+   "sec": 3.92,
+   "seed": 102,
+   "cer": 0.077
+  },
+  {
+   "key": "99a87dd07217e8d0",
+   "text": "2 hindistan cevizi getirir misin?",
+   "role": "adali",
+   "src": "story:ch1_coconut:2:a",
+   "who": "kiskac",
+   "tts": "iki hindistan cevizi getirir misin?",
+   "sec": 3.28,
+   "seed": 102,
+   "cer": 0.0
+  },
+  {
+   "key": "b4aee0a9cb2bbe7f",
+   "text": "Tabii! Nerede bulurum?",
+   "role": "okti",
+   "src": "story:ch1_coconut:3:text",
+   "who": "okti",
+   "tts": "Tabii! Nerede bulurum?",
+   "sec": 4.33,
+   "seed": 7,
+   "cer": 0.05
+  },
+  {
+   "key": "7353554725dcb8b1",
+   "text": "Nerede bulurum?",
+   "role": "okti",
+   "src": "story:ch1_coconut:3:a",
+   "who": "okti",
+   "tts": "Nerede bulurum?",
+   "sec": 0.94,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "0ca4c0c0e4c3879f",
+   "text": "Kumsalda yerde arayabilir ya da bahçede toplayabilirsin!",
+   "role": "adali",
+   "src": "story:ch1_coconut:4:text",
+   "who": "kiskac",
+   "tts": "Kumsalda yerde arayabilir ya da bahçede toplayabilirsin!",
+   "sec": 3.12,
+   "seed": 102,
+   "cer": 0.018
+  },
+  {
+   "key": "bca5509d2d3f6f02",
+   "text": "Kumsalda ya da bahçede bak!",
+   "role": "adali",
+   "src": "story:ch1_coconut:4:a",
+   "who": "kiskac",
+   "tts": "Kumsalda ya da bahçede bak!",
+   "sec": 2.92,
+   "seed": 7,
+   "cer": 0.038
+  },
+  {
+   "key": "b5e05e98ebd8f7a9",
+   "text": "Harika! Tezgâhım yine şenlendi.",
+   "role": "adali",
+   "src": "story:ch1_thanks:0:text",
+   "who": "kiskac",
+   "tts": "Harika! Tezgâhım yine şenlendi.",
+   "sec": 2.4,
+   "seed": 100,
+   "cer": 0.069
+  },
+  {
+   "key": "46da488715ecd402",
+   "text": "Harika, teşekkürler!",
+   "role": "adali",
+   "src": "story:ch1_thanks:0:a",
+   "who": "kiskac",
+   "tts": "Harika, teşekkürler!",
+   "sec": 1.6,
+   "seed": 7,
+   "cer": 0.056
+  },
+  {
+   "key": "575ce0e1ebce08a3",
+   "text": "Sana yardım etmek çok güzeldi!",
+   "role": "okti",
+   "src": "story:ch1_thanks:1:text",
+   "who": "okti",
+   "tts": "Sana yardım etmek çok güzeldi!",
+   "sec": 2.82,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "41755806d2f4c910",
+   "text": "Çok güzeldi!",
+   "role": "okti",
+   "src": "story:ch1_thanks:1:a",
+   "who": "okti",
+   "tts": "Çok güzeldi!",
+   "sec": 2.34,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "1792395906e5ac4b",
+   "text": "Bak, gökyüzünde biri var... Postacı Mavi mi o?",
+   "role": "adali",
+   "src": "story:ch1_thanks:2:text",
+   "who": "kiskac",
+   "tts": "Bak, gökyüzünde biri var... Postacı Mavi mi o?",
+   "sec": 3.52,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "0e737976088173de",
+   "text": "Bak, gökyüzünde biri var!",
+   "role": "adali",
+   "src": "story:ch1_thanks:2:a",
+   "who": "kiskac",
+   "tts": "Bak, gökyüzünde biri var!",
+   "sec": 5.04,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
    "key": "4214ec568063e929",
    "text": "Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.",
    "role": "adali",
@@ -1918,15 +2105,15 @@
    "cer": 0.053
   },
   {
-   "key": "29d4ac3b81076939",
-   "text": "Haritadan hemen git!",
+   "key": "1e4450f84c035893",
+   "text": "Haritada adanın tamamını gör!",
    "role": "anlatici",
    "src": "tr:tip.overview",
    "who": "narrator",
-   "tts": "Haritadan hemen git!",
-   "sec": 3.28,
+   "tts": "Haritada adanın tamamını gör!",
+   "sec": 4.52,
    "seed": 7,
-   "cer": 0.0
+   "cer": 0.071
   },
   {
    "key": "9792488b7a80106e",
@@ -2017,26 +2204,26 @@
    "cer": 0.0
   },
   {
-   "key": "31f11c759c99153e",
-   "text": "Evim'e gir, Topla'ya dokun.",
+   "key": "985796ff433f654f",
+   "text": "Topla'ya dokun: ev toplansın!",
    "role": "anlatici",
    "src": "tr:guide.tidy",
    "who": "narrator",
-   "tts": "Evim'e gir, Topla'ya dokun.",
-   "sec": 4.84,
+   "tts": "Topla'ya dokun: ev toplansın!",
+   "sec": 3.08,
    "seed": 7,
    "cer": 0.0
   },
   {
-   "key": "3d2af0057d91d8ed",
-   "text": "Okti'nin üstüne dokun, bir aksesuar tak.",
+   "key": "bf34ad2751ded534",
+   "text": "Okti'nin üstüne dokun, aksesuarını tak.",
    "role": "anlatici",
    "src": "tr:guide.wear",
    "who": "narrator",
-   "tts": "Okti'nin üstüne dokun, bir aksesuar tak.",
-   "sec": 3.76,
+   "tts": "Okti'nin üstüne dokun, aksesuarını tak.",
+   "sec": 5.68,
    "seed": 7,
-   "cer": 0.027
+   "cer": 0.0
   },
   {
    "key": "404b309f2966037c",
@@ -2050,48 +2237,48 @@
    "cer": 0.0
   },
   {
-   "key": "986861ff6bb381cf",
-   "text": "Kütük, çalı ya da taş topla.",
+   "key": "384353bbc381e0a8",
+   "text": "Kulübe için odun, dal ve taş topla.",
    "role": "anlatici",
    "src": "tr:guide.gather",
    "who": "narrator",
-   "tts": "Kütük, çalı ya da taş topla.",
-   "sec": 3.48,
-   "seed": 101,
-   "cer": 0.077
+   "tts": "Kulübe için odun, dal ve taş topla.",
+   "sec": 3.84,
+   "seed": 7,
+   "cer": 0.03
   },
   {
-   "key": "2de73e7b5d5c8766",
-   "text": "Malzemeleri getir, kulübeyi yap!",
+   "key": "0c1ecedab996c52b",
+   "text": "Şantiyeye git, kulübeyi yap!",
    "role": "anlatici",
    "src": "tr:guide.hut",
    "who": "narrator",
-   "tts": "Malzemeleri getir, kulübeyi yap!",
-   "sec": 7.84,
-   "seed": 100,
-   "cer": 0.067
+   "tts": "Şantiyeye git, kulübeyi yap!",
+   "sec": 2.69,
+   "seed": 102,
+   "cer": 0.077
   },
   {
-   "key": "9d5b8f4f5287bcc5",
-   "text": "Hindistan cevizi bahçesinde oyna.",
+   "key": "19cc35099b517b5b",
+   "text": "2 hindistan cevizi bul: kumsalda ara ya da bahçede oyna.",
    "role": "anlatici",
    "src": "tr:guide.coconut",
    "who": "narrator",
-   "tts": "Hindistan cevizi bahçesinde oyna.",
-   "sec": 4.12,
-   "seed": 7,
-   "cer": 0.0
+   "tts": "iki hindistan cevizi bul: kumsalda ara ya da bahçede oyna.",
+   "sec": 4.68,
+   "seed": 100,
+   "cer": 0.036
   },
   {
-   "key": "81a748c12f0e08c6",
-   "text": "Dükkândan bir şey al.",
+   "key": "9c50bb1715dc8ca3",
+   "text": "Dükkâna git: ilk aksesuarını al!",
    "role": "anlatici",
    "src": "tr:guide.shop",
    "who": "narrator",
-   "tts": "Dükkândan bir şey al.",
-   "sec": 2.72,
-   "seed": 100,
-   "cer": 0.05
+   "tts": "Dükkâna git: ilk aksesuarını al!",
+   "sec": 2.14,
+   "seed": 7,
+   "cer": 0.033
   },
   {
    "key": "35bc91f37f24d239",
@@ -2103,17 +2290,6 @@
    "sec": 2.52,
    "seed": 7,
    "cer": 0.0
-  },
-  {
-   "key": "033a78424b23deb6",
-   "text": "Oyun kulübesinde bir oyun oyna.",
-   "role": "anlatici",
-   "src": "tr:guide.cards",
-   "who": "narrator",
-   "tts": "Oyun kulübesinde bir oyun oyna.",
-   "sec": 1.96,
-   "seed": 7,
-   "cer": 0.067
   },
   {
    "key": "e6660ad2dc4dfa59",
@@ -2246,6 +2422,149 @@
    "sec": 2.45,
    "seed": 7,
    "cer": 0.059
+  },
+  {
+   "key": "53353ce41fe8ad46",
+   "text": "Oyna'ya dokun: Okti mutlu olsun!",
+   "role": "anlatici",
+   "src": "tr:guide.play",
+   "who": "narrator",
+   "tts": "Oyna'ya dokun: Okti mutlu olsun!",
+   "sec": 1.97,
+   "seed": 7,
+   "cer": 0.034
+  },
+  {
+   "key": "9539ce0707d58e71",
+   "text": "Bu aksesuar sana yeter! Seçili, Al'a bas.",
+   "role": "anlatici",
+   "src": "tr:guide.shop_pick",
+   "who": "narrator",
+   "tts": "Bu aksesuar sana yeter! Seçili, Al'a bas.",
+   "sec": 2.76,
+   "seed": 101,
+   "cer": 0.027
+  },
+  {
+   "key": "9856eb4453e0e995",
+   "text": "Kıskaç seni bekliyor: yanına git!",
+   "role": "anlatici",
+   "src": "tr:guide.kiskac",
+   "who": "narrator",
+   "tts": "Kıskaç seni bekliyor: yanına git!",
+   "sec": 2.6,
+   "seed": 7,
+   "cer": 0.065
+  },
+  {
+   "key": "e3a06c0eda726064",
+   "text": "Hindistan cevizlerini Kıskaç'a götür!",
+   "role": "anlatici",
+   "src": "tr:guide.deliver",
+   "who": "narrator",
+   "tts": "Hindistan cevizlerini Kıskaç'a götür!",
+   "sec": 4.33,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "df12febcc85bf2b6",
+   "text": "Gökyüzüne bak: biri sana uçuyor!",
+   "role": "anlatici",
+   "src": "tr:guide.mavi",
+   "who": "narrator",
+   "tts": "Gökyüzüne bak: biri sana uçuyor!",
+   "sec": 2.6,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "efc20cc54f3c4c1a",
+   "text": "Kıskaç'tan hoş geldin hediyesi: 20 coin! İlk aksesuarını alabilirsin.",
+   "role": "anlatici",
+   "src": "tr:welcome.coins",
+   "who": "narrator",
+   "tts": "Kıskaç'tan hoş geldin hediyesi: yirmi coin! İlk aksesuarını alabilirsin.",
+   "sec": 4.03,
+   "seed": 102,
+   "cer": 0.015
+  },
+  {
+   "key": "d0d374892a320aeb",
+   "text": "Bir hindistan cevizi buldun!",
+   "role": "anlatici",
+   "src": "tr:gather.coconut_got",
+   "who": "narrator",
+   "tts": "Bir hindistan cevizi buldun!",
+   "sec": 3.2,
+   "seed": 7,
+   "cer": 0.037
+  },
+  {
+   "key": "1a1ea375f8122f0c",
+   "text": "2 hindistan cevizin oldu! Kıskaç'a götür.",
+   "role": "anlatici",
+   "src": "tr:gather.coconut_ready",
+   "who": "narrator",
+   "tts": "iki hindistan cevizin oldu! Kıskaç'a götür.",
+   "sec": 2.44,
+   "seed": 100,
+   "cer": 0.025
+  },
+  {
+   "key": "009649398cc7a21d",
+   "text": "Hindistan cevizi! Topla'ya bas.",
+   "role": "anlatici",
+   "src": "tr:gather.tip_coconut",
+   "who": "narrator",
+   "tts": "Hindistan cevizi! Topla'ya bas.",
+   "sec": 2.08,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "79972de144eb410f",
+   "text": "Bir ödüle dokun, sonra İste'ye bas!",
+   "role": "anlatici",
+   "src": "tr:rewards.pick",
+   "who": "narrator",
+   "tts": "Bir ödüle dokun, sonra İste'ye bas!",
+   "sec": 2.48,
+   "seed": 100,
+   "cer": 0.031
+  },
+  {
+   "key": "bc46eaf845ecadc7",
+   "text": "İlk isteğin ailene gitti! Onaylayınca sana haber gelir.",
+   "role": "anlatici",
+   "src": "tr:rewards.first_sent",
+   "who": "narrator",
+   "tts": "İlk isteğin ailene gitti! Onaylayınca sana haber gelir.",
+   "sec": 9.68,
+   "seed": 7,
+   "cer": 0.019
+  },
+  {
+   "key": "313d92e501a0422f",
+   "text": "Yeni: Gerçek ödüller! Dükkâna git.",
+   "role": "anlatici",
+   "src": "tr:rewards.new_map",
+   "who": "narrator",
+   "tts": "Yeni: Gerçek ödüller! Dükkâna git.",
+   "sec": 3.48,
+   "seed": 7,
+   "cer": 0.032
+  },
+  {
+   "key": "8d4c5d1cb1a05d97",
+   "text": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
+   "role": "anlatici",
+   "src": "tr:rewards.intro",
+   "who": "narrator",
+   "tts": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
+   "sec": 6.88,
+   "seed": 7,
+   "cer": 0.009
   }
  ]
 }
