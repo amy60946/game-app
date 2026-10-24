@@ -1,3 +1,4 @@
+# ESKİ (24 Ekim 2026): oyundaki ui_coconut / ui_coconut_gold artık art/scripts/coconut_scene.py ile üretilir (lif telleri, üç göz).
 # Hindistan cevizi yakalama oyunu simgeleri (kredisiz, prosedürel): lifli kahverengi ceviz + altın ceviz.
 # Kullanım: python -I ui_coconut.py -- çıktı_klasörü   → ui_coconut.png, ui_coconut_gold.png (256², şeffaf)
 import bpy, math, sys

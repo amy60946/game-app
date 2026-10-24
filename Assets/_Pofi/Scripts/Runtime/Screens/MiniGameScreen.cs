@@ -125,40 +125,88 @@ namespace Pofi.Screens
 
         private static float PointerX01() => Mathf.Clamp01(Input.mousePosition.x / Mathf.Max(1f, Screen.width));
 
+        /// <summary>
+        /// Tam ekran sahne görseli (Resources altında, ör. "Games/coconut_bg"): en-boy korunarak ekranı kaplar; taşan kısım
+        /// üstten (gökyüzü, puan şeridinin altı) ve iki yandan kırpılır, alt kenar (kum) hep yerinde. Görsel yoksa false.
+        /// </summary>
+        private bool SceneBackdrop(string path)
+        {
+            var sp = Ui.Art(path);
+            if (sp == null) return false;
+            var rt = Ui.Fill(_area, "Scene");
+            rt.pivot = new Vector2(0.5f, 0f);
+            var img = rt.gameObject.AddComponent<Image>();
+            img.sprite = sp; img.raycastTarget = false;
+            var fit = rt.gameObject.AddComponent<AspectRatioFitter>();
+            fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+            fit.aspectRatio = sp.rect.width / Mathf.Max(1f, sp.rect.height);
+            rt.SetAsFirstSibling();
+            return true;
+        }
+
         // ------------------------------------------------------------ Ceviz Yakala
 
         private void StartCoconut(int seed)
         {
             var game = new CoconutCatch(App.Session.AgeBand, Difficulty, seed);
-            Backdrop(Theme.Hex("#8FDBFF"), Theme.Hex("#F6D79A"), 0.16f);
+            // 3B boyalı kumsal (art/scripts/coconut_scene.py: palmiyeler, deniz, kabuklar sahnenin içinde); yoksa eski düz zemin + palmiye simgeleri
+            if (!SceneBackdrop("Games/coconut_bg"))
+            {
+                Backdrop(Theme.Hex("#8FDBFF"), Theme.Hex("#F6D79A"), 0.16f);
+                Ui.IconImage(_area, "decor_palm", new Vector2(0.04f, 0.42f), 620f);
+                Ui.IconImage(_area, "decor_palm", new Vector2(0.96f, 0.42f), 560f);
+            }
             var basketW = App.Session.AgeBand.Young() ? 0.28f : App.Session.AgeBand == AgeBand.B ? 0.24f : 0.2f;
             const float BasketY = 0.2f;
-            // kıyı manzarası: iki yanda iri palmiyeler (ekranı doldurur)
-            Ui.IconImage(_area, "decor_palm", new Vector2(0.04f, 0.42f), 620f);
-            Ui.IconImage(_area, "decor_palm", new Vector2(0.96f, 0.42f), 560f);
-            var basket = Ui.Rect(_area, "Basket", new Vector2(0.5f, BasketY), new Vector2(Width * basketW * 0.6f, 170f));
             basketW *= 0.6f;   // yatay ekran geniş: sepet oransal olarak daralır
+            // katmanlar: yer gölgeleri (sepetin arkasında) → sepet → cevizler → parıltılar
+            var shades = Ui.Fill(_area, "Shades");
+            var basketSprite = Ui.Art("Games/basket");             // örgü sepet + temas gölgesi (art/scripts/coconut_scene.py)
+            var bw = Width * basketW;                                // görünen genişlik = yakalama genişliği
+            var bh = basketSprite != null ? bw * basketSprite.rect.height / basketSprite.rect.width : 170f;
+            var basket = Ui.Rect(_area, "Basket", new Vector2(0.5f, BasketY), new Vector2(bw, bh));
+            basket.pivot = new Vector2(0.5f, 0.08f);                 // ezilme/eğilme sepetin dibinden (kuma basar)
+            basket.anchoredPosition = new Vector2(0f, -(0.5f - 0.08f) * bh);
             var bimg = basket.gameObject.AddComponent<Image>(); bimg.raycastTarget = false;
-            bimg.sprite = Ui.Art("Games/basket");                  // örgü sepet (art/scripts/ui_games.py)
+            bimg.sprite = basketSprite;
             if (bimg.sprite == null) { bimg.sprite = Ui.Rounded; bimg.type = Image.Type.Sliced; bimg.color = PetColor; }
+            var nuts = Ui.Fill(_area, "Nuts");
+            var fx = Ui.Fill(_area, "Fx");
+            var groundY = -bh * 0.4f;                                // sepetin oturduğu kum çizgisi (BasketY'ye göre)
             var basketX = 0.5f;
             var live = new Dictionary<int, RectTransform>();
+            var shade = new Dictionary<int, Image>();
             var caught = new List<int>();
             var next = 0;
             var t = 0f;
             var score = 0;
+            float squashT = 10f, squashAmp = 0f, tilt = 0f;
             _tick = dt =>
             {
                 t += dt;
                 var ms = (int)(t * 1000f);
+                var prevX = basketX;
                 if (Input.GetMouseButton(0)) basketX = Mathf.Lerp(basketX, Mathf.Clamp(PointerX01(), basketW / 2f, 1f - basketW / 2f), 1f - Mathf.Exp(-25f * dt));
                 basket.anchorMin = basket.anchorMax = new Vector2(basketX, BasketY);
+                // canlılık: yakalayınca yaylı ezilme (dipten), giderken harekete doğru hafif eğilme
+                squashT += dt;
+                var e = Theme.ReduceMotion ? 0f : squashAmp * Mathf.Exp(-squashT * 7.5f) * Mathf.Cos(squashT * 26f);
+                basket.localScale = new Vector3(1f + e, 1f - e, 1f);
+                var vel = dt > 0f ? (basketX - prevX) / dt : 0f;
+                tilt = Mathf.Lerp(tilt, Theme.ReduceMotion ? 0f : Mathf.Clamp(-vel * 18f, -7f, 7f), 1f - Mathf.Exp(-12f * dt));
+                basket.localRotation = Quaternion.Euler(0f, 0f, tilt);
                 while (next < game.Schedule.Count && game.Schedule[next].AtMs <= ms)
                 {
                     var f = game.Schedule[next];
-                    // 3B görünümlü hindistan cevizi (art/scripts/ui_coconut.py); simge yoksa eski renkli daire
-                    live[next] = Ui.IconImage(_area, f.Golden ? "ui_coconut_gold" : "ui_coconut", new Vector2(f.X, 1.02f), f.Golden ? 170f : 150f)
-                                 ?? Dot(_area, new Vector2(f.X, 1.02f), f.Golden ? 100f : 90f, f.Golden ? Theme.Hex("#FFC400") : Theme.Hex("#7A4A26"));
+                    var size = f.Golden ? 170f : 150f;
+                    // 3B hindistan cevizi (art/scripts/coconut_scene.py); simge yoksa eski renkli daire
+                    live[next] = Ui.IconImage(nuts, f.Golden ? "ui_coconut_gold" : "ui_coconut", new Vector2(f.X, 1.02f), size)
+                                 ?? Dot(nuts, new Vector2(f.X, 1.02f), f.Golden ? 100f : 90f, f.Golden ? Theme.Hex("#FFC400") : Theme.Hex("#7A4A26"));
+                    // kumdaki yumuşak gölge: ceviz yaklaştıkça büyür ve koyulaşır (nereye düşeceğini de gösterir)
+                    var sh = Ui.Rect(shades, "Shade", new Vector2(f.X, BasketY), new Vector2(size * 0.95f, size * 0.26f), new Vector2(0f, groundY));
+                    var si = sh.gameObject.AddComponent<Image>(); si.sprite = GoldKit.GroundShadow; si.raycastTarget = false;
+                    si.color = new Color(1f, 1f, 1f, 0f);
+                    shade[next] = si;
                     next++;
                 }
                 foreach (var i in new List<int>(live.Keys))
@@ -168,6 +216,12 @@ namespace Pofi.Screens
                     var y = Mathf.Lerp(1.02f, BasketY, p);
                     live[i].anchorMin = live[i].anchorMax = new Vector2(f.X, y);
                     live[i].localRotation = Quaternion.Euler(0f, 0f, (i % 2 == 0 ? 1f : -1f) * p * 160f);   // düşerken yavaş döner
+                    if (shade.TryGetValue(i, out var si))
+                    {
+                        var k = Mathf.Clamp01(p);
+                        si.rectTransform.localScale = Vector3.one * Mathf.Lerp(0.3f, 1f, k * k);
+                        si.color = new Color(1f, 1f, 1f, Mathf.Lerp(0.12f, 1f, k * k) * Mathf.Clamp01(1f - (p - 1f) * 6f));
+                    }
                     if (p >= 1f && p < 1.08f && Mathf.Abs(f.X - basketX) < basketW / 2f + 0.03f)
                     {
                         caught.Add(i);
@@ -175,11 +229,18 @@ namespace Pofi.Screens
                         _score.text = T("mg.score", score);
                         Destroy(live[i].gameObject);
                         live.Remove(i);
+                        squashT = 0f; squashAmp = f.Golden ? 0.2f : 0.13f;
+                        CatchPop.Play(fx, new Vector2(basketX, BasketY), new Vector2(0f, bh * 0.22f), f.Golden, CoconutCatch.Points(f), Th.Font(f.Golden ? 64 : 54));
                     }
                     else if (y < -0.05f)
                     {
                         Destroy(live[i].gameObject);
                         live.Remove(i);
+                    }
+                    if (!live.ContainsKey(i) && shade.TryGetValue(i, out var gone))
+                    {
+                        Destroy(gone.gameObject);
+                        shade.Remove(i);
                     }
                 }
                 _timer.text = T("mg.time", Mathf.Max(0, Mathf.CeilToInt((game.DurationMs - ms) / 1000f)));
