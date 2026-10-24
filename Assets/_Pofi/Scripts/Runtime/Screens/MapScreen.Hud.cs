@@ -55,6 +55,20 @@ namespace Pofi.Screens
             return App.State.Tasks.ForDisplay(local).Count(t => t.Date == today && t.Status == Logic.Tasks.ChildTaskStatus.Assigned && !t.IsMissed(local));
         }
 
+        /// <summary>
+        /// Taş/coin şeridinin yeri (tasarım turu 24 Ekim 2026, iPad 4:3'te profile biniyordu): sol üst profil ayrıntısıyla sağ üst
+        /// Görev düğmesi arasında; ortada sığıyorsa ortada (profile değecekse sağa kayar), sığmıyorsa profil satırının altında ortada.
+        /// </summary>
+        private Vector2 CurrencyRowPos()
+        {
+            var w = Width;
+            var left = (20f + 116f + 12f + 340f) * G + 16f;          // profil ayrıntısının sağ kenarı (GoldProfile)
+            var right = w - (22f + 100f + 22f + 84f) * G - 16f;      // Görev düğmesinin sol kenarı
+            var half = 340f * G * 0.5f;
+            if (right - left >= 2f * half) return new Vector2(Mathf.Clamp(w * 0.5f, left + half, right - half) - w * 0.5f, -(24f + 24f) * G);
+            return new Vector2(0f, -(12f + 116f + 18f + 24f) * G);   // profil halkasının altı (dar ekran)
+        }
+
         private void BuildHud()
         {
             var hud = Ui.Fill(Root, "Hud");
@@ -66,7 +80,7 @@ namespace Pofi.Screens
             BuildProfile(hud);
 
             // üst orta: Güneş Taşı ve coin (altın kenarlı mavi hap, soldan taşan 3B simge; coin'de parıltı)
-            _curRow = Ui.Rect(hud, "Currencies", new Vector2(0.5f, 1f), new Vector2(340f * G, 48f * G), new Vector2(0f, -(24f + 24f) * G));
+            _curRow = Ui.Rect(hud, "Currencies", new Vector2(0.5f, 1f), new Vector2(340f * G, 48f * G), CurrencyRowPos());
             _stoneText = CurrencyPill(_curRow, "ui_sunstone", -91f * G);   // Güneş Taşı (yerleştirilebilir)
             _coinText = CurrencyPill(_curRow, "ui_coin", 91f * G);
             GoldKit.Sparkle(_coinText.transform.parent, new Vector2(0f, 1f), new Vector2(-10f * G, -2f * G), 16f * G, 0f);

@@ -11,7 +11,11 @@ namespace Pofi.Screens
     public sealed partial class TasksScreen
     {
         // kart sütunları (taslak D: 76 | 1fr | 112 | 200 px, ×1,5; sağdaki eylem sütunu dar pencereye göre biraz kısa)
-        private const float CardPadL = 18f, SealD = 114f, ColGap = 20f, RewardW = 140f, ActW = 250f, CardPadR = 22f, CardMinH = 186f, CardR = 33f;
+        private const float CardPadL = 18f, SealD = 114f, ColGap = 20f, CardPadR = 22f, CardMinH = 186f, CardR = 33f;
+        // dar pencerede (iPad 4:3) ödül ve eylem sütunu daralır: başlık sütunu 116 birime düşüp kelimeler ortasından bölünüyordu
+        // ("Dişlerin / i fırçala", tasarım turu 24 Ekim 2026)
+        private float RewardW => _narrow ? 112f : 140f;
+        private float ActW => _narrow ? 214f : 250f;
         private const float ChipH = 45f, StepD = 42f, StepLine = 24f;
 
         /// <summary>Postacı Mavi (v4 tam boy; yoksa portre, yoksa martı simgesi).</summary>
@@ -53,6 +57,9 @@ namespace Pofi.Screens
             var line = PrefH(title, mainW, "Ag");
             var titleH = Mathf.Min(PrefH(title, mainW, task.Title), line * 3.05f);
             if (PrefH(title, mainW, task.Title) > titleH + 1f) Fit(title, F(34));   // çok uzun başlık: üç satıra sığacak kadar küçülür
+            var word = 0f;
+            foreach (var wd in task.Title.Split(' ')) word = Mathf.Max(word, PrefW(title, wd));
+            if (word > mainW) title.fontSize = Mathf.Max(Mathf.RoundToInt(F(34) * 0.6f), Mathf.FloorToInt(title.fontSize * mainW / word));   // en uzun kelime bölünmesin
             var trt = title.rectTransform;
             trt.anchorMin = new Vector2(0f, 1f); trt.anchorMax = new Vector2(1f, 1f); trt.pivot = new Vector2(0.5f, 1f);
             trt.sizeDelta = new Vector2(0f, titleH); trt.anchoredPosition = Vector2.zero;
@@ -375,6 +382,12 @@ namespace Pofi.Screens
         }
 
         /// <summary>Verilen genişlikte yazının yüksekliği (yerleşim kurulmadan önce, ölçü için).</summary>
+        private static float PrefW(Text t, string text)
+        {
+            var settings = t.GetGenerationSettings(Vector2.zero);
+            return t.cachedTextGeneratorForLayout.GetPreferredWidth(text, settings) / Mathf.Max(0.01f, t.pixelsPerUnit);
+        }
+
         private static float PrefH(Text t, float width, string text)
         {
             var settings = t.GetGenerationSettings(new Vector2(Mathf.Max(1f, width), 0f));

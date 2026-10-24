@@ -46,17 +46,24 @@ namespace Pofi.World
             root.SetParent(pet, false);
             if (items == null) items = System.Array.Empty<ItemDef>();   // eşyasız da temel giysi giyilir
             _petId = def?.Id; _stage = stage;
-            Capture(pet, root);
-            var list = new List<ItemDef>();
-            foreach (var item in items) if (item != null) list.Add(item);
-            BuildBase(pet, root, list);
-            foreach (var item in list)
+            // yerleşim dinlenme duruşunda (kurallar bu duruşta ölçüldü); bitince o anki animasyon duruşu geri gelir
+            var rest = pet.GetComponentInChildren<RestPose>();
+            var hold = rest != null ? rest.Hold() : default;
+            try
             {
-                if (item == null) continue;
-                var fit = CosmeticFit.Evaluate(def, item);
-                if (!fit.Allowed) continue;
-                Build(pet, root, item, fit.Variant ?? "normal");
+                Capture(pet, root);
+                var list = new List<ItemDef>();
+                foreach (var item in items) if (item != null) list.Add(item);
+                BuildBase(pet, root, list);
+                foreach (var item in list)
+                {
+                    if (item == null) continue;
+                    var fit = CosmeticFit.Evaluate(def, item);
+                    if (!fit.Allowed) continue;
+                    Build(pet, root, item, fit.Variant ?? "normal");
+                }
             }
+            finally { hold.Dispose(); }
             foreach (var c in root.GetComponentsInChildren<Collider>()) Object.Destroy(c);
         }
 
@@ -116,6 +123,248 @@ namespace Pofi.World
             smr.shadowCastingMode = body.shadowCastingMode;
             smr.sharedMaterial = RealAssets.SharedMaterial("Items/" + part + "/shell", 0.15f);
             return true;
+        }
+
+        // ---- gövde giysisi deri olur (kıyafet × hareket denemesi, kullanıcı 24 Ekim 2026: "kıyafetlerin oturmasını farklı
+        // hareketlerde de dene"). Tek gövde kemiğine sert bağlı tişört, kapüşonlu, yağmurluk, kostüm; kollar kalkınca, kalça dönünce
+        // vücuda giriyordu (genç evre el sallamada boyun %9'u, koşuda tavuk kostümü %16). Dinlenme duruşunda yerleşmiş eşyanın her
+        // köşesi en yakın 4 vücut köşesinin kemik ağırlıklarını uzaklığa göre harmanlayıp alır; vücudun kemikleriyle bükülür
+        // (temel giysi BuildSkinWear ile aynı kemik sırası ve bağlanma duruşu). Ölçü ve önce/sonra: art/meshy/scripts/anim_fit_test.py.
+        // Yalnız vücuda yakın giysiler: kabarık kostümlerde (tavuk, hamburger, çim etek, simit) vücuttan uzak kabuk bacak ve kalça
+        // ağırlıkları arasında gerilip yırtılmış gibi görünüyordu (Blender önce/sonra paftası) → onlar kemiğe sert bağlı kalır.
+        private static readonly HashSet<string> SkinItems = new HashSet<string>
+            { "shirt_stripes", "shirt_hawaii", "apron_sailor", "hoodie_soft", "vest_explorer", "raincoat", "set_captain", "scarf_knit", "sash_belt" };
+        private static readonly Dictionary<string, Mesh[]> SkinMeshes = new Dictionary<string, Mesh[]>();
+
+        private static SkinnedMeshRenderer BodyOf(Transform pet)
+        {
+            SkinnedMeshRenderer body = null;
+            foreach (var r in pet.GetComponentsInChildren<SkinnedMeshRenderer>())
+                if (r.GetComponentInParent<RealCosmetic>() == null && r.sharedMesh != null && (body == null || r.sharedMesh.vertexCount > body.sharedMesh.vertexCount)) body = r;
+            return body != null && body.bones != null && body.bones.Length > 0 && body.sharedMesh.isReadable && body.sharedMesh.bindposes.Length == body.bones.Length ? body : null;
+        }
+
+        /// <summary>Yerleşmiş eşyayı (dinlenme duruşunda) vücuda deri olarak bağlar; eşya kökü silinir. Olmazsa false (eşya dokunulmaz).</summary>
+        private static bool SkinToBody(Transform pet, Transform t, string key)
+        {
+            var body = BodyOf(pet);
+            if (body == null) return false;
+            var filters = t.GetComponentsInChildren<MeshFilter>();
+            if (filters.Length == 0) return false;
+            foreach (var f in filters) if (f.sharedMesh == null || !f.sharedMesh.isReadable || f.GetComponent<MeshRenderer>() == null) return false;
+            key = key + "/" + body.sharedMesh.GetInstanceID();
+            if (!SkinMeshes.TryGetValue(key, out var meshes))
+            {
+                var grid = BodyGrid.For(body);
+                if (grid == null) return false;
+                var toBody = body.transform.worldToLocalMatrix;
+                meshes = new Mesh[filters.Length];
+                for (var i = 0; i < filters.Length; i++) meshes[i] = SkinMesh(filters[i], toBody * filters[i].transform.localToWorldMatrix, grid, body.sharedMesh.bindposes);
+                SkinMeshes[key] = meshes;
+            }
+            for (var i = 0; i < filters.Length; i++)
+            {
+                var mr = filters[i].GetComponent<MeshRenderer>();
+                var go = new GameObject(filters[i].name + "_skin");
+                go.AddComponent<RealCosmetic>();
+                go.layer = body.gameObject.layer;
+                var tr = go.transform;
+                tr.SetParent(body.transform.parent, false);
+                tr.localPosition = body.transform.localPosition; tr.localRotation = body.transform.localRotation; tr.localScale = body.transform.localScale;
+                var smr = go.AddComponent<SkinnedMeshRenderer>();
+                smr.sharedMesh = meshes[i];
+                smr.bones = body.bones;
+                smr.rootBone = body.rootBone;
+                smr.updateWhenOffscreen = true;
+                smr.shadowCastingMode = mr.shadowCastingMode;
+                smr.sharedMaterials = mr.sharedMaterials;
+            }
+            t.gameObject.SetActive(false);
+            Object.Destroy(t.gameObject);
+            return true;
+        }
+
+        private static Mesh SkinMesh(MeshFilter f, Matrix4x4 toBody, BodyGrid grid, Matrix4x4[] bindposes)
+        {
+            var src = f.sharedMesh;
+            var v = src.vertices; var n = src.normals; var tg = src.tangents;
+            var bw = new BoneWeight[v.Length];
+            for (var i = 0; i < v.Length; i++)
+            {
+                v[i] = toBody.MultiplyPoint3x4(v[i]);
+                if (i < n.Length) n[i] = toBody.MultiplyVector(n[i]).normalized;
+                if (i < tg.Length) { var d = toBody.MultiplyVector(new Vector3(tg[i].x, tg[i].y, tg[i].z)).normalized; tg[i] = new Vector4(d.x, d.y, d.z, tg[i].w); }
+                bw[i] = grid.Weights(v[i], grid.Sleeve(v[i]));
+            }
+            var m = new Mesh { name = src.name + "_skin", indexFormat = src.indexFormat };
+            m.vertices = v;
+            if (n.Length == v.Length) m.normals = n;
+            if (tg.Length == v.Length) m.tangents = tg;
+            m.uv = src.uv;
+            m.subMeshCount = src.subMeshCount;
+            for (var s = 0; s < src.subMeshCount; s++) m.SetTriangles(src.GetTriangles(s), s);
+            m.boneWeights = bw;
+            m.bindposes = bindposes;
+            m.RecalculateBounds();
+            return m;
+        }
+
+        /// <summary>
+        /// Vücut ağı köşeleri için kaba ızgara: bir noktaya en yakın 4 köşenin kemik ağırlıkları (uzaklığın karesiyle ters orantılı).
+        /// Kol/yen bölgesi (koltuk altı hizasının üstü ve omuzdan dışarı) dışındaki giysi köşeleri yalnız gövde köşelerinden alır:
+        /// dinlenme duruşunda gövdenin yanında sarkan kol yeleğin yanını çekiyor, zıplarken etek gibi açıyordu. Bacak payı kalçaya
+        /// geçer (üst giysi bacakla gerilmez). Aynı kural Blender denemesinde: art/meshy/scripts/anim_fit_test.py skin_to_body.
+        /// </summary>
+        private sealed class BodyGrid
+        {
+            private static readonly Dictionary<int, BodyGrid> Cache = new Dictionary<int, BodyGrid>();
+            private static readonly HashSet<string> Torso = new HashSet<string> { "Hips", "Spine", "Spine1", "Spine2", "Neck", "Head", "LeftShoulder", "RightShoulder" };
+            private readonly Vector3[] _v; private readonly BoneWeight[] _w;
+            private readonly Cells _all, _torso;
+            private readonly Vector3 _mid, _side, _up; private readonly float _half, _pit, _h;
+            private readonly int[] _best = new int[4]; private readonly float[] _bestD = new float[4];
+            private readonly Dictionary<int, float> _acc = new Dictionary<int, float>();
+
+            public static BodyGrid For(SkinnedMeshRenderer body)
+            {
+                var mesh = body.sharedMesh;
+                var id = mesh.GetInstanceID();
+                if (Cache.TryGetValue(id, out var g)) return g;
+                var w = mesh.boneWeights;
+                if (w == null || w.Length != mesh.vertexCount) return null;
+                Transform la = null, ra = null; var hips = -1;
+                var leg = new bool[body.bones.Length]; var torso = new bool[body.bones.Length];
+                for (var i = 0; i < body.bones.Length; i++)
+                {
+                    var b = body.bones[i];
+                    if (b == null) continue;
+                    var n = b.name.Substring(b.name.LastIndexOf(':') + 1);
+                    if (n == "Hips") hips = i;
+                    if (n == "LeftArm") la = b; else if (n == "RightArm") ra = b;
+                    leg[i] = n.Contains("UpLeg") || n.Contains("Leg") || n.Contains("Foot") || n.Contains("Toe");
+                    torso[i] = Torso.Contains(n);
+                }
+                if (la == null || ra == null || hips < 0) return null;
+                g = new BodyGrid(body, mesh.vertices, w, leg, torso, hips, la, ra);
+                Cache[id] = g;
+                return g;
+            }
+
+            private BodyGrid(SkinnedMeshRenderer body, Vector3[] v, BoneWeight[] w, bool[] leg, bool[] torso, int hips, Transform la, Transform ra)
+            {
+                _v = v; _w = new BoneWeight[w.Length];
+                var cell = Mathf.Max(1e-4f, body.sharedMesh.bounds.size.magnitude / 48f);
+                _all = new Cells(cell); _torso = new Cells(cell);
+                for (var i = 0; i < w.Length; i++)
+                {
+                    var b = w[i];
+                    // bacak → kalça
+                    if (leg[b.boneIndex0]) b.boneIndex0 = hips;
+                    if (leg[b.boneIndex1]) b.boneIndex1 = hips;
+                    if (leg[b.boneIndex2]) b.boneIndex2 = hips;
+                    if (leg[b.boneIndex3]) b.boneIndex3 = hips;
+                    _w[i] = b;
+                    _all.Add(v[i], i);
+                    var dom = b.boneIndex0; var dw = b.weight0;   // en ağır kemik (aynı kemik birden çok yuvada olabilir)
+                    if (b.weight1 > dw) { dom = b.boneIndex1; dw = b.weight1; }
+                    if (b.weight2 > dw) { dom = b.boneIndex2; dw = b.weight2; }
+                    if (b.weight3 > dw) dom = b.boneIndex3;
+                    if (torso[dom]) _torso.Add(v[i], i);
+                }
+                // dinlenme duruşunda (RestPose.Hold) omuz eklemleri vücut ağı uzayında
+                var t = body.transform;
+                var l = t.InverseTransformPoint(la.position); var r = t.InverseTransformPoint(ra.position);
+                _up = t.InverseTransformDirection(Vector3.up).normalized;
+                _mid = (l + r) * 0.5f; _side = (r - l).normalized; _half = (r - l).magnitude * 0.5f;
+                _pit = Mathf.Min(Vector3.Dot(l, _up), Vector3.Dot(r, _up));
+                _h = Mathf.Abs(Vector3.Dot(body.sharedMesh.bounds.size, _up));
+            }
+
+            /// <summary>Kol/yen bölgesi mi (koltuk altı hizasının biraz altına kadar ve omuzdan dışarı)?</summary>
+            public bool Sleeve(Vector3 p) => Mathf.Abs(Vector3.Dot(p - _mid, _side)) > _half * 0.85f && Vector3.Dot(p, _up) > _pit - 0.025f * _h;
+
+            public BoneWeight Weights(Vector3 p, bool sleeve)
+            {
+                var cells = sleeve ? _all : _torso;
+                for (var i = 0; i < 4; i++) { _best[i] = -1; _bestD[i] = float.MaxValue; }
+                cells.Nearest(p, _v, _best, _bestD);
+                _acc.Clear();
+                for (var k = 0; k < 4; k++)
+                {
+                    if (_best[k] < 0) continue;
+                    var iw = 1f / (_bestD[k] + 1e-8f);
+                    var b = _w[_best[k]];
+                    Add(b.boneIndex0, b.weight0 * iw); Add(b.boneIndex1, b.weight1 * iw); Add(b.boneIndex2, b.weight2 * iw); Add(b.boneIndex3, b.weight3 * iw);
+                }
+                var res = new BoneWeight();
+                float sum = 0f;
+                for (var slot = 0; slot < 4 && _acc.Count > 0; slot++)
+                {
+                    var bi = -1; var bv = 0f;
+                    foreach (var kv in _acc) if (kv.Value > bv) { bi = kv.Key; bv = kv.Value; }
+                    if (bi < 0) break;
+                    _acc.Remove(bi);
+                    switch (slot)
+                    {
+                        case 0: res.boneIndex0 = bi; res.weight0 = bv; break;
+                        case 1: res.boneIndex1 = bi; res.weight1 = bv; break;
+                        case 2: res.boneIndex2 = bi; res.weight2 = bv; break;
+                        default: res.boneIndex3 = bi; res.weight3 = bv; break;
+                    }
+                    sum += bv;
+                }
+                if (sum <= 0f) { res.boneIndex0 = 0; res.weight0 = 1f; return res; }
+                res.weight0 /= sum; res.weight1 /= sum; res.weight2 /= sum; res.weight3 /= sum;
+                return res;
+            }
+
+            private void Add(int bone, float w)
+            {
+                if (w <= 0f) return;
+                _acc.TryGetValue(bone, out var a);
+                _acc[bone] = a + w;
+            }
+
+            /// <summary>Köşe alt kümesinin hücre ızgarası; en yakın 4 köşeyi kabuk kabuk arar.</summary>
+            private sealed class Cells
+            {
+                private readonly Dictionary<long, List<int>> _cells = new Dictionary<long, List<int>>();
+                private readonly float _cell;
+                public Cells(float cell) { _cell = cell; }
+                private int C(float x) => Mathf.FloorToInt(x / _cell);
+                private static long Key(int x, int y, int z) => ((long)(x & 0x1FFFFF) << 42) | ((long)(y & 0x1FFFFF) << 21) | (long)(z & 0x1FFFFF);
+
+                public void Add(Vector3 p, int i)
+                {
+                    var k = Key(C(p.x), C(p.y), C(p.z));
+                    if (!_cells.TryGetValue(k, out var l)) _cells[k] = l = new List<int>();
+                    l.Add(i);
+                }
+
+                public void Nearest(Vector3 p, Vector3[] v, int[] best, float[] bestD)
+                {
+                    int cx = C(p.x), cy = C(p.y), cz = C(p.z);
+                    for (var r = 1; r <= 16; r++)
+                    {
+                        for (var x = cx - r; x <= cx + r; x++)
+                        for (var y = cy - r; y <= cy + r; y++)
+                        for (var z = cz - r; z <= cz + r; z++)
+                        {
+                            if (r > 1 && Mathf.Abs(x - cx) < r && Mathf.Abs(y - cy) < r && Mathf.Abs(z - cz) < r) continue;   // içteki kabuklar bakıldı
+                            if (!_cells.TryGetValue(Key(x, y, z), out var l)) continue;
+                            foreach (var i in l)
+                            {
+                                var d = (v[i] - p).sqrMagnitude;
+                                if (d >= bestD[3]) continue;
+                                var k = 3;
+                                while (k > 0 && bestD[k - 1] > d) { bestD[k] = bestD[k - 1]; best[k] = best[k - 1]; k--; }
+                                bestD[k] = d; best[k] = i;
+                            }
+                        }
+                        if (best[3] >= 0 && bestD[3] <= (r * _cell) * (r * _cell)) break;   // dördüncü en yakın bu kabuğun içinde
+                    }
+                }
+            }
         }
 
         /// <summary>Giysi ağının kemik dizinleri vücudun kemik sırasına çevrilmiş kopyası; olmazsa null.</summary>
@@ -314,6 +563,11 @@ namespace Pofi.World
             var c = face * off;                                       // dönüş yalnız dikey eksende: düşey kayma aynı
             var y = rule.Bottom ? target.y - (off.y - ib.extents.y) : target.y - off.y;
             t.position = new Vector3(target.x - c.x, y, target.z - c.z);
+            if (okti && SkinItems.Contains(item.Id))
+            {
+                Note(item.Id, t, pb);
+                if (SkinToBody(pet, t, StageKey(_stage) + "/" + item.Id)) return true;   // olmazsa eskisi gibi kemiğe sert bağlanır
+            }
             // head_end bir uç kemik: animasyonlarda ölçeği bozulabiliyor → kafa eşyaları asıl Head kemiğine takılır
             t.SetParent(rule.Bone == "head_end" && headBone != null ? headBone : bone, true);
             t.gameObject.AddComponent<RealCosmetic>();

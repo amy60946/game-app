@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 12;   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
+        public override uint GetVersion() => 13;   // 13: eşyalar okunabilir (gövde giysisi vücuda deri olarak bağlanır)   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -48,7 +48,8 @@ namespace Pofi.EditorTools
             m.useFileScale = true;
             m.importCameras = false;
             m.importLights = false;
-            m.isReadable = IsStagePet;   // evre petleri: CosmeticModels deri ağını pişirip gerçek boyu/yüzü ölçer
+            // evre petleri: CosmeticModels deri ağını pişirip gerçek boyu/yüzü ölçer; eşyalar: gövde giysisi vücuttan kemik ağırlığı alır (SkinToBody)
+            m.isReadable = IsStagePet || assetPath.Replace('\\', '/').Contains("/Resources/Items/");
             // çevre modellerinde normal haritası var: yüksek sıkıştırma UV/teğetleri kaydırıp pişmiş dikişleri belli ediyordu
             m.meshCompression = assetPath.Replace('\\', '/').Contains("/Resources/Env/") ? ModelImporterMeshCompression.Low : ModelImporterMeshCompression.High;
             var isAnim = Path.GetFileNameWithoutExtension(assetPath).Contains("@");

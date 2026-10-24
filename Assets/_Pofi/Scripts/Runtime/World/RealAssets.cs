@@ -41,7 +41,9 @@ namespace Pofi.World
             ApplyMaterial(go, $"Pets/{petId}/{petId}", 0.28f);
             Fit(root, go.transform, height);
 
+            RestPose.Capture(go);   // eşyalar bu duruşta yerleşir (animasyon başlamadan)
             var anim = go.GetComponent<Animation>() ?? go.AddComponent<Animation>();
+            GaitCalm.Add(go);       // yürüyüş/koşuda kol, baş, gövde salınımı yumuşar
             foreach (var clip in Resources.LoadAll<AnimationClip>($"Pets/{petId}"))
             {
                 clip.legacy = true;

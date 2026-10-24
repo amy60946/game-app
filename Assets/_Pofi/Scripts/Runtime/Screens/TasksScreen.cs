@@ -30,6 +30,7 @@ namespace Pofi.Screens
             InkBlueSoft = Theme.Hex("#6A7F9E"), InkGreen = Theme.Hex("#2E8A4A"), RibbonInk = Theme.Hex("#102E86");
 
         private RectTransform _listArea, _listView, _list, _empty, _week, _evRight, _evTitle, _oyTitle, _quests;
+        private bool _narrow;
         private RectTransform _firstDone;   // ilk "Yaptım" (bilgilendirme eli)
         private RectTransform _goBtn;       // "Adaya götür" (taş ipucu)
         private Text _coins, _evSub, _gem;
@@ -77,7 +78,8 @@ namespace Pofi.Screens
             var side = Mathf.Max(36f, (Width - 2140f) * 0.5f);
             var winW = Width - side * 2f;
             var innerW = winW - WinRim * 2f;
-            var oyW = Mathf.Clamp(winW * 0.27f, 480f, 560f);
+            _narrow = Width < 1800f;   // iPad 4:3 ve benzeri: sütunlar daralır (TasksScreen.Parts RewardW/ActW)
+            var oyW = Mathf.Clamp(winW * 0.27f, _narrow ? 400f : 480f, 560f);
             var evW = innerW - Pad * 2f - oyW - Gap;
             _evContentW = evW - SecRim * 2f - SecPad * 2f;
             _oyContentW = oyW - SecRim * 2f - SecPad * 2f;

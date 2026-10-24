@@ -173,7 +173,11 @@ namespace Pofi.Screens
             const float tile = 136f, gap = 14f;
             var cols = Mathf.Min(5, count); var rows = Mathf.CeilToInt(count / (float)cols);
             var w = cols * tile + (cols - 1) * gap + 48f; var h = rows * tile + (rows - 1) * gap + 48f + 20f;
-            var card = Ui.Rect(_shelf, "Counter", new Vector2(0.58f, 0f), new Vector2(w, h), new Vector2(0f, 60f + h * 0.5f));
+            // dar ekranda (iPad 4:3) kart ve "Al" birlikte küçülür: "Al" sağ kenardan taşıyordu, sola kaysa Okti'ye binerdi (tasarım turu 24 Ekim 2026)
+            var sw = Width;
+            var fit = Mathf.Clamp((sw - 24f - 0.58f * sw) / (w * 0.5f + 190f + 150f), 0.6f, 1f);
+            var card = Ui.Rect(_shelf, "Counter", new Vector2(0.58f, 0f), new Vector2(w, h), new Vector2(0f, 60f + h * 0.5f * fit));
+            card.localScale = new Vector3(fit, fit, 1f);
             var cimg = card.gameObject.AddComponent<Image>();
             if (Skin.Card != null) { Skin.Apply(cimg, Skin.Card, Mathf.Min(h, 360f)); cimg.color = Color.white; }
             else { cimg.sprite = Ui.Rounded; cimg.type = Image.Type.Sliced; cimg.color = new Color(1f, 0.96f, 0.86f); }
@@ -214,8 +218,9 @@ namespace Pofi.Screens
             var cur = views[start + _selected];
             Candy.Caption(card, cur.Item.Name, 44, new Vector2(0.5f, 1f), new Vector2(w, 64f), new Vector2(0f, 40f));
             var label = cur.State == BuyCheck.AlreadyOwned ? T("shop.owned") : T("shop.buy", cur.Item.Price);
-            var buy = Candy.Pill(_shelf, Candy.Green, label, new Vector2(0.58f, 0f), new Vector2(300f, 116f), new Vector2(w * 0.5f + 190f, 60f + 58f), () => OnTap(cur), "ui_coin", 46);
+            var buy = Candy.Pill(_shelf, Candy.Green, label, new Vector2(0.58f, 0f), new Vector2(300f, 116f), new Vector2((w * 0.5f + 190f) * fit, 60f + 58f * fit), () => OnTap(cur), "ui_coin", 46);
             _buyBtn = (RectTransform)buy.transform;
+            _buyBtn.localScale = new Vector3(fit, fit, 1f);
             if (cur.State != BuyCheck.Ok) buy.targetGraphic.color = new Color(0.72f, 0.72f, 0.72f, 0.9f);
             Preview(cur);
         }
