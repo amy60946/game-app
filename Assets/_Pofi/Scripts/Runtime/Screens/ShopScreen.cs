@@ -175,7 +175,7 @@ namespace Pofi.Screens
             var w = cols * tile + (cols - 1) * gap + 48f; var h = rows * tile + (rows - 1) * gap + 48f + 20f;
             // dar ekranda (iPad 4:3) kart ve "Al" birlikte küçülür: "Al" sağ kenardan taşıyordu, sola kaysa Okti'ye binerdi (tasarım turu 24 Ekim 2026)
             var sw = Width;
-            var fit = Mathf.Clamp((sw - 24f - 0.58f * sw) / (w * 0.5f + 190f + 150f), 0.6f, 1f);
+            var fit = Mathf.Clamp((sw - 64f - 0.58f * sw) / (w * 0.5f + 190f + 150f), 0.6f, 1f);   // 64: hap gölgesi + kenar payı (iPad'de kenara 4 px kalıyordu)
             var card = Ui.Rect(_shelf, "Counter", new Vector2(0.58f, 0f), new Vector2(w, h), new Vector2(0f, 60f + h * 0.5f * fit));
             card.localScale = new Vector3(fit, fit, 1f);
             var cimg = card.gameObject.AddComponent<Image>();
