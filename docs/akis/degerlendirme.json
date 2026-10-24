@@ -1,0 +1,712 @@
+{
+ "ozet": "Akış iyi çocuk oyunlarıyla büyük ölçüde uyumlu: her şey sesli ve gösterilerek öğretiliyor, karanlık desen yok, Güneş Taşı ‘önce hediye, hemen kullan’ yoluyla çok iyi öğretiliyor. Asıl risk zamanlama: Ev Görevleri panosu ≈29. dk'da geliyor, 1. günün kapanışı yok ve ilk gerçek taş ‘Yakında’ yazan bir yer açıyor. Çözümlerin çoğu küçük sıra değişikliği. (Kaynaklar arama özetlerinden alındı.)",
+ "puan": [
+  {
+   "alan": "İlk dokunuş ve ilk oynanış",
+   "bizde": "Film ≈1 dk sürüyor (Geç düğmesi var). Okti'ye ilk dokunuş ≈1–2. dk, ilk yürüyüş ≈2–3. dk, ilk besleme ≈3. dk. Daha önce ebeveynin verdiği kod giriliyor.",
+   "kiyas": "Apple: tanıtım ‘hızlı, eğlenceli, isteğe bağlı’ olmalı, yaparak öğretilmeli. GameAnalytics FTUE: oyun açılır açılmaz eğlenceli bir şey yapılabilmeli.",
+   "durum": "iyi"
+  },
+  {
+   "alan": "Rehber uzunluğu ve serbestlik",
+   "bizde": "Yürüme + 18 adım, ilk gün ≈33 dk. Ada serbestçe gezilebiliyor ama adım sırası sabit. Çocuk bir adımı sırası gelmeden yaparsa, sırası gelince adım XP vermeden geçiliyor.",
+   "kiyas": "Andersen vd. 2012 (45.000'den çok oyuncu): öğretici yalnız en karmaşık oyunda işe yaradı. Ryan vd. 2006: özerklik ve yeterlik duygusu keyfi ve yeniden oynamayı yordar.",
+   "durum": "orta"
+  },
+  {
+   "alan": "Tek seferde tek hedef",
+   "bizde": "Çoğu adım tek iş istiyor. Yüklü adımlar: 1 (besle + 20 coin + ‘aksesuar alabilirsin’), 14 (3 alet, 3 malzeme, 13 parça, çip, kart), 16 (aile görevleri + Yaptım + oyun görevleri + yıldız + sandık).",
+   "kiyas": "Cook'un ‘beceri atomları’: her döngüde tek yeni beceri öğretilir. Apple: tek bir uzun akış yerine bağlama göre ipuçları, böylece kişi bir işe odaklanır.",
+   "durum": "orta"
+  },
+  {
+   "alan": "Okuma yükü, göstererek öğretme",
+   "bizde": "Hikâye ve ipuçları sesli. El gösteriyor, 8 sn hareketsizlikte yerde oklar çıkıyor. K/A gruplarında metin kısa. Ama panelde ‘+10 XP’ gibi sayılar var.",
+   "kiyas": "Sesame Workshop: okuma bilmeyen çocuğa konuşma + görsel pekiştirme. Google Play ‘Teacher Approved’: dil ve ses yaşa uygun olmalı.",
+   "durum": "iyi"
+  },
+  {
+   "alan": "Meta para: Güneş Taşı",
+   "bizde": "≈17. dk'da Mavi hediye ediyor, ≈1 dk sonra sis sinematik bir sahneyle kalkıyor. Hediye taş gerçek ödüle harcanamıyor.",
+   "kiyas": "Apple: ‘yaparak öğret’. Duolingo: önce değeri yaşat, sonra iste; kayıt adımı ertelenince günlük aktif kullanıcı ≈%20 arttı (ikincil kaynak).",
+   "durum": "iyi"
+  },
+  {
+   "alan": "Gerçek dünya bağlantısı",
+   "bizde": "Fikir filmde (0–1. dk) ve hediye kartında (≈17. dk) söyleniyor, pano ≈29. dk'da geliyor. İlk gerçek taş aynı akşam ya da ertesi gün geliyor ve ebeveynin görev eklemiş olmasına bağlı.",
+   "kiyas": "Pokémon Sleep: gerçek davranış (uyku) ilk gece başlar, karşılığı sabah gelir; ekip uygulamayı ‘önce uyku’ ilkesiyle kurdu. Bizde bağlantı geç geliyor ve görev yoksa hiç kurulmuyor.",
+   "durum": "risk"
+  },
+  {
+   "alan": "Rota (batıdan doğuya)",
+   "bizde": "Dükkândan sonra yol çoğunlukla tek yönlü. İstisna: cevizler Kıskaç'a ≈35 m uzakta (gidiş-dönüş ≈70 m). ‘Bahçede de toplayabilirsin’ cümlesi 60 m batıyı gösteriyor.",
+   "kiyas": "A Short Hike: merak uyandıran yer işaretleri ve doğal sınırlarla yön gösterilir. Animal Crossing: New Horizons 1. gün: Tom Nook'un istekleri kısa ‘getir-götür’ görevleri.",
+   "durum": "orta"
+  },
+  {
+   "alan": "1. günün kapanışı ve 2. gün dönüşü",
+   "bizde": "Kamp ateşinden sonra rehber taşı bekliyor; ‘bugünlük bitti’ anı yok. Göstergeler saatte 4 puan düşüyor; 1–2 gün ara veren çocuğu aç ve üzgün bir Okti karşılayabilir.",
+   "kiyas": "Animal Crossing: 1. gün kamp ateşinde karşılama partisi ve uykuyla biter, Blathers ertesi gün gelir. ICO: oyunda doğal mola noktaları olmalı. Radesky 2022: karakter üzerinden suçluluk baskısı manipülatif desen sayılıyor.",
+   "durum": "risk"
+  },
+  {
+   "alan": "XP ve seviye temposu",
+   "bizde": "B: Sv2 ≈10. dk (100 XP), Sv3 ≈27. dk (235 XP). K: Sv2 ≈8. dk, Sv3 ≈18. dk; ilk gün rehber XP'si 281, Sv4 eşiği 290. C: Sv2 ≈13. dk, Sv3 ≈33. dk.",
+   "kiyas": "Başta hızlı, sonra yavaşlayan eğri yaygın ve uygun. Ama K grubu ilk gün Sv4'e, yani ‘Gerçek ödüller’ tanıtımına ulaşabilir. Seviye 2 kutlaması da Kıskaç sahnesiyle çakışıyor.",
+   "durum": "orta"
+  },
+  {
+   "alan": "Yaş uyumu",
+   "bizde": "18 adım her yaş grubunda aynı. Yürüme iki başparmakla (joystick + kamera) öğretiliyor. Bebek Okti en uzun C grubunda kalıyor (Sv5 için C'de 765, K'de 460 XP).",
+   "kiyas": "Google Play yaş grupları: 5 ve altı / 6–8 / 9–12. Sesame: küçüklerde en kolay hareket dokunmak. NN/g: gençlere çocuksu ton olumsuz etki yapar (ikincil özet).",
+   "durum": "risk"
+  }
+ ],
+ "gucluler": [
+  {
+   "baslik": "Sesli ve göstererek öğretim",
+   "aciklama": "Hikâye, ipuçları ve rehber sesli. El, yer okları, sarı harita imi ve önden uçan Mavi yazıyı neredeyse gereksiz kılıyor. Okuma bilmeyen 5 yaşındaki çocuk için doğru temel bu.",
+   "kaynak": [
+    {
+     "ad": "Sesame Workshop – Dokunmatik ekran en iyi uygulamaları",
+     "url": "https://joanganzcooneycenter.org/?p=19607"
+    },
+    {
+     "ad": "Apple HIG – Onboarding",
+     "url": "https://developer.apple.com/design/human-interface-guidelines/onboarding"
+    }
+   ]
+  },
+  {
+   "baslik": "Güneş Taşı önce hediye, hemen kullanılıyor",
+   "aciklama": "Çocuk taşı alır almaz sisi kaldırıyor ve sonucu sinematik bir sahnede görüyor: anlatılmıyor, yaşatılıyor. Mekanik gerçek görevden önce öğretiliyor; bu, ‘önce değeri göster, sonra iste’ ilkesine uyuyor.",
+   "kaynak": [
+    {
+     "ad": "Apple HIG – Onboarding",
+     "url": "https://developer.apple.com/design/human-interface-guidelines/onboarding"
+    },
+    {
+     "ad": "Duolingo ertelenmiş kayıt testi (ikincil)",
+     "url": "https://taplytics.com/blog/duolingo-ab-test-onboarding"
+    }
+   ]
+  },
+  {
+   "baslik": "Karanlık desen yok",
+   "aciklama": "Yerde coin, seri cezası, geri sayım ve reklam yok. Pet ölmüyor, göstergeler 10'un altına inmiyor, bildirimler sakin. Çocuk uygulamalarında sık görülen sahte zaman baskısından uzak. Kaçırılan görev için can puanı düşüren Habitica'nın tam tersi.",
+   "kaynak": [
+    {
+     "ad": "Radesky vd. 2022, JAMA Netw Open",
+     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9206186/"
+    },
+    {
+     "ad": "5Rights – Disrupted Childhood",
+     "url": "https://5rightsfoundation.com/in-action/disrupted-childhood-the-cost-of-persuasive-technology.html"
+    },
+    {
+     "ad": "Habitica (Wikipedia)",
+     "url": "https://en.wikipedia.org/wiki/Habitica"
+    }
+   ]
+  },
+  {
+   "baslik": "Merak bırakan hikâye",
+   "aciklama": "Fırtına, sönen fener, sis ve küçülen Pus uzun soluklu bir soru bırakıyor. ‘İlk saat’ araştırmasına göre merak ve bilgi, anlık eğlence kadar değerli. Kıskaç'ın getir-götür isteği de Animal Crossing'in ilk günüyle aynı yapıda.",
+   "kaynak": [
+    {
+     "ad": "Cheung, Zimmermann, Nagappan 2014 – The First Hour Experience",
+     "url": "https://www.microsoft.com/en-us/research/?p=167075"
+    },
+    {
+     "ad": "Nintendo destek – ACNH yeni oyun",
+     "url": "https://www.nintendo.co.uk/Support/Nintendo-Switch/How-to-Start-a-New-Game-Animal-Crossing-New-Horizons--1747986.html"
+    }
+   ]
+  },
+  {
+   "baslik": "Önce ebeveyn bağlanıyor, onay ebeveynde",
+   "aciklama": "Giriş kodunu ebeveyn veriyor. Gerçek görev, çocuğun ‘Yaptım’ demesi ve ebeveynin onaylamasıyla taşa dönüşüyor. Hediye taş sunucuya gitmiyor. Bu, güvenlik ve aile bağı ilkelerine, ebeveynle çocuğun birlikte katılımına uyuyor.",
+   "kaynak": [
+    {
+     "ad": "UNICEF RITEC",
+     "url": "https://www.unicef.org/innocenti/projects/responsible-innovation-technology-children"
+    },
+    {
+     "ad": "Cooney Center – The New Coviewing",
+     "url": "https://joanganzcooneycenter.org/2012/02/14/the-cooney-center-presents-the-new-coviewing/"
+    }
+   ]
+  }
+ ],
+ "riskler": [
+  {
+   "baslik": "Gerçek görev panosu geç geliyor",
+   "adimlar": [
+    "12",
+    "13",
+    "14",
+    "15",
+    "16"
+   ],
+   "aciklama": "Pano ≈29. dk'da, 15 adımdan sonra geliyor. Bağlantı kartta söyleniyor ama 10 dk sonra gösteriliyor; arada kulübe işi var. WHO 2–4 yaş için günde en çok 1 saat ekran öneriyor (ikincil özet). K/A çocuk ilk gün panoya varmadan bırakabilir; o zaman ebeveyn ürünün özünü ilk gün görmez.",
+   "kaynak": [
+    {
+     "ad": "WHO 5 yaş altı rehberi (ikincil haber)",
+     "url": "https://activeforlife.com/world-health-guidelines/"
+    },
+    {
+     "ad": "Apple HIG – Onboarding",
+     "url": "https://developer.apple.com/design/human-interface-guidelines/onboarding"
+    }
+   ]
+  },
+  {
+   "baslik": "Boş pano ya da erken haber",
+   "adimlar": [
+    "16",
+    "18"
+   ],
+   "aciklama": "Ebeveyn görev eklemediyse pano boş. 18. adım taş olmadığı için atlanıyor ve rehber susuyor. Tersine, görevler önceden eklendiyse ‘Ailenden yeni görev’ haberi ilk dakikalarda, pano tanıtılmadan çıkabilir (kodda doğrulandı).",
+   "kaynak": [
+    {
+     "ad": "Roblox – Funnel events",
+     "url": "https://create.roblox.com/docs/production/analytics/funnel-events"
+    }
+   ]
+  },
+  {
+   "baslik": "İlk gerçek taşın karşılığı ‘Yakında’",
+   "adimlar": [
+    "18"
+   ],
+   "aciklama": "İlk gerçek iyilikle kazanılan taş koyu açıyor, ama koydaki Yüzme oyunu beklemede (beklemedeki oyunlardan yalnız Ceviz Yakala açık). Pus'un gülümsemesi duygusal olarak güzel; ancak döngünün ilk turunun oynanabilir bir karşılığı yok.",
+   "kaynak": [
+    {
+     "ad": "GameAnalytics – FTUE ipuçları",
+     "url": "https://gameanalytics.com/blog/tips-for-a-great-first-time-user-experience-ftue-in-f2p-games"
+    }
+   ]
+  },
+  {
+   "baslik": "Bazı adımlarda kavram yığılması",
+   "adimlar": [
+    "1",
+    "14",
+    "16"
+   ],
+   "aciklama": "1. adımda bakım, XP, coin ve aksesuar vaadi bir arada. 14. adımda 3 alet, 4 nesne türü, 3 malzeme ve 13 parça var. 16. adımda iki ayrı görev sistemi (aile görevleri ile yıldızlı oyun görevleri + sandık) aynı pencerede anlatılıyor.",
+   "kaynak": [
+    {
+     "ad": "Cook – The Chemistry of Game Design",
+     "url": "https://lostgarden.com/2021/03/13/the-chemistry-of-game-design-2/"
+    },
+    {
+     "ad": "NN/g – Mobile tutorials",
+     "url": "https://www.nngroup.com/articles/mobile-tutorials/"
+    }
+   ]
+  },
+  {
+   "baslik": "Ceviz için gidiş-dönüş ve ikinci seçenek",
+   "adimlar": [
+    "8",
+    "9",
+    "10"
+   ],
+   "aciklama": "Kıskaç'tan kumsala ≈35 m gidip Kıskaç'a geri dönülüyor; ‘tek yönlü rota’ ilkesine uymayan tek bölüm bu. Kıskaç'ın ‘bahçede de toplayabilirsin’ cümlesi de 60 m batıda, rotanın ters yönünde bir yeri öneriyor.",
+   "kaynak": [
+    {
+     "ad": "A Short Hike – PlayStation Blog",
+     "url": "https://blog.playstation.com/2021/08/05/crafting-a-tiny-open-world-a-look-behind-the-scenes-at-the-creation-of-a-short-hike/"
+    }
+   ]
+  },
+  {
+   "baslik": "Kapanışsız gün, üzgün dönüş",
+   "adimlar": [
+    "17",
+    "18",
+    "Her gün"
+   ],
+   "aciklama": "Ateşten sonra çocuk ‘şimdi ne yapacağım?’ boşluğunda kalıyor. Göstergeler saatte 4 puan düşüyor, 30'un altında Okti ‘üzgün’ oluyor. 1–2 gün ara veren çocuğu aç ve üzgün bir Okti karşılayabilir; bu, araştırmalardaki ‘karakter üzerinden suçluluk baskısı’ desenine yakın.",
+   "kaynak": [
+    {
+     "ad": "Radesky vd. 2022",
+     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9206186/"
+    },
+    {
+     "ad": "ICO – Oyun tasarımcıları için ipuçları",
+     "url": "https://ico.org.uk/for-organisations/childrens-code-hub/top-tips-for-games-designers-how-to-comply-with-the-children-s-code"
+    }
+   ]
+  },
+  {
+   "baslik": "Ödülün ‘ücrete’ dönüşmesi",
+   "adimlar": [
+    "12",
+    "16",
+    "18"
+   ],
+   "aciklama": "‘Gerçek görevleri yapınca kazanırsın’ dili alışverişe benziyor. Önceden bilinen somut ödüller, işe duyulan iç ilgiyi azaltabiliyor (Deci vd. 1999). 20 aylık bebeklerde maddi ödül sonraki yardımı azalttı, övgü azaltmadı (Warneken ve Tomasello 2008).",
+   "kaynak": [
+    {
+     "ad": "Deci, Koestner, Ryan 1999",
+     "url": "https://depts.washington.edu/techdocs/papers/deciExtrinsicRewardsAndIntrinsicMotivation99.pdf"
+    },
+    {
+     "ad": "Warneken ve Tomasello 2008",
+     "url": "https://scholars.duke.edu/publication/1458228"
+    }
+   ]
+  },
+  {
+   "baslik": "Bütün yaşlara tek akış",
+   "adimlar": [
+    "walk",
+    "1",
+    "14",
+    "17"
+   ],
+   "aciklama": "5 yaşındaki çocuk için iki başparmakla kontrol ve ≈33 dk uzun. 13 yaş üstü için el ipuçları ve bebek Okti çocuksu kalıyor. K grubu ilk gün rehberden 281 XP alıyor, Sv4 eşiği 290: günlük görev XP'siyle ‘Gerçek ödüller’ tanıtımı ilk günün sonuna denk gelebilir.",
+   "kaynak": [
+    {
+     "ad": "Google Play – Teacher Approved",
+     "url": "https://play.google.com/console/about/programs/teacherapproved"
+    }
+   ]
+  }
+ ],
+ "oneriler": [
+  {
+   "oncelik": "Şart",
+   "baslik": "Panoyu, sis kalkınca Mavi göstersin",
+   "adimlar": [
+    "12",
+    "13",
+    "16",
+    "14",
+    "15"
+   ],
+   "ne": "Yeni sıra: 12 hediye → 13 sis → 16 pano → 14 malzeme → 15 kulübe → 17 ateş. Pano kulübe yerine 12 m uzaklıkta. Kartın 3. satırını panonun önünde Mavi söylesin. Pano sahnesini Kıskaç yerine Mavi oynasın; ‘Yaptım’ı ailene götüren postacı zaten o.",
+   "neden": "Şu an bağlantı kartta söyleniyor, pano 10 dk sonra gösteriliyor. Apple'a göre insanlar okuyarak değil yaparak öğrenir. Pokémon Sleep oyunu ilk günden gerçek davranışa bağlıyor.",
+   "etki": "Pano ≈29. dk yerine ≈19–20. dk'da gelir. ‘Taş → sis kalktı → yenisi nereden gelir? → pano’ tek bir akış olur. Kulübe, panodan sonra çocuğun beklerken başardığı büyük iş olur.",
+   "kaynak": [
+    {
+     "ad": "Apple HIG – Onboarding",
+     "url": "https://developer.apple.com/design/human-interface-guidelines/onboarding"
+    },
+    {
+     "ad": "The Pokémon Company – Why We Created Pokémon Sleep",
+     "url": "https://corporate.pokemon.co.jp/en/topics/detail/110.html"
+    }
+   ]
+  },
+  {
+   "oncelik": "Şart",
+   "baslik": "İlk gün bir gerçek görev hazır olsun",
+   "adimlar": [
+    "16",
+    "18"
+   ],
+   "ne": "ParentApp giriş kodunu üretirken 298 görevlik katalogdan yaşa uygun 1–3 başlangıç görevi önersin. Yeni görev haberleri pano adımına kadar beklesin; panoda ‘Ailen sana 2 görev bırakmış!’ diye açılsın. Pano boşsa Mavi ‘Ailene haber götürdüm’ desin, ebeveyne tek bir sakin bildirim gitsin. Sıra: önce ortak kurallar, sonra ParentApp ve oyun.",
+   "neden": "Görev yoksa 18. adımda rehber susuyor. Ebeveyn ve çocuk birlikte katıldığında çocuk daha çok öğreniyor (Cooney Center). Hirsh-Pasek'in dört dayanağından biri ‘sosyal etkileşim’.",
+   "etki": "İlk ‘Yaptım’ aynı akşam gelebilir. Çocuk hunisinde ‘ilk Yaptım’ adımına geçen oran artar. Ebeveyn ürünün özünü ilk gün görür.",
+   "kaynak": [
+    {
+     "ad": "Cooney Center – The New Coviewing",
+     "url": "https://joanganzcooneycenter.org/2012/02/14/the-cooney-center-presents-the-new-coviewing/"
+    },
+    {
+     "ad": "Hirsh-Pasek vd. 2015",
+     "url": "https://www.psychologicalscience.org/publications/educational-apps.html"
+    }
+   ]
+  },
+  {
+   "oncelik": "Şart",
+   "baslik": "İlk gerçek taş oynanabilir bir şey açsın",
+   "adimlar": [
+    "18"
+   ],
+   "ne": "Koyda ‘Yüzme: Yakında’ yerine hemen yapılacak küçük bir şey olsun: Okti suda çırpınsın, 3–5 deniz kabuğu toplansın (ev süsü olur), Pus gülümsesin ve Mavi bir teşekkür mektubu getirsin. Bu yapılamıyorsa ilk gerçek taş, içinde açık bir etkinlik olan bir sise yönlendirilsin.",
+   "neden": "Döngünün ilk turu, oyunun nasıl algılanacağını belirler. Animal Crossing'de toplanan ilk şeyler ertesi gün müzeyi getiriyor. ‘Yakında’ tabelası çocuğun ilk gerçek emeğinin karşılığını boşa düşürür.",
+   "etki": "Çocuk evdeki iyiliğin adada somut bir şey açtığını görür. Ebeveyn de bunun değerini görür.",
+   "kaynak": [
+    {
+     "ad": "ACNH müze rehberi (ikincil)",
+     "url": "https://progameguides.com/animal-crossing/new-horizons-how-to-unlock-the-museum/"
+    },
+    {
+     "ad": "GameAnalytics – FTUE ipuçları",
+     "url": "https://gameanalytics.com/blog/tips-for-a-great-first-time-user-experience-ftue-in-f2p-games"
+    }
+   ]
+  },
+  {
+   "oncelik": "Şart",
+   "baslik": "1. gün kamp ateşinde kapansın",
+   "adimlar": [
+    "15",
+    "17"
+   ],
+   "ne": "Ateş harlanınca kısa bir sahne: Kıskaç, Mavi ve Pus toplanır. Kısa özet: ‘Bugün Okti'yi besledin, Kıskaç'a yardım ettin, kulübeyi kurdun.’ Yarın için: ‘koydaki sis, Mavi'den mektup’. Okti esneyip ‘Biraz dinlenelim, sen de evde bir iyilik yap’ desin. Oyun kapanmaz, sadece net bir mola anı olur.",
+   "neden": "Animal Crossing'in 1. günü kamp ateşinde partiyle ve uykuyla bitiyor. ICO oyunlarda doğal mola noktaları istiyor. Pokémon Sleep'in ‘önce uyku’ ilkesi gibi burada da ‘önce iyilik’.",
+   "etki": "Çocuk başarı duygusuyla ayrılır ve yarına olumlu bir beklentisi olur. Geri dönüş baskıyla değil merakla olur; gerçek görev de ekranın dışına taşınır.",
+   "kaynak": [
+    {
+     "ad": "Nintendo destek – ACNH ilk gün",
+     "url": "https://www.nintendo.co.uk/Support/Nintendo-Switch/How-to-Start-a-New-Game-Animal-Crossing-New-Horizons--1747986.html"
+    },
+    {
+     "ad": "ICO – Oyun tasarımcıları için ipuçları",
+     "url": "https://ico.org.uk/for-organisations/childrens-code-hub/top-tips-for-games-designers-how-to-comply-with-the-children-s-code"
+    }
+   ]
+  },
+  {
+   "oncelik": "Önemli",
+   "baslik": "Bakımda seçim, ev işi ihtiyaç anında",
+   "adimlar": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5"
+   ],
+   "ne": "Besle ve yıka ‘Okti'nin iki isteği’ olsun, çocuk istediği sırayla yapsın. Topla ve Oyna ilk gün zorunlu adım olmasın; ev ya da mutluluk göstergesi ilk düştüğünde (genelde 2. gün) el göstersin. Sırası gelmeden yapılan adımın XP'si de verilsin (yalnız yeni oyuncuda).",
+   "neden": "Ryan vd. 2006: özerklik ve yeterlik duygusu keyfi ve yeniden oynamayı yordar. Andersen vd. 2012: basit mekanikler denenerek öğreniliyor. Apple: bağlama göre ipucu.",
+   "etki": "≈3 dk kazanılır ve 2. güne yeni bir şey kalır. Merakla önden keşfeden çocuk XP kaybetmez.",
+   "kaynak": [
+    {
+     "ad": "Ryan, Rigby, Przybylski 2006",
+     "url": "https://acuresearchbank.acu.edu.au/item/8q128/the-motivational-pull-of-video-games-a-self-determination-theory-approach"
+    },
+    {
+     "ad": "Andersen vd. CHI 2012",
+     "url": "https://grail.cs.washington.edu/projects/game-abtesting/chi2012/"
+    }
+   ]
+  },
+  {
+   "oncelik": "Önemli",
+   "baslik": "1. adımı sadeleştir: coin dükkânda duyurulsun",
+   "adimlar": [
+    "1",
+    "6"
+   ],
+   "ne": "Sunucudaki coin yine ilk beslemede verilsin. Ama coin yağmuru ve ‘İlk aksesuarını alabilirsin’ cümlesi dükkân adımı başlarken, Kıskaç'ın elinden gösterilsin. Sözleşme değişmez, yalnız gösterim zamanı değişir.",
+   "neden": "Her döngüde tek beceri öğretilmeli (Cook). İlk adımın konusu yalnız ‘Okti'ye bakmak’ olmalı. Şu an çocuk coin'i görüp dükkâna koşabilir, sıra bozulur.",
+   "etki": "İlk adım tek bir mesaj verir. Dükkâna gitme isteği de güçlenir.",
+   "kaynak": [
+    {
+     "ad": "Cook – The Chemistry of Game Design",
+     "url": "https://lostgarden.com/2021/03/13/the-chemistry-of-game-design-2/"
+    }
+   ]
+  },
+  {
+   "oncelik": "Önemli",
+   "baslik": "Ceviz için gidiş-dönüşü kısalt",
+   "adimlar": [
+    "8",
+    "9",
+    "10"
+   ],
+   "ne": "İlk 2 ceviz Kıskaç'a 10–15 m uzağa konsun (dükkânın önüne ya da meydan yoluna); kumsaldaki cevizler sonraki günlere kalsın. Kıskaç ‘bahçede de toplayabilirsin’ demesin; Ceviz Yakala oyunu istek bittikten sonra önerilsin.",
+   "neden": "Tek yönlü rotayı bozan tek yer burası. A Short Hike yolu yer işaretleriyle gösteriyor. Animal Crossing'in ilk gün istekleri kısa.",
+   "etki": "≈1–2 dk ve ≈70 m yürüme kazanılır. Çocuk iki seçenek arasında kalmaz.",
+   "kaynak": [
+    {
+     "ad": "A Short Hike – PlayStation Blog",
+     "url": "https://blog.playstation.com/2021/08/05/crafting-a-tiny-open-world-a-look-behind-the-scenes-at-the-creation-of-a-short-hike/"
+    },
+    {
+     "ad": "ACNH ilk gün rehberi",
+     "url": "https://gamerguides.com/animal-crossing-new-horizons/guide/walkthrough/day-one/your-first-day"
+    }
+   ]
+  },
+  {
+   "oncelik": "Önemli",
+   "baslik": "Pano tanıtımını ikiye böl",
+   "adimlar": [
+    "16"
+   ],
+   "ne": "İlk gün yalnız iki şey anlatılsın: ‘Ailenden gelen görevler burada’ ve ‘Yaptım'a bas, Mavi ailene götürsün’. ‘Oyun görevleri yıldız verir, sandığı aç’ açıklaması ilk oyun görevi bittiğinde ayrı bir el ipucuyla gelsin.",
+   "neden": "Apple, tek uzun akış yerine bağlama göre ipucu öneriyor. NN/g'ye göre baştan verilen toplu talimatlar kullanımı zorlaştırıyor.",
+   "etki": "En önemli anda tek bir kavram anlatılır, iki görev sistemi birbirine karışmaz.",
+   "kaynak": [
+    {
+     "ad": "NN/g – Mobile tutorials",
+     "url": "https://www.nngroup.com/articles/mobile-tutorials/"
+    },
+    {
+     "ad": "Apple HIG – Onboarding",
+     "url": "https://developer.apple.com/design/human-interface-guidelines/onboarding"
+    }
+   ]
+  },
+  {
+   "oncelik": "Önemli",
+   "baslik": "Kulübe malzemesi yaşa göre",
+   "adimlar": [
+    "14",
+    "15"
+   ],
+   "ne": "Kulübe tarifi K'de 3 odun / 2 dal / 2 taş, A'da 4/3/2, B ve C'de 6/4/3 olsun. Aletler sırayla tanıtılsın: önce el (çalı), sonra balta, en son kazma; her biri ilk kullanımda tek ipucuyla.",
+   "neden": "Küçük çocuklarda kısa ve dokunmaya dayalı iş öneriliyor (Sesame). Cook'un ‘beceri atomları’ yaklaşımı her seferinde tek yeni beceri öneriyor.",
+   "etki": "K grubunda toplama ≈6 dk'dan ≈3 dk'ya iner; K'nin ilk günü ≈20 dk olur.",
+   "kaynak": [
+    {
+     "ad": "Sesame Workshop – En iyi uygulamalar",
+     "url": "https://joanganzcooneycenter.org/?p=19607"
+    },
+    {
+     "ad": "Cook – The Chemistry of Game Design",
+     "url": "https://lostgarden.com/2021/03/13/the-chemistry-of-game-design-2/"
+    }
+   ]
+  },
+  {
+   "oncelik": "Önemli",
+   "baslik": "Dönüşte sevinçli karşılama, suçluluk yok",
+   "adimlar": [
+    "Her gün"
+   ],
+   "ne": "Ara verildikten sonraki ilk an: Okti koşup sarılsın ya da dans etsin. İhtiyaçlar üzgün yüzle değil istek baloncuğuyla gösterilsin. Çocuk uzaktayken göstergeler belli bir sınırın (ör. 40) altına inmesin. Gösterge kuralı ortak kurallarda olduğu için değişiklik önce orada yapılır.",
+   "neden": "Radesky 2022 karakter üzerinden baskıyı manipülatif sayıyor. Finch'te kuş ölmüyor ve suçluluk hissettirmiyor (inceleme yazısı). 5Rights da aynı yönde.",
+   "etki": "2. gün dönüşü bir ‘seni özledim’ sevinci olur. Çocuk oyuna borçlu hissettiği için değil, merak ettiği için döner.",
+   "kaynak": [
+    {
+     "ad": "Radesky vd. 2022",
+     "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9206186/"
+    },
+    {
+     "ad": "Finch incelemesi (ikincil)",
+     "url": "https://makeheadway.com/blog/finch-app-review/"
+    }
+   ]
+  },
+  {
+   "oncelik": "İyi olur",
+   "baslik": "‘Kazanmak’ yerine ‘yardım’ dili, aileden teşekkür",
+   "adimlar": [
+    "12",
+    "16",
+    "18"
+   ],
+   "ne": "Kart metni: ‘Evde ailene yardım edince Mavi sana Güneş Taşı getirir.’ Ebeveyn görevi onaylarken tek dokunuşla teşekkür çıkartması ekleyebilsin; Mavi bunu taşla birlikte getirsin (posta kutusu zaten var). Bu ParentApp işi.",
+   "neden": "Önceden bilinen somut ödüller iç ilgiyi azaltabiliyor (Deci vd. 1999). Övgü ise yardım etme isteğini azaltmadı (Warneken ve Tomasello 2008).",
+   "etki": "Ev işinin anlamı ‘ücret’ değil ‘iyilik ve teşekkür’ olarak kalır. Ebeveyn de sürece duygusal olarak katılır.",
+   "kaynak": [
+    {
+     "ad": "Deci, Koestner, Ryan 1999",
+     "url": "https://depts.washington.edu/techdocs/papers/deciExtrinsicRewardsAndIntrinsicMotivation99.pdf"
+    },
+    {
+     "ad": "Warneken ve Tomasello 2008",
+     "url": "https://scholars.duke.edu/publication/1458228"
+    }
+   ]
+  },
+  {
+   "oncelik": "İyi olur",
+   "baslik": "Rehber adımlarını ölç (anonim, toplu)",
+   "adimlar": [
+    "film",
+    "walk",
+    "1",
+    "16",
+    "18"
+   ],
+   "ne": "Admin panelindeki çocuk hunisinde ‘oyunu açtı’ ile ‘ilk Yaptım’ arasına rehber adımları eklensin: her adıma ulaşan çocukların oranı, kişisel veri olmadan ve yalnız toplu olarak. Önce ortak kurallar güncellenir.",
+   "neden": "Roblox, onboarding'i adımlara bölüp en büyük düşüşün olduğu adımı bulmayı öneriyor. GameAnalytics 2026 özetine göre medyan G1 tutma ≈%22, en iyi çeyrek ≈%30 (ikincil).",
+   "etki": "Çocukların hangi adımda bıraktığı tahminle değil veriyle görülür; yukarıdaki değişikliklerin etkisi ölçülür.",
+   "kaynak": [
+    {
+     "ad": "Roblox – Funnel events",
+     "url": "https://create.roblox.com/docs/production/analytics/funnel-events"
+    },
+    {
+     "ad": "GameAnalytics 2026 kıyas özeti",
+     "url": "https://gamedevreports.substack.com/p/gameanalytics-mobile-and-pc-game"
+    }
+   ]
+  }
+ ],
+ "yas": [
+  {
+   "grup": "K (≤5)",
+   "oneri": "İlk gün ≈15–20 dk olacak şekilde tasarlansın; panodan sonra ‘Kulübeyi yarın birlikte kuralım’ diye bir mola noktası olsun. Yürüme dokun-yürü ile öğretilsin, joystick ve kamera sonra gelsin. Ekranda ‘+10 XP’ yerine yıldız ya da ışık gösterilsin. Panoyu ebeveyn okusun (‘Aileni çağır’ anı). İlk gün Sv4 ve ‘Gerçek ödüller’ tanıtımı çıkmasın."
+  },
+  {
+   "grup": "A (6–8)",
+   "oneri": "Sesli okuma açık kalsın, cümleler 3–5 kelime olsun. El ipucu kalsın ama önce 3–4 sn çocuğa kendi deneme şansı tanınsın. Kulübe tarifi 4/3/2 olsun. Oyun görevleri ve sandık 2. gün tanıtılsın. İlk gerçek görevi ebeveynle birlikte seçmesi teşvik edilsin."
+  },
+  {
+   "grup": "B (9–12)",
+   "oneri": "Mevcut akış en çok bu gruba uyuyor. El ipucu yalnız 8 sn hareketsizlikte çıksın (oklar gibi) ve ilk 3 adımdan sonra azalsın; ‘sıradaki hedef’ ve haritadaki im yeter. Yan istekler (Pıtır, Mavi) seçmeli olarak açık kalsın. Ayarlar'da ‘ipuçlarını azalt’ seçeneği olsun."
+  },
+  {
+   "grup": "C (13+)",
+   "oneri": "Çocuksu tonu azaltın: bakım adımları tek adımda toplansın, el yalnız takılınca çıksın, filmdeki ‘Geç’ belirgin olsun. Gerçek görevler ‘kendi hedefin’ diye sunulsun; çocuğun görev önerebilmesi için önce ortakta değişiklik gerekir. Bebek Okti en uzun bu grupta kalıyor (Sv5 için 765 XP): genç evreye daha erken geçiş düşünülebilir."
+  }
+ ],
+ "kaynaklar": [
+  {
+   "ad": "Apple Human Interface Guidelines – Onboarding",
+   "url": "https://developer.apple.com/design/human-interface-guidelines/onboarding",
+   "not": "Resmî kılavuz. Tanıtım ‘hızlı, eğlenceli, isteğe bağlı’ olmalı; yaparak öğretilmeli; tek akış yerine bağlama göre ipucu (arama sonucunda .md sürümü görüldü)."
+  },
+  {
+   "ad": "Andersen vd., The Impact of Tutorials on Games of Varying Complexity (CHI 2012)",
+   "url": "https://grail.cs.washington.edu/projects/game-abtesting/chi2012/",
+   "not": "Hakemli çalışma, 45.000'den çok oyuncu. Öğretici yalnız karmaşık oyunda oynama süresini artırdı; bağlama göre yardım daha iyi."
+  },
+  {
+   "ad": "Ryan, Rigby, Przybylski 2006 – The Motivational Pull of Video Games",
+   "url": "https://acuresearchbank.acu.edu.au/item/8q128/the-motivational-pull-of-video-games-a-self-determination-theory-approach",
+   "not": "Hakemli; Öz Belirleme Kuramı. Özerklik, yeterlik ve bağlılık, keyfi ve yeniden oynamayı yordar."
+  },
+  {
+   "ad": "ICO – Top tips for games designers (Children's code)",
+   "url": "https://ico.org.uk/for-organisations/childrens-code-hub/top-tips-for-games-designers-how-to-comply-with-the-children-s-code",
+   "not": "Birleşik Krallık veri koruma kurumu. Doğal molalar, kayıt noktaları ve molaya yönlendiren olumlu yönlendirmeler (hukuk bürosu özetlerinden)."
+  },
+  {
+   "ad": "ICO – Standard 13: Nudge techniques",
+   "url": "https://ico.org.uk/for-organisations/guide-to-data-protection/ico-codes-of-practice/age-appropriate-design-a-code-of-practice-for-online-services/13-nudge-techniques",
+   "not": "Ödül, bildirim gibi kullanımı uzatan özelliklere dikkat; esenliği destekleyen yönlendirmeler teşvik ediliyor (özetlerden)."
+  },
+  {
+   "ad": "UNICEF Innocenti – RITEC",
+   "url": "https://www.unicef.org/innocenti/projects/responsible-innovation-technology-children",
+   "not": "UNICEF ve LEGO çerçevesi. Sekiz esenlik boyutu: özerklik, yeterlik, duygular, kimlik, ilişkiler, yaratıcılık, güvenlik, kapsayıcılık."
+  },
+  {
+   "ad": "Joan Ganz Cooney Center – RITEC'in çocuklarla testi",
+   "url": "https://joanganzcooneycenter.org/?p=24795",
+   "not": "RITEC-8'in revize hâli; güvenlik zorunlu, diğer boyutlar kontrol listesi değil."
+  },
+  {
+   "ad": "5Rights Foundation – Disrupted Childhood",
+   "url": "https://5rightsfoundation.com/in-action/disrupted-childhood-the-cost-of-persuasive-technology.html",
+   "not": "Çocuk hakları kuruluşu. Seriler, ödül döngüleri ve bildirimler gibi ikna edici tasarımın çocuklara maliyeti."
+  },
+  {
+   "ad": "Radesky vd. 2022 – Manipulative design in apps used by children (JAMA Netw Open)",
+   "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9206186/",
+   "not": "Hakemli; 3–5 yaşındaki 160 çocuğun uygulamaları. Karakter baskısı, sahte zaman baskısı, oyunu uzatan yemler."
+  },
+  {
+   "ad": "Nielsen Norman Group – Mobile tutorials",
+   "url": "https://www.nngroup.com/articles/mobile-tutorials/",
+   "not": "70 kullanıcılı test. Baştan gösterilen ipucu kartları başarıyı artırmadı; sayılar ikincil özetten (doğrulanamadı)."
+  },
+  {
+   "ad": "Google Play – Teacher Approved",
+   "url": "https://play.google.com/console/about/programs/teacherapproved",
+   "not": "Resmî program. Yaşa uygun dil ve ses, gezinmesi kolay arayüz; yaş grupları 5 ve altı / 6–8 / 9–12."
+  },
+  {
+   "ad": "Sesame Workshop – Best Practices: Touch Tablet Experiences for Preschoolers",
+   "url": "https://joanganzcooneycenter.org/?p=19607",
+   "not": "Okul öncesi çocuklarla 50'den çok çalışmaya dayanıyor. Okuyamayana konuşma + görsel; dokunmak en kolay hareket."
+  },
+  {
+   "ad": "Cooney Center – The New Coviewing (Takeuchi ve Stevens 2011)",
+   "url": "https://joanganzcooneycenter.org/2012/02/14/the-cooney-center-presents-the-new-coviewing/",
+   "not": "Ebeveyn ve çocuğun birlikte medya kullanması; birlikte izleyen çocuk daha çok öğreniyor."
+  },
+  {
+   "ad": "Hirsh-Pasek vd. 2015 – Putting Education in ‘Educational’ Apps",
+   "url": "https://www.psychologicalscience.org/publications/educational-apps.html",
+   "not": "Hakemli derleme. Dört dayanak: etkin katılım, dikkat dağıtmayan ilgi, anlamlılık, sosyal etkileşim."
+  },
+  {
+   "ad": "Deci, Koestner, Ryan 1999 – meta-analiz",
+   "url": "https://depts.washington.edu/techdocs/papers/deciExtrinsicRewardsAndIntrinsicMotivation99.pdf",
+   "not": "128 çalışma. Önceden bilinen somut ödüller iç güdülenmeyi azaltıyor."
+  },
+  {
+   "ad": "Warneken ve Tomasello 2008 – Extrinsic Rewards Undermine Altruistic Tendencies",
+   "url": "https://scholars.duke.edu/publication/1458228",
+   "not": "Hakemli. Maddi ödül sonraki yardımı azalttı, övgü azaltmadı."
+  },
+  {
+   "ad": "The Pokémon Company – Why We Created Pokémon Sleep",
+   "url": "https://corporate.pokemon.co.jp/en/topics/detail/110.html",
+   "not": "Resmî geliştirme yazısı. Önce iyi uyku; sabah uyanmayı keyifli kılmak; yatakta tutacak video fikrinden vazgeçilmiş."
+  },
+  {
+   "ad": "Nintendo destek – ACNH'de yeni oyun başlatma",
+   "url": "https://www.nintendo.co.uk/Support/Nintendo-Switch/How-to-Start-a-New-Game-Animal-Crossing-New-Horizons--1747986.html",
+   "not": "Resmî. İlk gün sırası: Tom Nook, çadır, kamp ateşi, ada adı, uyku."
+  },
+  {
+   "ad": "Gamer Guides – ACNH ilk gün",
+   "url": "https://gamerguides.com/animal-crossing-new-horizons/guide/walkthrough/day-one/your-first-day",
+   "not": "Oyun rehberi (ikincil). Kamp ateşi için dal ve meyve toplama, karşılama partisi."
+  },
+  {
+   "ad": "Pro Game Guides – ACNH müzeyi açma",
+   "url": "https://progameguides.com/animal-crossing/new-horizons-how-to-unlock-the-museum/",
+   "not": "İkincil. Blathers gerçek zamanda bir gün sonra geliyor."
+  },
+  {
+   "ad": "Finch incelemesi (Headway)",
+   "url": "https://makeheadway.com/blog/finch-app-review/",
+   "not": "İkincil inceleme. Kuş gün atlanınca ölmüyor, suçluluk yok; görevler kuşu maceraya gönderiyor."
+  },
+  {
+   "ad": "Taplytics – Duolingo ertelenmiş kayıt",
+   "url": "https://taplytics.com/blog/duolingo-ab-test-onboarding",
+   "not": "İkincil. Kayıt, ilk dersten sonraya alınınca günlük aktif ≈%20 arttı (yönetici aktarımı; doğrulanamadı)."
+  },
+  {
+   "ad": "PlayStation Blog – A Short Hike",
+   "url": "https://blog.playstation.com/2021/08/05/crafting-a-tiny-open-world-a-look-behind-the-scenes-at-the-creation-of-a-short-hike/",
+   "not": "Geliştiricinin kendi yazısı. Küçük açık dünya, merakı ödüllendiren yönlendirme."
+  },
+  {
+   "ad": "GamesBeat – Toca Boca",
+   "url": "https://gamesbeat.com/how-toca-boca-got-100m-mobile-downloads-by-putting-kids-first/",
+   "not": "Stüdyo röportajı. Skorsuz, süresiz, az metinli açık uçlu oyun (K grubu için)."
+  },
+  {
+   "ad": "Lost Garden – The Chemistry of Game Design (Daniel Cook)",
+   "url": "https://lostgarden.com/2021/03/13/the-chemistry-of-game-design-2/",
+   "not": "Tanınmış tasarım makalesi. Beceri atomları: her döngüde bir yeni beceri."
+  },
+  {
+   "ad": "Cheung, Zimmermann, Nagappan 2014 – The First Hour Experience",
+   "url": "https://www.microsoft.com/en-us/research/?p=167075",
+   "not": "Microsoft Research, CHI PLAY. İlk saatte merak ve bilgi, anlık eğlence kadar değerli."
+  },
+  {
+   "ad": "Roblox Creator Docs – Funnel events",
+   "url": "https://create.roblox.com/docs/production/analytics/funnel-events",
+   "not": "Resmî belge. Onboarding'i adımlara böl, en büyük düşüşü bul."
+  },
+  {
+   "ad": "GameDev Reports – GameAnalytics 2026 kıyasları",
+   "url": "https://gamedevreports.substack.com/p/gameanalytics-mobile-and-pc-game",
+   "not": "İkincil özet. Medyan G1 ≈%22, en iyi çeyrek ≈%30 (doğrulanamadı)."
+  },
+  {
+   "ad": "GameAnalytics – FTUE ipuçları",
+   "url": "https://gameanalytics.com/blog/tips-for-a-great-first-time-user-experience-ftue-in-f2p-games",
+   "not": "Sektör blogu. Açılır açılmaz eğlence; oyuncunun başarılı hissetmesi; uzun vadeli hedef."
+  },
+  {
+   "ad": "WHO 5 yaş altı rehberi (haber)",
+   "url": "https://activeforlife.com/world-health-guidelines/",
+   "not": "İkincil haber. 2–4 yaş için günde en çok 1 saat ekran (WHO metni açılamadı)."
+  },
+  {
+   "ad": "Habitica (Wikipedia)",
+   "url": "https://en.wikipedia.org/wiki/Habitica",
+   "not": "Karşıt örnek. Kaçırılan günlük görev can puanı kaybettiriyor."
+  }
+ ]
+}

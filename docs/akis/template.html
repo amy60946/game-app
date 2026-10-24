@@ -86,6 +86,45 @@ header{display:flex;flex-direction:column;gap:12px}
 .after .row{display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;background:var(--card);border-radius:14px;padding:12px 14px}
 .after .when{font-family:var(--font-display);font-weight:800;color:var(--sea);font-size:17px}
 .foot{font-size:13.5px;color:var(--muted)}
+/* Dünyadaki örneklerle karşılaştırma (24 Ekim 2026): değerlendirme kartları, öncelik rozetleri, adım çipleri sayfadaki adıma götürür */
+.jump{display:inline-flex;align-items:center;gap:8px;margin-top:12px;font-weight:800;color:var(--sea);text-decoration:none;border:2px solid var(--sea-soft);border-radius:999px;padding:6px 14px;background:var(--card)}
+.eval{display:flex;flex-direction:column;gap:18px}
+.eval .sum{background:var(--card);border-radius:16px;padding:16px 18px;max-width:none}
+.eval .sum p{max-width:75ch}
+.eval h3.sub{font-size:20px;margin-top:6px}
+.tblwrap{overflow-x:auto;background:var(--card);border-radius:16px}
+table.score{border-collapse:collapse;width:100%;min-width:720px;font-size:14.5px}
+table.score th,table.score td{text-align:left;vertical-align:top;padding:10px 12px;border-bottom:1px solid var(--line)}
+table.score th{font-family:var(--font-display);font-size:15px;color:var(--muted);font-weight:800}
+table.score td:first-child{font-weight:800;white-space:nowrap}
+.st{display:inline-block;border-radius:999px;padding:2px 10px;font-weight:800;font-size:13px;white-space:nowrap}
+.st.iyi{background:var(--leaf-soft);color:var(--leaf)} .st.orta{background:var(--sun-soft);color:var(--sun)} .st.risk{background:var(--coral-soft);color:var(--coral)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.ecard{background:var(--card);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.ecard h4{font-family:var(--font-display);font-size:18px;margin:0;line-height:1.2}
+.ecard p{font-size:14.5px}
+.ecard .lbl{font-weight:800;color:var(--muted);font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;display:block}
+.stepchips{display:flex;flex-wrap:wrap;gap:6px}
+.stepchip{border:none;cursor:pointer;font:800 13px var(--font-body);border-radius:999px;padding:2px 10px;background:var(--sea-soft);color:var(--sea)}
+.src{font-size:13px;display:flex;flex-wrap:wrap;gap:4px 12px}
+.src a{color:var(--sky)}
+.prio{display:inline-block;border-radius:8px;padding:2px 9px;font-weight:800;font-size:12.5px;align-self:flex-start}
+.prio.sart{background:var(--coral);color:var(--card)} .prio.onemli{background:var(--sun-soft);color:var(--sun)} .prio.iyi{background:var(--sky-soft);color:var(--sky)}
+.ecard.rec{border-top:4px solid var(--line)} .ecard.rec.sart{border-top-color:var(--coral)} .ecard.rec.onemli{border-top-color:var(--sun)}
+.agegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+details.refs{background:var(--card);border-radius:14px;padding:12px 16px}
+details.refs summary{cursor:pointer;font-weight:800;font-family:var(--font-display);font-size:18px}
+details.refs ol{margin:10px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+details.refs a{color:var(--sky);word-break:break-word}
+@media (max-width:640px){
+  table.score{min-width:0} table.score thead{display:none}
+  table.score,table.score tbody,table.score tr,table.score td{display:block}
+  table.score tr{padding:12px 14px;border-bottom:1px solid var(--line)}
+  table.score td{border:none;padding:3px 0;white-space:normal}
+  table.score td:first-child{font-family:var(--font-display);font-size:17px;white-space:normal}
+  table.score td:nth-child(2)::before{content:"Bizde: ";font-weight:800;color:var(--muted)}
+  table.score td:nth-child(3)::before{content:"Dünyadaki örnekler: ";font-weight:800;color:var(--muted)}
+}
 @media (max-width:520px){.step{grid-template-columns:40px minmax(0,1fr);padding:14px 14px 14px 8px}.num{width:34px;height:34px;font-size:16px}.after .row{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){.pin.hot circle.b{animation:pulse 1.2s ease-in-out infinite}}
 @keyframes pulse{50%{r:3.4}}
@@ -96,6 +135,7 @@ header{display:flex;flex-direction:column;gap:12px}
 <header>
   <h1>Pofi Adası Akış Haritası</h1>
   <p class="lede">Yeni bir çocuğun oyundaki ilk günü, adım adım. Her adımda: ne zaman başladığı, adanın neresinde olduğu, hangi hikâye sahnesinin oynadığı, oyunun onu nasıl yönlendirdiği (el, oklar, rozet) ve ne kazandığı. Sıralamayı ve anlamı bu sayfadan değerlendirebilirsin; değişiklik istediğin adımı numarasıyla söylemen yeterli.</p>
+  <a class="jump" href="#kiyas">Dünyadaki başarılı örneklerle karşılaştırma ve öneriler ↓</a>
   <div class="legend">
     <span><i class="dot" style="background:var(--muted)"></i>Açılış</span>
     <span><i class="dot" style="background:var(--coral)"></i>1. perde · Kıskaç ve bakım</span>
@@ -160,6 +200,22 @@ header{display:flex;flex-direction:column;gap:12px}
 <section class="act" aria-label="Rehberden sonra">
   <div class="acthead"><span class="tag">Sonrası</span><h2>Rehber bittikten sonra</h2></div>
   <div class="after" id="after"></div>
+</section>
+
+<section class="act eval" id="kiyas" aria-label="Dünyadaki örneklerle karşılaştırma">
+  <div class="acthead"><span class="tag">Değerlendirme</span><h2>Dünyadaki başarılı örneklerle karşılaştırma</h2></div>
+  <div class="sum"><p id="ev-sum"></p><p class="foot" style="margin-top:8px">Claude'un değerlendirmesi, 24 Ekim 2026. Oyunda henüz hiçbir şey değişmedi: önerilerden hangilerinin uygulanacağına sen karar verirsin. Bir öneriyi kodundan (ör. "D3") söylemen yeterli. Adım çipine dokununca o adımın kartı yanar.</p></div>
+  <h3 class="sub">Karne</h3>
+  <div class="tblwrap"><table class="score"><thead><tr><th>Konu</th><th>Bizde</th><th>Dünyadaki örnekler</th><th>Durum</th></tr></thead><tbody id="ev-score"></tbody></table></div>
+  <h3 class="sub">Öneriler</h3>
+  <div class="cards" id="ev-rec"></div>
+  <h3 class="sub">Güçlü yanlar</h3>
+  <div class="cards" id="ev-good"></div>
+  <h3 class="sub">Riskler</h3>
+  <div class="cards" id="ev-risk"></div>
+  <h3 class="sub">Yaş gruplarına göre</h3>
+  <div class="agegrid" id="ev-age"></div>
+  <details class="refs"><summary>Kaynaklar</summary><ol id="ev-refs"></ol></details>
 </section>
 
 <p class="foot">Kaynak: oyunun kodu ve verileri (rehber adımları, hikâye sahneleri, metinler), 24 Ekim 2026. Süreler yaklaşıktır; bir çocuğun normal hızıyla tahmin edildi.</p>
@@ -267,4 +323,20 @@ xp.innerHTML = s2;
 // sonrası
 const af = document.getElementById("after");
 for (const [w,t,d] of DATA.after) { const r = document.createElement("div"); r.className="row"; r.innerHTML = `<div class="when">${esc(w)}</div><div><h3>${esc(t)}</h3><p>${esc(d)}</p></div>`; af.appendChild(r); }
+// dünyadaki örneklerle karşılaştırma
+const EV = __EVAL__;
+const stepByN = {}; for (const s of DATA.steps) { if (s.n) stepByN[String(s.n)] = s.id; stepByN[s.id] = s.id; }
+const chips = arr => `<div class="stepchips">${(arr||[]).map(a => { const id = stepByN[String(a)]; return id ? `<button class="stepchip" data-id="${id}">${/^\d+$/.test(a) ? "Adım " + esc(a) : esc(a)}</button>` : `<span class="stepchip">${esc(a)}</span>`; }).join("")}</div>`;
+const srcs = arr => (arr && arr.length) ? `<div class="src">${arr.map(k => `<a href="${esc(k.url)}" target="_blank" rel="noopener">${esc(k.ad)}</a>`).join("")}</div>` : "";
+document.getElementById("ev-sum").textContent = EV.ozet;
+const stName = {iyi:"İyi", orta:"Orta", risk:"Risk"};
+document.getElementById("ev-score").innerHTML = EV.puan.map(p => `<tr><td>${esc(p.alan)}</td><td>${esc(p.bizde)}</td><td>${esc(p.kiyas)}</td><td><span class="st ${p.durum}">${stName[p.durum]||esc(p.durum)}</span></td></tr>`).join("");
+const prioKey = p => p === "Şart" ? "sart" : p === "Önemli" ? "onemli" : "iyi";
+document.getElementById("ev-rec").innerHTML = EV.oneriler.map((r,i) => `<article class="ecard rec ${prioKey(r.oncelik)}"><span class="prio ${prioKey(r.oncelik)}">D${i+1} · ${esc(r.oncelik)}</span><h4>${esc(r.baslik)}</h4>${chips(r.adimlar)}
+  <p><span class="lbl">Ne</span>${esc(r.ne)}</p><p><span class="lbl">Neden</span>${esc(r.neden)}</p><p><span class="lbl">Beklenen etki</span>${esc(r.etki)}</p>${srcs(r.kaynak)}</article>`).join("");
+document.getElementById("ev-good").innerHTML = EV.gucluler.map(g => `<article class="ecard"><h4>${esc(g.baslik)}</h4><p>${esc(g.aciklama)}</p>${srcs(g.kaynak)}</article>`).join("");
+document.getElementById("ev-risk").innerHTML = EV.riskler.map(r => `<article class="ecard"><h4>${esc(r.baslik)}</h4>${chips(r.adimlar)}<p>${esc(r.aciklama)}</p>${srcs(r.kaynak)}</article>`).join("");
+document.getElementById("ev-age").innerHTML = EV.yas.map(y => `<article class="ecard"><h4>${esc(y.grup)}</h4><p>${esc(y.oneri)}</p></article>`).join("");
+document.getElementById("ev-refs").innerHTML = EV.kaynaklar.map(k => `<li><a href="${esc(k.url)}" target="_blank" rel="noopener">${esc(k.ad)}</a> — ${esc(k.not)}</li>`).join("");
+document.querySelectorAll(".stepchip[data-id]").forEach(b => b.addEventListener("click", () => { hot(b.dataset.id); document.getElementById("s-" + b.dataset.id)?.scrollIntoView({behavior:"smooth", block:"center"}); }));
 </script>
