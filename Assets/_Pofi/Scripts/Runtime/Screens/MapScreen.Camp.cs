@@ -14,7 +14,7 @@ namespace Pofi.Screens
     /// </summary>
     public sealed partial class MapScreen
     {
-        private const float FireReach = 3.4f;
+        private const float FireReach = 4.8f;   // ateşin çevresi kütük oturaklarla çevrili: çocuk 4–4,5 m'de durur
         private Vector2? _firePos;
 
         /// <summary>Kamp ateşinin yeri (pişmiş adanın süslerinden; yoksa null).</summary>
