@@ -90,8 +90,9 @@ def _emission_restore(undo):
 
 
 def export_proxy(path_noext, high, low=None, target=1500, size=1024, nsize=None, cage=0.03, ray=0.12,
-                 ao_strength=0.65, ao_dist=0.35, normal_strength=1.0, margin=8, ds_low=None, tone=1.0, fix_normals=False):
+                 ao_strength=0.65, ao_dist=0.35, normal_strength=1.0, margin=8, ds_low=None, tone=1.0, fix_normals=False, uv_fn=None):
     """high: kaynak nesneler (taslak malzemeleriyle). low: hedef nesneler ya da None (kaynağın kopyası bütçeye indirilir).
+    uv_fn(L): verilirse hedefin UV'sini o kurar (ör. palm_v2: hazır 'UVMap' + kendi yerleşimi); yoksa akıllı açılım.
     Çıktı: <yol>.fbx, <yol>_basecolor.png (renk × yumuşak AO), <yol>_normal.png (teğet uzayı, OpenGL +Y). Üçgen sayısını döndürür."""
     size = int(os.environ.get('POFI_TEX', '0') or 0) or size; nsize = nsize or size
     sc = bpy.context.scene; sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = 32
@@ -108,12 +109,15 @@ def export_proxy(path_noext, high, low=None, target=1500, size=1024, nsize=None,
         b2 = bmesh.new(); b2.from_mesh(L.data); bmesh.ops.recalc_face_normals(b2, faces=b2.faces); b2.to_mesh(L.data); b2.free()
     tris = _decimate(L, target)
     # UV: yalnız hedefte
-    for l in list(L.data.uv_layers): L.data.uv_layers.remove(l)
-    uv = L.data.uv_layers.new(name='UVMap'); L.data.uv_layers.active = uv
     bpy.ops.object.select_all(action='DESELECT'); L.select_set(True); bpy.context.view_layer.objects.active = L
-    bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
-    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.006, area_weight=0.0, scale_to_bounds=True)
-    bpy.ops.object.mode_set(mode='OBJECT')
+    if uv_fn is not None:
+        uv_fn(L)
+    else:
+        for l in list(L.data.uv_layers): L.data.uv_layers.remove(l)
+        uv = L.data.uv_layers.new(name='UVMap'); L.data.uv_layers.active = uv
+        bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.006, area_weight=0.0, scale_to_bounds=True)
+        bpy.ops.object.mode_set(mode='OBJECT')
     bm = bpy.data.materials.new('bake'); bm.use_nodes = True; L.data.materials.append(bm)
     tex = bm.node_tree.nodes.new('ShaderNodeTexImage'); bm.node_tree.nodes.active = tex
     # hedef ağ kaynağın üstünde/içinde durur: oyuk gölgesi (AO) ışınları ona çarpıp her yeri karartmasın

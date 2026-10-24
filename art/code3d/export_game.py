@@ -29,7 +29,8 @@ ASSETS = {
     'p_site': ('assets_town.py', 'c_site', 3500, 512),
     'island_chunk': ('assets_town.py', 'c_chunk', 5000, 1024),
     # süsler (adada çok sayıda)
-    'palm': ('assets_v3.py', 'c_palm', 2600, 512),
+    # palmiye v2 (24 Ekim 2026): ayrıntılı taslaktan pişmiş renk + AO + normal haritası (palm_v2.py, v6/proxy_bake); eski c_palm yedek
+    'palm': ('palm_v2.py', 'c_palm2', 3600, 1024),
     'p_tree': ('assets_town.py', 'c_tree', 3200, 512),
     'p_rock': ('assets_v3.py', 'c_rock', 1200, 512),
     'p_bush': ('assets_v3.py', 'c_bush', 1800, 512),
@@ -85,6 +86,8 @@ def export(name):
     os.makedirs(dst, exist_ok=True)
     shutil.copy(os.path.join(out, builder + '.fbx'), os.path.join(dst, name + '.fbx'))
     shutil.copy(os.path.join(out, builder + '_basecolor.png'), os.path.join(dst, name + '_basecolor.png'))
+    nrm = os.path.join(out, builder + '_normal.png')   # taslaktan pişirilen varlıklar (palm_v2) normal haritası da üretir
+    if os.path.exists(nrm): shutil.copy(nrm, os.path.join(dst, name + '_normal.png'))
     print('OK', name, log[-1] if log else '', flush=True)
     return True
 
