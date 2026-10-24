@@ -118,16 +118,25 @@ namespace Pofi.World
             }
         }
 
-        /// <summary>Kamera–pet doğru parçası nesnenin dikey silindirinden (taban–tepe, yarıçap) geçiyor mu?</summary>
+        /// <summary>Kamera–pet doğru parçası nesnenin dikey silindirinden (taban–tepe, yarıçap) geçiyor mu? Parçanın silindir
+        /// içindeki bütün aralığı denenir (GB19 çekimi: tacı petin üstüne taşan ağaçta en yakın nokta pet hizasında kalıyor,
+        /// kameraya yakın kısım tacı kesse de solmuyordu). Petin hemen yanı (son %8) sayılmaz: yanındaki çalı yerinde kalır.</summary>
         private static bool Blocks(Entry e, Vector3 a, Vector3 b)
         {
+            var a2 = new Vector2(a.x, a.z);
             var ab = new Vector2(b.x - a.x, b.z - a.z); var l2 = ab.sqrMagnitude;
-            var t = l2 < 1e-4f ? 0f : Mathf.Clamp01(Vector2.Dot(e.C - new Vector2(a.x, a.z), ab) / l2);
-            if (t > 0.92f) return false;                                   // petin hemen yanındaki (arkasındaki) nesne kalır
-            var p = new Vector2(a.x, a.z) + ab * t;
-            if ((p - e.C).sqrMagnitude > (e.Rad + 0.35f) * (e.Rad + 0.35f)) return false;
-            var y = Mathf.Lerp(a.y, b.y, t);
-            return y > e.Y0 + 0.2f && y < e.Y1;
+            if (l2 < 1e-4f) return false;
+            var r = e.Rad + 0.35f;
+            var f = a2 - e.C;
+            var bq = Vector2.Dot(f, ab); var cq = f.sqrMagnitude - r * r;
+            var disc = bq * bq - l2 * cq;
+            if (disc < 0f) return false;
+            var s = Mathf.Sqrt(disc);
+            var t0 = Mathf.Max(0f, (-bq - s) / l2); var t1 = Mathf.Min(0.92f, (-bq + s) / l2);
+            if (t0 > t1) return false;
+            var yHi = Mathf.Lerp(a.y, b.y, t0); var yLo = Mathf.Lerp(a.y, b.y, t1);
+            if (yHi < yLo) { var q = yHi; yHi = yLo; yLo = q; }
+            return yHi > e.Y0 + 0.2f && yLo < e.Y1;
         }
     }
 
