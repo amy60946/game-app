@@ -382,10 +382,57 @@ namespace Pofi.Screens
             _toast.Say(r.Who == "kiskac" ? T("res.hi_kiskac", App.State.PetName) : r.Who == "mavi" ? T("res.hi_mavi") : T("res.hi_pus"));
         }
 
+        // ------------------------------------------------------------------ Mavi'nin haberi (Ev Görevleri B, kullanıcı 24 Ekim 2026)
+        // Ailenden yeni görev gelince postacı Mavi Okti'nin yanına uçar, krem haber kartı açılır ("Ailenden 2 yeni görev!");
+        // karta dokununca Görevler penceresi. Kart 7 sn sonra söner; Mavi konup biraz bekler, yerine döner.
+        private RectTransform _news;
+        private float _newsT, _maviNewsT;
+
+        /// <summary>Haberi Mavi verir (adadaysa ve sakin bir andaysa). Olmazsa false: çağıran düz bildirim gösterir.</summary>
+        public bool MaviNews(string text)
+        {
+            if (!_built || _world == null || _world.Walker == null || _cine || _overview || StoryPlayer.Playing || !gameObject.activeInHierarchy) return false;
+            if (_news != null) Destroy(_news.gameObject);
+            _news = Ui.Rect(Root, "MaviNews", new Vector2(1f, 1f), new Vector2(560f, 150f));
+            _news.pivot = new Vector2(1f, 1f); _news.anchoredPosition = new Vector2(-40f, -(146f + 60f) * GoldKit.K);
+            var inner = GoldKit.RimCapsule(_news, Theme.Hex("#FFF8E4"), Theme.Hex("#F3DDA6"), 6f);
+            var face = StoryPlayer.ResidentPortrait("mavi");
+            var pic = Ui.Rect(_news, "Mavi", new Vector2(0f, 0f), new Vector2(170f, 170f), new Vector2(70f, 78f));
+            var pi = pic.gameObject.AddComponent<Image>(); pi.sprite = face ?? Ui.Icon("res_seagull"); pi.preserveAspect = true; pi.raycastTarget = false;
+            pic.gameObject.AddComponent<Hover3D>().Amp = 8f;
+            var t = Ui.Label(inner, text, 34, Theme.Hex("#5A3000"), new Vector2(0f, 0.5f), new Vector2(380f, 120f), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(150f + 190f, 0f));
+            t.raycastTarget = false;
+            var hit = _news.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0f);
+            var b = _news.gameObject.AddComponent<Button>(); b.targetGraphic = hit; b.transition = Selectable.Transition.None;
+            b.onClick.AddListener(() => { Audio.Sfx.Play(Audio.SfxKind.Tap); if (_news != null) Destroy(_news.gameObject); QuestPanel(); });
+            _news.gameObject.AddComponent<PressBounce>();
+            _news.gameObject.AddComponent<PopIn>();
+            _newsT = 7f;
+            if (_mavi != null) _maviNewsT = 1.8f;   // Mavi Okti'ye uçar
+            Audio.Sfx.Play(Audio.SfxKind.Chime);
+            Audio.Haptics.Light();
+            return true;
+        }
+
+        private void UpdateMaviNews(float dt)
+        {
+            if (_news != null && (_newsT -= dt) <= 0f) { Destroy(_news.gameObject); _news = null; }
+        }
+
         /// <summary>N2: rehber okları açıkken Mavi hedefe önden uçar; oklar sönünce kona kona yerine döner.</summary>
         private void UpdateMaviGuide(bool active, Vector2 target, bool arrived)
         {
             if (_mavi == null || _world.Walker == null) return;
+            if (_maviNewsT > 0f)
+            {
+                // haber: Okti'nin yanına uç, varınca kon (sonra kendi yerine döner)
+                _maviNewsT -= Time.deltaTime;
+                var q = _world.Walker.Position;
+                var side = q + new Vector2(1.2f, 0.6f);
+                _mavi.Guide(new Vector3(q.x, _terrain.Height(q.x, q.y), q.y), new Vector3(side.x, _terrain.Height(side.x, side.y), side.y));
+                if (_maviNewsT <= 0f) _mavi.EndGuide(true);
+                return;
+            }
             if (active)
             {
                 var p = _world.Walker.Position;

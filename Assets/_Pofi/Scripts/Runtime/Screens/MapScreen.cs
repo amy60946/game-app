@@ -104,6 +104,7 @@ namespace Pofi.Screens
             foreach (var v in _views) _labels[v.Region.Id] = Label(v);
             BuildPlaceLabels();
             BuildHereMarker();
+            BuildBoardBalloon();
             BuildGather();   // kütük/çalı/taş + kulübe yeri, nesne üstü baloncuklar
 
             BuildHud();
@@ -179,6 +180,45 @@ namespace Pofi.Screens
             }
             GoldKit.Ribbon(_hereBob, T("map.here"), GoldKit.Tone.Red, 54f, 32, new Vector2(0.5f, 0f), new Vector2(0f, 156f));
             _here.gameObject.SetActive(false); _hereRing.gameObject.SetActive(false);
+        }
+
+        // Pano balonu (Ev Görevleri B'nin iyi yanı): ailenden yapılacak görev varken adadaki panonun üstünde süzülen krem balon,
+        // içinde pano simgesi ve sayı; dokununca Görevler penceresi. Görev kalmayınca kaybolur.
+        private RectTransform _boardBalloon;
+        private Text _boardNum;
+        private int _boardCount;
+
+        private void BuildBoardBalloon()
+        {
+            if (!_world.Regions.ContainsKey("region_task_board")) return;
+            _boardBalloon = Ui.Rect(_labelLayer, "BoardBalloon", Vector2.zero, new Vector2(150f, 150f));
+            _boardBalloon.pivot = new Vector2(0.5f, 0f);
+            var bob = Ui.Fill(_boardBalloon, "Bob");
+            bob.gameObject.AddComponent<Hover3D>().Amp = 10f;
+            var tail = Ui.Rect(bob, "Tail", new Vector2(0.5f, 0f), new Vector2(34f, 34f), new Vector2(0f, 4f));
+            tail.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            var ti = tail.gameObject.AddComponent<Image>(); ti.color = Theme.Hex("#F2B63A"); ti.raycastTarget = false;
+            var disc = Ui.Rect(bob, "Disc", new Vector2(0.5f, 0f), new Vector2(130f, 130f), new Vector2(0f, 84f));
+            GoldKit.RimDisc(disc, Theme.Hex("#FFFDF2"), Theme.Hex("#FBE6B0"), 6f);
+            Ui.IconImage(disc, "ui_board", new Vector2(0.5f, 0.5f), 92f);
+            _boardNum = GoldKit.Gem(disc, 52f);
+            var hit = _boardBalloon.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0f);
+            var b = _boardBalloon.gameObject.AddComponent<Button>(); b.targetGraphic = hit; b.transition = Selectable.Transition.None;
+            b.onClick.AddListener(() => { Audio.Sfx.Play(Audio.SfxKind.Tap); QuestPanel(); });
+            _boardBalloon.gameObject.AddComponent<PressBounce>();
+            _boardBalloon.gameObject.SetActive(false);
+        }
+
+        private void UpdateBoardBalloon(Camera cam, float scale, Vector3 petPos)
+        {
+            if (_boardBalloon == null || !_world.Regions.TryGetValue("region_task_board", out var t)) return;
+            var lh = _world.LabelHeights.TryGetValue("region_task_board", out var hh) ? hh : 2.5f;
+            var sp = cam.WorldToScreenPoint(t.position + Vector3.up * (lh + 1.2f));
+            var on = _boardCount > 0 && !_cine && sp.z > 0f && (_overview || Vector3.Distance(t.position, petPos) < 45f);
+            if (_boardBalloon.gameObject.activeSelf != on) { _boardBalloon.gameObject.SetActive(on); if (on) Bump.Play(_boardBalloon, 0.3f); }
+            if (!on) return;
+            _boardBalloon.anchoredPosition = new Vector2(sp.x * scale, sp.y * scale);
+            _boardNum.text = _boardCount.ToString();
         }
 
         private void UpdateHereMarker(Camera cam, float scale)
@@ -391,6 +431,8 @@ namespace Pofi.Screens
                 rt.anchoredPosition = new Vector2(sp.x * scale, sp.y * scale);
             }
             UpdateHereMarker(cam, scale);
+            UpdateBoardBalloon(cam, scale, petPos);
+            UpdateMaviNews(Time.deltaTime);
         }
 
         // ------------------------------------------------------------------ dokunma

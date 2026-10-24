@@ -515,6 +515,12 @@ namespace Pofi.Core
                 if (Notices.Count > 0)
                     foreach (var n in Notices.Drain(CalmMoment))
                     {
+                        // yeni ev görevi: adadaysa haberi postacı Mavi getirir (kullanıcı, 24 Ekim 2026)
+                        if (n.Key.StartsWith("notice.new_task") && Page == AppPage.Map)
+                        {
+                            var map = FindAnyObjectByType<Screens.MapScreen>();
+                            if (map != null && map.MaviNews(Loc.Get(n.Key == "notice.new_task_one" ? "mavi.news_one" : "mavi.news_many", n.Args))) continue;
+                        }
                         Toast.Post(Overlay.transform, Theme, Loc.Get(n.Key, n.Args));
                         if (n.Happy) Audio.Sfx.Play(Audio.SfxKind.Success);
                     }

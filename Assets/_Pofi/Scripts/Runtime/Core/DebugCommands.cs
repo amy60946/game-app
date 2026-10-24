@@ -109,6 +109,9 @@ namespace Pofi.Core
                             Screens.MapScreen.CamLookUp = c.Length > 3 ? float.Parse(c[3], ci) : 0f;
                         }
                         break;
+                    case "news":        // Mavi'nin yeni görev haberi denemesi
+                        Object.FindAnyObjectByType<Screens.MapScreen>()?.MaviNews(app.Loc.Get("mavi.news_many", 2));
+                        break;
                     case "grow":        // büyüme sahnesi denemesi (kayıt değişmez): grow genc | grow yetiskin
                         Object.FindAnyObjectByType<Screens.MapScreen>()?.PlayGrowUp(arg == "yetiskin" ? Logic.Progression.GrowthStage.Yetiskin : Logic.Progression.GrowthStage.Genc, null);
                         break;

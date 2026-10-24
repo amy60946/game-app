@@ -424,6 +424,8 @@
     "notice.approved_many": "Aferin! {0} görevin onaylandı",
     "notice.new_task_one": "Ev Görevleri panosunda yeni bir görev var",
     "notice.new_task_many": "Ev Görevleri panosunda {0} yeni görev var",
+    "mavi.news_one": "Ailenden yeni bir görev var! Yapınca Güneş Taşı kazanırsın.",
+    "mavi.news_many": "Ailenden {0} yeni görev var! Yapınca Güneş Taşı kazanırsın.",
     "notice.try_again_one": "{0}: istersen bir daha deneyebilirsin",
     "notice.try_again_many": "Bazı görevleri bir daha deneyebilirsin",
     "notice.more": "+{0} haber daha",

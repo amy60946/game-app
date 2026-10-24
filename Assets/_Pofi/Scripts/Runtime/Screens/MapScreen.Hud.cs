@@ -50,6 +50,15 @@ namespace Pofi.Screens
         private CanvasGroup _detailG, _nextG;
         private readonly List<CanvasGroup> _hudLabels = new List<CanvasGroup>();
         private readonly List<RectTransform> _hudShrink = new List<RectTransform>();
+        private RectTransform _homeBadge;
+        private Text _homeNum;
+
+        /// <summary>Bugün yapılmayı bekleyen ev görevi (ebeveynin verdiği, "Yaptım" denmemiş).</summary>
+        private int HomeTasksOpen()
+        {
+            var local = App.LocalNow; var today = DemoParent.Day(local);
+            return App.State.Tasks.ForDisplay(local).Count(t => t.Date == today && t.Status == Logic.Tasks.ChildTaskStatus.Assigned && !t.IsMissed(local));
+        }
 
         private void BuildHud()
         {
@@ -86,6 +95,13 @@ namespace Pofi.Screens
             _tasksBtn = (RectTransform)tasks.transform;
             Label(tasksLab);
             _questCount = GoldKit.Gem(tasks.transform);   // bugün açık oyun içi görev sayısı
+            // ailenden görev varken kırmızı sayı yerine altın pano rozeti + ev görevi sayısı (Ev Görevleri C+D, 24 Ekim 2026)
+            _homeBadge = Ui.Rect(tasks.transform, "HomeBadge", new Vector2(1f, 1f), new Vector2(76f * G * 0.82f, 40f * G * 0.82f), new Vector2(4f * G, -2f * G));
+            GoldKit.RimCapsule(_homeBadge, Theme.Hex("#FFE27A"), Theme.Hex("#F5A81C"), 3f * G);
+            Ui.IconImage(_homeBadge, "ui_board", new Vector2(0f, 0.5f), 32f * G * 0.82f, new Vector2(18f * G * 0.82f, 0f));
+            _homeNum = Ui.Label(_homeBadge, "", Mathf.RoundToInt(21f * G * 0.82f), Theme.Hex("#5A3000"), new Vector2(1f, 0.5f), new Vector2(34f * G * 0.82f, 40f * G * 0.82f), FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(-20f * G * 0.82f, 1f));
+            _homeNum.raycastTarget = false;
+            _homeBadge.gameObject.SetActive(false);
             LongPressInfo.Add(tasks.gameObject, T("info.tasks"));
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             if (next != null)
@@ -428,7 +444,16 @@ namespace Pofi.Screens
                 _xpText.text = (xp - start) + " / " + (App.Levels.TotalXpFor(lv + 1) - start);
             }
             RefreshBag();
-            if ((_questT -= Time.deltaTime) <= 0f) { _questT = 1f; SetCount(_questCount, OpenQuests()); }
+            if ((_questT -= Time.deltaTime) <= 0f)
+            {
+                _questT = 1f;
+                var home = HomeTasksOpen();
+                _homeBadge.gameObject.SetActive(home > 0);
+                _homeNum.text = home.ToString();
+                if (home > 0) _questCount.transform.parent.gameObject.SetActive(false);
+                else SetCount(_questCount, OpenQuests());
+                _boardCount = home;
+            }
         }
 
         private static void SetCount(Text t, int n)
