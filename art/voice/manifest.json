@@ -1852,6 +1852,17 @@
    "cer": 0.0
   },
   {
+   "key": "83c1cdac2647b7d8",
+   "text": "Okti'ye dokun: besle, yıka, giydir!",
+   "role": "anlatici",
+   "src": "tr:tip.pet_menu",
+   "who": "narrator",
+   "tts": "Okti'ye dokun: besle, yıka, giydir!",
+   "sec": 2.67,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
    "key": "6845d52fda361844",
    "text": "Sabunu Okti'nin üstüne sürükle!",
    "role": "anlatici",

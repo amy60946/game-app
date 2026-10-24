@@ -166,6 +166,7 @@ c6949d848aabec6b	adali	Mektup var mı diye posta kutusuna bak!
 f2403054ebc3577b	anlatici	Tohumu tarlaların üstünden geçir!
 03893fce448ecef7	anlatici	Orağı ürünlerin üstünden geçir!
 97afde5670a92b87	anlatici	Okti'ye dokun, sonra elmaya!
+83c1cdac2647b7d8	anlatici	Okti'ye dokun: besle, yıka, giydir!
 6845d52fda361844	anlatici	Sabunu Okti'nin üstüne sürükle!
 cbffecd0e3bea7e3	anlatici	Görev yap, yıldız kazan!
 38d37cbecd6663dd	anlatici	Yıldız topla, seviye atla! Rozetlerin için kartına dokun.
