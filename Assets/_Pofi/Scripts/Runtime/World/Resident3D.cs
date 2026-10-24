@@ -96,7 +96,7 @@ namespace Pofi.World
                 var v = (_fly == Fly.Guide ? _guideAt : _home) - p;
                 if (new Vector2(v.x, v.z).sqrMagnitude > 0.04f) wantYaw = Mathf.Atan2(v.x, v.z) * Mathf.Rad2Deg;
             }
-            else if (_pet != null)
+            else if (_pet != null && !Rooted)   // palmiyeler kökünden döner gibi olmasın
             {
                 var lp = transform.parent.InverseTransformPoint(_pet.position) - p;
                 var dist = new Vector2(lp.x, lp.z).magnitude;
@@ -130,6 +130,18 @@ namespace Pofi.World
                         off.y = Mathf.Max(0f, Mathf.Sin(t * 2.2f)) * 0.025f;
                         rot = Quaternion.Euler(0f, Mathf.Sin(t * 0.7f) * 14f, wiggle);
                     }
+                    break;
+                case "tosbi":    // yaşlı kaplumbağa: ağır ağır başını sallar, alçak zıplar
+                    hopY *= 0.45f;
+                    rot = Quaternion.Euler(Mathf.Sin(t * 0.8f) * 3f, Mathf.Sin(t * 0.35f) * 6f, wiggle * 0.6f);
+                    break;
+                case "pitir":    // geveze palmiye: rüzgârda canlı sallanır; dokununca titrer (zıplamaz)
+                    hopY = 0f;
+                    rot = Quaternion.Euler(Mathf.Sin(t * 1.3f) * 1.5f, 0f, Mathf.Sin(t * 0.9f) * 3.5f + wiggle * 1.4f);
+                    break;
+                case "hisir":    // utangaç palmiye: yavaş, küçük salınım, arada hafifçe yana bakar
+                    hopY = 0f;
+                    rot = Quaternion.Euler(0f, Mathf.Sin(t * 0.4f) * 5f, Mathf.Sin(t * 0.7f) * 2f + wiggle);
                     break;
                 default:         // Pus: süzülür, nefes alır gibi esner
                     off.y = Mathf.Sin(t * 0.9f) * 0.18f;
@@ -173,6 +185,9 @@ namespace Pofi.World
                 }
             }
         }
+
+        /// <summary>Yere kök salmış adalı (konuşan palmiyeler Pıtır, Hışır): Okti'ye dönmez, zıplamaz, sallanır.</summary>
+        private bool Rooted => Who == "pitir" || Who == "hisir";
 
         private float Ground(float x, float z) => _ground != null ? Mathf.Max(0f, _ground(x, z)) : 0f;
     }

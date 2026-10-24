@@ -383,7 +383,7 @@ namespace Pofi.Screens
                 var d = new Vector2(gx - grove.X, gz - grove.Z); d = d.sqrMagnitude > 0.01f ? d.normalized : Vector2.down;
                 var side = new Vector2(d.y, -d.x);
                 var yaw = Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg;
-                _pitir = PlaceResident("pitir", new Vector2(gx, gz) + side * 2.8f - d * 0.4f, 2.5f, yaw - 14f, ground, pet);
+                _pitir = PlaceResident("pitir", new Vector2(gx, gz) + side * 2.8f - d * 0.4f, 2.55f, yaw - 14f, ground, pet);
                 _hisir = PlaceResident("hisir", new Vector2(gx, gz) - side * 2.6f - d * 0.2f, 2.1f, yaw + 14f, ground, pet);
             }
             var pier = _terrain.Regions.FirstOrDefault(r => r.Id == "region_pier");
@@ -391,7 +391,7 @@ namespace Pofi.Screens
             {
                 var (px, pz) = _terrain.Door(pier);
                 var d = new Vector2(px - pier.X, pz - pier.Z); d = d.sqrMagnitude > 0.01f ? d.normalized : Vector2.up;
-                _tosbi = PlaceResident("tosbi", new Vector2(px, pz) + d * 1.6f + new Vector2(d.y, -d.x) * 1.4f, 1.2f, Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg, ground, pet);
+                _tosbi = PlaceResident("tosbi", new Vector2(px, pz) + d * 1.6f + new Vector2(d.y, -d.x) * 1.4f, 1.15f, Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg, ground, pet);
             }
         }
 
