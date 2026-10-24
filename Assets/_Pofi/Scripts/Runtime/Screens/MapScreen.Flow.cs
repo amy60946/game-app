@@ -58,7 +58,7 @@ namespace Pofi.Screens
                     RequestCard(Guide.CoconutRequest);
                     break;
                 case "mavi":
-                    if (_maviArriveT < 0f && _maviLandT < 0f) _maviArriveT = MaviDelay;
+                    if (_maviArriveT < 0f && _maviLandT < 0f) { _maviArriveT = MaviDelay; Debug.Log("[PofiDebug] flow: Mavi " + MaviDelay + " sn sonra gelecek"); }
                     break;
                 case "gather":
                     if (Gathering.CanBuild(App.State.Gather)) App.RecordActivity("hut_ready");
@@ -110,6 +110,7 @@ namespace Pofi.Screens
             {
                 _maviArriveT = -1f;
                 if (_mavi == null) CreateMavi();
+                Debug.Log("[PofiDebug] flow: Mavi uçuyor (model " + (_mavi != null) + ")");
                 if (_mavi == null) { App.RecordActivity("mavi_arrived"); TriggerStory(); return; }
                 _maviNewsT = 2.6f;   // Okti'nin yanına uç (UpdateMaviGuide)
                 _maviLandT = 2.9f;
@@ -118,12 +119,18 @@ namespace Pofi.Screens
             if (_maviLandT > 0f && (_maviLandT -= dt) <= 0f)
             {
                 _maviLandT = -1f;
+                Debug.Log("[PofiDebug] flow: Mavi kondu");
                 _mavi.React();
                 _mavi.Linger(16f);   // sahne boyunca Okti'nin yanında kalsın
                 App.RecordActivity("mavi_arrived");
                 TriggerStory();
             }
         }
+
+        /// <summary>Ayıklama (PofiDebug flow): akışın anlık durumu.</summary>
+        public string DebugFlow() =>
+            $"adım={Guide.Current(App.State, App.Level)?.Id ?? "-"} gel={_maviArriveT:0.0} kon={_maviLandT:0.0} uç={_maviNewsT:0.0} mavi={_mavi != null} " +
+            $"hikâye={StoryPlayer.Playing} sinema={_cine} harita={_overview} meşgul={_storyBusy} pet={_world?.Walker != null} zaman={Time.timeScale:0.00} dt={Time.deltaTime:0.000}";
 
         /// <summary>Eski oyuncu (rehber kapalı, Sv2+): Mavi'nin açılış sahnesi seviyeyle gelirdi; artık olayla geldiği için sayılır.</summary>
         private void CatchUpMavi()

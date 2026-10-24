@@ -128,6 +128,9 @@ namespace Pofi.Core
                         UI.GoldKit.Frame = int.Parse(arg);
                         app.Route();
                         break;
+                    case "flow":        // GB17 akış durumu (Mavi zamanlayıcıları, hikâye, sinema)
+                        Debug.Log("[PofiDebug] flow " + (Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugFlow() ?? "ada yok"));
+                        break;
                     case "guide":       // rehber denemesi: "guide <adım>" önceki adımları ödülsüz bitirir; "guide nuts" 2 ceviz; "guide welcome" hoş geldin coin'i; "guide state"
                         {
                             var st = app.State;
