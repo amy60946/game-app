@@ -118,6 +118,15 @@ namespace Pofi.Logic.Tasks
             }
         }
 
+        /// <summary>Zorluk sırası: kolay 1, orta 2, zor 3 (bilinmeyen: kolay). Görev kartındaki nokta sayısı.</summary>
+        public static int Rank(string difficulty) => difficulty == "hard" ? 3 : difficulty == "medium" ? 2 : 1;
+
+        /// <summary>
+        /// Onaylanınca gelecek Güneş Taşı (sözleşme ekonomi.md 5A, sunucu stones_for_difficulty): kolay 1, orta 2, zor 3.
+        /// Taşı sunucu verir; oyun bunu yalnız kartta göstermek için hesaplar.
+        /// </summary>
+        public static int Stones(string difficulty) => Rank(difficulty);
+
         /// <summary>
         /// "Kendiliğinden yaptı" (Y5, 22 Ekim 2026): çocuk "Yaptım"ı görevin günü, hatırlatma saatinden önce bastı.
         /// Hatırlatması olmayan görevde yok (karşılaştıracak saat yok). Ebeveyne iş düşmez.

@@ -44,6 +44,22 @@ Kullanıcı isteği (14 Ekim 2026, geri bildirim madde 7 ve 11): çocuk her işl
 Akış biter: ilk taş yerleşince, panoda görev yoksa ya da ilk açılıştan 24 saat geçince. Pet'i olan eski oyuncular akışı görmez.
 ParentApp tarafı (öneri, ParentApp penceresi): kurulumda yaşa göre "ilk gün paketi" (3 görev) ve ilk "Yaptım"da ebeveyne anında bildirim.
 
+## Görevler penceresi tanıtımı (C + D, 24 Ekim 2026)
+
+Görevler penceresi tek pencere, iki bölüm (solda altın Ev Görevleri, sağda mavi Oyun görevleri). Kalabalık görünmesin diye ilk
+açılışta bilgilendirme eli sırayla anlatır (`Screens/TasksScreen.cs` → `QueueIntro`; sıra `Onboarding.TasksIntro`). Her adım
+dokununca ya da el iki tur gösterip ~5 sn geçince biter; altyazıda "1/3" sıra rozeti.
+
+| Kimlik | Hedef | Altyazı (tr.json) | Tamamlanır |
+|---|---|---|---|
+| `tasks_home` | altın "Ev Görevleri" başlığı | Ailenden gelen görevler burada. Yapınca Güneş Taşı kazanırsın! | gösterildi / dokunuldu |
+| `tasks_done` | ilk "Yaptım" (yapılacak görev varsa) | Yaptın mı? Yaptım'a bas, Mavi ailene götürsün. | gösterildi / dokunuldu / Yaptım'a basıldı |
+| `tasks_game` | mavi "Oyun görevleri" başlığı | Oyun görevleri yıldız verir. Hepsini bitir, sandığı aç! | gösterildi / dokunuldu |
+| `stone` (var olan) | "Adaya götür" (yerleştirilecek taş varsa) | Taşı adaya götür: {0}! | ilk taş adada yerleşince |
+
+İlk gün `mark` ipucu bu pencerede `tasks_done` ile birleşir: `tasks_done` görüldükten sonraki açılışlarda, ilk gün "Yaptım"
+adımındaysa eski `mark` ipucu (sesli) yine ilk "Yaptım"ı gösterir. Yeni cümlelerin ses kaydı henüz yok (`build_voice.py` ile eklenir).
+
 ## XP (yıldız) nasıl anlatılıyor (madde 11)
 - Sol üstte seviye rozetinin altında **XP çubuğu**: dolunca seviye atlanır.
 - XP kazanılınca rozetin yanında **"+N ★"** yukarı süzülür.

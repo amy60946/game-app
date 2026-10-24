@@ -64,7 +64,7 @@ namespace Pofi.Logic.Services.Mock
             SunStones += StonesFor(t.Difficulty);   // Güneş Taşı da (sunucu: stones_for_difficulty)
         }
 
-        public static int StonesFor(string difficulty) => difficulty == "hard" ? 3 : difficulty == "medium" ? 2 : 1;
+        public static int StonesFor(string difficulty) => RealTaskRewards.Stones(difficulty);
 
         /// <summary>Yalnız önizleme test erişimi: sahte arka uçta Güneş Taşı ekler.</summary>
         public void TestGrantStones(int n) => SunStones += Math.Max(0, n);
