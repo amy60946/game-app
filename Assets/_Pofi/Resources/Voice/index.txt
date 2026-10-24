@@ -193,6 +193,9 @@ add097760df22d24	anlatici	Okti'ye dokun, sabunu seç: tertemiz olsun!
 e6660ad2dc4dfa59	anlatici	Görevi yapınca Yaptım'a bas!
 970acf480b821ac6	anlatici	Güneş Taşını yerleştir, sis kalksın!
 9095eb9334346648	anlatici	Sisli yere git, taşı koy!
+a402e79cabb0ac68	anlatici	Ailenden gelen görevler burada. Yapınca Güneş Taşı kazanırsın!
+40b82e9dfbd24345	anlatici	Yaptın mı? Yaptım'a bas, Mavi ailene götürsün.
+4bd33d627fcc39b5	anlatici	Oyun görevleri yıldız verir. Hepsini bitir, sandığı aç!
 b65baf7ff2c9c9dd	anlatici	Baltayla kütüğü kes! Sağ alttaki tuşa bas.
 1737784373ccc38c	anlatici	Çalıdan dal topla!
 359fa97bca847a94	anlatici	Kazmayla taşı kır!

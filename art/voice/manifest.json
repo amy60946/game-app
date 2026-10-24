@@ -2149,6 +2149,39 @@
    "cer": 0.13
   },
   {
+   "key": "a402e79cabb0ac68",
+   "text": "Ailenden gelen görevler burada. Yapınca Güneş Taşı kazanırsın!",
+   "role": "anlatici",
+   "src": "tr:tip.tasks_home",
+   "who": "narrator",
+   "tts": "Ailenden gelen görevler burada. Yapınca Güneş Taşı kazanırsın!",
+   "sec": 3.69,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "40b82e9dfbd24345",
+   "text": "Yaptın mı? Yaptım'a bas, Mavi ailene götürsün.",
+   "role": "anlatici",
+   "src": "tr:tip.tasks_done",
+   "who": "narrator",
+   "tts": "Yaptın mı? Yaptım'a bas, Mavi ailene götürsün.",
+   "sec": 5.48,
+   "seed": 7,
+   "cer": 0.048
+  },
+  {
+   "key": "4bd33d627fcc39b5",
+   "text": "Oyun görevleri yıldız verir. Hepsini bitir, sandığı aç!",
+   "role": "anlatici",
+   "src": "tr:tip.tasks_game",
+   "who": "narrator",
+   "tts": "Oyun görevleri yıldız verir. Hepsini bitir, sandığı aç!",
+   "sec": 5.04,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
    "key": "b65baf7ff2c9c9dd",
    "text": "Baltayla kütüğü kes! Sağ alttaki tuşa bas.",
    "role": "anlatici",
