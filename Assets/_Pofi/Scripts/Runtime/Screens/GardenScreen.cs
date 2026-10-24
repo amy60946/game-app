@@ -108,12 +108,13 @@ namespace Pofi.Screens
             if (ready >= 0 && Onboarding.Pending(App.State, Onboarding.Harvest))
             {
                 var to = _cells[ready];
-                _coach = Coach.Show(Root, Onboarding.Harvest, T("tip.harvest"), TipGesture.Drag, () => ScreenOf(hand), () => ScreenOf(to));
+                _coach = Coach.Show(Root, Onboarding.Harvest, T("tip.harvest"), TipGesture.Drag, () => ScreenOf(hand), () => ScreenOf(to), 99);
             }
             else if (empty >= 0 && seedTool != null && Onboarding.Pending(App.State, Onboarding.Plant))
             {
                 var to = _cells[empty];
-                _coach = Coach.Show(Root, Onboarding.Plant, T("tip.plant"), TipGesture.Drag, () => ScreenOf(seedTool), () => ScreenOf(to));
+                var seed = seedTool.GetComponentsInChildren<Image>().Select(im => im.sprite).LastOrDefault(sp => sp != null);   // el tohumu taşır
+                _coach = Coach.Show(Root, Onboarding.Plant, T("tip.plant"), TipGesture.Drag, () => ScreenOf(seedTool), () => ScreenOf(to), 99, null, null, null, seed);
             }
         }
 

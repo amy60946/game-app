@@ -103,6 +103,7 @@ namespace Pofi.Screens
             BuildRequests();   // H4: adalı istekleri (kapıda baloncuk)
             foreach (var v in _views) _labels[v.Region.Id] = Label(v);
             BuildPlaceLabels();
+            BuildHereMarker();
             BuildGather();   // kütük/çalı/taş + kulübe yeri, nesne üstü baloncuklar
 
             BuildHud();
@@ -151,6 +152,53 @@ namespace Pofi.Screens
                 Candy.Tag(rt, T("place." + id), new Color(0.13f, 0.27f, 0.24f, 0.86f), 24, 52f);
                 _places.Add((rt, _world.World(px, pz) + Vector3.up * 3f));
             }
+        }
+
+        // ------------------------------------------------------------------ "Buradasın" (kullanıcı, 24 Ekim 2026)
+        // Kuşbakışında Okti'nin yeri: altın çerçeveli yüz rozeti + aşağı bakan uç + kırmızı kurdele, ayağının altında genişleyen altın halka.
+        private RectTransform _here, _hereBob, _hereRing;
+
+        private void BuildHereMarker()
+        {
+            _hereRing = Ui.Rect(_labelLayer, "HereRing", Vector2.zero, new Vector2(170f, 64f));
+            var ri = _hereRing.gameObject.AddComponent<Image>(); ri.sprite = GoldKit.Annulus; ri.color = new Color(1f, 0.82f, 0.3f, 0.9f); ri.raycastTarget = false;
+            _here = Ui.Rect(_labelLayer, "Here", Vector2.zero, new Vector2(124f, 124f));
+            _here.pivot = new Vector2(0.5f, 0f);
+            _hereBob = Ui.Fill(_here, "Bob");
+            var tip = Ui.Rect(_hereBob, "Tip", new Vector2(0.5f, 0f), new Vector2(40f, 40f), new Vector2(0f, 6f));
+            tip.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            var ti = tip.gameObject.AddComponent<Image>(); ti.color = Theme.Hex("#E9A62A"); ti.raycastTarget = false;   // aşağı bakan altın uç
+            var face = Ui.Rect(_hereBob, "Face", new Vector2(0.5f, 0f), new Vector2(124f, 124f), new Vector2(0f, 82f));
+            var inner = GoldKit.RimDisc(face, Theme.Hex("#9EE0FF"), Theme.Hex("#3E92F2"), 6f);
+            var pic = Ui.Portrait(App.State.PetId);
+            if (pic != null)
+            {
+                inner.gameObject.AddComponent<Mask>().showMaskGraphic = true;
+                var pi = Ui.Rect(inner, "Pic", new Vector2(0.5f, 0.5f), new Vector2(116f, 116f), new Vector2(0f, -3f)).gameObject.AddComponent<Image>();
+                pi.sprite = pic; pi.preserveAspect = true; pi.raycastTarget = false;
+            }
+            GoldKit.Ribbon(_hereBob, T("map.here"), GoldKit.Tone.Red, 54f, 32, new Vector2(0.5f, 0f), new Vector2(0f, 156f));
+            _here.gameObject.SetActive(false); _hereRing.gameObject.SetActive(false);
+        }
+
+        private void UpdateHereMarker(Camera cam, float scale)
+        {
+            if (_here == null) return;
+            var w = _world.Walker;
+            var on = _overview && w != null;
+            if (on)
+            {
+                var foot = cam.WorldToScreenPoint(w.transform.position);
+                var head = cam.WorldToScreenPoint(w.transform.position + Vector3.up * 2.2f * w.transform.lossyScale.y);
+                on = foot.z > 0f;
+                _here.anchoredPosition = new Vector2(head.x * scale, head.y * scale + 10f);
+                _hereRing.anchoredPosition = new Vector2(foot.x * scale, foot.y * scale);
+                var t = Mathf.Repeat(Time.unscaledTime, 1.4f) / 1.4f;   // halka dışa doğru açılıp söner
+                _hereRing.localScale = Vector3.one * Mathf.Lerp(0.4f, 1.5f, t);
+                _hereRing.GetComponent<Image>().color = new Color(1f, 0.82f, 0.3f, 0.9f * (1f - t));
+                _hereBob.anchoredPosition = new Vector2(0f, Theme.ReduceMotion ? 0f : Mathf.Abs(Mathf.Sin(Time.unscaledTime * 3f)) * 14f);
+            }
+            if (_here.gameObject.activeSelf != on) { _here.gameObject.SetActive(on); _hereRing.gameObject.SetActive(on); if (on) Bump.Play(_here, 0.3f); }
         }
 
         private RectTransform Label(RegionView v)
@@ -337,6 +385,7 @@ namespace Pofi.Screens
                 rt.gameObject.SetActive(_overview && sp.z > 0f);
                 rt.anchoredPosition = new Vector2(sp.x * scale, sp.y * scale);
             }
+            UpdateHereMarker(cam, scale);
         }
 
         // ------------------------------------------------------------------ dokunma
@@ -733,6 +782,7 @@ namespace Pofi.Screens
                 });
             }
             _careFor = 4f;
+            TipDone(Onboarding.Wardrobe);   // "Okti'ye dokun" öğrenildi
             var i = 0;
             foreach (var (b, _) in _careBubbles) { b.gameObject.SetActive(true); Bump.Play(b.transform, 0.25f + i++ * 0.05f); }
             UpdateCareBubbles();

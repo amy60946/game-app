@@ -295,6 +295,8 @@
     "tip.harvest": "Orağı ürünlerin üstünden geçir!",
     "garden.tools": "Sürükle",
     "tip.feed_open": "{0} dokun, sonra elmaya!",
+    "tip.pet_menu": "{0} dokun: besle, yıka, giydir!",
+    "map.here": "Buradasın",
     "tip.wash": "Sabunu {0} üstüne sürükle!",
     "tip.tasks": "Görev yap, yıldız kazan!",
     "tip.xp": "Yıldız topla, seviye atla! Rozetlerin için kartına dokun.",

@@ -11,8 +11,9 @@ namespace Pofi.UI
     /// </summary>
     public sealed class Coach : MonoBehaviour
     {
-        private RectTransform _root, _finger, _ring, _prop;
+        private RectTransform _root, _finger, _ring, _prop, _carry;
         private float _propS;
+        private readonly System.Collections.Generic.List<(RectTransform Rt, Vector2 Off)> _props = new System.Collections.Generic.List<(RectTransform, Vector2)>();
         private Image _fingerImg, _ringImg;
         private Func<Vector2> _from, _to;
         private Logic.App.TipGesture _gesture;
@@ -23,8 +24,10 @@ namespace Pofi.UI
         public string Id { get; private set; }
 
         /// <param name="voice">Sesli okunacak cümle (varsayılan: altyazının kendisi; rehberde ödül eki okunmaz).</param>
+        /// <param name="carry">Sürüklemede elin taşıdığı eşya (ör. elma): kaynaktan alınır, hedefe bırakılınca küçülüp kaybolur.</param>
+        /// <param name="props">Dokunmada hedefin çevresinde sırayla beliren eşyalar (ör. Okti'ye dokun → Besle, Yıka, Giydir baloncukları).</param>
         public static Coach Show(RectTransform root, string id, string caption, Logic.App.TipGesture gesture, Func<Vector2> from, Func<Vector2> to = null, int loops = 3,
-            string step = null, Sprite prop = null, string voice = null)
+            string step = null, Sprite prop = null, string voice = null, Sprite carry = null, Sprite[] props = null)
         {
             var rt = Ui.Fill(root, "Coach " + id);
             var c = rt.gameObject.AddComponent<Coach>();
@@ -57,6 +60,31 @@ namespace Pofi.UI
                 var pi = c._prop.gameObject.AddComponent<Image>(); pi.sprite = prop; pi.preserveAspect = true; pi.raycastTarget = false;
                 c._prop.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
                 c._prop.localScale = Vector3.zero;
+            }
+            if (props != null)
+            {
+                // menü canlandırması: baloncuklar hedefin üstünde yay çizer (oyundaki Besle/Yıka/Giydir yerleriyle aynı)
+                for (var i = 0; i < props.Length; i++)
+                {
+                    if (props[i] == null) continue;
+                    var k = props.Length == 1 ? 0.5f : i / (float)(props.Length - 1);
+                    var off = new Vector2(Mathf.Lerp(-170f, 170f, k), 150f + 80f * Mathf.Sin(k * Mathf.PI));
+                    var b = Ui.Rect(rt, "Bubble" + i, Vector2.zero, new Vector2(118f, 118f));
+                    Candy.RoundShell(b, Candy.White).raycastTarget = false;
+                    b.GetComponent<Image>().raycastTarget = false;
+                    var ii = Ui.Rect(b, "Pic", new Vector2(0.5f, 0.52f), new Vector2(74f, 74f)).gameObject.AddComponent<Image>();
+                    ii.sprite = props[i]; ii.preserveAspect = true; ii.raycastTarget = false;
+                    b.localScale = Vector3.zero;
+                    c._props.Add((b, off));
+                }
+            }
+            if (carry != null)
+            {
+                // elin taşıdığı eşya (parmağın altında; el üstte çizilir)
+                c._carry = Ui.Rect(rt, "Carry", Vector2.zero, new Vector2(130f, 130f));
+                var ci = c._carry.gameObject.AddComponent<Image>(); ci.sprite = carry; ci.preserveAspect = true; ci.raycastTarget = false;
+                var cs = c._carry.gameObject.AddComponent<Shadow>(); cs.effectColor = new Color(0f, 0f, 0f, 0.3f); cs.effectDistance = new Vector2(0f, -8f);
+                c._carry.localScale = Vector3.zero;
             }
             // dokunma halkası
             c._ring = Ui.Rect(rt, "Ring", Vector2.zero, new Vector2(150f, 150f));
@@ -91,7 +119,14 @@ namespace Pofi.UI
         private void Update()
         {
             _life += Time.unscaledDeltaTime;
-            if (_loops <= 0) { _finger.gameObject.SetActive(false); _ring.gameObject.SetActive(false); if (_life > 14f) Destroy(gameObject); return; }
+            if (_loops <= 0)
+            {
+                _finger.gameObject.SetActive(false); _ring.gameObject.SetActive(false);
+                if (_carry != null) _carry.gameObject.SetActive(false);
+                foreach (var (b, _) in _props) b.gameObject.SetActive(false);
+                if (_life > 14f) Destroy(gameObject);
+                return;
+            }
             _t += Time.unscaledDeltaTime / 1.6f;
             if (_t >= 1f) { _t = 0f; _loops--; }
             var a = ToCanvas(_from());
@@ -107,6 +142,17 @@ namespace Pofi.UI
                     var m = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.15f, 0.8f, _t));
                     p = Vector2.Lerp(a, b, m);
                     press = _t < 0.15f ? _t / 0.15f : _t > 0.85f ? 1f - (_t - 0.85f) / 0.15f : 1f;
+                    if (_carry != null)
+                    {
+                        // eşya parmak ucunda: başta kaynaktan büyüyerek alınır, hedefte "hap" diye küçülüp kaybolur
+                        float cs;
+                        if (_t < 0.15f) cs = Mathf.SmoothStep(0f, 1f, _t / 0.15f);
+                        else if (_t < 0.8f) cs = 1f + 0.05f * Mathf.Sin(_t * 30f);
+                        else if (_t < 0.88f) cs = Mathf.Lerp(1f, 1.25f, (_t - 0.8f) / 0.08f);
+                        else cs = Mathf.Lerp(1.25f, 0f, Mathf.Clamp01((_t - 0.88f) / 0.1f));
+                        _carry.localScale = Vector3.one * cs;
+                        _carry.anchoredPosition = p + new Vector2(-34f, 46f);
+                    }
                     break;
                 default:                                                    // kaydırma: ortadan dışa
                     var d = ToCanvas(_to != null ? _to() : _from() + new Vector2(0f, Screen.height * 0.25f));
@@ -120,6 +166,19 @@ namespace Pofi.UI
             _finger.localScale = Vector3.one * Mathf.Lerp(1.08f, 0.94f, press);
             _ring.localScale = Vector3.one * Mathf.Lerp(0.6f, 1.25f, press);
             _ringImg.color = new Color(1f, 1f, 1f, 0.45f * press);
+            if (_props.Count > 0)
+            {
+                // basıştan sonra baloncuklar sırayla açılır, döngü sonunda kapanır
+                for (var i = 0; i < _props.Count; i++)
+                {
+                    var (b, off) = _props[i];
+                    var open = _t > 0.3f + i * 0.08f && _t < 0.92f;
+                    var cur = b.localScale.x;
+                    var s = Mathf.Lerp(cur, open ? 1f : 0f, 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
+                    b.localScale = Vector3.one * s;
+                    b.anchoredPosition = a + off + new Vector2(0f, Mathf.Sin(_life * 3f + i) * 6f);
+                }
+            }
             if (_prop != null)
             {
                 // her basışta eşya hafifçe zıplayarak büyür, hedefin (petin başının) üstünde durur

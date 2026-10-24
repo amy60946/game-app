@@ -441,13 +441,15 @@ namespace Pofi.Screens
             { Onboarding.Walk, Onboarding.Look, Onboarding.Jump, Onboarding.Wardrobe, Onboarding.Feed, Onboarding.Tasks, Onboarding.Overview };
         private float _tipGap = 1.5f;
 
-        private void Tip(string id, TipGesture g, System.Func<Vector2> from, System.Func<Vector2> to = null, string arg = null, Sprite prop = null, string key = null)
+        private static Sprite[] CareProps => new[] { Ui.Icon("food_apple"), Ui.Icon("clean_soap"), Ui.Icon("hoodie_soft") };
+
+        private void Tip(string id, TipGesture g, System.Func<Vector2> from, System.Func<Vector2> to = null, string arg = null, Sprite prop = null, string key = null, Sprite[] props = null)
         {
             if (_coach != null || !Onboarding.Pending(App.State, id)) return;
             if (!FirstDay.AllowsTip(FirstDayNow, id)) return;   // ilk gün: yalnız ilk gün ipuçları (Ö5)
             var i = System.Array.IndexOf(TipSeq, id);
             var step = i >= 0 ? (i + 1) + "/" + TipSeq.Length : null;
-            _coach = Coach.Show(Root, id, T(key ?? Onboarding.Get(id).CaptionKey, arg ?? App.State.PetName), g, from, to, 3, step, prop);
+            _coach = Coach.Show(Root, id, T(key ?? Onboarding.Get(id).CaptionKey, arg ?? App.State.PetName), g, from, to, props != null ? 6 : 3, step, prop, null, null, props);
             // D3 ışık halkası: yeni düğme ilk kez gösterilirken (Görev, Harita) ekran kısılır, düğme aydınlık kalır
             if (id == Onboarding.Tasks || id == Onboarding.Overview) Spotlight.Show((RectTransform)_coach.transform, from, 120f);
         }
@@ -516,11 +518,11 @@ namespace Pofi.Screens
                 case Onboarding.Jump:
                     if (_actionKey == "hud.jump") Tip(next, TipGesture.Tap, () => UiScreen(_action));
                     break;
-                case Onboarding.Wardrobe:  // pete dokun → giydirme; dokundukça başının üstünde şapka belirir
-                    Tip(next, TipGesture.Tap, PetScreen, null, PetGen, Ui.Icon("hat_straw"));
+                case Onboarding.Wardrobe:  // Okti'ye dokun → menü (kullanıcı, 24 Ekim 2026): el dokunur, Besle/Yıka/Giydir baloncukları açılır
+                    Tip(next, TipGesture.Tap, PetScreen, null, PetDat, null, "tip.pet_menu", CareProps);
                     break;
                 case Onboarding.Feed:      // önce Okti'ye dokun (G2), elmaya dokun; tepsi açılınca sürükleme ipucu gelir
-                    Tip(next, TipGesture.Tap, PetScreen, null, PetDat, null, "tip.feed_open");
+                    Tip(next, TipGesture.Tap, PetScreen, null, PetDat, null, "tip.feed_open", new[] { Ui.Icon("food_apple") });
                     break;
                 case Onboarding.Tasks:
                     Tip(next, TipGesture.Tap, () => UiScreen(_tasksBtn));
@@ -778,6 +780,7 @@ namespace Pofi.Screens
             _tray.pivot = new Vector2(0f, 0.5f);
             _tray.anchoredPosition = new Vector2(250f, action == CareAction.Feed ? 30f : -150f);
             RectTransform first = null;
+            string firstId = null;
             for (var i = 0; i < items.Count; i++)
             {
                 var it = items[i];
@@ -786,20 +789,22 @@ namespace Pofi.Screens
                 var d = b.gameObject.AddComponent<DragItem>();
                 d.IconId = it.Id; d.Layer = Root;
                 d.Dropped = pos => { if (!OverPet(pos)) return false; Care(action, it); return true; };
-                d.Tapped = () => { _toast.Say(T("tip." + tip, PetGen)); TipDone(null); ShowDragTip(tip, (RectTransform)b.transform, true); };
+                d.Tapped = () => { _toast.Say(T("tip." + tip, PetGen)); TipDone(null); ShowDragTip(tip, (RectTransform)b.transform, true, it.Id); };
                 LongPressInfo.Add(b.gameObject, it.Name);
-                if (first == null) first = (RectTransform)b.transform;
+                if (first == null) { first = (RectTransform)b.transform; firstId = it.Id; }
             }
-            ShowDragTip(tip, first, false);
+            ShowDragTip(tip, first, false, firstId);
         }
 
-        private void ShowDragTip(string tip, RectTransform from, bool force)
+        private void ShowDragTip(string tip, RectTransform from, bool force, string itemId)
         {
             if (from == null || (!force && !Onboarding.Pending(App.State, tip))) return;
             if (_coach != null) { _coach.Done(); _coach = null; }           // "Besle'ye dokun" adımı → sürükleme adımı
             var i = System.Array.IndexOf(TipSeq, tip);
-            _coach = Coach.Show(Root, tip, T(Onboarding.Get(tip).CaptionKey, PetGen), TipGesture.Drag, () => UiScreen(from), PetScreen, 3,
-                i >= 0 ? (i + 1) + "/" + TipSeq.Length : null);
+            // el eşyayı (elma, sabun) tepsiden alıp Okti'nin üstüne götürür, bırakır; yapılana kadar gidip gelir (kullanıcı, 24 Ekim 2026)
+            var icon = itemId != null ? Ui.Icon(itemId) : null;
+            _coach = Coach.Show(Root, tip, T(Onboarding.Get(tip).CaptionKey, PetGen), TipGesture.Drag, () => UiScreen(from), PetScreen, 99,
+                i >= 0 ? (i + 1) + "/" + TipSeq.Length : null, null, null, icon);
         }
 
         /// <summary>Bırakılan nokta petin üstünde mi (ekranda petin çevresi ya da çarpışma kutusu)?</summary>

@@ -148,7 +148,7 @@ namespace Pofi.Screens
             _tray = Ui.Rect(Root, "Tray", new Vector2(1f, 0f), new Vector2(items.Count * 150f + 30f, 170f), new Vector2(0f, 0f));
             _tray.pivot = new Vector2(1f, 0f);
             _tray.anchoredPosition = new Vector2(-560f, action == CareAction.Feed ? 400f : 200f);
-            RectTransform first = null;
+            RectTransform first = null; string firstId = null;
             for (var i = 0; i < items.Count; i++)
             {
                 var it = items[i];
@@ -164,12 +164,12 @@ namespace Pofi.Screens
                     return true;
                 };
                 d.Tapped = () => _bubble.Say(T(action == CareAction.Feed ? "tip.feed" : "tip.wash", Logic.Core.TurkishSuffix.Genitive(App.State.PetName)));
-                if (first == null) first = (RectTransform)b.transform;
+                if (first == null) { first = (RectTransform)b.transform; firstId = it.Id; }
             }
             var tip = action == CareAction.Feed ? Onboarding.Feed : Onboarding.Wash;
-            if (_coach == null && Onboarding.Pending(App.State, tip))
+            if (_coach == null && Onboarding.Pending(App.State, tip))   // el eşyayı Okti'ye taşır, yapılana kadar gidip gelir
                 _coach = Coach.Show(Root, tip, T("tip." + tip, Logic.Core.TurkishSuffix.Genitive(App.State.PetName)), TipGesture.Drag,
-                    () => RectTransformUtility.WorldToScreenPoint(null, first.position), PetScreen);
+                    () => RectTransformUtility.WorldToScreenPoint(null, first.position), PetScreen, 99, null, null, null, Ui.Icon(firstId));
         }
 
         private Vector2 PetScreen() => App.Stage.Camera.WorldToScreenPoint(App.Stage.Pet != null ? App.Stage.Pet.position + Vector3.up * 1.0f : Vector3.zero);
