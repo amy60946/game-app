@@ -417,6 +417,7 @@ namespace Pofi.Screens
             var guide = Guide.Current(App.State, App.Level);
             if (_coach != null && _coach.Id.StartsWith("guide_") && (guide == null || _coach.Id != "guide_" + guide.Id)) { _coach.Done(); _coach = null; _tipGap = 1f; }   // adım bitti
             if (_coach != null || _tray != null) return;
+            if (StoryPlayer.Playing || _cine) { _tipGap = 0f; return; }   // hikâye konuşması sürerken yeni ipucu açılmaz (üst üste binmesin)
             _tipGap += Time.deltaTime;
             if (_tipGap < 2.5f) return;                                     // ipuçları arasında kısa nefes
             var st = App.State;

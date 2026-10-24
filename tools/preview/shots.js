@@ -18,7 +18,7 @@ const { chromium } = require(process.env.PW || '/opt/node-tools/node_modules/pla
     else if (cmd === 'down') { await p.mouse.move(+a[0], +a[1]); await p.mouse.down(); }   // basılı tut (uzun bas çekimi)
     else if (cmd === 'up') await p.mouse.up();
     else if (cmd === 'move') await p.mouse.move(+a[0], +a[1]);
-    else if (cmd === 'shot') { await p.screenshot({ path: a[0] + '.png' }); console.log('shot', a[0]); }
+    else if (cmd === 'shot') { await p.screenshot({ path: a[0] + '.png', timeout: 180000 }); console.log('shot', a[0]); }
   }
   await b.close();
 })();

@@ -189,7 +189,7 @@ namespace Pofi.UI
             _rise = Mathf.MoveTowards(_rise, 1f, dt / 0.35f);
             var k = 1f - Mathf.Pow(1f - _rise, 3f);
             var okti = _lastWho == "okti";
-            _portrait.anchoredPosition = new Vector2((okti ? -1f : 1f) * PortraitSize * 0.42f, -18f - (1f - k) * PortraitSize);
+            _portrait.anchoredPosition = new Vector2((okti ? -1f : 1f) * (PortraitSize * 0.5f + 24f), -18f - (1f - k) * PortraitSize);   // tamamı ekranda
             if (_typing)
             {
                 _shown += dt * 40f;   // saniyede 40 harf

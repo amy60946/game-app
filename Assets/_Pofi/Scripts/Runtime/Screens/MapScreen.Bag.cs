@@ -430,9 +430,10 @@ namespace Pofi.Screens
             _news = Ui.Rect(Root, "MaviNews", new Vector2(1f, 1f), new Vector2(560f, 150f));
             _news.pivot = new Vector2(1f, 1f); _news.anchoredPosition = new Vector2(-40f, -(146f + 60f) * GoldKit.K);
             var inner = GoldKit.RimCapsule(_news, Theme.Hex("#FFF8E4"), Theme.Hex("#F3DDA6"), 6f);
-            var face = StoryPlayer.ResidentPortrait("mavi");
+            // Mavi hikâyede henüz gelmediyse (ilk oyun, GB17) haberi pano simgesi verir; geldiyse Mavi'nin yüzü
+            var face = _mavi != null ? StoryPlayer.ResidentPortrait("mavi") ?? Ui.Icon("res_seagull") : Ui.Icon("ui_board");
             var pic = Ui.Rect(_news, "Mavi", new Vector2(0f, 0f), new Vector2(170f, 170f), new Vector2(70f, 78f));
-            var pi = pic.gameObject.AddComponent<Image>(); pi.sprite = face ?? Ui.Icon("res_seagull"); pi.preserveAspect = true; pi.raycastTarget = false;
+            var pi = pic.gameObject.AddComponent<Image>(); pi.sprite = face; pi.preserveAspect = true; pi.raycastTarget = false;
             pic.gameObject.AddComponent<Hover3D>().Amp = 8f;
             var t = Ui.Label(inner, text, 34, Theme.Hex("#5A3000"), new Vector2(0f, 0.5f), new Vector2(380f, 120f), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(150f + 190f, 0f));
             t.raycastTarget = false;
