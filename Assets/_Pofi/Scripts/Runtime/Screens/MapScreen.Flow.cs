@@ -15,7 +15,7 @@ namespace Pofi.Screens
     /// </summary>
     public sealed partial class MapScreen
     {
-        private const float MeetRange = 3.2f, MaviDelay = 8f;
+        private const float MeetRange = 3.6f, MaviDelay = 8f;
         private float _flowT, _maviArriveT = -1f, _maviLandT = -1f;
         private bool _storyBusy, _deliverOpened;
 

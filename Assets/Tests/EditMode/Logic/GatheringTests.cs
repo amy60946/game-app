@@ -39,7 +39,7 @@ namespace Pofi.Tests.Logic
                 Assert.IsNull(T.BuildingAt(n.X, n.Z));
                 var s = T.SurfaceAt(n.X, n.Z);
                 if (n.Kind == GatherKind.Rock) Assert.IsTrue(s == Surface.Sand || s == Surface.Rock || s == Surface.Grass);
-                else if (n.Kind == GatherKind.Coconut) Assert.AreEqual(Surface.Sand, s);
+                else if (n.Kind == GatherKind.Coconut) { Assert.AreEqual(Surface.Sand, s); Assert.Less(T.Height(n.X, n.Z), Gathering.BeachTop, "ceviz kumsalda"); }
                 else Assert.AreEqual(Surface.Grass, s);
                 Assert.Greater(T.FindPath(T.PlazaX, T.PlazaZ, n.X, n.Z).Count, 0, "meydandan ulaşılır");
             }

@@ -497,7 +497,7 @@ namespace Pofi.Screens
                     if (nut == null) return "ceviz yok";
                     c = new Vector2(nut.X, nut.Z);
                 }
-                var from = c + new Vector2(0f, -3.2f);
+                var from = c + new Vector2(0f, -2.4f);
                 _world.Walker.Teleport(from.x, from.y, 0f);
                 _world.Walker.Face(c.x, c.y);
                 return arg + " " + c.x.ToString("0.0") + " " + c.y.ToString("0.0");

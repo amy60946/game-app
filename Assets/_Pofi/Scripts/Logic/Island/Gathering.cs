@@ -48,6 +48,8 @@ namespace Pofi.Logic.Island
         public const string CoconutItem = "food_coconut";
         public static readonly TimeSpan Respawn = TimeSpan.FromMinutes(8);
         public const int HutXp = 40;
+        /// <summary>Kumsalın en yüksek yeri (m): yerdeki cevizler bunun altında, deniz kıyısında çıkar.</summary>
+        public const float BeachTop = 2.6f;
 
         public static readonly GatherRule[] Rules =
         {
@@ -106,8 +108,10 @@ namespace Pofi.Logic.Island
             Scatter(GatherKind.Bush, bushes, (x, z) => t.SurfaceAt(x, z) == Surface.Grass);
             Scatter(GatherKind.Rock, rocks, (x, z) => t.SurfaceAt(x, z) == Surface.Sand || t.SurfaceAt(x, z) == Surface.Rock || t.SurfaceAt(x, z) == Surface.Grass);
             // ceviz: önce patikaya yakın kum (yürürken görülsün), yetmezse herhangi bir kum
-            Scatter(GatherKind.Coconut, coconuts, (x, z) => t.SurfaceAt(x, z) == Surface.Sand && t.PathDistance(x, z) < IslandTerrain.PathHalfWidth + 6f);
-            Scatter(GatherKind.Coconut, coconuts, (x, z) => t.SurfaceAt(x, z) == Surface.Sand);
+            // yalnız deniz kıyısındaki alçak kum (kanyon/patika kumu değil): kumsal ≤ 2,6 m
+            bool Beach(float x, float z) => t.SurfaceAt(x, z) == Surface.Sand && t.Height(x, z) < BeachTop;
+            Scatter(GatherKind.Coconut, coconuts, (x, z) => Beach(x, z) && t.PathDistance(x, z) < IslandTerrain.PathHalfWidth + 6f);
+            Scatter(GatherKind.Coconut, coconuts, Beach);
             return list;
         }
 
