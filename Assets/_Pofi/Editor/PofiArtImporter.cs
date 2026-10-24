@@ -147,6 +147,19 @@ namespace Pofi.EditorTools
                 t.crunchedCompression = false;
                 return;
             }
+            if (Path.GetFileName(assetPath).StartsWith("floor_"))
+            {
+                // Evim zemini (art/scripts/home_floor.py, 24 Ekim 2026): 7,4 m'ye 2048 px (kum, kabuk, hasır boyalı); kamera zemine
+                // yatık bakar → anizotropik süzme. Yeni dosya: ilk içe aktarmada bu ayar uygulanır (sürüm artırılmadı).
+                t.maxTextureSize = 2048;
+                t.mipmapEnabled = true;
+                t.sRGBTexture = true;
+                t.wrapMode = TextureWrapMode.Clamp;
+                t.anisoLevel = 4;
+                t.textureCompression = TextureImporterCompression.Compressed;
+                t.crunchedCompression = false;
+                return;
+            }
             var normal = Path.GetFileNameWithoutExtension(assetPath).EndsWith("_normal");
             // Telefon/WebGL boyutu (14 Ekim 2026: veri 88 MB'tı): pet rengi 1024, diğer her şey 512.
             // Crunch kapalı: CI kapsayıcısında crnlib iş parçacığı (sem_wait) Unity'yi çökertti (derleme 46).

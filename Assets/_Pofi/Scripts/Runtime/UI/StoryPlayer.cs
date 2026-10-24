@@ -46,6 +46,18 @@ namespace Pofi.UI
             { "kiskac", "res_crab" }, { "mavi", "res_seagull" }, { "tosbi", "res_turtle" }, { "pitir", "decor_palm" }, { "hisir", "decor_palm" },
         };
 
+        /// <summary>
+        /// Adalının konuşma portresi (24 Ekim 2026): oyundaki 3B modelden çizilmiş Resources/Portraits/res_&lt;kim&gt;
+        /// (art/scripts/resident_portraits.py: Kıskaç, Mavi, Pus); yoksa eski simge. Anlatıcı ve Okti için null.
+        /// </summary>
+        public static Sprite ResidentPortrait(string who)
+        {
+            if (string.IsNullOrEmpty(who) || who == "narrator" || who == "okti") return null;
+            var pic = Ui.Portrait("res_" + who);
+            if (pic != null) return pic;
+            return PortraitIcons.TryGetValue(who, out var icon) ? Ui.Icon(icon) : null;
+        }
+
         public static void Play(Transform overlay, Theme th, StoryBook book, StoryScene scene, Mode mode, Logic.Profile.AgeBand band,
             string petName, string petId, string goText, string skipText, System.Action done)
         {
@@ -144,9 +156,7 @@ namespace Pofi.UI
             _name.GetComponent<Image>().color = okti ? Theme.Hex("#2E6FE0") : Theme.Hex("#E14652");
             _text.fontStyle = narrator ? FontStyle.Italic : FontStyle.Bold;
             _text.alignment = narrator ? TextAnchor.MiddleCenter : TextAnchor.MiddleLeft;
-            Sprite pic = null;
-            if (okti) pic = Ui.Portrait(_petId);
-            else if (PortraitIcons.TryGetValue(l.Who ?? "", out var icon)) pic = Ui.Icon(icon);
+            var pic = okti ? Ui.Portrait(_petId) : ResidentPortrait(l.Who);
             _portraitImg.sprite = pic;
             _portrait.gameObject.SetActive(pic != null);
             // konuşan solda (adalı) ya da sağda (Okti); yeni konuşan alttan yükselir

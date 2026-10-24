@@ -518,6 +518,9 @@ namespace Pofi.Screens
                 var icon = ResidentIcons.TryGetValue(d.Who, out var ic) ? ic : "ui_gift";
                 var id = d.Id;
                 var b = Candy.Round(_labelLayer, Candy.White, icon, 120f, Vector2.zero, Vector2.zero, () => GoTo(dx, dz, () => RequestCard(id)));
+                var face = StoryPlayer.ResidentPortrait(d.Who);   // 3B modelden portre (Kıskaç, Mavi, Pus); yoksa simge kalır
+                var faceImg = face != null ? b.transform.Find("Icon " + icon)?.GetComponent<Image>() : null;
+                if (faceImg != null) faceImg.sprite = face;
                 Hover.On(b, 7f);
                 var gem = Ui.Rect(b.transform, "Need", new Vector2(1f, 1f), new Vector2(52f, 52f), new Vector2(-6f, -6f));
                 Ui.Panel(gem, Theme.Hex("#FFD23F"), 26f).raycastTarget = false;
@@ -549,7 +552,13 @@ namespace Pofi.Screens
             if (d == null || App.State.Story.Requests.All(o => o.Id != id)) return;
             var root = Modal(620f, out var box);
             var who = book.NameOf(d.Who).Replace("{pet}", App.State.PetName);
-            if (ResidentIcons.TryGetValue(d.Who, out var icon)) Ui.IconImage(box, icon, new Vector2(0.14f, 0.78f), 150f);
+            var face = StoryPlayer.ResidentPortrait(d.Who);   // 3B modelden portre; yoksa eski simge
+            if (face != null)
+            {
+                var fr = Ui.Rect(box, "Face " + d.Who, new Vector2(0.14f, 0.78f), new Vector2(170f, 170f));
+                var fi = fr.gameObject.AddComponent<Image>();
+                fi.sprite = face; fi.preserveAspect = true; fi.raycastTarget = false;
+            }
             Candy.Caption(box, who, 54, new Vector2(0.55f, 0.84f), new Vector2(600f, 80f), Vector2.zero, Candy.Deep(Candy.Orange));
             var said = Ui.Label(box, d.Text, Th.Font(42), Th.Text, new Vector2(0.55f, 0.64f), new Vector2(660f, 140f), FontStyle.Bold, TextAnchor.MiddleLeft);
             VoiceButton.Attach(said.rectTransform, new Vector2(30f, 30f)).SetText(d.Text);   // adalının isteği sesli okunur

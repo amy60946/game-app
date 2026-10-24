@@ -32,6 +32,9 @@ namespace Pofi.World
         private float _pressTime;
         private Material _islandMat, _waterMat;
 
+        /// <summary>Evim zemini modelinin genişliği (m): art/scripts/home_floor.py 2 × A × R_OUT = 2 × 3,3 × 1,12.</summary>
+        private const float FloorWidth = 7.392f;
+
         public static Stage Create(Color sky)
         {
             var go = new GameObject("Stage");
@@ -83,9 +86,22 @@ namespace Pofi.World
             _waterMat = PetModels.NewMaterial(new Color(0.25f, 0.75f, 0.95f), 0.9f);
             _islandMat = PetModels.NewMaterial(new Color(1f, 0.86f, 0.6f), 0.15f);
             var water = Cylinder("Water", new Vector3(0f, -0.12f, 0f), new Vector3(40f, 0.02f, 40f), _waterMat);
-            var island = Cylinder("Island", new Vector3(0f, -0.05f, 0.9f), new Vector3(6.6f, 0.06f, 6.2f), _islandMat);   // ev eşyaları için geniş
             water.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            island.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            // Evim zemini (24 Ekim 2026, kullanıcı): kodla boyanmış kum — tepecik, rüzgâr çizgisi, kabuk, çakıl, petin altında hasır,
+            // kenarda ıslak kum ve köpük (art/scripts/home_floor.py). Üst yüzü eski silindirle aynı elips ve yükseklikte (y 0,01);
+            // Blender (x, y) → Unity (x, z) için 180°. Dosya yoksa eski düz kum silindiri.
+            var floor = RealAssets.EnvFootprint("floor_home", transform, FloorWidth, 180f);
+            if (floor != null)
+            {
+                floor.name = "Island";
+                floor.localPosition = new Vector3(0f, 0f, 0.9f);
+                foreach (var r in floor.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+            else
+            {
+                var island = Cylinder("Island", new Vector3(0f, -0.05f, 0.9f), new Vector3(6.6f, 0.06f, 6.2f), _islandMat);   // ev eşyaları için geniş
+                island.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
 
             // Gerçek çevre varlıkları varsa (Meshy): arkada ada parçası ve palmiyeler
             var env = new GameObject("Scenery").transform;
@@ -113,6 +129,10 @@ namespace Pofi.World
             Prop("p_flowers", 0.8f, new Vector3(-2.9f, -0.05f, 0.5f), 190f);
             Prop("p_rock", 0.8f, new Vector3(2.95f, -0.05f, 1.4f), 160f);
             Prop("p_lantern", 0.5f, new Vector3(2.5f, -0.05f, 3.1f), 200f);
+            // ön kenarda hafif 3B süsler (24 Ekim 2026; art/scripts/home_floor.py FRONT_PROPS ile aynı): deniz yıldızı, iki çakıl
+            Prop("p_starfish", 0.36f, new Vector3(-1.55f, 0f, -1.15f), 25f);
+            Prop("r_pebble", 0.22f, new Vector3(1.3f, 0f, -1.2f), 40f);
+            Prop("r_pebble", 0.15f, new Vector3(1.5f, 0f, -1.02f), 160f);
 
             Clouds.Spawn(transform, Vector3.zero, 60f, 6, 9f, 17f, 6f, 3, 35f, 145f);   // adacığın arkasında pofuduk bulutlar
 
