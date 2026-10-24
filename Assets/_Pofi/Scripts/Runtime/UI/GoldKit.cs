@@ -30,9 +30,9 @@ namespace Pofi.UI
         /// <summary>
         /// Göstergelerin çerçevesi (kullanıcı, 24 Ekim 2026: "etraflarına ince beyaz çerçeve, haritayla iç içe geçmesin"; seçenek sayfası):
         /// 0 yok · 1 ince beyaz · 2 beyaz + ince koyu çizgi · 3 beyaz + yumuşak gölge · 4 biraz kalın beyaz + gölge.
-        /// Ekranlar kurulurken okunur (değişince ekran yeniden kurulmalı).
+        /// Seçilen: 3 (kullanıcı: "gölgeli çerçeve", gölge siyah görünmesin). Ekranlar kurulurken okunur.
         /// </summary>
-        public static int Frame = 0;
+        public static int Frame = 3;
 
         private static Material _stickerMat;
 
@@ -50,16 +50,43 @@ namespace Pofi.UI
             }
         }
 
+        private static readonly Dictionary<string, Material> HoleMats = new Dictionary<string, Material>();
+
+        /// <summary>
+        /// Simgenin çerçeve malzemesi: içinde kapalı boşluk varsa (Icons/Holes/&lt;ad&gt;, art/scripts/icon_holes.py) delik maskeli kopya,
+        /// yoksa ortak malzeme. Kopyalar böylece çanta sapının içini beyazla doldurmaz.
+        /// </summary>
+        public static Material StickerMatFor(Sprite sp)
+        {
+            var baseMat = StickerMat;
+            if (baseMat == null || sp == null || sp.texture == null) return baseMat;
+            var key = sp.texture.name;
+            if (!HoleMats.TryGetValue(key, out var m))
+            {
+                var hole = Resources.Load<Texture2D>("Icons/Holes/" + key);
+                m = null;
+                if (hole != null)
+                {
+                    hole.wrapMode = TextureWrapMode.Clamp;
+                    m = new Material(baseMat) { name = "PofiUISticker " + key };
+                    m.SetTexture("_HoleTex", hole);
+                    m.SetFloat("_HoleOn", 1f);
+                }
+                HoleMats[key] = m;
+            }
+            return m != null ? m : baseMat;
+        }
+
         /// <summary>Seçili çerçeveyi bu görsele ekler (simge, kurdele, hap, disk). Taslak px; ekran birimi K ile.</summary>
         public static void Frame3D(Graphic g, float scale = 1f)
         {
             if (Frame <= 0 || g == null || StickerMat == null) return;
-            g.material = StickerMat;
+            g.material = g is Image im ? StickerMatFor(im.sprite) : StickerMat;
             var s = g.gameObject.GetComponent<Sticker>() ?? g.gameObject.AddComponent<Sticker>();
             var w = (Frame == 4 ? 5.5f : 3f) * K * scale;
             s.White = w;
             s.Dark = Frame == 2 ? 1.6f * K * scale : 0f;
-            s.Shadow = Frame == 3 ? 7f * K * scale : Frame == 4 ? 5f * K * scale : 0f;
+            s.Shadow = Frame == 3 ? 6f * K * scale : Frame == 4 ? 5f * K * scale : 0f;
         }
 
         private static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();
@@ -332,6 +359,7 @@ namespace Pofi.UI
             var sp = Ui.Icon(icon);
             if (sp == null || img == null) return;
             img.sprite = sp; img.color = Color.white;
+            if (img.GetComponent<Sticker>() != null) img.material = StickerMatFor(sp);   // delik maskesi simgeyle değişir
         }
 
         /// <summary>Para hapı (taslak .e-pill): altın kenarlı mavi kapsül, soldan taşan iri simge, sağa yaslı beyaz sayı. Yazıyı döndürür.</summary>
@@ -362,6 +390,8 @@ namespace Pofi.UI
     {
         public Color Color = new Color(0.48f, 0.29f, 0.07f, 1f);
         public float Depth = 9f;
+        /// <summary>Kalınlık kopyası sayısı; çizilen katman sayısı = Steps + 2 (üst açık kenar + kopyalar + asıl). Sticker kullanır.</summary>
+        public int Steps => Mathf.Max(2, Mathf.RoundToInt(Depth / 1.5f));
         private static readonly List<UIVertex> Src = new List<UIVertex>();
         private static readonly List<UIVertex> Out = new List<UIVertex>();
 
@@ -373,7 +403,7 @@ namespace Pofi.UI
             // üst açık kenar (beyaz %70, 1,5 birim yukarı)
             Copy(new Vector2(0f, 1.5f), new Color(1f, 1f, 1f, 0.55f), true);
             // kalınlık: 1,5 birim aralıklı kopyalar, en alttaki biraz daha koyu
-            var steps = Mathf.Max(2, Mathf.RoundToInt(Depth / 1.5f));
+            var steps = Steps;
             for (var k = steps; k >= 1; k--)
             {
                 var c = Color.Lerp(Color, Color * 0.82f, k / (float)steps); c.a = 1f;
@@ -400,7 +430,10 @@ namespace Pofi.UI
     /// <summary>
     /// Çıkartma çerçevesi: görselin (ve önceki etkilerin, ör. Extrude kalınlığı) kopyaları 12 yönde arkaya, düz beyaz çizilir →
     /// şeklin çevresinde ince beyaz kontur; istenirse dışında ince koyu çizgi ya da aşağı kaymış yumuşak gölge. Düz renk için
-    /// Pofi/UISticker gölgelendiricisi (TEXCOORD1.x = 1). Tuvalde TexCoord1 kanalı açık olmalı (Ui.CreateCanvas).
+    /// Pofi/UISticker gölgelendiricisi (TEXCOORD1.x &gt; 1,5; xy − 2 = asıl simgedeki doku konumu, delik maskesi için).
+    /// Tuvalde TexCoord1 kanalı açık olmalı (Ui.CreateCanvas).
+    /// Gölge ve koyu çizgi üst üste binen yarı saydam kopyalardır: kopya başına saydamlık, toplam kopya sayısından hedef
+    /// koyuluğa göre hesaplanır (24 Ekim 2026: sabit %10 × 36 kopya × kalınlık katmanları gölgeyi siyaha çeviriyordu).
     /// </summary>
     [RequireComponent(typeof(Graphic))]
     public sealed class Sticker : BaseMeshEffect
@@ -408,39 +441,74 @@ namespace Pofi.UI
         public float White = 4.5f, Dark, Shadow;
         private static readonly List<UIVertex> Src = new List<UIVertex>();
         private static readonly List<UIVertex> Out = new List<UIVertex>();
-        private const int Dirs = 12;
+        private const int Dirs = 12, ShadowDirs = 8;
+        private static Vector2 _pMin, _pSize, _uMin, _uSize;
 
         public override void ModifyMesh(VertexHelper vh)
         {
             if (!IsActive() || White <= 0f) return;
             Src.Clear(); vh.GetUIVertexStream(Src);
+            if (Src.Count == 0) return;
             Out.Clear();
+            // katmanlar: Extrude (üst kenar + kalınlık kopyaları + asıl), Unity Shadow (gölge + asıl); asıl görsel en sonda
+            var ex = GetComponent<Extrude>();
+            var layers = (ex != null && ex.enabled ? ex.Steps + 2 : 1) * (GetComponent<UnityEngine.UI.Shadow>() is UnityEngine.UI.Shadow sh && sh.enabled ? 2 : 1);
+            if (Src.Count % layers != 0) layers = 1;
+            var block = Src.Count / layers;
+            BaseMap(Src.Count - block, Src.Count);
             if (Shadow > 0f)
             {
-                // yumuşak gölge: aşağı kaymış, üç halkada azalan koyu kopyalar
-                for (var ring = 3; ring >= 1; ring--)
-                    Ring(White + Shadow * ring / 3f, new Vector2(0f, -Shadow * 0.35f), new Color(0.04f, 0.09f, 0.19f, 0.10f));
+                // yumuşak gölge: aşağı kaymış iki halka; yalnız en alt kalınlık katmanı + asıl (aradakiler aynı izi verir)
+                var useLayers = layers >= 3 ? 2 : layers;
+                var n = ShadowDirs * 2 * useLayers;
+                var c = new Color(0.10f, 0.16f, 0.30f, PerCopy(0.30f, n));
+                var shift = new Vector2(0f, -Shadow * 0.45f);
+                for (var ring = 2; ring >= 1; ring--)
+                {
+                    var r = White + Shadow * (ring == 2 ? 0.75f : 0.3f);
+                    if (layers >= 3) { Ring(r, shift, c, block, 2 * block, ShadowDirs); Ring(r, shift, c, Src.Count - block, Src.Count, ShadowDirs); }
+                    else Ring(r, shift, c, 0, Src.Count, ShadowDirs);
+                }
             }
-            if (Dark > 0f) Ring(White + Dark, Vector2.zero, new Color(0.06f, 0.16f, 0.38f, 0.55f));
-            Ring(White, Vector2.zero, Color.white);
-            Ring(White * 0.5f, Vector2.zero, Color.white);   // iç halka: ince şekillerde boşluk kalmasın
+            if (Dark > 0f) Ring(White + Dark, Vector2.zero, new Color(0.06f, 0.16f, 0.38f, PerCopy(0.6f, Dirs * layers)), 0, Src.Count, Dirs);
+            Ring(White, Vector2.zero, Color.white, 0, Src.Count, Dirs);
+            Ring(White * 0.5f, Vector2.zero, Color.white, 0, Src.Count, Dirs);   // iç halka: ince şekillerde boşluk kalmasın
             Out.AddRange(Src);
             vh.Clear(); vh.AddUIVertexTriangleStream(Out);
         }
 
-        private static void Ring(float r, Vector2 shift, Color c)
+        /// <summary>n kopya üst üste binince ortada hedef koyuluk çıksın diye kopya başına saydamlık (en az 2/255).</summary>
+        private static float PerCopy(float target, int n) => Mathf.Max(2f / 255f, 1f - Mathf.Pow(1f - target, 1f / Mathf.Max(1, n)));
+
+        /// <summary>Asıl görselin konum → doku eşlemesi (dikdörtgen simge): kopyanın her noktası asıl simgede nereye düşüyor.</summary>
+        private static void BaseMap(int from, int to)
         {
-            for (var k = 0; k < Dirs; k++)
+            Vector2 pMin = new Vector2(float.MaxValue, float.MaxValue), pMax = -pMin, uMin = pMin, uMax = -pMin;
+            for (var i = from; i < to; i++)
             {
-                var a = k * Mathf.PI * 2f / Dirs;
+                var v = Src[i];
+                pMin = Vector2.Min(pMin, v.position); pMax = Vector2.Max(pMax, v.position);
+                uMin = Vector2.Min(uMin, v.uv0); uMax = Vector2.Max(uMax, v.uv0);
+            }
+            _pMin = pMin; _pSize = Vector2.Max(pMax - pMin, new Vector2(1e-3f, 1e-3f)); _uMin = uMin; _uSize = uMax - uMin;
+        }
+
+        private static void Ring(float r, Vector2 shift, Color c, int from, int to, int dirs)
+        {
+            for (var k = 0; k < dirs; k++)
+            {
+                var a = k * Mathf.PI * 2f / dirs;
                 var d = new Vector3(Mathf.Cos(a) * r + shift.x, Mathf.Sin(a) * r + shift.y, 0f);
-                foreach (var v0 in Src)
+                for (var i = from; i < to; i++)
                 {
+                    var v0 = Src[i];
                     var v = v0;
                     v.position += d;
                     var al = v0.color.a / 255f * c.a;
                     v.color = new Color(c.r, c.g, c.b, al);
-                    v.uv1 = new Vector4(1f, 0f, 0f, 0f);   // düz renk (gölgelendirici bayrağı)
+                    var p = (Vector2)v.position;
+                    var bu = _uMin + Vector2.Scale(new Vector2((p.x - _pMin.x) / _pSize.x, (p.y - _pMin.y) / _pSize.y), _uSize);
+                    v.uv1 = new Vector4(2f + bu.x, 2f + bu.y, 0f, 0f);   // düz renk bayrağı + asıl simgedeki konum
                     Out.Add(v);
                 }
             }

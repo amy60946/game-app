@@ -77,8 +77,72 @@ namespace Pofi.World
                 if (i.Slot == Slot.Body && i.Category == ItemCategory.Clothes) top = false;
                 if (CoversBottom.Contains(i.Id)) bottom = false;
             }
-            if (top) BuildReal(pet, root, BaseTop, "normal", _petId);
-            if (bottom) BuildReal(pet, root, BaseBottom, "normal", _petId);
+            // önce vücuttan kesilmiş, vücutla esneyen giysi (24 Ekim 2026); evrede yoksa eski katı model
+            if (top && !BuildSkinWear(pet, "base_top")) BuildReal(pet, root, BaseTop, "normal", _petId);
+            if (bottom && !BuildSkinWear(pet, "base_bottom")) BuildReal(pet, root, BaseBottom, "normal", _petId);
+        }
+
+        // ---- vücuttan kesilmiş temel giysi (kullanıcı, 24 Ekim 2026: "ilk kıyafetler karakterin vücuduna optimal oturmuyor").
+        // art/meshy/scripts/base_wear.py her evre için Pets/<evre>/<evre>_wear.fbx yazar: tişört ve şort vücut ağının o bölgesinden
+        // kesilip biraz dışarı itilmiş, kalınlık verilmiş kabuklardır; ağırlıkları vücuttan gelir. Burada vücudun kemiklerine
+        // bağlanır (kemik sırası vücudunkine çevrilir, bağlanma duruşu vücudunki) → yürürken, dans ederken kumaş vücutla esner.
+        private static readonly Dictionary<string, Mesh> WearMeshes = new Dictionary<string, Mesh>();
+
+        private static bool BuildSkinWear(Transform pet, string part)
+        {
+            var model = RealAssets.StageModel(_petId, _stage);
+            SkinnedMeshRenderer body = null;
+            foreach (var r in pet.GetComponentsInChildren<SkinnedMeshRenderer>())
+                if (r.GetComponentInParent<RealCosmetic>() == null && r.sharedMesh != null && (body == null || r.sharedMesh.vertexCount > body.sharedMesh.vertexCount)) body = r;
+            if (body == null || body.bones == null || body.bones.Length == 0) return false;
+            var key = model + "/" + part;
+            if (!WearMeshes.TryGetValue(key, out var mesh))
+            {
+                mesh = WearMesh(model, part, body);
+                WearMeshes[key] = mesh;
+            }
+            if (mesh == null) return false;
+            var go = new GameObject(part);
+            go.AddComponent<RealCosmetic>();
+            var t = go.transform;
+            t.SetParent(body.transform.parent, false);
+            t.localPosition = body.transform.localPosition; t.localRotation = body.transform.localRotation; t.localScale = body.transform.localScale;
+            go.layer = body.gameObject.layer;
+            var smr = go.AddComponent<SkinnedMeshRenderer>();
+            smr.sharedMesh = mesh;
+            smr.bones = body.bones;
+            smr.rootBone = body.rootBone;
+            smr.updateWhenOffscreen = true;
+            smr.shadowCastingMode = body.shadowCastingMode;
+            smr.sharedMaterial = RealAssets.SharedMaterial("Items/" + part + "/shell", 0.15f);
+            return true;
+        }
+
+        /// <summary>Giysi ağının kemik dizinleri vücudun kemik sırasına çevrilmiş kopyası; olmazsa null.</summary>
+        private static Mesh WearMesh(string model, string part, SkinnedMeshRenderer body)
+        {
+            var prefab = Resources.Load<GameObject>("Pets/" + model + "/" + model + "_wear");
+            if (prefab == null) return null;
+            SkinnedMeshRenderer src = null;
+            foreach (var r in prefab.GetComponentsInChildren<SkinnedMeshRenderer>(true)) if (r.name == part) src = r;
+            if (src == null || src.sharedMesh == null || !src.sharedMesh.isReadable || body.sharedMesh.bindposes.Length != body.bones.Length) return null;
+            var index = new Dictionary<string, int>();
+            for (var i = 0; i < body.bones.Length; i++) if (body.bones[i] != null) index[body.bones[i].name] = i;
+            var map = new int[src.bones.Length];
+            for (var i = 0; i < map.Length; i++)
+                if (src.bones[i] == null || !index.TryGetValue(src.bones[i].name, out map[i])) return null;
+            var mesh = Object.Instantiate(src.sharedMesh);
+            mesh.name = model + "_" + part;
+            var w = mesh.boneWeights;
+            for (var i = 0; i < w.Length; i++)
+            {
+                var b = w[i];
+                b.boneIndex0 = map[b.boneIndex0]; b.boneIndex1 = map[b.boneIndex1]; b.boneIndex2 = map[b.boneIndex2]; b.boneIndex3 = map[b.boneIndex3];
+                w[i] = b;
+            }
+            mesh.boneWeights = w;
+            mesh.bindposes = body.sharedMesh.bindposes;
+            return mesh;
         }
 
         /// <summary>Gerçek eşya yerleşim kuralı: kemik, boy (pet boyuna oran), yukarı/ileri/yan kayma, alttan mı oturur.</summary>

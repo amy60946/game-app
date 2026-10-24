@@ -198,6 +198,13 @@ namespace Pofi.World
         /// <summary>Modelin dünya sınırları (etiket yüksekliği vb. için).</summary>
         public static Bounds WorldBounds(Transform t) => Bounds(t);
 
+        /// <summary>Önbellekli Meshy/kod varlığı malzemesi (doku &lt;texBase&gt;_basecolor, stil Pofi/Toon). Paylaşılır: yok edilmez.</summary>
+        public static Material SharedMaterial(string texBase, float smoothness)
+        {
+            ApplyMaterial(null, texBase, smoothness);
+            return Materials.TryGetValue(texBase, out var m) ? m : null;
+        }
+
         private static void ApplyMaterial(GameObject go, string texBase, float smoothness)
         {
             if (!Materials.TryGetValue(texBase, out var mat))
@@ -222,6 +229,7 @@ namespace Pofi.World
                 LookInfos[mat] = info;
                 SetLook(mat, info, Look.Stylized);
             }
+            if (go == null) return;
             foreach (var r in go.GetComponentsInChildren<Renderer>(true))
             {
                 var mats = r.sharedMaterials;

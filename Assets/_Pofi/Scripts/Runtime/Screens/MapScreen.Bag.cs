@@ -96,6 +96,7 @@ namespace Pofi.Screens
             tail.localRotation = Quaternion.Euler(0f, 0f, 45f);
             var ti = tail.gameObject.AddComponent<Image>(); ti.sprite = Ui.Rounded; ti.type = Image.Type.Sliced; ti.color = new Color(1f, 0.95f, 0.82f); ti.raycastTarget = false;
             tail.SetAsFirstSibling();
+            RectTransform careCell = null; string careId = null, careTip = null;
             for (var i = 0; i < items.Count; i++)
             {
                 var (id, icon, count, name, kind) = items[i];
@@ -107,17 +108,40 @@ namespace Pofi.Screens
                 Ui.IconImage(cell, icon, new Vector2(0.5f, 0.55f), 92f);
                 var num = Ui.Label(cell, count.ToString(), Th.Font(32), new Color(0.35f, 0.2f, 0.06f), new Vector2(1f, 0f), new Vector2(70f, 40f), FontStyle.Bold, TextAnchor.LowerRight);
                 ((RectTransform)num.transform).anchoredPosition = new Vector2(-40f, 24f);
-                var btn = cell.gameObject.AddComponent<Button>(); btn.targetGraphic = bg;
                 cell.gameObject.AddComponent<PressBounce>();
                 var itemId = id; var itemKind = kind; var itemName = name;
-                btn.onClick.AddListener(() => UseFromBag(itemId, itemKind, itemName));
+                if (kind == ItemCategory.Food || kind == ItemCategory.Cleaning)
+                {
+                    // yiyecek/sabun çantadan Okti'nin üstüne sürüklenir (kullanıcı, 24 Ekim 2026); dokununca el nasıl yapılacağını gösterir
+                    var action = kind == ItemCategory.Food ? CareAction.Feed : CareAction.Wash;
+                    var tip = kind == ItemCategory.Food ? Onboarding.Feed : Onboarding.Wash;
+                    var it = App.Data.Item(id);
+                    var d = cell.gameObject.AddComponent<DragItem>();
+                    d.IconId = icon; d.Layer = Root;
+                    d.Dropped = pos => { if (it == null || !OverPet(pos)) return false; CloseBag(); Care(action, it); return true; };
+                    var cellRt = cell;
+                    d.Tapped = () => { Audio.Sfx.Play(Audio.SfxKind.Tap); _toast.Say(T("tip." + tip, PetGen)); ShowDragTip(tip, cellRt, true, itemId); };
+                    var want = _need == (action == CareAction.Feed ? StatKind.Fullness : StatKind.Cleanliness);
+                    if (careCell == null || (want && careTip != tip)) { careCell = cell; careId = id; careTip = tip; }
+                }
+                else
+                {
+                    var btn = cell.gameObject.AddComponent<Button>(); btn.targetGraphic = bg;
+                    btn.onClick.AddListener(() => UseFromBag(itemId, itemKind, itemName));
+                }
                 LongPressInfo.Add(cell.gameObject, name);
             }
             pop.gameObject.AddComponent<PopIn>();
             Audio.Sfx.Play(Audio.SfxKind.Pop);
+            // el gösterimi: ilk kez (öğretici bekliyorsa) ya da Okti o şeye ihtiyaç duyuyorsa, el eşyayı çantadan Okti'ye taşır
+            if (careCell != null)
+            {
+                var needIt = _need == (careTip == Onboarding.Feed ? StatKind.Fullness : StatKind.Cleanliness);
+                ShowDragTip(careTip, careCell, needIt, careId);
+            }
         }
 
-        /// <summary>Çantadaki şeye dokun: yiyecek → Okti yer, sabun → yıkanır; tohum ve malzeme ne işe yaradığını söyler.</summary>
+        /// <summary>Çantadaki şeye dokun (yiyecek/sabun sürüklenir, bkz. ToggleBag): tohum ve malzeme ne işe yaradığını söyler.</summary>
         private void UseFromBag(string id, string kind, string name)
         {
             Audio.Sfx.Play(Audio.SfxKind.Tap);
@@ -134,6 +158,7 @@ namespace Pofi.Screens
         private void CloseBag()
         {
             if (_bagPop == null) return;
+            if (_coach != null && (_coach.Id == Onboarding.Feed || _coach.Id == Onboarding.Wash)) { _coach.Done(); _coach = null; }
             Destroy(_bagPop.gameObject);
             _bagPop = null;
         }

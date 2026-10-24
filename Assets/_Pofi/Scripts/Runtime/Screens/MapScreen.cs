@@ -38,7 +38,7 @@ namespace Pofi.Screens
         private Vector2 _press;                    // joystick merkezi (ekran pikseli)
         private bool _moved;                       // joystick sürüklendi mi
         private float _lastTouch = -10f;           // dokunma sonrası taklit fare olaylarını yok saymak için
-        private float _userPitch = 20f;            // sağ başparmakla ayarlanan bakış yüksekliği (derece)
+        private float _userPitch = 24f;            // sağ başparmakla ayarlanan bakış yüksekliği (derece); 24 Ekim 2026 kamera B: 20 → 24
         private float _lookHold;                   // elle döndürdükten sonra otomatik takibin beklediği süre
         private SpeechBubble _toast;
         private RectTransform _labelLayer;
@@ -342,8 +342,11 @@ namespace Pofi.Screens
             if (CamLookUp != 0f) look += Vector3.up * CamLookUp;
         }
 
-        /// <summary>Kamera denemesi (madde 14, ayıklama "cam"): uzaklık çarpanı, en az bakış yüksekliği, görüş açısı eki, bakış noktası yükselmesi.</summary>
-        public static float CamDistMul = 1f, CamMinPitch, CamFovAdd, CamLookUp;
+        /// <summary>
+        /// Kamera (madde 14; kullanıcı 24 Ekim 2026 "önerini uygula" = B: 1,35× uzak, 24° bakış, görüş +4°, bakış noktası +0,4 m —
+        /// Okti büyük kalır, ağaçların tepesi ve önündeki yol görünür). Ayıklama "cam" ile denenir.
+        /// </summary>
+        public static float CamDistMul = 1.35f, CamMinPitch, CamFovAdd = 4f, CamLookUp = 0.4f;
 
         private static readonly float[] BoomPitches = { 20f, 30f, 45f };
         private static readonly float[] WhiskerYaws = { 0f, 30f, -30f, 60f, -60f, 90f, -90f };
@@ -896,9 +899,9 @@ namespace Pofi.Screens
         {
             if (_careBubbles.Count == 0)
             {
-                Add("food_apple", T("hud.feed"), new Vector2(-170f, 40f), () => { HideCare(); TipDone(Onboarding.Feed); OnFeed(); });
-                Add("clean_soap", T("hud.wash"), new Vector2(0f, 120f), () => { HideCare(); OnWash(); });
-                Add("hoodie_soft", T("hud.dress"), new Vector2(170f, 40f), () =>
+                Add("food_apple", T("hud.feed"), "#7A1E14", new Vector2(-170f, 40f), () => { HideCare(); TipDone(Onboarding.Feed); OnFeed(); });
+                Add("clean_soap", T("hud.wash"), "#A04C6A", new Vector2(0f, 120f), () => { HideCare(); OnWash(); });
+                Add("hoodie_soft", T("hud.dress"), "#27467E", new Vector2(170f, 40f), () =>
                 {
                     HideCare();
                     TipDone(Onboarding.Wardrobe);
@@ -912,11 +915,11 @@ namespace Pofi.Screens
             foreach (var (b, _) in _careBubbles) { b.gameObject.SetActive(true); Bump.Play(b.transform, 0.25f + i++ * 0.05f); }
             UpdateCareBubbles();
 
-            void Add(string icon, string label, Vector2 off, System.Action act)
+            // 24 Ekim 2026 (kullanıcı: "beyaz yuvarlaklar hâlâ duruyor, gölgeli çerçeve yap"): beyaz daire yok; çerçevesiz 3B simge
+            // + seçili gösterge çerçevesi (GoldKit.Icon3D), yeşil kurdele etiket — HUD düğmeleriyle aynı dil
+            void Add(string icon, string label, string extrude, Vector2 off, System.Action act)
             {
-                var b = Candy.Round(_gLayer, Candy.White, icon, 118f, Vector2.zero, Vector2.zero, () => act(), label);
-                Hover.On(b, 6f);
-                b.gameObject.AddComponent<PressBounce>();
+                var (b, _, _) = GoldKit.Icon3D(_gLayer, icon, 124f, Vector2.zero, Vector2.zero, Theme.Hex(extrude), () => act(), label, GoldKit.Tone.Green, _careBubbles.Count * 0.4f);
                 _careBubbles.Add((b, off));
             }
         }

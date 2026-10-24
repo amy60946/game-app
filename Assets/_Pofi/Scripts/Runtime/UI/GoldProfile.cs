@@ -64,7 +64,7 @@ namespace Pofi.UI
             }
 
             // ayrıntı: ad kurdelesi + kupa, XP çubuğu, ihtiyaç değerleri
-            var det = Ui.Rect(parent, "ProfileDetail", new Vector2(0f, 1f), new Vector2(330f * G, 102f * G), Vector2.zero);
+            var det = Ui.Rect(parent, "ProfileDetail", new Vector2(0f, 1f), new Vector2(340f * G, 112f * G), Vector2.zero);
             det.pivot = new Vector2(0f, 0.5f);
             det.anchoredPosition = new Vector2((20f + 116f + 12f) * G, -(12f + 58f) * G);
             p.Detail = det;
@@ -97,13 +97,15 @@ namespace Pofi.UI
             var xs = p.XpText.gameObject.AddComponent<Shadow>(); xs.effectColor = Theme.Hex("#18389A"); xs.effectDistance = new Vector2(0f, -2f * G);
             p.XpText.raycastTarget = false;
 
+            // 4 ihtiyaç değeri (24 Ekim 2026, kullanıcı: "biraz daha büyüt, okunmuyor"): simge 24 → 34, yazı 15 → 22 (taslak px)
             for (var i = 0; i < 4; i++)
             {
-                var cell = Ui.Rect(det, "Need" + i, new Vector2(0f, 1f), new Vector2(60f * G, 24f * G));
-                cell.pivot = new Vector2(0f, 1f); cell.anchoredPosition = new Vector2(i * 62f * G, -(38f + 6f + 28f + 6f) * G);
-                Ui.IconImage(cell, needIcons[i], new Vector2(0f, 0.5f), 24f * G, new Vector2(12f * G, 0f));
-                p.Values[i] = Ui.Label(cell, "", Mathf.RoundToInt(15f * G), Color.white, new Vector2(0f, 0.5f), new Vector2(34f * G, 24f * G), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2((26f + 17f) * G, 0f));
-                var ns = p.Values[i].gameObject.AddComponent<Outline>(); ns.effectColor = new Color(0.04f, 0.12f, 0.35f, 0.7f); ns.effectDistance = new Vector2(2f, -2f);
+                var cell = Ui.Rect(det, "Need" + i, new Vector2(0f, 1f), new Vector2(80f * G, 34f * G));
+                cell.pivot = new Vector2(0f, 1f); cell.anchoredPosition = new Vector2(i * 84f * G, -(38f + 6f + 28f + 5f) * G);
+                var ic = Ui.IconImage(cell, needIcons[i], new Vector2(0f, 0.5f), 34f * G, new Vector2(17f * G, 0f));
+                if (ic != null) GoldKit.Frame3D(ic.GetComponent<Image>(), 0.5f);
+                p.Values[i] = Ui.Label(cell, "", Mathf.RoundToInt(22f * G), Color.white, new Vector2(0f, 0.5f), new Vector2(46f * G, 34f * G), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2((36f + 23f) * G, 0f));
+                var ns = p.Values[i].gameObject.AddComponent<Outline>(); ns.effectColor = new Color(0.04f, 0.12f, 0.35f, 0.85f); ns.effectDistance = new Vector2(2.5f, -2.5f);
                 p.Values[i].raycastTarget = false;
             }
             return p;

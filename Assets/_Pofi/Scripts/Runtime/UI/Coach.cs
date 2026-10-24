@@ -70,10 +70,10 @@ namespace Pofi.UI
                     var k = props.Length == 1 ? 0.5f : i / (float)(props.Length - 1);
                     var off = new Vector2(Mathf.Lerp(-170f, 170f, k), 150f + 80f * Mathf.Sin(k * Mathf.PI));
                     var b = Ui.Rect(rt, "Bubble" + i, Vector2.zero, new Vector2(118f, 118f));
-                    Candy.RoundShell(b, Candy.White).raycastTarget = false;
-                    b.GetComponent<Image>().raycastTarget = false;
-                    var ii = Ui.Rect(b, "Pic", new Vector2(0.5f, 0.52f), new Vector2(74f, 74f)).gameObject.AddComponent<Image>();
+                    // oyundaki gibi çerçevesiz simge + gösterge çerçevesi (beyaz daire yok, 24 Ekim 2026)
+                    var ii = Ui.Rect(b, "Pic", new Vector2(0.5f, 0.5f), new Vector2(104f, 104f)).gameObject.AddComponent<Image>();
                     ii.sprite = props[i]; ii.preserveAspect = true; ii.raycastTarget = false;
+                    GoldKit.Frame3D(ii);
                     b.localScale = Vector3.zero;
                     c._props.Add((b, off));
                 }

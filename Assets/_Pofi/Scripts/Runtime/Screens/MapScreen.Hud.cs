@@ -719,8 +719,15 @@ namespace Pofi.Screens
             for (var i = 0; i < items.Count; i++)
             {
                 var it = items[i];
-                var b = Candy.Round(_tray, Candy.White, it.Id, 130f, new Vector2(0f, 0.5f), new Vector2(80f + i * 150f, 0f), null);
-                Candy.Count(b.transform).text = App.State.Inventory.CountOf(it.Id).ToString();
+                // beyaz daire yok (24 Ekim 2026): çerçevesiz simge + gösterge çerçevesi + elmas sayı
+                var b = Ui.Rect(_tray, "Item " + it.Id, new Vector2(0f, 0.5f), new Vector2(130f, 130f), new Vector2(80f + i * 150f, 0f));
+                var hit = b.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0f);
+                var pic = Ui.Rect(b, "Pic", new Vector2(0.5f, 0.5f), new Vector2(118f, 118f)).gameObject.AddComponent<Image>();
+                pic.sprite = Ui.Icon(it.Id); pic.preserveAspect = true; pic.raycastTarget = false;
+                GoldKit.Frame3D(pic);
+                pic.gameObject.AddComponent<Hover3D>().Delay = i * 0.4f;
+                GoldKit.Gem(b, 44f).text = App.State.Inventory.CountOf(it.Id).ToString();
+                b.gameObject.AddComponent<PressBounce>();
                 var d = b.gameObject.AddComponent<DragItem>();
                 d.IconId = it.Id; d.Layer = Root;
                 d.Dropped = pos => { if (!OverPet(pos)) return false; Care(action, it); return true; };
