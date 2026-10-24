@@ -611,6 +611,10 @@
     "fire.stoked": "Ateş harlandı! +{0} XP",
     "gather.tip_biglog": "Kocaman kütük! Baltayla birkaç kez vur, çok odun verir.",
     "gather.big_hit": "Bir daha! ({0}/{1})",
-    "info.campfire": "Kamp ateşi: 2 odun at, harla"
+    "info.campfire": "Kamp ateşi: 2 odun at, harla",
+    "tip.map_far": "Nereye gideceğini bulamadın mı? Haritaya bak!",
+    "tip.map_pin": "Sarı im, gideceğin yeri gösterir. İme dokun, oklar yolu göstersin!",
+    "map.pin": "Buraya git",
+    "map.pin_go": "Oklar yolu gösteriyor. Takip et!"
   }
 }

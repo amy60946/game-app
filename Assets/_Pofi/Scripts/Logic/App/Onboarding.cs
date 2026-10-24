@@ -29,7 +29,8 @@ namespace Pofi.Logic.App
             Shop = "shop", WardrobeSpots = "wardrobe_spots", Home = "home",
             Story = "story", Board = "board", Mark = "mark", Stone = "stone",   // ilk gün akışı (App/FirstDay, Ö5)
             Plant = "plant", Harvest = "harvest",                              // bahçe sürükleme ipuçları (D2, 23 Ekim 2026)
-            TasksHome = "tasks_home", TasksDone = "tasks_done", TasksGame = "tasks_game";   // Görevler penceresi tanıtımı (C + D, 24 Ekim 2026)
+            TasksHome = "tasks_home", TasksDone = "tasks_done", TasksGame = "tasks_game",   // Görevler penceresi tanıtımı (C + D, 24 Ekim 2026)
+            MapFar = "map_far", MapPin = "map_pin";   // haritada hedef imi (GB18-8, 24 Ekim 2026)
 
         /// <summary>
         /// Görevler penceresinin ilk açılışında sırayla gösterilen bilgilendirme eli (kullanıcı, 24 Ekim 2026: "pencere kalabalık
@@ -64,6 +65,8 @@ namespace Pofi.Logic.App
             new TipDef { Id = Harvest, Gesture = TipGesture.Drag, Where = "garden", Trigger = "ilk kez hasada hazır ürün", DoneWhen = "orak sürüklenerek toplandı" },
             new TipDef { Id = TasksHome, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "Görevler penceresi ilk açılış (altın Ev Görevleri başlığı)", DoneWhen = "dokunuldu ya da el iki tur gösterdi" },
             new TipDef { Id = TasksDone, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "Görevler penceresinde yapılacak ev görevi var (ilk Yaptım)", DoneWhen = "dokunuldu, el iki tur gösterdi ya da Yaptım'a basıldı" },
+            new TipDef { Id = MapFar, Gesture = TipGesture.Tap, Where = "island", Trigger = "rehber hedefi uzakta (35 m+) ve çocuk birkaç saniye durdu", DoneWhen = "Harita açıldı" },
+            new TipDef { Id = MapPin, Gesture = TipGesture.Tap, Where = "island", Trigger = "Harita ilk kez sarı hedef imiyle açıldı", DoneWhen = "ime dokunuldu (oklar yolu gösterir)" },
             new TipDef { Id = TasksGame, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "Görevler penceresi ilk açılış (mavi Oyun görevleri bölümü)", DoneWhen = "dokunuldu ya da el iki tur gösterdi" },
         };
 

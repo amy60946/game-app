@@ -104,6 +104,7 @@ namespace Pofi.Screens
             foreach (var v in _views) _labels[v.Region.Id] = Label(v);
             BuildPlaceLabels();
             BuildHereMarker();
+            BuildMapPin();       // GB18-8: kuşbakışında sıradaki işin yeri
             BuildBoardBalloon();
             BuildGather();   // kütük/çalı/taş + kulübe yeri, nesne üstü baloncuklar
             BuildCampfire(); // kamp ateşinin coşkusu kayıttan (GB18)
@@ -123,7 +124,12 @@ namespace Pofi.Screens
         {
             _overview = !_overview;
             World.PropCuller.Radius = _overview ? 400f : 95f;   // kuşbakışında bütün ada
-            if (_overview) TipDone(Onboarding.Overview); else TipDone(null);
+            if (_overview)
+            {
+                TipDone(Onboarding.Overview); TipDone(Onboarding.MapFar);
+                if (_coach != null && _coach.Id.StartsWith("guide_")) { _coach.Done(); _coach = null; }   // harita açıkken ada eli yerine im eli
+            }
+            else TipDone(null);
             if (_modeText != null) { _modeText.text = T(_overview ? "map.walk" : "map.overview"); GoldKit.FitRibbon(_modeText); }
             RefreshTracker();
             if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
@@ -441,6 +447,7 @@ namespace Pofi.Screens
                 rt.anchoredPosition = new Vector2(sp.x * scale, sp.y * scale);
             }
             UpdateHereMarker(cam, scale);
+            UpdateMapPin(cam, scale);
             UpdateBoardBalloon(cam, scale, petPos);
             UpdateMaviNews(Time.deltaTime);
         }

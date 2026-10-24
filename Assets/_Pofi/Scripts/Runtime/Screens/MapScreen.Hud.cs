@@ -437,6 +437,8 @@ namespace Pofi.Screens
                     }
                 }
             }
+            // hedef uzakta ve çocuk durdu: ilk kez el Harita'yı gösterir (GB18-8, haritada sarı im)
+            if (MapFarTip(basicsDone)) return;
             // rehberli zincir: sıradaki adım, işaret eli hedefini gösterir; ilk gün pano/taş ipuçlarının yerine geçer
             if (basicsDone && guide != null && !_overview) { GuideTip(guide); return; }
             // Gerçek ödüller yeni açıldı (Sv4, GB17-13): oturumda bir kez el dükkânı gösterir; dükkân sekmesi tanıtımla açılır
@@ -586,14 +588,15 @@ namespace Pofi.Screens
             var basicsDone = !Onboarding.Pending(App.State, Onboarding.Walk) && !Onboarding.Pending(App.State, Onboarding.Look);
             var guide = basicsDone && !_overview && !_cine ? Guide.Current(App.State, App.Level) : null;
             var target = guide != null ? GuideWorld(guide) : null;
+            if (target == null && basicsDone && !_overview && !_cine) target = PinChase();   // haritadaki ime dokunuldu (taş, pano)
             var stepId = guide?.Id;
             if (stepId != _pathStep) { _pathStep = stepId; _path.Hide(); }
             var pos = _world.Walker.Position;
             var arrived = target != null && Vector2.Distance(pos, target.Value) < 4f;
             if (target == null) _path.Hide();
-            else if (arrived) _path.Hide();                                    // vardı
+            else if (arrived) { _path.Hide(); _pinGo = false; }               // vardı
             else if (_path.Active) _path.Show(target.Value);                   // hedef kayabilir (en yakın kütük)
-            else if (_idleFor > 8f) _path.Show(target.Value);
+            else if (_idleFor > 8f || _pinGo) { _path.Show(target.Value); if (guide != null) _pinGo = false; }   // ime dokununca hemen
             _path.Tick(pos, App.Stage.Camera, dt);
             UpdateMaviGuide(_path.Active && target != null, target ?? Vector2.zero, arrived);   // N2: Mavi önden uçar
         }

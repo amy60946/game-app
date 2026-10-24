@@ -58,6 +58,7 @@ namespace Pofi.Logic.App
                 case Onboarding.Walk: case Onboarding.Feed: case Onboarding.Wash: case Onboarding.Enter: case Onboarding.Play:
                 case Onboarding.Story: case Onboarding.Board: case Onboarding.Mark: case Onboarding.Stone: case Onboarding.Shop:
                 case Onboarding.TasksHome: case Onboarding.TasksDone: case Onboarding.TasksGame:   // Görevler penceresi tanıtımı (ilk gün en çok orada gerekir)
+                case Onboarding.MapFar: case Onboarding.MapPin:   // haritada hedef imi (GB18-8): yeni başlayan en çok ilk gün kaybolur
                     return true;
                 default:
                     return false;
