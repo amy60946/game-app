@@ -466,37 +466,48 @@
    "cer": 0.032
   },
   {
-   "key": "263e0b64b5e6430e",
-   "text": "Taşla ne yapacağız?",
+   "key": "215b521c675e039f",
+   "text": "Mavi'nin hediye ettiği taş gibi mi?",
    "role": "okti",
    "src": "story:ch1_board:2:text",
    "who": "okti",
-   "tts": "Taşla ne yapacağız?",
-   "sec": 1.17,
+   "tts": "Mavi'nin hediye ettiği taş gibi mi?",
+   "sec": 2.91,
    "seed": 7,
    "cer": 0.0
   },
   {
-   "key": "0e1421cef09e6dbe",
-   "text": "Taşı kullanarak sisi kaldırabilirsin. Sahilden başlayalım mı?",
+   "key": "2049ad35c1c15d58",
+   "text": "Hediye taş gibi mi?",
+   "role": "okti",
+   "src": "story:ch1_board:2:a",
+   "who": "okti",
+   "tts": "Hediye taş gibi mi?",
+   "sec": 3.83,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "a3c9ef082c074623",
+   "text": "Evet! Bundan sonrakileri görev yaparak kazanırsın. Koydaki sis seni bekliyor!",
    "role": "adali",
    "src": "story:ch1_board:3:text",
    "who": "kiskac",
-   "tts": "Taşı kullanarak sisi kaldırabilirsin. Sahilden başlayalım mı?",
-   "sec": 4.52,
+   "tts": "Evet! Bundan sonrakileri görev yaparak kazanırsın. Koydaki sis seni bekliyor!",
+   "sec": 4.66,
    "seed": 7,
-   "cer": 0.034
+   "cer": 0.014
   },
   {
-   "key": "da8b95497c23b841",
-   "text": "Taşı kullanarak sisi kaldır!",
+   "key": "caaec36e252f5e62",
+   "text": "Görev yap, taşı kazan!",
    "role": "adali",
    "src": "story:ch1_board:3:a",
    "who": "kiskac",
-   "tts": "Taşı kullanarak sisi kaldır!",
-   "sec": 1.72,
-   "seed": 100,
-   "cer": 0.037
+   "tts": "Görev yap, taşı kazan!",
+   "sec": 2.68,
+   "seed": 7,
+   "cer": 0.0
   },
   {
    "key": "89322a00f0a4b63b",
@@ -661,6 +672,94 @@
    "tts": "Sana kulübe yaparım!",
    "sec": 2.9,
    "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "0e0f269dd0615156",
+   "text": "Kulübemin yeri de sisin altında kaldı. Al, bu Güneş Taşı sana hediye!",
+   "role": "adali",
+   "src": "story:ch2_open:4:text",
+   "who": "mavi",
+   "tts": "Kulübemin yeri de sisin altında kaldı. Al, bu Güneş Taşı sana hediye!",
+   "sec": 4.81,
+   "seed": 101,
+   "cer": 0.015
+  },
+  {
+   "key": "35d59ece6c081600",
+   "text": "Al, bu taş sana hediye!",
+   "role": "adali",
+   "src": "story:ch2_open:4:a",
+   "who": "mavi",
+   "tts": "Al, bu taş sana hediye!",
+   "sec": 3.64,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "c2df5d94372505be",
+   "text": "Teşekkürler! Taşla sisi dağıtırım.",
+   "role": "okti",
+   "src": "story:ch2_open:5:text",
+   "who": "okti",
+   "tts": "Teşekkürler! Taşla sisi dağıtırım.",
+   "sec": 2.12,
+   "seed": 100,
+   "cer": 0.031
+  },
+  {
+   "key": "c4fc2608fe8c0956",
+   "text": "Taşla sisi dağıtırım!",
+   "role": "okti",
+   "src": "story:ch2_open:5:a",
+   "who": "okti",
+   "tts": "Taşla sisi dağıtırım!",
+   "sec": 1.93,
+   "seed": 100,
+   "cer": 0.15
+  },
+  {
+   "key": "31fe7b02ee1e8a6b",
+   "text": "Taştan bir ışık yayıldı, sis yavaşça çekildi.",
+   "role": "anlatici",
+   "src": "story:ch2_fog:0:text",
+   "who": "narrator",
+   "tts": "Taştan bir ışık yayıldı, sis yavaşça çekildi.",
+   "sec": 3.36,
+   "seed": 7,
+   "cer": 0.023
+  },
+  {
+   "key": "b99d574d368b6440",
+   "text": "İşte kulübemin yeri! Odun, dal ve taş toplayalım mı?",
+   "role": "adali",
+   "src": "story:ch2_fog:1:text",
+   "who": "mavi",
+   "tts": "İşte kulübemin yeri! Odun, dal ve taş toplayalım mı?",
+   "sec": 4.46,
+   "seed": 102,
+   "cer": 0.061
+  },
+  {
+   "key": "6325a3769717211a",
+   "text": "İşte kulübemin yeri!",
+   "role": "adali",
+   "src": "story:ch2_fog:1:a",
+   "who": "mavi",
+   "tts": "İşte kulübemin yeri!",
+   "sec": 1.77,
+   "seed": 100,
+   "cer": 0.316
+  },
+  {
+   "key": "21ef0c0667fcee05",
+   "text": "Hemen başlıyorum!",
+   "role": "okti",
+   "src": "story:ch2_fog:2:text",
+   "who": "okti",
+   "tts": "Hemen başlıyorum!",
+   "sec": 3.13,
+   "seed": 7,
    "cer": 0.0
   },
   {
@@ -2226,15 +2325,15 @@
    "cer": 0.0
   },
   {
-   "key": "404b309f2966037c",
-   "text": "Ev Görevleri panosuna git.",
+   "key": "5a5dff4822093ac7",
+   "text": "Ev Görevleri panosuna git: yeni taşlar burada!",
    "role": "anlatici",
    "src": "tr:guide.board",
    "who": "narrator",
-   "tts": "Ev Görevleri panosuna git.",
-   "sec": 1.79,
+   "tts": "Ev Görevleri panosuna git: yeni taşlar burada!",
+   "sec": 4.48,
    "seed": 7,
-   "cer": 0.0
+   "cer": 0.023
   },
   {
    "key": "384353bbc381e0a8",
@@ -2281,13 +2380,13 @@
    "cer": 0.033
   },
   {
-   "key": "35bc91f37f24d239",
-   "text": "Güneş Taşını sisli yere götür, koy!",
+   "key": "21bd65f3eb97c215",
+   "text": "Görevle kazandığın taşı koydaki sise götür!",
    "role": "anlatici",
    "src": "tr:guide.stone",
    "who": "narrator",
-   "tts": "Güneş Taşını sisli yere götür, koy!",
-   "sec": 2.52,
+   "tts": "Görevle kazandığın taşı koydaki sise götür!",
+   "sec": 4.78,
    "seed": 7,
    "cer": 0.0
   },
@@ -2633,6 +2732,28 @@
    "cer": 0.0
   },
   {
+   "key": "0582d69da801cb63",
+   "text": "Mavi sana bir hediye getirdi!",
+   "role": "anlatici",
+   "src": "tr:guide.gift",
+   "who": "narrator",
+   "tts": "Mavi sana bir hediye getirdi!",
+   "sec": 2.6,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "8402e77d32b16696",
+   "text": "Hediye taşı kulübe yerine götür, sisi dağıt!",
+   "role": "anlatici",
+   "src": "tr:guide.clear",
+   "who": "narrator",
+   "tts": "Hediye taşı kulübe yerine götür, sisi dağıt!",
+   "sec": 3.44,
+   "seed": 100,
+   "cer": 0.024
+  },
+  {
    "key": "8d4c5d1cb1a05d97",
    "text": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
    "role": "anlatici",
@@ -2642,6 +2763,17 @@
    "sec": 6.88,
    "seed": 7,
    "cer": 0.009
+  },
+  {
+   "key": "1d590e810e4d47f9",
+   "text": "Bu ilk taş Mavi'den sana hediye! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
+   "role": "anlatici",
+   "src": "tr:gift.card",
+   "who": "narrator",
+   "tts": "Bu ilk taş Mavi'den sana hediye! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
+   "sec": 7.28,
+   "seed": 7,
+   "cer": 0.024
   }
  ]
 }

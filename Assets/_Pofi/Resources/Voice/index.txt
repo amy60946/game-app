@@ -40,9 +40,10 @@ b5e05e98ebd8f7a9	adali	Harika! Tezgâhım yine şenlendi.
 afb1b8b7229e055e	adali	Evdeki büyüklerin buraya görev bırakır.
 72fcc3ff8aa6bbf3	adali	Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!
 a44c382dccc586d1	adali	Görevi yapınca Güneş Taşı gelir!
-263e0b64b5e6430e	okti	Taşla ne yapacağız?
-0e1421cef09e6dbe	adali	Taşı kullanarak sisi kaldırabilirsin. Sahilden başlayalım mı?
-da8b95497c23b841	adali	Taşı kullanarak sisi kaldır!
+215b521c675e039f	okti	Mavi'nin hediye ettiği taş gibi mi?
+2049ad35c1c15d58	okti	Hediye taş gibi mi?
+a3c9ef082c074623	adali	Evet! Bundan sonrakileri görev yaparak kazanırsın. Koydaki sis seni bekliyor!
+caaec36e252f5e62	adali	Görev yap, taşı kazan!
 89322a00f0a4b63b	anlatici	Taştan bir ışık halkası yayıldı, sis geri çekildi.
 1ae19a171149155d	anlatici	Işık yayıldı, sis kalktı!
 04197bdca9ee64f9	okti	Bak! Su ne kadar turkuazmış!
@@ -58,6 +59,14 @@ d891c4d4459471ea	adali	Ben Mavi, postacıyım!
 53d552d4cd2aef90	adali	Mektuplar nerede kalacak?
 5eab34e9fa002b2c	okti	Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.
 381de71d99f97652	okti	Sana kulübe yaparım!
+0e0f269dd0615156	adali	Kulübemin yeri de sisin altında kaldı. Al, bu Güneş Taşı sana hediye!
+35d59ece6c081600	adali	Al, bu taş sana hediye!
+c2df5d94372505be	okti	Teşekkürler! Taşla sisi dağıtırım.
+c4fc2608fe8c0956	okti	Taşla sisi dağıtırım!
+31fe7b02ee1e8a6b	anlatici	Taştan bir ışık yayıldı, sis yavaşça çekildi.
+b99d574d368b6440	adali	İşte kulübemin yeri! Odun, dal ve taş toplayalım mı?
+6325a3769717211a	adali	İşte kulübemin yeri!
+21ef0c0667fcee05	okti	Hemen başlıyorum!
 859b86b35ff6e91b	adali	Kulübem bitti! Bak, posta zili bile çalıyor!
 78f1ecc65a7094ef	adali	Kulübem bitti!
 331b6790724d63b2	adali	Evinin önüne bir mektup kutusu koydum. Sana yazacağım!
@@ -200,12 +209,12 @@ add097760df22d24	anlatici	Okti'ye dokun, sabunu seç: tertemiz olsun!
 462a9ecdeef7023d	anlatici	Evim'e yürü ve içeri gir.
 985796ff433f654f	anlatici	Topla'ya dokun: ev toplansın!
 bf34ad2751ded534	anlatici	Okti'nin üstüne dokun, aksesuarını tak.
-404b309f2966037c	anlatici	Ev Görevleri panosuna git.
+5a5dff4822093ac7	anlatici	Ev Görevleri panosuna git: yeni taşlar burada!
 384353bbc381e0a8	anlatici	Kulübe için odun, dal ve taş topla.
 0c1ecedab996c52b	anlatici	Şantiyeye git, kulübeyi yap!
 19cc35099b517b5b	anlatici	2 hindistan cevizi bul: kumsalda ara ya da bahçede oyna.
 9c50bb1715dc8ca3	anlatici	Dükkâna git: ilk aksesuarını al!
-35bc91f37f24d239	anlatici	Güneş Taşını sisli yere götür, koy!
+21bd65f3eb97c215	anlatici	Görevle kazandığın taşı koydaki sise götür!
 e6660ad2dc4dfa59	anlatici	Görevi yapınca Yaptım'a bas!
 970acf480b821ac6	anlatici	Güneş Taşını yerleştir, sis kalksın!
 9095eb9334346648	anlatici	Sisli yere git, taşı koy!
@@ -237,4 +246,7 @@ a8110c0f5a27aa33	anlatici	Sarı im, gideceğin yeri gösterir. İme dokun, oklar
 d025870943186928	adali	Merhaba evlat. Acele etme, deniz hep bekler.
 f51a4cf15e01efd6	adali	Merhaba Okti! Bugün cevizlerimiz çok tatlı!
 9a657605eb7a798d	adali	Çok tatlı... Merhaba.
+0582d69da801cb63	anlatici	Mavi sana bir hediye getirdi!
+8402e77d32b16696	anlatici	Hediye taşı kulübe yerine götür, sisi dağıt!
 8d4c5d1cb1a05d97	anlatici	Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.
+1d590e810e4d47f9	anlatici	Bu ilk taş Mavi'den sana hediye! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.
