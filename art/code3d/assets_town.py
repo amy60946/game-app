@@ -2171,7 +2171,7 @@ def nut(name, c, a, L, R, mat_fn, egg=0.12, ridge=0.035, lat=14, lon=18, seed=0,
     o = link_mesh(name, bm, [mat_fn(c + dz, a, eyes)]); smooth(o)
     return o, c + dz, (a, b1, b2), surf, dz
 
-def half_shell(name, c, up, R, seg=20, seed=0, sink=0.012):
+def half_shell(name, c, up, R, seg=16, seed=0, sink=0.012):
     """Kırık yarım hindistan cevizi: dışı lifli kabuk, kırık ağızda ince koyu kabuk çizgisi + beyaz meyve eti halkası,
     içi beyaz çukur; ağız kenarı hafif tırtıklı. up = ağzın baktığı yön."""
     a, b1, b2 = _perp_frame(up); c = V(c)
@@ -2179,12 +2179,12 @@ def half_shell(name, c, up, R, seg=20, seed=0, sink=0.012):
     def jag(ph): return 0.007 * mnoise.noise(V((math.cos(ph) * 3, math.sin(ph) * 3, seed))) + 0.003 * mnoise.noise(V((math.cos(ph) * 9, math.sin(ph) * 9, seed + 4)))
     def P(r, h, ph): return c + a * h + (b1 * math.cos(ph) + b2 * math.sin(ph)) * r
     rows = []      # (köşe listesi, bir sonraki şeridin malzemesi)
-    no = 6
+    no = 5
     for i in range(1, no + 1):
         th = math.pi / 2 * i / no
         rows.append(([P(R * math.sin(th), -0.92 * R * math.cos(th) + (jag(2 * math.pi * j / seg) if i == no else 0), 2 * math.pi * j / seg) for j in range(seg)], 1 if i == no else 0))
     rows.append(([P(R - T, jag(2 * math.pi * j / seg) - 0.001, 2 * math.pi * j / seg) for j in range(seg)], 2))
-    ni = 5
+    ni = 4
     for i in range(ni):
         th = math.pi / 2 * (1 - i / ni)
         rows.append(([P(Ri * math.sin(th), -0.85 * Ri * math.cos(th) + (0.6 * jag(2 * math.pi * j / seg) - 0.004 if i == 0 else 0), 2 * math.pi * j / seg) for j in range(seg)], 2))
@@ -2204,32 +2204,11 @@ def half_shell(name, c, up, R, seg=20, seed=0, sink=0.012):
     return o
 
 def c_coconut():
-    """Kumda düşmüş hindistan cevizleri (toplanır): önde lifli kahverengi (küt ucunda üç göz), yanında kırık yarım (beyaz meyve
-    eti), arkada taze yeşil-sarı (sap ucunda kahve taç); altlarından taşan kurumuş palmiye yaprakçıkları. Taban ~0,7 m."""
-    # kurumuş palmiye yaprakçıkları: kuma serilmiş uzun, ince, V kesitli saman renkli şeritler (cevizlerin altından taşar)
-    def dry_leaflets(bm):
-        out = []
-        for k, (x0, y0, x1, y1, bend, wd) in enumerate(((-0.05, 0.05, -0.37, 0.3, 0.04, 0.02), (0.0, 0.08, 0.33, 0.31, -0.05, 0.019),
-                                                         (-0.09, 0.0, -0.03, 0.41, 0.05, 0.018), (0.17, 0.05, 0.36, -0.03, 0.02, 0.016))):
-            p0 = V((x0, y0, 0)); d = V((x1 - x0, y1 - y0, 0)); side0 = V((-d.y, d.x, 0)).normalized()
-            rows = []; segs = 6
-            for i in range(segs + 1):
-                s = i / segs
-                c = p0 + d * s + side0 * (bend * 4 * s * (1 - s))
-                tan = (d + side0 * (bend * 4 * (1 - 2 * s))).normalized(); sd = V((-tan.y, tan.x, 0))
-                w = wd * math.sin(math.pi * min(1.0, 0.12 + s * 0.9)) ** 0.7 if i < segs else 0.0
-                zc = 0.011 + 0.005 * math.sin(math.pi * s) + 0.002 * k
-                rows.append(((bm.verts.new(c + sd * w + V((0, 0, zc - 0.3 * w))), (s, 1.0)), (bm.verts.new(c + V((0, 0, zc + 0.002))), (s, 0.0)),
-                             (bm.verts.new(c - sd * w + V((0, 0, zc - 0.3 * w))), (s, -1.0))))
-            for i in range(segs):
-                (l0, c0, r0), (l1, c1, r1) = rows[i], rows[i + 1]
-                fs = [[l0, l1, c1, c0], [c0, c1, r1, r0]] if i < segs - 1 else [[l0, c1, c0], [c0, c1, r0]]
-                out += [(f, k % 2) for f in fs]
-        return out
-    mesh_from_blades('leaflets', dry_leaflets, [m_leaf('#9a7643', '#c4a067', '#dcc391', '#eadaa9', 'dryleaf'),
-                                                m_leaf('#8c7650', '#b49d74', '#d0bd96', '#e2d4b2', 'dryleaf2')])
-    # taze yeşil-sarı (arkada ortada, yan yatmış; sap ucu sağ öne bakar)
-    o, cB, (aB, b1, b2), surf, dz = nut('nutB', (-0.01, 0.15, 0), (-0.9, 0.38, 0.06), 0.135, 0.112, lambda c, a, e: m_green_nut(c, a, 0.135),
+    """Kumda düşmüş hindistan cevizleri (toplanır): önde lifli kahverengi (küt ucunda üç göz), arkada taze yeşil-sarı (sap ucunda
+    kahve taç), iki yanda kırık cevizin iki yarısı (beyaz meyve eti; biri ağzı yukarı, biri yan yatmış → her yönden bir beyaz ağız
+    görünür). Taban ~0,7 m, ceviz çapı ~0,25 m. İnce yaprak/lif denendi: uzaktan böcek bacağı gibi okunuyordu, kaldırıldı."""
+    # taze yeşil-sarı (arkada, yan yatmış; sap ucu sağ öne bakar)
+    o, cB, (aB, b1, b2), surf, dz = nut('nutB', (-0.06, 0.17, 0), (-0.9, 0.38, 0.06), 0.135, 0.112, lambda c, a, e: m_green_nut(c, a, 0.135),
                                         egg=0.1, ridge=0.08, seed=2, rough=0.012)
     # sap ucundaki kahve taç (6 sivri yaprakçık)
     CAL = A.m_flat('#6b4824', 0.2, 12, 'calyx')
@@ -2244,9 +2223,10 @@ def c_coconut():
         if f.normal.dot(-aB) < 0: f.normal_flip()
     link_mesh('calyx', bm, [CAL])
     # lifli kahverengi (önde; gözlü küt ucu öne-yukarı bakar)
-    nut('nutA', (0.12, -0.1, 0), (-0.5, 0.82, -0.28), 0.132, 0.118, lambda c, a, e: m_husk(c, a, e, 'huskA'), seed=1, ph0=0.4)
-    # kırık yarım (ağzı yukarı, hafif öne eğik)
-    half_shell('half', (-0.19, -0.1, 0), (0.22, -0.3, 1.0), 0.11, seed=3)
+    nut('nutA', (0.06, -0.12, 0), (-0.5, 0.82, -0.28), 0.132, 0.118, lambda c, a, e: m_husk(c, a, e, 'huskA'), seed=1, ph0=0.4)
+    # kırık cevizin iki yarısı: biri ağzı yukarı (hafif öne eğik), öteki yan yatmış (ağzı dışa)
+    half_shell('half', (-0.26, -0.06, 0), (0.22, -0.3, 1.0), 0.11, seed=3)
+    half_shell('half2', (0.28, 0.1, 0), (0.9, 0.25, 0.42), 0.105, seed=7)
     return 'hindistan cevizi'
 
 BUILDERS = {
