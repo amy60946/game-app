@@ -81,5 +81,18 @@ namespace Pofi.Tests.Logic
             Assert.IsTrue(ev2.Any(e => e.Kind == TaskEventKind.Rejected && e.Task.ParentNote.Contains("birlikte")));
             Assert.IsTrue(ev2.Any(e => e.Kind == TaskEventKind.Removed && e.Task.TaskId == "b"));
         }
+
+        [Test]
+        public void Kart_zorlugu_ve_gunes_tasi_sozlesmeyle_ayni()
+        {
+            // ekonomi.md 5A: kolay 1 / orta 2 / zor 3 taş; kartta aynı sayıda nokta; deneme sunucusu da aynı kuralı kullanır
+            Assert.AreEqual(1, RealTaskRewards.Stones("easy"));
+            Assert.AreEqual(2, RealTaskRewards.Stones("medium"));
+            Assert.AreEqual(3, RealTaskRewards.Stones("hard"));
+            Assert.AreEqual(1, RealTaskRewards.Stones(null), "bilinmeyen zorluk kolay sayılır");
+            Assert.AreEqual(2, RealTaskRewards.Rank("medium"));
+            foreach (var d in new[] { "easy", "medium", "hard", null })
+                Assert.AreEqual(RealTaskRewards.Stones(d), Pofi.Logic.Services.Mock.MockBackend.StonesFor(d));
+        }
     }
 }

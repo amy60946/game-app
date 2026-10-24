@@ -28,7 +28,16 @@ namespace Pofi.Logic.App
             Tasks = "tasks", Xp = "xp", Wardrobe = "wardrobe", Sparkle = "sparkle", Overview = "overview",
             Shop = "shop", WardrobeSpots = "wardrobe_spots", Home = "home",
             Story = "story", Board = "board", Mark = "mark", Stone = "stone",   // ilk gün akışı (App/FirstDay, Ö5)
-            Plant = "plant", Harvest = "harvest";                              // bahçe sürükleme ipuçları (D2, 23 Ekim 2026)
+            Plant = "plant", Harvest = "harvest",                              // bahçe sürükleme ipuçları (D2, 23 Ekim 2026)
+            TasksHome = "tasks_home", TasksDone = "tasks_done", TasksGame = "tasks_game";   // Görevler penceresi tanıtımı (C + D, 24 Ekim 2026)
+
+        /// <summary>
+        /// Görevler penceresinin ilk açılışında sırayla gösterilen bilgilendirme eli (kullanıcı, 24 Ekim 2026: "pencere kalabalık
+        /// görünmesin, bilgilendirme eli açıklasın"). Sıra: Ev Görevleri bölümü → ilk "Yaptım" → oyun görevleri; ardından taş varsa
+        /// <see cref="Stone"/>. Her adım dokununca ya da el iki tur gösterince biter. "Yaptım" adımı ilk gün akışının
+        /// <see cref="Mark"/> ipucunun yerini alır (ikisi aynı pencerede üst üste çıkmaz).
+        /// </summary>
+        public static readonly IReadOnlyList<string> TasksIntro = new[] { TasksHome, TasksDone, TasksGame };
 
         public static readonly IReadOnlyList<TipDef> All = new List<TipDef>
         {
@@ -53,6 +62,9 @@ namespace Pofi.Logic.App
             new TipDef { Id = Stone, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "yerleştirilecek Güneş Taşı var", DoneWhen = "ilk taş yerleştirildi" },
             new TipDef { Id = Plant, Gesture = TipGesture.Drag, Where = "garden", Trigger = "bahçede boş tarla ve tohum var", DoneWhen = "tohum sürüklenerek ekildi" },
             new TipDef { Id = Harvest, Gesture = TipGesture.Drag, Where = "garden", Trigger = "ilk kez hasada hazır ürün", DoneWhen = "orak sürüklenerek toplandı" },
+            new TipDef { Id = TasksHome, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "Görevler penceresi ilk açılış (altın Ev Görevleri başlığı)", DoneWhen = "dokunuldu ya da el iki tur gösterdi" },
+            new TipDef { Id = TasksDone, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "Görevler penceresinde yapılacak ev görevi var (ilk Yaptım)", DoneWhen = "dokunuldu, el iki tur gösterdi ya da Yaptım'a basıldı" },
+            new TipDef { Id = TasksGame, Gesture = TipGesture.Tap, Where = "tasks", Trigger = "Görevler penceresi ilk açılış (mavi Oyun görevleri bölümü)", DoneWhen = "dokunuldu ya da el iki tur gösterdi" },
         };
 
         public static TipDef Get(string id) => All.FirstOrDefault(t => t.Id == id);

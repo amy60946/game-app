@@ -195,62 +195,11 @@ namespace Pofi.Screens
         }
 
         /// <summary>
-        /// Oyun içi görevler (sağ üst "Görev"; kullanıcı kararı 14 Ekim 2026): seviyeye göre açılan günlük görevler, her biri yıldız (XP) verir.
-        /// Ebeveynin gerçek hayat görevleri ayrı: adadaki "Ev Görevleri" panosunda.
+        /// Görevler penceresi (C + D, kullanıcı kararı 24 Ekim 2026): tek pencere, iki bölüm — solda büyük altın Ev Görevleri
+        /// (ebeveynin gerçek görevleri), sağda küçük mavi Oyun görevleri (günlük görevler + sandık). Sekme yok; adadaki Görev
+        /// düğmesi, Evim'deki Görevler ve adadaki pano aynı pencereyi açar (<see cref="TasksScreen"/>).
         /// </summary>
-        protected void QuestPanel()
-        {
-            Logic.App.Activity.EnsureQuests(App.State, App.Data, App.Levels, App.LocalNow);
-            var root = Modal(760f, out var box);
-            ModalTitle(box, T("home.daily"));
-            ModalClose(box, () => Destroy(root.gameObject));
-            // G (23 Ekim 2026): Ev Görevleri bu pencerenin ikinci sekmesi (adadaki pano da açar)
-            Candy.Pill(box, Candy.Blue, T("quests.tab_game"), new Vector2(0.5f, 1f), new Vector2(320f, 72f), new Vector2(-170f, -104f), null, "ui_star", 30);
-            Candy.Pill(box, Candy.White, T("tasks.title"), new Vector2(0.5f, 1f), new Vector2(320f, 72f), new Vector2(170f, -104f),
-                () => { Destroy(root.gameObject); App.Open(AppPage.Tasks); }, "ui_board", 30);
-            var i = 0;
-            foreach (var id in App.State.DailyQuests.Ids)
-            {
-                var q = System.Linq.Enumerable.FirstOrDefault(App.Data.DailyQuests, x => x.Id == id);
-                if (q == null) continue;
-                var y = 0.7f - i * 0.17f;
-                var done = App.State.DailyQuests.Claimed.Contains(id);
-                var prog = Logic.Meta.DailyQuests.Progress(q, App.State.Counters);
-                Ui.Label(box, q.Text, Th.Font(40), done ? Theme.Hex("#2E9E4F") : Th.Text, new Vector2(0.4f, y), new Vector2(640f, 70f), FontStyle.Bold, TextAnchor.MiddleLeft);
-                // ödül: yıldız simgesi + XP (coin değil: oyun içi görevler yıldız verir)
-                Ui.IconImage(box, "ui_star", new Vector2(0.77f, y), 54f);
-                Ui.Label(box, T("xp.star", Logic.App.Activity.QuestXp(App.State, App.Levels, q)), Th.Font(36), Th.Text, new Vector2(0.83f, y), new Vector2(110f, 60f), FontStyle.Bold);
-                Ui.Label(box, done ? T("home.daily_done") : prog + "/" + q.Target, Th.Font(34), Th.SubtleText, new Vector2(0.93f, y), new Vector2(120f, 60f), FontStyle.Bold);
-                var bar = Ui.Bar(box, new Vector2(0.5f, y - 0.055f), new Vector2(860f, 16f), new Color(0f, 0f, 0f, 0.08f), Th.Primary, 8f);
-                Ui.SetBar(bar, (float)prog / q.Target);
-                i++;
-            }
-            // günlük sandık (S2): üç görev bitince bir kez açılır; şans oranları her zaman görünür
-            var dq = App.State.DailyQuests;
-            var ready = Logic.Meta.DailyChest.Ready(dq);
-            Ui.IconImage(box, "ui_gift", new Vector2(0.08f, 0.22f), 80f);
-            var lineW = ready ? 560f : 760f;   // "Aç" düğmesi yoksa satır uzun
-            Ui.Label(box, T(dq.ChestOpened ? "chest.opened" : ready ? "chest.open_hint" : "chest.locked"), Th.Font(32), Th.Text,
-                new Vector2(0.155f + lineW / 1920f, 0.25f), new Vector2(lineW, 52f), FontStyle.Bold, TextAnchor.MiddleLeft);
-            Ui.Label(box, T("chest.odds"), Th.Font(24), Th.SubtleText, new Vector2(0.155f + lineW / 1920f, 0.195f), new Vector2(lineW, 40f), FontStyle.Normal, TextAnchor.MiddleLeft);
-            if (ready)
-            {
-                var b = Ui.Button(box, Th, T("chest.open"), new Vector2(0.86f, 0.22f), new Vector2(220f, 96f), () =>
-                {
-                    Destroy(root.gameObject);
-                    var level = App.Levels.Level(App.State.Xp);
-                    var prize = Logic.Meta.DailyChest.Open(App.State.DailyQuests, App.Data, App.State.Inventory, level, App.State.ChildId ?? "");
-                    App.Save();
-                    var item = prize != null ? App.Data.Item(prize.ItemId) : null;
-                    PlayChest(item != null ? Ui.Icon(item.Id) : null, () =>
-                    {
-                        Audio.Sfx.Play(Audio.SfxKind.Success);
-                        if (item != null) Toast.Post(App.Overlay.transform, Th, T(prize.Quantity > 1 ? "chest.got_n" : "chest.got", item.Name, prize.Quantity));
-                    });
-                }, true, default, 40);
-                Hover.On(b.GetComponent<RectTransform>(), 6f, 0.08f);
-            }
-        }
+        protected void QuestPanel() => App.Open(AppPage.Tasks);
 
         /// <summary>Sandık açılış gösterisi; adada 3B (MapScreen), başka ekranda hemen biter.</summary>
         protected virtual void PlayChest(Sprite prize, System.Action done)
