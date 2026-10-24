@@ -25,7 +25,7 @@ namespace Pofi.Logic.App
     /// Rehberli görev zinciri (ilk sürüm 19 Ekim 2026; sıra kullanıcı GB17, 24 Ekim 2026): oyun çocuğu baştan sona adım adım
     /// gezdirir, her adım tek şey öğretir ve küçük XP verir. Sıra: besle → yıka → Evim → topla → oyna → dükkândan ilk aksesuar
     /// (hoş geldin coin'iyle) → tak → Kıskaç'a git → 2 hindistan cevizi → Kıskaç'a teslim → Mavi gelir → kulübe malzemesi →
-    /// kulübe → Ev Görevleri panosu → Güneş Taşı. Hazır olmayan adım (ör. coin ya da taş yok) atlanır ve hazır olunca geri gelir.
+    /// kulübe → kamp ateşini harla (GB18) → Ev Görevleri panosu → Güneş Taşı. Hazır olmayan adım (ör. coin ya da taş yok) atlanır ve hazır olunca geri gelir.
     /// Ödül yalnız adım o an, canlı yapılınca verilir; önceden yapılmış adım ödülsüz geçilir. Rehber bir kez başladıysa seviye
     /// sınırı yoktur (zincir Sv3'ü aşabilir); Sv3'ü geçmiş ve hiç başlamamış oyuncuda kapalıdır. Durum GameState.SeenTips içinde.
     /// </summary>
@@ -78,6 +78,7 @@ namespace Pofi.Logic.App
             new GuideStep { Id = "gather", Counter = "hut_ready", Xp = 20,
                 AlreadyDone = s => s.Gather != null && (s.Gather.HutBuilt || Gathering.CanBuild(s.Gather)) },
             new GuideStep { Id = "hut", Counter = "hut_built", Xp = 10, AlreadyDone = s => s.Gather != null && s.Gather.HutBuilt },   // kulübe zaten 40 XP verir (Gathering.HutXp)
+            new GuideStep { Id = "fire", Counter = "fire_stoked", Xp = 10, AlreadyDone = s => s.Campfire != null && s.Campfire.Total > 0 },   // kamp ateşini harla (GB18)
             new GuideStep { Id = "board", Counter = "board_opened", Xp = 15 },
             new GuideStep { Id = "stone", Counter = "stone_placed", Xp = 30,
                 Ready = s => SunStoneBook.Available(s.SunStones) > 0, AlreadyDone = s => SunStoneBook.PlacedTotal(s.SunStones) > 0 },

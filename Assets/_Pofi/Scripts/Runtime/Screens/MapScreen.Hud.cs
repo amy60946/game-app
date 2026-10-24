@@ -508,6 +508,7 @@ namespace Pofi.Screens
                 case "coconut": return () => GuideWorld(g) is Vector2 c ? (Vector2)App.Stage.Camera.WorldToScreenPoint(_world.World(c.x, c.y) + Vector3.up * 0.8f) : RegionScreen("region_coconut_grove");
                 case "gather": return NearestGatherScreen;
                 case "hut": return () => App.Stage.Camera.WorldToScreenPoint(_world.World(_sitePos.x, _sitePos.z) + Vector3.up * 1.5f);
+                case "fire": return FireGuideScreen;
                 case "shop": return () => RegionScreen("region_shop");
                 default: return PetScreen;
             }
@@ -560,6 +561,7 @@ namespace Pofi.Screens
                 }
                 case "kiskac": case "deliver": return _kiskac != null ? KiskacPos : DoorOf("region_shop");
                 case "hut": return new Vector2(_sitePos.x, _sitePos.z);
+                case "fire": return FireGuideWorld();
                 case "shop": return DoorOf("region_shop");
                 default: return null;
             }
@@ -637,6 +639,7 @@ namespace Pofi.Screens
                 }
             }
             if (key == "hud.jump" && SpotAction(p, out var sact)) { key = "hud.place"; icon = "ui_sunstone"; act = sact; }
+            if (key == "hud.jump" && CampfireAction(p, out var fact)) { key = "hud.stoke"; icon = "mat_wood"; act = fact; }   // kamp ateşini harla (GB18)
             if (key == "hud.jump")
             {
                 // kapı önünde ya da yapının herhangi bir kenarına yakın → Gir / Oyna (kullanıcı, 19 Ekim 2026: illa kapıya

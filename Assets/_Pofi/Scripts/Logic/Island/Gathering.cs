@@ -5,7 +5,7 @@ using System.Linq;
 namespace Pofi.Logic.Island
 {
     /// <summary>Adada toplanabilir/işlenebilir nesne türü.</summary>
-    public enum GatherKind { Log, Bush, Rock, Coconut }
+    public enum GatherKind { Log, Bush, Rock, Coconut, BigLog }
 
     /// <summary>Haritadaki bir toplama noktası (yeri adadan belirlenimci).</summary>
     public sealed class GatherNode
@@ -57,6 +57,8 @@ namespace Pofi.Logic.Island
             new GatherRule { Kind = GatherKind.Bush, Tool = "hand", Hits = 1, Material = Branch, Yield = 2 },
             new GatherRule { Kind = GatherKind.Rock, Tool = "pickaxe", Hits = 2, Material = Stone, Yield = 1 },
             new GatherRule { Kind = GatherKind.Coconut, Tool = "hand", Hits = 1, Material = Coconut, Yield = 1 },
+            // büyük kütük (kullanıcı GB18): daha çok vuruş, daha çok odun
+            new GatherRule { Kind = GatherKind.BigLog, Tool = "axe", Hits = 6, Material = Wood, Yield = 5 },
         };
 
         /// <summary>Çantadaki malzeme mi (odun/dal/taş)? Hindistan cevizi malzeme değil, yiyecektir.</summary>
@@ -72,7 +74,7 @@ namespace Pofi.Logic.Island
         /// bulunamıyordu → 10 taş), hindistan cevizi yürüme yollarına yakın kumda; meydana yakın olanlar önce (çocuk hemen bulsun).
         /// Sıra (kütük, çalı, taş, ceviz) kayıttaki nokta numaralarını korur: yeni tür hep sona eklenir.
         /// </summary>
-        public static List<GatherNode> Place(IslandTerrain t, int logs = 5, int bushes = 6, int rocks = 10, int coconuts = 5)
+        public static List<GatherNode> Place(IslandTerrain t, int logs = 5, int bushes = 6, int rocks = 10, int coconuts = 5, int bigLogs = 3)
         {
             var list = new List<GatherNode>();
             var props = t.Props();
@@ -112,6 +114,7 @@ namespace Pofi.Logic.Island
             bool Beach(float x, float z) => t.SurfaceAt(x, z) == Surface.Sand && t.Height(x, z) < BeachTop;
             Scatter(GatherKind.Coconut, coconuts, (x, z) => Beach(x, z) && t.PathDistance(x, z) < IslandTerrain.PathHalfWidth + 6f);
             Scatter(GatherKind.Coconut, coconuts, Beach);
+            Scatter(GatherKind.BigLog, bigLogs, (x, z) => t.SurfaceAt(x, z) == Surface.Grass && t.Slope(x, z) < 0.35f);   // geniş, düzce çimen
             return list;
         }
 

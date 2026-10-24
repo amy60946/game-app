@@ -253,13 +253,35 @@ namespace Pofi.World
             var l = lgo.AddComponent<Light>();
             l.type = LightType.Point; l.color = new Color(1f, 0.58f, 0.25f); l.range = 7f * scale; l.intensity = 1.6f; l.shadows = LightShadows.None;
             var c = fire.gameObject.AddComponent<Campfire>(); c._light = l; c._base = l.intensity;
+            foreach (Transform ch in fire) if (ch.name == "flame") c._flames.Add((ch, ch.localScale));
+            Instance = c;
         }
+
+        /// <summary>Adadaki kamp ateşi (yoksa null).</summary>
+        public static Campfire Instance { get; private set; }
+
+        private float _boost, _heat;
+        private readonly List<(Transform T, Vector3 S)> _flames = new List<(Transform, Vector3)>();
+
+        /// <summary>Harla (GB18): alevler bir an büyür, ışık parlar; <paramref name="heat"/> 0..1 kalıcı coşku (saatler içinde söner).</summary>
+        public void Stoke(float heat)
+        {
+            _boost = 1f; _heat = Mathf.Clamp01(heat);
+        }
+
+        /// <summary>Kayıttan gelen coşku (adaya girerken).</summary>
+        public void SetHeat(float heat) => _heat = Mathf.Clamp01(heat);
+
+        private void OnDestroy() { if (Instance == this) Instance = null; }
 
         private void Update()
         {
             if (_light == null) return;
             var t = Time.time;
-            _light.intensity = _base * (0.82f + 0.12f * Mathf.Sin(t * 13f) + 0.08f * Mathf.Sin(t * 29f + 1.3f) + 0.06f * Mathf.PerlinNoise(t * 5f, 0.3f));
+            _boost = Mathf.MoveTowards(_boost, 0f, Time.deltaTime / 2.5f);
+            var grow = 1f + 0.35f * _heat + 0.9f * Mathf.Sin(Mathf.Clamp01(_boost) * Mathf.PI * 0.5f);   // harlayınca alev boyu
+            foreach (var (f, s0) in _flames) if (f != null) f.localScale = Vector3.Lerp(f.localScale, s0 * grow, Time.deltaTime * 6f);
+            _light.intensity = _base * (1f + 0.5f * _heat + 1.2f * _boost) * (0.82f + 0.12f * Mathf.Sin(t * 13f) + 0.08f * Mathf.Sin(t * 29f + 1.3f) + 0.06f * Mathf.PerlinNoise(t * 5f, 0.3f));
         }
 
         private static Mesh _flame;

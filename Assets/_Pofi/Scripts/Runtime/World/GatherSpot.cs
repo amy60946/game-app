@@ -36,6 +36,8 @@ namespace Pofi.World
             {
                 case GatherKind.Log: s._model = RealAssets.EnvFootprint("p_log", root, 1.6f, n.Yaw); s.Radius = 0.75f; s._chip = new Color(0.86f, 0.62f, 0.36f); break;
                 case GatherKind.Bush: s._model = RealAssets.EnvFootprint("p_bush", root, 1.3f, n.Yaw); s.Radius = 0.6f; s._chip = new Color(0.36f, 0.72f, 0.3f); break;
+                case GatherKind.BigLog:   // büyük kütük (GB18): iri, daha çok vuruş
+                    s._model = RealAssets.EnvFootprint("p_log", root, 2.8f, n.Yaw); s.Radius = 1.25f; s._chip = new Color(0.86f, 0.62f, 0.36f); break;
                 case GatherKind.Coconut:   // yerde hindistan cevizi (GB17): üstünden geçilir, engel değil
                     s._model = RealAssets.EnvFootprint("p_coconut", root, 0.75f, n.Yaw); s.Radius = 0f; s._chip = new Color(0.55f, 0.36f, 0.2f);
                     if (s._model == null) s._model = Nuts(root, n.Yaw);

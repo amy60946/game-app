@@ -32,6 +32,7 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual(6, a.Count(n => n.Kind == GatherKind.Bush));
             Assert.GreaterOrEqual(a.Count(n => n.Kind == GatherKind.Rock), 8, "kulübeye yetecek kadar taş (kullanıcı, 24 Ekim 2026)");
             Assert.GreaterOrEqual(a.Count(n => n.Kind == GatherKind.Coconut), 3, "yerde hindistan cevizi");
+            Assert.GreaterOrEqual(a.Count(n => n.Kind == GatherKind.BigLog), 2, "büyük kütük (GB18)");
             Assert.GreaterOrEqual(a.Count(n => n.Kind == GatherKind.Rock && IslandTerrain.Dist(n.X, n.Z, T.PlazaX, T.PlazaZ) < 22f), 3, "taşların bir kısmı meydana yakın");
             foreach (var n in a)
             {
@@ -40,6 +41,7 @@ namespace Pofi.Tests.Logic
                 var s = T.SurfaceAt(n.X, n.Z);
                 if (n.Kind == GatherKind.Rock) Assert.IsTrue(s == Surface.Sand || s == Surface.Rock || s == Surface.Grass);
                 else if (n.Kind == GatherKind.Coconut) { Assert.AreEqual(Surface.Sand, s); Assert.Less(T.Height(n.X, n.Z), Gathering.BeachTop, "ceviz kumsalda"); }
+                else if (n.Kind == GatherKind.BigLog) Assert.AreEqual(Surface.Grass, s);
                 else Assert.AreEqual(Surface.Grass, s);
                 Assert.Greater(T.FindPath(T.PlazaX, T.PlazaZ, n.X, n.Z).Count, 0, "meydandan ulaşılır");
             }
@@ -94,6 +96,33 @@ namespace Pofi.Tests.Logic
             Assert.IsTrue(Gathering.Lacking(s, Gathering.Stone));
             s.HutBuilt = true;
             Assert.IsFalse(Gathering.Lacking(s, Gathering.Stone));
+        }
+
+        [Test]
+        public void Buyuk_kutuk_daha_cok_vurulur_daha_cok_odun_verir()
+        {
+            var big = Gathering.Rule(GatherKind.BigLog); var log = Gathering.Rule(GatherKind.Log);
+            Assert.AreEqual("axe", big.Tool);
+            Assert.Greater(big.Hits, log.Hits);
+            Assert.Greater(big.Yield, log.Yield);
+            var s = new GatherState();
+            Assert.AreEqual(big.Yield, Gathering.Harvest(s, new GatherNode { Index = 40, Kind = GatherKind.BigLog }, Now));
+            Assert.AreEqual(big.Yield, Gathering.Count(s, Gathering.Wood));
+        }
+
+        [Test]
+        public void Kamp_atesi_iki_odunla_harlanir_gunde_uc_kez()
+        {
+            var g = new GatherState(); var c = new CampfireState();
+            Assert.AreEqual(CampfireRules.Check.NeedWood, CampfireRules.CanStoke(c, g, 10));
+            g.Materials[Gathering.Wood] = 9;
+            for (var i = 0; i < CampfireRules.MaxPerDay; i++) Assert.IsTrue(CampfireRules.Stoke(c, g, 10, Now));
+            Assert.AreEqual(9 - CampfireRules.MaxPerDay * CampfireRules.WoodPerStoke, Gathering.Count(g, Gathering.Wood));
+            Assert.AreEqual(CampfireRules.Check.DoneToday, CampfireRules.CanStoke(c, g, 10));
+            Assert.IsFalse(CampfireRules.Stoke(c, g, 10, Now));
+            Assert.AreEqual(CampfireRules.Check.Ok, CampfireRules.CanStoke(c, g, 11), "ertesi gün yeniden");
+            Assert.AreEqual(1f, CampfireRules.Heat(c, Now), 0.01f);
+            Assert.AreEqual(0f, CampfireRules.Heat(c, Now + CampfireRules.GlowTime), 0.01f, "saatler içinde söner");
         }
 
         [Test]

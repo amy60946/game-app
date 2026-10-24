@@ -70,6 +70,7 @@ namespace Pofi.Logic.State
         public Island.SparkleState Sparkles = new Island.SparkleState();
         public Island.EventState Events = new Island.EventState();
         public Island.GatherState Gather = new Island.GatherState();   // kütük/çalı/taş toplama + kulübe (Island/Gathering)
+        public Island.CampfireState Campfire = new Island.CampfireState();   // kamp ateşi harlama (Island/CampfireRules, GB18)
         public HashSet<string> HomeEffectsApplied = new HashSet<string>(); // ev eşyası etkisi bir kez (ilk yerleştirme)
         public bool StarterGiven;        // hoş geldin hediyesi verildi mi (App/StarterKit)
         public Island.SunStoneState SunStones = new Island.SunStoneState();   // Güneş Taşı (Ö1): kazanılan + yerleştirilen

@@ -603,6 +603,14 @@
     "rewards.intro_ok": "Anladım",
     "rewards.pick": "Bir ödüle dokun, sonra İste'ye bas!",
     "rewards.first_sent": "İlk isteğin ailene gitti! Onaylayınca sana haber gelir.",
-    "rewards.new_map": "Yeni: Gerçek ödüller! Dükkâna git."
+    "rewards.new_map": "Yeni: Gerçek ödüller! Dükkâna git.",
+    "guide.fire": "Kamp ateşine 2 odun götür, harla!",
+    "hud.stoke": "Harla",
+    "fire.need_wood": "Ateşi harlamak için {0} odun getir!",
+    "fire.done_today": "Ateş bugün harıl harıl yanıyor! Yarın yine gel.",
+    "fire.stoked": "Ateş harlandı! +{0} XP",
+    "gather.tip_biglog": "Kocaman kütük! Baltayla birkaç kez vur, çok odun verir.",
+    "gather.big_hit": "Bir daha! ({0}/{1})",
+    "info.campfire": "Kamp ateşi: 2 odun at, harla"
   }
 }

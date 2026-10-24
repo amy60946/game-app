@@ -37,7 +37,7 @@ namespace Pofi.Tests.Logic
         public void Sira_kullanicinin_akisi_ve_sayaclar_essiz()
         {
             CollectionAssert.AreEqual(
-                new[] { "feed", "wash", "home", "tidy", "play", "shop", "wear", "kiskac", "coconut", "deliver", "mavi", "gather", "hut", "board", "stone" },
+                new[] { "feed", "wash", "home", "tidy", "play", "shop", "wear", "kiskac", "coconut", "deliver", "mavi", "gather", "hut", "fire", "board", "stone" },
                 Guide.Steps.Select(x => x.Id).ToArray());
             Assert.AreEqual(Guide.Steps.Count, Guide.Steps.Select(x => x.Counter).Distinct().Count());
             Assert.That(Guide.Steps.All(x => x.Xp > 0));
@@ -113,6 +113,8 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual("hut", Guide.Current(s, 1).Id);
             Gathering.Build(s.Gather);
             Assert.AreEqual("hut", Do(s, "hut_built").Single().Id);
+            Assert.AreEqual("fire", Guide.Current(s, 1).Id, "kulübeden sonra kamp ateşi (GB18)");
+            Assert.AreEqual("fire", Do(s, "fire_stoked").Single().Id);
             Assert.AreEqual("board", Guide.Current(s, 1).Id);
         }
 
@@ -123,7 +125,7 @@ namespace Pofi.Tests.Logic
             s.Wallet.ServerCoins = 20;
             foreach (var c in new[] { "pet_fed", "pet_washed", "home_entered", "home_tidied", "pet_played" }) Do(s, c);
             BuyFirstWear(s);
-            foreach (var c in new[] { "kiskac_met", "coconuts_ready", "coconut_delivered", "mavi_arrived", "hut_ready", "hut_built", "board_opened" })
+            foreach (var c in new[] { "kiskac_met", "coconuts_ready", "coconut_delivered", "mavi_arrived", "hut_ready", "hut_built", "fire_stoked", "board_opened" })
                 Do(s, c);
             Assert.IsNull(Guide.Current(s, 1), "taş yok: gösterilecek adım yok");
             SunStoneBook.ApplyServerTotal(s.SunStones, 1);
@@ -159,7 +161,7 @@ namespace Pofi.Tests.Logic
             Do(s, "kiskac_met"); Do(s, "coconuts_ready");
             var r = Do(s, "coconut_delivered");
             Assert.AreEqual("deliver", r.Single().Id);
-            Assert.AreEqual("board", Guide.Current(s, 1).Id, "Mavi'yi görmüş, kulübesi yapılmış: o adımlar geçildi");
+            Assert.AreEqual("fire", Guide.Current(s, 1).Id, "Mavi'yi görmüş, kulübesi yapılmış: o adımlar geçildi");
         }
     }
 }

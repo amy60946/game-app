@@ -275,7 +275,8 @@ namespace Pofi.Screens
             // ilk yaklaşmada kısa ipucu (her alet için bir kez)
             if (_gTarget >= 0)
             {
-                var tool = _gNodes[_gTarget].Kind == GatherKind.Coconut ? "coconut" : Gathering.Rule(_gNodes[_gTarget].Kind).Tool;
+                var kind = _gNodes[_gTarget].Kind;
+                var tool = kind == GatherKind.Coconut ? "coconut" : kind == GatherKind.BigLog ? "biglog" : Gathering.Rule(kind).Tool;
                 var tipKey = "gather.tip_" + tool;   // gather.tip_axe / tip_hand / tip_pickaxe / tip_coconut
                 if (_gTipShown.Add(tool)) _toast.Say(T(tipKey));
             }
@@ -364,7 +365,12 @@ namespace Pofi.Screens
             Audio.Haptics.Medium();
             _gHits.TryGetValue(i, out var hits);
             hits++;
-            if (hits < rule.Hits) { _gHits[i] = hits; return; }
+            if (hits < rule.Hits)
+            {
+                _gHits[i] = hits;
+                if (rule.Hits > 3) _toast.Say(T("gather.big_hit", hits, rule.Hits));   // büyük kütük: kaçıncı vuruş (GB18)
+                return;
+            }
             _gHits.Remove(i);
             var got = Gathering.Harvest(st, n, App.UtcNow);
             spot.Vanish();

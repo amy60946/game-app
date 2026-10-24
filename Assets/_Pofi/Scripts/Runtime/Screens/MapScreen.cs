@@ -106,6 +106,7 @@ namespace Pofi.Screens
             BuildHereMarker();
             BuildBoardBalloon();
             BuildGather();   // kütük/çalı/taş + kulübe yeri, nesne üstü baloncuklar
+            BuildCampfire(); // kamp ateşinin coşkusu kayıttan (GB18)
 
             BuildHud();
             _toast = Bubble(new Vector2(0.5f, 0.66f));   // petin başının üstünde
