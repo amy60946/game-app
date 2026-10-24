@@ -100,6 +100,15 @@ namespace Pofi.Core
                     case "xp":
                         app.GrantXp(int.Parse(arg), XpSource.Achievement);
                         break;
+                    case "cam":         // kamera denemesi: cam <uzaklık çarpanı> <en az eğim°> <görüş eki°> <bakış yükselmesi m>
+                        {
+                            var c = arg.Split(' '); var ci = System.Globalization.CultureInfo.InvariantCulture;
+                            Screens.MapScreen.CamDistMul = float.Parse(c[0], ci);
+                            Screens.MapScreen.CamMinPitch = c.Length > 1 ? float.Parse(c[1], ci) : 0f;
+                            Screens.MapScreen.CamFovAdd = c.Length > 2 ? float.Parse(c[2], ci) : 0f;
+                            Screens.MapScreen.CamLookUp = c.Length > 3 ? float.Parse(c[3], ci) : 0f;
+                        }
+                        break;
                     case "grow":        // büyüme sahnesi denemesi (kayıt değişmez): grow genc | grow yetiskin
                         Object.FindAnyObjectByType<Screens.MapScreen>()?.PlayGrowUp(arg == "yetiskin" ? Logic.Progression.GrowthStage.Yetiskin : Logic.Progression.GrowthStage.Genc, null);
                         break;

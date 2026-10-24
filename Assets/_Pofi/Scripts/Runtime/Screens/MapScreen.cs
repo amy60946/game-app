@@ -270,11 +270,12 @@ namespace Pofi.Screens
             }
             _runBlend = Mathf.MoveTowards(_runBlend, running ? 1f : 0f, Time.deltaTime * 1.5f);
             var fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
-            var dist = Mathf.Lerp(4.3f, 4.6f, _runBlend) * Mathf.Max(0.85f, scale);   // pet kadrajda büyük (çocuğun odağı); durunca da geniş görüş
+            var dist = Mathf.Lerp(4.3f, 4.6f, _runBlend) * Mathf.Max(0.85f, scale) * CamDistMul;   // pet kadrajda büyük (çocuğun odağı); durunca da geniş görüş
             var pivot = p + Vector3.up * (hgt * 0.9f);
             look = p + Vector3.up * (hgt * 0.55f) + fwd * Mathf.Lerp(1.3f, 1.5f, _runBlend);   // pet baştan ayağa ekranın alt-ortasında (yakın kamerada ayaklar kesilmesin), önü görünür
             // çarpışma (yay-kol + bıyık): arkada bina/tepe varsa kamera önce yana döner (±30°…±90°) ve açık görüş arar;
             // yoksa biraz yükselir (30°, 45°); hâlâ kapalıysa yaklaşır ama petin içine girmez. Dönüş ve yükselme yumuşak.
+            if (CamMinPitch > 0f) _userPitch = Mathf.Max(_userPitch, CamMinPitch);
             float targetPitch = _userPitch, yawOff = 0f;
             var found = false;
             foreach (var p0 in BoomPitches)
@@ -297,8 +298,12 @@ namespace Pofi.Screens
             pos = pivot + dir * dist;
             var floor = _world.transform.TransformPoint(new Vector3(0f, _terrain.Height(pos.x - MapWorld.Origin.x, pos.z - MapWorld.Origin.z), 0f)).y + 0.8f;
             if (pos.y < floor) pos.y = floor;
-            fov = Mathf.Lerp(52f, 54f, _runBlend);   // durunca görüş daralmasın (kullanıcı geri bildirimi)
+            fov = Mathf.Lerp(52f, 54f, _runBlend) + CamFovAdd;   // durunca görüş daralmasın (kullanıcı geri bildirimi)
+            if (CamLookUp != 0f) look += Vector3.up * CamLookUp;
         }
+
+        /// <summary>Kamera denemesi (madde 14, ayıklama "cam"): uzaklık çarpanı, en az bakış yüksekliği, görüş açısı eki, bakış noktası yükselmesi.</summary>
+        public static float CamDistMul = 1f, CamMinPitch, CamFovAdd, CamLookUp;
 
         private static readonly float[] BoomPitches = { 20f, 30f, 45f };
         private static readonly float[] WhiskerYaws = { 0f, 30f, -30f, 60f, -60f, 90f, -90f };
