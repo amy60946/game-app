@@ -64,6 +64,88 @@ def _decimate(ob, target):
     return sum(len(p.vertices) - 2 for p in ob.data.polygons)
 
 
+def _cull_hidden(L, H, ndir=40, dist=400.0):
+    """Hedefte hiçbir yönden görünmeyen yüzleri siler: yüz merkezi ve köşelerinin (biraz içeri) her birinden, normal yarıküresinde
+    ndir ışın kaynağa (H) atılır; tüm noktalarda tüm ışınlar bir şeye çarpıyorsa yüz kapalıdır (üst terasın altındaki çim, bina içi
+    taban, gömülü kutu yüzleri). Tek ışın kaçarsa yüz kalır (ince aralıktan görünen yüz silinmez)."""
+    from mathutils.bvhtree import BVHTree
+    from mathutils import Vector as V
+    dg = bpy.context.evaluated_depsgraph_get()
+    bvh = BVHTree.FromObject(H, dg)
+    gold = math.pi * (3 - math.sqrt(5)); dirs = []
+    for i in range(ndir):                                   # Fibonacci yarıküresi; ilk yön normalin kendisi
+        z = 1.0 - i / ndir; r = math.sqrt(max(0.0, 1 - z * z)); a = i * gold
+        dirs.append((r * math.cos(a), r * math.sin(a), z))
+    bm = bmesh.new(); bm.from_mesh(L.data); bm.normal_update(); kill = []
+    for f in bm.faces:
+        n = f.normal
+        if n.length < 0.5: continue
+        t = n.orthogonal().normalized(); b = n.cross(t)
+        ws = [t * dx + b * dy + n * dz for (dx, dy, dz) in dirs]
+        c = f.calc_center_median()
+        hidden = True
+        for p in [c] + [v.co.lerp(c, 0.12) for v in f.verts]:
+            o = p + n * 0.025
+            for d in ws:
+                if bvh.ray_cast(o, d, dist)[0] is None: hidden = False; break
+            if not hidden: break
+        if hidden: kill.append(f)
+    bmesh.ops.delete(bm, geom=kill, context='FACES')
+    bm.to_mesh(L.data); bm.free(); L.data.update()
+    print('gizli yüz silindi', len(kill), flush=True)
+
+
+def _weight_islands(ob, attr):
+    """UV adalarını bulur (kenarda UV'leri eşleşen komşu yüzler) ve her adayı, yüzlerindeki en büyük katsayıyla kendi merkezinde
+    büyütür (paketleme sonra yerleştirir)."""
+    bm = bmesh.new(); bm.from_mesh(ob.data); uvl = bm.loops.layers.uv.active; wl = bm.faces.layers.float.get(attr)
+    bm.faces.ensure_lookup_table(); nf = len(bm.faces); par = list(range(nf))
+    def find(i):
+        while par[i] != i: par[i] = par[par[i]]; i = par[i]
+        return i
+    eps = 1e-5
+    for e in bm.edges:
+        ls = e.link_loops
+        if len(ls) != 2: continue
+        l1, l2 = ls
+        a1, b1 = l1[uvl].uv, l1.link_loop_next[uvl].uv; a2, b2 = l2[uvl].uv, l2.link_loop_next[uvl].uv
+        ok = ((a1 - b2).length < eps and (b1 - a2).length < eps) if l1.vert != l2.vert else ((a1 - a2).length < eps and (b1 - b2).length < eps)
+        if ok:
+            ra, rb = find(l1.face.index), find(l2.face.index)
+            if ra != rb: par[ra] = rb
+    isl = {}
+    for f in bm.faces: isl.setdefault(find(f.index), []).append(f)
+    for fs in isl.values():
+        w = max((f[wl] for f in fs), default=1.0) if wl is not None else 1.0
+        if w <= 0: w = 1.0
+        if abs(w - 1.0) < 1e-4: continue
+        uvs = [l[uvl].uv for f in fs for l in f.loops]
+        cx = sum(u.x for u in uvs) / len(uvs); cy = sum(u.y for u in uvs) / len(uvs)
+        for f in fs:
+            for l in f.loops:
+                u = l[uvl].uv; l[uvl].uv = (cx + (u.x - cx) * w, cy + (u.y - cy) * w)
+    bm.to_mesh(ob.data); bm.free()
+    print('uv adası', len(isl), flush=True)
+
+
+def _dilate(img, iters=16):
+    """Ada kenarından dışarı renk taşırma (her adımda boş pikseller dolu komşularının ortalaması). Blender'ın pişirme payı
+    (bake margin) bu yolda işlemiyordu: ada kenarındaki pikselin hemen yanı karaydı → oyunda süzme/mipmap ile kenarlarda
+    koyu dikiş ve benekler (24 Ekim 2026, tapınak karşılaştırması). Boş = pişirmenin hiç yazmadığı (tam sıfır) piksel."""
+    out = img.copy(); valid = img[..., :3].sum(-1) > 0
+    for _ in range(iters):
+        if valid.all(): break
+        acc = np.zeros_like(out); cnt = np.zeros(valid.shape, np.float32)
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                if dx == 0 and dy == 0: continue
+                v = np.roll(np.roll(valid, dy, 0), dx, 1)
+                acc += np.roll(np.roll(out, dy, 0), dx, 1) * v[..., None]; cnt += v
+        new = (~valid) & (cnt > 0)
+        out[new] = acc[new] / cnt[new][:, None]; valid |= new
+    return out
+
+
 def _emission_swap(mats):
     """Pişirme için: her malzemenin çıkışını taban rengi kaynağına bağlı bir Emission'a çevir (gerçek albedo, ışıksız)."""
     undo = []
@@ -90,10 +172,18 @@ def _emission_restore(undo):
 
 
 def export_proxy(path_noext, high, low=None, target=1500, size=1024, nsize=None, cage=0.03, ray=0.12,
-                 ao_strength=0.65, ao_dist=0.35, normal_strength=1.0, margin=8, ds_low=None, tone=1.0, fix_normals=False, uv_fn=None):
+                 ao_strength=0.65, ao_dist=0.35, normal_strength=1.0, margin=8, ds_low=None, tone=1.0, fix_normals=False, uv_fn=None,
+                 cull_hidden=False, uv_weight=None, reserve=0.0, extras=None, paint=None, dilate=0):
     """high: kaynak nesneler (taslak malzemeleriyle). low: hedef nesneler ya da None (kaynağın kopyası bütçeye indirilir).
     uv_fn(L): verilirse hedefin UV'sini o kurar (ör. palm_v2: hazır 'UVMap' + kendi yerleşimi); yoksa akıllı açılım.
-    Çıktı: <yol>.fbx, <yol>_basecolor.png (renk × yumuşak AO), <yol>_normal.png (teğet uzayı, OpenGL +Y). Üçgen sayısını döndürür."""
+    Çıktı: <yol>.fbx, <yol>_basecolor.png (renk × yumuşak AO), <yol>_normal.png (teğet uzayı, OpenGL +Y). Üçgen sayısını döndürür.
+    Büyük çok parçalı yapılar (tapınak, 24 Ekim 2026) için:
+      cull_hidden: hiçbir yönden görünmeyen hedef yüzleri (üst terasın altında kalan çim, bina içi taban…) silinir → doku boşa gitmez;
+      uv_weight: yüz niteliği (FLOAT) adı — UV adası bu katsayıyla büyütülür (fener, basamak ayrıntılı; saçak altı az), adalar
+                 sıkı paketlenir (pack_islands; eski smart_project paketlemesi binlerce küçük adada dokunun ~%75'ini boş bırakıyordu);
+      reserve: UV'nin üst şeridi (oran) boş bırakılır — 3B çim/çiçek telleri buradaki renk örneklerini kullanır (paint doldurur);
+      extras(L) → pişirmeden SONRA modele katılan nesneler (kendi UV'leriyle); paint(lin, nrm) → doku dizileri kaydedilmeden önce;
+      dilate: ada kenarından dışarı kaç piksel renk taşırılsın (_dilate; Blender'ın pişirme payı burada işlemiyordu)."""
     size = int(os.environ.get('POFI_TEX', '0') or 0) or size; nsize = nsize or size
     sc = bpy.context.scene; sc.render.engine = 'CYCLES'; sc.cycles.device = 'CPU'; sc.cycles.samples = 32
     if sc.world is None: sc.world = bpy.data.worlds.new('w')
@@ -107,6 +197,7 @@ def export_proxy(path_noext, high, low=None, target=1500, size=1024, nsize=None,
         # kapalı katı modeller (kütük, kök): parça parça dışa bakan normaller. Taslak iki yüzlü çizildiği için ters yüzler görünmüyordu;
         # oyun arka yüzleri çizmez → kütük kapağı/kabuğu oyuk görünüyordu
         b2 = bmesh.new(); b2.from_mesh(L.data); bmesh.ops.recalc_face_normals(b2, faces=b2.faces); b2.to_mesh(L.data); b2.free()
+    if cull_hidden: _cull_hidden(L, H)
     tris = _decimate(L, target)
     # UV: yalnız hedefte
     bpy.ops.object.select_all(action='DESELECT'); L.select_set(True); bpy.context.view_layer.objects.active = L
@@ -116,8 +207,19 @@ def export_proxy(path_noext, high, low=None, target=1500, size=1024, nsize=None,
         for l in list(L.data.uv_layers): L.data.uv_layers.remove(l)
         uv = L.data.uv_layers.new(name='UVMap'); L.data.uv_layers.active = uv
         bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
-        bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.006, area_weight=0.0, scale_to_bounds=True)
-        bpy.ops.object.mode_set(mode='OBJECT')
+        if uv_weight:
+            sc.tool_settings.use_uv_select_sync = True
+            bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.0, area_weight=0.0, correct_aspect=True, scale_to_bounds=False)
+            bpy.ops.object.mode_set(mode='OBJECT'); _weight_islands(L, uv_weight)
+            bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.uv.pack_islands(rotate=True, rotate_method='ANY', scale=True, margin_method='FRACTION', margin=0.0012, shape_method='CONCAVE')
+            bpy.ops.object.mode_set(mode='OBJECT')
+            if reserve:
+                uvd = np.empty(len(L.data.loops) * 2, np.float32); L.data.uv_layers['UVMap'].data.foreach_get('uv', uvd)
+                uvd[1::2] *= (1.0 - reserve); L.data.uv_layers['UVMap'].data.foreach_set('uv', uvd)
+        else:
+            bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.006, area_weight=0.0, scale_to_bounds=True)
+            bpy.ops.object.mode_set(mode='OBJECT')
     bm = bpy.data.materials.new('bake'); bm.use_nodes = True; L.data.materials.append(bm)
     tex = bm.node_tree.nodes.new('ShaderNodeTexImage'); bm.node_tree.nodes.active = tex
     # hedef ağ kaynağın üstünde/içinde durur: oyuk gölgesi (AO) ışınları ona çarpıp her yeri karartmasın
@@ -142,15 +244,17 @@ def export_proxy(path_noext, high, low=None, target=1500, size=1024, nsize=None,
             bpy.ops.object.bake(type='NORMAL')
         return np.array(img.pixels[:], np.float32).reshape(sz, sz, 4)
     col = run('col', size); ao = run('ao', size); nrm = run('nrm', nsize, 'Non-Color')
+    if dilate: col, ao, nrm = _dilate(col, dilate), _dilate(ao, dilate), _dilate(nrm, dilate)
     from PIL import Image
     a = 1.0 - ao_strength * (1.0 - ao[..., :1])
     lin = np.clip(col[..., :3] * a, 0, 1)
     if tone != 1.0: lin = np.power(lin, tone)          # >1: orta tonlar koyulaşır (soluk kaya oyunda saydam gibi görünüyordu)
-    srgb = np.where(lin <= 0.0031308, lin * 12.92, 1.055 * np.power(lin, 1 / 2.4) - 0.055)
-    Image.fromarray((np.clip(srgb, 0, 1) * 255).astype(np.uint8)[::-1]).save(path_noext + '_basecolor.png', optimize=True)
     n = nrm[..., :3] * 2 - 1
     if normal_strength != 1.0:
         n[..., :2] *= normal_strength; n /= np.maximum(np.linalg.norm(n, axis=-1, keepdims=True), 1e-6)
+    if paint: paint(lin, n)
+    srgb = np.where(lin <= 0.0031308, lin * 12.92, 1.055 * np.power(np.maximum(lin, 0), 1 / 2.4) - 0.055)
+    Image.fromarray((np.clip(srgb, 0, 1) * 255).astype(np.uint8)[::-1]).save(path_noext + '_basecolor.png', optimize=True)
     Image.fromarray((np.clip(n * 0.5 + 0.5, 0, 1) * 255).astype(np.uint8)[::-1]).save(path_noext + '_normal.png', optimize=True)
     # iki yüzlü kenar yaprakları: arka yüz (aynı UV, ters yön) eklenir
     if ds_low and 'ds' in L.data.attributes:
@@ -160,9 +264,16 @@ def export_proxy(path_noext, high, low=None, target=1500, size=1024, nsize=None,
             res = bmesh.ops.duplicate(b2, geom=faces); nf = [g for g in res['geom'] if isinstance(g, bmesh.types.BMFace)]
             bmesh.ops.reverse_faces(b2, faces=nf); b2.normal_update()
         b2.to_mesh(L.data); b2.free()
-    for k in [k for k in L.data.attributes.keys() if k in ('ds', 'ocoord', 'gcoord')]: L.data.attributes.remove(L.data.attributes[k])
+    for k in [k for k in L.data.attributes.keys() if k in ('ds', 'ocoord', 'gcoord', uv_weight)]: L.data.attributes.remove(L.data.attributes[k])
     for ca in list(L.data.color_attributes): L.data.color_attributes.remove(ca)
     L.data.materials.clear()
+    if extras:
+        objs = [o for o in extras(L, H) if o is not None]
+        if objs:
+            bpy.ops.object.select_all(action='DESELECT')
+            for o in objs: o.select_set(True)
+            L.select_set(True); bpy.context.view_layer.objects.active = L; bpy.ops.object.join()
+            L = bpy.context.view_layer.objects.active; L.data.materials.clear()
     bpy.data.objects.remove(H)
     bpy.ops.object.select_all(action='DESELECT'); L.select_set(True); bpy.context.view_layer.objects.active = L
     bpy.ops.export_scene.fbx(filepath=path_noext + '.fbx', use_selection=True, apply_scale_options='FBX_SCALE_ALL',

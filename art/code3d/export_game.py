@@ -36,7 +36,7 @@ ASSETS = {
     'p_bush': ('assets_v3.py', 'c_bush', 1800, 512),
     'p_flowers': ('assets_v3.py', 'c_flowers', 1100, 512),
     'p_fence': ('assets_town.py', 'c_fence', 2500, 512),
-    'p_lantern': ('assets_town.py', 'c_lantern', 1800, 512),
+    'p_lantern': ('assets_town.py', 'c_lantern', 3600, 512),   # 24 Ekim 2026: 1800'de cam önü çubukları, kelepçe ve kanca eriyordu
     'p_sign': ('assets_town.py', 'c_sign', 2000, 512),
     'p_crates': ('assets_town.py', 'c_crates', 4000, 512),
     'p_boat': ('assets_town.py', 'c_boat', 3500, 512),

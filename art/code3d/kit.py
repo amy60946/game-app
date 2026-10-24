@@ -227,6 +227,22 @@ def ramp(nt, stops, interp='LINEAR'):
     for e, (pos, hexc) in zip(el, stops): e.position = pos; e.color = srgb(hexc)
     return r
 
+def dilate_islands(img, iters=12):
+    """Pişmiş dokuda boş (tam sıfır) pikselleri, dolu komşularının ortalamasıyla adım adım doldurur (ada kenarından dışarı taşma)."""
+    import numpy as np
+    out = img.copy(); valid = img[..., :3].sum(-1) > 0
+    for _ in range(iters):
+        if valid.all(): break
+        acc = np.zeros_like(out); cnt = np.zeros(valid.shape, out.dtype)
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                if dx == 0 and dy == 0: continue
+                v = np.roll(np.roll(valid, dy, 0), dx, 1)
+                acc += np.roll(np.roll(out, dy, 0), dx, 1) * v[..., None]; cnt += v
+        new = (~valid) & (cnt > 0)
+        out[new] = acc[new] / cnt[new][:, None]; valid |= new
+    return out
+
 def export_baked_fbx(path_noext, objs, size=1024, ao_strength=0.6, ao_dist=0.35, margin=6, decimate=None):
     size = int(os.environ.get('POFI_TEX', '0') or 0) or size
     import numpy as np
@@ -281,6 +297,9 @@ def export_baked_fbx(path_noext, objs, size=1024, ao_strength=0.6, ao_dist=0.35,
         return np.array(img.pixels[:]).reshape(size, size, 4)
     if sc.world is None: sc.world = bpy.data.worlds.new('w')
     col = bake('col'); ao = bake('ao')
+    # bu bpy sürümünde pişirme payı (margin) uygulanmıyor: ada kenarının hemen yanı kara kalıyordu → oyunda süzme/mipmap ile koyu
+    # dikiş. Ada renkleri dışarı taşırılır (24 Ekim 2026)
+    col, ao = dilate_islands(col, 12), dilate_islands(ao, 12)
     a = ao[..., :1]
     a = 1.0 - ao_strength * (1.0 - a)            # yumuşak: tam siyaha inmez
     out = col.copy(); out[..., :3] = col[..., :3] * a

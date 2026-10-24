@@ -55,11 +55,8 @@ def roof(name, cx, cy, z, w, d, h, over=0.9, curl=0.6, ridge=0.45, tile='terra',
     for j in range(n + 1):
         for i in range(n + 1):
             u = -1 + 2 * i / n; v = -1 + 2 * j / n; p, t, ax, ay = surf(u, v); V_.append(tuple(p))
-            side = ay >= (ax - rr) / (1 - rr)                               # ön/arka yamaç mı
-            coord = u * W if side else v * D
-            g = 0.5 + 0.5 * math.cos(coord / 0.32 * math.tau)
             c = base * (0.92 + 0.12 * MN.noise(V((u * 9, v * 9, 3))))
-            c = c + (groove - c) * (g ** 6) * 0.9 + (lite - c) * max(0, 1 - g * 3) * 0.0
+            # kiremit sıraları gölgelendiricide (roof_mat geo): köşe rengindeki oluk çizgisi seyrek köşelerde örtüşüp siliniyordu
             c = c + (lite - c) * 0.25 * (1 - t)
             C_.append(c)
     for j in range(n):
@@ -78,10 +75,10 @@ def roof(name, cx, cy, z, w, d, h, over=0.9, curl=0.6, ridge=0.45, tile='terra',
     for p in edge: V_.append(tuple(p - V((0, 0, 0.28)))); C_.append(c3('#3a1c14'))
     m4 = 4 * n
     for k in range(m4):
-        a = b0 + k; b = b0 + (k + 1) % m4; F_.append((a, b, b + m4, a + m4))
+        a = b0 + k; b = b0 + (k + 1) % m4; F_.append((a, a + m4, b + m4, b))          # dışa bakan (oyun arka yüzü çizmez)
     ctr = len(V_); V_.append((cx, cy, z - 0.1)); C_.append(c3('#2e1812'))
     for k in range(m4): F_.append((b0 + m4 + (k + 1) % m4, b0 + m4 + k, ctr))
-    o = mesh_obj(name, V_, F_, mat or roof_mat(name + '_m'), colors=np.array(C_), col=col)
+    o = mesh_obj(name, V_, F_, mat or roof_mat(name + '_m', geo=(cx, cy, W, D, rr)), colors=np.array(C_), col=col)
     # sırtlar
     rm = vmat(name + '_r', 0.5, 0.1)
     rpts = [surf(u, 0)[0] + V((0, 0, 0.12)) for u in np.linspace(-rr, rr, 8)]
@@ -123,30 +120,136 @@ def _ao_edge(N, L, ao_dist=0.6, edge_r=0.03):
     dt = N.new('ShaderNodeVectorMath'); dt.operation = 'DOT_PRODUCT'; L.new(bv.outputs[0], dt.inputs[0]); L.new(geo.outputs['Normal'], dt.inputs[1])
     return ao.outputs['AO'], _mr(N, L, dt.outputs['Value'], 0.995, 0.9)
 
+def _noise(N, L, vec, scale, detail=4.0, rough=0.5):
+    n = N.new('ShaderNodeTexNoise'); n.inputs['Scale'].default_value = scale; n.inputs['Detail'].default_value = detail
+    n.inputs['Roughness'].default_value = rough; L.new(vec, n.inputs['Vector']); return n.outputs['Fac']
+def _voro(N, L, vec, scale, feature='F1', rnd=1.0):
+    v = N.new('ShaderNodeTexVoronoi'); v.feature = feature; v.inputs['Scale'].default_value = scale; v.inputs['Randomness'].default_value = rnd
+    L.new(vec, v.inputs['Vector']); return v
+def _stretch(N, L, vec, sx, sy, sz):
+    mp = N.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (sx, sy, sz); L.new(vec, mp.inputs[0]); return mp.outputs[0]
+
 def plaster_mat(name, z0, hgt):
-    """Sıva: köşe rengi + yukarıdan inen yağmur izleri (z'de uzamış gürültü), dipte toprak/kir sıçraması, yer yer dökülmüş sıva
-    altından tuğla tonu, oyuklarda AO koyuluğu; ince sıva tümseği."""
+    """Sıva (eskitilmiş, 24 Ekim 2026 güçlendirildi): köşe rengi + saçaktan inen yağmur izleri (iri + ince damla izi), dipte toprak
+    sıçraması ve yeşil-koyu yosun/su lekesi, yer yer dökülmüş sıva altından tuğla (kenarında koyu kırık dudağı), ince sıva beneği,
+    oyuklarda AO koyuluğu; sıva tümseği."""
     m, b = None, None
     m = bpy.data.materials.new(name); m.use_nodes = True; N, L = _nodes(m); b = N['Principled BSDF']
     vc = N.new('ShaderNodeVertexColor'); vc.layer_name = 'Col'; tc = N.new('ShaderNodeTexCoord'); sep = N.new('ShaderNodeSeparateXYZ'); L.new(tc.outputs['Object'], sep.inputs[0])
-    mp = N.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (2.2, 2.2, 0.25); L.new(tc.outputs['Object'], mp.inputs[0])
-    st = N.new('ShaderNodeTexNoise'); st.inputs['Scale'].default_value = 2.5; st.inputs['Detail'].default_value = 4; L.new(mp.outputs[0], st.inputs['Vector'])
-    rel = _mr(N, L, sep.outputs['Z'], z0 + hgt, z0 + hgt * 0.35)              # tepeden aşağı izler incelir
-    streak = _math(N, L, 'MULTIPLY', _mr(N, L, st.outputs['Fac'], 0.52, 0.68), rel)
-    c = _mix(N, L, _math(N, L, 'MULTIPLY', streak, 0.45), vc.outputs['Color'], srgb('#6e6152') + (1,))
-    dirt = _mr(N, L, sep.outputs['Z'], z0 + 0.9, z0 + 0.05)
-    dn = N.new('ShaderNodeTexNoise'); dn.inputs['Scale'].default_value = 9; dn.inputs['Detail'].default_value = 5; L.new(tc.outputs['Object'], dn.inputs['Vector'])
-    c = _mix(N, L, _math(N, L, 'MULTIPLY', dirt, _mr(N, L, dn.outputs['Fac'], 0.3, 0.7, 0.35, 0.8)), c, srgb('#5a4b3a') + (1,))
-    pn = N.new('ShaderNodeTexNoise'); pn.inputs['Scale'].default_value = 1.6; pn.inputs['Detail'].default_value = 6; L.new(tc.outputs['Object'], pn.inputs['Vector'])
-    chip = _math(N, L, 'MULTIPLY', _mr(N, L, pn.outputs['Fac'], 0.71, 0.73), 0.85)
+    ob = tc.outputs['Object']
+    st = _noise(N, L, _stretch(N, L, ob, 2.2, 2.2, 0.25), 2.5, 4)
+    rel = _mr(N, L, sep.outputs['Z'], z0 + hgt, z0 + hgt * 0.3)              # tepeden aşağı izler incelir
+    streak = _math(N, L, 'MULTIPLY', _mr(N, L, st, 0.5, 0.66), rel)
+    drip = _math(N, L, 'MULTIPLY', _mr(N, L, _noise(N, L, _stretch(N, L, ob, 9.0, 9.0, 0.45), 2.0, 3), 0.6, 0.7), _mr(N, L, sep.outputs['Z'], z0 + hgt, z0 + hgt * 0.55))
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', _math(N, L, 'MAXIMUM', streak, drip), 0.6), vc.outputs['Color'], srgb('#6a5e50') + (1,))
+    # ince sıva beneği (yakından düz boya görünmesin)
+    c = _mix(N, L, _mr(N, L, _noise(N, L, ob, 22.0, 6, 0.65), 0.3, 0.7, 0.0, 0.16), c, srgb('#a89c88') + (1,))
+    dirt = _mr(N, L, sep.outputs['Z'], z0 + 1.0, z0 + 0.05)
+    dn = _noise(N, L, ob, 9, 5)
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', dirt, _mr(N, L, dn, 0.3, 0.7, 0.35, 0.85)), c, srgb('#5a4b3a') + (1,))
+    # dipte su/yosun lekesi (yerden 0–45 cm, öbek öbek)
+    alg = _math(N, L, 'MULTIPLY', _mr(N, L, sep.outputs['Z'], z0 + 0.5, z0 + 0.05), _mr(N, L, _noise(N, L, ob, 3.0, 4), 0.42, 0.62))
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', alg, 0.65), c, srgb('#4d5a30') + (1,))
+    pn = _noise(N, L, ob, 1.6, 6)
+    chip = _math(N, L, 'MULTIPLY', _mr(N, L, pn, 0.685, 0.70), 0.9)
+    lip = _math(N, L, 'SUBTRACT', _mr(N, L, pn, 0.665, 0.685), chip)        # dökülmenin kenarı: kalın sıva gölgesi
     br = N.new('ShaderNodeTexBrick'); br.inputs['Scale'].default_value = 3.0; br.inputs['Color1'].default_value = srgb('#a4573f') + (1,); br.inputs['Color2'].default_value = srgb('#8a4632') + (1,); br.inputs['Mortar'].default_value = srgb('#b8a48a') + (1,)
-    br.inputs['Mortar Size'].default_value = 0.02; L.new(tc.outputs['Object'], br.inputs['Vector'])
+    br.inputs['Mortar Size'].default_value = 0.02; L.new(ob, br.inputs['Vector'])
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', lip, 0.55), c, srgb('#6b5a48') + (1,))
     c = _mix(N, L, chip, c, br.outputs['Color'])
     ao, edge = _ao_edge(N, L, 0.8)
-    c = _mix(N, L, _mr(N, L, ao, 0.2, 1.0, 0.55, 0.0), c, srgb('#3a2e28') + (1,))
+    c = _mix(N, L, _mr(N, L, ao, 0.2, 1.0, 0.6, 0.0), c, srgb('#3a2e28') + (1,))
     L.new(c, b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.9
-    bump = N.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.35; bump.inputs['Distance'].default_value = 0.02
-    L.new(_math(N, L, 'ADD', dn.outputs['Fac'], _math(N, L, 'MULTIPLY', chip, -1.5)), bump.inputs['Height']); L.new(bump.outputs['Normal'], b.inputs['Normal'])
+    bump = N.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.4; bump.inputs['Distance'].default_value = 0.02
+    L.new(_math(N, L, 'ADD', dn, _math(N, L, 'MULTIPLY', chip, -1.5)), bump.inputs['Height']); L.new(bump.outputs['Normal'], b.inputs['Normal'])
+    return m
+
+def aged_stone_mat(name, moss=0.4, worn=None, lichen=0.35, scale=1.0, bump=0.45):
+    """Yontulmuş taş (basamak, döşeme plakası, sütun tabanı; 24 Ekim 2026): köşe rengi × benek ve granit noktası; derzlerde/oyuklarda
+    yosun + kir (AO), kenarlarda kırık (taze açık taş), likenler (soluk sarı-gri, ara ara turuncu). worn=(eksen 'X'|'Y', merkez,
+    yarı genişlik): basamağın ortası ayakla aşınmış — daha açık, düz."""
+    m = bpy.data.materials.new(name); m.use_nodes = True; N, L = _nodes(m); b = N['Principled BSDF']
+    vc = N.new('ShaderNodeVertexColor'); vc.layer_name = 'Col'; tc = N.new('ShaderNodeTexCoord'); ob = tc.outputs['Object']
+    sep = N.new('ShaderNodeSeparateXYZ'); L.new(ob, sep.inputs[0])
+    n1 = _noise(N, L, ob, 5.0 * scale, 8, 0.6)
+    c = _mix(N, L, _mr(N, L, n1, 0.5, 0.72, 0.0, 0.4), vc.outputs['Color'], (0.55, 0.53, 0.5, 1), 'MULTIPLY')
+    c = _mix(N, L, _mr(N, L, n1, 0.45, 0.25, 0.0, 0.3), c, srgb('#e6dccb') + (1,))
+    gr = _voro(N, L, ob, 45.0 * scale)
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', _mr(N, L, gr.outputs['Distance'], 0.12, 0.05), 0.35), c, srgb('#5d5650') + (1,))
+    if worn:
+        ax, cen, hw = worn
+        d = _math(N, L, 'ABSOLUTE', _math(N, L, 'SUBTRACT', sep.outputs[ax], cen))
+        wf = _math(N, L, 'MULTIPLY', _mr(N, L, d, hw, hw * 0.35), _mr(N, L, _noise(N, L, ob, 1.4, 3), 0.3, 0.6, 0.6, 1.0))
+        c = _mix(N, L, _math(N, L, 'MULTIPLY', wf, 0.4), c, srgb('#ddd2bd') + (1,))
+    ao, edge = _ao_edge(N, L, 0.25, 0.02)
+    chipn = _noise(N, L, ob, 7.0 * scale, 4)
+    chip = _math(N, L, 'MULTIPLY', edge, _mr(N, L, chipn, 0.5, 0.62))
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', chip, 0.75), c, srgb('#ece4d4') + (1,))
+    # dik yüzlerde (rıht, plaka kenarı) aşağı akmış su/kir izi
+    gn = N.new('ShaderNodeNewGeometry'); gs = N.new('ShaderNodeSeparateXYZ'); L.new(gn.outputs['Normal'], gs.inputs[0])
+    vert = _mr(N, L, _math(N, L, 'ABSOLUTE', gs.outputs['Z']), 0.6, 0.2)
+    stn = _mr(N, L, _noise(N, L, _stretch(N, L, ob, 6.0 * scale, 6.0 * scale, 0.8), 2.0, 4), 0.45, 0.68)
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', _math(N, L, 'MULTIPLY', vert, stn), 0.5), c, srgb('#5e5446') + (1,))
+    lv = _voro(N, L, ob, 7.0 * scale)
+    lmask = _math(N, L, 'MULTIPLY', _mr(N, L, lv.outputs['Distance'], 0.22, 0.1), _mr(N, L, _noise(N, L, ob, 2.0, 3), 0.42, 0.58))
+    lcol = _mix(N, L, _mr(N, L, lv.outputs['Color'], 0.8, 0.85), srgb('#c9c49e') + (1,), srgb('#c98a42') + (1,))
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', lmask, lichen * 2.0), c, lcol)
+    crev = _mr(N, L, ao, 0.85, 0.35)
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', crev, 0.45), c, srgb('#4a4036') + (1,))
+    mz = _mr(N, L, _noise(N, L, ob, 4.0, 4), 0.38, 0.58)
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', _math(N, L, 'MULTIPLY', crev, mz), moss * 1.6), c, srgb('#5a7a30') + (1,))
+    c = _mix(N, L, _mr(N, L, ao, 0.25, 1.0, 0.5, 0.0), c, srgb('#2e2822') + (1,))
+    L.new(c, b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.88
+    bn = N.new('ShaderNodeBump'); bn.inputs['Strength'].default_value = bump; bn.inputs['Distance'].default_value = 0.015
+    L.new(_math(N, L, 'ADD', n1, _math(N, L, 'MULTIPLY', chip, -0.8)), bn.inputs['Height']); L.new(bn.outputs['Normal'], b.inputs['Normal'])
+    return m
+
+def meadow_mat(name):
+    """Teras üstü çimen (24 Ekim 2026, adanın zemin tonunda): iri öbekler (gür yeşil ↔ kuru sarımsı), orta benek, tel tel çim
+    vuruşları (iki ölçekte voronoi hücresi), koyu yonca öbekleri, seyrek beyaz/sarı/mavi çiçek noktaları, kenar ve dipte AO
+    koyuluğu; çim tümseği. Yakında 3B çim öbekleri ve çiçekler ayrıca var."""
+    m = bpy.data.materials.new(name); m.use_nodes = True; N, L = _nodes(m); b = N['Principled BSDF']
+    tc = N.new('ShaderNodeTexCoord'); ob = tc.outputs['Object']
+    big = _noise(N, L, ob, 0.35, 3)
+    c = _mix(N, L, _mr(N, L, big, 0.35, 0.75, 0.0, 0.7), srgb('#527c38') + (1,), srgb('#7f9446') + (1,))
+    mid = _noise(N, L, ob, 2.6, 6, 0.6)
+    c = _mix(N, L, _mr(N, L, mid, 0.3, 0.7, 0.0, 0.5), c, (0.62, 0.66, 0.55, 1), 'MULTIPLY')
+    v1 = _voro(N, L, _stretch(N, L, ob, 1.0, 1.0, 1.0), 30.0)
+    c = _mix(N, L, _mr(N, L, v1.outputs['Color'], 0.0, 1.0, 0.0, 0.45), c, srgb('#9fb860') + (1,))
+    v2 = _voro(N, L, ob, 75.0)
+    c = _mix(N, L, _mr(N, L, v2.outputs['Distance'], 0.05, 0.3, 0.45, 0.0), c, srgb('#2f5222') + (1,))
+    clo = _math(N, L, 'MULTIPLY', _mr(N, L, _noise(N, L, ob, 1.5, 3), 0.58, 0.66), _mr(N, L, _noise(N, L, ob, 9.0, 2), 0.45, 0.6))
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', clo, 0.55), c, srgb('#3a6a2a') + (1,))
+    fl = _voro(N, L, ob, 13.0)
+    dot = _math(N, L, 'MULTIPLY', _mr(N, L, fl.outputs['Distance'], 0.07, 0.035), _mr(N, L, _noise(N, L, ob, 0.8, 2), 0.5, 0.62))
+    fcol = _mix(N, L, _mr(N, L, fl.outputs['Color'], 0.55, 0.6), srgb('#f4f1e2') + (1,), srgb('#f2cd4a') + (1,))
+    fcol = _mix(N, L, _mr(N, L, fl.outputs['Color'], 0.85, 0.9), fcol, srgb('#5a62d8') + (1,))
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', dot, 0.9), c, fcol)
+    ao, edge = _ao_edge(N, L, 0.7)
+    c = _mix(N, L, _mr(N, L, ao, 0.3, 1.0, 0.45, 0.0), c, srgb('#24361a') + (1,))
+    L.new(c, b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.92
+    bn = N.new('ShaderNodeBump'); bn.inputs['Strength'].default_value = 0.5; bn.inputs['Distance'].default_value = 0.02
+    L.new(_math(N, L, 'ADD', mid, v2.outputs['Distance']), bn.inputs['Height']); L.new(bn.outputs['Normal'], b.inputs['Normal'])
+    return m
+
+def tile_cap_mat(name, axis='X'):
+    """Duvar başlığı kiremidi: köşe rengi + duvar boyunca 25 cm'de bir yuvarlak örtü kiremidi (kabartma), aralarda koyu oluk ve
+    yosun, likenler."""
+    m = bpy.data.materials.new(name); m.use_nodes = True; N, L = _nodes(m); b = N['Principled BSDF']
+    vc = N.new('ShaderNodeVertexColor'); vc.layer_name = 'Col'; tc = N.new('ShaderNodeTexCoord'); ob = tc.outputs['Object']
+    sep = N.new('ShaderNodeSeparateXYZ'); L.new(ob, sep.inputs[0])
+    cf = _math(N, L, 'FRACT', _math(N, L, 'DIVIDE', sep.outputs[axis], 0.25))
+    dd = _math(N, L, 'ABSOLUTE', _math(N, L, 'SUBTRACT', cf, 0.5))
+    cov = _mr(N, L, dd, 0.2, 0.12)
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', _math(N, L, 'SUBTRACT', 1.0, cov), 0.45), vc.outputs['Color'], srgb('#3c1d16') + (1,))
+    c = _mix(N, L, _mr(N, L, _noise(N, L, ob, 5.0, 5), 0.4, 0.7, 0.0, 0.25), c, srgb('#c98466') + (1,))
+    mz = _math(N, L, 'MULTIPLY', _math(N, L, 'SUBTRACT', 1.0, cov), _mr(N, L, _noise(N, L, ob, 2.5, 4), 0.45, 0.6))
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', mz, 0.7), c, srgb('#56702e') + (1,))
+    lv = _voro(N, L, ob, 18.0)
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', _mr(N, L, lv.outputs['Distance'], 0.12, 0.05), 0.5), c, srgb('#c4bf9a') + (1,))
+    L.new(c, b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.6
+    bn = N.new('ShaderNodeBump'); bn.inputs['Strength'].default_value = 0.6; bn.inputs['Distance'].default_value = 0.04
+    L.new(cov, bn.inputs['Height']); L.new(bn.outputs['Normal'], b.inputs['Normal'])
     return m
 
 def wood_mat(name, paint=None, grain_axis='Z', scale=3.0, age=0.5):
@@ -166,6 +269,12 @@ def wood_mat(name, paint=None, grain_axis='Z', scale=3.0, age=0.5):
     wear = _math(N, L, 'MAXIMUM', _math(N, L, 'MULTIPLY', edge, 0.9), _mr(N, L, sc.outputs['Fac'], 0.68 - 0.1 * age, 0.72 - 0.1 * age))
     if paint:
         pc = _mix(N, L, _mr(N, L, sc.outputs['Fac'], 0.3, 0.7), srgb(paint) + (1,), tuple(x * 0.82 for x in srgb(paint)) + (1,))
+        # güneşte solmuş boya: damar yönünde uzamış açık/soluk şeritler (24 Ekim 2026)
+        fade = _mr(N, L, _noise(N, L, mp.outputs[0], 1.2, 4), 0.42, 0.68)
+        pc = _mix(N, L, _math(N, L, 'MULTIPLY', fade, 0.42 * (0.5 + age)), pc, tuple(0.55 * x + 0.45 * y for x, y in zip(srgb(paint), srgb('#d9b9a6'))) + (1,))
+        # ince boya çatlağı (kılcal ağ): koyu çizgiler
+        ck = _voro(N, L, _stretch(N, L, tc.outputs['Object'], *({'Z': (1.0, 1.0, 0.35), 'X': (0.35, 1.0, 1.0), 'Y': (1.0, 0.35, 1.0)}[grain_axis])), 16.0, 'DISTANCE_TO_EDGE')
+        pc = _mix(N, L, _math(N, L, 'MULTIPLY', _mr(N, L, ck.outputs['Distance'], 0.035, 0.0), 0.55 * age + 0.2), pc, srgb('#3a1a12') + (1,))
         c = _mix(N, L, wear, pc, wood)                                                     # boya dökülmüş yer: ahşap
     else:
         c = _mix(N, L, _math(N, L, 'MULTIPLY', wear, 0.6), wood, srgb('#c9a47c') + (1,))     # aşınmış kenar açık
@@ -175,24 +284,54 @@ def wood_mat(name, paint=None, grain_axis='Z', scale=3.0, age=0.5):
     L.new(_math(N, L, 'ADD', wv.outputs['Fac'], _math(N, L, 'MULTIPLY', wear, -0.6)), bump.inputs['Height']); L.new(bump.outputs['Normal'], b.inputs['Normal'])
     return m
 
-def roof_mat(name):
-    """Kiremit: köşe rengi (oluk çizgileri) × akıntı lekeleri (z'de uzamış), alçak kısımlarda yosun lekeleri, likenler,
-    kırık kiremit tonları; AO; kiremit sıra tümseği."""
+def roof_mat(name, geo=None):
+    """Kiremit: köşe rengi × akıntı lekeleri (z'de uzamış), alçak kısımlarda yosun lekeleri, likenler, kırık kiremit tonları; AO.
+    geo=(cx, cy, W, D, rr) verilirse (24 Ekim 2026) gerçek kiremit dizisi: saçağa dik sıralar halinde yuvarlak örtü kiremitleri
+    (kabartma), aralarında koyu oluk kanalı (yosun burada birikir), her 24 cm'de bindirme gölgesi; kiremit başına ton oynaması ve
+    ara ara solmuş/değiştirilmiş kiremit; alt sıralarda daha çok yosun."""
     m = bpy.data.materials.new(name); m.use_nodes = True; N, L = _nodes(m); b = N['Principled BSDF']
     vc = N.new('ShaderNodeVertexColor'); vc.layer_name = 'Col'; tc = N.new('ShaderNodeTexCoord')
     mp = N.new('ShaderNodeMapping'); mp.inputs['Scale'].default_value = (3.0, 3.0, 0.4); L.new(tc.outputs['Object'], mp.inputs[0])
     st = N.new('ShaderNodeTexNoise'); st.inputs['Scale'].default_value = 2.0; st.inputs['Detail'].default_value = 4; L.new(mp.outputs[0], st.inputs['Vector'])
     c = _mix(N, L, _math(N, L, 'MULTIPLY', _mr(N, L, st.outputs['Fac'], 0.5, 0.7), 0.5), vc.outputs['Color'], srgb('#3e3430') + (1,))
     mn = N.new('ShaderNodeTexNoise'); mn.inputs['Scale'].default_value = 3.5; mn.inputs['Detail'].default_value = 6; L.new(tc.outputs['Object'], mn.inputs['Vector'])
-    c = _mix(N, L, _math(N, L, 'MULTIPLY', _mr(N, L, mn.outputs['Fac'], 0.62, 0.7), 0.75), c, srgb('#5f7a3a') + (1,))     # yosun
+    height = mn.outputs['Fac']
+    gn = N.new('ShaderNodeNewGeometry'); gs = N.new('ShaderNodeSeparateXYZ'); L.new(gn.outputs['Normal'], gs.inputs[0])
+    top = _mr(N, L, gs.outputs['Z'], 0.2, 0.5)                                       # yalnız üst yüz: saçak bandı ve alt yüz ahşap kalır
+    if geo:
+        cx, cy, W, D, rr = geo
+        sep = N.new('ShaderNodeSeparateXYZ'); L.new(tc.outputs['Object'], sep.inputs[0])
+        u = _math(N, L, 'ABSOLUTE', _math(N, L, 'DIVIDE', _math(N, L, 'SUBTRACT', sep.outputs['X'], cx), W))
+        v = _math(N, L, 'ABSOLUTE', _math(N, L, 'DIVIDE', _math(N, L, 'SUBTRACT', sep.outputs['Y'], cy), D))
+        ts = _math(N, L, 'MAXIMUM', _math(N, L, 'DIVIDE', _math(N, L, 'SUBTRACT', u, rr), max(1e-3, 1 - rr)), 0.0)
+        front = _math(N, L, 'GREATER_THAN', v, ts)                                  # ön/arka yamaç (1) ya da yan yamaç (0)
+        across = _math(N, L, 'ADD', sep.outputs['Y'], _math(N, L, 'MULTIPLY', _math(N, L, 'SUBTRACT', sep.outputs['X'], sep.outputs['Y']), front))
+        along = _math(N, L, 'ADD', _math(N, L, 'MULTIPLY', _math(N, L, 'MULTIPLY', v, D), front),
+                      _math(N, L, 'MULTIPLY', _math(N, L, 'MULTIPLY', _math(N, L, 'MAXIMUM', _math(N, L, 'SUBTRACT', u, rr), 0.0), W), _math(N, L, 'SUBTRACT', 1.0, front)))
+        colv = _math(N, L, 'DIVIDE', across, 0.30); cf = _math(N, L, 'FRACT', colv); ci = _math(N, L, 'FLOOR', colv)
+        crs = _math(N, L, 'DIVIDE', along, 0.24); kf = _math(N, L, 'FRACT', crs); ki = _math(N, L, 'FLOOR', crs)
+        dd = _math(N, L, 'DIVIDE', _math(N, L, 'ABSOLUTE', _math(N, L, 'SUBTRACT', cf, 0.5)), 0.19)
+        cover = _math(N, L, 'SQRT', _math(N, L, 'MAXIMUM', _math(N, L, 'SUBTRACT', 1.0, _math(N, L, 'MULTIPLY', dd, dd)), 0.0))
+        chan = _mr(N, L, dd, 1.0, 1.25)                                              # örtüler arası kanal
+        lap = _mr(N, L, kf, 0.86, 1.0)                                               # bindirme gölgesi (sıranın alt ucu)
+        cmb = N.new('ShaderNodeCombineXYZ'); L.new(ci, cmb.inputs[0]); L.new(ki, cmb.inputs[1]); cmb.inputs[2].default_value = 3.0
+        wn = N.new('ShaderNodeTexWhiteNoise'); wn.noise_dimensions = '3D'; L.new(cmb.outputs[0], wn.inputs['Vector'])
+        c = _mix(N, L, _math(N, L, 'MULTIPLY', _mr(N, L, wn.outputs['Value'], 0.0, 1.0, 0.0, 0.3), top), c, (0.7, 0.66, 0.64, 1), 'MULTIPLY')
+        c = _mix(N, L, _math(N, L, 'MULTIPLY', _mr(N, L, wn.outputs['Value'], 0.9, 0.93), _math(N, L, 'MULTIPLY', top, 0.45)), c, srgb('#c9a58a') + (1,))   # solmuş/yeni kiremit
+        c = _mix(N, L, _math(N, L, 'MULTIPLY', _math(N, L, 'MAXIMUM', chan, _math(N, L, 'MULTIPLY', lap, cover)), _math(N, L, 'MULTIPLY', top, 0.55)), c, srgb('#24170f') + (1,))
+        low_rows = _mr(N, L, _math(N, L, 'MAXIMUM', v, ts), 0.45, 1.0, 0.25, 1.0)
+        mz = _math(N, L, 'MULTIPLY', _math(N, L, 'MULTIPLY', _math(N, L, 'MAXIMUM', chan, 0.35), low_rows), _mr(N, L, mn.outputs['Fac'], 0.5, 0.64))
+        c = _mix(N, L, _math(N, L, 'MULTIPLY', mz, _math(N, L, 'MULTIPLY', top, 0.85)), c, srgb('#5a7434') + (1,))
+        height = _math(N, L, 'MULTIPLY', _math(N, L, 'ADD', cover, _math(N, L, 'MULTIPLY', kf, 0.35)), top)
+    c = _mix(N, L, _math(N, L, 'MULTIPLY', _mr(N, L, mn.outputs['Fac'], 0.62, 0.7), _math(N, L, 'MULTIPLY', top, 0.75) if geo else 0.75), c, srgb('#5f7a3a') + (1,))     # yosun
     vo = N.new('ShaderNodeTexVoronoi'); vo.inputs['Scale'].default_value = 25; L.new(tc.outputs['Object'], vo.inputs['Vector'])
     c = _mix(N, L, _math(N, L, 'MULTIPLY', _mr(N, L, vo.outputs['Distance'], 0.12, 0.05), 0.5), c, srgb('#b8b49a') + (1,))   # liken benekleri
     ao, edge = _ao_edge(N, L, 0.6)
     c = _mix(N, L, _math(N, L, 'MULTIPLY', edge, 0.35), c, srgb('#e2c9b0') + (1,))
     c = _mix(N, L, _mr(N, L, ao, 0.2, 1.0, 0.6, 0.0), c, srgb('#1e1614') + (1,))
     L.new(c, b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.6
-    bump = N.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.4; bump.inputs['Distance'].default_value = 0.03
-    L.new(mn.outputs['Fac'], bump.inputs['Height']); L.new(bump.outputs['Normal'], b.inputs['Normal'])
+    bump = N.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.55 if geo else 0.4; bump.inputs['Distance'].default_value = 0.035 if geo else 0.03
+    L.new(height, bump.inputs['Height']); L.new(bump.outputs['Normal'], b.inputs['Normal'])
     return m
 
 def brackets(name, cx, cy, z, w, d, n_side, col=None, mat=None):
@@ -215,13 +354,14 @@ def hall_body(name, cx, cy, z, w, d, hgt, col=None, doors=3, windows=True):
         if zz > hgt - 0.5: return c3('#a83a2c')                                                   # üst kırmızı kuşak
         return c3('#efe5d3') * (0.93 + 0.07 * MN.noise(V((p.x * 1.5, p.y * 1.5, zz))))          # beyaz sıva
     box(name + '_w', cx - w / 2, cx + w / 2, cy - d / 2, cy + d / 2, z, z + hgt, wc, wall_m, col, seg=(int(w * 2), int(d * 2), 8))
-    col_m = wood_mat(name + '_cm', paint='#b3342a', grain_axis='Z', age=0.55)
+    col_m = wood_mat(name + '_cm', paint='#b3342a', grain_axis='Z', age=0.7)
+    cb_m = aged_stone_mat(name + '_cbm', moss=0.5, lichen=0.4, scale=2.0)
     nx = max(2, int(w / 2.2)) + 1
     for i in range(nx):
         x = cx - w / 2 - 0.25 + (w + 0.5) * i / (nx - 1)
         for y in (cy - d / 2 - 0.3, cy + d / 2 + 0.3):
             K2.lathe(name + '_col', [V((x, y, z)), V((x, y, z + hgt + 0.1))], lambda t, a: 0.2, res=10, mat=col_m, col=col, colfun=lambda t, a, q: c3('#b3342a'))
-            box(name + '_cb', x - 0.3, x + 0.3, y - 0.3, y + 0.3, z - 0.05, z + 0.25, lambda p, n: c3('#b5aa98'), wall_m, col)
+            box(name + '_cb', x - 0.3, x + 0.3, y - 0.3, y + 0.3, z - 0.05, z + 0.25, lambda p, n: c3('#b5aa98') * (1.08 if n.z > 0.5 else 0.92), cb_m, col)
     # kapılar / kafes pencereler (ön yüz)
     dm = wood_mat(name + '_dm', grain_axis='Z', scale=4.0, age=0.4)
     for i in range(doors):
@@ -235,10 +375,16 @@ def hall_body(name, cx, cy, z, w, d, hgt, col=None, doors=3, windows=True):
         box(name + '_frame', x - 0.82, x + 0.82, cy - d / 2 - 0.14, cy - d / 2 + 0.02, z + hgt - 0.78, z + hgt - 0.62, lambda p, n: c3('#5c2a1f'), dm, col)
         box(name + '_sill', x - 0.82, x + 0.82, cy - d / 2 - 0.16, cy - d / 2 + 0.02, z + 0.45, z + 0.6, lambda p, n: c3('#5c2a1f'), dm, col)
     if windows:
+        # kafes pencere (24 Ekim 2026): koyu iç pano + çıkık çerçeve + 4×4 gerçek çıta (köşe rengi deseni seyrek ağda örtüşüp
+        # düz tahta gibi görünüyordu)
         for sx in (-1, 1):
-            x = cx + sx * (w / 2 - 0.9)
-            lat = lambda p, n, x=x: c3('#5c2a1f') if (int((p.x - x + 5) * 10) % 2 == 0 or int((p.z + 5) * 10) % 2 == 0) else c3('#1e0e08')
-            box(name + '_win', x - 0.5, x + 0.5, cy - d / 2 - 0.06, cy - d / 2 + 0.02, z + 1.6, z + 2.5, lat, dm, col, seg=(10, 1, 10))
+            x = cx + sx * (w / 2 - 0.9); y0 = cy - d / 2
+            box(name + '_win', x - 0.5, x + 0.5, y0 - 0.04, y0 + 0.02, z + 1.6, z + 2.5, lambda p, n: c3('#1e0e08'), dm, col)
+            for (a0, a1, b0, b1) in ((x - 0.56, x + 0.56, z + 2.46, z + 2.56), (x - 0.56, x + 0.56, z + 1.54, z + 1.64), (x - 0.56, x - 0.46, z + 1.6, z + 2.5), (x + 0.46, x + 0.56, z + 1.6, z + 2.5)):
+                box(name + '_wfr', a0, a1, y0 - 0.12, y0 + 0.01, b0, b1, lambda p, n: c3('#5c2a1f'), dm, col)
+            for q in range(1, 5):
+                xx = x - 0.46 + q * 0.92 / 5; box(name + '_wlat', xx - 0.018, xx + 0.018, y0 - 0.09, y0 - 0.03, z + 1.62, z + 2.48, lambda p, n: c3('#6b3424'), dm, col)
+                zz = z + 1.64 + q * 0.82 / 5; box(name + '_wlat', x - 0.47, x + 0.47, y0 - 0.085, y0 - 0.035, zz - 0.018, zz + 0.018, lambda p, n: c3('#6b3424'), dm, col)
 
 def lantern_mat(name):
     """Fener kâğıdı (gölgelendiricide, keskin): 12 koyu kaburga, uçlarda ince altın + mürekkep bantları, ortada altın çerçeveli
@@ -281,6 +427,10 @@ def lanterns(name, pts, col=None, light=True):
         o.location = (x, y, z)
         for zz, rr in ((0.36, 0.17), (-0.36, 0.15)):
             K2.lathe(name + '_cap', [V((x, y, z + s * zz - 0.03 * s)), V((x, y, z + s * zz + 0.04 * s))], lambda t, a, rr=rr: s * rr, res=16, mat=dark, col=col, colfun=lambda t, a, q: c3('#1c1410'))
+            # kapak kenarında altın halka + kapak üstünde küçük altın düğme (24 Ekim 2026: oyunda fener ayrıntısı seçilsin)
+            ring = [V((x + math.cos(a_) * s * (rr + 0.006), y + math.sin(a_) * s * (rr + 0.006), z + s * zz + (0.04 if zz > 0 else -0.03) * s)) for a_ in np.linspace(0, math.tau, 25)]
+            K2.lathe(name + '_rim', ring, lambda t, a: s * 0.011, res=6, mat=tm, col=col, colfun=lambda t, a, q: gold)
+        K2.lathe(name + '_top', [V((x, y, z + s * 0.4)), V((x, y, z + s * 0.47))], lambda t, a: s * 0.05 * (1 - 0.6 * t), res=10, mat=tm, col=col, colfun=lambda t, a, q: gold)
         K2.lathe(name + '_cord', [V((x, y, z + s * 0.4)), V((x, y, z + s * 0.75))], lambda t, a: s * 0.012, res=6, mat=dark, col=col, colfun=lambda t, a, q: c3('#3a2418'))
         K2.lathe(name + '_knot', [V((x, y, z - s * 0.4)), V((x, y, z - s * 0.5))], lambda t, a: s * 0.04 * (1 - 0.3 * t), res=10, mat=tm, col=col, colfun=lambda t, a, q: gold)
         for k_ in range(14):
@@ -310,16 +460,8 @@ def terrace(name, outline, z0, z1, col=None, rock=None, seed=0):
             a = r * n + k; b = r * n + (k + 1) % n; F_.append((a, b, b + n, a + n))
     wall = mesh_obj(name + '_face', V_, F_, rock, col=col)
     md = wall.modifiers.new('sub', 'SUBSURF'); md.subdivision_type = 'SIMPLE'; md.levels = 0; md.render_levels = 2
-    # üst çim (yelpaze)
-    gm, N, L, b = _mat(name + '_g'); vc = N.new('ShaderNodeVertexColor'); vc.layer_name = 'Col'
-    tc = N.new('ShaderNodeTexCoord'); nz = N.new('ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = 4.0; nz.inputs['Detail'].default_value = 6; L.new(tc.outputs['Object'], nz.inputs['Vector'])
-    fz = N.new('ShaderNodeTexNoise'); fz.inputs['Scale'].default_value = 90.0; fz.inputs['Detail'].default_value = 2; L.new(tc.outputs['Object'], fz.inputs['Vector'])
-    mx = N.new('ShaderNodeMix'); mx.data_type = 'RGBA'; mx.inputs[6].default_value = srgb('#3f7f26') + (1,); mx.inputs[7].default_value = srgb('#9acd4e') + (1,)
-    ad = N.new('ShaderNodeMath'); ad.operation = 'MULTIPLY_ADD'; ad.inputs[1].default_value = 0.6; L.new(fz.outputs['Fac'], ad.inputs[0]); L.new(nz.outputs['Fac'], ad.inputs[2])
-    sub = N.new('ShaderNodeMath'); sub.operation = 'SUBTRACT'; sub.inputs[1].default_value = 0.35; L.new(ad.outputs[0], sub.inputs[0]); L.new(sub.outputs[0], mx.inputs['Factor'])
-    mul = N.new('ShaderNodeMix'); mul.data_type = 'RGBA'; mul.blend_type = 'MULTIPLY'; mul.inputs['Factor'].default_value = 0.6; L.new(mx.outputs[2], mul.inputs[6]); L.new(vc.outputs['Color'], mul.inputs[7])
-    L.new(mx.outputs[2], b.inputs['Base Color']); b.inputs['Roughness'].default_value = 0.9
-    bn = N.new('ShaderNodeBump'); bn.inputs['Strength'].default_value = 0.6; bn.inputs['Distance'].default_value = 0.02; L.new(fz.outputs['Fac'], bn.inputs['Height']); L.new(bn.outputs['Normal'], b.inputs['Normal'])
+    # üst çim: adanın zemin tonunda ayrıntılı çimen (meadow_mat; 3B teller/çiçekler ayrıca)
+    gm = meadow_mat(name + '_g')
     top = [(V_[rows * n + k][0], V_[rows * n + k][1], z1 + 0.02) for k in range(n)]
     lip = []
     for k, p in enumerate(pts):
@@ -332,13 +474,15 @@ def terrace(name, outline, z0, z1, col=None, rock=None, seed=0):
 def steps(name, x, y, z0, z1, width, depth=0.45, col=None, rock=None):
     """Yontulmuş taş basamaklar: her basamak hafif düzensiz kutu (köşe rengi taş tonu), üst kenarı açık, arası koyu derz."""
     n = max(2, int(round((z1 - z0) / 0.28))); dz = (z1 - z0) / n; R = random.Random(int(x * 10 + y))
-    m = vmat(name + '_m', 0.85, 0.5, 14)
+    m = aged_stone_mat(name + '_m', moss=0.55, worn=('X', x, width * 0.32), lichen=0.3, scale=1.5)      # ortası ayakla aşınmış
     for i in range(n):
         yy0 = y - depth * (n - i); w2 = width / 2 * R.uniform(0.96, 1.04)
-        def cf(p, nrm, zt=z0 + dz * (i + 1)):
-            c = c3('#c8bba3') * (0.85 + 0.2 * MN.noise(V((p.x * 1.3, p.y * 1.3, p.z * 2))))
-            if nrm.z > 0.5: c = c * 1.12
-            if abs(p.z - zt) < 0.03 and nrm.z < 0.5: c = c * 1.2
+        tone_i = R.uniform(0.88, 1.04)                                   # basamak başına ton (her taş ayrı ocaktan)
+        def cf(p, nrm, zt=z0 + dz * (i + 1), tone_i=tone_i):
+            c = c3('#bdb3a1') * tone_i * (0.85 + 0.2 * MN.noise(V((p.x * 1.3, p.y * 1.3, p.z * 2))))
+            if nrm.z > 0.5: c = c * 1.06
+            elif abs(p.z - zt) < 0.03: c = c * 1.15                     # basamak burnu: aşınmış açık kenar
+            else: c = c * 0.8                                            # rıht: gölgede, kirli
             return c
         box(name + '_%d' % i, x - w2, x + w2, yy0, y + 0.2, z0 + dz * i - 0.05, z0 + dz * (i + 1), cf, m, col, seg=(int(width * 2), 2, 1))
 
@@ -354,7 +498,8 @@ def rounded_rect(cx, cy, w, d, r=1.2, n=10, noise=0.25, seed=0):
 # ------------------------------------------------------------------ duvar (dalgalı kiremit başlıklı)
 
 def court_wall(name, path, hgt=2.4, col=None):
-    wm = vmat(name + '_m', 0.85, 0.3, 30)
+    wm = plaster_mat(name + '_m', 0.0, hgt)                        # eskitilmiş sıva (yağmur izi, dipte yosun, dökülmüş yer)
+    caps = {'X': tile_cap_mat(name + '_cx', 'X'), 'Y': tile_cap_mat(name + '_cy', 'Y')}
     for (a, b) in zip(path[:-1], path[1:]):
         a, b = V(a + (0,)), V(b + (0,)); L = (b - a).length; dvec = (b - a).normalized(); sd = V((-dvec.y, dvec.x, 0)) * 0.3
         nseg = max(2, int(L * 3)); V_, F_, C_ = [], [], []
@@ -366,7 +511,7 @@ def court_wall(name, path, hgt=2.4, col=None):
                 C_.append(c3('#a8473a') if zz > hgt - 0.6 else (c3('#c9b48e') * (0.88 + 0.12 * MN.noise(V((q.x * 2, q.y * 2, zz * 4))))))
         for i in range(nseg):
             for k in range(3):
-                a_ = i * 4 + k; F_.append((a_, a_ + 1, a_ + 5, a_ + 4))
+                a_ = i * 4 + k; F_.append((a_, a_ + 4, a_ + 5, a_ + 1))      # dışa bakan yüzler (24 Ekim 2026: duvar ters örülmüştü)
         mesh_obj(name, V_, F_, wm, colors=np.array(C_), col=col)
         # kiremit başlık (koyu, iki yana taşan)
         cv, cf, cc = [], [], []
@@ -376,8 +521,8 @@ def court_wall(name, path, hgt=2.4, col=None):
                 q = p + sd * s; cv.append((q.x, q.y, top + zz)); cc.append(c3('#7d3125'))
         for i in range(nseg):
             for k in range(2):
-                a_ = i * 3 + k; cf.append((a_, a_ + 1, a_ + 4, a_ + 3))
-        mesh_obj(name + '_cap', cv, cf, wm, colors=np.array(cc), col=col)
+                a_ = i * 3 + k; cf.append((a_, a_ + 3, a_ + 4, a_ + 1))      # yukarı bakan
+        mesh_obj(name + '_cap', cv, cf, caps['X' if abs(dvec.x) > abs(dvec.y) else 'Y'], colors=np.array(cc), col=col)
 
 # ------------------------------------------------------------------ tapınak avlusu
 
@@ -386,7 +531,7 @@ PAL_BLOSSOM = [(0.0, '#7a1f4f'), (0.35, '#b52f7a'), (0.65, '#dc4d9c'), (0.9, '#f
 def temple(col=None, seed=0):
     """Yerel koordinat: ön = −y (güney). Taban z = 0 (plato). Teraslar: alt 0→1.0, üst 1.0→2.1."""
     R = random.Random(seed)
-    rock = K.rock_mat('tmp_rock', base='#cdbfa5', dark='#8b7e6b', light='#e8decb', moss_amt=0.12, cracks=0.6)
+    rock = K.rock_mat('tmp_rock', base='#cdbfa5', dark='#8b7e6b', light='#e8decb', moss_amt=0.2, cracks=0.7)
     terrace('tmp_t1', rounded_rect(0, 1.0, 30, 22, 2.0, seed=1), -0.3, 1.0, col, rock, 1)
     terrace('tmp_t2', rounded_rect(0, 4.5, 21, 13, 1.5, seed=2), 1.0, 2.1, col, rock, 2)
     terrace('tmp_t0', rounded_rect(-9, -8.5, 7, 3.5, 1.0, seed=3), -0.3, 0.45, col, rock, 3)          # önde küçük basamak sekisi
@@ -428,17 +573,18 @@ def temple(col=None, seed=0):
     trees = [(pinkc, -5.0, 12.8, 1.0, 1.25), (greens[0], -16.5, 2.0, 0.0, 1.0), (greens[1], 16.5, -1.0, 0.0, 0.9), (greens[2], 8.0, 13.0, 1.0, 1.0),
              (greens[0], -7.0, 13.5, 1.0, 0.85), (bushc, -3.5, -8.0, 0.0, 1.0), (bushc, 4.5, -8.5, 0.0, 0.8)]
     # taş döşeli yol: alt basamaktan üst basamağa (düzensiz plakalar, aralarında yosunlu derz)
-    pvm = vmat('tmp_pave_m', 0.85, 0.5, 18)
+    pvm = aged_stone_mat('tmp_pave_m', moss=0.6, worn=('X', 0.0, 0.7), lichen=0.5, scale=2.5)
     Rp = random.Random(9); y = -9.8
+    slab_tones = ['#b8b2a6', '#a9a397', '#c2b9a8', '#9d998f', '#b5a994', '#aaa59c']    # her plaka ayrı taş (gri-bej karışık)
     while y < -3.6:
         x = -1.4; ln = Rp.uniform(0.45, 0.8)
         while x < 1.4:
-            w = min(Rp.uniform(0.45, 0.9), 1.4 - x); tone = c3('#c4b8a2') * Rp.uniform(0.82, 1.08)
+            w = min(Rp.uniform(0.45, 0.9), 1.4 - x); tone = c3(Rp.choice(slab_tones)) * Rp.uniform(0.86, 1.04)
             box('tmp_slab', x + 0.03, x + w - 0.03, y + 0.03, y + ln - 0.03, 0.98, 1.06 + Rp.uniform(0, 0.03),
                 lambda p, n, tone=tone: tone * (1.1 if n.z > 0.5 else 0.8), pvm, col)
             x += w
         y += ln
-    box('tmp_joint', -1.45, 1.45, -9.85, -3.55, 0.97, 1.02, lambda p, n: c3('#4f6a2e'), pvm, col)
+    box('tmp_joint', -1.45, 1.45, -9.85, -3.55, 0.97, 1.02, lambda p, n: c3('#5a7a32'), vmat('tmp_joint_m', 0.9, 0.5, 40), col)   # derzde yosun
     terrace_plants(col, seed)
     return trees
 

@@ -19,7 +19,7 @@ ASSETS = {
     'r_boulder': ('boulder', 900, 512), 'r_boulder_b': ('boulderB', 900, 512), 'r_pebble': ('pebW', 300, 256),
     'p_campfire': ('campfire', 2600, 512), 'p_log_v6': ('log', 900, 512), 'p_stump_v6': ('stump', 800, 512),
     'p_driftwood': ('driftwood', 1400, 512), 'p_starfish': ('starfish', 300, 256), 'p_crab': ('crab', 700, 256),
-    'p_pool': ('pool', 7000, 1024), 'b_temple': ('temple', 60000, 2048),
+    'p_pool': ('pool', 7000, 1024), 'b_temple': ('temple', 110000, 2048),   # tapınak: kendi yolu (temple_game.py), bütçe üst sınır
     'p_trail_pole': ('pole', 120, 128), 'p_snow_lump': ('snowlump', 200, 256),
     'b_cave_v6': ('cave', 7000, 1024), 'b_ski_v6': ('skiset', 3000, 512), 'b_summit_v6': ('summit', 2600, 512),
 }
@@ -85,10 +85,15 @@ def build(spec):
         K2.swim_pool('pool', col=col, seed=3, mats=(rmA, rmB))
     elif kind == 'temple':
         K3.temple(col)
-        # avludaki ot telleri (600 bin üçgen) ve çiçek öbekleri oyunda GrassField/zemin işi: modelde kalırsa sadeleştirme
-        # bütçeyi onlara harcayıp binayı siliyordu (tapınak oyunda görünmüyordu, 22 Ekim 2026 karşılaştırması)
+        # avludaki ot telleri (600 bin üçgen) ve çiçek öbekleri pişirilmez: hedefte yerlerine hafif 3B çim öbekleri ve çiçek
+        # demetleri eklenir (temple_game.meadow). Hedef = aynı ağ (temple_game.build_low; 24 Ekim 2026: eskitme/fener ayrıntısı
+        # oyunda görünmüyordu — küresel sadeleştirme ve kötü UV paketlemesi yüzünden)
         for o in list(bpy.context.scene.objects):
             if o.type == 'LIGHT' or o.name.startswith('tmp_grass') or o.name.startswith('tmp_flw'): bpy.data.objects.remove(o)
+        import temple_game as TG
+        low += TG.build_low([o for o in bpy.context.scene.objects if o.type == 'MESH'])
+        opts['export'] = dict(target=None, cull_hidden=True, uv_weight='uvw', reserve=TG.RESERVE, paint=TG.paint_swatches,
+                              extras=lambda L, H: TG.meadow(L, H), ao_dist=0.7, ao_strength=0.55, nsize=1024, dilate=16)
     elif kind == 'pole':
         v, f = K.tube_data([(0, 0, 0), (0, 0, 1.35)], [0.045, 0.04], 6, 0); K.mesh_obj('pole', v, f, K.bark_mat('pole_bark', base='#7a5536', dark='#4a3222', light='#a67c55'), col=col)
         cap = bpy.data.materials.new('pole_cap'); cap.use_nodes = True; cap.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = K.srgb('#f07a1a') + (1,)
@@ -250,10 +255,11 @@ def child(name, out):
     leaf = opts.get('leaf')
     # ışın: ağaçta yaprak katmanı kalınlığı; katı modellerde kabartma kadar (model 1 m'lik örnek ölçüsünde)
     cage, ray = (leaf * 0.9, leaf * 2.2) if leaf else (0.02, 0.08)
-    tris = PB.export_proxy(os.path.join(out, name), high, low, target=target, size=tex, nsize=max(256, tex // 2),
-                           cage=cage, ray=ray, ao_strength=0.5 if leaf is None else 0.7, ds_low=True,
-                           tone=1.2 if ASSETS[name][0].split(':')[0] in ('boulder', 'boulderB', 'pebW', 'cave', 'pool') else 1.0,
-                           fix_normals=ASSETS[name][0].split(':')[0] in ('stump', 'log', 'driftwood', 'boulder', 'boulderB', 'pebW'))
+    kw = dict(target=target, size=tex, nsize=max(256, tex // 2), cage=cage, ray=ray, ao_strength=0.5 if leaf is None else 0.7, ds_low=True,
+              tone=1.2 if ASSETS[name][0].split(':')[0] in ('boulder', 'boulderB', 'pebW', 'cave', 'pool') else 1.0,
+              fix_normals=ASSETS[name][0].split(':')[0] in ('stump', 'log', 'driftwood', 'boulder', 'boulderB', 'pebW'))
+    kw.update(opts.get('export', {}))
+    tris = PB.export_proxy(os.path.join(out, name), high, low, **kw)
     print('üçgen', tris, flush=True)
 
 def export(name):

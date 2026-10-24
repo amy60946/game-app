@@ -115,12 +115,20 @@ def m_cloth(c1, c2, stripes=6.0, name=None, age=1.0):
         l.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name or ('cloth' + c1 + c2), b)
 
-def m_glow(hexc='#ffd56a', name='glow'):
-    """Fener camı: ortası parlak, kenarlara doğru turuncu (pişirmede sabit renk, oyunda ayrıca ışık yok)."""
+def m_glow(hexc='#ffd56a', name='glow', lamp=None):
+    """Fener camı: ortası parlak, kenarlara doğru turuncu (pişirmede sabit renk, oyunda ayrıca ışık yok).
+    lamp=(x, y, z, r): pişirmede bakış yönü yok (Facing hep 0 → cam soluk krem çıkıyordu); onun yerine alev merkezinden uzaklık:
+    ortası açık sarı, kenarı sıcak turuncu (24 Ekim 2026, ada feneri)."""
     def b(nt, bsdf):
         n = nt.nodes; l = nt.links
-        geo = n.new('ShaderNodeLayerWeight'); geo.inputs['Blend'].default_value = 0.4
-        rp = ramp(nt, [(0.0, '#fff2b0'), (0.6, hexc), (1.0, '#f29a3a')]); l.new(geo.outputs['Facing'], rp.inputs['Fac'])
+        if lamp:
+            tc = n.new('ShaderNodeTexCoord'); d = n.new('ShaderNodeVectorMath'); d.operation = 'DISTANCE'
+            l.new(tc.outputs['Object'], d.inputs[0]); d.inputs[1].default_value = lamp[:3]
+            k = n.new('ShaderNodeMath'); k.operation = 'DIVIDE'; k.inputs[1].default_value = lamp[3]; l.new(d.outputs['Value'], k.inputs[0])
+            rp = ramp(nt, [(0.0, '#fff6c8'), (0.45, '#ffd96a'), (0.85, hexc), (1.0, '#f08a30')]); l.new(k.outputs[0], rp.inputs['Fac'])
+        else:
+            geo = n.new('ShaderNodeLayerWeight'); geo.inputs['Blend'].default_value = 0.4
+            rp = ramp(nt, [(0.0, '#fff2b0'), (0.6, hexc), (1.0, '#f29a3a')]); l.new(geo.outputs['Facing'], rp.inputs['Fac'])
         l.new(rp.outputs[0], bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 
@@ -350,7 +358,7 @@ def prism(name, pts2d, depth, m, loc=(0, 0, 0), rot=(0, 0, 0), bevel=0.012):
 def c_lantern():
     """Sokak feneri: kalın kütük direk (çatlak, dipte kir/yosun), kıvrık demir kol ve fener kafesi (pas lekeleri, aşağı akan
     pas izleri, kenarda parlayan aşınmış metal), sıcak ışıklı cam, halat bağ, sarmaşık; dipte çakıl halkası + ot + çiçek."""
-    W = m_wood('#7e5232', 'lampw'); I = m_metal(age=1.2); GL = m_glow()
+    W = m_wood('#7e5232', 'lampw'); I = m_metal(age=1.2); GL = m_glow('#ffb84a', 'lampglass', lamp=(0.56, 0.02, 1.15, 0.2))
     post('post', (0, 0, -0.05), (0.03, 0.02, 1.6), 0.115, W, taper=0.8, seed=2)
     moss_cap((0.03, 0.02, 1.62), 0.1, seed=3)
     tube('arm', [(0.05, 0.02, 1.48), (0.3, 0.02, 1.6), (0.5, 0.02, 1.55), (0.56, 0.02, 1.44)], [0.028, 0.026, 0.024, 0.022], I, res=6)

@@ -172,7 +172,9 @@ namespace Pofi.EditorTools
             var tree = assetPath.Replace('\\', '/').Contains("/Resources/Env/t_") && !normal;
             // 3B adalılar (Kıskaç, Mavi, Pus, Tosbi, Pıtır, Hışır; GB18: "detaylı 3D olsun"): yüz ve kabuk ayrıntısı 1024'te korunur
             var resident = (assetPath.Replace('\\', '/').Contains("/Resources/Env/res_") || assetPath.Replace('\\', '/').Contains("/Resources/Env/palm/")) && !normal;   // + ayrıntılı palmiye (palm_v2)
-            t.maxTextureSize = (IsPet && !normal) || building || tree || resident ? 1024 : 512;
+            // tapınak avlusu (30 × 22 m, tek doku; art/code3d/v6/temple_game.py): eskitme/fener ayrıntısı 1024'te siliniyordu (24 Ekim 2026)
+            var hero = file.StartsWith("b_temple") && !normal;
+            t.maxTextureSize = hero ? 2048 : (IsPet && !normal) || building || tree || resident ? 1024 : 512;
             t.mipmapEnabled = true;
             t.textureCompression = TextureImporterCompression.Compressed;
             t.crunchedCompression = false;
