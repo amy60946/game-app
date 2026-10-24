@@ -20,17 +20,11 @@ namespace Pofi.Screens
     {
         private static readonly StatKind[] Kinds = { StatKind.Fullness, StatKind.Cleanliness, StatKind.Happiness, StatKind.Home };
         private static readonly string[] StatKeys = { "stat.fullness", "stat.cleanliness", "stat.happiness", "stat.home" };
-        private static readonly Color[] StatColors =
-        {
-            Theme.Hex("#FF9F43"), Theme.Hex("#3DC9FF"), Theme.Hex("#FF6FAE"), Theme.Hex("#7BD66B"),
-        };
-
-        private readonly Image[] _gaugeFills = new Image[4];
         private RectTransform _tidyBtn;
         private Coach _coach;
         private static readonly string[] GaugeIcons = { "food_apple", "clean_soap", "ui_heart", "home_bed" };
-        private Text _coins, _title, _levelNum, _feedCount, _washCount;
-        private Image _xpFill;
+        private Text _coins, _feedCount, _washCount;
+        private GoldProfile _prof;
         private Image _xpBar;
         private SpeechBubble _bubble;
         private float _tick, _idle;
@@ -48,23 +42,27 @@ namespace Pofi.Screens
 
             // Sahne üstü (14 Ekim 2026 kararı): sol üst rozet + gösterge halkaları, sağ üst coin ve evin düğmeleri, sağ alt bakım
             // adayla aynı 3B pet kartı ve coin göstergesi
-            var pet = App.Data.Pet(App.State.PetId);
-            Candy.PetPlate(Root, App.State.PetId, Theme.Hex(pet.MainColor), new Vector2(24f, -16f), out _title, out _levelNum, out _xpFill);
-            for (var i = 0; i < 4; i++)
-                _gaugeFills[i] = Candy.Gauge(Root, StatColors[i], GaugeIcons[i], 112f, new Vector2(0f, 1f), new Vector2(30f + 56f + i * 128f, -250f));
-            _coins = Candy.CoinPlate(Root, new Vector2(-30f, -22f));
+            // Altın Atölye (adayla aynı, kullanıcı 24 Ekim 2026): sol üst profil, sağ üst coin hapı, çerçevesiz 3B simge düğmeler
+            _prof = GoldProfile.Build(Root, App.State.PetId, GaugeIcons, null);
+            _coins = GoldKit.CurrencyPill(Root, "ui_coin", new Vector2(1f, 1f), new Vector2(CoinRight - 120f * GoldKit.K, -(24f + 24f) * GoldKit.K));
 
-            var row = new List<(string key, System.Action act)> { ("home.daily", () => QuestPanel()), ("album.button", () => App.Open(AppPage.Album)) };
-            if (App.Levels.IsUnlocked("home_decor", App.Level)) row.Add(("decor.button", () => App.Open(AppPage.Decorate)));
-            row.Add(("settings.title", () => ParentGate(() => App.Open(AppPage.Settings), msg => _bubble.Say(msg))));
+            var row = new List<(string key, string icon, string ex, System.Action act)>
+                { ("home.daily", "ui_star", "#C26A08", () => QuestPanel()), ("album.button", "ui_album", "#7A4A12", () => App.Open(AppPage.Album)) };
+            if (App.Levels.IsUnlocked("home_decor", App.Level)) row.Add(("decor.button", "home_lamp", "#7A4A12", () => App.Open(AppPage.Decorate)));
+            row.Add(("settings.title", "ui_settings", "#4E5868", () => ParentGate(() => App.Open(AppPage.Settings), msg => _bubble.Say(msg))));
             for (var i = 0; i < row.Count; i++)
-                Candy.Pill(Root, Candy.White, T(row[i].key), new Vector2(1f, 1f), new Vector2(330f, 88f), new Vector2(-195f, -160f - i * 112f), row[i].act, null, 34);
+            {
+                var r = row[i];
+                // sol kenar dizisi (taslaktaki .x-left: 84 px, 34 px ara, mavi kurdele etiket)
+                GoldKit.Icon3D(Root, r.icon, 84f * GoldKit.K, new Vector2(0f, 1f), new Vector2((34f + 42f) * GoldKit.K, -(158f + 42f + i * 118f) * GoldKit.K),
+                    Theme.Hex(r.ex), r.act, T(r.key), GoldKit.Tone.Blue, i * 0.4f);
+            }
 
             _bubble = Bubble(new Vector2(0.5f, 0.86f));
 
             // Sağ alt: bakım (Besle, Yıka, Oyna, Topla) — panel yok, yüzen şeker düğmeler
             var icons = new[] { "food_apple", "clean_soap", "ui_heart", "home_bookshelf" };
-            var colors = new[] { Candy.Orange, Candy.Blue, Candy.Pink, Candy.Green };
+            var extrude = new[] { "#8E1020", "#A04A78", "#9E1B3C", "#5A3412" };
             var labels = new[] { "home.feed", "home.wash", "home.play", "home.tidy" };
             var actions = new[] { CareAction.Feed, CareAction.Wash, CareAction.Play, CareAction.Tidy };
             for (var i = 0; i < 4; i++)
@@ -72,10 +70,11 @@ namespace Pofi.Screens
                 var a = actions[i];
                 System.Action act = a == CareAction.Feed ? () => OpenTray(ItemCategory.Food, CareAction.Feed)
                     : a == CareAction.Wash ? () => OpenTray(ItemCategory.Cleaning, CareAction.Wash) : (System.Action)(() => Care(a));
-                var b = Candy.Round(Root, colors[i], icons[i], 160f, new Vector2(1f, 0f), new Vector2(i % 2 == 0 ? -440f : -230f, i < 2 ? 440f : 220f), act, T(labels[i]));
+                var (b, _, _) = GoldKit.Icon3D(Root, icons[i], 104f * GoldKit.K, new Vector2(1f, 0f), new Vector2(i % 2 == 0 ? -470f : -250f, i < 2 ? 450f : 230f),
+                    Theme.Hex(extrude[i]), act, T(labels[i]), GoldKit.Tone.Green, i * 0.35f);
                 if (a == CareAction.Tidy) _tidyBtn = (RectTransform)b.transform;
-                if (a == CareAction.Feed) _feedCount = Candy.Count(b.transform);
-                if (a == CareAction.Wash) _washCount = Candy.Count(b.transform);
+                if (a == CareAction.Feed) _feedCount = GoldKit.Gem(b.transform);
+                if (a == CareAction.Wash) _washCount = GoldKit.Gem(b.transform);
             }
             NavBar(AppPage.Home);
             App.Synced += OnSynced;
@@ -120,11 +119,10 @@ namespace Pofi.Screens
         private void Refresh()
         {
             var st = App.State;
-            for (var i = 0; i < 4; i++) _gaugeFills[i].fillAmount = st.Stats[Kinds[i]] / 100f;
+            for (var i = 0; i < 4; i++) _prof.SetNeed(i, st.Stats[Kinds[i]]);
             _coins.text = st.Wallet.Available.ToString();
-            _title.text = st.PetName;
-            _levelNum.text = App.Level.ToString();
-            Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
+            _prof.SetName(st.PetName, st.Badges.Count);
+            _prof.SetXp(App.Levels, st.Xp.TotalXp, App.Level, T("hud.xp_max"));
             _feedCount.text = Count(ItemCategory.Food).ToString();
             _washCount.text = Count(ItemCategory.Cleaning).ToString();
         }

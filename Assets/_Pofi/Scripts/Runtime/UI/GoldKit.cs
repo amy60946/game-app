@@ -294,6 +294,19 @@ namespace Pofi.UI
             img.sprite = sp; img.color = Color.white;
         }
 
+        /// <summary>Para hapı (taslak .e-pill): altın kenarlı mavi kapsül, soldan taşan iri simge, sağa yaslı beyaz sayı. Yazıyı döndürür.</summary>
+        public static Text CurrencyPill(Transform parent, string icon, Vector2 anchor, Vector2 offset)
+        {
+            var rt = Ui.Rect(parent, "Pill " + icon, anchor, new Vector2(150f * K, 48f * K), offset);
+            RimCapsule(rt, Theme.Hex("#2B5FE0"), Theme.Hex("#173C9E"));
+            var ic = Ui.IconImage(rt, icon, new Vector2(0f, 0.5f), 64f * K, new Vector2(16f * K, 0f));
+            if (ic != null) { var s = ic.gameObject.AddComponent<Shadow>(); s.effectColor = new Color(0.05f, 0.11f, 0.31f, 0.4f); s.effectDistance = new Vector2(0f, -3f * K); }
+            var t = Ui.Label(rt, "", Mathf.RoundToInt(27f * K), Color.white, new Vector2(1f, 0.5f), new Vector2(80f * K, 48f * K), FontStyle.Bold, TextAnchor.MiddleRight, new Vector2(-(18f + 40f) * K, 1f * K));
+            var ts = t.gameObject.AddComponent<Shadow>(); ts.effectColor = Theme.Hex("#18389A"); ts.effectDistance = new Vector2(0f, -2f * K);
+            t.raycastTarget = false;
+            return t;
+        }
+
         /// <summary>Küçük parıltı (para hapı üstünde, taslaktaki .tw): belirip dönerek söner, döngüde.</summary>
         public static void Sparkle(Transform parent, Vector2 anchor, Vector2 offset, float size, float delay)
         {
