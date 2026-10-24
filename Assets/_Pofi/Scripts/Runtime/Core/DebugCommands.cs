@@ -100,6 +100,9 @@ namespace Pofi.Core
                     case "xp":
                         app.GrantXp(int.Parse(arg), XpSource.Achievement);
                         break;
+                    case "grow":        // büyüme sahnesi denemesi (kayıt değişmez): grow genc | grow yetiskin
+                        Object.FindAnyObjectByType<Screens.MapScreen>()?.PlayGrowUp(arg == "yetiskin" ? Logic.Progression.GrowthStage.Yetiskin : Logic.Progression.GrowthStage.Genc, null);
+                        break;
                     case "tap":
                         // Etiketi verilen metne eşit olan ilk etkin düğmeye bas (ör. "tap Başla")
                         foreach (var b in Object.FindObjectsByType<UnityEngine.UI.Button>(FindObjectsSortMode.None))

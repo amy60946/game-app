@@ -745,6 +745,82 @@ namespace Pofi.Screens
             done?.Invoke();
         }
 
+        // ------------------------------------------------------------------ büyüme sahnesi (kullanıcı, 24 Ekim 2026)
+        // Çocuk → ergen (Sv 5) → yetişkin (Sv 10). Arayüz çekilir, bantlar iner, kamera Okti'nin önüne geçer; eski Okti döner,
+        // altın ışık büyür, beyaz parlama anında yeni evrenin modeli gelir ve dans eder; konfeti + bilgi kartı (GrowUpCard).
+        /// <summary>Adadaysa büyüme sahnesini oynatır; değilse false (çağıran sayfayı yeniler).</summary>
+        public bool PlayGrowUp(Logic.Progression.GrowthStage stage, System.Action done)
+        {
+            if (!_built || _world == null || _world.Walker == null || !gameObject.activeInHierarchy || _overview || _cine) return false;
+            StartCoroutine(GrowUp(stage, done));
+            return true;
+        }
+
+        private System.Collections.IEnumerator GrowUp(Logic.Progression.GrowthStage stage, System.Action done)
+        {
+            _cine = true;
+            if (_hudGroup != null) _hudGroup.blocksRaycasts = false;
+            HideCare();
+            var w = _world.Walker;
+            w.Steer(Vector2.zero); w.Stop();
+            var bars = new[] { Bar(true), Bar(false) };
+            var p = w.transform.position;
+            var hgt = PetModels.RealHeight * w.transform.lossyScale.y;
+            var fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
+            _cinePos = p - fwd * Mathf.Max(4.6f, hgt * 2.6f) + Vector3.up * (hgt * 1.0f);
+            _cineLook = p + Vector3.up * (hgt * 0.55f);
+            var camAt = _world.Local(_cinePos);
+            w.Face(camAt.x, camAt.y);
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 0.45f)
+            {
+                if (_hudGroup != null) _hudGroup.alpha = 1f - t;
+                foreach (var b in bars) b.sizeDelta = new Vector2(0f, Mathf.Lerp(0f, 96f, t));
+                yield return null;
+            }
+            if (_hudGroup != null) _hudGroup.alpha = 0f;
+            // eski Okti döner, altında altın ışık büyür
+            if (!w.Show("spin")) w.Cheer();
+            Audio.Sfx.Play(Audio.SfxKind.Chime);
+            var glow = GainFx.Glow(_world.transform, GainFx.StoneColor, 1f, false);
+            glow.position = p + Vector3.up * hgt * 0.5f;
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 1.3f) { glow.localScale = Vector3.one * Mathf.Lerp(0.3f, hgt * 2.2f, t * t); yield return null; }
+            // beyaz parlama; en parlak anda yeni evrenin modeli
+            var flash = Ui.Fill(App.Overlay.transform, "GrowFlash");
+            var fi = flash.gameObject.AddComponent<Image>(); fi.color = new Color(1f, 0.98f, 0.9f, 0f); fi.raycastTarget = true;
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 0.25f) { fi.color = new Color(1f, 0.98f, 0.9f, t * 0.95f); yield return null; }
+            var pos = w.Position; var yaw = w.Heading;
+            var def = App.Data.Pet(App.State.PetId);
+            var items = App.State.Inventory.Equipped.Values.Select(App.Data.Item).Where(i => i != null).ToList();
+            Destroy(w.gameObject);
+            if (def != null) { _world.PlacePet(def, stage, items, pos.x, pos.y); _world.Walker.Teleport(pos.x, pos.y, yaw); }
+            Audio.Sfx.Play(Audio.SfxKind.Success);
+            Audio.Haptics.Medium();
+            World.HitStop.Do();
+            yield return null;
+            if (_world.Walker != null) _world.Walker.Celebrate();
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 0.5f) { fi.color = new Color(1f, 0.98f, 0.9f, (1f - t) * 0.95f); glow.localScale *= 0.96f; yield return null; }
+            Destroy(flash.gameObject); Destroy(glow.gameObject);
+            // konfeti + bilgi kartı; kapanana kadar Okti dans etmeye devam eder
+            var closed = false;
+            GrowUpCard.Show(App, stage, () => closed = true);
+            var again = 0f;
+            while (!closed)
+            {
+                if ((again += Time.deltaTime) > 4.5f && _world.Walker != null) { again = 0f; _world.Walker.Celebrate(); }
+                yield return null;
+            }
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 0.4f)
+            {
+                foreach (var b in bars) b.sizeDelta = new Vector2(0f, Mathf.Lerp(96f, 0f, t));
+                if (_hudGroup != null) _hudGroup.alpha = t;
+                yield return null;
+            }
+            foreach (var b in bars) Destroy(b.gameObject);
+            if (_hudGroup != null) { _hudGroup.alpha = 1f; _hudGroup.blocksRaycasts = true; }
+            _cine = false;
+            done?.Invoke();
+        }
+
         private RectTransform Bar(bool top)
         {
             var b = Ui.Rect(Root, top ? "BarTop" : "BarBottom", new Vector2(0.5f, top ? 1f : 0f), Vector2.zero);

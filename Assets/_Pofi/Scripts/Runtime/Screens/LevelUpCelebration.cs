@@ -118,7 +118,18 @@ namespace Pofi.Screens
                 Toast.Post(_app.Overlay.transform, _app.Theme, _app.Loc.Get(_gifts.Count > 1 ? "levelup.home_n" : "levelup.home", gift.Name, _gifts.Count));
             }
             Destroy(gameObject);
-            if (_up.NewStage != null && (_app.Page == AppPage.Home || _app.Page == AppPage.Map)) _app.Route();   // büyüyen peti yeniden çiz
+            if (_up.NewStage != null)
+            {
+                // büyüme (Sv 5 ergen, Sv 10 yetişkin): adadaysa dönüşüm sahnesi + konfeti + bilgi; başka sayfada sayfa yenilenir, kart gelir
+                var stage = _up.NewStage.Value;
+                var island = _app.Page == AppPage.Map ? FindAnyObjectByType<MapScreen>() : null;
+                if (island == null || !island.PlayGrowUp(stage, null))
+                {
+                    if (_app.Page == AppPage.Home || _app.Page == AppPage.Map) _app.Route();   // büyüyen peti yeniden çiz
+                    if (_app.Stage != null) _app.Stage.Hop();
+                    GrowUpCard.Show(_app, stage, null);
+                }
+            }
         }
 
         private static Texture2D _rayTex;

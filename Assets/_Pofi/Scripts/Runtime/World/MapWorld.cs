@@ -626,9 +626,8 @@ namespace Pofi.World
             holder.gameObject.name = "pet";
             Walker = holder.gameObject.AddComponent<PetWalker>();
             Walker.Init(this, pet, x, z);
-            gameObject.AddComponent<GrassField>().Init(this);
-            Prints = gameObject.AddComponent<Footprints>();
-            Prints.Init(this);
+            if (GetComponent<GrassField>() == null) gameObject.AddComponent<GrassField>().Init(this);   // büyüyünce pet yeniden kurulur
+            if (Prints == null) { Prints = gameObject.AddComponent<Footprints>(); Prints.Init(this); }
             return Walker;
         }
 
@@ -784,6 +783,12 @@ namespace Pofi.World
         private static readonly string[] FidgetClips = { "wave", "spin", "dance", "dance2", "genie", "squat" };
         private float _idleFor, _nextFidget = 16f, _recover;
         private string _lastFun;
+
+        /// <summary>Klibi sonuna kadar oynatır (büyüme sahnesi: eski Okti döner). Klip yoksa false.</summary>
+        public bool Show(string clip) => RealAssets.HasClip(_pet, clip) && PlayFor(clip, RealAssets.ClipLength(_pet, clip));
+
+        /// <summary>Kutlama dansı (büyüyünce): modeldeki dans kliplerinden biri, yoksa sevinç.</summary>
+        public void Celebrate() { _hold = 0f; _jump = 0f; if (!PlayFun(DanceClips)) Cheer(); }
 
         /// <summary>Listeden modelde olan, bir öncekinden farklı bir klibi sonuna kadar oynatır.</summary>
         private bool PlayFun(string[] pool)
