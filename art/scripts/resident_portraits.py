@@ -2,7 +2,7 @@
 
 Kullanım (bpy 4.2 + Pillow kurulu Python, ör. /tmp/claude-0/bpyenv/bin/python):
   nice -n 10 <python> -I art/scripts/resident_portraits.py [ad ...] [--out KLASÖR] [--samples N] [--glb ad=YOL]
-    ad: kiskac, mavi, pus (boşsa hepsi)
+    ad: kiskac, mavi, pus, tosbi, pitir, hisir (boşsa hepsi)
     --out: varsayılan Assets/_Pofi/Resources/Portraits (res_<ad>.png, 512 x 512, şeffaf)
     --glb kiskac=/yol/res3d_kiskac_a.glb: oyundaki FBX yerine Meshy kaynağını kullan (isteğe bağlı)
 
@@ -26,6 +26,10 @@ LOOK = {
     'kiskac': dict(model='res_kiskac', yaw=-26, cam_h=0.62, aim_h=0.55, keep=0.88, shift=-0.02),
     'mavi': dict(model='res_mavi', yaw=-24, cam_h=0.80, aim_h=0.70, keep=0.66, shift=0.0),
     'pus': dict(model='res_pus', yaw=-20, cam_h=0.60, aim_h=0.50, fit='whole'),
+    # kodla 3B adalılar (art/code3d/residents_v1.py, 24 Ekim 2026)
+    'tosbi': dict(model='res_tosbi', yaw=-22, cam_h=0.86, aim_h=0.78, keep=0.56, shift=0.02),
+    'pitir': dict(model='res_pitir', yaw=-18, cam_h=0.70, aim_h=0.62, face=(0.34, 0.42), shift=0.0),
+    'hisir': dict(model='res_hisir', yaw=-18, cam_h=0.70, aim_h=0.62, face=(0.22, 0.44), shift=0.0),
 }
 
 SIZE = 512
@@ -138,6 +142,8 @@ def game_material(name):
     t.image = bpy.data.images.load(base)
     nt.links.new(t.outputs['Color'], p.inputs['Base Color'])
     nrm = os.path.join(ENV, name, name + '_normal.jpg')
+    if not os.path.exists(nrm):
+        nrm = os.path.join(ENV, name, name + '_normal.png')   # kodla yapılanlar (residents_v1) png yazar
     if os.path.exists(nrm):
         n = nt.nodes.new('ShaderNodeTexImage')
         n.image = bpy.data.images.load(nrm)
@@ -170,6 +176,11 @@ def frame_box(cfg, bb):
         side = max(w, h) * 1.08
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
         return cx - side / 2, cy - side / 2, side
+    if 'face' in cfg:   # uzun adalılar (palmiyeler): kare kesim yüze ortalanır (fy: yüzün üstten oranı, fs: kenar / boy)
+        fy, fs = cfg['face']
+        side = h * fs
+        cx = (x0 + x1) / 2 + cfg.get('shift', 0.0) * w
+        return cx - side / 2, y0 + fy * h - side / 2, side
     side = h * cfg['keep'] * 1.04
     cx = (x0 + x1) / 2 + cfg['shift'] * w
     return cx - side / 2, y0 - 0.04 * h, side
