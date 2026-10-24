@@ -63,7 +63,7 @@ Shader "Pofi/UISticker"
             struct v2f
             {
                 float4 vertex : SV_POSITION;
-                fixed4 color : COLOR;
+                half4 color : COLOR;
                 float2 texcoord : TEXCOORD0;
                 float4 worldPosition : TEXCOORD1;
                 float3 flat : TEXCOORD2;   // x: kopya mı, yz: asıl simgedeki doku konumu
@@ -87,7 +87,11 @@ Shader "Pofi/UISticker"
                 OUT.vertex = UnityObjectToClipPos(OUT.worldPosition);
                 OUT.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
                 OUT.color = v.color * _Color;
-                OUT.flat = float3(step(1.5, v.texcoord1.x), v.texcoord1 - 2.0);
+                // gölge kopyası: TEXCOORD1.x'e +10 eklenmiş; köşe saydamlığı 8 kat büyük yazılır, burada 1/8'e indirilir
+                // (8 bitlik köşe renginde çok sayıda soluk kopya ince ayar yapılabilsin: yumuşak gölge)
+                float sh = step(8.0, v.texcoord1.x);
+                OUT.flat = float3(step(1.5, v.texcoord1.x), v.texcoord1.x - 2.0 - 10.0 * sh, v.texcoord1.y - 2.0);
+                OUT.color.a *= lerp(1.0, 0.125, sh);
                 return OUT;
             }
 

@@ -115,6 +115,15 @@ namespace Pofi.Core
                     case "news":        // Mavi'nin yeni görev haberi denemesi
                         Object.FindAnyObjectByType<Screens.MapScreen>()?.MaviNews(app.Loc.Get("mavi.news_many", 2));
                         break;
+                    case "shadow":      // çerçeve gölgesi denemesi: shadow <koyuluk 0..1> <yayılım> <halka> (sonra outline 3)
+                        {
+                            var c = arg.Split(' '); var ci = System.Globalization.CultureInfo.InvariantCulture;
+                            UI.GoldKit.ShadowAlpha = float.Parse(c[0], ci);
+                            if (c.Length > 1) UI.GoldKit.ShadowSpread = float.Parse(c[1], ci);
+                            if (c.Length > 2) UI.GoldKit.ShadowRings = int.Parse(c[2], ci);
+                            app.Route();
+                        }
+                        break;
                     case "outline":     // gösterge çerçevesi denemesi: outline 0..4 (ekran yeniden kurulur)
                         UI.GoldKit.Frame = int.Parse(arg);
                         app.Route();

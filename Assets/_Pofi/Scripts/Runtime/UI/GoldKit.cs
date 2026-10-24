@@ -33,6 +33,9 @@ namespace Pofi.UI
         /// Seçilen: 3 (kullanıcı: "gölgeli çerçeve", gölge siyah görünmesin). Ekranlar kurulurken okunur.
         /// </summary>
         public static int Frame = 3;
+        /// <summary>Çerçeve gölgesinin ortadaki koyuluğu, yayılımı (gölge boyuna çarpan) ve halka sayısı (çok halka = yumuşak geçiş).</summary>
+        public static float ShadowAlpha = 0.30f, ShadowSpread = 1f;
+        public static int ShadowRings = 2;
 
         private static Material _stickerMat;
 
@@ -458,16 +461,20 @@ namespace Pofi.UI
             BaseMap(Src.Count - block, Src.Count);
             if (Shadow > 0f)
             {
-                // yumuşak gölge: aşağı kaymış iki halka; yalnız en alt kalınlık katmanı + asıl (aradakiler aynı izi verir)
+                // yumuşak gölge: aşağı kaymış halkalar (içten dışa); yalnız en alt kalınlık katmanı + asıl (aradakiler aynı izi verir).
+                // Ortada bütün kopyalar üst üste biner (hedef koyuluk), kenara doğru azalır → yumuşak geçiş.
                 var useLayers = layers >= 3 ? 2 : layers;
-                var n = ShadowDirs * 2 * useLayers;
-                var c = new Color(0.10f, 0.16f, 0.30f, PerCopy(0.30f, n));
+                var rings = Mathf.Max(1, GoldKit.ShadowRings);
+                var n = ShadowDirs * rings * useLayers;
+                var c = new Color(0.10f, 0.16f, 0.30f, Mathf.Min(1f, PerCopy(GoldKit.ShadowAlpha, n, 1f / 2040f) * 8f));   // gölgelendirici 1/8'e indirir
                 var shift = new Vector2(0f, -Shadow * 0.45f);
-                for (var ring = 2; ring >= 1; ring--)
+                var outer = 0.75f * GoldKit.ShadowSpread;
+                for (var ring = rings; ring >= 1; ring--)
                 {
-                    var r = White + Shadow * (ring == 2 ? 0.75f : 0.3f);
-                    if (layers >= 3) { Ring(r, shift, c, block, 2 * block, ShadowDirs); Ring(r, shift, c, Src.Count - block, Src.Count, ShadowDirs); }
-                    else Ring(r, shift, c, 0, Src.Count, ShadowDirs);
+                    var k = rings == 1 ? outer : Mathf.Lerp(Mathf.Min(0.3f, outer), outer, (ring - 1) / (float)(rings - 1));
+                    var r = White + Shadow * k;
+                    if (layers >= 3) { Ring(r, shift, c, block, 2 * block, ShadowDirs, true); Ring(r, shift, c, Src.Count - block, Src.Count, ShadowDirs, true); }
+                    else Ring(r, shift, c, 0, Src.Count, ShadowDirs, true);
                 }
             }
             if (Dark > 0f) Ring(White + Dark, Vector2.zero, new Color(0.06f, 0.16f, 0.38f, PerCopy(0.6f, Dirs * layers)), 0, Src.Count, Dirs);
@@ -478,7 +485,7 @@ namespace Pofi.UI
         }
 
         /// <summary>n kopya üst üste binince ortada hedef koyuluk çıksın diye kopya başına saydamlık (en az 2/255).</summary>
-        private static float PerCopy(float target, int n) => Mathf.Max(2f / 255f, 1f - Mathf.Pow(1f - target, 1f / Mathf.Max(1, n)));
+        private static float PerCopy(float target, int n, float min = 2f / 255f) => Mathf.Max(min, 1f - Mathf.Pow(1f - target, 1f / Mathf.Max(1, n)));
 
         /// <summary>Asıl görselin konum → doku eşlemesi (dikdörtgen simge): kopyanın her noktası asıl simgede nereye düşüyor.</summary>
         private static void BaseMap(int from, int to)
@@ -493,7 +500,7 @@ namespace Pofi.UI
             _pMin = pMin; _pSize = Vector2.Max(pMax - pMin, new Vector2(1e-3f, 1e-3f)); _uMin = uMin; _uSize = uMax - uMin;
         }
 
-        private static void Ring(float r, Vector2 shift, Color c, int from, int to, int dirs)
+        private static void Ring(float r, Vector2 shift, Color c, int from, int to, int dirs, bool shadow = false)
         {
             for (var k = 0; k < dirs; k++)
             {
@@ -508,7 +515,7 @@ namespace Pofi.UI
                     v.color = new Color(c.r, c.g, c.b, al);
                     var p = (Vector2)v.position;
                     var bu = _uMin + Vector2.Scale(new Vector2((p.x - _pMin.x) / _pSize.x, (p.y - _pMin.y) / _pSize.y), _uSize);
-                    v.uv1 = new Vector4(2f + bu.x, 2f + bu.y, 0f, 0f);   // düz renk bayrağı + asıl simgedeki konum
+                    v.uv1 = new Vector4(2f + bu.x + (shadow ? 10f : 0f), 2f + bu.y, 0f, 0f);   // düz renk bayrağı (+10: gölge) + asıl simgedeki konum
                     Out.Add(v);
                 }
             }
