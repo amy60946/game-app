@@ -100,6 +100,10 @@ namespace Pofi.Core
                     case "xp":
                         app.GrantXp(int.Parse(arg), XpSource.Achievement);
                         break;
+                    case "stones":      // görsel deneme: "stones N" yerleştirilecek N Güneş Taşı (yalnız yerel kayıt; eşitleme geri alabilir)
+                        app.State.SunStones.Earned += int.Parse(arg);
+                        app.Save(); app.Route();
+                        break;
                     case "cam":         // kamera denemesi: cam <uzaklık çarpanı> <en az eğim°> <görüş eki°> <bakış yükselmesi m>
                         {
                             var c = arg.Split(' '); var ci = System.Globalization.CultureInfo.InvariantCulture;
