@@ -120,7 +120,7 @@ namespace Pofi.Screens
             _overview = !_overview;
             World.PropCuller.Radius = _overview ? 400f : 95f;   // kuşbakışında bütün ada
             if (_overview) TipDone(Onboarding.Overview); else TipDone(null);
-            if (_modeText != null) _modeText.text = T(_overview ? "map.walk" : "map.overview");
+            if (_modeText != null) { _modeText.text = T(_overview ? "map.walk" : "map.overview"); GoldKit.FitRibbon(_modeText); }
             RefreshTracker();
             if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
             if (_overview) _pan = _terrain.Baked != null ? new Vector2(0f, -18f) : new Vector2(0f, _terrain.Def.Cz - 6f);   // kuşbakışı: adanın ortası

@@ -41,67 +41,71 @@ namespace Pofi.Screens
         private RectTransform _trophy;
         private Text _trophyCount;
 
+        private const float G = GoldKit.K;   // Altın Atölye taslağı (1280×720) → tuval birimi
+        private static readonly Color[] NeedCols = { Theme.Hex("#FF8A3D"), Theme.Hex("#3FA9F5"), Theme.Hex("#FF4F8B"), Theme.Hex("#7ED957") };
+        private const float ArcSpan = 76f / 360f;   // her ihtiyaç bir çeyrekte 76°lik yay (taslak: 7°–83°)
+        private readonly Text[] _needVals = new Text[4];
+        private Text _xpText, _nextTip;
+        private RectTransform _detail, _xpBar, _curRow;
+        private CanvasGroup _detailG, _nextG;
+        private readonly List<CanvasGroup> _hudLabels = new List<CanvasGroup>();
+        private readonly List<RectTransform> _hudShrink = new List<RectTransform>();
+
         private void BuildHud()
         {
             var hud = Ui.Fill(Root, "Hud");
             _hudGroup = hud.gameObject.AddComponent<CanvasGroup>();   // sinematik anlarda (H1) arayüz çekilir
-            // sol üst
-            // pet kartı: madalyon + isim plakası + seviye yıldızı + XP kapsülü (Candy.PetPlate)
-            var pet = App.Data.Pet(App.State.PetId);
-            _levelBadge = Candy.PetPlate(hud, App.State.PetId, Theme.Hex(pet.MainColor), new Vector2(10f, -10f), out _levelText, out _levelNum, out _xpFill);
-            // pet kartına dokununca küçük menü (G, 23 Ekim 2026): Defter (rozetler), Ayarlar, Müzik.
-            // XP kapsülünün sağında küçük kupa + kazanılan rozet sayısı.
-            var plateHit = _levelBadge.gameObject.AddComponent<Image>(); plateHit.color = new Color(1f, 1f, 1f, 0f);
-            var plateBtn = _levelBadge.gameObject.AddComponent<Button>(); plateBtn.targetGraphic = plateHit; plateBtn.transition = Selectable.Transition.None;
-            plateBtn.onClick.AddListener(ToggleAvatarMenu);
-            _trophy = Ui.Rect(_levelBadge, "Trophy", new Vector2(0f, 1f), new Vector2(84f, 84f), new Vector2(506f, -116f));
-            var ti = Ui.IconImage(_trophy, "ui_trophy", new Vector2(0.5f, 0.5f), 84f);
-            if (ti != null) ti.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -4f);
-            _trophyCount = Candy.Count(_trophy, 40f);
-            // Yerleşim v3 taslağına göre (kullanıcı onayı, 19 Ekim 2026): halkalar küçük, rozetin altında; sol sütun Görev + Ev Görevleri;
-            // üst orta Güneş Taşı + coin; sağ üst yuvarlak Harita ve Ayarlar; sol alt Besle/Yıka; sağ alt eylem.
-            Color[] cols = { new Color(1f, 0.62f, 0.26f), new Color(0.24f, 0.79f, 1f), new Color(1f, 0.44f, 0.68f), new Color(0.48f, 0.84f, 0.42f) };
-            for (var i = 0; i < 4; i++)
-                _gauges[i] = Candy.Gauge(hud, cols[i], HudIcons[i], 96f, new Vector2(0f, 1f), new Vector2(16f + 48f + i * 110f, -244f));
+            _hudLabels.Clear(); _hudShrink.Clear();
+            // Altın Atölye + çerçevesiz 3B simgeler + yürürken gizlen (E + G, kullanıcı onayı 22 Ekim; işleniş 1 "kalın simge", 24 Ekim 2026).
+            // Sol üst: yüz madalyonu, çevresinde 4 ihtiyaç yayı, köşede yıldız seviye; yanında kırmızı kurdele ad + kupa, altın XP çubuğu,
+            // ihtiyaç değerleri. Madalyona dokununca menü (Defter, Ayarlar, Müzik, Sesli okuma).
+            BuildProfile(hud);
 
-            // üst orta: Güneş Taşı ve coin
-            _stoneText = Candy.ResourcePlate(hud, "ui_sunstone", Vector2.zero, 300f);   // Güneş Taşı (yerleştirilebilir)
-            TopCenter(_stoneText, -170f);
-            _coinText = Candy.CoinPlate(hud, Vector2.zero, 300f);
-            TopCenter(_coinText, 170f);
+            // üst orta: Güneş Taşı ve coin (altın kenarlı mavi hap, soldan taşan 3B simge; coin'de parıltı)
+            _curRow = Ui.Rect(hud, "Currencies", new Vector2(0.5f, 1f), new Vector2(340f * G, 48f * G), new Vector2(0f, -(24f + 24f) * G));
+            _stoneText = CurrencyPill(_curRow, "ui_sunstone", -91f * G);   // Güneş Taşı (yerleştirilebilir)
+            _coinText = CurrencyPill(_curRow, "ui_coin", 91f * G);
+            GoldKit.Sparkle(_coinText.transform.parent, new Vector2(0f, 1f), new Vector2(-10f * G, -2f * G), 16f * G, 0f);
+            GoldKit.Sparkle(_coinText.transform.parent, new Vector2(0f, 0f), new Vector2(38f * G, 6f * G), 11f * G, 0.8f);
             RewardFlight.Register("coin", (RectTransform)_coinText.transform.parent);    // O1: kazanılan coin buraya uçar
             RewardFlight.Register("sunstone", (RectTransform)_stoneText.transform.parent);
             LongPressInfo.Add(_stoneText.transform.parent.gameObject, T("info.stones"));   // E4
             LongPressInfo.Add(_coinText.transform.parent.gameObject, T("info.coins"));
 
-            // sağ üst: Harita (kuşbakışı / yürü) ve Ayarlar
-            // kenarlara yakın (kullanıcı, 20 Ekim 2026)
-            var map = Candy.Round(hud, Candy.White, "ui_map", 160f, new Vector2(1f, 1f), new Vector2(-92f, -100f), ToggleMode, T("map.overview"));
-            _modeText = map.GetComponentInChildren<Text>();
-            _mapBtn = (RectTransform)map.transform;
-            LongPressInfo.Add(map.gameObject, T("info.map"));
+            // sağ üst: Harita (kuşbakışı / yürü) ve solunda Görev; çerçeve yok, simgenin kendisi düğme (kullanıcı, 24 Ekim 2026)
             // G (23 Ekim 2026): Ayarlar ve müzik avatar menüsünde; Ev Görevleri adadaki panodan ve Görev penceresinin sekmesinden açılır.
             MusicButton.SetVisible(false);
-            // sağ üst: Görev (oyun içi günlük görevler), Harita'nın solunda
-            var tasks = Candy.Round(hud, Candy.White, "ui_star", 150f, new Vector2(1f, 1f), new Vector2(-268f, -100f), GoTasks, T("hud.tasks"));
+            var map = Shrinkable(hud, new Vector2(1f, 1f), new Vector2(-(22f + 50f) * G, -(8f + 50f) * G), 100f * G);
+            var (mapBtn, _, mapLab) = GoldKit.Icon3D(map, "ui_map", 100f * G, new Vector2(0.5f, 0.5f), Vector2.zero, Theme.Hex("#7A4A12"), ToggleMode, T("map.overview"), GoldKit.Tone.Red, 0.9f);
+            _modeText = mapLab;
+            _mapBtn = (RectTransform)mapBtn.transform;
+            Label(mapLab);
+            LongPressInfo.Add(mapBtn.gameObject, T("info.map"));
+            var tasksW = Shrinkable(hud, new Vector2(1f, 1f), new Vector2(-(22f + 100f + 22f + 42f) * G, -(8f + 46f) * G), 84f * G);
+            var (tasks, _, tasksLab) = GoldKit.Icon3D(tasksW, "ui_star", 84f * G, new Vector2(0.5f, 0.5f), Vector2.zero, Theme.Hex("#C26A08"), GoTasks, T("hud.tasks"), GoldKit.Tone.Blue, 0.3f);
             _tasksBtn = (RectTransform)tasks.transform;
-            _questCount = Candy.Count(tasks.transform);   // bugün açık oyun içi görev sayısı
+            Label(tasksLab);
+            _questCount = GoldKit.Gem(tasks.transform);   // bugün açık oyun içi görev sayısı
             LongPressInfo.Add(tasks.gameObject, T("info.tasks"));
             var next = App.Map.NextToUnlock(App.Level, App.State.VisitedRegions, App.Data.SunBook, App.State.SunStones);
             if (next != null)
-                Candy.Caption(hud, T("map.next", next.Region.Name, next.UnlockLevel), 32, new Vector2(0.5f, 0f), new Vector2(900f, 56f), new Vector2(0f, 46f));
+            {
+                // krem kurdele (taslak .e-tip): sıradaki yer; yürürken aşağı kayıp söner
+                _nextTip = GoldKit.Ribbon(hud, T("map.next", next.Region.Name, next.UnlockLevel), GoldKit.Tone.Cream, 44f * G, Mathf.RoundToInt(20f * G), new Vector2(0.5f, 0f), new Vector2(0f, 46f));
+                _nextG = _nextTip.transform.parent.gameObject.AddComponent<CanvasGroup>(); _nextG.blocksRaycasts = false;
+            }
 
             // Besle/Yıka düğmeleri yok (G1 + G2, 23 Ekim 2026): bakım Okti'ye dokununca açılan baloncuklardan ve ihtiyaç baloncuğundan.
             // Tepsi bu katmanda açılır.
             _leftBar = Ui.Rect(hud, "Care", Vector2.zero, new Vector2(420f, 260f), new Vector2(196f, 172f));
 
-            // sağ alt: bağlamsal eylem
+            // sağ alt: bağlamsal eylem (çerçevesiz 3B simge + yeşil kurdele)
             // simgesi o anki eyleme göre değişir (balta, el, kazma, çekiç, zıpla, kapı, oyna); altında kısa yazı
-            var act = Candy.Round(hud, Candy.White, "act_jump", 230f, new Vector2(1f, 0f), new Vector2(-150f, 205f), () => _actionDo?.Invoke(), T("hud.jump"));
+            var (act, actIcon, actLab) = GoldKit.Icon3D(hud, "act_jump", 132f * G, new Vector2(1f, 0f), new Vector2(-(44f + 66f) * G, (44f + 66f) * G),
+                Theme.Hex("#4E2E14"), () => _actionDo?.Invoke(), T("hud.jump"), GoldKit.Tone.Green, 0.2f);
             _action = (RectTransform)act.transform;
-            _actionText = act.GetComponentInChildren<Text>();
-            var ai = act.transform.Find("Icon act_jump");
-            _actionIcon = ai != null ? ai.GetComponent<Image>() : null;
+            _actionText = actLab;
+            _actionIcon = actIcon;
             BuildBag(hud);    // Ç: sağdaki malzeme paneli yerine sol kenarda çanta
             BuildNeed(hud);   // İ1 + İ4
 
@@ -121,24 +125,136 @@ namespace Pofi.Screens
             CollectSmartHide(hud);
         }
 
+        // ------------------------------------------------------------------ Altın Atölye parçaları
+
+        /// <summary>Sol üst profil: yüz madalyonu + 4 ihtiyaç yayı + yıldız seviye; yanında ad kurdelesi, XP çubuğu, ihtiyaç değerleri.</summary>
+        private void BuildProfile(RectTransform hud)
+        {
+            var ring = Ui.Rect(hud, "Profile", new Vector2(0f, 1f), new Vector2(116f * G, 116f * G), new Vector2((20f + 58f) * G, -(12f + 58f) * G));
+            _levelBadge = ring;
+            // 4 ihtiyaç yayı (üst: açlık, sağ: temizlik, alt: mutluluk, sol: ev); her çeyrekte soluk iz + renkli dolgu + nabız ışığı
+            for (var i = 0; i < 4; i++)
+            {
+                var q = Ui.Fill(ring, "Need" + i);
+                q.localRotation = Quaternion.Euler(0f, 0f, -(i * 90f - 38f));
+                var glow = Ui.Rect(q, "Glow", new Vector2(0.5f, 0.5f), new Vector2(116f * G * 1.2f, 116f * G * 1.2f));
+                _gaugeGlow[i] = Arc(glow, new Color(1f, 0.62f, 0.2f, 0f), ArcSpan + 0.02f);
+                glow.localRotation = Quaternion.Euler(0f, 0f, 3.6f);
+                var track = Arc(q, new Color(1f, 1f, 1f, 0.35f), ArcSpan);
+                var sh = track.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.04f, 0.12f, 0.35f, 0.4f); sh.effectDistance = new Vector2(0f, -3f);
+                var fillRt = Ui.Fill(q, "Fill");
+                _gauges[i] = Arc(fillRt, NeedCols[i], 0f);
+            }
+            var face = Ui.Rect(ring, "Face", new Vector2(0.5f, 0.5f), new Vector2(94f * G, 94f * G));
+            var inner = GoldKit.RimDisc(face, Theme.Hex("#9EE0FF"), Theme.Hex("#3E92F2"));
+            var pic = Ui.Portrait(App.State.PetId);
+            if (pic != null)
+            {
+                inner.gameObject.AddComponent<Mask>().showMaskGraphic = true;
+                var p = Ui.Rect(inner, "Pic", new Vector2(0.5f, 0.5f), new Vector2(86f * G, 86f * G), new Vector2(0f, -2f * G));
+                var pi = p.gameObject.AddComponent<Image>(); pi.sprite = pic; pi.preserveAspect = true; pi.raycastTarget = false;
+            }
+            var star = Ui.Rect(ring, "Star", new Vector2(1f, 0f), new Vector2(52f * G, 52f * G), new Vector2(-20f * G, 22f * G));
+            var si = star.gameObject.AddComponent<Image>(); si.sprite = GoldKit.Star; si.raycastTarget = false;
+            var ss = star.gameObject.AddComponent<Shadow>(); ss.effectColor = Theme.Hex("#9A5A00"); ss.effectDistance = new Vector2(0f, -2f * G);
+            _levelNum = Ui.Label(star, "", Mathf.RoundToInt(22f * G), Theme.Hex("#7A3E00"), new Vector2(0.5f, 0.5f), new Vector2(52f * G, 52f * G), FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0f, -3f * G));
+            _levelNum.raycastTarget = false;
+            // dokunma: menü (G, 23 Ekim 2026)
+            var hit = ring.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0f);
+            var btn = ring.gameObject.AddComponent<Button>(); btn.targetGraphic = hit; btn.transition = Selectable.Transition.None;
+            btn.onClick.AddListener(ToggleAvatarMenu);
+
+            // ayrıntı (yürürken söner)
+            _detail = Ui.Rect(hud, "ProfileDetail", new Vector2(0f, 1f), new Vector2(330f * G, 102f * G), new Vector2(0f, 0f));
+            _detail.pivot = new Vector2(0f, 0.5f);
+            _detail.anchoredPosition = new Vector2((20f + 116f + 12f) * G, -(12f + 58f) * G);
+            _detailG = _detail.gameObject.AddComponent<CanvasGroup>();
+            _levelText = GoldKit.Ribbon(_detail, "", GoldKit.Tone.Red, 38f * G, Mathf.RoundToInt(23f * G), new Vector2(0f, 1f), Vector2.zero, 22f * G);
+            var rib = (RectTransform)_levelText.transform.parent;
+            rib.pivot = new Vector2(0f, 1f); rib.anchoredPosition = Vector2.zero;
+            _trophy = Ui.Rect(rib, "Trophy", new Vector2(1f, 0.5f), new Vector2(56f * G, 30f * G), new Vector2(-(26f + 28f) * G * 0.5f - 8f, 0f));
+            var ti = Ui.IconImage(_trophy, "ui_trophy", new Vector2(0f, 0.5f), 26f * G, new Vector2(13f * G, 0f));
+            if (ti != null) ti.GetComponent<Image>().raycastTarget = false;
+            _trophyCount = Ui.Label(_trophy, "", Mathf.RoundToInt(18f * G), Color.white, new Vector2(1f, 0.5f), new Vector2(28f * G, 30f * G), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(-12f * G, 0f));
+            var tcs = _trophyCount.gameObject.AddComponent<Shadow>(); tcs.effectColor = GoldKit.RibbonRedInk; tcs.effectDistance = new Vector2(0f, -2f * G);
+            _trophyCount.raycastTarget = false;
+
+            _xpBar = Ui.Rect(_detail, "Xp", new Vector2(0f, 1f), new Vector2(250f * G, 28f * G));
+            _xpBar.pivot = new Vector2(0f, 1f); _xpBar.anchoredPosition = new Vector2(0f, -(38f + 6f) * G);
+            var xin = GoldKit.RimCapsule(_xpBar, Theme.Hex("#173A9A"), Theme.Hex("#10297A"));
+            xin.gameObject.AddComponent<RectMask2D>();
+            var fillRt2 = Ui.Fill(xin, "Fill");
+            fillRt2.offsetMin = new Vector2(2f * G, 2f * G); fillRt2.offsetMax = new Vector2(-2f * G, -2f * G);
+            var fill = Ui.Fill(fillRt2, "Bar");
+            fill.pivot = new Vector2(0f, 0.5f);
+            _xpFill = fill.gameObject.AddComponent<Image>(); _xpFill.raycastTarget = false;
+            _xpFill.sprite = GoldKit.Capsule(Theme.Hex("#C4F77A"), Theme.Hex("#46C23C")); _xpFill.type = Image.Type.Sliced;
+            _xpFill.pixelsPerUnitMultiplier = 96f / Mathf.Max(1f, 28f * G - 4f * G - 4f * G);
+            // parlama süpürmesi (taslak .shine)
+            var shine = Ui.Rect(xin, "Shine", new Vector2(0f, 0.5f), new Vector2(40f * G, 28f * G));
+            var shi = shine.gameObject.AddComponent<Image>(); shi.sprite = GoldKit.Capsule(new Color(1f, 1f, 1f, 0.5f), new Color(1f, 1f, 1f, 0.15f)); shi.raycastTarget = false;
+            shine.gameObject.AddComponent<ShineSweep>();
+            _xpText = Ui.Label(_xpBar, "", Mathf.RoundToInt(15f * G), Color.white, new Vector2(0.5f, 0.5f), new Vector2(250f * G, 28f * G), FontStyle.Bold);
+            var xs = _xpText.gameObject.AddComponent<Shadow>(); xs.effectColor = Theme.Hex("#18389A"); xs.effectDistance = new Vector2(0f, -2f * G);
+            _xpText.raycastTarget = false;
+            RewardFlight.Register("xp", _xpBar);   // XP küreleri buraya uçar (kullanıcı, 24 Ekim 2026)
+
+            for (var i = 0; i < 4; i++)
+            {
+                var cell = Ui.Rect(_detail, "Need" + i, new Vector2(0f, 1f), new Vector2(60f * G, 24f * G));
+                cell.pivot = new Vector2(0f, 1f); cell.anchoredPosition = new Vector2(i * 62f * G, -(38f + 6f + 28f + 6f) * G);
+                Ui.IconImage(cell, HudIcons[i], new Vector2(0f, 0.5f), 24f * G, new Vector2(12f * G, 0f));
+                _needVals[i] = Ui.Label(cell, "", Mathf.RoundToInt(15f * G), Color.white, new Vector2(0f, 0.5f), new Vector2(34f * G, 24f * G), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2((26f + 17f) * G, 0f));
+                var ns = _needVals[i].gameObject.AddComponent<Outline>(); ns.effectColor = new Color(0.04f, 0.12f, 0.35f, 0.7f); ns.effectDistance = new Vector2(2f, -2f);
+                _needVals[i].raycastTarget = false;
+            }
+        }
+
+        private static Image Arc(RectTransform rt, Color c, float fill)
+        {
+            var img = rt.gameObject.AddComponent<Image>();
+            img.sprite = GoldKit.Annulus; img.color = c; img.raycastTarget = false;
+            img.type = Image.Type.Filled; img.fillMethod = Image.FillMethod.Radial360; img.fillOrigin = (int)Image.Origin360.Top; img.fillClockwise = true;
+            img.fillAmount = fill;
+            return img;
+        }
+
+        /// <summary>Para hapı (taslak .e-pill): altın kenarlı mavi kapsül, soldan taşan iri simge, sağa yaslı beyaz sayı.</summary>
+        private static Text CurrencyPill(RectTransform row, string icon, float x)
+        {
+            var rt = Ui.Rect(row, "Pill " + icon, new Vector2(0.5f, 0.5f), new Vector2(150f * G, 48f * G), new Vector2(x, 0f));
+            GoldKit.RimCapsule(rt, Theme.Hex("#2B5FE0"), Theme.Hex("#173C9E"));
+            var ic = Ui.IconImage(rt, icon, new Vector2(0f, 0.5f), 64f * G, new Vector2(16f * G, 0f));
+            if (ic != null) { var s = ic.gameObject.AddComponent<Shadow>(); s.effectColor = new Color(0.05f, 0.11f, 0.31f, 0.4f); s.effectDistance = new Vector2(0f, -3f * G); }
+            var t = Ui.Label(rt, "", Mathf.RoundToInt(27f * G), Color.white, new Vector2(1f, 0.5f), new Vector2(80f * G, 48f * G), FontStyle.Bold, TextAnchor.MiddleRight, new Vector2(-(18f + 40f) * G, 1f * G));
+            var ts = t.gameObject.AddComponent<Shadow>(); ts.effectColor = Theme.Hex("#18389A"); ts.effectDistance = new Vector2(0f, -2f * G);
+            t.raycastTarget = false;
+            return t;
+        }
+
+        /// <summary>Yürürken küçülecek düğmenin taşıyıcısı (düğmenin kendi ölçeğini basma tepkisi yönetir).</summary>
+        private RectTransform Shrinkable(RectTransform hud, Vector2 anchor, Vector2 offset, float size)
+        {
+            var w = Ui.Rect(hud, "Wrap", anchor, new Vector2(size, size), offset);
+            _hudShrink.Add(w);
+            return w;
+        }
+
+        /// <summary>Düğme kurdelesi yürürken söner.</summary>
+        private void Label(Text t)
+        {
+            if (t == null) return;
+            var g = t.transform.parent.gameObject.AddComponent<CanvasGroup>(); g.blocksRaycasts = false;
+            _hudLabels.Add(g);
+        }
+
         // ------------------------------------------------------------------ G akıllı gizlenme (onaylı, 22–23 Ekim 2026)
-        // Yürürken kenardaki göstergeler kendi kenarlarına çekilip solar; durunca geri gelir. Eylem tuşu ve joystick hep kalır.
-        private readonly List<(RectTransform Rt, CanvasGroup G, Vector2 Base, Vector2 Dir)> _hideables = new List<(RectTransform, CanvasGroup, Vector2, Vector2)>();
+        // Yürürken (taslak "Yürürken"): ad/XP ayrıntısı, kurdeleler ve sıradaki yer söner; Görev, Harita, Çanta küçülür, paralar biraz küçülür.
+        // Madalyon, yaylar, eylem tuşu ve joystick hep kalır. Durunca geri gelir.
         private float _hideT, _moveFor, _stillFor;
         private Vector2 _lastPetPos;
 
-        private void CollectSmartHide(RectTransform hud)
-        {
-            _hideables.Clear();
-            foreach (RectTransform c in hud)
-            {
-                if (c == _action || c == _stickBase || c == _leftBar) continue;
-                var a = (c.anchorMin + c.anchorMax) * 0.5f;
-                Vector2 dir = a.x < 0.34f ? Vector2.left : a.x > 0.66f ? Vector2.right : a.y > 0.5f ? Vector2.up : Vector2.down;
-                var g = c.GetComponent<CanvasGroup>(); if (g == null) g = c.gameObject.AddComponent<CanvasGroup>();
-                _hideables.Add((c, g, c.anchoredPosition, dir));
-            }
-        }
+        private void CollectSmartHide(RectTransform hud) { }
 
         private void UpdateSmartHide(float dt)
         {
@@ -149,24 +265,13 @@ namespace Pofi.Screens
             var moving = !_overview && !_cine && speed > 0.6f;
             if (moving) { _moveFor += dt; _stillFor = 0f; } else { _stillFor += dt; _moveFor = 0f; }
             var hide = _moveFor > 0.35f || (_hideT > 0f && _stillFor < 0.6f);   // kısa duraklamada geri zıplamasın
-            _hideT = Mathf.MoveTowards(_hideT, hide ? 1f : 0f, dt / (hide ? 0.25f : 0.35f));
+            _hideT = Mathf.MoveTowards(_hideT, hide ? 1f : 0f, dt / (hide ? 0.3f : 0.4f));
             var e = _hideT * _hideT * (3f - 2f * _hideT);
-            foreach (var (rt, g, b, d) in _hideables)
-            {
-                if (rt == null) continue;
-                rt.anchoredPosition = b + d * (260f * e);
-                g.alpha = 1f - 0.92f * e;
-                g.blocksRaycasts = e < 0.5f;
-            }
-        }
-
-        /// <summary>Kaynak göstergesini (Candy.ResourcePlate) üst ortaya taşır: x merkeze göre.</summary>
-        private static void TopCenter(Text plateText, float x)
-        {
-            var rt = (RectTransform)plateText.transform.parent;
-            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 1f);
-            rt.pivot = new Vector2(0.5f, 1f);
-            rt.anchoredPosition = new Vector2(x, -30f);
+            if (_detailG != null) { _detailG.alpha = 1f - e; _detail.localScale = new Vector3(1f - 0.1f * e, 1f - 0.1f * e, 1f); }
+            foreach (var g in _hudLabels) if (g != null) g.alpha = 1f - e;
+            foreach (var w in _hudShrink) if (w != null) { var k = 1f - 0.22f * e; w.localScale = new Vector3(k, k, 1f); }
+            if (_curRow != null) { var k = 1f - 0.14f * e; _curRow.localScale = new Vector3(k, k, 1f); }
+            if (_nextG != null) { _nextG.alpha = 1f - e; ((RectTransform)_nextG.transform).anchoredPosition = new Vector2(0f, 46f - 18f * G * e); }
         }
 
         private void HudDestroy()
@@ -228,12 +333,19 @@ namespace Pofi.Screens
         private void OnXp(int n)
         {
             if (this == null || _levelBadge == null) return;
-            var f = Ui.Rect(_levelBadge.parent, "XpGain", new Vector2(0f, 1f), new Vector2(240f, 90f), new Vector2(620f, -70f));
+            var f = Ui.Rect(_levelBadge.parent, "XpGain", new Vector2(0f, 1f), new Vector2(240f, 90f), new Vector2((148f + 250f + 70f) * G, -(12f + 58f) * G));
             Ui.IconImage(f, "ui_star", new Vector2(0f, 0.5f), 80f, new Vector2(40f, 0f));
             Candy.Caption(f, T("xp.star", n), 56, new Vector2(0.5f, 0.5f), new Vector2(160f, 90f), new Vector2(40f, 0f));
             f.gameObject.AddComponent<FloatUp>();
+            // XP küreleri (kullanıcı, 24 Ekim 2026; Hay Day / Township tarzı): kazanıldığı yerden saçılıp XP çubuğuna uçar,
+            // çubuk geldikçe dolar. Kaynak yoksa Okti'nin üstünden çıkar.
             var from = _xpFrom; _xpFrom = null;
-            GainFx3D(GainFx.Kind.Xp, n, from);
+            Vector2 sp;
+            var w = _world != null ? _world.Walker : null;
+            if (from.HasValue) sp = App.Stage.Camera.WorldToScreenPoint(from.Value);
+            else if (w != null && !_overview) sp = App.Stage.Camera.WorldToScreenPoint(w.transform.position + Vector3.up * PetHeight * 0.9f);
+            else sp = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            RewardFlight.Fly(App.Overlay.transform, "xp", "ui_star", n, sp);
             RefreshHud();
             if (Onboarding.Pending(App.State, Onboarding.Xp))
             {
@@ -250,8 +362,8 @@ namespace Pofi.Screens
             var st = App.State;
             for (var i = 0; i < 4; i++)
             {
-                var f = st.Stats[HudKinds[i]] / 100f;
-                if (f > _gauges[i].fillAmount + 0.02f) Bump.Play(_gauges[i].transform.parent, 0.18f);   // besleyince/yıkayınca halka zıplar
+                var f = st.Stats[HudKinds[i]] / 100f * ArcSpan;
+                if (f > _gauges[i].fillAmount + 0.02f * ArcSpan) Bump.Play(_gauges[i].transform.parent, 0.12f);   // besleyince/yıkayınca yay zıplar
                 _gauges[i].fillAmount = f;
             }
             // uçuştaki ödül sayaçtan düşülür: parçalar geldikçe sayı tek tek artar (O1)
@@ -259,17 +371,33 @@ namespace Pofi.Screens
             if (_lastCoins >= 0 && coins != _lastCoins) Bump.Play(_coinText.transform.parent);
             if (_lastStones >= 0 && stones != _lastStones) Bump.Play(_stoneText.transform.parent, 0.3f);
             _lastCoins = coins; _lastStones = stones;
-            _levelText.text = st.PetName;
-            _levelNum.text = App.Level.ToString();
-            if (_trophyCount != null)
+            var nb = st.Badges.Count;
+            if (_levelText.text != st.PetName || _trophyCount.text != nb.ToString())
             {
-                var nb = st.Badges.Count;
+                // ad kurdelesi: ad + (rozet varsa) kupa ve sayısı
+                _levelText.text = st.PetName;
                 _trophyCount.text = nb.ToString();
-                _trophyCount.transform.parent.gameObject.SetActive(nb > 0);
+                _trophy.gameObject.SetActive(nb > 0);
+                var rib = (RectTransform)_levelText.transform.parent;
+                var pad = 22f * G;
+                var extra = nb > 0 ? 62f * G : 0f;
+                rib.sizeDelta = new Vector2(_levelText.preferredWidth + pad * 2f + extra, rib.sizeDelta.y);
+                ((RectTransform)_levelText.transform).anchoredPosition = new Vector2(-extra * 0.5f, 0.04f * rib.sizeDelta.y);
             }
+            _levelNum.text = App.Level.ToString();
+            for (var i = 0; i < 4; i++) _needVals[i].text = Mathf.RoundToInt(st.Stats[HudKinds[i]]).ToString();
             _coinText.text = coins.ToString();
             _stoneText.text = stones.ToString();
-            Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(st.Xp.TotalXp));
+            // XP: uçuştaki küreler henüz sayılmaz (geldikçe çubuk dolar)
+            var xp = Mathf.Max(0, st.Xp.TotalXp - RewardFlight.Pending("xp"));
+            var lv = App.Levels.LevelFor(xp);
+            Ui.SetBar(_xpFill, App.Levels.ProgressInLevel(xp));
+            if (lv >= App.Levels.MaxLevel) _xpText.text = T("hud.xp_max");
+            else
+            {
+                var start = App.Levels.TotalXpFor(lv);
+                _xpText.text = (xp - start) + " / " + (App.Levels.TotalXpFor(lv + 1) - start);
+            }
             RefreshBag();
             if ((_questT -= Time.deltaTime) <= 0f) { _questT = 1f; SetCount(_questCount, OpenQuests()); }
         }
@@ -277,7 +405,7 @@ namespace Pofi.Screens
         private static void SetCount(Text t, int n)
         {
             t.text = n.ToString();
-            t.transform.parent.GetComponent<Image>().enabled = true;
+            t.transform.parent.gameObject.SetActive(n > 0);
         }
 
         private int Count(string category) =>
@@ -563,8 +691,8 @@ namespace Pofi.Screens
             _actionDo = () => { TipDone(k2 == "hud.jump" ? Onboarding.Jump : k2 == "hud.play" ? Onboarding.Play : k2 == "hud.enter" ? Onboarding.Enter : null); act(); };
             if (_actionKey != key)
             {
-                _actionKey = key; _actionText.text = T(key);
-                if (_actionIcon != null) { var sp = Ui.Icon(icon); if (sp != null) _actionIcon.sprite = sp; }
+                _actionKey = key; _actionText.text = T(key); GoldKit.FitRibbon(_actionText);
+                GoldKit.SetIcon(_actionIcon, icon);
                 _action.localScale = Vector3.one * 1.12f;   // değişince küçük "pop"
             }
             _action.localScale = Vector3.Lerp(_action.localScale, Vector3.one, Time.deltaTime * 8f);

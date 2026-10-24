@@ -364,6 +364,22 @@ namespace Pofi.UI
         }
     }
 
+    /// <summary>Parlama süpürmesi (taslak .shine): 3,2 sn'de bir soldan sağa geçen açık şerit; ebeveynin genişliğinde.</summary>
+    public sealed class ShineSweep : MonoBehaviour
+    {
+        private void Update()
+        {
+            var rt = (RectTransform)transform;
+            var parent = rt.parent as RectTransform;
+            if (parent == null) return;
+            var w = parent.rect.width;
+            var t = Theme.ReduceMotion ? 2f : Mathf.Repeat(Time.unscaledTime, 3.2f) / 3.2f;
+            var k = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 0.6f));
+            rt.anchoredPosition = new Vector2(Mathf.Lerp(-rt.sizeDelta.x, w + rt.sizeDelta.x, k), 0f);
+            rt.gameObject.GetComponent<Image>().enabled = t < 0.6f;
+        }
+    }
+
     /// <summary>Parıltı döngüsü: 2,2 sn'de bir büyüyüp dönerek söner.</summary>
     public sealed class TwinkleFx : MonoBehaviour
     {

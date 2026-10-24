@@ -34,9 +34,12 @@ namespace Pofi.Screens
 
         private void BuildBag(RectTransform hud)
         {
-            var b = Candy.Round(hud, Candy.White, "backpack_small", 150f, new Vector2(0f, 0.5f), new Vector2(110f, -30f), ToggleBag, T("bag.title"));
+            // çerçevesiz 3B simge (kullanıcı, 24 Ekim 2026: Çanta, Görev, Harita çerçevede durmasın)
+            var wrap = Shrinkable(hud, new Vector2(0f, 0.5f), new Vector2((34f + 42f) * G, -30f), 84f * G);
+            var (b, _, lab) = GoldKit.Icon3D(wrap, "backpack_small", 84f * G, new Vector2(0.5f, 0.5f), Vector2.zero, Theme.Hex("#3E5A1E"), ToggleBag, T("bag.title"), GoldKit.Tone.Blue, 0.5f);
+            Label(lab);
             _bag = (RectTransform)b.transform;
-            _bagNum = Candy.Count(b.transform, 50f);
+            _bagNum = GoldKit.Gem(b.transform);
             LongPressInfo.Add(b.gameObject, T("info.bag"));
             foreach (var m in new[] { Gathering.Wood, Gathering.Branch, Gathering.Stone }) RewardFlight.Register(m, _bag);   // O1: malzeme çantaya uçar
             RefreshBag();
@@ -201,7 +204,7 @@ namespace Pofi.Screens
         private void BuildNeed(RectTransform hud)
         {
             // İ1: halkaların sağında tek simge + tek kelime; her şey yolundaysa görünmez
-            _needChip = Ui.Rect(hud, "NeedChip", new Vector2(0f, 1f), new Vector2(250f, 84f), new Vector2(590f, -244f));
+            _needChip = Ui.Rect(hud, "NeedChip", new Vector2(0f, 1f), new Vector2(250f, 84f), new Vector2((20f + 116f + 12f) * G + 125f, -(12f + 116f) * G - 52f));
             var bg = _needChip.gameObject.AddComponent<Image>(); bg.sprite = Ui.Rounded; bg.type = Image.Type.Sliced; bg.color = new Color(1f, 0.97f, 0.88f, 0.96f);
             _needChip.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -5f);
             var ic = Ui.IconImage(_needChip, "food_apple", new Vector2(0f, 0.5f), 70f, new Vector2(46f, 2f));
@@ -215,6 +218,7 @@ namespace Pofi.Screens
             // nabız: ilgili halkanın arkasında yumuşak turuncu parıltı (1,6 sn; ses ya da titreşim yok)
             for (var i = 0; i < 4; i++)
             {
+                if (_gaugeGlow[i] != null) continue;   // Altın Atölye yayında ışık profilde kurulur
                 var g = _gauges[i] != null ? _gauges[i].transform.parent as RectTransform : null;
                 if (g == null) continue;
                 var glow = Ui.Rect(g, "Glow", new Vector2(0.5f, 0.5f), g.sizeDelta * 1.35f);
