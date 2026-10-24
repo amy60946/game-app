@@ -333,6 +333,27 @@ namespace Pofi.UI
             return t;
         }
 
+        /// <summary>
+        /// "Kapalı" işareti (ses/müzik kapalı; 24 Ekim 2026, kullanıcı: global oyunlardaki gibi): simgenin üstünden sol üstten
+        /// sağ alta geçen kalın kırmızı çizgi, beyaz kenarlı ve hafif gölgeli (her zeminde okunur). Görünürlüğü çağıran ayarlar.
+        /// </summary>
+        public static GameObject OffSlash(Transform button, float length)
+        {
+            var t = Mathf.Max(8f, length * 0.14f);   // kırmızı çizgi kalınlığı
+            var root = Ui.Rect(button, "Off", new Vector2(0.5f, 0.52f), new Vector2(length + 10f, t + 10f));
+            root.localRotation = Quaternion.Euler(0f, 0f, -45f);
+            var rim = root.gameObject.AddComponent<Image>();   // beyaz kenar
+            rim.sprite = Ui.Rounded; rim.type = Image.Type.Sliced; rim.pixelsPerUnitMultiplier = 60f / ((t + 10f) * 0.5f);
+            rim.color = Color.white; rim.raycastTarget = false;
+            var sh = root.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.25f, 0.05f, 0.08f, 0.35f); sh.effectDistance = new Vector2(2f, -4f);
+            var bar = Ui.Rect(root, "Red", new Vector2(0.5f, 0.5f), new Vector2(length, t));
+            var red = bar.gameObject.AddComponent<Image>();
+            red.sprite = Ui.Rounded; red.type = Image.Type.Sliced; red.pixelsPerUnitMultiplier = 60f / (t * 0.5f);
+            red.color = new Color(0.9f, 0.16f, 0.22f); red.raycastTarget = false;
+            var lip = bar.gameObject.AddComponent<Shadow>(); lip.effectColor = new Color(0.55f, 0.04f, 0.1f, 1f); lip.effectDistance = new Vector2(0f, -2f);
+            return root.gameObject;
+        }
+
         /// <summary>Kırmızı sayı rozeti (düğmenin sağ üstü).</summary>
         public static Text Count(Transform parent, float size = 46f)
         {

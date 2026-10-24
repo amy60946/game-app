@@ -1,5 +1,5 @@
 // Oyun önizlemesinin (webgl-preview, pack.sh çıktısı) yerelde ekran görüntüsü: python3 -m http.server 8765 ile sunulan klasör.
-// Kullanım: node tools/preview/shots.js "dbg login B2B2B2;wait 4000;dbg pick pet_13;wait 3000;dbg name Mimi;wait 8000;dbg tp -52 18 120;wait 3000;shot magara"
+// Kullanım: node tools/preview/shots.js "dbg login B2B2B2;wait 4000;dbg pick pet_13;wait 8000;dbg tp -52 18 120;wait 3000;shot magara"
 // Komutlar: dbg <PofiDebug komutu> · wait ms · click x y · drag x1 y1 x2 y2 ms · down x y · move x y · up · shot ad (ad.png). Ortam: URL, W, H, LOG=1.
 const { chromium } = require(process.env.PW || '/opt/node-tools/node_modules/playwright');
 (async () => {

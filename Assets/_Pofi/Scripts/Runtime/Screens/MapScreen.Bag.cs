@@ -177,13 +177,7 @@ namespace Pofi.Screens
             });
             pop.gameObject.AddComponent<PopIn>();
 
-            GameObject Slash(Button b)
-            {
-                var slash = Ui.Rect(b.transform, "Off", new Vector2(0.5f, 0.52f), new Vector2(96f, 13f));
-                slash.localRotation = Quaternion.Euler(0f, 0f, 45f);
-                var si = slash.gameObject.AddComponent<Image>(); si.sprite = Ui.Rounded; si.type = Image.Type.Sliced; si.color = Candy.Pink; si.raycastTarget = false;
-                return slash.gameObject;
-            }
+            GameObject Slash(Button b) => Candy.OffSlash(b.transform, 110f);   // giriş ekranındaki müzik düğmesiyle aynı kırmızı çizgi
 
             Button Item(string icon, string label, float x, System.Action act)
             {

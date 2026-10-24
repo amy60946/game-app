@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Linq;
 using Pofi.Logic.App;
 using Pofi.Logic.Core;
@@ -9,16 +10,22 @@ using UnityEngine.UI;
 namespace Pofi.Screens
 {
     /// <summary>
-    /// Pet seçme / tanışma ekranı. Arkada yükleme görselleriyle aynı dilde tam ekran 3B kumsal (Art/pick_stage, 23 Ekim 2026),
-    /// önde canlı 3B pet (parmakla çevrilir). Tek pet (Okti) varken ok, küçük resim yok: ad, tür, bir cümle ve tek yeşil düğme.
+    /// Pet seçme / tanışma ekranı. Arkada kumsal (<see cref="World.Stage.SetBeach"/>: tepecikli kum, ıslak kum şeridi, köpük izi,
+    /// denizde parıltı), önde canlı 3B pet (parmakla çevrilir). Görünüş oyun içi pencere dilinde (24 Ekim 2026): başlık mavi
+    /// kurdelede, bilgi krem kartta (adı kartın kurdelesinde), tek yeşil ana düğme. Tek pet (Okti) varken ok, küçük resim yok.
+    /// Ad sorulmaz (kullanıcı: "Ad hep Okti kalsın"): "Tanışalım!" ile ad Okti olur, hoş geldin hediyesi verilir, ada açılır.
     /// Birden çok pet olursa karusel (oklar, kaydırma, küçük resimler) geri gelir. İlk açılışta önce giriş filmi (F) oynar.
     /// </summary>
     public sealed class PetSelectScreen : ScreenBase
     {
+        private static readonly Color Ink = new Color(0.42f, 0.25f, 0.06f), InkSoft = new Color(0.6f, 0.42f, 0.19f);
+
         private PetPicker _picker;
-        private Text _name, _species, _feature;
+        private RectTransform _card, _nameRibbon;
+        private Text _species, _feature;
         private Image[] _dots;
         private RectTransform _confirm;
+        private bool _going;
 
         protected override void Build()
         {
@@ -26,13 +33,13 @@ namespace Pofi.Screens
             if (!string.IsNullOrEmpty(App.State.PetId)) _picker.JumpTo(App.State.PetId);
             App.Stage.AllowDrag = true;
             var single = _picker.Count <= 1;
-            App.Stage.SetPicture(Resources.Load<Texture2D>("Art/pick_stage"));   // kumsal sahnesi (Meshy, karaktersiz)
+            App.Stage.SetBeach(true);   // kumsal sahnesi (Meshy görseli + kodla zenginleştirildi, karaktersiz)
             PetCamera(0.36f, 0.16f, 0.82f);   // yatay: pet sol-ortada kumda, bilgi kartı sağda
             if (!single) App.Stage.Swiped = dir => { if (dir < 0) _picker.Next(); else _picker.Prev(); Show(); };
 
-            // oyun yazı tarzında başlık; petin çevresinde parıldayan yıldızlar
-            Candy.Caption(Root, T(single ? "pet.meet_title" : "pet.pick_title"), 84, new Vector2(0.5f, 0.92f), new Vector2(1500f, 110f), new Vector2(0f, 0f), Candy.Deep(Candy.Orange));
-            Candy.Caption(Root, T(single ? "pet.meet_hint" : "pet.pick_hint"), 34, new Vector2(0.5f, 0.85f), new Vector2(1300f, 50f));
+            // başlık: oyundaki pencere başlıkları gibi mavi kurdele; altında kısa ipucu. Petin çevresinde parıldayan yıldızlar
+            Candy.Ribbon(Root, T(single ? "pet.meet_title" : "pet.pick_title"), new Vector2(0.5f, 1f), new Vector2(0f, -84f), 130f, 54);
+            Candy.Caption(Root, T(single ? "pet.meet_hint" : "pet.pick_hint"), 34, new Vector2(0.5f, 0.835f), new Vector2(1300f, 50f));
             StarSparkles.Around(Root, new Vector2(0.36f, 0.5f), new Vector2(0.16f, 0.26f), 9, 3);
 
             if (!single)
@@ -43,12 +50,13 @@ namespace Pofi.Screens
                 Candy.Caption(next.transform, ">", 80, new Vector2(0.5f, 0.52f), new Vector2(140f, 140f));
             }
 
-            var card = Ui.Rect(Root, "Info", new Vector2(0.8f, single ? 0.56f : 0.64f), new Vector2(600f, 400f));
-            Candy.Shell(card, Candy.White).raycastTarget = false;
-            _name = Ui.Label(card, "", Th.Font(72), Th.Text, new Vector2(0.5f, 0.8f), new Vector2(520f, 100f), FontStyle.Bold);
-            _species = Ui.Label(card, "", Th.Font(36), Th.SubtleText, new Vector2(0.5f, 0.6f), new Vector2(520f, 56f));
-            _feature = Ui.Label(card, "", Th.Font(36), Th.Text, new Vector2(0.5f, 0.3f), new Vector2(500f, 150f), FontStyle.Bold);
-            _feature.resizeTextForBestFit = true; _feature.resizeTextMinSize = 24; _feature.resizeTextMaxSize = Th.Font(36);   // uzun yazı kutudan taşmasın
+            // bilgi kartı: krem pencere kartı, adı üst kenardaki kurdelede; tür ve tek cümle
+            _card = Ui.Rect(Root, "Info", new Vector2(0.8f, single ? 0.53f : 0.6f), new Vector2(620f, 380f));
+            Candy.Shell(_card, new Color(1f, 0.99f, 0.96f));   // görünmez dokunma yüzeyi: karta dokunuş peti çevirmez
+            _species = Ui.Label(_card, "", Th.Font(34), InkSoft, new Vector2(0.5f, 0.72f), new Vector2(540f, 56f), FontStyle.Bold);
+            _feature = Ui.Label(_card, "", Th.Font(40), Ink, new Vector2(0.5f, 0.38f), new Vector2(530f, 170f), FontStyle.Bold);
+            _feature.resizeTextForBestFit = true; _feature.resizeTextMinSize = 24; _feature.resizeTextMaxSize = Th.Font(40);   // uzun yazı kutudan taşmasın
+            _feature.lineSpacing = 0.92f;
 
             _dots = new Image[single ? 0 : _picker.Count];
             // iri şeker çerçeveli küçük resimler (ekran genişliğine göre en çok 170): çocuk kolayca seçer
@@ -68,7 +76,8 @@ namespace Pofi.Screens
                 btn.onClick.AddListener(() => { _picker.JumpTo(id); Show(); });
             }
 
-            Candy.Pill(Root, Candy.Green, T(single ? "pet.meet_button" : "pet.pick_button"), new Vector2(0.8f, single ? 0.24f : 0.3f), new Vector2(560f, 140f), Vector2.zero, AskConfirm, null, 52).gameObject.AddComponent<Pulse>();
+            // tek yeşil ana düğme (oyundaki "Al", "Yaptım" ile aynı)
+            Candy.Pill(Root, Candy.Green, T(single ? "pet.meet_button" : "pet.pick_button"), new Vector2(0.8f, single ? 0.2f : 0.3f), new Vector2(540f, 136f), Vector2.zero, AskConfirm, null, 54).gameObject.AddComponent<Pulse>();
             Show();
             if (Logic.App.FirstDay.Current(App.State, App.LocalNow, App.UtcNow) == Logic.App.FirstDayStep.Story) IntroFilm();
         }
@@ -78,7 +87,7 @@ namespace Pofi.Screens
         {
             var book = App.Data.Story;
             var intro = book != null ? book.Scenes.FirstOrDefault(s => s.Trigger == Logic.Story.StoryDirector.Intro) : null;
-            UI.FilmPlayer.Play(App.Overlay.transform, Th, intro, Th.Band, App.State.PetName, T("story.skip"), T("story.go"), () =>
+            UI.FilmPlayer.Play(App.Overlay.transform, Th, intro, Th.Band, PetRoster.Name, T("story.skip"), T("story.go"), () =>
             {
                 Logic.App.Onboarding.Done(App.State, Logic.App.Onboarding.Story);
                 App.State.Story.IntroSeen = true; App.State.Story.Seen.Add(Logic.Story.StoryDirector.Intro);   // adada yeniden oynamasın
@@ -90,7 +99,9 @@ namespace Pofi.Screens
         {
             var def = App.Data.Pet(_picker.Current);
             App.Stage.ShowPet(def, GrowthStage.Genc);
-            _name.text = def.Name;
+            // ad kurdelesi yazıya göre uzar: pet değişince yeniden kurulur
+            if (_nameRibbon != null) Destroy(_nameRibbon.gameObject);
+            _nameRibbon = (RectTransform)ModalTitle(_card, def.Name).transform.parent;
             _species.text = def.Species;
             _feature.text = def.Feature;
             for (var i = 0; i < _dots.Length; i++)
@@ -103,45 +114,55 @@ namespace Pofi.Screens
 
         private void AskConfirm()
         {
-            if (_confirm != null) return;
+            if (_confirm != null || _going) return;
             var def = App.Data.Pet(_picker.Current);
             if (_picker.Count <= 1)
             {
-                // tek arkadaş: soru sormadan tanışma (zıplar, ad ekranına geçer)
-                App.Stage.Hop();
-                PetChange.Choose(App.State, def.Id, App.Data);
-                App.Save();
-                App.Stage.Swiped = null;
-                App.Route();
+                // tek arkadaş: soru sormadan tanışma; ad Okti, hoş geldin hediyesi, Okti sevinir ve ada açılır (ad ekranı yok)
+                Meet(def.Id);
                 return;
             }
             App.Stage.AllowDrag = false;
             App.Stage.Hop();
-            _confirm = Ui.Fill(Root, "Confirm");
-            var dim = _confirm.gameObject.AddComponent<Image>();
-            dim.color = new Color(0f, 0.1f, 0.25f, 0.35f);
-            var box = Ui.Rect(_confirm, "Box", new Vector2(0.84f, 0.42f), new Vector2(620f, 560f));
-            Ui.Panel(box, Color.white, Th.Radius);
-            Ui.Label(box, T("pet.pick_confirm", TurkishSuffix.Accusative(def.Name)), Th.Font(52), Th.Text, new Vector2(0.5f, 0.78f), new Vector2(560f, 180f), FontStyle.Bold);
-            Ui.Button(box, Th, T("pet.pick_yes"), new Vector2(0.5f, 0.43f), new Vector2(500f, 130f), () =>
-            {
-                PetChange.Choose(App.State, def.Id, App.Data);
-                App.Save();
-                App.Stage.Swiped = null;
-                App.Route();
-            });
-            Ui.Button(box, Th, T("pet.pick_no"), new Vector2(0.5f, 0.15f), new Vector2(500f, 110f), () =>
-            {
-                Destroy(_confirm.gameObject);
-                _confirm = null;
-                App.Stage.AllowDrag = true;
-            }, false, default, 44);
+            RectTransform box;
+            _confirm = Modal(620f, out box, true, CloseConfirm);
+            ModalTitle(box, def.Name);
+            ModalClose(box, CloseConfirm);
+            Ui.Label(box, T("pet.pick_confirm", TurkishSuffix.Accusative(def.Name)), 52, Ink, new Vector2(0.5f, 0.68f), new Vector2(840f, 180f), FontStyle.Bold);
+            Candy.Pill(box, Candy.Green, T("pet.pick_yes"), new Vector2(0.5f, 0.36f), new Vector2(520f, 130f), Vector2.zero, () => Meet(def.Id), null, 52);
+            Candy.Pill(box, new Color(1f, 0.96f, 0.86f), T("pet.pick_no"), new Vector2(0.5f, 0.14f), new Vector2(520f, 104f), Vector2.zero, CloseConfirm, null, 40);
+        }
+
+        private void CloseConfirm()
+        {
+            if (_confirm == null) return;
+            Destroy(_confirm.gameObject);
+            _confirm = null;
+            App.Stage.AllowDrag = true;
+        }
+
+        /// <summary>Seçim tamam: ad <see cref="PetRoster.Name"/>, hediye bir kez; kısa sevinçten sonra ada.</summary>
+        private void Meet(string petId)
+        {
+            if (_going) return;
+            _going = true;
+            PetChange.Choose(App.State, petId, App.Data, App.Starter);
+            App.Save();
+            App.Stage.Swiped = null;
+            App.Stage.AllowDrag = false;
+            App.Stage.Hop();
+            StartCoroutine(GoAfter(0.5f));
+        }
+
+        private IEnumerator GoAfter(float seconds)
+        {
+            yield return new WaitForSecondsRealtime(seconds);
+            App.Route();
         }
 
         private void OnDestroy()
         {
             UI.FilmPlayer.Stop();
-            if (App != null && App.Stage != null) { App.Stage.Swiped = null; App.Stage.SetPicture(null); }
         }
     }
 }

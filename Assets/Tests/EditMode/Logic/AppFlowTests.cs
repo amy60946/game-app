@@ -16,16 +16,80 @@ namespace Pofi.Tests.Logic
         private static readonly ChildSession Child = new ChildSession("child_a", "Nazlı", AgeBand.A, "flamingo");
 
         [Test]
-        public void Ekran_sirasi_giris_secim_isim_ev()
+        public void Ekran_sirasi_giris_secim_ev_ad_ekrani_yok()
         {
             Assert.AreEqual(AppScreen.Login, AppFlow.Decide(null, null));
             var st = GameState.NewFor("child_a", Now);
             Assert.AreEqual(AppScreen.PetSelect, AppFlow.Decide(Child, null));
             Assert.AreEqual(AppScreen.PetSelect, AppFlow.Decide(Child, st));
-            st.PetId = "pet_05";
-            Assert.AreEqual(AppScreen.PetName, AppFlow.Decide(Child, st));
-            st.PetName = "Limon";
+            st.PetId = "pet_13";
+            Assert.AreEqual(AppScreen.PetSelect, AppFlow.Decide(Child, st), "adsız kayıt tanışma ekranına döner");
+            PetChange.Choose(st, "pet_13", TestData.Load());
+            Assert.AreEqual(AppScreen.Home, AppFlow.Decide(Child, st), "seçince doğrudan ada");
+            Assert.AreEqual("Okti", st.PetName);
+        }
+
+        [Test]
+        public void Secimde_ad_Okti_ve_hos_geldin_hediyesi_bir_kez()
+        {
+            var data = TestData.Load();
+            var kit = new StarterKit(TestData.ReadText("start.json"));
+            var st = GameState.NewFor("child_a", Now);
+            PetChange.Choose(st, "pet_13", data, kit);
+            Assert.AreEqual(PetRoster.Name, st.PetName);
+            Assert.IsTrue(st.StarterGiven);
+            var apples = st.Inventory.CountOf("food_apple");
+            Assert.Greater(apples, 0);
+            // Ayarlar → "Pet değiştir": seçim ekranı; yeniden seçince ad yine Okti, hediye ikinci kez verilmez
+            PetChange.Begin(st);
+            Assert.AreEqual(AppScreen.PetSelect, AppFlow.Decide(Child, st));
+            PetChange.Choose(st, "pet_13", data, kit);
+            Assert.AreEqual("Okti", st.PetName);
+            Assert.AreEqual(apples, st.Inventory.CountOf("food_apple"));
             Assert.AreEqual(AppScreen.Home, AppFlow.Decide(Child, st));
+        }
+
+        [Test]
+        public void Eski_kayitta_baska_ad_yuklemede_Okti_olur()
+        {
+            var data = TestData.Load();
+            var kit = new StarterKit(TestData.ReadText("start.json"));
+            var old = GameState.NewFor("child_a", Now);
+            old.PetId = "pet_13"; old.PetName = "Ayşe";   // çocuk kendi adını yazmış olabilir
+            old.StarterGiven = true;
+            var back = SaveCodec.Deserialize(SaveCodec.Serialize(old, Now));
+            Assert.AreEqual("Ayşe", back.PetName);
+            Assert.IsTrue(PetRoster.FixName(back, kit, data));
+            Assert.AreEqual("Okti", back.PetName);
+            Assert.IsFalse(PetRoster.FixName(back, kit, data), "ikinci kez değişmez");
+            Assert.AreEqual(AppScreen.Home, AppFlow.Decide(Child, back));
+
+            // emekli petli eski kayıt: önce Okti'ye geçer, sonra adı sabitlenir
+            var retired = GameState.NewFor("child_a", Now);
+            retired.PetId = "pet_04"; retired.PetName = "Mimi"; retired.StarterGiven = true;
+            Assert.IsTrue(PetRoster.Migrate(retired, data));
+            Assert.IsTrue(PetRoster.FixName(retired, kit, data));
+            Assert.AreEqual("pet_13", retired.PetId);
+            Assert.AreEqual("Okti", retired.PetName);
+        }
+
+        [Test]
+        public void Ad_ekraninda_kalmis_kayit_adi_ve_hediyeyi_alir()
+        {
+            var data = TestData.Load();
+            var kit = new StarterKit(TestData.ReadText("start.json"));
+            var st = GameState.NewFor("child_a", Now);
+            st.PetId = "pet_13";   // eski akış: seçti, ad vermeden çıktı
+            Assert.IsTrue(PetRoster.FixName(st, kit, data));
+            Assert.AreEqual("Okti", st.PetName);
+            Assert.IsTrue(st.StarterGiven);
+            Assert.Greater(st.Inventory.CountOf("food_apple"), 0);
+
+            var none = GameState.NewFor("child_a", Now);
+            Assert.IsFalse(PetRoster.FixName(none, kit, data), "pet seçilmemiş kayda ad konmaz");
+            Assert.IsNull(none.PetName);
+            Assert.IsFalse(none.StarterGiven);
+            Assert.IsFalse(PetRoster.FixName(null, kit, data));
         }
 
         [Test]
@@ -94,7 +158,7 @@ namespace Pofi.Tests.Logic
             {
                 "auth.title", "auth.code_prompt", "auth.button", "auth.invalid", "auth.throttled", "auth.demo_hint", "auth.hello",
                 "pet.pick_title", "pet.pick_hint", "pet.pick_button", "pet.pick_confirm", "pet.pick_yes", "pet.pick_no",
-                "pet.name_title", "pet.name_placeholder", "pet.name_button", "pet.welcome",
+                "pet.meet_title", "pet.meet_hint", "pet.meet_button", "pet.welcome",
                 "stat.fullness", "stat.cleanliness", "stat.happiness", "stat.home",
                 "home.feed", "home.wash", "home.play", "home.tidy", "home.level", "settings.sign_out",
                 "gate.title", "gate.wrong",

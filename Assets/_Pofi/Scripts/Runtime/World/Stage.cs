@@ -96,12 +96,15 @@ namespace Pofi.World
                 floor.name = "Island";
                 floor.localPosition = new Vector3(0f, 0f, 0.9f);
                 foreach (var r in floor.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                _island = floor.gameObject;
             }
             else
             {
                 var island = Cylinder("Island", new Vector3(0f, -0.05f, 0.9f), new Vector3(6.6f, 0.06f, 6.2f), _islandMat);   // ev eşyaları için geniş
                 island.GetComponent<Renderer>().shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                _island = island;
             }
+            _water = water;   // kumsal görseli açıkken (giriş, tanışma) düz deniz ve kum gizlenir
 
             // Gerçek çevre varlıkları varsa (Meshy): arkada ada parçası ve palmiyeler
             var env = new GameObject("Scenery").transform;
@@ -233,17 +236,45 @@ namespace Pofi.World
             if (m != null) m.localPosition = new Vector3(0f, -0.1f, z);
         }
 
-        private Transform _picture;
+        private Transform _picture, _contact;
+        private GameObject _water, _island;
         private float _pictureAspect = 16f / 9f;
 
         /// <summary>
+        /// Kumsal görselindeki (Art/pick_stage, art/scripts/beach_stage.py) deniz parıltıları (u, v; v alttan): oyunda yanıp söner.
+        /// Palmiye gövdesine yakın olanlar alınmadı.
+        /// </summary>
+        private static readonly Vector2[] BeachGlintSpots =
+        {
+            new Vector2(0.934f, 0.394f), new Vector2(0.284f, 0.371f), new Vector2(0.638f, 0.435f), new Vector2(0.750f, 0.383f),
+            new Vector2(0.604f, 0.374f), new Vector2(0.173f, 0.428f), new Vector2(0.838f, 0.354f), new Vector2(0.503f, 0.435f),
+            new Vector2(0.360f, 0.405f), new Vector2(0.450f, 0.390f), new Vector2(0.220f, 0.385f),
+        };
+
+        /// <summary>
+        /// Giriş ve tanışma ekranlarının kumsalı (24 Ekim 2026, kullanıcı: kum ve deniz daha zengin): boyalı kumsal görseli
+        /// (kum tepecikleri, rüzgâr çizgileri, ıslak kum şeridi, köpük izi) + denizde canlı parıltılar + petin ayağında yumuşak gölge.
+        /// Tek görsel: 3B ada sahnesinden (bulut, palmiye, ev) hafif. false: kaldırır (<see cref="Core.GameBootstrap.Route"/> her ekranda).
+        /// </summary>
+        public void SetBeach(bool on)
+        {
+            SetPicture(on ? Resources.Load<Texture2D>("Art/pick_stage") : null);
+            if (on && _picture != null) BeachGlints.Add(_picture, _pictureAspect, BeachGlintSpots);
+        }
+
+        /// <summary>
         /// Petin arkasına tam ekran 3B çizim görseli (pet seçme: kumsal sahnesi; 23 Ekim 2026). Kameraya bağlı uzak bir yüzey,
-        /// ekranı her oranda doldurur; adacık süsleri gizlenir. null: kaldırır.
+        /// ekranı her oranda doldurur; adacık süsleri, düz deniz ve kum diski gizlenir (görselin kumunu/denizini örtüyordu),
+        /// petin ayağına yumuşak temas gölgesi konur (gölgeyi alacak zemin yok). null: kaldırır.
         /// </summary>
         public void SetPicture(Texture2D tex)
         {
             if (_picture != null) { Destroy(_picture.gameObject); _picture = null; }
             if (_scenery != null) _scenery.gameObject.SetActive(tex == null && _backdrop == null);
+            if (_water != null) _water.SetActive(tex == null);
+            if (_island != null) _island.SetActive(tex == null);
+            if (_contact == null && tex != null) _contact = ContactShadow.Create(transform);
+            if (_contact != null) _contact.gameObject.SetActive(tex != null);
             if (tex == null || Camera == null) return;
             var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
             Destroy(q.GetComponent<Collider>());
@@ -274,6 +305,7 @@ namespace Pofi.World
         {
             _holder.gameObject.SetActive(visible);
             if (_props != null) _props.gameObject.SetActive(visible);
+            if (_contact != null) _contact.gameObject.SetActive(visible && _picture != null);
         }
 
         private Transform _props;
@@ -358,6 +390,11 @@ namespace Pofi.World
             _holder.localPosition = new Vector3(0f, hopY, 0f);
             var s = _baseScale * Mathf.SmoothStep(0.2f, 1f, _appear) * pop;
             _holder.localScale = new Vector3(s / breath, s * breath, s / breath);
+            if (_contact != null && _contact.gameObject.activeSelf)
+            {
+                var k = s * (1f - Mathf.Clamp01(hopY / 0.35f) * 0.3f);   // zıplayınca gölge küçülür
+                _contact.localScale = new Vector3(1.3f * k, 0.95f * k, 1f);
+            }
         }
 
         private void HandleDrag(float dt)

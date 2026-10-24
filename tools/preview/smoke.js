@@ -23,8 +23,7 @@ const fs = require('fs');
   const steps = (process.argv[4] || 'A1A1A1').split(',');
   for (const code of steps) {
     await cmd('login ' + code); await shot('select_' + code);
-    await cmd('pick pet_03'); await shot('name');
-    await cmd('name Limon', 4000); await shot('home');
+    await cmd('pick pet_13', 4000); await shot('home');   // ad ekranı yok: ad hep Okti (24 Ekim 2026)
     for (const page of ['Map', 'Tasks']) { await cmd('open ' + page, 3000); await shot(page.toLowerCase()); }
     await cmd('approve', 3500); await shot('tasks_approved');
     for (const page of ['Shop', 'Wardrobe']) { await cmd('open ' + page, 3000); await shot(page.toLowerCase()); }

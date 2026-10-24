@@ -1,14 +1,25 @@
 using Pofi.Core;
+using Pofi.Logic.State;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace Pofi.UI
 {
-    /// <summary>Her ekranın sağ üstünde (coin rozetinin solunda; pencerelerde çarpının solundaki coin rozetinin de solunda) müzik aç/kapa: ♪; kapalıyken üstü çizili.</summary>
+    /// <summary>
+    /// Her ekranın sağ üstünde (coin rozetinin solunda; pencerelerde çarpının solundaki coin rozetinin de solunda) müzik aç/kapa.
+    /// Görünüş oyun içindekiyle aynı (24 Ekim 2026, kullanıcı): avatar menüsündeki gibi krem şeker düğme + 3B nota simgesi.
+    /// Kapalıyken üstünde beyaz kenarlı çapraz kırmızı çizgi (<see cref="Candy.OffSlash"/>); çizgi oluşturulurken ve her
+    /// durum değişiminde müziğin gerçek durumundan ayarlanır (ilk karede yanlış görünmez).
+    /// </summary>
     public sealed class MusicButton : MonoBehaviour
     {
+        private const float Size = 92f;
+
         private GameObject _slash;
+        private Image _icon;
         private GameBootstrap _app;
+        private GameState _appliedFor;   // tercihi uygulanan kayıt (başka çocuk / yeni oturum: yeniden uygulanır)
+        private bool _chosenBeforeSignIn, _shownOff;
         private static MusicButton _instance;
 
         /// <summary>Varsayılan yer (adada: Ayarlar ile Harita arasında) ve pencerelerde coin rozetinin solu.</summary>
@@ -39,43 +50,57 @@ namespace Pofi.UI
 
         public static MusicButton Create(Transform overlay, GameBootstrap app)
         {
-            var b = Candy.Round(overlay, Candy.Blue, null, 92f, new Vector2(1f, 1f), new Vector2(-386f, -66f), null);
+            // oyun içindeki (avatar menüsü) müzik düğmesiyle aynı yapı: krem yuvarlak gövde, gölgeli nota simgesi
+            var b = Candy.Round(overlay, Candy.White, "ui_music", Size, new Vector2(1f, 1f), new Vector2(DefaultX, -66f), null);
+            b.name = "MusicButton";
             var mb = b.gameObject.AddComponent<MusicButton>();
             mb._app = app;
             _instance = mb;
-            Ui.IconImage(b.transform, "ui_music", new Vector2(0.5f, 0.5f), 64f);   // ♪ yazı tipinde yoktu: düğme boş mavi küre görünüyordu
-            var slash = Ui.Rect(b.transform, "Off", new Vector2(0.5f, 0.5f), new Vector2(84f, 12f));
-            slash.localRotation = Quaternion.Euler(0f, 0f, 45f);
-            var si = slash.gameObject.AddComponent<Image>(); si.sprite = Ui.Rounded; si.type = Image.Type.Sliced; si.color = Candy.Pink; si.raycastTarget = false;
-            mb._slash = slash.gameObject;
+            var ic = b.transform.Find("Icon ui_music");
+            mb._icon = ic != null ? ic.GetComponent<Image>() : null;
+            mb._slash = Candy.OffSlash(b.transform, Size * 0.86f);
             b.onClick.AddListener(mb.Toggle);
-            mb.Sync();
+            mb.Sync(true);   // ilk karede (Update'ten önce) doğru: müzik açıksa çizgi yok
             return mb;
         }
 
         private void Toggle()
         {
-            var st = _app.State;
-            var on = !Audio.Music.On;
-            var vol = on ? Audio.Music.DefaultVolume : 0f;
+            var st = _app != null ? _app.State : null;
+            var vol = Audio.Music.On ? 0f : Audio.Music.DefaultVolume;
             Audio.Music.SetVolume(vol);
             if (st != null) { st.Settings.MusicVolume = vol; _app.Save(); }
-            Sync();
+            else _chosenBeforeSignIn = true;   // giriş ekranında seçildi: oturum açılınca kayda yazılır (eski tercih ezmesin)
+            Sync(true);
         }
 
-        private void Sync() => _slash.SetActive(!Audio.Music.On);
+        /// <summary>Çizgiyi (ve sönük simgeyi) müziğin gerçek durumuna getirir; yalnız değişince dokunur.</summary>
+        private void Sync(bool force = false)
+        {
+            var off = !Audio.Music.On;
+            if (!force && off == _shownOff) return;
+            _shownOff = off;
+            if (_slash != null) _slash.SetActive(off);
+            if (_icon != null) _icon.color = off ? new Color(0.8f, 0.82f, 0.86f, 1f) : Color.white;
+        }
 
         private void Update()
         {
-            // oturum açılınca kayıttaki tercihi uygula (bir kez)
-            if (_app != null && _app.State != null && !_applied)
+            // oturum açılınca (ya da kayıt değişince) tercihi uygula; giriş ekranında yeni seçildiyse o seçim kayda yazılır
+            var st = _app != null ? _app.State : null;
+            if (st != null && st != _appliedFor)
             {
-                _applied = true;
-                Audio.Music.SetVolume(_app.State.Settings.MusicVolume > 0.001f ? Audio.Music.DefaultVolume : 0f);
-                Sync();
+                _appliedFor = st;
+                if (_chosenBeforeSignIn)
+                {
+                    _chosenBeforeSignIn = false;
+                    st.Settings.MusicVolume = Audio.Music.On ? Audio.Music.DefaultVolume : 0f;
+                    _app.Save();
+                }
+                else Audio.Music.SetVolume(st.Settings.MusicVolume > 0.001f ? Audio.Music.DefaultVolume : 0f);
             }
+            else if (st == null) _appliedFor = null;
+            Sync();   // başka yerden (avatar menüsü, ayarlar) değişse de çizgi hep doğru
         }
-
-        private bool _applied;
     }
 }

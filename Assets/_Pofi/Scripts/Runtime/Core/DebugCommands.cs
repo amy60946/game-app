@@ -10,7 +10,7 @@ namespace Pofi.Core
     /// <summary>
     /// Otomatik test kancası (yalnızca sahte arka uçla): tarayıcıdan
     /// <c>unityInstance.SendMessage("Bootstrap", "PofiDebug", "login A1A1A1")</c> ile çağrılır. Gerçek sunucuda kapalıdır.
-    /// Komutlar: login KOD · pick pet_XX · name İSİM · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · tp X Z YAW · hud 0|1 · region ID · wear ID… · place ID… · gather [near|site|give|state] · audio · petpos
+    /// Komutlar: login KOD · pick pet_XX · name (ad hep Okti; eski betikler için) · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · tp X Z YAW · hud 0|1 · region ID · wear ID… · place ID… · gather [near|site|give|state] · audio · petpos
     /// </summary>
     public static class DebugCommands
     {
@@ -28,13 +28,12 @@ namespace Pofi.Core
                         var r = await app.Auth.SignInWithCodeAsync(arg);
                         if (r.Ok) app.OnSignedIn(r.Session);
                         break;
-                    case "pick":
-                        PetChange.Choose(app.State, arg, app.Data);
+                    case "pick":        // ad Okti olur, hoş geldin hediyesi verilir (ad ekranı yok)
+                        PetChange.Choose(app.State, arg, app.Data, app.Starter);
                         app.Save(); app.Route();
                         break;
-                    case "name":
-                        app.State.PetName = arg;
-                        app.Starter.GiveOnce(app.State, app.Data);
+                    case "name":        // eski çekim betikleri için: ad hep Okti (24 Ekim 2026), verilen ad yok sayılır
+                        PetRoster.FixName(app.State, app.Starter, app.Data);
                         app.Save(); app.Route();
                         break;
                     case "open":

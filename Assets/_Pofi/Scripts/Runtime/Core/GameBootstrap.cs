@@ -251,7 +251,9 @@ namespace Pofi.Core
             Stage.SetSky(Theme.Sky);
             State.Stats.Tick(UtcNow, Decay);
             FirstDay.Start(State, UtcNow);   // ilk gün akışı (Ö5); pet'i olan eski oyuncuda kapanır
-            if (PetRoster.Migrate(State, Data)) Save();   // emekli pet → Okti (ad ve ilerleme korunur)
+            var migrated = PetRoster.Migrate(State, Data);           // emekli pet → Okti (ilerleme korunur)
+            migrated |= PetRoster.FixName(State, Starter, Data);     // ad hep Okti (24 Ekim 2026, kullanıcı); eski kayıttaki ad da
+            if (migrated) Save();
             Guide.Start(State, Level);       // Sv1–3 rehberli zincir; Sv3'ü geçmiş oyuncuda kapanır
         }
 
@@ -468,6 +470,7 @@ namespace Pofi.Core
             Stage.SetAmbient(false);
             Stage.SetSleeping(false);
             Stage.SetBackdrop(null);
+            Stage.SetBeach(false);             // kumsal görseli yalnız giriş ve tanışma ekranında (ekran kendisi açar)
             Stage.Swiped = null;
             MusicButton.Place(MusicButton.DefaultX);   // pencere çarpısı yanına kaymışsa geri al
             Audio.Voice.Stop();                         // ekran değişince önceki ekranın cümlesi susar
@@ -478,7 +481,6 @@ namespace Pofi.Core
             {
                 case AppScreen.Login: _screen = root.gameObject.AddComponent<LoginScreen>(); break;
                 case AppScreen.PetSelect: _screen = root.gameObject.AddComponent<PetSelectScreen>(); break;
-                case AppScreen.PetName: _screen = root.gameObject.AddComponent<PetNameScreen>(); break;
                 default:
                     switch (Page)
                     {
