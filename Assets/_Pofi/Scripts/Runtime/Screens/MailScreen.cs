@@ -113,13 +113,18 @@ namespace Pofi.Screens
             var c = Ui.Rect(parent, "Sticker " + key, anchor, new Vector2(size, size));
             c.pivot = anchor;
             Ui.Panel(c, Theme.Hex(StickerColors[Mathf.Max(0, idx) % StickerColors.Length]), size * 0.5f).raycastTarget = false;
-            if (StickerIcons.TryGetValue(key ?? "", out var icon)) Ui.IconImage(c, icon, new Vector2(0.5f, 0.6f), size * 0.55f);
+            // Tepsideki küçük çıkartmada yazı okunmuyordu (telefonda ~5 px; tasarım turu 24 Ekim 2026): orada yalnız resim, büyük
+            // çıkartmada resim + okunur boyda ad. Tepside ad uzun basınca görünür (E4 bilgi).
+            var labeled = size >= 140f;
+            var y = labeled ? 0.6f : 0.5f;
+            var k = labeled ? 1f : 1.18f;
+            if (StickerIcons.TryGetValue(key ?? "", out var icon)) Ui.IconImage(c, icon, new Vector2(0.5f, y), size * 0.55f * k);
             else if (StickerFace.For(key) is Sprite face)
             {
-                var f = Ui.Rect(c, "Face", new Vector2(0.5f, 0.6f), new Vector2(size * 0.58f, size * 0.58f));
+                var f = Ui.Rect(c, "Face", new Vector2(0.5f, y), new Vector2(size * 0.58f * k, size * 0.58f * k));
                 var fi = f.gameObject.AddComponent<Image>(); fi.sprite = face; fi.preserveAspect = true; fi.raycastTarget = false;
             }
-            Ui.Label(c, MailBox.StickerLabel(key), Th.Font((int)(size * 0.15f)), Theme.Hex("#3A2508"), new Vector2(0.5f, 0.2f), new Vector2(size + 40f, size * 0.3f), FontStyle.Bold);
+            if (labeled) Ui.Label(c, MailBox.StickerLabel(key), Th.Font(Mathf.Max(26, (int)(size * 0.15f))), Theme.Hex("#3A2508"), new Vector2(0.5f, 0.2f), new Vector2(size + 60f, size * 0.32f), FontStyle.Bold);
         }
 
         private void BuildReply(bool write)
@@ -135,6 +140,7 @@ namespace Pofi.Screens
                 var hit = holder.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0.001f);
                 var b = holder.gameObject.AddComponent<Button>(); b.targetGraphic = hit; b.transition = Selectable.Transition.None;
                 holder.gameObject.AddComponent<PressBounce>();
+                LongPressInfo.Add(holder.gameObject, MailBox.StickerLabel(key));   // küçük çıkartmanın adı: uzun bas
                 b.onClick.AddListener(() => Send(MailBox.Sticker, key));
             }
             if (!write) return;

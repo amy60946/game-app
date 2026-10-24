@@ -54,6 +54,9 @@ namespace Pofi.Screens
         private void Intro()
         {
             Ui.Clear(Root);
+            // giriş kartının arkası oyunun kendi sahnesi (tasarım turu 24 Ekim 2026: düz mavi zemin boş görünüyordu)
+            _area = Ui.Fill(Root, "Area");
+            if (_id == "coconut") SceneBackdrop("Games/coconut_bg");
             var root = Modal(760f, out var box, closeOutside: false);
             Ui.Label(box, Title, Th.Font(80), Th.Text, new Vector2(0.5f, 0.84f), new Vector2(880f, 120f), FontStyle.Bold);
             var howKey = _id == "swim" || _id == "surf" || _id == "ski" ? "mg.lane.howto" : "mg." + _id + ".howto";

@@ -79,6 +79,8 @@ namespace Pofi.Screens
                 if (a == CareAction.Wash) _washCount = GoldKit.Gem(b.transform);
             }
             NavBar(AppPage.Home);
+            // Altın Atölye coin hapı pencere rozetinden geniş (simgesi soldan taşar): müzik düğmesi onun soluna (tasarım turu 24 Ekim 2026: üst üste biniyordu)
+            MusicButton.Place(MusicButton.BesideClose - 56f);
             App.Synced += OnSynced;
 
             Refresh();
