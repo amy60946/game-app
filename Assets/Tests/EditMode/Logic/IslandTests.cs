@@ -189,7 +189,6 @@ namespace Pofi.Tests.Logic
             var data = TestData.Load();
             var s = GameState.NewFor("c", DateTime.UtcNow);
             PetChange.Choose(s, "pet_01", data);
-            s.PetName = "Pofi";
             var cape = data.Item("cape_hero");
             s.Inventory.Add(cape);
             Assert.IsTrue(s.Inventory.TryEquip(data.Pet("pet_01"), cape).Allowed);
@@ -201,7 +200,7 @@ namespace Pofi.Tests.Logic
             CollectionAssert.Contains(removed, "cape_hero");
             Assert.IsTrue(s.Inventory.Owns("cape_hero"));
             Assert.AreEqual(40, s.Wallet.Available);
-            Assert.IsNull(s.PetName);
+            Assert.AreEqual("Okti", s.PetName);   // ad sorulmaz (24 Ekim 2026)
         }
     }
 }

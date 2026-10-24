@@ -28,10 +28,7 @@ namespace Pofi.UI
             var v = b.gameObject.AddComponent<VoiceButton>();
             v._rt = (RectTransform)b.transform;
             if (Ui.Icon("ui_voice") != null) Ui.IconImage(b.transform, "ui_voice", new Vector2(0.5f, 0.5f), Size * 0.66f);
-            var slash = Ui.Rect(b.transform, "Off", new Vector2(0.5f, 0.5f), new Vector2(Size * 0.9f, 10f));
-            slash.localRotation = Quaternion.Euler(0f, 0f, 45f);
-            var si = slash.gameObject.AddComponent<Image>(); si.sprite = Ui.Rounded; si.type = Image.Type.Sliced; si.color = Candy.Pink; si.raycastTarget = false;
-            v._slash = slash.gameObject;
+            v._slash = Candy.OffSlash(b.transform, Size * 0.86f);   // müzik düğmesiyle aynı kırmızı "kapalı" çizgisi
             v._slash.SetActive(!Voice.Enabled);   // ilk karede (Update'ten önce) kapalı çizgisi yanlışlıkla görünmesin
             v._cg = b.gameObject.AddComponent<CanvasGroup>();
             v._cg.ignoreParentGroups = true;   // ipucu paneli dokunmayı kapatır; hoparlör yine dokunulur
