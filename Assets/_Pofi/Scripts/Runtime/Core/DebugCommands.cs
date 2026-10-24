@@ -115,6 +115,10 @@ namespace Pofi.Core
                     case "news":        // Mavi'nin yeni görev haberi denemesi
                         Object.FindAnyObjectByType<Screens.MapScreen>()?.MaviNews(app.Loc.Get("mavi.news_many", 2));
                         break;
+                    case "outline":     // gösterge çerçevesi denemesi: outline 0..4 (ekran yeniden kurulur)
+                        UI.GoldKit.Frame = int.Parse(arg);
+                        app.Route();
+                        break;
                     case "grow":        // büyüme sahnesi denemesi (kayıt değişmez): grow genc | grow yetiskin
                         Object.FindAnyObjectByType<Screens.MapScreen>()?.PlayGrowUp(arg == "yetiskin" ? Logic.Progression.GrowthStage.Yetiskin : Logic.Progression.GrowthStage.Genc, null);
                         break;

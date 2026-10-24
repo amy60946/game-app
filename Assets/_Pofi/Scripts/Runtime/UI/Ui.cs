@@ -137,6 +137,7 @@ namespace Pofi.UI
             scaler.referenceResolution = new Vector2(1920f, 1080f);
             scaler.matchWidthOrHeight = 1f;   // yatay oyun: yükseklik her zaman 1080 birim, genişlik ekrana göre (16:9 → 1920, iPhone → ~2340)
             go.AddComponent<GraphicRaycaster>();
+            canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;   // UI.Sticker çerçeve bayrağı (Pofi/UISticker)
             return canvas;
         }
 

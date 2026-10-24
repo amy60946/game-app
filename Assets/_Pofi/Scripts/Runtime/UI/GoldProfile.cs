@@ -38,6 +38,7 @@ namespace Pofi.UI
                 glow.localRotation = Quaternion.Euler(0f, 0f, 3.6f);
                 var track = Arc(q, new Color(1f, 1f, 1f, 0.35f), ArcSpan);
                 var sh = track.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.04f, 0.12f, 0.35f, 0.4f); sh.effectDistance = new Vector2(0f, -3f);
+                GoldKit.Frame3D(track, 0.6f);
                 p.Arcs[i] = Arc(Ui.Fill(q, "Fill"), NeedCols[i], 0f);
             }
             var face = Ui.Rect(ring, "Face", new Vector2(0.5f, 0.5f), new Vector2(94f * G, 94f * G));
@@ -52,6 +53,7 @@ namespace Pofi.UI
             var star = Ui.Rect(ring, "Star", new Vector2(1f, 0f), new Vector2(52f * G, 52f * G), new Vector2(-20f * G, 22f * G));
             var si = star.gameObject.AddComponent<Image>(); si.sprite = GoldKit.Star; si.raycastTarget = false;
             var ss = star.gameObject.AddComponent<Shadow>(); ss.effectColor = Theme.Hex("#9A5A00"); ss.effectDistance = new Vector2(0f, -2f * G);
+            GoldKit.Frame3D(si, 0.7f);
             p.Level = Ui.Label(star, "", Mathf.RoundToInt(22f * G), Theme.Hex("#7A3E00"), new Vector2(0.5f, 0.5f), new Vector2(52f * G, 52f * G), FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0f, -3f * G));
             p.Level.raycastTarget = false;
             if (onTap != null)

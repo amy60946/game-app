@@ -27,6 +27,41 @@ namespace Pofi.UI
 
         public enum Tone { Blue, Red, Green, Cream }
 
+        /// <summary>
+        /// Göstergelerin çerçevesi (kullanıcı, 24 Ekim 2026: "etraflarına ince beyaz çerçeve, haritayla iç içe geçmesin"; seçenek sayfası):
+        /// 0 yok · 1 ince beyaz · 2 beyaz + ince koyu çizgi · 3 beyaz + yumuşak gölge · 4 biraz kalın beyaz + gölge.
+        /// Ekranlar kurulurken okunur (değişince ekran yeniden kurulmalı).
+        /// </summary>
+        public static int Frame = 0;
+
+        private static Material _stickerMat;
+
+        /// <summary>Kontur gölgelendiricisi (Resources/Shaders/PofiUISticker); yoksa null (çerçeve çizilmez).</summary>
+        public static Material StickerMat
+        {
+            get
+            {
+                if (_stickerMat == null)
+                {
+                    var sh = Shader.Find("Pofi/UISticker");
+                    if (sh != null) _stickerMat = new Material(sh) { name = "PofiUISticker" };
+                }
+                return _stickerMat;
+            }
+        }
+
+        /// <summary>Seçili çerçeveyi bu görsele ekler (simge, kurdele, hap, disk). Taslak px; ekran birimi K ile.</summary>
+        public static void Frame3D(Graphic g, float scale = 1f)
+        {
+            if (Frame <= 0 || g == null || StickerMat == null) return;
+            g.material = StickerMat;
+            var s = g.gameObject.GetComponent<Sticker>() ?? g.gameObject.AddComponent<Sticker>();
+            var w = (Frame == 4 ? 5.5f : 3f) * K * scale;
+            s.White = w;
+            s.Dark = Frame == 2 ? 1.6f * K * scale : 0f;
+            s.Shadow = Frame == 3 ? 7f * K * scale : Frame == 4 ? 5f * K * scale : 0f;
+        }
+
         private static readonly Dictionary<string, Sprite> Cache = new Dictionary<string, Sprite>();
 
         // ------------------------------------------------------------------ çizim yardımcıları
@@ -191,6 +226,7 @@ namespace Pofi.UI
             var ii = inner.gameObject.AddComponent<Image>(); ii.raycastTarget = false;
             ii.sprite = Capsule(top, bottom); ii.type = Image.Type.Sliced; ii.pixelsPerUnitMultiplier = 96f / Mathf.Max(1f, h - rim * 2f);
             var sh = gold.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.05f, 0.11f, 0.31f, 0.3f); sh.effectDistance = new Vector2(0f, -4f * K);
+            Frame3D(gold, 0.8f);
             return inner;
         }
 
@@ -202,6 +238,7 @@ namespace Pofi.UI
             inner.offsetMin = new Vector2(rim, rim); inner.offsetMax = new Vector2(-rim, -rim);
             var ii = inner.gameObject.AddComponent<Image>(); ii.sprite = Disc(top, bottom); ii.raycastTarget = false;
             var sh = gold.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.05f, 0.11f, 0.31f, 0.35f); sh.effectDistance = new Vector2(0f, -4f * K);
+            Frame3D(gold, 0.8f);
             return inner;
         }
 
@@ -227,6 +264,7 @@ namespace Pofi.UI
             var img = rt.gameObject.AddComponent<Image>();
             var sp = RibbonSprite(top, bot);
             img.sprite = sp; img.type = Image.Type.Sliced; img.pixelsPerUnitMultiplier = sp.rect.height / height; img.raycastTarget = false;
+            Frame3D(img, 0.8f);
             var t = Ui.Label(rt, text, fontSize, tone == Tone.Cream ? ink : Color.white, new Vector2(0.5f, 0.5f), new Vector2(1600f, height), FontStyle.Bold, TextAnchor.MiddleCenter, new Vector2(0f, height * 0.04f));
             t.horizontalOverflow = HorizontalWrapMode.Overflow;
             t.raycastTarget = false;
@@ -250,6 +288,7 @@ namespace Pofi.UI
             var rt = Ui.Rect(parent, "Gem", new Vector2(1f, 1f), new Vector2(size, size), new Vector2(-size * 0.18f, -size * 0.2f));
             var img = rt.gameObject.AddComponent<Image>(); img.sprite = GemSprite; img.raycastTarget = false;
             var sh = rt.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0f, 0f, 0f, 0.3f); sh.effectDistance = new Vector2(0f, -2f * K);
+            Frame3D(img, 0.6f);
             var t = Ui.Label(rt, "", Mathf.RoundToInt(size * 0.56f), Color.white, new Vector2(0.5f, 0.5f), new Vector2(size, size), FontStyle.Bold);
             var ts = t.gameObject.AddComponent<Shadow>(); ts.effectColor = Theme.Hex("#7A0A20"); ts.effectDistance = new Vector2(0f, -1.5f * K);
             t.raycastTarget = false;
@@ -271,6 +310,7 @@ namespace Pofi.UI
             if (sp != null) img.sprite = sp; else img.color = new Color(1f, 1f, 1f, 0f);
             var ex = ir.gameObject.AddComponent<Extrude>(); ex.Color = extrude; ex.Depth = Mathf.Max(6f, size * 0.07f);
             var fl = ir.gameObject.AddComponent<Hover3D>(); fl.Shade = shade; fl.Delay = delay; fl.Amp = Mathf.Max(4f, size * 0.045f);
+            Frame3D(img);   // kalınlıkla birlikte çevresine beyaz çerçeve (Extrude'dan sonra: birleşik şeklin çevresi)
             Text lab = null;
             if (!string.IsNullOrEmpty(label))
             {
@@ -300,7 +340,7 @@ namespace Pofi.UI
             var rt = Ui.Rect(parent, "Pill " + icon, anchor, new Vector2(150f * K, 48f * K), offset);
             RimCapsule(rt, Theme.Hex("#2B5FE0"), Theme.Hex("#173C9E"));
             var ic = Ui.IconImage(rt, icon, new Vector2(0f, 0.5f), 64f * K, new Vector2(16f * K, 0f));
-            if (ic != null) { var s = ic.gameObject.AddComponent<Shadow>(); s.effectColor = new Color(0.05f, 0.11f, 0.31f, 0.4f); s.effectDistance = new Vector2(0f, -3f * K); }
+            if (ic != null) { var s = ic.gameObject.AddComponent<Shadow>(); s.effectColor = new Color(0.05f, 0.11f, 0.31f, 0.4f); s.effectDistance = new Vector2(0f, -3f * K); Frame3D(ic.GetComponent<Image>(), 0.8f); }
             var t = Ui.Label(rt, "", Mathf.RoundToInt(27f * K), Color.white, new Vector2(1f, 0.5f), new Vector2(80f * K, 48f * K), FontStyle.Bold, TextAnchor.MiddleRight, new Vector2(-(18f + 40f) * K, 1f * K));
             var ts = t.gameObject.AddComponent<Shadow>(); ts.effectColor = Theme.Hex("#18389A"); ts.effectDistance = new Vector2(0f, -2f * K);
             t.raycastTarget = false;
@@ -353,6 +393,56 @@ namespace Pofi.UI
                 // dokunun rengi yerine düz renk: aynı doku, renk çarpanı; açık kenar için beyaza yakın
                 v.color = whiten ? new Color32(255, 255, 255, (byte)(a * 255f)) : (Color32)new Color(tint.r, tint.g, tint.b, a);
                 Out.Add(v);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Çıkartma çerçevesi: görselin (ve önceki etkilerin, ör. Extrude kalınlığı) kopyaları 12 yönde arkaya, düz beyaz çizilir →
+    /// şeklin çevresinde ince beyaz kontur; istenirse dışında ince koyu çizgi ya da aşağı kaymış yumuşak gölge. Düz renk için
+    /// Pofi/UISticker gölgelendiricisi (TEXCOORD1.x = 1). Tuvalde TexCoord1 kanalı açık olmalı (Ui.CreateCanvas).
+    /// </summary>
+    [RequireComponent(typeof(Graphic))]
+    public sealed class Sticker : BaseMeshEffect
+    {
+        public float White = 4.5f, Dark, Shadow;
+        private static readonly List<UIVertex> Src = new List<UIVertex>();
+        private static readonly List<UIVertex> Out = new List<UIVertex>();
+        private const int Dirs = 12;
+
+        public override void ModifyMesh(VertexHelper vh)
+        {
+            if (!IsActive() || White <= 0f) return;
+            Src.Clear(); vh.GetUIVertexStream(Src);
+            Out.Clear();
+            if (Shadow > 0f)
+            {
+                // yumuşak gölge: aşağı kaymış, üç halkada azalan koyu kopyalar
+                for (var ring = 3; ring >= 1; ring--)
+                    Ring(White + Shadow * ring / 3f, new Vector2(0f, -Shadow * 0.35f), new Color(0.04f, 0.09f, 0.19f, 0.10f));
+            }
+            if (Dark > 0f) Ring(White + Dark, Vector2.zero, new Color(0.06f, 0.16f, 0.38f, 0.55f));
+            Ring(White, Vector2.zero, Color.white);
+            Ring(White * 0.5f, Vector2.zero, Color.white);   // iç halka: ince şekillerde boşluk kalmasın
+            Out.AddRange(Src);
+            vh.Clear(); vh.AddUIVertexTriangleStream(Out);
+        }
+
+        private static void Ring(float r, Vector2 shift, Color c)
+        {
+            for (var k = 0; k < Dirs; k++)
+            {
+                var a = k * Mathf.PI * 2f / Dirs;
+                var d = new Vector3(Mathf.Cos(a) * r + shift.x, Mathf.Sin(a) * r + shift.y, 0f);
+                foreach (var v0 in Src)
+                {
+                    var v = v0;
+                    v.position += d;
+                    var al = v0.color.a / 255f * c.a;
+                    v.color = new Color(c.r, c.g, c.b, al);
+                    v.uv1 = new Vector4(1f, 0f, 0f, 0f);   // düz renk (gölgelendirici bayrağı)
+                    Out.Add(v);
+                }
             }
         }
     }
