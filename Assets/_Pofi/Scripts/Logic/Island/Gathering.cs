@@ -80,7 +80,7 @@ namespace Pofi.Logic.Island
             var rng = new Random(t.Def.Seed * 977 + 3);
             bool Free(float x, float z)
             {
-                if (!t.Walkable(x, z) || t.BuildingAt(x, z) != null) return false;
+                if (!t.Walkable(x, z) || t.BuildingAt(x, z) != null || t.OnPlatform(x, z)) return false;   // tapınak terasına konmaz
                 if (t.PathDistance(x, z) < IslandTerrain.PathHalfWidth + 0.9f) return false;
                 if (t.Regions.Any(r => IslandTerrain.Dist(x, z, r.X, r.Z) < r.Size * 0.8f + 1.5f)) return false;
                 if (props.Any(p => IslandTerrain.Dist(x, z, p.X, p.Z) < IslandTerrain.Footprint(p) + 1.2f)) return false;

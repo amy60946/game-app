@@ -25,7 +25,7 @@ REGIONS = [
     ('region_surf_beach', 'Sörf Plajı', 75.0, -12.0, 'board', 6.8, -70),
     ('region_coconut_grove', 'Hindistan Cevizi Bahçesi', -79.5, -7.5, 'palm', 7.4, 0),   # GB17: kumsalın geniş yeri (dar geçidi kapatmasın)
     ('region_cave', 'Mağara', -60.0, 12.0, 'hill', 8.6, 127),
-    ('region_game_hut', 'Oyun Kulübesi', 34.0, 16.0, 'house', 8.0, -20),
+    ('region_game_hut', 'Oyun Kulübesi', 30.0, 4.0, 'house', 8.0, -27),   # GB18: tapınak yolunun üstünden düz açıklığa
     ('region_ski_hill', 'Kayak Tepesi', -38.0, 40.0, 'hill', 8.6, 30),
     ('region_mountain', 'Dağ', 20.0, 56.0, 'hill', 9.8, 0),
     ('region_lighthouse', 'Fener', 60.0, 46.0, 'tower', 5.5, 0),

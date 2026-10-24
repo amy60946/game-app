@@ -76,6 +76,9 @@ namespace Pofi.Logic.Island
             }
             _nx = (int)Math.Ceiling((MaxX - MinX) / Cell) + 1;
             _nz = (int)Math.Ceiling((MaxZ - MinZ) / Cell) + 1;
+            // tapınak terası (GB18): yükseklik katmanı yürüme ızgarasından önce bilinsin (basamaklar rampa, teras kenarı dik → yürünmez)
+            var temple = baked?.Layout?.Props?.FirstOrDefault(p => p != null && p.Asset == "b_temple");
+            if (temple != null) _temple = (temple.X, temple.Z, temple.Y);
             _walk = new bool[_nx * _nz];
             for (var j = 0; j < _nz; j++)
             for (var i = 0; i < _nx; i++)
@@ -124,7 +127,7 @@ namespace Pofi.Logic.Island
             _props = _field != null ? BakedProps(baked.Layout) : BuildProps();
             foreach (var p in _props)
             {
-                if (p.Asset == "b_temple") { BlockRect(p.X, p.Z + 1f, 14.5f, 10.5f); continue; }   // tapınak teras + yapılar (30 × 22 m)
+                if (p.Asset == "b_temple") { BlockTempleSolids(p.X, p.Z); continue; }   // teras yürünür; salon, köşk, duvar, taş, fener engel
                 var rad = ObstacleRadius(p);
                 if (rad <= 0f) continue;
                 var ci = (int)Math.Round((p.X - MinX) / Cell); var cj = (int)Math.Round((p.Z - MinZ) / Cell);
@@ -177,6 +180,62 @@ namespace Pofi.Logic.Island
             for (var j = (int)((cz - hz - MinZ) / Cell); j <= (int)((cz + hz - MinZ) / Cell) + 1; j++)
             for (var i = (int)((cx - hx - MinX) / Cell); i <= (int)((cx + hx - MinX) / Cell) + 1; i++)
                 if (i >= 0 && j >= 0 && i < _nx && j < _nz) _walk[j * _nx + i] = false;
+        }
+
+        // ------------------------------------------------------------------ tapınak terası (GB18, kullanıcı: "merdiven ve yeşillik engel gibi")
+        // Taslak art/code3d/v6/kit3_v6.py temple(): yerel (x, y) = dünya (X + x, Z + y) (RealAssets.EnvScaled 180° kuralıyla aynı yön).
+        // Teraslar: alt t1 (0, 1) 30 × 22 üst 1,0 m · üst t2 (0, 4,5) 21 × 13 üst 2,1 m. Basamaklar rampa: s1 önde (x 0, eni 5),
+        // s3 sol önde (x −12,5, eni 3) yerden 1,0'a; s2 (x 0, eni 4) 1,0'dan 2,1'e. Basamak derinliği 4 × 0,45 = 1,8 m.
+        private (float X, float Z, float Y)? _temple;
+        private const float StepDepth = 1.8f;
+
+        /// <summary>Nokta tapınak terası ya da basamağı üstünde mi (yerleşim: toplama noktası, sürpriz buraya konmaz)?</summary>
+        public bool OnPlatform(float x, float z) => _temple.HasValue && TempleHeight(x, z, out _);
+
+        private bool TempleHeight(float x, float z, out float h)
+        {
+            h = 0f;
+            var t = _temple.Value; var lx = x - t.X; var ly = z - t.Z;
+            if (Math.Abs(lx) > 16f || Math.Abs(ly) > 13f) return false;
+            float? local = null;
+            if (InRoundRect(lx, ly, 0f, 4.5f, 21f, 13f, 1.5f)) local = 2.1f;
+            else if (Math.Abs(lx) <= 2f && ly >= -2f - StepDepth && ly <= -2f) local = 1.0f + (ly + 2f + StepDepth) / StepDepth * 1.1f;
+            else if (InRoundRect(lx, ly, 0f, 1f, 30f, 22f, 2f)) local = 1.0f;
+            else if (ly >= -10f - StepDepth && ly <= -10f && (Math.Abs(lx) <= 2.5f || Math.Abs(lx + 12.5f) <= 1.5f))
+                local = -0.25f + (ly + 10f + StepDepth) / StepDepth * 1.25f;
+            if (!local.HasValue) return false;
+            h = t.Y + local.Value;
+            return true;
+        }
+
+        private static bool InRoundRect(float x, float y, float cx, float cy, float w, float d, float r)
+        {
+            var dx = Math.Max(0f, Math.Abs(x - cx) - (w / 2f - r)); var dy = Math.Max(0f, Math.Abs(y - cy) - (d / 2f - r));
+            return dx * dx + dy * dy <= r * r;
+        }
+
+        /// <summary>Teras üstündeki katı yapılar: salon, köşk (pagoda), yan salon, avlu duvarı, dikili taşlar, fenerler, çalılar, ön seki.</summary>
+        private void BlockTempleSolids(float tx, float tz)
+        {
+            void Rect(float cx, float cy, float w, float d) => BlockRect(tx + cx, tz + cy, w / 2f + 0.3f, d / 2f + 0.3f);
+            void Disc(float cx, float cy, float r)
+            {
+                for (var j = (int)((tz + cy - r - MinZ) / Cell); j <= (int)((tz + cy + r - MinZ) / Cell) + 1; j++)
+                for (var i = (int)((tx + cx - r - MinX) / Cell); i <= (int)((tx + cx + r - MinX) / Cell) + 1; i++)
+                    if (i >= 0 && j >= 0 && i < _nx && j < _nz && Dist(MinX + i * Cell, MinZ + j * Cell, tx + cx, tz + cy) <= r) _walk[j * _nx + i] = false;
+            }
+            Rect(0f, 6.5f, 11f, 6.5f);          // ana salon
+            Rect(-10.5f, 6f, 6f, 6f);           // köşk
+            Rect(11.5f, 4.5f, 6f, 5f);          // yan salon
+            Rect(-14.5f, 2.75f, 0.6f, 17.5f);   // avlu duvarı: sol, arka, sağ
+            Rect(0f, 11.5f, 29.6f, 0.6f);
+            Rect(14.5f, 2.75f, 0.6f, 17.5f);
+            Rect(-9f, -8.5f, 7f, 3.5f);         // ön küçük seki (alçak, süs)
+            foreach (var (x, y, r) in new[] { (-6.5f, -3f, 1.0f), (-5.4f, -3.6f, 0.7f), (-7.4f, -4f, 0.6f), (6.5f, -4.5f, 0.9f), (3.5f, 9.6f, 1.0f),   // dikili taşlar
+                         (-4.5f, 2.25f, 0.45f), (-1.5f, 2.25f, 0.45f), (1.5f, 2.25f, 0.45f), (4.5f, 2.25f, 0.45f),                                   // salon önü fenerleri
+                         (9.5f, 1.3f, 0.45f), (13.5f, 1.3f, 0.45f), (-13.6f, 2.9f, 0.45f), (-7.4f, 2.9f, 0.45f),                                       // yan ve köşk fenerleri
+                         (-3.5f, -8f, 0.9f), (4.5f, -8.5f, 0.8f) })                                                                                   // çalılar
+                Disc(x, y, r);
         }
 
         private static List<PropSpot> BakedProps(BakedLayout layout) =>
@@ -267,7 +326,11 @@ namespace Pofi.Logic.Island
         /// <summary>Yerin yüksekliği (m). Bina tabanları düzleştirilmiş, patikalar hafif yumuşatılmış.</summary>
         public float Height(float x, float z)
         {
-            if (_field != null) return _field.Height(x, z);   // bina yastıkları ızgarada pişmiş
+            if (_field != null)
+            {
+                var hf = _field.Height(x, z);   // bina yastıkları ızgarada pişmiş
+                return _temple.HasValue && TempleHeight(x, z, out var ht) ? Math.Max(hf, ht) : hf;
+            }
             var h = BaseHeight(x, z) + HillHeight(x, z, out _);
             foreach (var r in Regions)
             {

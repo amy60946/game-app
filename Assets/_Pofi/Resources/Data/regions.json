@@ -44,8 +44,8 @@
       "id": "region_coconut_grove",
       "name": "Hindistan Cevizi Bahçesi",
       "pos": [
-        -72.0,
-        -16.0
+        -79.5,
+        -7.5
       ],
       "target": "minigame:coconut",
       "color": "#46D063",
@@ -83,14 +83,14 @@
       "id": "region_game_hut",
       "name": "Oyun Kulübesi",
       "pos": [
-        34.0,
-        16.0
+        30.0,
+        4.0
       ],
       "target": "cards",
       "color": "#A77BFF",
       "shape": "house",
       "size": 8.0,
-      "yaw": -20
+      "yaw": -27
     },
     {
       "id": "region_ski_hill",

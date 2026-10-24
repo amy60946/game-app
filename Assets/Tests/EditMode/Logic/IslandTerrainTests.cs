@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Pofi.Logic.Island;
@@ -136,6 +137,68 @@ namespace Pofi.Tests.Logic
                 Assert.Less(T.Height(n.X, n.Z), Gathering.BeachTop, "ceviz deniz kıyısında: " + n.X + "," + n.Z);
             var site = Gathering.HutSite(T);
             Assert.IsTrue(T.Walkable(site.x, site.z));
+        }
+
+        [Test]
+        public void Tapinak_terasi_basamaklardan_cikilir_kenardan_cikilmaz()
+        {
+            var t = T; const float X = 28f, Z = 38f;   // island_v6_layout b_temple
+            var y = t.Baked.Layout.Props.First(p => p.Asset == "b_temple").Y;
+            Assert.IsTrue(t.OnPlatform(X, Z + 4.5f));
+            Assert.AreEqual(y + 2.1f, t.Height(X + 3f, Z), 0.05f, "üst teras salonun önünde");
+            Assert.AreEqual(y + 1.0f, t.Height(X + 8f, Z - 6f), 0.05f, "alt teras");
+            Assert.IsTrue(t.Walkable(X, Z - 7f), "ön avlu yürünür");
+            Assert.IsTrue(t.Walkable(X + 3f, Z), "salonun önüne kadar gidilir");
+            Assert.IsFalse(t.Walkable(X, Z + 6.5f), "salonun içine girilmez");
+            // aşağıdaki yoldan (patika ucu) salonun önüne: basamaklardan çıkan yol bulunur
+            var route = t.FindPath(X, Z - 12.5f, X + 3f, Z);
+            Assert.Greater(route.Count, 0, "basamaklardan teras üstüne yol var");
+            // yol boyunca (her 25 cm) yürünür ve yükseklik sıçraması yok: kenardan tırmanmıyor, basamaktan çıkıyor
+            float px = X, pz = Z - 12.5f, prev = t.Height(px, pz);
+            foreach (var w in route)
+            {
+                var n = (int)Math.Ceiling(Math.Sqrt((w.x - px) * (w.x - px) + (w.z - pz) * (w.z - pz)) / 0.25);
+                for (var k = 1; k <= n; k++)
+                {
+                    float sx = px + (w.x - px) * k / n, sz = pz + (w.z - pz) * k / n, h = t.Height(sx, sz);
+                    Assert.IsTrue(t.Walkable(sx, sz), "yürünür: " + sx + "," + sz);
+                    Assert.Less(Math.Abs(h - prev), 0.3f, "basamak gibi yumuşak çıkış");
+                    prev = h;
+                }
+                px = w.x; pz = w.z;
+            }
+            Assert.Greater(prev, t.Height(X, Z - 12.5f) + 1.9f, "üst terasa çıkıldı");
+            // teras üstüne kütük/taş konmaz
+            foreach (var n in Gathering.Place(t)) Assert.IsFalse(t.OnPlatform(n.X, n.Z));
+        }
+
+        [Test]
+        public void Oyun_kulubesi_tapinak_yolunu_kapatmaz()
+        {
+            var t = T;
+            var line = new[] { (40f, 10f), (36f, 14f), (32f, 20f), (28f, 26f) };   // tapınağa giden patika (GB18)
+            for (var k = 1; k < line.Length; k++)
+                for (var s = 0f; s <= 1f; s += 0.05f)
+                {
+                    var x = line[k - 1].Item1 + (line[k].Item1 - line[k - 1].Item1) * s; var z = line[k - 1].Item2 + (line[k].Item2 - line[k - 1].Item2) * s;
+                    Assert.IsNull(t.BuildingAt(x, z), "patikada yapı yok: " + x + "," + z);
+                }
+            var hut = t.Regions.First(r => r.Id == "region_game_hut");
+            var (dx, dz) = t.Door(hut);
+            Assert.Greater(t.FindPath(t.PlazaX, t.PlazaZ, dx, dz).Count, 0, "kulübenin kapısına gidilir");
+        }
+
+        [Test]
+        public void Hindistan_cevizi_bahcesi_kumsal_yolunu_kapatmaz()
+        {
+            var t = T;
+            var grove = t.Regions.First(r => r.Id == "region_coconut_grove");
+            Assert.Less(Math.Abs(grove.X + 79.5f), 0.01f, "GB17: kumsalın geniş yeri");
+            Assert.AreEqual(Surface.Sand, t.SurfaceAt(grove.X, grove.Z));
+            // dar geçitten (eski yer) kuzeydeki geniş kumsala kıyıdan yürünür
+            Assert.Greater(t.FindPath(-72f, -17f, -82f, 2f).Count, 0);
+            var (dx, dz) = t.Door(grove);
+            Assert.Greater(t.FindPath(t.PlazaX, t.PlazaZ, dx, dz).Count, 0, "bahçenin kapısına gidilir");
         }
     }
 }
