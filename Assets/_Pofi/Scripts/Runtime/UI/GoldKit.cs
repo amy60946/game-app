@@ -185,23 +185,23 @@ namespace Pofi.UI
         public static RectTransform RimCapsule(RectTransform rt, Color top, Color bottom, float rim = 4f * K)
         {
             var h = rt.sizeDelta.y;
-            Img(rt, "Gold", GoldCapsule, true, h);
+            var gold = Img(rt, "Gold", GoldCapsule, true, h);
             var inner = Ui.Fill(rt, "In");
             inner.offsetMin = new Vector2(rim, rim); inner.offsetMax = new Vector2(-rim, -rim);
             var ii = inner.gameObject.AddComponent<Image>(); ii.raycastTarget = false;
             ii.sprite = Capsule(top, bottom); ii.type = Image.Type.Sliced; ii.pixelsPerUnitMultiplier = 96f / Mathf.Max(1f, h - rim * 2f);
-            var sh = rt.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.05f, 0.11f, 0.31f, 0.3f); sh.effectDistance = new Vector2(0f, -6f * K);
+            var sh = gold.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.05f, 0.11f, 0.31f, 0.3f); sh.effectDistance = new Vector2(0f, -4f * K);
             return inner;
         }
 
         /// <summary>Altın kenarlı disk (madalyon yüzü): iç geçiş açık mavi → mavi. İç dikdörtgeni döndürür.</summary>
         public static RectTransform RimDisc(RectTransform rt, Color top, Color bottom, float rim = 3f * K)
         {
-            Img(rt, "Gold", GoldDisc, false);
+            var gold = Img(rt, "Gold", GoldDisc, false);
             var inner = Ui.Fill(rt, "In");
             inner.offsetMin = new Vector2(rim, rim); inner.offsetMax = new Vector2(-rim, -rim);
             var ii = inner.gameObject.AddComponent<Image>(); ii.sprite = Disc(top, bottom); ii.raycastTarget = false;
-            var sh = rt.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.05f, 0.11f, 0.31f, 0.35f); sh.effectDistance = new Vector2(0f, -6f * K);
+            var sh = gold.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.05f, 0.11f, 0.31f, 0.35f); sh.effectDistance = new Vector2(0f, -4f * K);
             return inner;
         }
 
