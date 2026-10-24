@@ -15,12 +15,12 @@ ASSETS = {
     # eskitme katmanları bld/ada_eskitme.py; bütçe yalnız üst sınır raporu (küresel sadeleştirme yok)
     'b_home': ('house_cottage.py', 'c_house', 9000, 1024),
     'b_shop': ('assets_town.py', 'c_shop', 10000, 1024),
-    'b_pier': ('assets_town.py', 'c_pier', 7000, 1024),
-    'b_lighthouse': ('assets_town.py', 'c_lighthouse', 6000, 1024),
+    'b_pier': ('bld/b_pier.py', 'b_pier', 13000, 1024),
+    'b_lighthouse': ('bld/b_lighthouse.py', 'b_lighthouse', 12000, 1024),
     'b_task_board': ('assets_town.py', 'c_board', 4500, 1024),
     'b_garden': ('bld/b_garden.py', 'b_garden', 14000, 1024),
-    'b_surf': ('assets_town.py', 'c_surf', 7000, 1024),
-    'b_swim': ('assets_town.py', 'c_swim', 6500, 1024),
+    'b_surf': ('bld/b_surf.py', 'b_surf', 12000, 1024),
+    'b_swim': ('bld/b_swim.py', 'b_swim', 12000, 1024),   # v6 adada koy p_pool ile kurulur; bu yalnız eski ada
     'b_game_hut': ('bld/b_game_hut.py', 'b_game_hut', 15000, 1024),
     'b_festival': ('bld/b_festival.py', 'b_festival', 15000, 1024),
     'b_cave': ('assets_town.py', 'c_cave', 6000, 1024),

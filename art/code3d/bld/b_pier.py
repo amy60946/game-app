@@ -44,7 +44,7 @@ def build():
     DKS = [overlay(A.m_wood(c, f'pdeck{i}', age=1.25, grime=NOG), L_sunbleach(0.24), f'pdeck{i}_k') for i, c in enumerate(tones)]
     FRESH = overlay(A.m_wood('#d29c5e', 'pdeckfresh', age=0.45, grime=NOG), L_sunbleach(0.1), 'pdeckfresh_k')
     RP = AT.m_rope(); RPW = overlay(AT.m_rope('#c9a974', 'ropewet'), wl, 'ropewet_k')
-    for m in [PL, PL2, FRESH] + DKS: KK.bumpify(m, 0.3, 0.006)
+    for m in [PL, PL2, FRESH] + DKS: KK.bumpify(m, 0.1, 0.003)      # hafif: güçlüsü damarı oluklu karton gibi gösteriyordu
     I = AT.m_metal('#45414b', name='iron')
 
     # ---- kazıklar: su altı parçası ayrı (az doku), üstü su çizgisiyle
@@ -63,10 +63,11 @@ def build():
                 n = V((math.cos(a), math.sin(a), 0)); KK.bolt(V((x, y, 0.17)) + n * PR * 1.08, n, I, r=0.014, drip=0.07)
     # deniz yıldızı (kıyı yanı orta kazık, su çizgisinin hemen üstü)
     ST = A.m_flat('#f4844e', 0.18, 12, 'starfish')
-    for j in range(5):
-        b = j * 2 * math.pi / 5
-        blob('star', (0.0 + math.cos(b) * 0.05, PY[0] - PR - 0.012 + math.sin(b) * 0.004, 0.12 + math.sin(b) * 0.05), (0.06, 0.012, 0.022), ST, rot=(90, math.degrees(b), 0), sub=0, seg=8)
-    blob('star', (0.0, PY[0] - PR - 0.016, 0.12), (0.035, 0.014, 0.035), ST, sub=0, seg=10)
+    pts = [(math.cos(math.pi / 2 + k * math.pi / 5) * (0.062 if k % 2 == 0 else 0.027), math.sin(math.pi / 2 + k * math.pi / 5) * (0.062 if k % 2 == 0 else 0.027)) for k in range(10)]
+    o = AT.prism('star', pts, 0.022, ST, loc=(0.02, PY[0] - PR + 0.0, 0.085), rot=(0, 12, 0), bevel=0.008)    # dolgun beş kollu yıldız (ince kollar örümceğe benziyordu)
+    for k in range(5):
+        a = math.pi / 2 + k * 2 * math.pi / 5
+        bk(blob('stardot', (0.02 + math.cos(a) * 0.03, PY[0] - PR - 0.013, 0.085 + math.sin(a) * 0.03), (0.007, 0.004, 0.007), A.m_flat('#ffd2a8', 0.1, 6, 'stardot'), sub=0, seg=8))
 
     # ---- taşıyıcılar: kazık başı kirişleri (enine) + boyuna kirişler + yan çapraz destekler
     for x in PX:
@@ -131,7 +132,7 @@ def build():
     loop = [(BX + math.cos(t / 12 * 2 * math.pi) * 0.092, BY + math.sin(t / 12 * 2 * math.pi) * 0.092, 0.655 + 0.012 * math.sin(t / 12 * 4 * math.pi)) for t in range(13)]
     KK.rope(loop, 0.018, RP, sides=6)
     KK.rope([(BX + 0.09, BY - 0.02, 0.655), (BX + 0.3, BY - 0.15, 0.56), (1.55, -0.56, TOP + 0.03), (1.64, -0.665, TOP + 0.005),
-                    (1.72, -0.73, 0.36), (1.86, -0.84, 0.13), (2.075, -0.985, -0.13)], 0.02, RPW, sides=8)
+                    (1.72, -0.73, 0.36), (1.87, -0.85, 0.13), (2.095, -1.0, -0.13)], 0.02, RPW, sides=8)
     # halat kangalı (palamarın artığı), kuyruğu babaya
     KK.coil(0.68, -0.3, TOP, 0.035, 3.2, 0.018, RP, seed=1.0, tail=[(0.86, -0.36, TOP + 0.02), (1.0, -0.33, TOP + 0.022)])
 

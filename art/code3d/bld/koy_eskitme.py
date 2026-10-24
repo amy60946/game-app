@@ -340,7 +340,7 @@ def buoy(loc, r, c1='#f0663a', c2='#f6efe0', name='buoy'):
     return blob(name, loc, (r, r, r * 1.2), M, sub=1, seg=16)
 
 
-def sand_drift(cx, cy, rx, ry, h, seed=0, lean=(0.0, 0.0), m=None, name='sand'):
+def sand_drift(cx, cy, rx, ry, h, seed=0, lean=(0.0, 0.0), m=None, name='sand', z0=0.0):
     """Kum birikintisi: yere yapışık alçak tümsek (kenarı yırtık), lean yönünde yığılmış (duvar/basamak dibine rüzgârla dolmuş)."""
     M = m or SAND()
     NR, NA = 4, 22; verts = []; faces = []; rows = []
@@ -353,9 +353,9 @@ def sand_drift(cx, cy, rx, ry, h, seed=0, lean=(0.0, 0.0), m=None, name='sand'):
             bias = 1 + lean[0] * (x / max(rx, 1e-3)) + lean[1] * (y / max(ry, 1e-3))
             z = h * max(0.0, (1 - t * t)) ** 1.4 * max(0.2, bias) + 0.004
             z += 0.012 * MN.noise(V((x * 4, y * 4, seed)))  * (1 - t)
-            row.append(len(verts)); verts.append((cx + x, cy + y, max(0.004, z)))
+            row.append(len(verts)); verts.append((cx + x, cy + y, z0 + max(0.004, z)))
         rows.append(row)
-    c = len(verts); verts.append((cx, cy, h * max(0.2, 1) + 0.004))
+    c = len(verts); verts.append((cx, cy, z0 + h + 0.004))
     for j in range(NA): faces.append((c, rows[0][j], rows[0][(j + 1) % NA]))
     for i in range(NR):
         for j in range(NA):
@@ -483,6 +483,22 @@ def MOSS(): return _cached('moss', lambda: m_moss2())
 def SAND(): return _cached('sand', lambda: m_sand2())
 def IRON(): return _cached('iron', lambda: AT.m_metal('#4a4650', '#b0622e', name='iron2', age=1.3))
 def ROPE(): return _cached('rope', lambda: AT.m_rope('#c9a46c', 'rope2', age=1.1))
+
+
+def flowers_at(spots, R, size=1.0):
+    """Küçük çiçekler (assets_v3.flower_heads gibi: sap + 5 taç yaprak + göbek) ama sap verilen yükseklikten başlar
+    (çiçek kasası, saksı): spots = [(x, y, z_dip, boy)]."""
+    ST = m_flat('#469c3a', 0.15, 6, 'stem'); CY = m_flat('#ffc93a', 0.15, 12, 'fcenter')
+    PET = [m_flat('#ff7aa8', 0.12, 9, 'p_pink'), m_flat('#fff6ea', 0.08, 9, 'p_wht'), m_flat('#b78cff', 0.12, 9, 'p_pur'), m_flat('#ffd447', 0.1, 9, 'p_yel')]
+    for k, (x, y, z0, h) in enumerate(spots):
+        head = V((x, y, z0 + h)); base = V((x, y, z0))
+        tube('stem', [tuple(base), tuple((base + head) / 2 + V((0.01, 0, 0))), tuple(head)], [0.012, 0.01, 0.009], ST, res=2)
+        pm = PET[(k + R.randint(0, 3)) % len(PET)]; sz = R.uniform(0.9, 1.2) * size
+        blob('fc', tuple(head + V((0, 0, 0.012 * size))), (0.032 * sz, 0.032 * sz, 0.022 * sz), CY, sub=0, seg=8)
+        for j in range(5):
+            b = j * 2 * math.pi / 5 + k
+            blob('pet', tuple(head + V((math.cos(b) * 0.055 * sz, math.sin(b) * 0.055 * sz, -0.004))), (0.048 * sz, 0.03 * sz, 0.012 * sz), pm,
+                 rot=(0, 0, math.degrees(b)), sub=0, seg=8)
 
 
 def leaf_recolor(objs_prefix, mat):

@@ -145,13 +145,13 @@ def build():
     KE.moss_clump((-Wd / 2 + 0.05, -Dp / 2 + 0.02, 0.92 + 0.035), 0.04, 23, (0, 0, 1))
 
 
-DECIM = [(r'^(orange|apple|tomato)$', 0.12), (r'^melon$', 0.25), (r'^(front|side|shelf|top|trim|slat|lid|brace|patch|sign|chalkleg|chalkfr)$', 0.3),
-         (r'^(jar)$', 0.3), (r'^(lid)$', 0.35), (r'^(lush|tufts|rosette|backbush|basebush|potplant|ctops|fleaf|fray|fibers)$', 0.3),
-         (r'^(pet|fc)$', 0.3), (r'^(Icosphere|moss)$', 0.28), (r'^(stem|stemb)$', 0.35), (r'^(nail|streak)$', 0.4), (r'^(rope)$', 0.3),
-         (r'^(starfish|shell)$', 0.3), (r'^(rib|root|trunk)$', 0.45), (r'^(leaflets)$', 0.6), (r'^(nut|crown)$', 0.4),
-         (r'^(banana|btip|bstem|carrot)$', 0.4), (r'^(lamp|lcap)$', 0.4), (r'^(basket|pot|cup)$', 0.5), (r'^(edge|core)$', 0.6),
-         (r'^(net)$', 0.4), (r'^(buoy)$', 0.35), (r'^(barrel|sack)$', 0.4), (r'^(Torus)$', 0.4), (r'^(chalkd)$', 0.5),
-         (r'^(post)$', 0.6), (r'^(wornground)$', 0.5), (r'^(awning)$', 0.7), (r'^(signpost|bag|patch)$', 0.5)]
+DECIM = [(r'^(orange|apple|tomato)$', 0.07), (r'^melon$', 0.15), (r'^(front|side|shelf|top|trim|slat|lid|brace|patch|sign|chalkleg|chalkfr)$', 0.12),
+         (r'^(jar)$', 0.12), (r'^(lush|tufts|rosette|backbush|basebush|potplant|ctops|fleaf|fray|fibers)$', 0.25),
+         (r'^(pet|fc)$', 0.2), (r'^(Icosphere|moss)$', 0.22), (r'^(stem|stemb)$', 0.2), (r'^(nail|streak)$', 0.25), (r'^(rope)$', 0.2),
+         (r'^(starfish|shell)$', 0.2), (r'^(rib|root)$', 0.25), (r'^trunk$', 0.35), (r'^(leaflets)$', 0.45), (r'^(nut|crown)$', 0.3),
+         (r'^(banana|btip|bstem|carrot)$', 0.25), (r'^(lamp|lcap)$', 0.25), (r'^(basket|pot|cup)$', 0.4), (r'^(edge|core)$', 0.25),
+         (r'^(net)$', 0.4), (r'^(buoy)$', 0.15), (r'^(barrel|sack)$', 0.2), (r'^(Torus)$', 0.3), (r'^(chalkd)$', 0.5),
+         (r'^(post)$', 0.5), (r'^(wornground)$', 0.5), (r'^(awning)$', 0.7), (r'^(signpost|bag)$', 0.4)]
 WEIGHTS = [(r'^(sign|bag|chalk|chalkd|chalkfr)$', 1.8), (r'^(front|side|trim)$', 1.35), (r'^(awning)$', 1.3), (r'^(orange|apple|tomato|melon|banana|carrot|jar|basket)$', 1.2),
            (r'^(net|buoy|starfish)$', 1.3), (r'^(top|shelf|post)$', 1.1),
            (r'^(lush|tufts|rosette|backbush|basebush|stem|pet|fc|Icosphere|fray|sand|wornground|fibers)$', 0.5), (r'^(leaflets|rib|trunk|nut|crown|root)$', 0.6),
