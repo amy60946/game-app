@@ -259,8 +259,8 @@ namespace Pofi.Screens
             rt.pivot = new Vector2(0.5f, 0f);
             // yer adı: yarı saydam şeker etiket (açık: deniz mavisi, kilitli: gri), oyun yazı tarzı
             var text = v.Unlocked ? v.Region.Name
+                : v.Spot != null && v.StonesLeft > 0 ? v.Region.Name + " · " + T("map.stones_short", v.StonesLeft)   // Güneş Taşı ile açılır (sis önce kalkar)
                 : v.OnHold ? v.Region.Name + " · " + T("map.soon_short")                          // oyunu beklemede (GameHold)
-                : v.Spot != null ? v.Region.Name + " · " + T("map.stones_short", v.StonesLeft)   // Güneş Taşı ile açılır
                 : v.Region.Name + " · Sv " + v.UnlockLevel;
             Candy.Tag(rt, text, v.Unlocked ? new Color(0.1f, 0.36f, 0.68f, 0.86f) : new Color(0.3f, 0.32f, 0.42f, 0.82f), 30, 64f);
             var hasPlay = v.Unlocked && IsPlayPlace(v.Region);
@@ -626,8 +626,8 @@ namespace Pofi.Screens
         }
 
         private string LockedText(RegionView v) =>
-            v.OnHold ? T("map.soon", v.Region.Name)
-            : v.Spot != null ? T("map.locked_stones", v.Region.Name, v.StonesLeft) : T("map.locked", v.Region.Name, v.UnlockLevel);
+            v.Spot != null && v.StonesLeft > 0 ? T("map.locked_stones", v.Region.Name, v.StonesLeft)
+            : v.OnHold ? T("map.soon", v.Region.Name) : T("map.locked", v.Region.Name, v.UnlockLevel);
 
         // ------------------------------------------------------------------ H4 adalı istekleri (23 Ekim 2026)
         // Günde en çok bir yeni istek, aynı anda en çok iki; süre dolmaz. İstek, adalının yerinin (dükkân, ev, bahçe, iskele) kapısında

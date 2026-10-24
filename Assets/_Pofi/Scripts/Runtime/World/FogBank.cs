@@ -94,7 +94,7 @@ namespace Pofi.World
             {
                 var a = i * 2.1f + (float)rnd.NextDouble();
                 Veil(center.x + Mathf.Cos(a) * radius * 0.2f, center.z + Mathf.Sin(a) * radius * 0.2f,
-                    radius * (0.7f + i * 0.15f), 11f + i * 2.5f, 0.26f, Color.white);
+                    radius * (0.7f + i * 0.15f), 13f + i * 3f, 0.4f, Color.white);   // uzaktan seçilsin (kullanıcı GB18-5)
             }
 
             var mesh = new Mesh { name = "FogBank" };

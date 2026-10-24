@@ -33,13 +33,13 @@ namespace Pofi.Screens
             // damla biçimli im: aşağı bakan kırmızı uç + altın çerçeveli krem baş
             var tip = Ui.Rect(_pinBob, "Tip", new Vector2(0.5f, 0f), new Vector2(54f, 54f), new Vector2(0f, 14f));
             tip.localRotation = Quaternion.Euler(0f, 0f, 45f);
-            var ti = tip.gameObject.AddComponent<Image>(); ti.color = Theme.Hex("#D9412B"); ti.raycastTarget = false;
+            var ti = tip.gameObject.AddComponent<Image>(); ti.color = Theme.Hex("#E9A62A"); ti.raycastTarget = false;   // sarı im (metin "Sarı im")
             _pinHead = Ui.Rect(_pinBob, "Head", new Vector2(0.5f, 0f), new Vector2(124f, 124f), new Vector2(0f, 36f));
-            var rim = GoldKit.RimDisc(_pinHead, Theme.Hex("#FF7A5C"), Theme.Hex("#D9412B"), 7f);
+            var rim = GoldKit.RimDisc(_pinHead, Theme.Hex("#FFD84D"), Theme.Hex("#E9A62A"), 7f);
             var face = Ui.Rect(rim, "Face", new Vector2(0.5f, 0.5f), new Vector2(92f, 92f));
             GoldKit.RimDisc(face, Theme.Hex("#FFFDF2"), Theme.Hex("#FBE6B0"), 4f);
             _pinIcon = Ui.IconImage(face, "ui_star", new Vector2(0.5f, 0.5f), 70f).GetComponent<Image>();
-            GoldKit.Ribbon(_pinBob, T("map.pin"), GoldKit.Tone.Red, 50f, 28, new Vector2(0.5f, 0f), new Vector2(0f, 168f));
+            GoldKit.Ribbon(_pinBob, T("map.pin"), GoldKit.Tone.Green, 50f, 28, new Vector2(0.5f, 0f), new Vector2(0f, 168f));   // "Buradasın" kırmızı, hedef yeşil
             var hit = _pin.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0f);
             var b = _pin.gameObject.AddComponent<Button>(); b.targetGraphic = hit; b.transition = Selectable.Transition.None;
             b.onClick.AddListener(PinTapped);
@@ -112,7 +112,7 @@ namespace Pofi.Screens
                 _pinRing.anchoredPosition = new Vector2(foot.x * scale, foot.y * scale);
                 var t = Mathf.Repeat(Time.unscaledTime + 0.7f, 1.4f) / 1.4f;
                 _pinRing.localScale = Vector3.one * Mathf.Lerp(0.4f, 1.6f, t);
-                _pinRingImg.color = new Color(1f, 0.45f, 0.3f, 0.9f * (1f - t));
+                _pinRingImg.color = new Color(1f, 0.8f, 0.25f, 0.9f * (1f - t));
                 _pinBob.anchoredPosition = new Vector2(0f, Theme.ReduceMotion ? 0f : Mathf.Abs(Mathf.Sin(Time.unscaledTime * 3.4f + 1f)) * 18f);
             }
             else _pinRing.gameObject.SetActive(false);
