@@ -486,6 +486,22 @@ namespace Pofi.Screens
                 return n != null ? n.Kind + " " + n.Index : "yok";
             }
             if (arg == "site") { TapSite(); return "kulübe yeri"; }
+            if (arg == "nut" || arg == "kiskac")   // GB17 çekimleri: en yakın yerdeki cevizin / Kıskaç'ın 3 m yanına ışınlan, ona dön
+            {
+                Vector2 c;
+                if (arg == "kiskac") { if (_kiskac == null) return "Kıskaç yok"; c = KiskacPos; }
+                else
+                {
+                    var p = _world.Walker.Position;
+                    var nut = _gNodes.Where(x => x.Kind == GatherKind.Coconut && _gSpots[x.Index].gameObject.activeSelf).OrderBy(x => Vector2.Distance(p, new Vector2(x.X, x.Z))).FirstOrDefault();
+                    if (nut == null) return "ceviz yok";
+                    c = new Vector2(nut.X, nut.Z);
+                }
+                var from = c + new Vector2(0f, -3.2f);
+                _world.Walker.Teleport(from.x, from.y, 0f);
+                _world.Walker.Face(c.x, c.y);
+                return arg + " " + c.x.ToString("0.0") + " " + c.y.ToString("0.0");
+            }
             if (arg == "state") return $"hedef={_gTarget} eylem={_actionKey} odun={Gathering.Count(st, Gathering.Wood)} dal={Gathering.Count(st, Gathering.Branch)} taş={Gathering.Count(st, Gathering.Stone)} kulübe={st.HutBuilt}";
             _actionDo?.Invoke();
             return "eylem " + _actionKey;

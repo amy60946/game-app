@@ -128,10 +128,11 @@ namespace Pofi.Core
                         UI.GoldKit.Frame = int.Parse(arg);
                         app.Route();
                         break;
-                    case "guide":       // rehber denemesi: "guide <adım>" önceki adımları ödülsüz bitirir; "guide nuts" 2 ceviz verir; "guide state"
+                    case "guide":       // rehber denemesi: "guide <adım>" önceki adımları ödülsüz bitirir; "guide nuts" 2 ceviz; "guide welcome" hoş geldin coin'i; "guide state"
                         {
                             var st = app.State;
                             if (arg == "nuts") { st.Inventory.Add(app.Data.Item(Logic.Island.Gathering.CoconutItem), 2); app.Save(); break; }
+                            if (arg == "welcome") { app.RecordActivity("pet_fed"); break; }   // hoş geldin coin'i (ilk besleme gibi)
                             if (arg != "state")
                                 foreach (var g in Logic.App.Guide.Steps)
                                 {

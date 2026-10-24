@@ -2086,6 +2086,169 @@ def c_chunk():
         pebble((R.uniform(-0.9, 0.9), R.uniform(-0.6, 0.6), 0.04), R.uniform(0.06, 0.1), STN, 30 + k)
     return 'adacık'
 
+# ------------------------------------------------------------------ plaj: yerde hindistan cevizi (GB17, dokun → topla)
+
+def _vm(G, op, a, b=None, s=None):
+    """Vektör işlemi düğümü (G = A._G): a/b soket ya da sabit üçlü; s = ölçek (SCALE)."""
+    m = G.n.new('ShaderNodeVectorMath'); m.operation = op
+    for i, x in enumerate((a, b)):
+        if x is None: continue
+        if isinstance(x, (tuple, list, V)): m.inputs[i].default_value = tuple(x)
+        else: G.l.new(x, m.inputs[i])
+    if s is not None:
+        if isinstance(s, (int, float)): m.inputs['Scale'].default_value = s
+        else: G.l.new(s, m.inputs['Scale'])
+    return m.outputs['Value'] if op in ('DOT_PRODUCT', 'DISTANCE', 'LENGTH') else m.outputs['Vector']
+
+def _axial(G, c, a):
+    """Meyvenin kendi ekseninde koordinat (pişirmede nesne koordinatı = dünya): t = eksen boyunca metre, d = eksene dik birim yön.
+    Lif deseni d'ye göre sık, t'ye göre seyrek gürültü → uçlarda toplanan boyuna lifler, dikiş yok."""
+    p = _vm(G, 'SUBTRACT', G.obj(), tuple(c))
+    t = _vm(G, 'DOT_PRODUCT', p, tuple(a))
+    d = _vm(G, 'NORMALIZE', _vm(G, 'SUBTRACT', p, _vm(G, 'SCALE', tuple(a), s=t)))
+    return t, d
+
+def _fibres(G, t, d, a, around, along, detail=4, rough=0.55):
+    vec = _vm(G, 'ADD', _vm(G, 'SCALE', d, s=around), _vm(G, 'SCALE', tuple(a), s=G.math('MULTIPLY', t, along)))
+    return G.noise(vec, 1.0, detail, rough)
+
+def m_husk(c, a, eyes=(), name='husk'):
+    """Kahverengi lifli hindistan cevizi: boyuna koyu/açık lif çizgileri (uçlarda toplanır), sıcak ton lekeleri,
+    küt uçta üç koyu "göz" (eyes: dünya konumları)."""
+    def b(nt, bsdf):
+        G = A._G(nt); o = G.obj()
+        t, d = _axial(G, c, a)
+        col = G.mix(G.rng(_fibres(G, t, d, a, 6, 3), 0.32, 0.68), '#5f391c', '#8c5a30')
+        col = G.mix(G.rng(_fibres(G, t, d, a, 34, 5, 3), 0.55, 0.7, 0, 0.55), col, '#b98a57')     # açık lifler
+        col = G.mix(G.rng(_fibres(G, t, d, a, 50, 6, 3), 0.43, 0.3, 0, 0.6), col, '#3f2410')      # lif araları
+        col = G.mix(0.22, col, G.noise(o, 70, 2), 'OVERLAY')                                       # tüylü kırçıl
+        col = G.mix(G.rng(G.noise(o, 5, 3), 0.4, 0.75, 0, 0.2), col, '#a87648')                    # güneş solgunu
+        for e in eyes:
+            col = G.mix(G.rng(_vm(G, 'DISTANCE', G.obj(), tuple(e)), 0.023, 0.015), col, '#26140a')
+        G.l.new(col, bsdf.inputs['Base Color'])
+    return nodes_mat(name, b)
+
+def m_green_nut(c, a, L, name='greennut'):
+    """Taze hindistan cevizi: yeşilden uca doğru sarımsı, ince boyuna damar, sap ucunda kahve kuruma + seyrek benek."""
+    def b(nt, bsdf):
+        G = A._G(nt); o = G.obj()
+        t, d = _axial(G, c, a)
+        col = G.mix(G.rng(G.noise(o, 4, 3), 0.3, 0.7), '#6c8a34', '#94a447')
+        col = G.mix(G.rng(_fibres(G, t, d, a, 22, 3, 3), 0.58, 0.72, 0, 0.25), col, '#b9bf6a')
+        col = G.mix(G.rng(t, 0.15 * L, 0.95 * L, 0, 0.6), col, '#c4ae58')                           # uç sararır
+        tn = G.math('ADD', t, G.math('MULTIPLY', G.noise(o, 9, 4), 0.05))
+        col = G.mix(G.rng(tn, -0.5 * L, -0.85 * L, 0, 0.85), col, '#86602f')                         # sap ucu kurumuş
+        sp = G.math('MULTIPLY', G.rng(G.vor(o, 40), 0.05, 0.0, 0, 0.6), G.rng(G.noise(o, 3), 0.5, 0.62))
+        col = G.mix(sp, col, '#6f5a2c')
+        G.l.new(col, bsdf.inputs['Base Color'])
+    return nodes_mat(name, b)
+
+def _perp_frame(a):
+    a = V(a).normalized(); h = V((0, 0, -1)) if abs(a.z) < 0.9 else V((1, 0, 0))
+    b1 = (h - a * h.dot(a)).normalized(); return a, b1, a.cross(b1)
+
+def nut(name, c, a, L, R, mat_fn, egg=0.12, ridge=0.035, lat=14, lon=18, seed=0, rough=0.025, sink=0.014, eye_th=0.3, ph0=0.0):
+    """Yumurtamsı hindistan cevizi (eksen a, yarı boy L, yarıçap R): +a ucu sivri, −a ucu küt (gözler/sap), 3 hafif sırt.
+    Yere oturur (en alt nokta z = −sink). mat_fn(merkez, eksen, göz_konumları) → malzeme. Döner: (nesne, merkez, çerçeve)."""
+    a, b1, b2 = _perp_frame(a); c = V(c)
+    def surf(th, ph, noisy=True):
+        t = -math.cos(th); s = math.sin(th)
+        r = R * s * (1 - egg * t) * (1 + ridge * math.cos(3 * ph + ph0) * s)
+        if noisy: r *= 1 + rough * mnoise.noise(V((math.cos(ph) * 2.3, math.sin(ph) * 2.3, t * 2.0 + seed)))
+        return c + a * (L * t + L * 0.07 * max(0.0, t) ** 6) + (b1 * math.cos(ph) + b2 * math.sin(ph)) * r
+    rings = [[surf(math.pi * i / lat, 2 * math.pi * j / lon) for j in range(lon)] for i in range(1, lat)]
+    p0 = c - a * L; p1 = c + a * L * 1.07
+    dz = V((0, 0, -sink - min(min(p.z for r in rings for p in r), p0.z, p1.z)))
+    eyes = [surf(eye_th, (2 * math.pi * k + math.pi - ph0) / 3, False) + dz for k in range(3)]
+    bm = bmesh.new()
+    vr = [[bm.verts.new(p + dz) for p in r] for r in rings]; v0 = bm.verts.new(p0 + dz); v1 = bm.verts.new(p1 + dz)
+    for j in range(lon):
+        j2 = (j + 1) % lon
+        bm.faces.new((v0, vr[0][j2], vr[0][j]))
+        for i in range(len(vr) - 1): bm.faces.new((vr[i][j], vr[i][j2], vr[i + 1][j2], vr[i + 1][j]))
+        bm.faces.new((vr[-1][j], vr[-1][j2], v1))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    o = link_mesh(name, bm, [mat_fn(c + dz, a, eyes)]); smooth(o)
+    return o, c + dz, (a, b1, b2), surf, dz
+
+def half_shell(name, c, up, R, seg=20, seed=0, sink=0.012):
+    """Kırık yarım hindistan cevizi: dışı lifli kabuk, kırık ağızda ince koyu kabuk çizgisi + beyaz meyve eti halkası,
+    içi beyaz çukur; ağız kenarı hafif tırtıklı. up = ağzın baktığı yön."""
+    a, b1, b2 = _perp_frame(up); c = V(c)
+    T = 0.009; F = 0.027; Ri = R - F
+    def jag(ph): return 0.007 * mnoise.noise(V((math.cos(ph) * 3, math.sin(ph) * 3, seed))) + 0.003 * mnoise.noise(V((math.cos(ph) * 9, math.sin(ph) * 9, seed + 4)))
+    def P(r, h, ph): return c + a * h + (b1 * math.cos(ph) + b2 * math.sin(ph)) * r
+    rows = []      # (köşe listesi, bir sonraki şeridin malzemesi)
+    no = 6
+    for i in range(1, no + 1):
+        th = math.pi / 2 * i / no
+        rows.append(([P(R * math.sin(th), -0.92 * R * math.cos(th) + (jag(2 * math.pi * j / seg) if i == no else 0), 2 * math.pi * j / seg) for j in range(seg)], 1 if i == no else 0))
+    rows.append(([P(R - T, jag(2 * math.pi * j / seg) - 0.001, 2 * math.pi * j / seg) for j in range(seg)], 2))
+    ni = 5
+    for i in range(ni):
+        th = math.pi / 2 * (1 - i / ni)
+        rows.append(([P(Ri * math.sin(th), -0.85 * Ri * math.cos(th) + (0.6 * jag(2 * math.pi * j / seg) - 0.004 if i == 0 else 0), 2 * math.pi * j / seg) for j in range(seg)], 2))
+    pb = c - a * 0.92 * R; pi_ = c - a * 0.85 * Ri
+    dz = V((0, 0, -sink - min(min(p.z for r, _ in rows for p in r), pb.z)))
+    bm = bmesh.new()
+    vr = [[bm.verts.new(p + dz) for p in r] for r, _ in rows]; vb = bm.verts.new(pb + dz); vi = bm.verts.new(pi_ + dz)
+    for j in range(seg):
+        j2 = (j + 1) % seg
+        f = bm.faces.new((vb, vr[0][j], vr[0][j2])); f.material_index = 0
+        for i in range(len(vr) - 1):
+            f = bm.faces.new((vr[i][j], vr[i + 1][j], vr[i + 1][j2], vr[i][j2])); f.material_index = rows[i][1]
+        f = bm.faces.new((vr[-1][j], vi, vr[-1][j2])); f.material_index = 2
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    mats = [m_husk(c + dz, a, (), name + '_husk'), A.m_flat('#4a2c16', 0.15, 30, 'cocoshell'), A.m_flat('#f8f2e4', 0.07, 16, 'cocoflesh')]
+    o = link_mesh(name, bm, mats); smooth(o)
+    return o
+
+def c_coconut():
+    """Kumda düşmüş hindistan cevizleri (toplanır): önde lifli kahverengi (küt ucunda üç göz), yanında kırık yarım (beyaz meyve
+    eti), arkada taze yeşil-sarı (sap ucunda kahve taç); altlarından taşan kurumuş palmiye yaprakçıkları. Taban ~0,7 m."""
+    # kurumuş palmiye yaprakçıkları: kuma serilmiş uzun, ince, V kesitli saman renkli şeritler (cevizlerin altından taşar)
+    def dry_leaflets(bm):
+        out = []
+        for k, (x0, y0, x1, y1, bend, wd) in enumerate(((-0.05, 0.05, -0.37, 0.3, 0.04, 0.02), (0.0, 0.08, 0.33, 0.31, -0.05, 0.019),
+                                                         (-0.09, 0.0, -0.03, 0.41, 0.05, 0.018), (0.17, 0.05, 0.36, -0.03, 0.02, 0.016))):
+            p0 = V((x0, y0, 0)); d = V((x1 - x0, y1 - y0, 0)); side0 = V((-d.y, d.x, 0)).normalized()
+            rows = []; segs = 6
+            for i in range(segs + 1):
+                s = i / segs
+                c = p0 + d * s + side0 * (bend * 4 * s * (1 - s))
+                tan = (d + side0 * (bend * 4 * (1 - 2 * s))).normalized(); sd = V((-tan.y, tan.x, 0))
+                w = wd * math.sin(math.pi * min(1.0, 0.12 + s * 0.9)) ** 0.7 if i < segs else 0.0
+                zc = 0.011 + 0.005 * math.sin(math.pi * s) + 0.002 * k
+                rows.append(((bm.verts.new(c + sd * w + V((0, 0, zc - 0.3 * w))), (s, 1.0)), (bm.verts.new(c + V((0, 0, zc + 0.002))), (s, 0.0)),
+                             (bm.verts.new(c - sd * w + V((0, 0, zc - 0.3 * w))), (s, -1.0))))
+            for i in range(segs):
+                (l0, c0, r0), (l1, c1, r1) = rows[i], rows[i + 1]
+                fs = [[l0, l1, c1, c0], [c0, c1, r1, r0]] if i < segs - 1 else [[l0, c1, c0], [c0, c1, r0]]
+                out += [(f, k % 2) for f in fs]
+        return out
+    mesh_from_blades('leaflets', dry_leaflets, [m_leaf('#9a7643', '#c4a067', '#dcc391', '#eadaa9', 'dryleaf'),
+                                                m_leaf('#8c7650', '#b49d74', '#d0bd96', '#e2d4b2', 'dryleaf2')])
+    # taze yeşil-sarı (arkada ortada, yan yatmış; sap ucu sağ öne bakar)
+    o, cB, (aB, b1, b2), surf, dz = nut('nutB', (-0.01, 0.15, 0), (-0.9, 0.38, 0.06), 0.135, 0.112, lambda c, a, e: m_green_nut(c, a, 0.135),
+                                        egg=0.1, ridge=0.08, seed=2, rough=0.012)
+    # sap ucundaki kahve taç (6 sivri yaprakçık)
+    CAL = A.m_flat('#6b4824', 0.2, 12, 'calyx')
+    bm = bmesh.new(); ring = []
+    for j in range(12):
+        ph = j * math.pi / 6; th = (0.36 if j % 2 == 0 else 0.17)
+        p = surf(th, ph, False) + dz; ring.append(bm.verts.new(p + (p - cB).normalized() * 0.005))
+    cv = bm.verts.new(surf(0.0, 0.0, False) + dz - aB * 0.008)
+    for j in range(12): bm.faces.new((cv, ring[(j + 1) % 12], ring[j]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    for f in bm.faces:
+        if f.normal.dot(-aB) < 0: f.normal_flip()
+    link_mesh('calyx', bm, [CAL])
+    # lifli kahverengi (önde; gözlü küt ucu öne-yukarı bakar)
+    nut('nutA', (0.12, -0.1, 0), (-0.5, 0.82, -0.28), 0.132, 0.118, lambda c, a, e: m_husk(c, a, e, 'huskA'), seed=1, ph0=0.4)
+    # kırık yarım (ağzı yukarı, hafif öne eğik)
+    half_shell('half', (-0.19, -0.1, 0), (0.22, -0.3, 1.0), 0.11, seed=3)
+    return 'hindistan cevizi'
+
 BUILDERS = {
     'c_fence': (c_fence, 512, None), 'c_lantern': (c_lantern, 512, None), 'c_sign': (c_sign, 512, None),
     'c_crates': (c_crates, 1024, None), 'c_boat': (c_boat, 1024, None),
@@ -2093,6 +2256,7 @@ BUILDERS = {
     'c_garden': (c_garden, 1024, None), 'c_surf': (c_surf, 1024, None), 'c_swim': (c_swim, 1024, None), 'c_game_hut': (c_game_hut, 1024, None),
     'c_festival': (c_festival, 1024, None), 'c_cave': (c_cave, 1024, 0.5), 'c_mountain': (c_mountain, 1024, 0.5), 'c_ski': (c_ski, 1024, None),
     'c_tree': (c_tree, 1024, None), 'c_log': (c_log, 512, None), 'c_site': (c_site, 1024, None), 'c_hut': (c_hut, 1024, None), 'c_chunk': (c_chunk, 1024, None),
+    'c_coconut': (c_coconut, 512, None),
 }
 AO = float(os.environ.get('POFI_AO', '0.6'))
 

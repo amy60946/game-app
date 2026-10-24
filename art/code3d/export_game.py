@@ -40,6 +40,7 @@ ASSETS = {
     'p_crates': ('assets_town.py', 'c_crates', 4000, 512),
     'p_boat': ('assets_town.py', 'c_boat', 3500, 512),
     'p_log': ('assets_town.py', 'c_log', 1600, 512),
+    'p_coconut': ('assets_town.py', 'c_coconut', 1200, 512),   # yerde hindistan cevizi (GB17, GatherKind.Coconut)
 }
 # ev eşyaları ve süsler (Resources/Items; kıyafetler ve petler Meshy'de kalır — iskelet/soket bağlı)
 ITEMS = {
