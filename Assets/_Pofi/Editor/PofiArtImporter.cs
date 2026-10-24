@@ -171,7 +171,7 @@ namespace Pofi.EditorTools
             // v6 ağaçları (art/code3d/v6/proxy_bake.py): taç yaprak dokusu taslaktan pişirilir, 1024'te korunur
             var tree = assetPath.Replace('\\', '/').Contains("/Resources/Env/t_") && !normal;
             // 3B adalılar (Kıskaç, Mavi, Pus, Tosbi, Pıtır, Hışır; GB18: "detaylı 3D olsun"): yüz ve kabuk ayrıntısı 1024'te korunur
-            var resident = assetPath.Replace('\\', '/').Contains("/Resources/Env/res_") && !normal;
+            var resident = (assetPath.Replace('\\', '/').Contains("/Resources/Env/res_") || assetPath.Replace('\\', '/').Contains("/Resources/Env/palm/")) && !normal;   // + ayrıntılı palmiye (palm_v2)
             t.maxTextureSize = (IsPet && !normal) || building || tree || resident ? 1024 : 512;
             t.mipmapEnabled = true;
             t.textureCompression = TextureImporterCompression.Compressed;
