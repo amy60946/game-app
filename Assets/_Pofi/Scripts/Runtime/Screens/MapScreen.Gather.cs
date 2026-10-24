@@ -92,8 +92,8 @@ namespace Pofi.Screens
         {
             var cur = _world.Walker != null ? _world.Walker.Position : new Vector2(x, z);
             foreach (var s in _gSpots.Values) if (s.gameObject.activeSelf && Inside(s, x, z, cur)) return true;
-            // K: yerdeki adalıların (Kıskaç, konmuş Mavi) içinden geçilmez
-            foreach (var r in new[] { _kiskac, _mavi })
+            // K: yerdeki adalıların (Kıskaç, konmuş Mavi, palmiyeler, Tosbi) içinden geçilmez
+            foreach (var r in new[] { _kiskac, _mavi, _tosbi, _pitir, _hisir })
             {
                 if (r == null || r.Busy) continue;
                 var c = new Vector2(r.transform.localPosition.x, r.transform.localPosition.z);

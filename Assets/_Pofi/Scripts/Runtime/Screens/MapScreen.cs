@@ -635,6 +635,7 @@ namespace Pofi.Screens
         private static readonly Dictionary<string, string> ResidentIcons = new Dictionary<string, string>
             { { "kiskac", "res_crab" }, { "mavi", "res_seagull" }, { "tosbi", "res_turtle" }, { "pitir", "decor_palm" }, { "hisir", "decor_palm" } };
         private readonly List<(string Id, Button B, Vector3 At)> _reqBubbles = new List<(string, Button, Vector3)>();
+        private readonly Dictionary<string, (Transform T, float H)> _reqAnchor = new Dictionary<string, (Transform, float)>();   // adalının başı (GB18-1)
 
         private void BuildRequests()
         {
@@ -660,8 +661,15 @@ namespace Pofi.Screens
                 Ui.Panel(gem, Theme.Hex("#FFD23F"), 26f).raycastTarget = false;
                 Ui.Label(gem, "!", Th.Font(40), Theme.Hex("#7A4A12"), new Vector2(0.5f, 0.5f), new Vector2(52f, 52f), FontStyle.Bold);
                 _reqBubbles.Add((id, b, _world.World(dx, dz) + Vector3.up * 3.2f));
+                // 3B adalı adadaysa baloncuk kapıda değil onun başının üstünde durur, onunla birlikte zıplar (GB18-1)
+                var res = ResidentOf(d.Who);
+                if (res != null) _reqAnchor[id] = (res.transform, ResidentHead(d.Who));
             }
         }
+
+        /// <summary>Adalının baş üstü yüksekliği (m; baloncuk payıyla).</summary>
+        private static float ResidentHead(string who) =>
+            who == "pitir" ? 3.2f : who == "hisir" ? 2.8f : who == "tosbi" ? 2.0f : who == "mavi" ? 1.9f : 2.0f;
 
         private void UpdateRequests()
         {
@@ -669,9 +677,10 @@ namespace Pofi.Screens
             var cam = App.Stage.Camera;
             var k = Root.rect.width / Mathf.Max(1f, Screen.width);
             var pet = _world.Walker != null ? _world.Walker.transform.position : Vector3.zero;
-            foreach (var (_, b, at) in _reqBubbles)
+            foreach (var (rid, b, at0) in _reqBubbles)
             {
                 if (b == null) continue;
+                var at = _reqAnchor.TryGetValue(rid, out var an) && an.T != null ? an.T.position + Vector3.up * an.H : at0;
                 var sp = cam.WorldToScreenPoint(at);
                 var show = !_overview && !_cine && sp.z > 0f && Vector3.Distance(at, pet) < 40f;
                 if (b.gameObject.activeSelf != show) b.gameObject.SetActive(show);

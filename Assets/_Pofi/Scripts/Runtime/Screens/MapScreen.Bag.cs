@@ -26,7 +26,7 @@ namespace Pofi.Screens
         private int _bagLast = -1;
         private float _needBounce, _edgeOff;
         private readonly Image[] _gaugeGlow = new Image[4];
-        private Resident3D _kiskac, _mavi, _pus;
+        private Resident3D _kiskac, _mavi, _pus, _tosbi, _pitir, _hisir;
 
         private static readonly string[] BagCats = { ItemCategory.Food, ItemCategory.Cleaning, ItemCategory.Seed };
 
@@ -374,7 +374,38 @@ namespace Pofi.Screens
                 var x = _terrain.PlazaX + 7f; var z = _terrain.PlazaZ + 5f;
                 _pus = Resident3D.Create(_world.transform, "pus", "res_pus", new Vector3(x, _terrain.Height(x, z) + 1.6f, z), 1.6f, 200f, ground, pet);
             }
+            // GB18-1: konuşan palmiyeler Pıtır (uzun, cıvıl cıvıl) ve Hışır (kısa, utangaç) Hindistan Cevizi Bahçesi'nin girişinde,
+            // yolun iki yanında birbirine hafif dönük; Tosbi Dede 4. bölümden sonra iskelenin girişinde (kırık köprünün ucunda)
+            var grove = _terrain.Regions.FirstOrDefault(r => r.Id == "region_coconut_grove");
+            if (grove != null)
+            {
+                var (gx, gz) = _terrain.Door(grove);
+                var d = new Vector2(gx - grove.X, gz - grove.Z); d = d.sqrMagnitude > 0.01f ? d.normalized : Vector2.down;
+                var side = new Vector2(d.y, -d.x);
+                var yaw = Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg;
+                _pitir = PlaceResident("pitir", new Vector2(gx, gz) + side * 2.8f - d * 0.4f, 2.5f, yaw - 14f, ground, pet);
+                _hisir = PlaceResident("hisir", new Vector2(gx, gz) - side * 2.6f - d * 0.2f, 2.1f, yaw + 14f, ground, pet);
+            }
+            var pier = _terrain.Regions.FirstOrDefault(r => r.Id == "region_pier");
+            if (pier != null && seen.Contains("ch4_open"))
+            {
+                var (px, pz) = _terrain.Door(pier);
+                var d = new Vector2(px - pier.X, pz - pier.Z); d = d.sqrMagnitude > 0.01f ? d.normalized : Vector2.up;
+                _tosbi = PlaceResident("tosbi", new Vector2(px, pz) + d * 1.6f + new Vector2(d.y, -d.x) * 1.4f, 1.2f, Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg, ground, pet);
+            }
         }
+
+        /// <summary>Yerde duran adalı (model Env/res_&lt;kim&gt;; yoksa kurulmaz). Yer yürünebilir en yakın noktaya çekilir.</summary>
+        private Resident3D PlaceResident(string who, Vector2 p, float height, float yaw, System.Func<float, float, float> ground, Transform pet)
+        {
+            var w = _terrain.NearestWalkable(p.x, p.y);
+            if (!float.IsNaN(w.x) && Vector2.Distance(p, new Vector2(w.x, w.z)) < 3f) p = new Vector2(w.x, w.z);
+            return Resident3D.Create(_world.transform, who, "res_" + who, new Vector3(p.x, _terrain.Height(p.x, p.y), p.y), height, yaw, ground, pet);
+        }
+
+        /// <summary>Adadaki 3B adalı (yoksa null).</summary>
+        private Resident3D ResidentOf(string who) =>
+            who == "kiskac" ? _kiskac : who == "mavi" ? _mavi : who == "pus" ? _pus : who == "tosbi" ? _tosbi : who == "pitir" ? _pitir : who == "hisir" ? _hisir : null;
 
         /// <summary>Mavi posta kutusunun yanında belirir (yerine konmuş hâliyle).</summary>
         private void CreateMavi()
@@ -394,7 +425,7 @@ namespace Pofi.Screens
         private void OnSpeaker(string who)
         {
             if (this == null) return;
-            var r = who == "kiskac" ? _kiskac : who == "mavi" ? _mavi : who == "pus" ? _pus : null;
+            var r = ResidentOf(who);
             if (r != null) r.React();
         }
 
@@ -413,7 +444,8 @@ namespace Pofi.Screens
                 GoTo(spot.x, spot.y, () => RequestCard(id));
                 return;
             }
-            _toast.Say(r.Who == "kiskac" ? T("res.hi_kiskac", App.State.PetName) : r.Who == "mavi" ? T("res.hi_mavi") : T("res.hi_pus"));
+            var hi = "res.hi_" + r.Who;   // res.hi_kiskac, _mavi, _pus, _tosbi, _pitir, _hisir
+            _toast.Say(T(hi, App.State.PetName));
         }
 
         // ------------------------------------------------------------------ Mavi'nin haberi (Ev Görevleri B, kullanıcı 24 Ekim 2026)

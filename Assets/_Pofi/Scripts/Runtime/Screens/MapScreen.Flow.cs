@@ -89,6 +89,7 @@ namespace Pofi.Screens
         {
             foreach (var (_, b, _) in _reqBubbles) if (b != null) Destroy(b.gameObject);
             _reqBubbles.Clear();
+            _reqAnchor.Clear();
             BuildRequests();
         }
 
