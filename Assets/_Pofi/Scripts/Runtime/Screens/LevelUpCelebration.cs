@@ -90,7 +90,7 @@ namespace Pofi.Screens
             var line = _up.NewStage != null ? loc.Get("levelup.grew", _app.State.PetName) : news.Count > 0 ? loc.Get("levelup.new", string.Join(" · ", news)) : null;
             if (line != null) Candy.Caption(_root, line, 40, new Vector2(0.5f, 0.56f), new Vector2(1400f, 64f), new Vector2(0f, -300f));
             var sp = RectTransformUtility.WorldToScreenPoint(null, _star.position);
-            StarSparkles.Around(_root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.16f, 0.22f), 10, _up.To);
+            StarSparkles.Around(_root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.16f, 0.22f), 10, _up.To, 0f);   // kutlamayla birlikte kalkar
         }
 
         private void ShowGo()

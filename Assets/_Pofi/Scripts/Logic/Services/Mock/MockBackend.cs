@@ -13,7 +13,7 @@ namespace Pofi.Logic.Services.Mock
     /// fiyat sunucuda (oyun verisinden) okunur, harcama idempotenttir, coin yalnızca ebeveyn onayıyla artar.
     /// Geliştirmede "ebeveyn" işlemleri (görev ata, onayla, reddet) bu sınıftan çağrılır.
     /// </summary>
-    public sealed class MockBackend : IWalletService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService
+    public sealed class MockBackend : IWalletService, IWelcomeService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService
     {
         private readonly GameData _data;
         private readonly Dictionary<string, int> _processedTx = new Dictionary<string, int>(); // txId → tutar
@@ -74,6 +74,20 @@ namespace Pofi.Logic.Services.Mock
             var t = _tasks.First(x => x.Key == key);
             t.Status = ChildTaskStatus.RejectedByParent;
             t.ParentNote = note;
+        }
+
+        // ---------- hoş geldin coin'i (sunucu claim_welcome_coins ile aynı: çocuk başına bir kez) ----------
+
+        public const int WelcomeCoins = 20;
+        public bool Welcomed { get; private set; }
+
+        public Task<WelcomeResponse> ClaimWelcomeAsync(CancellationToken ct = default)
+        {
+            if (Offline) return Task.FromResult(new WelcomeResponse { Error = ServiceError.Network, Balance = Coins });
+            if (Welcomed) return Task.FromResult(new WelcomeResponse { AlreadyClaimed = true, Error = ServiceError.Rejected, Balance = Coins });
+            Welcomed = true;
+            Coins += WelcomeCoins;
+            return Task.FromResult(new WelcomeResponse { Ok = true, Coins = WelcomeCoins, Balance = Coins });
         }
 
         // ---------- IWalletService ----------
@@ -185,12 +199,13 @@ namespace Pofi.Logic.Services.Mock
             if (_requests.Count(q => q.Status == Rewards.RewardStatus.Pending) >= 5) return Task.FromResult(new Rewards.RewardReply { Error = "too_many_requests" });
             if (SpendableStones < r.Cost * quantity) return Task.FromResult(new Rewards.RewardReply { Error = "not_enough_stones" });
             var id = "rq_" + (_requests.Count + 1);
+            var first = _requests.All(q => q.Source != "child");   // sunucu: çocuğun ilk talebi (iptal edilmiş olsa da sayılır)
             _requests.Add(new Rewards.RewardRequest
             {
                 Id = id, RewardId = r.Id, Title = r.Title, Quantity = quantity, Cost = r.Cost * quantity, Unit = r.Unit, Amount = r.UnitAmount * quantity,
                 Source = "child", Status = Rewards.RewardStatus.Pending, CreatedAt = DateTime.UtcNow.ToString("o"),
             });
-            return Task.FromResult(new Rewards.RewardReply { RequestId = id });
+            return Task.FromResult(new Rewards.RewardReply { RequestId = id, First = first });
         }
 
         public Task<Rewards.RewardReply> CancelAsync(string requestId, CancellationToken ct = default)
@@ -355,12 +370,14 @@ namespace Pofi.Logic.Services.Mock
             public List<Rewards.RewardRequest> Requests = new List<Rewards.RewardRequest>();
             public List<Rewards.StoneDeduction> Deductions = new List<Rewards.StoneDeduction>();
             public int StonesSpent;
+            public bool Welcomed;
         }
 
         public string Export() => Newtonsoft.Json.JsonConvert.SerializeObject(new Snapshot
         {
             Coins = Coins, SunStones = SunStones, Tasks = _tasks.Select(Clone).ToList(), Tx = new Dictionary<string, int>(_processedTx), Remote = _remoteSave,
             Rewards = _rewards.ToList(), Requests = _requests.Select(CloneReq).ToList(), Deductions = _deductions.ToList(), StonesSpent = _stonesSpent,
+            Welcomed = Welcomed,
         });
 
         /// <summary>Önceki <see cref="Export"/> çıktısını yükler. Bozuk veri yok sayılır (boş sunucu).</summary>
@@ -385,6 +402,7 @@ namespace Pofi.Logic.Services.Mock
             _deductions.Clear();
             if (snap.Deductions != null) _deductions.AddRange(snap.Deductions.Where(d => d != null));
             _stonesSpent = Math.Max(0, snap.StonesSpent);
+            Welcomed = snap.Welcomed;
         }
 
         /// <summary>Sunucudaki görevlerin (ebeveyn gözünden) listesi: deneme ebeveyn paneli için.</summary>

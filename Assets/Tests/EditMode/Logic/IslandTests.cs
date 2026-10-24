@@ -49,11 +49,22 @@ namespace Pofi.Tests.Logic
             Assert.IsTrue(v1.First(v => v.Region.Id == "region_home").Unlocked);
             Assert.IsFalse(v1.First(v => v.Region.Id == "region_home").IsNew);   // başlangıç bölgeleri "yeni" sayılmaz
             Assert.IsFalse(v1.First(v => v.Region.Id == "region_swim_cove").Unlocked);
-            Assert.AreEqual("region_swim_cove", map.NextToUnlock(1, visited).Region.Id);
-            var v2 = map.View(2, visited);
-            Assert.IsTrue(v2.First(v => v.Region.Id == "region_swim_cove").IsNew);
-            visited.Add("region_swim_cove");
-            Assert.IsFalse(map.View(2, visited).First(v => v.Region.Id == "region_swim_cove").IsNew);
+            Assert.IsTrue(map.View(2, visited).First(v => v.Region.Id == "region_swim_cove").OnHold, "mini oyun beklemede (kullanıcı, 24 Ekim 2026)");
+            Assert.IsFalse(map.View(2, visited).First(v => v.Region.Id == "region_swim_cove").Unlocked);
+            Assert.AreEqual("region_garden", map.NextToUnlock(1, visited).Region.Id, "beklemedeki bölgeler sıradaki hedef olmaz");
+            var v6 = map.View(6, visited);
+            Assert.IsTrue(v6.First(v => v.Region.Id == "region_garden").IsNew);
+            visited.Add("region_garden");
+            Assert.IsFalse(map.View(6, visited).First(v => v.Region.Id == "region_garden").IsNew);
+        }
+
+        [Test]
+        public void Beklemedeki_oyunlar_seviye_kutlamasinda_listelenmez()
+        {
+            var up = new Pofi.Logic.Progression.LevelUp { From = 2, To = 3 };
+            up.Unlocked.AddRange(new[] { "region_surf_beach", "minigame_surf", "region_game_hut", "card_color_match", "shop_hats", "minigame_coconut" });
+            GameHold.FilterLevelUp(up, Map);
+            CollectionAssert.AreEquivalent(new[] { "shop_hats", "minigame_coconut" }, up.Unlocked);
         }
 
         [Test]

@@ -49,20 +49,87 @@ namespace Pofi.Screens
             _coins = Candy.Badge(Root, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(CoinRight, -24f), 84f, 250f);
 
             _tabButtons = new Button[Tabs.Length];
+            if (_tab == RealTab && !RewardsOpen) _tab = ItemCategory.Food;
+            // özellik yeni açıldıysa dükkân doğrudan Gerçek ödüller sekmesiyle açılır (tanıtım kartı Fill'den sonra)
+            if (RewardsOpen && !App.State.SeenTips.Contains(RewardsIntroFlag) && !Guide.Is(App.State, App.Level, "shop")) _tab = RealTab;
             for (var i = 0; i < Tabs.Length; i++)
             {
                 var cat = Tabs[i];
                 _tabButtons[i] = Candy.Round(Root, Candy.White, TabIcons[i], 108f, new Vector2(0f, 1f), new Vector2(96f, -96f - i * 118f),
-                    () => { _tab = cat; _page = 0; _selected = 0; Fill(); if (cat == RealTab) _ = RefreshRewards(); });
+                    () => OpenTab(cat));
             }
+            // Gerçek ödüller birkaç seviye sonra açılır (kullanıcı GB17-13): kilitliyken sekme soluk, dokununca hangi seviyede açılacağı
+            if (!RewardsOpen) foreach (var img in _tabButtons[Tabs.Length - 1].GetComponentsInChildren<Image>()) img.color *= new Color(1f, 1f, 1f, 0.45f);
             _shelf = Ui.Fill(Root, "Shelf");
             _bubble = Bubble(new Vector2(0.5f, 0.9f));
             NavBar(AppPage.Shop);
             App.Synced += OnSynced;
             Fill();
-            if (_tab == RealTab) _ = RefreshRewards();
-            if (Onboarding.Pending(App.State, Onboarding.Shop))
+            if (_tab == RealTab) { _ = RefreshRewards(); if (!App.State.SeenTips.Contains(RewardsIntroFlag)) RewardsIntro(); }
+            if (Guide.Is(App.State, App.Level, "shop")) GuideFirstWear();
+            else if (Onboarding.Pending(App.State, Onboarding.Shop))
                 _coach = Coach.Show(Root, Onboarding.Shop, T("tip.shop"), TipGesture.Tap, () => new Vector2(Screen.width * 0.42f, Screen.height * 0.26f));   // ızgaranın ilk ürünü
+        }
+
+        private RectTransform _buyBtn;
+
+        public const string RewardsUnlock = "real_rewards", RewardsIntroFlag = "rewards_intro";
+        private bool RewardsOpen => App.Levels.IsUnlocked(RewardsUnlock, App.Level);
+
+        private void OpenTab(string cat)
+        {
+            if (cat == RealTab && !RewardsOpen) { _bubble.Say(T("rewards.locked", App.Levels.UnlockLevel(RewardsUnlock))); return; }
+            _tab = cat; _page = 0; _selected = 0; Fill();
+            if (cat != RealTab) return;
+            _ = RefreshRewards();
+            if (!App.State.SeenTips.Contains(RewardsIntroFlag)) RewardsIntro();
+        }
+
+        /// <summary>
+        /// Gerçek ödüllerin ilk açılışı (kullanıcı GB17-13): üç adımlı kısa kart (görev → Güneş Taşı → ödül seç → İste), sonra el
+        /// ilk ödüle ve İste'ye dokunur. İlk istek gidince "ilk isteğin ailene gitti" (ebeveyne de ilk istek olduğu bildirilir).
+        /// </summary>
+        private void RewardsIntro()
+        {
+            var root = Modal(640f, out var box);
+            ModalTitle(box, T("rewards.intro_title"));
+            var rows = new[] { ("ui_board", "rewards.intro_1"), ("ui_gift", "rewards.intro_2"), ("ui_sunstone", "rewards.intro_3") };
+            for (var i = 0; i < rows.Length; i++)
+            {
+                var y = 0.72f - i * 0.19f;
+                Ui.Label(box, (i + 1).ToString(), Th.Font(56), Theme.Hex("#C26A08"), new Vector2(0.1f, y), new Vector2(80f, 90f), FontStyle.Bold);
+                Ui.IconImage(box, rows[i].Item1, new Vector2(0.21f, y), 96f);
+                Ui.Label(box, T(rows[i].Item2), Th.Font(38), Th.Text, new Vector2(0.62f, y), new Vector2(700f, 110f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            }
+            var say = string.Join(" ", rows.Select(r => T(r.Item2)));
+            Audio.Voice.Say(say);
+            Ui.Button(box, Th, T("rewards.intro_ok"), new Vector2(0.5f, 0.1f), new Vector2(420f, 120f), () =>
+            {
+                Audio.Voice.StopIf(say);
+                Destroy(root.gameObject);
+                App.State.SeenTips.Add(RewardsIntroFlag); App.Save();
+                if (_coach == null && (App.State.Rewards?.Rewards.Count ?? 0) > 0)
+                    _coach = Coach.Show(Root, "rewards_pick", T("rewards.pick"), TipGesture.Tap, () => new Vector2(Screen.width * 0.5f, Screen.height * 0.72f), null, 3, null, null, T("rewards.pick"));
+            });
+        }
+        /// <summary>
+        /// Rehberin dükkân adımı (kullanıcı GB17-4): hoş geldin coin'ine yeten ilk aksesuar seçili gelir, Okti'de denenir; el "Al"
+        /// düğmesine dokunur. Alınca takılır (giydir adımı da biter) ve dükkânı kullanma alışkanlığı başlar.
+        /// </summary>
+        private void GuideFirstWear()
+        {
+            var item = Guide.FirstWear(App.Data, App.State.Wallet.Available);
+            if (item == null) return;
+            ShopTipDone();
+            _tab = Tabs.Contains(item.Category) ? item.Category : ItemCategory.Accessory;
+            var views = Views();
+            var idx = views.FindIndex(v => v.Item.Id == item.Id);
+            if (idx < 0) return;
+            _page = idx / PerPage; _selected = idx % PerPage;
+            Fill();
+            var say = T("guide.shop_pick", item.Name);
+            _coach = Coach.Show(Root, "guide_shop", say, TipGesture.Tap, () => _buyBtn != null ? RectTransformUtility.WorldToScreenPoint(null, _buyBtn.position) : new Vector2(Screen.width * 0.7f, Screen.height * 0.2f),
+                null, 99, (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count, null, say);
         }
 
         private Coach _coach;
@@ -148,6 +215,7 @@ namespace Pofi.Screens
             Candy.Caption(card, cur.Item.Name, 44, new Vector2(0.5f, 1f), new Vector2(w, 64f), new Vector2(0f, 40f));
             var label = cur.State == BuyCheck.AlreadyOwned ? T("shop.owned") : T("shop.buy", cur.Item.Price);
             var buy = Candy.Pill(_shelf, Candy.Green, label, new Vector2(0.58f, 0f), new Vector2(300f, 116f), new Vector2(w * 0.5f + 190f, 60f + 58f), () => OnTap(cur), "ui_coin", 46);
+            _buyBtn = (RectTransform)buy.transform;
             if (cur.State != BuyCheck.Ok) buy.targetGraphic.color = new Color(0.72f, 0.72f, 0.72f, 0.9f);
             Preview(cur);
         }
@@ -178,7 +246,13 @@ namespace Pofi.Screens
                 App.Stage.Hop();
                 Audio.Sfx.Play(Audio.SfxKind.Coin);
                 _bubble.Say(v.Item.IsWearable ? T("shop.bought_wear", v.Item.Name) : T("shop.bought", v.Item.Name));
-                if (v.Item.IsWearable) { App.State.Inventory.TryEquip(pet, v.Item); App.Save(); }
+                if (v.Item.IsWearable)
+                {
+                    App.State.Inventory.TryEquip(pet, v.Item); App.Save();
+                    App.RecordActivity("item_equipped");   // alınan aksesuar takılı gelir: rehberin giydir adımı da biter
+                    App.RecordActivity("wear_bought");
+                }
+                if (_coach != null && _coach.Id == "guide_shop") { _coach.Done(); _coach = null; }
                 App.RecordActivity("item_bought");
                 Fill();
                 _ = App.SyncNow();
@@ -311,7 +385,10 @@ namespace Pofi.Screens
                 {
                     Audio.Sfx.Play(Audio.SfxKind.Coin);
                     App.Stage.Hop();
-                    _bubble.Say(T("rewards.asked", rw.Title));
+                    if (_coach != null && _coach.Id == "rewards_pick") { _coach.Done(); _coach = null; }
+                    var first = r.First || !App.State.SeenTips.Contains("rewards_first_sent");
+                    _bubble.Say(first ? T("rewards.first_sent") : T("rewards.asked", rw.Title));
+                    if (first) { App.State.SeenTips.Add("rewards_first_sent"); StarSparkles.Around(Root, new Vector2(0.5f, 0.6f), new Vector2(0.2f, 0.15f), 12, 5); }
                     if (book.GoalId == rw.Id) book.GoalId = null;
                     App.RecordActivity("reward_requested");
                 }

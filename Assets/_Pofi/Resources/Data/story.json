@@ -132,6 +132,74 @@
    ]
   },
   {
+   "id": "ch1_coconut",
+   "chapter": 1,
+   "trigger": "event",
+   "arg": "kiskac_met",
+   "summary": "Kıskaç tezgâhı için 2 hindistan cevizi istiyor.",
+   "art": "load_shop",
+   "lines": [
+    {
+     "who": "kiskac",
+     "text": "Hoş geldin! Karnın doydu, üstün başın tertemiz.",
+     "a": "Hoş geldin!",
+     "mood": "happy"
+    },
+    {
+     "who": "kiskac",
+     "text": "Ama bak, fırtına tezgâhımı bomboş bıraktı.",
+     "a": "Tezgâhım bomboş kaldı.",
+     "c": "Fırtına tezgâhımı süpürdü. Vitrin: boş. Moral: daha boş.",
+     "mood": "sad"
+    },
+    {
+     "who": "kiskac",
+     "text": "Bana 2 hindistan cevizi getirir misin?",
+     "a": "2 hindistan cevizi getirir misin?"
+    },
+    {
+     "who": "okti",
+     "text": "Tabii! Nerede bulurum?",
+     "a": "Nerede bulurum?",
+     "mood": "think"
+    },
+    {
+     "who": "kiskac",
+     "text": "Kumsalda yerde arayabilir ya da bahçede toplayabilirsin!",
+     "a": "Kumsalda ya da bahçede bak!",
+     "mood": "happy"
+    }
+   ]
+  },
+  {
+   "id": "ch1_thanks",
+   "chapter": 1,
+   "trigger": "event",
+   "arg": "coconut_delivered",
+   "summary": "Kıskaç çok sevindi. Gökyüzünde biri görünüyor!",
+   "art": "load_shop",
+   "lines": [
+    {
+     "who": "kiskac",
+     "text": "Harika! Tezgâhım yine şenlendi.",
+     "a": "Harika, teşekkürler!",
+     "mood": "happy"
+    },
+    {
+     "who": "okti",
+     "text": "Sana yardım etmek çok güzeldi!",
+     "a": "Çok güzeldi!",
+     "mood": "happy"
+    },
+    {
+     "who": "kiskac",
+     "text": "Bak, gökyüzünde biri var... Postacı Mavi mi o?",
+     "a": "Bak, gökyüzünde biri var!",
+     "mood": "surprised"
+    }
+   ]
+  },
+  {
    "id": "ch1_board",
    "chapter": 1,
    "trigger": "event",
@@ -197,8 +265,8 @@
   {
    "id": "ch2_open",
    "chapter": 2,
-   "trigger": "level",
-   "arg": "2",
+   "trigger": "event",
+   "arg": "mavi_arrived",
    "art": "load_mavi",
    "summary": "Postacı Mavi kulübesini kaybetmiş.",
    "lines": [

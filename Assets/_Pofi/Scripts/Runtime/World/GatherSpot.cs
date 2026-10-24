@@ -36,6 +36,10 @@ namespace Pofi.World
             {
                 case GatherKind.Log: s._model = RealAssets.EnvFootprint("p_log", root, 1.6f, n.Yaw); s.Radius = 0.75f; s._chip = new Color(0.86f, 0.62f, 0.36f); break;
                 case GatherKind.Bush: s._model = RealAssets.EnvFootprint("p_bush", root, 1.3f, n.Yaw); s.Radius = 0.6f; s._chip = new Color(0.36f, 0.72f, 0.3f); break;
+                case GatherKind.Coconut:   // yerde hindistan cevizi (GB17): üstünden geçilir, engel değil
+                    s._model = RealAssets.EnvFootprint("p_coconut", root, 0.75f, n.Yaw); s.Radius = 0f; s._chip = new Color(0.55f, 0.36f, 0.2f);
+                    if (s._model == null) s._model = Nuts(root, n.Yaw);
+                    break;
                 default: s._model = RealAssets.EnvFootprint("p_rock", root, 1.1f, n.Yaw); s.Radius = 0.55f; s._chip = new Color(0.62f, 0.6f, 0.56f); break;
             }
             if (s._model == null) s._model = Placeholder(root, n.Kind);
@@ -74,6 +78,29 @@ namespace Pofi.World
             col.center = new Vector3(0f, Top * 0.45f, 0f);
         }
 
+        /// <summary>Model yoksa: iki kahverengi ceviz (biri yarık, beyaz içli) — kodla.</summary>
+        private static Transform Nuts(Transform parent, float yaw)
+        {
+            var root = new GameObject("nuts").transform;
+            root.SetParent(parent, false);
+            root.localRotation = Quaternion.Euler(0f, yaw, 0f);
+            var husk = PetModels.NewMaterial(new Color(0.48f, 0.3f, 0.16f), 0.25f);
+            var flesh = PetModels.NewMaterial(new Color(0.97f, 0.95f, 0.88f), 0.3f);
+            void Ball(Vector3 at, float r, Material m, Vector3 squash)
+            {
+                var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                Destroy(go.GetComponent<Collider>());
+                go.transform.SetParent(root, false);
+                go.transform.localPosition = at;
+                go.transform.localScale = Vector3.Scale(Vector3.one * r * 2f, squash);
+                go.GetComponent<MeshRenderer>().sharedMaterial = m;
+            }
+            Ball(new Vector3(-0.12f, 0.12f, 0f), 0.13f, husk, new Vector3(1f, 0.9f, 1.1f));
+            Ball(new Vector3(0.14f, 0.1f, 0.06f), 0.12f, husk, new Vector3(1.05f, 0.85f, 1f));
+            Ball(new Vector3(0.15f, 0.17f, 0.06f), 0.085f, flesh, new Vector3(1f, 0.25f, 1f));   // yarık cevizin beyaz içi
+            return root;
+        }
+
         private static Transform Placeholder(Transform parent, GatherKind k)
         {
             var go = GameObject.CreatePrimitive(k == GatherKind.Log ? PrimitiveType.Capsule : PrimitiveType.Sphere);
@@ -89,7 +116,7 @@ namespace Pofi.World
         public void Hit()
         {
             _shake = 1f;
-            Chips(Kind == GatherKind.Bush ? 7 : 6);
+            Chips(Kind == GatherKind.Bush ? 7 : Kind == GatherKind.Coconut ? 3 : 6);
         }
 
         /// <summary>Son vuruş: küçülüp kaybolur.</summary>

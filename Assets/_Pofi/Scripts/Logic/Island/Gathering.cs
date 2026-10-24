@@ -5,7 +5,7 @@ using System.Linq;
 namespace Pofi.Logic.Island
 {
     /// <summary>Adada toplanabilir/işlenebilir nesne türü.</summary>
-    public enum GatherKind { Log, Bush, Rock }
+    public enum GatherKind { Log, Bush, Rock, Coconut }
 
     /// <summary>Haritadaki bir toplama noktası (yeri adadan belirlenimci).</summary>
     public sealed class GatherNode
@@ -21,7 +21,7 @@ namespace Pofi.Logic.Island
         public GatherKind Kind;
         public string Tool;        // "axe" | "hand" | "pickaxe" (eylem düğmesi ve nesne üstü simge)
         public int Hits;           // kaç vuruşta biter
-        public string Material;    // "wood" | "branch" | "stone"
+        public string Material;    // "wood" | "branch" | "stone" | "coconut" (hindistan cevizi envantere yiyecek olarak girer)
         public int Yield;          // bitince kaç malzeme
     }
 
@@ -43,7 +43,9 @@ namespace Pofi.Logic.Island
     /// </summary>
     public static class Gathering
     {
-        public const string Wood = "wood", Branch = "branch", Stone = "stone";
+        public const string Wood = "wood", Branch = "branch", Stone = "stone", Coconut = "coconut";
+        /// <summary>Yerden toplanan hindistan cevizi envanterde bu yiyecek olur (Kıskaç'ın isteği, kullanıcı 24 Ekim 2026).</summary>
+        public const string CoconutItem = "food_coconut";
         public static readonly TimeSpan Respawn = TimeSpan.FromMinutes(8);
         public const int HutXp = 40;
 
@@ -52,15 +54,23 @@ namespace Pofi.Logic.Island
             new GatherRule { Kind = GatherKind.Log, Tool = "axe", Hits = 3, Material = Wood, Yield = 2 },
             new GatherRule { Kind = GatherKind.Bush, Tool = "hand", Hits = 1, Material = Branch, Yield = 2 },
             new GatherRule { Kind = GatherKind.Rock, Tool = "pickaxe", Hits = 2, Material = Stone, Yield = 1 },
+            new GatherRule { Kind = GatherKind.Coconut, Tool = "hand", Hits = 1, Material = Coconut, Yield = 1 },
         };
+
+        /// <summary>Çantadaki malzeme mi (odun/dal/taş)? Hindistan cevizi malzeme değil, yiyecektir.</summary>
+        public static bool IsMaterial(string m) => m == Wood || m == Branch || m == Stone;
 
         /// <summary>Kulübe tarifi (sıra ekranda da bu).</summary>
         public static readonly (string material, int count)[] HutRecipe = { (Wood, 6), (Branch, 4), (Stone, 3) };
 
         public static GatherRule Rule(GatherKind k) => Rules.First(r => r.Kind == k);
 
-        /// <summary>Toplama noktaları: kütük ve çalı çimende, taş kumsalda/kayalıkta; meydana yakın olanlar önce (çocuk hemen bulsun).</summary>
-        public static List<GatherNode> Place(IslandTerrain t, int logs = 5, int bushes = 6, int rocks = 5)
+        /// <summary>
+        /// Toplama noktaları: kütük ve çalı çimende, taş çimende/kumsalda/kayalıkta (kullanıcı, 24 Ekim 2026: kulübeye yetecek taş
+        /// bulunamıyordu → 10 taş), hindistan cevizi yürüme yollarına yakın kumda; meydana yakın olanlar önce (çocuk hemen bulsun).
+        /// Sıra (kütük, çalı, taş, ceviz) kayıttaki nokta numaralarını korur: yeni tür hep sona eklenir.
+        /// </summary>
+        public static List<GatherNode> Place(IslandTerrain t, int logs = 5, int bushes = 6, int rocks = 10, int coconuts = 5)
         {
             var list = new List<GatherNode>();
             var props = t.Props();
@@ -94,7 +104,10 @@ namespace Pofi.Logic.Island
             }
             Scatter(GatherKind.Log, logs, (x, z) => t.SurfaceAt(x, z) == Surface.Grass);
             Scatter(GatherKind.Bush, bushes, (x, z) => t.SurfaceAt(x, z) == Surface.Grass);
-            Scatter(GatherKind.Rock, rocks, (x, z) => t.SurfaceAt(x, z) == Surface.Sand || t.SurfaceAt(x, z) == Surface.Rock);
+            Scatter(GatherKind.Rock, rocks, (x, z) => t.SurfaceAt(x, z) == Surface.Sand || t.SurfaceAt(x, z) == Surface.Rock || t.SurfaceAt(x, z) == Surface.Grass);
+            // ceviz: önce patikaya yakın kum (yürürken görülsün), yetmezse herhangi bir kum
+            Scatter(GatherKind.Coconut, coconuts, (x, z) => t.SurfaceAt(x, z) == Surface.Sand && t.PathDistance(x, z) < IslandTerrain.PathHalfWidth + 6f);
+            Scatter(GatherKind.Coconut, coconuts, (x, z) => t.SurfaceAt(x, z) == Surface.Sand);
             return list;
         }
 
@@ -136,13 +149,13 @@ namespace Pofi.Logic.Island
         {
             if (!Available(s, node.Index, nowUtc)) return 0;
             var rule = Rule(node.Kind);
-            s.Materials[rule.Material] = Count(s, rule.Material) + rule.Yield;
             s.HarvestedUtcTicks[node.Index] = nowUtc.Ticks;
+            if (!IsMaterial(rule.Material)) return rule.Yield;   // ceviz: çağıran envantere ekler (malzeme sayılmaz)
+            s.Materials[rule.Material] = Count(s, rule.Material) + rule.Yield;
             s.Total += rule.Yield;
             return rule.Yield;
         }
 
-        /// <summary>Kulübe için eksik malzeme kalmadı mı?</summary>
         /// <summary>
         /// Şantiye (O2): kulübe yerindeki malzeme yığınının doluluğu (0..1). Toplanan malzeme yığına eklenmiş gibi görünür;
         /// yapı bitince 1.
@@ -164,7 +177,12 @@ namespace Pofi.Logic.Island
             return p >= 0.5f ? 2 : p > 0f ? 1 : 0;
         }
 
+        /// <summary>Kulübe için eksik malzeme kalmadı mı?</summary>
         public static bool CanBuild(GatherState s) => !s.HutBuilt && HutRecipe.All(r => Count(s, r.material) >= r.count);
+
+        /// <summary>Kulübe için hâlâ eksik olan malzeme mi (rehber yalnız bunlara götürür)?</summary>
+        public static bool Lacking(GatherState s, string material) =>
+            !s.HutBuilt && HutRecipe.Any(r => r.material == material && Count(s, material) < r.count);
 
         /// <summary>Kulübeyi inşa et: tarif kadar malzeme düşer. Yetmiyorsa false.</summary>
         public static bool Build(GatherState s)

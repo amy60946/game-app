@@ -40,6 +40,11 @@ namespace Pofi.UI
                 var sh = track.gameObject.AddComponent<Shadow>(); sh.effectColor = new Color(0.04f, 0.12f, 0.35f, 0.4f); sh.effectDistance = new Vector2(0f, -3f);
                 GoldKit.Frame3D(track, 0.6f);
                 p.Arcs[i] = Arc(Ui.Fill(q, "Fill"), NeedCols[i], 0f);
+                // yayın ortası (yerel 38°): bakım uçuşunun hedefi (GB17-2: Besle/Yıka/Oyna/Topla → ilgili gösterge)
+                var pin = Ui.Rect(q, "Pin", new Vector2(0.5f, 0.5f), new Vector2(8f, 8f));
+                var r = 116f * G * 0.46f;
+                pin.anchoredPosition = new Vector2(Mathf.Sin(38f * Mathf.Deg2Rad), Mathf.Cos(38f * Mathf.Deg2Rad)) * r;
+                RewardFlight.Register("need" + i, pin, q);
             }
             var face = Ui.Rect(ring, "Face", new Vector2(0.5f, 0.5f), new Vector2(94f * G, 94f * G));
             var inner = GoldKit.RimDisc(face, Theme.Hex("#9EE0FF"), Theme.Hex("#3E92F2"));
@@ -119,6 +124,13 @@ namespace Pofi.UI
             img.fillAmount = fill;
             return img;
         }
+
+        /// <summary>
+        /// Bakım uçuşu (kullanıcı GB17-2): Besle/Yıka/Oyna/Topla yapılınca küçük simgeler basılan yerden ilgili göstergenin yayına
+        /// uçar (XP küreleri gibi), varınca yay zıplar. <paramref name="need"/>: 0 açlık, 1 temizlik, 2 mutluluk, 3 ev.
+        /// </summary>
+        public static void FlyCare(Transform overlay, int need, string icon, Vector2 fromScreen) =>
+            RewardFlight.Fly(overlay, "need" + need, icon, 4, fromScreen, 58f, Audio.SfxKind.Sparkle, false);
 
         /// <summary>İhtiyaç değeri (0–100): yay dolar, değer yazılır; artınca yay zıplar.</summary>
         public void SetNeed(int i, float value)

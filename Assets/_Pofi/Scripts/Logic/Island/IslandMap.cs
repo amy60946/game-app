@@ -31,6 +31,7 @@ namespace Pofi.Logic.Island
         public bool IsNew;           // açıldı ama henüz ziyaret edilmedi (havuç etkisi / parıltı)
         public SunSpotDef Spot;      // null değilse seviye yerine Güneş Taşı ile açılır
         public int StonesLeft;       // Spot için kalan taş
+        public bool OnHold;          // oyunu beklemede (GameHold): açılmaz, "Yakında"
     }
 
     /// <summary>
@@ -68,9 +69,11 @@ namespace Pofi.Logic.Island
                 var spot = book?.GateOf(r.Id);
                 var open = spot != null && stones != null ? book.IsRepaired(stones, spot.Id) : level >= at;
                 var left = spot != null && stones != null ? System.Math.Max(0, spot.Cost - SunStoneBook.PlacedIn(stones, spot.Id)) : 0;
+                var hold = GameHold.RegionOnHold(r);
+                if (hold) open = false;
                 return new RegionView
                 {
-                    Region = r, Unlocked = open, UnlockLevel = at, Spot = stones != null ? spot : null, StonesLeft = left,
+                    Region = r, Unlocked = open, UnlockLevel = at, Spot = stones != null ? spot : null, StonesLeft = left, OnHold = hold,
                     IsNew = open && (at > 1 || spot != null) && !visited.Contains(r.Id),
                 };
             }).ToList();
@@ -78,7 +81,7 @@ namespace Pofi.Logic.Island
 
         /// <summary>Kilitli bölgeler arasında en yakın açılacak olan (havuç: "Seviye N'de açılır").</summary>
         public RegionView NextToUnlock(int level, ICollection<string> visited, SunStoneBook book = null, SunStoneState stones = null) =>
-            View(level, visited, book, stones).Where(v => !v.Unlocked && v.Spot == null).OrderBy(v => v.UnlockLevel).FirstOrDefault();
+            View(level, visited, book, stones).Where(v => !v.Unlocked && v.Spot == null && !v.OnHold).OrderBy(v => v.UnlockLevel).FirstOrDefault();
 
         public static RegionTargetKind KindOf(string target, out string arg)
         {

@@ -23,7 +23,7 @@ REGIONS = [
     ('region_pier', 'İskele', 40.0, -61.0, 'pier', 8.6, 0),
     ('region_swim_cove', 'Yüzme Koyu', 61.0, -37.0, 'pool', 8.6, -30),
     ('region_surf_beach', 'Sörf Plajı', 75.0, -12.0, 'board', 6.8, -70),
-    ('region_coconut_grove', 'Hindistan Cevizi Bahçesi', -72.0, -16.0, 'palm', 7.4, 0),
+    ('region_coconut_grove', 'Hindistan Cevizi Bahçesi', -79.5, -7.5, 'palm', 7.4, 0),   # GB17: kumsalın geniş yeri (dar geçidi kapatmasın)
     ('region_cave', 'Mağara', -60.0, 12.0, 'hill', 8.6, 127),
     ('region_game_hut', 'Oyun Kulübesi', 34.0, 16.0, 'house', 8.0, -20),
     ('region_ski_hill', 'Kayak Tepesi', -38.0, 40.0, 'hill', 8.6, 30),

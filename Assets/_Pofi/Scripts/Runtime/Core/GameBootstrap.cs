@@ -254,7 +254,8 @@ namespace Pofi.Core
             var migrated = PetRoster.Migrate(State, Data);           // emekli pet → Okti (ilerleme korunur)
             migrated |= PetRoster.FixName(State, Starter, Data);     // ad hep Okti (24 Ekim 2026, kullanıcı); eski kayıttaki ad da
             if (migrated) Save();
-            Guide.Start(State, Level);       // Sv1–3 rehberli zincir; Sv3'ü geçmiş oyuncuda kapanır
+            Guide.Configure(Data);           // ilk aksesuar önerisi katalogdan
+            Guide.Start(State, Level);       // rehberli zincir; Sv3'ü geçmiş ve hiç başlamamış oyuncuda kapanır
         }
 
         /// <summary>
@@ -398,8 +399,52 @@ namespace Pofi.Core
             Save();
             if (r.Grant.Granted > 0) XpGained?.Invoke(r.Grant.Granted);
             Data.SunBook.FilterLevelUp(r.LevelUp);   // Güneş Taşı ile açılan içerik seviye kutlamasında yer almaz
-            if (r.LevelUp != null) LevelUpCelebration.Show(this, r.LevelUp);
+            GameHold.FilterLevelUp(r.LevelUp, Map);  // beklemedeki oyunlar da (GB17-18)
+            if (r.LevelUp != null)
+            {
+                // mini oyun / kart oyunu sonucu ekrandayken kutlama üst üste binmesin (kullanıcı GB17-7): adaya dönünce açılır
+                if (DefersLevelUp(Page)) _deferredUp = r.LevelUp;
+                else LevelUpCelebration.Show(this, r.LevelUp);
+            }
             return r;
+        }
+
+        private LevelUp _deferredUp;
+        private static bool DefersLevelUp(AppPage p) => p == AppPage.MiniGame || p == AppPage.Cards;
+
+        /// <summary>Ertelenmiş seviye kutlaması (oyundan dönüşte).</summary>
+        private void ShowDeferredLevelUp()
+        {
+            if (_deferredUp == null || DefersLevelUp(Page) || State == null) return;
+            var up = _deferredUp; _deferredUp = null;
+            LevelUpCelebration.Show(this, up);
+        }
+
+        // ------------------------------------------------------------ hoş geldin coin'i (kullanıcı GB17-4, 24 Ekim 2026)
+        // İlk beslemede bir kez 20 coin (ortak claim_welcome_coins): rehberin "dükkândan ilk aksesuarını al" adımı takılmasın.
+        // Sunucu bir kez verir; işlev henüz yoksa ya da ağ yoksa sonraki beslemede yeniden denenir.
+        public const string WelcomeFlag = "welcome_coins";
+        private bool _welcomeBusy;
+
+        private async void ClaimWelcome()
+        {
+            if (_welcomeBusy || State == null || State.SeenTips.Contains(WelcomeFlag)) return;
+            var svc = (IWelcomeService)_remote ?? Backend;
+            if (svc == null) return;
+            _welcomeBusy = true;
+            var state = State;
+            WelcomeResponse r = null;
+            try { r = await svc.ClaimWelcomeAsync(); }
+            catch (Exception e) { Debug.LogException(e); }
+            finally { _welcomeBusy = false; }
+            if (r == null || State == null || State != state) return;
+            if (r.Ok || r.AlreadyClaimed) State.SeenTips.Add(WelcomeFlag);
+            if (r.Balance >= 0) State.Wallet.ApplyServerSnapshot(r.Balance, System.Array.Empty<string>());
+            if (Session != null && Backend != null) Store.Set(ServerKey(Session.ChildId), Backend.Export());
+            Save();
+            if (!r.Ok || r.Coins <= 0) return;
+            CoinBurst.Play(Overlay.transform, Theme, Loc.Get("welcome.coins", r.Coins), r.Coins);
+            Audio.Voice.Say(Loc.Get("welcome.coins", r.Coins));
         }
 
         /// <summary>
@@ -408,6 +453,7 @@ namespace Pofi.Core
         public void RecordActivity(string counter, int n = 1)
         {
             if (State == null) return;
+            if (counter == "pet_fed") ClaimWelcome();   // ilk beslemede hoş geldin coin'i (bir kez)
             var r = Activity.Record(State, Data, Levels, counter, n, LocalNow);
             Logic.Story.Diary.Record(State.Story, State.Counters, LocalNow);   // H5: günün 2–3 anısı (puan yok)
             foreach (var b in r.NewBadges) Toast.Post(Overlay.transform, Theme, Loc.Get("badge.earned", b.Name));
@@ -502,6 +548,7 @@ namespace Pofi.Core
                     break;
             }
             _screen.Init(this);
+            ShowDeferredLevelUp();
         }
 
         private void Update()

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Pofi.Logic.App;
 using Pofi.Logic.Island;
 using Pofi.UI;
 using Pofi.World;
@@ -64,10 +65,11 @@ namespace Pofi.Screens
             foreach (var n in _gNodes)
             {
                 var i = n.Index;
-                var b = Candy.Round(_gLayer, Candy.White, ToolIcon(Gathering.Rule(n.Kind).Tool), 112f, Vector2.zero, Vector2.zero, () => TapNode(i));
+                var nut = n.Kind == GatherKind.Coconut;   // ceviz: baloncukta alet değil cevizin kendisi
+                var b = Candy.Round(_gLayer, Candy.White, nut ? Gathering.CoconutItem : ToolIcon(Gathering.Rule(n.Kind).Tool), 112f, Vector2.zero, Vector2.zero, () => TapNode(i));
                 b.gameObject.SetActive(false);
                 Hover.On(b, 6f);
-                LongPressInfo.Add(b.gameObject, ToolInfo(Gathering.Rule(n.Kind).Tool));   // E4: "Balta: kütükten odun"
+                LongPressInfo.Add(b.gameObject, nut ? T("info.coconut") : ToolInfo(Gathering.Rule(n.Kind).Tool));   // E4: "Balta: kütükten odun"
                 _gBubbles[i] = b;
             }
             _siteBubble = Candy.Round(_gLayer, Candy.White, "tool_hammer", 124f, Vector2.zero, Vector2.zero, TapSite);
@@ -273,8 +275,8 @@ namespace Pofi.Screens
             // ilk yaklaşmada kısa ipucu (her alet için bir kez)
             if (_gTarget >= 0)
             {
-                var tool = Gathering.Rule(_gNodes[_gTarget].Kind).Tool;
-                var tipKey = "gather.tip_" + tool;   // gather.tip_axe / tip_hand / tip_pickaxe
+                var tool = _gNodes[_gTarget].Kind == GatherKind.Coconut ? "coconut" : Gathering.Rule(_gNodes[_gTarget].Kind).Tool;
+                var tipKey = "gather.tip_" + tool;   // gather.tip_axe / tip_hand / tip_pickaxe / tip_coconut
                 if (_gTipShown.Add(tool)) _toast.Say(T(tipKey));
             }
             else if (_gTarget == -1 && _req == null && _gTipShown.Add("site")) _toast.Say(T(Gathering.CanBuild(st) ? "gather.tip_build" : "gather.tip_site"));   // E3 kartı varken gerek yok
@@ -366,6 +368,7 @@ namespace Pofi.Screens
             _gHits.Remove(i);
             var got = Gathering.Harvest(st, n, App.UtcNow);
             spot.Vanish();
+            if (got > 0 && rule.Material == Gathering.Coconut) { PickCoconut(got, spot); return; }
             if (got > 0)
             {
                 Gain(rule.Material, got, spot);
@@ -376,8 +379,32 @@ namespace Pofi.Screens
                 CalmBubbles();
                 App.Save();
                 RefreshTracker();
-                if (Gathering.CanBuild(st)) _toast.Say(T("gather.ready"));
+                if (Gathering.CanBuild(st)) { _toast.Say(T("gather.ready")); App.RecordActivity("hut_ready"); }
             }
+        }
+
+        /// <summary>Yerden hindistan cevizi (GB17): envantere yiyecek olarak girer, çantaya uçar; 2 olunca Kıskaç'a götürme sırası.</summary>
+        private void PickCoconut(int got, GatherSpot spot)
+        {
+            var item = App.Data.Item(Gathering.CoconutItem);
+            if (item == null) return;
+            App.State.Inventory.Add(item, got);
+            var from = App.Stage.Camera.WorldToScreenPoint(spot.transform.position + Vector3.up * 0.4f);
+            RewardFlight.Fly(App.Overlay.transform, Gathering.Coconut, Gathering.CoconutItem, got, from);
+            Audio.Sfx.Play(Audio.SfxKind.Pop);
+            App.RecordActivity("coconut_picked", got);
+            App.Save();
+            if (!CheckCoconuts()) _toast.Say(T("gather.coconut_got"));
+        }
+
+        /// <summary>Elde Kıskaç'ın istediği kadar ceviz var mı? Varsa (rehberde sırası geldiyse) adım biter, çocuğa söylenir.</summary>
+        private bool CheckCoconuts()
+        {
+            if (App.State.Inventory.CountOf(Gathering.CoconutItem) < Guide.CoconutsNeeded) return false;
+            if (!Guide.Is(App.State, App.Level, "coconut")) return false;
+            App.RecordActivity("coconuts_ready");
+            _toast.Say(T("gather.coconut_ready"));
+            return true;
         }
 
         private void BuildHut()

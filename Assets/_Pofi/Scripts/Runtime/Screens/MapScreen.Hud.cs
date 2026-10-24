@@ -409,6 +409,8 @@ namespace Pofi.Screens
         private static Vector2 UiScreen(RectTransform rt) => RectTransformUtility.WorldToScreenPoint(null, rt.position);
         private Vector2 PetScreen() => App.Stage.Camera.WorldToScreenPoint(_world.Walker.transform.position + Vector3.up * 1.0f);
 
+        private static bool _rewardsToldThisSession;
+
         private void UpdateTips()
         {
             if (_xpTipT > 0f) { _xpTipT -= Time.deltaTime; if (_xpTipT <= 0f) TipDone(Onboarding.Xp); }
@@ -434,8 +436,16 @@ namespace Pofi.Screens
                     }
                 }
             }
-            // rehberli zincir (Sv1–3): sıradaki adım, işaret eli hedefini gösterir; ilk gün pano/taş ipuçlarının yerine geçer
+            // rehberli zincir: sıradaki adım, işaret eli hedefini gösterir; ilk gün pano/taş ipuçlarının yerine geçer
             if (basicsDone && guide != null && !_overview) { GuideTip(guide); return; }
+            // Gerçek ödüller yeni açıldı (Sv4, GB17-13): oturumda bir kez el dükkânı gösterir; dükkân sekmesi tanıtımla açılır
+            if (basicsDone && guide == null && !_overview && !_rewardsToldThisSession && App.Levels.IsUnlocked(ShopScreen.RewardsUnlock, App.Level)
+                && !App.State.SeenTips.Contains(ShopScreen.RewardsIntroFlag))
+            {
+                _rewardsToldThisSession = true;
+                _coach = Coach.Show(Root, "rewards_new", T("rewards.new_map"), TipGesture.Tap, () => RegionScreen("region_shop"), null, 3, null, null, T("rewards.new_map"));
+                return;
+            }
             // ilk gün (Ö5): yürü → besle → Ev Görevleri panosu (görev işaretle / taşı yerleştir orada)
             var day = FirstDayNow;
             if (day == FirstDayStep.Board) { Tip(Onboarding.Board, TipGesture.Tap, () => RegionScreen("region_task_board")); return; }
@@ -474,28 +484,55 @@ namespace Pofi.Screens
             var step = (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count;
             // "Okti'ye dokun" (G2), "Okti'nin üstüne dokun" (giydir)
             var arg = g.Id == "feed" || g.Id == "wash" ? PetDat : g.Id == "wear" ? PetGen : App.State.PetName;
+            if (g.Id == "mavi") { _coach = Coach.Show(Root, "guide_" + g.Id, T(g.TextKey), TipGesture.Tap, MaviSky, null, 1, step, null, T(g.TextKey)); _tipGap = -4f; return; }
             var say = T(g.TextKey, arg);
             _coach = Coach.Show(Root, "guide_" + g.Id, say + "  " + T("guide.reward", g.Xp), TipGesture.Tap, GuideTarget(g), null, 3, step, null, say);
             _tipGap = -4f;   // panel kapanınca birkaç saniye nefes
         }
+
+        /// <summary>Mavi'nin geleceği gökyüzü (ekranın sağ üstü): el oraya bir kez dokunur.</summary>
+        private Vector2 MaviSky() => _mavi != null ? (Vector2)App.Stage.Camera.WorldToScreenPoint(_mavi.transform.position + Vector3.up)
+            : new Vector2(Screen.width * 0.72f, Screen.height * 0.72f);
 
         private System.Func<Vector2> GuideTarget(GuideStep g)
         {
             switch (g.Id)
             {
                 case "feed": case "wash": return PetScreen;   // Okti'ye dokun → Besle / Yıka baloncukları (G2)
-                case "home": case "tidy": return () => RegionScreen("region_home");
+                case "home": case "tidy": case "play": return () => RegionScreen("region_home");
                 case "wear": return PetScreen;
                 case "board": return () => RegionScreen("region_task_board");
                 case "stone": return () => RegionScreen(App.Data.SunBook.Next(App.State.SunStones)?.Region ?? "region_task_board");
+                case "kiskac": case "deliver": return KiskacScreen;
+                case "coconut": return () => GuideWorld(g) is Vector2 c ? (Vector2)App.Stage.Camera.WorldToScreenPoint(_world.World(c.x, c.y) + Vector3.up * 0.8f) : RegionScreen("region_coconut_grove");
                 case "gather": return NearestGatherScreen;
                 case "hut": return () => App.Stage.Camera.WorldToScreenPoint(_world.World(_sitePos.x, _sitePos.z) + Vector3.up * 1.5f);
-                case "coconut": return () => RegionScreen("region_coconut_grove");
                 case "shop": return () => RegionScreen("region_shop");
-                case "cards": return () => RegionScreen("region_game_hut");
                 default: return PetScreen;
             }
         }
+
+        private Vector2 KiskacScreen() =>
+            _kiskac != null ? (Vector2)App.Stage.Camera.WorldToScreenPoint(_kiskac.transform.position + Vector3.up * 1.6f) : RegionScreen("region_shop");
+
+        /// <summary>
+        /// Rehberin toplama hedefi (GB17): kulübe için hâlâ eksik malzemenin en yakın noktası; ceviz adımında en yakın yerdeki ceviz
+        /// (60 m'den uzaksa bahçe). Toplanmış (beklemedeki) noktalar sayılmaz.
+        /// </summary>
+        private GatherNode NearestNode(System.Func<GatherNode, bool> want, float maxDist = float.MaxValue)
+        {
+            var p = _world.Walker.Position; GatherNode best = null; var bd = maxDist;
+            foreach (var n in _gNodes)
+            {
+                if (!want(n) || !_gSpots.TryGetValue(n.Index, out var sp) || !sp.gameObject.activeSelf) continue;
+                var d = Vector2.Distance(p, new Vector2(n.X, n.Z));
+                if (d < bd) { bd = d; best = n; }
+            }
+            return best;
+        }
+
+        private bool NeededForHut(GatherNode n) =>
+            n.Kind != GatherKind.Coconut && Gathering.Lacking(App.State.Gather, Gathering.Rule(n.Kind).Material);
 
         // ------------------------------------------------------------------ N1 + N3 yol gösterme (23 Ekim 2026, onaylı)
         private World.PathGuide _path;
@@ -507,19 +544,22 @@ namespace Pofi.Screens
         {
             switch (g.Id)
             {
-                case "home": case "tidy": return DoorOf("region_home");
+                case "home": case "tidy": case "play": return DoorOf("region_home");
                 case "board": return DoorOf("region_task_board");
                 case "stone": return DoorOf(App.Data.SunBook.Next(App.State.SunStones)?.Region ?? "region_task_board");
                 case "gather":
                 {
-                    var p = _world.Walker.Position; GatherNode best = null; var bd = float.MaxValue;
-                    foreach (var n in _gNodes) { var d = Vector2.Distance(p, new Vector2(n.X, n.Z)); if (d < bd) { bd = d; best = n; } }
+                    var best = NearestNode(NeededForHut) ?? NearestNode(n => n.Kind != GatherKind.Coconut);
                     return best != null ? new Vector2(best.X, best.Z) : (Vector2?)null;
                 }
+                case "coconut":
+                {
+                    var nut = NearestNode(n => n.Kind == GatherKind.Coconut, 60f);
+                    return nut != null ? new Vector2(nut.X, nut.Z) : DoorOf("region_coconut_grove");
+                }
+                case "kiskac": case "deliver": return _kiskac != null ? KiskacPos : DoorOf("region_shop");
                 case "hut": return new Vector2(_sitePos.x, _sitePos.z);
-                case "coconut": return DoorOf("region_coconut_grove");
                 case "shop": return DoorOf("region_shop");
-                case "cards": return DoorOf("region_game_hut");
                 default: return null;
             }
         }
@@ -555,16 +595,10 @@ namespace Pofi.Screens
             UpdateMaviGuide(_path.Active && target != null, target ?? Vector2.zero, arrived);   // N2: Mavi önden uçar
         }
 
-        /// <summary>En yakın toplanabilir kütük/çalı/taş (ekran noktası); yoksa pet.</summary>
+        /// <summary>Kulübe için eksik malzemenin en yakın noktası (ekran); yoksa pet.</summary>
         private Vector2 NearestGatherScreen()
         {
-            var p = _world.Walker.Position;
-            GatherNode best = null; var bd = float.MaxValue;
-            foreach (var n in _gNodes)
-            {
-                var d = Vector2.Distance(p, new Vector2(n.X, n.Z));
-                if (d < bd) { bd = d; best = n; }
-            }
+            var best = NearestNode(NeededForHut) ?? NearestNode(n => n.Kind != GatherKind.Coconut);
             if (best == null) return PetScreen();
             return App.Stage.Camera.WorldToScreenPoint(_world.World(best.X, best.Z) + Vector3.up * 1.2f);
         }
@@ -644,7 +678,7 @@ namespace Pofi.Screens
             act = null;
             foreach (var v in _views)
             {
-                if (v.Unlocked || v.Spot == null) continue;
+                if (v.Unlocked || v.Spot == null || v.StonesLeft <= 0) continue;   // onarılmış ama oyunu beklemede olan yer
                 var edge = Vector2.Distance(p, new Vector2(v.Region.X, v.Region.Z)) - v.Region.Size * 0.55f;
                 if (edge > 2.6f) continue;
                 var spot = v.Spot;
@@ -770,6 +804,8 @@ namespace Pofi.Screens
                 _world.Walker?.Jump();
                 if (a == CareAction.Feed) CareFx.Food(Root, Ui.Icon(item.Id), PetScreen);   // 3 ısırıkta biter
                 else CareFx.Bubbles(Root, PetScreen);                                      // sabun baloncukları
+                var gi = a == CareAction.Feed ? 0 : 1;                                     // gösterge yayına küçük uçuş (GB17-2)
+                GoldProfile.FlyCare(App.Overlay.transform, gi, HudIcons[gi], PetScreen());
                 App.Save();
                 App.RecordActivity(a == CareAction.Feed ? "pet_fed" : "pet_washed");
             }

@@ -60,6 +60,7 @@ namespace Pofi.Logic.Data
         [JsonProperty("grows")] public string Grows;                // tohum → yiyecek
         [JsonProperty("growMinutes")] public int GrowMinutes;
         [JsonProperty("premium")] public bool Premium;
+        [JsonProperty("fancy")] public bool Fancy;                  // komik eşya (F1–F17)
 
         [JsonIgnore] public bool IsWearable => !string.IsNullOrEmpty(Slot);
         [JsonIgnore] public bool IsConsumable => Category == ItemCategory.Food || Category == ItemCategory.Cleaning || Category == ItemCategory.Seed;

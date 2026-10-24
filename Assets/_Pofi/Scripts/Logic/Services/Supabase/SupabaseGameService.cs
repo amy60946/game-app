@@ -15,7 +15,7 @@ namespace Pofi.Logic.Services.Supabase
     /// fonksiyonlarını çağırır (child_me, child_tasks, child_set_status, spend_coins, game_save_get/put).
     /// Ağ yoksa <see cref="OperationCanceledException"/> (SyncCoordinator bunu "çevrimdışı" sayar) ya da ServiceError.Network.
     /// </summary>
-    public sealed class SupabaseGameService : IWalletService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService
+    public sealed class SupabaseGameService : IWalletService, IWelcomeService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService
     {
         public const string LocalSaveKey = "pofi.save.local";
 
@@ -77,6 +77,25 @@ namespace Pofi.Logic.Services.Supabase
             {
                 Balance = balance,
                 Error = err == "not_enough_coins" ? ServiceError.NotEnoughCoins : err == "unknown_item" ? ServiceError.UnknownItem : ServiceError.Rejected,
+            };
+        }
+
+        /// <summary>
+        /// Hoş geldin coin'i (ortak claim_welcome_coins). Sunucuda işlev henüz yoksa (404) ya da geçici hata: Error dolu, çağıran
+        /// sonra yeniden dener; "already_claimed" ise AlreadyClaimed (bir daha istenmez).
+        /// </summary>
+        public async Task<WelcomeResponse> ClaimWelcomeAsync(CancellationToken ct = default)
+        {
+            var r = await Rpc("claim_welcome_coins", null, ct);
+            if (r.Status == 0 || r.Status >= 500 || r.Status == 408 || r.Status == 429) return new WelcomeResponse { Error = ServiceError.Network };
+            if (r.Status == 401 || r.Status == 403) return new WelcomeResponse { Error = ServiceError.Unauthorized };
+            if (!Ok(r)) return new WelcomeResponse { Error = ServiceError.Rejected };
+            var o = JObject.Parse(r.Body);
+            var ok = (bool?)o["ok"] == true;
+            return new WelcomeResponse
+            {
+                Ok = ok, Coins = ok ? (int?)o["coins"] ?? 0 : 0, Balance = (int?)o["balance"] ?? -1,
+                AlreadyClaimed = (string)o["error"] == "already_claimed", Error = ok ? ServiceError.None : ServiceError.Rejected,
             };
         }
 
@@ -267,10 +286,10 @@ namespace Pofi.Logic.Services.Supabase
                 return new Rewards.RewardReply { Error = Rewards.RewardReply.Network };
             if (Ok(r))
             {
-                string id = null;
-                try { if (!string.IsNullOrWhiteSpace(r.Body) && JToken.Parse(r.Body) is JObject o) id = (string)o["request_id"]; }
+                string id = null; var first = false;
+                try { if (!string.IsNullOrWhiteSpace(r.Body) && JToken.Parse(r.Body) is JObject o) { id = (string)o["request_id"]; first = (bool?)o["first"] == true; } }
                 catch (JsonException) { }
-                return new Rewards.RewardReply { RequestId = id };
+                return new Rewards.RewardReply { RequestId = id, First = first };
             }
             try
             {

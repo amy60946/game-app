@@ -113,6 +113,7 @@ namespace Pofi.Screens
             SnapCamera();
             _toast.Say(T("map.hint_walk"));
             if (_mailbox != null) RefreshMailFlag();   // baloncuk kurulduktan sonra: sahte arka uç eşzamanlı döner
+            CatchUpMavi();   // GB17: Mavi'nin sahnesi artık olayla; rehberi kapalı eski oyuncuda sayılır
             StartCoroutine(StoryCheck());
             _built = true;   // Ö4: sırası gelen hikâye sahnesi
         }
@@ -213,7 +214,10 @@ namespace Pofi.Screens
         {
             if (_boardBalloon == null || !_world.Regions.TryGetValue("region_task_board", out var t)) return;
             var lh = _world.LabelHeights.TryGetValue("region_task_board", out var hh) ? hh : 2.5f;
-            var sp = cam.WorldToScreenPoint(t.position + Vector3.up * (lh + 1.2f));
+            // yakında panonun yanında, tahtanın boyunda (kullanıcı GB17-6: çok yukarıdaydı, ancak uzaktan görünüyordu); haritada üstünde
+            var at = _overview ? t.position + Vector3.up * (lh + 1.2f)
+                : t.position + Vector3.up * Mathf.Min(lh * 0.55f, 1.8f) + cam.transform.right * 2.2f;
+            var sp = cam.WorldToScreenPoint(at);
             var on = _boardCount > 0 && !_cine && sp.z > 0f && (_overview || Vector3.Distance(t.position, petPos) < 45f);
             if (_boardBalloon.gameObject.activeSelf != on) { _boardBalloon.gameObject.SetActive(on); if (on) Bump.Play(_boardBalloon, 0.3f); }
             if (!on) return;
@@ -247,6 +251,7 @@ namespace Pofi.Screens
             rt.pivot = new Vector2(0.5f, 0f);
             // yer adı: yarı saydam şeker etiket (açık: deniz mavisi, kilitli: gri), oyun yazı tarzı
             var text = v.Unlocked ? v.Region.Name
+                : v.OnHold ? v.Region.Name + " · " + T("map.soon_short")                          // oyunu beklemede (GameHold)
                 : v.Spot != null ? v.Region.Name + " · " + T("map.stones_short", v.StonesLeft)   // Güneş Taşı ile açılır
                 : v.Region.Name + " · Sv " + v.UnlockLevel;
             Candy.Tag(rt, text, v.Unlocked ? new Color(0.1f, 0.36f, 0.68f, 0.86f) : new Color(0.3f, 0.32f, 0.42f, 0.82f), 30, 64f);
@@ -405,6 +410,7 @@ namespace Pofi.Screens
             // dokunma başka ekran açtıysa (ör. pete dokun → Dolap) bu karede kamerayı geri çekme: dolapta pet görünmüyordu
             if (!gameObject.activeInHierarchy) return;
             UpdateGather();
+            UpdateFlow(Time.deltaTime);   // GB17 sıralı akış: Kıskaç, ceviz teslimi, Mavi'nin gelişi
             UpdateDressBubble();
             UpdateRequests();
             UpdateHud();
@@ -537,6 +543,9 @@ namespace Pofi.Screens
         private void Tap(Vector3 screen)
         {
             var ray = App.Stage.Camera.ScreenPointToRay(screen);
+            // Harita (kuşbakışı) yalnız bakmak için (kullanıcı, 24 Ekim 2026: "dokunduğum yere karakter kendiliğinden gidiyor,
+            // bunu kaldır; bir yere gitmek için yürüyecek"): dokunulan yerin adı söylenir, Okti yürümez.
+            if (_overview) { TapOverview(ray); return; }
             // pet ve parıltı öncelikli: bina dokunma kutuları geniş, pet kapı önündeyken ışını önce onlar yakalıyordu
             var hits = Physics.RaycastAll(ray, 400f);
             if (hits.Length == 0) { if (!_overview) TapWater(ray); return; }
@@ -579,7 +588,7 @@ namespace Pofi.Screens
             var v = _views.FirstOrDefault(x => x.Region.Id == go.name);
             if (v != null)
             {
-                if (!v.Unlocked) _toast.Say(v.Spot != null ? T("map.locked_stones", v.Region.Name, v.StonesLeft) : T("map.locked", v.Region.Name, v.UnlockLevel));
+                if (!v.Unlocked) _toast.Say(LockedText(v));
                 var (dx, dz) = _terrain.Door(v.Region);
                 GoTo(dx, dz, v.Unlocked ? () => EnterRegion(v) : (System.Action)null);
                 return;
@@ -593,6 +602,22 @@ namespace Pofi.Screens
                 GoTo(p.x, p.y, null);
             }
         }
+
+        private void TapOverview(Ray ray)
+        {
+            var hits = Physics.RaycastAll(ray, 400f);
+            foreach (var h in hits)
+            {
+                var v = _views.FirstOrDefault(x => x.Region.Id == h.collider.gameObject.name);
+                if (v == null) continue;
+                _toast.Say(v.Unlocked ? T("map.overview_walk", v.Region.Name) : LockedText(v));
+                return;
+            }
+        }
+
+        private string LockedText(RegionView v) =>
+            v.OnHold ? T("map.soon", v.Region.Name)
+            : v.Spot != null ? T("map.locked_stones", v.Region.Name, v.StonesLeft) : T("map.locked", v.Region.Name, v.UnlockLevel);
 
         // ------------------------------------------------------------------ H4 adalı istekleri (23 Ekim 2026)
         // Günde en çok bir yeni istek, aynı anda en çok iki; süre dolmaz. İstek, adalının yerinin (dükkân, ev, bahçe, iskele) kapısında
@@ -675,6 +700,7 @@ namespace Pofi.Screens
                 if (!ok) return;
                 var done = Logic.Story.Residents.Fulfill(App.State, App.Data, id);
                 if (done == null) return;
+                OnRequestDone(id);   // GB17: Kıskaç'ın cevizleri akışı ilerletir
                 _reqBubbles.RemoveAll(x => { if (x.Id == id && x.B != null) { Destroy(x.B.gameObject); return true; } return x.Id == id; });
                 RefreshTracker();   // verilen odun/dal/taş sayaçtan ve şantiye yığınından düşsün
                 Audio.Sfx.Play(Audio.SfxKind.Success);
@@ -696,6 +722,13 @@ namespace Pofi.Screens
         /// </summary>
         private System.Collections.IEnumerator StoryCheck()
         {
+            _storyBusy = true;
+            yield return StoryCheckRun();
+            _storyBusy = false;
+        }
+
+        private System.Collections.IEnumerator StoryCheckRun()
+        {
             yield return new WaitForSeconds(1.2f);
             var book = App.Data.Story; var st = App.State.Story;
             if (book == null || st == null || book.Scenes.Count == 0) yield break;
@@ -713,7 +746,9 @@ namespace Pofi.Screens
                 if (!App.State.Settings.StoryOn) { _toast.Say(scene.Summary); yield break; }
                 var done = false;
                 if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
-                var mode = scene.Trigger == Logic.Story.StoryDirector.Level || scene.Trigger == Logic.Story.StoryDirector.Intro ? StoryPlayer.Mode.Cinema : StoryPlayer.Mode.Island;
+                // bölüm açılışı (seviye, giriş ya da olayla gelen "_open") sinema; diğerleri adada konuşma
+                var cinema = scene.Trigger == Logic.Story.StoryDirector.Level || scene.Trigger == Logic.Story.StoryDirector.Intro || scene.Id.EndsWith("_open");
+                var mode = cinema ? StoryPlayer.Mode.Cinema : StoryPlayer.Mode.Island;
                 StoryPlayer.Play(App.Overlay.transform, Th, book, scene, mode, Th.Band, App.State.PetName, App.State.PetId, T("story.go"), T("story.skip"), () => done = true);
                 while (!done) yield return null;
                 yield return new WaitForSeconds(0.6f);

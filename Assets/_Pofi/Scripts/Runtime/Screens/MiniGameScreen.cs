@@ -33,8 +33,17 @@ namespace Pofi.Screens
             _id = App.MiniGameId;
             App.Stage.SetPetVisible(false);
             App.Stage.AllowDrag = false;
+            Audio.Music.Scene(true); _musicLow = true;   // oyun müziği kısık sürer (kullanıcı GB17-18)
             Intro();
         }
+
+        private bool _musicLow;
+
+        /// <summary>
+        /// Ceviz Yakala: tutulan cevizlerden bir kısmı çantaya gerçek hindistan cevizi olarak girer (Kıskaç'ın isteği, GB17-9/18).
+        /// En az bir ceviz tutan en az 2 alır (istek bir turda tamamlanabilsin), en çok 3.
+        /// </summary>
+        public static int CoconutsFor(int caught) => caught <= 0 ? 0 : Mathf.Clamp(caught / 5, 2, 3);
 
         private string Title => T("mg." + _id + ".title");
         private float Difficulty => AgeBandProfile.For(App.Session.AgeBand).MiniGameDifficulty;
@@ -92,6 +101,16 @@ namespace Pofi.Screens
             var xp = App.GrantXp(res.SuggestedXp, XpSource.MiniGame);
             if (counter != null) App.RecordActivity(counter, counterAmount);
             App.RecordActivity("minigames_played");   // Okti'nin günlüğü (H5)
+            var nuts = _id == "coconut" ? CoconutsFor(counterAmount) : 0;
+            var nutItem = nuts > 0 ? App.Data.Item(Logic.Island.Gathering.CoconutItem) : null;
+            if (nutItem != null)
+            {
+                App.State.Inventory.Add(nutItem, nuts);
+                App.RecordActivity("coconut_picked", nuts);
+                if (App.State.Inventory.CountOf(nutItem.Id) >= Logic.App.Guide.CoconutsNeeded && Logic.App.Guide.Is(App.State, App.Level, "coconut"))
+                    App.RecordActivity("coconuts_ready");
+                App.Save();
+            }
 
             var root = Modal(820f, out var box, closeOutside: false);
             Ui.Label(box, T("mg.result_title"), Th.Font(84), Th.Text, new Vector2(0.5f, 0.85f), new Vector2(880f, 120f), FontStyle.Bold);
@@ -99,6 +118,11 @@ namespace Pofi.Screens
             Ui.Label(box, T("xp.gain", xp.Grant.Granted), Th.Font(64), Th.Primary, new Vector2(0.5f, 0.55f), new Vector2(880f, 100f), FontStyle.Bold);
             if (xp.Grant.CapReached || xp.Grant.Granted < xp.Grant.Requested)
                 Ui.Label(box, T("mg.cap"), Th.Font(36), Th.SubtleText, new Vector2(0.5f, 0.43f), new Vector2(860f, 90f));
+            else if (nutItem != null)
+            {
+                Ui.IconImage(box, nutItem.Id, new Vector2(0.3f, 0.42f), 90f);
+                Ui.Label(box, T("mg.coconut.got", nuts), Th.Font(40), Th.Text, new Vector2(0.56f, 0.42f), new Vector2(620f, 90f), FontStyle.Bold);
+            }
             Ui.Button(box, Th, T("mg.again"), new Vector2(0.5f, 0.26f), new Vector2(560f, 130f), () => { Destroy(root.gameObject); Play(); });
             Ui.Button(box, Th, T("mg.exit"), new Vector2(0.5f, 0.09f), new Vector2(460f, 100f), () => App.Open(AppPage.Map), false, default, 40);
         }
@@ -526,6 +550,7 @@ namespace Pofi.Screens
         private void OnDestroy()
         {
             if (App != null && App.Stage != null) App.Stage.AllowDrag = true;
+            if (_musicLow) { _musicLow = false; Audio.Music.Scene(false); }
         }
     }
 }

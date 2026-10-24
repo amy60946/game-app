@@ -86,6 +86,8 @@ namespace Pofi.Logic.Rewards
     {
         public string Error;
         public string RequestId;
+        /// <summary>Çocuğun ilk ödül talebi mi (sunucu request_reward "first", ortak 24 Ekim 2026): ebeveyne özel bildirim gider.</summary>
+        public bool First;
         public bool Ok => Error == null;
         public const string Network = "network";
     }

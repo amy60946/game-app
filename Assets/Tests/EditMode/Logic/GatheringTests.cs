@@ -30,13 +30,17 @@ namespace Pofi.Tests.Logic
             for (var i = 0; i < a.Count; i++) { Assert.AreEqual(a[i].X, b[i].X); Assert.AreEqual(a[i].Kind, b[i].Kind); }
             Assert.AreEqual(5, a.Count(n => n.Kind == GatherKind.Log));
             Assert.AreEqual(6, a.Count(n => n.Kind == GatherKind.Bush));
-            Assert.GreaterOrEqual(a.Count(n => n.Kind == GatherKind.Rock), 3);
+            Assert.GreaterOrEqual(a.Count(n => n.Kind == GatherKind.Rock), 8, "kulübeye yetecek kadar taş (kullanıcı, 24 Ekim 2026)");
+            Assert.GreaterOrEqual(a.Count(n => n.Kind == GatherKind.Coconut), 3, "yerde hindistan cevizi");
+            Assert.GreaterOrEqual(a.Count(n => n.Kind == GatherKind.Rock && IslandTerrain.Dist(n.X, n.Z, T.PlazaX, T.PlazaZ) < 22f), 3, "taşların bir kısmı meydana yakın");
             foreach (var n in a)
             {
                 Assert.IsTrue(T.Walkable(n.X, n.Z), n.Kind + " yürünebilir yerde");
                 Assert.IsNull(T.BuildingAt(n.X, n.Z));
                 var s = T.SurfaceAt(n.X, n.Z);
-                if (n.Kind == GatherKind.Rock) Assert.IsTrue(s == Surface.Sand || s == Surface.Rock); else Assert.AreEqual(Surface.Grass, s);
+                if (n.Kind == GatherKind.Rock) Assert.IsTrue(s == Surface.Sand || s == Surface.Rock || s == Surface.Grass);
+                else if (n.Kind == GatherKind.Coconut) Assert.AreEqual(Surface.Sand, s);
+                else Assert.AreEqual(Surface.Grass, s);
                 Assert.Greater(T.FindPath(T.PlazaX, T.PlazaZ, n.X, n.Z).Count, 0, "meydandan ulaşılır");
             }
             foreach (var n in a) foreach (var m in a) if (n != m) Assert.Greater(IslandTerrain.Dist(n.X, n.Z, m.X, m.Z), 3f);
@@ -67,6 +71,29 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual(2, Gathering.Harvest(s, log, Now + Gathering.Respawn));
             Assert.AreEqual(4, Gathering.Count(s, Gathering.Wood));
             Assert.AreEqual(4, s.Total);
+        }
+
+        [Test]
+        public void Ceviz_malzeme_sayilmaz_cagirana_doner()
+        {
+            var s = new GatherState();
+            var nut = new GatherNode { Index = 30, Kind = GatherKind.Coconut };
+            Assert.AreEqual(1, Gathering.Harvest(s, nut, Now));
+            Assert.AreEqual(0, Gathering.Count(s, Gathering.Coconut), "ceviz çantadaki malzemeye değil envantere (yiyecek) girer");
+            Assert.AreEqual(0, s.Total);
+            Assert.IsFalse(Gathering.Available(s, 30, Now.AddMinutes(1)));
+            Assert.IsFalse(Gathering.IsMaterial(Gathering.Coconut));
+        }
+
+        [Test]
+        public void Eksik_malzeme_yalniz_tarifte_eksik_olan()
+        {
+            var s = new GatherState();
+            s.Materials[Gathering.Wood] = 6;
+            Assert.IsFalse(Gathering.Lacking(s, Gathering.Wood));
+            Assert.IsTrue(Gathering.Lacking(s, Gathering.Stone));
+            s.HutBuilt = true;
+            Assert.IsFalse(Gathering.Lacking(s, Gathering.Stone));
         }
 
         [Test]

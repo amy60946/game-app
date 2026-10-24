@@ -13,17 +13,23 @@ namespace Pofi.UI
     {
         private static readonly Dictionary<string, int> PendingBy = new Dictionary<string, int>();
         private static readonly Dictionary<string, RectTransform> Targets = new Dictionary<string, RectTransform>();
+        private static readonly Dictionary<string, RectTransform> Bumps = new Dictionary<string, RectTransform>();
 
         private sealed class Piece { public RectTransform Rt; public Vector2 From, Burst, To; public float Delay; public int Share; public bool Done; }
         private readonly List<Piece> _pieces = new List<Piece>();
         private string _kind;
-        private RectTransform _target;
+        private RectTransform _target, _bump;
         private bool _counted;   // Pending'e eklendi mi (hedef uçuşta yok olsa da geri düşülür)
         private float _t;
         private const float BurstT = 0.35f, Hold = 0.2f, FlyT = 0.55f, Gap = 0.07f;
 
         /// <summary>Sayaç kaydı: aynı türde en son kurulan ve görünen hedef kullanılır.</summary>
-        public static void Register(string kind, RectTransform target) { if (target != null) Targets[kind] = target; }
+        public static void Register(string kind, RectTransform target, RectTransform bump = null)
+        {
+            if (target == null) return;
+            Targets[kind] = target;
+            if (bump != null) Bumps[kind] = bump; else Bumps.Remove(kind);
+        }
 
         /// <summary>Henüz sayaca ulaşmamış miktar (sayaç gösterirken düşülür).</summary>
         public static int Pending(string kind) => PendingBy.TryGetValue(kind, out var n) ? n : 0;
@@ -31,7 +37,14 @@ namespace Pofi.UI
         /// <summary>
         /// <paramref name="from"/>: ekran pikseli. Hedef yoksa ya da görünmüyorsa parçalar yerinde parlayıp söner (sayaç hemen günceldir).
         /// </summary>
-        public static void Fly(Transform overlay, string kind, string icon, int amount, Vector2 from)
+        public static void Fly(Transform overlay, string kind, string icon, int amount, Vector2 from) =>
+            Fly(overlay, kind, icon, amount, from, 86f, Audio.SfxKind.Coin, true);
+
+        /// <summary>
+        /// Genel biçim: <paramref name="size"/> parça boyu, <paramref name="sfx"/> çıkış sesi, <paramref name="count"/> false ise
+        /// sayaçtan düşülmez (bakım uçuşu: göstergeye "enerji" uçar, sayı değil).
+        /// </summary>
+        public static void Fly(Transform overlay, string kind, string icon, int amount, Vector2 from, float size, Audio.SfxKind sfx, bool count)
         {
             if (overlay == null || amount <= 0) return;
             Targets.TryGetValue(kind, out var target);
@@ -39,7 +52,8 @@ namespace Pofi.UI
             var root = Ui.Fill(overlay, "RewardFlight");
             var group = root.gameObject.AddComponent<CanvasGroup>(); group.blocksRaycasts = false; group.interactable = false;
             var f = root.gameObject.AddComponent<RewardFlight>();
-            f._kind = kind; f._target = target; f._counted = target != null;
+            f._kind = kind; f._target = target; f._counted = target != null && count;
+            Bumps.TryGetValue(kind, out f._bump);
             var canvas = overlay.GetComponentInParent<Canvas>();
             var cam = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? canvas.worldCamera : null;
             RectTransformUtility.ScreenPointToLocalPointInRectangle(root, from, cam, out var local);
@@ -53,7 +67,7 @@ namespace Pofi.UI
             var sprite = Ui.Icon(icon);
             for (var i = 0; i < n; i++)
             {
-                var rt = Ui.Rect(root, "Piece", new Vector2(0.5f, 0.5f), new Vector2(86f, 86f));
+                var rt = Ui.Rect(root, "Piece", new Vector2(0.5f, 0.5f), new Vector2(size, size));
                 var img = rt.gameObject.AddComponent<Image>(); img.raycastTarget = false; img.preserveAspect = true;
                 if (sprite != null) img.sprite = sprite; else { img.sprite = Ui.Rounded; img.color = Theme.Hex("#FFD23F"); }
                 var a = (i / (float)n) * Mathf.PI * 2f + Random.Range(-0.3f, 0.3f);
@@ -62,8 +76,8 @@ namespace Pofi.UI
                 f._pieces.Add(new Piece { Rt = rt, From = local, Burst = local + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * r, To = to, Delay = i * Gap, Share = share });
                 rt.anchoredPosition = local; rt.localScale = Vector3.zero;
             }
-            if (target != null) PendingBy[kind] = Pending(kind) + amount;
-            Audio.Sfx.Play(Audio.SfxKind.Coin);
+            if (f._counted) PendingBy[kind] = Pending(kind) + amount;
+            Audio.Sfx.Play(sfx);
         }
 
         private void Update()
@@ -99,7 +113,7 @@ namespace Pofi.UI
                 {
                     p.Done = true; p.Rt.gameObject.SetActive(false);
                     Uncount(p.Share);
-                    Bump.Play(_target, 0.18f);
+                    Bump.Play(_bump != null ? _bump : _target, 0.18f);
                     Audio.Haptics.Light();
                 }
             }

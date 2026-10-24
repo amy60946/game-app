@@ -41,7 +41,7 @@ namespace Pofi.Screens
             _bag = (RectTransform)b.transform;
             _bagNum = GoldKit.Gem(b.transform);
             LongPressInfo.Add(b.gameObject, T("info.bag"));
-            foreach (var m in new[] { Gathering.Wood, Gathering.Branch, Gathering.Stone }) RewardFlight.Register(m, _bag);   // O1: malzeme çantaya uçar
+            foreach (var m in new[] { Gathering.Wood, Gathering.Branch, Gathering.Stone, Gathering.Coconut }) RewardFlight.Register(m, _bag);   // O1: malzeme çantaya uçar
             RefreshBag();
         }
 
@@ -362,23 +362,32 @@ namespace Pofi.Screens
                 _kiskac = Resident3D.Create(_world.transform, "kiskac", "res_kiskac", new Vector3(p.x, _terrain.Height(p.x, p.y), p.y), 1.25f,
                     Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg, ground, pet);
             }
-            // Mavi: posta kutusunun yanında (2. bölüm açılışından sonra)
-            if (_mailbox != null && (seen.Contains("ch2_open") || App.Level >= 3))
-            {
-                var mb = _mailbox.transform.localPosition;
-                var fwd = _mailbox.transform.localRotation * Vector3.forward;
-                var right = _mailbox.transform.localRotation * Vector3.right;
-                var p = mb + right * 1.2f + fwd * 0.4f;
-                p.y = _terrain.Height(p.x, p.z);
-                _mavi = Resident3D.Create(_world.transform, "mavi", "res_mavi", p, 1.15f, _mailbox.transform.localEulerAngles.y, ground, pet, flyer: true);
-            }
+            // Mavi: posta kutusunun yanında; ilk oyunda Kıskaç'a cevizler teslim edilince uçarak gelir (GB17, MapScreen.Flow)
+            var maviCame = seen.Contains("ch2_open") || App.State.Counters.Total("mavi_arrived") > 0
+                || (App.Level >= 3 && !Logic.App.Guide.Active(App.State, App.Level));
+            if (maviCame) CreateMavi();
             StoryPlayer.Speaker -= OnSpeaker; StoryPlayer.Speaker += OnSpeaker;
-            // Pus: 1. bölüm kapanışından sonra adanın üstünde süzülür (gülümseyen, gökkuşaklı hâli)
+            // Pus: 1. bölüm kapanışından sonra adanın üstünde süzülür (gülümseyen, gökkuşaklı hâli). Yükseklik 1,6 m: kamera B'nin
+            // görüşüne girer (kullanıcı GB17-14: 3 m'de kadrajın üstünde kalıyordu); meydanın kenarında, yürüyüş yolunun yanında.
             if (seen.Contains("ch1_close") || App.Level >= 2)
             {
-                var x = _terrain.PlazaX + 6f; var z = _terrain.PlazaZ + 4f;   // meydanın üstünde, yürürken görüş alanında (3 m)
-                _pus = Resident3D.Create(_world.transform, "pus", "res_pus", new Vector3(x, _terrain.Height(x, z) + 3f, z), 1.9f, 200f, ground, pet);
+                var x = _terrain.PlazaX + 7f; var z = _terrain.PlazaZ + 5f;
+                _pus = Resident3D.Create(_world.transform, "pus", "res_pus", new Vector3(x, _terrain.Height(x, z) + 1.6f, z), 1.6f, 200f, ground, pet);
             }
+        }
+
+        /// <summary>Mavi posta kutusunun yanında belirir (yerine konmuş hâliyle).</summary>
+        private void CreateMavi()
+        {
+            if (_mavi != null || _mailbox == null) return;
+            var pet = _world.Walker != null ? _world.Walker.transform : null;
+            System.Func<float, float, float> ground = (x, z) => _terrain.Height(x, z);
+            var mb = _mailbox.transform.localPosition;
+            var fwd = _mailbox.transform.localRotation * Vector3.forward;
+            var right = _mailbox.transform.localRotation * Vector3.right;
+            var p = mb + right * 1.2f + fwd * 0.4f;
+            p.y = _terrain.Height(p.x, p.z);
+            _mavi = Resident3D.Create(_world.transform, "mavi", "res_mavi", p, 1.15f, _mailbox.transform.localEulerAngles.y, ground, pet, flyer: true);
         }
 
         /// <summary>Hikâye konuşmasında konuşan adalı adadaysa zıplayıp sallanır (S2'de kendisi konuşur gibi).</summary>

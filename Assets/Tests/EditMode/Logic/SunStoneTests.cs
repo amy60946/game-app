@@ -83,8 +83,8 @@ namespace Pofi.Tests.Logic
             SunStoneBook.ApplyServerTotal(st, 1);
             Book.PlaceOne(st, cove.Id);
             v = map.View(1, new HashSet<string>(), Book, st).First(x => x.Region.Id == cove.Region);
-            Assert.IsTrue(v.Unlocked, "Sv 1'de de açılır");
-            Assert.IsTrue(v.IsNew);
+            Assert.AreEqual(0, v.StonesLeft, "Sv 1'de de onarılır");
+            Assert.IsTrue(v.OnHold, "yüzme oyunu beklemede (kullanıcı, 24 Ekim 2026): bölge görünür, oyun yakında");
             Assert.IsTrue(Book.IsOpen("minigame_swim", 1, levels, st));
         }
 

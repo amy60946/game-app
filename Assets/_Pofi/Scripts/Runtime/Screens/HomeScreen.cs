@@ -21,6 +21,7 @@ namespace Pofi.Screens
         private static readonly StatKind[] Kinds = { StatKind.Fullness, StatKind.Cleanliness, StatKind.Happiness, StatKind.Home };
         private static readonly string[] StatKeys = { "stat.fullness", "stat.cleanliness", "stat.happiness", "stat.home" };
         private RectTransform _tidyBtn;
+        private readonly RectTransform[] _careBtns = new RectTransform[4];   // Besle, Yıka, Oyna, Topla (gösterge sırasıyla aynı)
         private Coach _coach;
         private static readonly string[] GaugeIcons = { "food_apple", "clean_soap", "ui_heart", "home_bed" };
         private Text _coins, _feedCount, _washCount;
@@ -73,6 +74,7 @@ namespace Pofi.Screens
                 var (b, _, _) = GoldKit.Icon3D(Root, icons[i], 104f * GoldKit.K, new Vector2(1f, 0f), new Vector2(i % 2 == 0 ? -470f : -250f, i < 2 ? 450f : 230f),
                     Theme.Hex(extrude[i]), act, T(labels[i]), GoldKit.Tone.Green, i * 0.35f);
                 if (a == CareAction.Tidy) _tidyBtn = (RectTransform)b.transform;
+                _careBtns[i] = (RectTransform)b.transform;
                 if (a == CareAction.Feed) _feedCount = GoldKit.Gem(b.transform);
                 if (a == CareAction.Wash) _washCount = GoldKit.Gem(b.transform);
             }
@@ -82,11 +84,29 @@ namespace Pofi.Screens
             Refresh();
             if (Onboarding.Pending(App.State, Onboarding.Home))
                 _coach = Coach.Show(Root, Onboarding.Home, T("tip.home"), TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, _tidyBtn.position));
-            else if (Guide.Current(App.State, App.Level)?.Id == "tidy")   // rehberli zincir: evi topla adımı
-                _coach = Coach.Show(Root, "guide_tidy", T("guide.tidy") + "  " + T("guide.reward", Guide.Get("tidy").Xp), TipGesture.Tap,
-                    () => RectTransformUtility.WorldToScreenPoint(null, _tidyBtn.position), null, 3, (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count);
-            else _bubble.Say(T("pet.welcome", App.State.PetName), 4f);
+            else if (!GuideCoach()) _bubble.Say(T("pet.welcome", App.State.PetName), 4f);
             ApplyNight(true);
+        }
+
+        /// <summary>
+        /// Rehberin evdeki adımları (kullanıcı GB17-2): "Topla'ya dokun" bitince aynı şekilde "Oyna'ya dokun" gelir; el ilgili düğmeye
+        /// dokunur. Adım bitince panel kapanır. Gösterildiyse true.
+        /// </summary>
+        private bool GuideCoach()
+        {
+            if (_coach != null)
+            {
+                if (!_coach.Id.StartsWith("guide_")) return false;                       // başka ipucu (Evim tanıtımı, sürükleme)
+                if (Guide.Is(App.State, App.Level, _coach.Id.Substring(6))) return true;   // adım sürüyor
+                _coach.Done(); _coach = null;
+            }
+            var g = Guide.Current(App.State, App.Level);
+            var btn = g == null ? null : g.Id == "tidy" ? _careBtns[3] : g.Id == "play" ? _careBtns[2] : null;
+            if (btn == null) return false;
+            _coach = Coach.Show(Root, "guide_" + g.Id, T(g.TextKey, App.State.PetName) + "  " + T("guide.reward", g.Xp), TipGesture.Tap,
+                () => RectTransformUtility.WorldToScreenPoint(null, btn.position), null, 3, (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count,
+                null, T(g.TextKey, App.State.PetName));
+            return true;
         }
 
         private void Update()
@@ -95,6 +115,7 @@ namespace Pofi.Screens
             if (_tick >= 1f)
             {
                 _tick = 0f;
+                GuideCoach();
                 App.State.Stats.Tick(App.UtcNow, App.Decay);
                 Refresh();
                 ApplyNight(false);
@@ -184,6 +205,8 @@ namespace Pofi.Screens
                 App.Stage.Hop();
                 if (a == CareAction.Feed) CareFx.Food(Root, Ui.Icon(item.Id), PetScreen);
                 else CareFx.Bubbles(Root, PetScreen);
+                var gi = a == CareAction.Feed ? 0 : 1;
+                GoldProfile.FlyCare(App.Overlay.transform, gi, GaugeIcons[gi], PetScreen());
                 App.Save();
                 App.RecordActivity(a == CareAction.Feed ? "pet_fed" : "pet_washed");
             }
@@ -216,6 +239,8 @@ namespace Pofi.Screens
             if (r == CareResult.Ok)
             {
                 App.Stage.Hop();
+                var gi = a == CareAction.Feed ? 0 : a == CareAction.Wash ? 1 : a == CareAction.Play ? 2 : 3;
+                GoldProfile.FlyCare(App.Overlay.transform, gi, GaugeIcons[gi], RectTransformUtility.WorldToScreenPoint(null, _careBtns[gi].position));
                 App.Save();
                 App.RecordActivity(a == CareAction.Feed ? "pet_fed" : a == CareAction.Wash ? "pet_washed" : a == CareAction.Play ? "pet_played" : "home_tidied");
             }

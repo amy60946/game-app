@@ -233,21 +233,30 @@ namespace Pofi.UI
     public sealed class Twinkle : MonoBehaviour
     {
         public float Phase, Speed = 1.3f;
+        /// <summary>Ömür (sn): sonunda söner ve silinir; 0 = kalıcı (yalnız süs, ör. pet seçimi).</summary>
+        public float Life;
+        private float _age;
         private Image _img;
         private void Awake() => _img = GetComponent<Image>();
         private void Update()
         {
+            _age += Time.unscaledDeltaTime;
+            var fade = Life > 0f ? Mathf.Clamp01((Life - _age) / 0.5f) * Mathf.Clamp01(_age / 0.15f) : 1f;
             var k = Mathf.Sin(Time.unscaledTime * Speed + Phase) * 0.5f + 0.5f;
-            transform.localScale = Vector3.one * Mathf.Lerp(0.55f, 1.15f, k);
+            transform.localScale = Vector3.one * Mathf.Lerp(0.55f, 1.15f, k) * Mathf.Lerp(0.6f, 1f, fade);
             transform.localRotation = Quaternion.Euler(0f, 0f, Time.unscaledTime * 25f + Phase * 40f);
-            if (_img != null) { var c = _img.color; c.a = Mathf.Lerp(0.25f, 1f, k); _img.color = c; }
+            if (_img != null) { var c = _img.color; c.a = Mathf.Lerp(0.25f, 1f, k) * fade; _img.color = c; }
+            if (Life > 0f && _age >= Life) Destroy(gameObject);
         }
     }
 
     public static class StarSparkles
     {
-        /// <summary>Petin çevresine (ekran oranı merkez, yarıçap) birkaç parıldayan yıldız serper.</summary>
-        public static void Around(Transform parent, Vector2 center01, Vector2 radius, int count, int seed)
+        /// <summary>
+        /// Petin çevresine (ekran oranı merkez, yarıçap) birkaç parıldayan yıldız serper; <paramref name="life"/> saniye sonra söner
+        /// (GB17-8: kalıcı katmandaki kutlama yıldızları silinmiyor, ekranın ortasında yanıp sönüp duruyordu). 0 = kalıcı süs.
+        /// </summary>
+        public static void Around(Transform parent, Vector2 center01, Vector2 radius, int count, int seed, float life = 1.8f)
         {
             var rnd = new System.Random(seed);
             for (var i = 0; i < count; i++)
@@ -258,6 +267,7 @@ namespace Pofi.UI
                 if (rt == null) return;
                 rt.GetComponent<Image>().raycastTarget = false;
                 var tw = rt.gameObject.AddComponent<Twinkle>(); tw.Phase = (float)rnd.NextDouble() * 6f; tw.Speed = 1f + (float)rnd.NextDouble();
+                tw.Life = life > 0f ? life + (float)rnd.NextDouble() * 0.4f : 0f;
             }
         }
     }

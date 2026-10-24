@@ -128,6 +128,22 @@ namespace Pofi.Core
                         UI.GoldKit.Frame = int.Parse(arg);
                         app.Route();
                         break;
+                    case "guide":       // rehber denemesi: "guide <adım>" önceki adımları ödülsüz bitirir; "guide nuts" 2 ceviz verir; "guide state"
+                        {
+                            var st = app.State;
+                            if (arg == "nuts") { st.Inventory.Add(app.Data.Item(Logic.Island.Gathering.CoconutItem), 2); app.Save(); break; }
+                            if (arg != "state")
+                                foreach (var g in Logic.App.Guide.Steps)
+                                {
+                                    if (g.Id == arg) break;
+                                    st.SeenTips.Add(Logic.App.Guide.Prefix + g.Id); st.SeenTips.Add(Logic.App.Guide.DidPrefix + g.Counter);
+                                }
+                            app.Save();
+                            Debug.Log("[PofiDebug] guide: " + (Logic.App.Guide.Current(st, app.Level)?.Id ?? "-") + " " + Logic.App.Guide.DoneCount(st) + "/" + Logic.App.Guide.Steps.Count
+                                + " coins " + st.Wallet.Available + " nuts " + st.Inventory.CountOf(Logic.Island.Gathering.CoconutItem));
+                            if (arg != "state") app.Route();
+                        }
+                        break;
                     case "grow":        // büyüme sahnesi denemesi (kayıt değişmez): grow genc | grow yetiskin
                         Object.FindAnyObjectByType<Screens.MapScreen>()?.PlayGrowUp(arg == "yetiskin" ? Logic.Progression.GrowthStage.Yetiskin : Logic.Progression.GrowthStage.Genc, null);
                         break;

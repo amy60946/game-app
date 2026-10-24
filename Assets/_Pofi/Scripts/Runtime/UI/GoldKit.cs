@@ -34,8 +34,9 @@ namespace Pofi.UI
         /// </summary>
         public static int Frame = 3;
         /// <summary>Çerçeve gölgesinin ortadaki koyuluğu, yayılımı (gölge boyuna çarpan) ve halka sayısı (çok halka = yumuşak geçiş).</summary>
-        public static float ShadowAlpha = 0.30f, ShadowSpread = 1f;
-        public static int ShadowRings = 2;
+        /// Kullanıcı seçimi (24 Ekim 2026, karşılaştırma sayfası): D2 "yumuşak" — ortada %22, %40 geniş yayılım, üç halka.
+        public static float ShadowAlpha = 0.22f, ShadowSpread = 1.4f;
+        public static int ShadowRings = 3;
 
         private static Material _stickerMat;
 

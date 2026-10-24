@@ -76,6 +76,12 @@ namespace Pofi.World
             else _fly = Fly.Back;
         }
 
+        /// <summary>Kondurduysa biraz daha kalsın (hikâye konuşması bitene kadar).</summary>
+        public void Linger(float seconds)
+        {
+            if (_fly == Fly.Land) _landFor = Mathf.Max(_landFor, seconds);
+        }
+
         private void Update()
         {
             var dt = Time.deltaTime;

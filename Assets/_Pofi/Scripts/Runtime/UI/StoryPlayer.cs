@@ -78,33 +78,35 @@ namespace Pofi.UI
             hit.color = _mode == Mode.Island ? new Color(0.02f, 0.06f, 0.16f, 0.22f) : new Color(0f, 0f, 0f, 0.12f);
             var tap = _root.gameObject.AddComponent<Button>(); tap.transition = Selectable.Transition.None; tap.targetGraphic = hit;
             tap.onClick.AddListener(Tap);
-            if (_mode == Mode.Cinema)
+            // konuşma kutusu ekranın ALT kenarında (kullanıcı, 24 Ekim 2026: "baloncuklar ekranın ortasında çıkıyor, alt kenara al");
+            // konuşan karakter kutunun yanında, alt köşede ayakta: adalılar solda, Okti sağda. Ada ortası açık kalır.
+            if (_mode == Mode.Cinema) { _barTop = Bar(true); _barBottom = Bar(false); }
+            _box = Ui.Rect(_root, "Box", new Vector2(0.5f, 0f), new Vector2(1300f, 200f), new Vector2(0f, BoxBottom + 100f));
+            Ui.Panel(_box, new Color(1f, 0.97f, 0.88f, 0.98f), 36f).raycastTarget = false;
+            _box.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
+            _text = Ui.Label(_box, "", _th.Font(_mode == Mode.Cinema ? 46 : 44), Theme.Hex("#4A2C0A"), new Vector2(0.5f, 0.45f), new Vector2(1200f, 160f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            _bubble = _box;
+            if (_mode == Mode.Island)
             {
-                _barTop = Bar(true); _barBottom = Bar(false);
-                _box = Ui.Rect(_root, "Box", new Vector2(0.5f, 0f), new Vector2(1640f, 250f), new Vector2(0f, 270f));
-                Ui.Panel(_box, new Color(1f, 0.97f, 0.88f, 0.98f), 34f).raycastTarget = false;
-                _text = Ui.Label(_box, "", _th.Font(48), Theme.Hex("#4A2C0A"), new Vector2(0.5f, 0.45f), new Vector2(1520f, 190f), FontStyle.Bold, TextAnchor.MiddleLeft);
-            }
-            else
-            {
-                _bubble = Ui.Rect(_root, "Bubble", new Vector2(0.5f, 0f), new Vector2(900f, 230f), new Vector2(0f, 520f));
-                Ui.Panel(_bubble, new Color(1f, 0.97f, 0.88f, 0.98f), 44f).raycastTarget = false;
-                _text = Ui.Label(_bubble, "", _th.Font(46), Theme.Hex("#4A2C0A"), new Vector2(0.5f, 0.45f), new Vector2(820f, 180f), FontStyle.Bold, TextAnchor.MiddleLeft);
-                _go = Ui.Button(_root, _th, _goText, new Vector2(0.5f, 0f), new Vector2(360f, 120f), Finish, true, new Vector2(0f, 120f), 54, false);
+                _go = Ui.Button(_root, _th, _goText, new Vector2(0.5f, 0f), new Vector2(340f, 112f), Finish, true, new Vector2(0f, 300f), 52, false);
                 _go.gameObject.SetActive(false);
             }
             _text.horizontalOverflow = HorizontalWrapMode.Wrap;
-            _voice = VoiceButton.Attach(_mode == Mode.Cinema ? _box : _bubble);   // sesli okuma hoparlörü balonun köşesinde
-            _portrait = Ui.Rect(_root, "Portrait", new Vector2(0f, 0f), new Vector2(520f, 520f));
+            _voice = VoiceButton.Attach(_box);   // sesli okuma hoparlörü kutunun köşesinde
+            _portrait = Ui.Rect(_root, "Portrait", new Vector2(0f, 0f), new Vector2(PortraitSize, PortraitSize));
             _portrait.pivot = new Vector2(0.5f, 0f);
             _portraitImg = _portrait.gameObject.AddComponent<Image>(); _portraitImg.preserveAspect = true; _portraitImg.raycastTarget = false;
-            _portrait.SetSiblingIndex(_mode == Mode.Cinema ? 1 : _root.childCount - 1);
+            _portrait.SetAsLastSibling();   // karakter kutunun kenarının önünde durur
             _name = Ui.Rect(_mode == Mode.Cinema ? _box : _bubble, "Name", new Vector2(0f, 1f), new Vector2(320f, 64f), new Vector2(200f, 0f));
             Ui.Panel(_name, Theme.Hex("#E14652"), 18f).raycastTarget = false;
             _nameText = Ui.Label(_name, "", _th.Font(38), Color.white, new Vector2(0.5f, 0.5f), new Vector2(300f, 60f), FontStyle.Bold);
             var skip = Ui.Button(_root, _th, _skipText, new Vector2(1f, 1f), new Vector2(200f, 72f), Finish, false, new Vector2(-150f, _mode == Mode.Cinema ? -55f : -150f), 34, false);
             skip.transform.SetAsLastSibling();
         }
+
+        private const float PortraitSize = 440f;
+        /// <summary>Kutunun alt kenarı: sinemada alt bandın biraz üstü, adada ekranın dibi.</summary>
+        private float BoxBottom => _mode == Mode.Cinema ? 36f : 26f;
 
         /// <summary>Kutuyu tam metne göre boyutlar: tek satır sığarsa genişlik yazı kadar, sığmazsa en geniş ve satır sayısı kadar yükseklik.</summary>
         private void Fit(RectTransform box, float maxW, float minW, float padX, float padY, float minH)
@@ -159,18 +161,23 @@ namespace Pofi.UI
             var pic = okti ? Ui.Portrait(_petId) : ResidentPortrait(l.Who);
             _portraitImg.sprite = pic;
             _portrait.gameObject.SetActive(pic != null);
-            // konuşan solda (adalı) ya da sağda (Okti); yeni konuşan alttan yükselir
-            _portrait.anchorMin = _portrait.anchorMax = new Vector2(okti ? 0.82f : 0.18f, 0f);
+            // konuşan alt köşede: adalı solda, Okti sağda; yeni konuşan alttan yükselir
+            _portrait.anchorMin = _portrait.anchorMax = new Vector2(okti ? 1f : 0f, 0f);
             if (_lastWho != l.Who) { _rise = 0f; Speaker?.Invoke(l.Who); }
             _lastWho = l.Who;
-            // balon/kutu yazının ihtiyacı kadar (kullanıcı, 23 Ekim 2026: "gereksiz yer kaplamasın"); daktilo boyunca boyut sabit
-            if (_mode == Mode.Island)
+            // kutu yazının ihtiyacı kadar (kullanıcı, 23 Ekim 2026: "gereksiz yer kaplamasın"), alt kenarda; karakter varsa onun
+            // yanına kayar (üst üste binmez). Genişlik ekrana göre: karakterin yeri kadar boşluk bırakılır.
+            var rootW = Mathf.Max(1200f, _root.rect.width);
+            var side = pic == null ? 0f : PortraitSize * 0.78f;
+            var maxW = Mathf.Min(1500f, rootW - side - 120f);
+            Fit(_box, maxW, 420f, 56f, 34f, 130f);
+            var x = pic == null ? 0f : (okti ? -1f : 1f) * Mathf.Min(side * 0.5f + 30f, (rootW - _box.sizeDelta.x) * 0.5f - 40f);
+            _box.anchoredPosition = new Vector2(x, BoxBottom + _box.sizeDelta.y * 0.5f);
+            if (_go != null)
             {
-                Fit(_bubble, 900f, 380f, 46f, 34f, 130f);
-                _bubble.anchoredPosition = new Vector2(pic == null ? 0f : okti ? -260f : 260f, 470f + _bubble.sizeDelta.y * 0.5f);
-                if (_go != null) _go.gameObject.SetActive(false);
+                _go.gameObject.SetActive(false);
+                ((RectTransform)_go.transform).anchoredPosition = new Vector2(x + _box.sizeDelta.x * 0.5f - 190f, BoxBottom + _box.sizeDelta.y + 70f);
             }
-            else Fit(_box, 1640f, 760f, 70f, 40f, 150f);
             Audio.Sfx.Play(Audio.SfxKind.Tap);
         }
 
@@ -181,7 +188,8 @@ namespace Pofi.UI
             if (_barTop != null) { var h = Mathf.SmoothStep(0f, 120f, _bars); _barTop.sizeDelta = new Vector2(0f, h); _barBottom.sizeDelta = new Vector2(0f, h); }
             _rise = Mathf.MoveTowards(_rise, 1f, dt / 0.35f);
             var k = 1f - Mathf.Pow(1f - _rise, 3f);
-            _portrait.anchoredPosition = new Vector2(0f, (_mode == Mode.Cinema ? 250f : -40f) - (1f - k) * 520f);
+            var okti = _lastWho == "okti";
+            _portrait.anchoredPosition = new Vector2((okti ? -1f : 1f) * PortraitSize * 0.42f, -18f - (1f - k) * PortraitSize);
             if (_typing)
             {
                 _shown += dt * 40f;   // saniyede 40 harf

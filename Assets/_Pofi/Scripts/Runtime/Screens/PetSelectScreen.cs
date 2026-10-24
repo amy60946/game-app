@@ -40,7 +40,7 @@ namespace Pofi.Screens
             // başlık: oyundaki pencere başlıkları gibi mavi kurdele; altında kısa ipucu. Petin çevresinde parıldayan yıldızlar
             Candy.Ribbon(Root, T(single ? "pet.meet_title" : "pet.pick_title"), new Vector2(0.5f, 1f), new Vector2(0f, -84f), 130f, 54);
             Candy.Caption(Root, T(single ? "pet.meet_hint" : "pet.pick_hint"), 34, new Vector2(0.5f, 0.835f), new Vector2(1300f, 50f));
-            StarSparkles.Around(Root, new Vector2(0.36f, 0.5f), new Vector2(0.16f, 0.26f), 9, 3);
+            StarSparkles.Around(Root, new Vector2(0.36f, 0.5f), new Vector2(0.16f, 0.26f), 9, 3, 0f);   // sahne süsü: kalıcı
 
             if (!single)
             {

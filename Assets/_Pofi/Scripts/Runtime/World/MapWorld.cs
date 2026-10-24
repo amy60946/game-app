@@ -474,7 +474,8 @@ namespace Pofi.World
         private void BuildRegion(RegionView v)
         {
             var r = v.Region;
-            var shown = v.Unlocked || DebugShowAll;
+            // bekleyen oyunun yeri de normal görünür (yalnız açılmaz); Güneş Taşı bekleyen yer sisli kalır
+            var shown = v.Unlocked || (v.OnHold && (v.Spot == null || v.StonesLeft <= 0)) || DebugShowAll;
             var root = new GameObject(r.Id).transform;
             root.SetParent(transform, false);
             var baseY = r.Water ? 0f : Terrain.PadHeight(r);

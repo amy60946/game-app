@@ -70,6 +70,11 @@ def fill_pet(s):
     return s.replace("{0}", form)
 
 
+# tip./guide. dışında okunan metinler: anahtar → {0} yerine konacak sabit (yoksa boş)
+SPOKEN_EXTRA = {"welcome.coins": "20", "rewards.pick": "", "rewards.first_sent": "", "rewards.new_map": "", "gather.coconut_ready": "",
+                "gather.coconut_got": ""}
+
+
 def catalog():
     story = json.load(open(os.path.join(DATA, "story.json"), encoding="utf-8"))
     tr = json.load(open(os.path.join(DATA, "tr.json"), encoding="utf-8"))["strings"]
@@ -98,6 +103,10 @@ def catalog():
             add(fill_pet(v), "anlatici", "tr:" + k, "narrator")
         elif k.startswith("res.hi_"):
             add(fill_pet(v), "adali", "tr:" + k, k[len("res.hi_"):])
+        elif k in SPOKEN_EXTRA:   # GB17: hoş geldin coin'i, gerçek ödüller tanıtımı, ceviz haberi (oyunda Voice.Say ile)
+            add(v.replace("{0}", SPOKEN_EXTRA[k]) if "{0}" in v else v, "anlatici", "tr:" + k, "narrator")
+    for a, b, c in [("rewards.intro_1", "rewards.intro_2", "rewards.intro_3")]:   # tanıtım kartı üç satırı tek seferde okur
+        add(" ".join(tr[x] for x in (a, b, c)), "anlatici", "tr:rewards.intro", "narrator")
     return out
 
 

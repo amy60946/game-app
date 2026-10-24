@@ -94,6 +94,17 @@ namespace Pofi.Logic.Story
             st.Requests.Add(new OpenRequest { Id = pick.Id, Day = day });
         }
 
+        /// <summary>
+        /// Hikâyenin açtığı istek (GB17: Kıskaç'ın 2 hindistan cevizi): günlük sınıra ve en çok iki kurala bakmadan açılır.
+        /// Zaten açıksa ya da tanımda yoksa bir şey yapmaz. Açıldıysa true.
+        /// </summary>
+        public static bool Open(StoryState st, IList<RequestDef> defs, string id, int day)
+        {
+            if (st.Requests.Any(o => o.Id == id) || defs.All(d => d.Id != id)) return false;
+            st.Requests.Add(new OpenRequest { Id = id, Day = day });
+            return true;
+        }
+
         public static bool CanFulfill(RequestDef d, Func<string, int> have) => d != null && have(d.Need) >= d.Count;
 
         /// <summary>İsteği yerine getirir: malzemeyi alır (take), dostluğu artırır, isteği kapatır. Olmazsa null.</summary>

@@ -21,6 +21,25 @@ namespace Pofi.Logic.Services
         public string AgeBand;   // child_me.age_band: K/A/B/C (ebeveyn seçimi ya da doğum gününden)
     }
 
+    /// <summary>Hoş geldin coin'i yanıtı (ortak claim_welcome_coins): ilk çağrıda Ok + Coins; sonrakilerde AlreadyClaimed.</summary>
+    public sealed class WelcomeResponse
+    {
+        public bool Ok;
+        public bool AlreadyClaimed;
+        public int Coins;
+        public int Balance = -1;       // sunucunun güncel bakiyesi (bilinmiyorsa −1)
+        public ServiceError Error;
+    }
+
+    /// <summary>
+    /// Hoş geldin coin'i (kullanıcı GB17, 24 Ekim 2026; ortak proposed/20261024100000): çocuk başına bir kez 20 coin, ilk aksesuarı
+    /// alabilsin diye. Coin yine sunucuda yazılır; istemci yalnızca ister. Tekrar çağrı güvenli (sunucu bir kez verir).
+    /// </summary>
+    public interface IWelcomeService
+    {
+        Task<WelcomeResponse> ClaimWelcomeAsync(CancellationToken ct = default);
+    }
+
     /// <summary>Coin cüzdanı (sunucu). İstemci coin ekleyemez; yalnızca harcar.</summary>
     public interface IWalletService
     {

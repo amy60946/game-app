@@ -131,7 +131,7 @@ namespace Pofi.Tests.Logic
             Assert.Greater(p.Count, 0, "karlı patika");
             // toplama noktaları ve kulübe yeri büyük adada da bulunur (meydana yakın)
             var nodes = Gathering.Place(T);
-            Assert.AreEqual(16, nodes.Count);
+            Assert.AreEqual(26, nodes.Count, "5 kütük, 6 çalı, 10 taş, 5 ceviz");
             var site = Gathering.HutSite(T);
             Assert.IsTrue(T.Walkable(site.x, site.z));
         }

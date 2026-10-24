@@ -4,6 +4,7 @@ using Pofi.Logic.Data;
 using Pofi.Logic.Meta;
 using Pofi.Logic.Progression;
 using Pofi.Logic.State;
+using Pofi.Logic.Island;
 
 namespace Pofi.Logic.App
 {
@@ -50,7 +51,7 @@ namespace Pofi.Logic.App
         public static void EnsureQuests(GameState s, GameData data, LevelTable levels, DateTime local)
         {
             var level = levels.Level(s.Xp);
-            DailyQuests.EnsureForToday(s.DailyQuests, data, id => string.IsNullOrEmpty(id) || data.SunBook.IsOpen(id, level, levels, s.SunStones), s.ChildId ?? "", local);
+            DailyQuests.EnsureForToday(s.DailyQuests, data, id => string.IsNullOrEmpty(id) || (!GameHold.FeatureOnHold(id) && data.SunBook.IsOpen(id, level, levels, s.SunStones)), s.ChildId ?? "", local);
         }
     }
 }
