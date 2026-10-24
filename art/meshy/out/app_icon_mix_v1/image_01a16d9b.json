@@ -1,0 +1,16 @@
+{
+ "id": "01a16d9b-e3ca-7323-b184-8af1e0f0c69b",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid sheet showing nine different square mobile game app icon variations, evenly spaced on a plain light grey background, each icon a separate rounded square tile. Base every tile on the FIRST reference image (the current app icon): same cute baby octopus hero with a big glossy light-blue round dome head, huge shiny dark eyes with white sparkles, rosy blush, wearing a plain sunny-yellow T-shirt, waving one tentacle, warm golden sunrise rays background with a palm tree and a small red-and-white lighthouse on a green islet, turquoise sea. Change only two things, taken from the SECOND reference image: (1) instead of the open smiling mouth, the octopus has the coral-pink round puckered snout lips of the second image; (2) the bottom of the dome head ends in the soft wavy scalloped jelly rim (a frilly oval skirt edge) of the second image, hanging over the shoulders. Keep the big shiny eyes of the first image. Vivid 3D game icon style, glossy soft vinyl-toy look, soft toon lighting with clean shadows, bold saturated but balanced colors, strong contrast, no outlines, no text, no letters, no numbers, no logo, no border frame. Tile 1: same composition as the first reference exactly, only the snout and the wavy rim changed. Tile 2: same as tile 1 but the coral lips form a gentle happy smile shape. Tile 3: longer, more translucent glossy jelly rim with light shining through. Tile 4: slightly taller dome head like the second image, big eyes kept. Tile 5: tighter close-up so the head and wavy rim fill most of the tile, waving tentacle at the side. Tile 6: both tentacles raised cheerfully. Tile 7: warmer orange sunset palette with stronger sun rays. Tile 8: sun behind the octopus giving a bright rim light on the jelly head, brighter turquoise sea. Tile 9: simplified background (soft sunrise gradient and one palm), character larger for readability at small size.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792840295767,
+ "started_at": 1792840295776,
+ "finished_at": 1792840318035,
+ "expires_at": 1793099518035,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16d9b-e3ca-7323-b184-8af1e0f0c69b_0.png?Expires=1793099518&Signature=PMdIZL9UkWIwQmkSH16UAr6vZaNRGtaxFekWbDR9XrPcSX0VaLgCaBU6VBsDdl6~GIzkXJvcrzXVeOi33aBiTLf8GyCU5aBPusUZ0hfGCZa-F4FcGpz6Ru3XA3fOUbXsOSNE-RPbTDIv5enpwZwtI51aKwRPtmdcuczK0X3pxT9mzF~oLUv2H7lbP8XWpJZUYq4KXULvGrLpmI1LXs1oWrohkltAOSnV0n9KjlWglTCj~6mh-eQ9K2vS3sppFTCABLdAnk3em18RbaV4Aph7QD6BofNTOPz4A5INIboK2DxxSSt-3OuiQG58M~pSFbWnRtEOJ6-nJ2fX3-k668G~5A__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
