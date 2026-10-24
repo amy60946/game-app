@@ -2556,6 +2556,50 @@
    "cer": 0.032
   },
   {
+   "key": "e22b80986b55c58c",
+   "text": "Kamp ateşine 2 odun götür, harla!",
+   "role": "anlatici",
+   "src": "tr:guide.fire",
+   "who": "narrator",
+   "tts": "Kamp ateşine iki odun götür, harla!",
+   "sec": 3.28,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "7c8eb6d20a94bc82",
+   "text": "Kocaman kütük! Baltayla birkaç kez vur, çok odun verir.",
+   "role": "anlatici",
+   "src": "tr:gather.tip_biglog",
+   "who": "narrator",
+   "tts": "Kocaman kütük! Baltayla birkaç kez vur, çok odun verir.",
+   "sec": 4.4,
+   "seed": 100,
+   "cer": 0.038
+  },
+  {
+   "key": "3fe00c763f29306f",
+   "text": "Nereye gideceğini bulamadın mı? Haritaya bak!",
+   "role": "anlatici",
+   "src": "tr:tip.map_far",
+   "who": "narrator",
+   "tts": "Nereye gideceğini bulamadın mı? Haritaya bak!",
+   "sec": 2.68,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "a8110c0f5a27aa33",
+   "text": "Sarı im, gideceğin yeri gösterir. İme dokun, oklar yolu göstersin!",
+   "role": "anlatici",
+   "src": "tr:tip.map_pin",
+   "who": "narrator",
+   "tts": "Sarı im, gideceğin yeri gösterir. İme dokun, oklar yolu göstersin!",
+   "sec": 3.84,
+   "seed": 101,
+   "cer": 0.016
+  },
+  {
    "key": "8d4c5d1cb1a05d97",
    "text": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
    "role": "anlatici",

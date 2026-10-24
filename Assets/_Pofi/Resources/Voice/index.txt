@@ -230,4 +230,8 @@ d0d374892a320aeb	anlatici	Bir hindistan cevizi buldun!
 79972de144eb410f	anlatici	Bir ödüle dokun, sonra İste'ye bas!
 bc46eaf845ecadc7	anlatici	İlk isteğin ailene gitti! Onaylayınca sana haber gelir.
 313d92e501a0422f	anlatici	Yeni: Gerçek ödüller! Dükkâna git.
+e22b80986b55c58c	anlatici	Kamp ateşine 2 odun götür, harla!
+7c8eb6d20a94bc82	anlatici	Kocaman kütük! Baltayla birkaç kez vur, çok odun verir.
+3fe00c763f29306f	anlatici	Nereye gideceğini bulamadın mı? Haritaya bak!
+a8110c0f5a27aa33	anlatici	Sarı im, gideceğin yeri gösterir. İme dokun, oklar yolu göstersin!
 8d4c5d1cb1a05d97	anlatici	Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.
