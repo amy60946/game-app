@@ -32,6 +32,7 @@ namespace Pofi.UI
             slash.localRotation = Quaternion.Euler(0f, 0f, 45f);
             var si = slash.gameObject.AddComponent<Image>(); si.sprite = Ui.Rounded; si.type = Image.Type.Sliced; si.color = Candy.Pink; si.raycastTarget = false;
             v._slash = slash.gameObject;
+            v._slash.SetActive(!Voice.Enabled);   // ilk karede (Update'ten önce) kapalı çizgisi yanlışlıkla görünmesin
             v._cg = b.gameObject.AddComponent<CanvasGroup>();
             v._cg.ignoreParentGroups = true;   // ipucu paneli dokunmayı kapatır; hoparlör yine dokunulur
             v._follow = host.GetComponentInParent<CanvasGroup>();
@@ -45,6 +46,7 @@ namespace Pofi.UI
         public void SetText(string text)
         {
             _text = text;
+            if (_slash != null) _slash.SetActive(!Voice.Enabled);
             gameObject.SetActive(Voice.Has(text));
         }
 
