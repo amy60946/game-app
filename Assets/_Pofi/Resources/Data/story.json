@@ -303,7 +303,7 @@
     {
      "who": "okti",
      "text": "Teşekkürler! Taşla sisi dağıtırım.",
-     "a": "Taşla sisi dağıtırım!",
+     "a": "Teşekkürler Mavi!",
      "mood": "happy"
     }
    ]
@@ -324,7 +324,7 @@
     {
      "who": "mavi",
      "text": "İşte kulübemin yeri! Odun, dal ve taş toplayalım mı?",
-     "a": "İşte kulübemin yeri!",
+     "a": "Kulübemin yeri açıldı!",
      "mood": "happy"
     },
     {

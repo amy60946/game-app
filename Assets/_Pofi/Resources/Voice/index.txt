@@ -62,10 +62,10 @@ d891c4d4459471ea	adali	Ben Mavi, postacıyım!
 0e0f269dd0615156	adali	Kulübemin yeri de sisin altında kaldı. Al, bu Güneş Taşı sana hediye!
 35d59ece6c081600	adali	Al, bu taş sana hediye!
 c2df5d94372505be	okti	Teşekkürler! Taşla sisi dağıtırım.
-c4fc2608fe8c0956	okti	Taşla sisi dağıtırım!
+d873150084216e9f	okti	Teşekkürler Mavi!
 31fe7b02ee1e8a6b	anlatici	Taştan bir ışık yayıldı, sis yavaşça çekildi.
 b99d574d368b6440	adali	İşte kulübemin yeri! Odun, dal ve taş toplayalım mı?
-6325a3769717211a	adali	İşte kulübemin yeri!
+19b535f16bf4e6be	adali	Kulübemin yeri açıldı!
 21ef0c0667fcee05	okti	Hemen başlıyorum!
 859b86b35ff6e91b	adali	Kulübem bitti! Bak, posta zili bile çalıyor!
 78f1ecc65a7094ef	adali	Kulübem bitti!

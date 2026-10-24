@@ -708,15 +708,15 @@
    "cer": 0.031
   },
   {
-   "key": "c4fc2608fe8c0956",
-   "text": "Taşla sisi dağıtırım!",
+   "key": "d873150084216e9f",
+   "text": "Teşekkürler Mavi!",
    "role": "okti",
    "src": "story:ch2_open:5:a",
    "who": "okti",
-   "tts": "Taşla sisi dağıtırım!",
-   "sec": 1.93,
-   "seed": 100,
-   "cer": 0.15
+   "tts": "Teşekkürler Mavi!",
+   "sec": 2.31,
+   "seed": 7,
+   "cer": 0.0
   },
   {
    "key": "31fe7b02ee1e8a6b",
@@ -741,15 +741,15 @@
    "cer": 0.061
   },
   {
-   "key": "6325a3769717211a",
-   "text": "İşte kulübemin yeri!",
+   "key": "19b535f16bf4e6be",
+   "text": "Kulübemin yeri açıldı!",
    "role": "adali",
    "src": "story:ch2_fog:1:a",
    "who": "mavi",
-   "tts": "İşte kulübemin yeri!",
-   "sec": 1.77,
-   "seed": 100,
-   "cer": 0.316
+   "tts": "Kulübemin yeri açıldı!",
+   "sec": 2.86,
+   "seed": 102,
+   "cer": 0.048
   },
   {
    "key": "21ef0c0667fcee05",
