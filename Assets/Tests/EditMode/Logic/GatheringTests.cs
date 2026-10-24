@@ -1,3 +1,4 @@
+using Pofi.Logic.App;
 using System;
 using System.Linq;
 using NUnit.Framework;
@@ -48,6 +49,29 @@ namespace Pofi.Tests.Logic
             foreach (var n in a) foreach (var m in a) if (n != m) Assert.Greater(IslandTerrain.Dist(n.X, n.Z, m.X, m.Z), 3f);
             // ilk kütükler meydana yakın (çocuk hemen bulsun)
             Assert.Less(a.Where(n => n.Kind == GatherKind.Log).Min(n => IslandTerrain.Dist(n.X, n.Z, T.PlazaX, T.PlazaZ)), 22f);
+        }
+
+        [Test]
+        public void Rota_malzeme_kulube_yerinde_cevizler_Kiskaca_yakin_odun_kamp_atesinde()
+        {
+            // GB19 (kullanıcı: "oradan oraya gitmesin"): rehberin her adımındaki malzeme o adımın yakınında
+            var t = TestData.Terrain();   // oyundaki pişmiş ada
+            var nodes = Gathering.Place(t);
+            var (sx, sz) = Gathering.HutSite(t);
+            int Yield(GatherKind k, float cx, float cz, float r) =>
+                nodes.Where(n => n.Kind == k && IslandTerrain.Dist(n.X, n.Z, cx, cz) <= r).Sum(n => Gathering.Rule(n.Kind).Yield);
+            foreach (var (m, need) in Gathering.HutRecipe)
+            {
+                var have = m == Gathering.Wood ? Yield(GatherKind.Log, sx, sz, 22f) + Yield(GatherKind.BigLog, sx, sz, 22f)
+                    : m == Gathering.Branch ? Yield(GatherKind.Bush, sx, sz, 22f) : Yield(GatherKind.Rock, sx, sz, 22f);
+                Assert.GreaterOrEqual(have, need, m + ": kulübe yerinin 22 m içinde yetmeli");
+            }
+            var shop = t.Regions.First(r => r.Id == "region_shop");
+            Assert.GreaterOrEqual(nodes.Count(n => n.Kind == GatherKind.Coconut && IslandTerrain.Dist(n.X, n.Z, shop.X, shop.Z) <= 42f), Guide.CoconutsNeeded,
+                "Kıskaç'ın istediği 2 ceviz dükkânın yakınındaki kumsalda");
+            var camp = t.Baked.Layout.Spots["camp"];
+            Assert.GreaterOrEqual(Yield(GatherKind.Log, camp[0], camp[1], 16f) + Yield(GatherKind.BigLog, camp[0], camp[1], 16f), CampfireRules.WoodPerStoke,
+                "kamp ateşinin yanında harlamaya yetecek odun");
         }
 
         [Test]

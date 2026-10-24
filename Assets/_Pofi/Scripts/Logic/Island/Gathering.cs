@@ -71,7 +71,7 @@ namespace Pofi.Logic.Island
 
         /// <summary>
         /// Toplama noktaları: kütük ve çalı çimende, taş çimende/kumsalda/kayalıkta (kullanıcı, 24 Ekim 2026: kulübeye yetecek taş
-        /// bulunamıyordu → 10 taş), hindistan cevizi yürüme yollarına yakın kumda; kulübe malzemesi önce kulübe yerinin çevresinde (GB19: rehber rotası orada), diğerleri meydana yakın (çocuk hemen bulsun).
+        /// bulunamıyordu → 10 taş), hindistan cevizi kıyı kumunda; rota (GB19): kulübe malzemesi kulübe yerinin, cevizler Kıskaç'ın dükkânının, bir büyük kütük kamp ateşinin yanında, kalanı adaya dağılır.
         /// Sıra (kütük, çalı, taş, ceviz) kayıttaki nokta numaralarını korur: yeni tür hep sona eklenir.
         /// </summary>
         /// <summary>Kulübe yerinin çevresinde toplama noktası konmayan yarıçap (sis örtüsü + şantiye, m).</summary>
@@ -92,33 +92,54 @@ namespace Pofi.Logic.Island
                 if (IslandTerrain.Dist(x, z, site.x, site.z) < SiteClear) return false;   // kulübe yerinin sisi ve şantiyesi boş kalsın
                 return list.All(n => IslandTerrain.Dist(x, z, n.X, n.Z) > 3.2f);
             }
-            void Scatter(GatherKind kind, int count, Func<float, float, bool> where, bool nearSite = false)
+            // Rota (GB19, kullanıcı: "oradan oraya gitmesin"): her şey kullanıldığı yerin yakınında. Önce yakın halkaya istenen kadar
+            // (halkanın içinden örneklenir, yoğun), kalan sayı tüm adaya dağılır.
+            void Near(GatherKind kind, int count, float cx, float cz, float radius, Func<float, float, bool> where)
             {
-                // önce yakın halka (kulübe malzemesi kulübe yerinin, diğerleri meydanın çevresinde), sonra tüm ada
-                var (cx, cz) = nearSite ? site : (t.PlazaX, t.PlazaZ);
-                foreach (var radius in new[] { 22f, 1000f })
+                var placed = 0;
+                for (var tries = 0; placed < count && tries < 4000; tries++)
                 {
-                    var placed = list.Count(n => n.Kind == kind);
-                    for (var tries = 0; placed < count && tries < 3000; tries++)
-                    {
-                        var x = t.MinX + (float)rng.NextDouble() * (t.MaxX - t.MinX);
-                        var z = t.MinZ + (float)rng.NextDouble() * (t.MaxZ - t.MinZ);
-                        if (IslandTerrain.Dist(x, z, cx, cz) > radius || !where(x, z) || !Free(x, z)) continue;
-                        list.Add(new GatherNode { Index = list.Count, Kind = kind, X = x, Z = z, Yaw = (float)rng.NextDouble() * 360f });
-                        placed++;
-                    }
-                    if (placed >= count) break;
+                    var a = rng.NextDouble() * Math.PI * 2; var r = radius * Math.Sqrt(rng.NextDouble());
+                    var x = cx + (float)(Math.Cos(a) * r); var z = cz + (float)(Math.Sin(a) * r);
+                    if (x < t.MinX || x > t.MaxX || z < t.MinZ || z > t.MaxZ || !where(x, z) || !Free(x, z)) continue;
+                    list.Add(new GatherNode { Index = list.Count, Kind = kind, X = x, Z = z, Yaw = (float)rng.NextDouble() * 360f });
+                    placed++;
                 }
             }
-            Scatter(GatherKind.Log, logs, (x, z) => t.SurfaceAt(x, z) == Surface.Grass, true);
-            Scatter(GatherKind.Bush, bushes, (x, z) => t.SurfaceAt(x, z) == Surface.Grass, true);
-            Scatter(GatherKind.Rock, rocks, (x, z) => t.SurfaceAt(x, z) == Surface.Sand || t.SurfaceAt(x, z) == Surface.Rock || t.SurfaceAt(x, z) == Surface.Grass, true);
-            // ceviz: önce patikaya yakın kum (yürürken görülsün), yetmezse herhangi bir kum
-            // yalnız deniz kıyısındaki alçak kum (kanyon/patika kumu değil): kumsal ≤ 2,6 m
+            void Scatter(GatherKind kind, int count, Func<float, float, bool> where)
+            {
+                var placed = list.Count(n => n.Kind == kind);
+                for (var tries = 0; placed < count && tries < 3000; tries++)
+                {
+                    var x = t.MinX + (float)rng.NextDouble() * (t.MaxX - t.MinX);
+                    var z = t.MinZ + (float)rng.NextDouble() * (t.MaxZ - t.MinZ);
+                    if (!where(x, z) || !Free(x, z)) continue;
+                    list.Add(new GatherNode { Index = list.Count, Kind = kind, X = x, Z = z, Yaw = (float)rng.NextDouble() * 360f });
+                    placed++;
+                }
+            }
+            bool Grass(float x, float z) => t.SurfaceAt(x, z) == Surface.Grass;
+            bool Stony(float x, float z) => t.SurfaceAt(x, z) == Surface.Sand || t.SurfaceAt(x, z) == Surface.Rock || t.SurfaceAt(x, z) == Surface.Grass;
+            // kulübe tarifi (6 odun, 4 dal, 3 taş) kulübe yerinin 20 m içinde fazlasıyla çıkar
+            Near(GatherKind.Log, Math.Min(3, logs), site.x, site.z, 20f, Grass);
+            Scatter(GatherKind.Log, logs, Grass);
+            Near(GatherKind.Bush, Math.Min(3, bushes), site.x, site.z, 20f, Grass);
+            Scatter(GatherKind.Bush, bushes, Grass);
+            Near(GatherKind.Rock, Math.Min(4, rocks), site.x, site.z, 22f, Stony);
+            Scatter(GatherKind.Rock, rocks, Stony);
+            // ceviz: yalnız deniz kıyısındaki alçak kum (kanyon/patika kumu değil, ≤ 2,6 m); üçü Kıskaç'ın dükkânına yakın kumsalda
             bool Beach(float x, float z) => t.SurfaceAt(x, z) == Surface.Sand && t.Height(x, z) < BeachTop;
+            var shop = t.Regions.FirstOrDefault(r => r.Id == "region_shop");
+            if (shop != null) Near(GatherKind.Coconut, Math.Min(3, coconuts), shop.X, shop.Z, 42f, Beach);
             Scatter(GatherKind.Coconut, coconuts, (x, z) => Beach(x, z) && t.PathDistance(x, z) < IslandTerrain.PathHalfWidth + 6f);
             Scatter(GatherKind.Coconut, coconuts, Beach);
-            Scatter(GatherKind.BigLog, bigLogs, (x, z) => t.SurfaceAt(x, z) == Surface.Grass && t.Slope(x, z) < 0.35f);   // geniş, düzce çimen
+            // büyük kütük: biri kamp ateşinin yanında (harlamak için odun orada), biri kulübe yerinde, kalanı adada
+            bool Flat(float x, float z) => Grass(x, z) && t.Slope(x, z) < 0.35f;   // geniş, düzce çimen
+            var spots = t.Baked?.Layout?.Spots;
+            if (spots != null && spots.TryGetValue("camp", out var camp) && camp != null && camp.Length >= 2 && bigLogs > 0)
+                Near(GatherKind.BigLog, 1, camp[0], camp[1], 16f, Flat);
+            Near(GatherKind.BigLog, Math.Min(1, bigLogs - list.Count(n => n.Kind == GatherKind.BigLog)), site.x, site.z, 22f, Flat);
+            Scatter(GatherKind.BigLog, bigLogs, Flat);
             return list;
         }
 
