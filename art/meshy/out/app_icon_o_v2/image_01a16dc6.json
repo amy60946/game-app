@@ -1,0 +1,16 @@
+{
+ "id": "01a16dc6-59ff-72b9-bec8-f7f903c981e0",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Edit the FIRST reference image (a square mobile game app icon). Keep everything else exactly the same as the first image: same composition and framing, same cute light-blue glossy octopus with the same huge shiny dark eyes with white sparkles and eyebrows, same rosy cheeks, same yellow T-shirt, same waving tentacle pose, same warm golden sunrise rays, palm trees on the left, small red-and-white lighthouse on a green islet on the right, turquoise sea, same lighting and glossy vinyl-toy 3D style, full-bleed square, no text, no letters, no logo, no border. Change only these two details, copying them from the other reference images: (1) MOUTH: remove the open smiling mouth; instead give it the protruding coral-red donut-shaped puckered lips exactly like the SECOND reference image \u2014 a thick glossy coral ring sticking out from the face with a deep round dark hole in the middle, placed where the mouth was, below the eyes. (2) HEAD BOTTOM: the bottom of the round head no longer ends in a smooth circle; it flows down into the thick, soft, drooping jelly lobes exactly like the THIRD reference image \u2014 five or six fat rounded glossy scallops of the same light-blue translucent jelly that hang down over the shoulders and the T-shirt collar like the rim of a jellyfish bell, with shiny highlights on each lobe. Variation: the coral donut lips are a little smaller and slightly upturned at the corners so the face looks happy, the jelly lobes are a bit shorter.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792843078477,
+ "started_at": 1792843078481,
+ "finished_at": 1792843102261,
+ "expires_at": 1793102302261,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16dc6-59ff-72b9-bec8-f7f903c981e0_0.png?Expires=1793102302&Signature=KPpU6fcqsCE--1J9lfwGCt716noC8P7on0NWLDWvwVqHcQaLEKf1zsCcpshjXU6vbi~kw9bwbokPO-4KLWs3Qsrz4C9gsPWFx7-oCpDGGuDww6lVOZp5FxFmzCoXrKwlo-79yPKfxChunIfMgJ4c0GYCIIvinRaA4VH7lUs2kn4fIygsG7FzD3EQXUdxzpqZvZP1UIBkeYZRLdjrvSUEz-9H8QEhPIJzu~wP7~kAMOoqx3UxGDdtXF8mD8Al9sAMjWcbqRfn48p8m8kLoLR91ovrHMe-I7ef44a0RHvafrXjtM-g-UCHnRh66jJVFkjGVST04JsXparc8BN0KDoqEg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

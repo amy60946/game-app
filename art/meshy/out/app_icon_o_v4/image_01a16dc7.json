@@ -1,0 +1,16 @@
+{
+ "id": "01a16dc7-9421-739c-ac78-a0e4fd299c40",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Edit the FIRST reference image (a square mobile game app icon) as little as possible. Keep its exact composition and framing: the light-blue glossy octopus standing slightly left of center with its head in the upper middle, two palm trees on the left edge, the waving tentacle raised on the right, the small red-and-white lighthouse on a green islet at the bottom right, warm golden sunrise rays, turquoise sea at the bottom; keep the same huge shiny dark eyes with white sparkles and small eyebrows, rosy cheeks, the yellow T-shirt, same lighting and glossy vinyl-toy 3D style, full-bleed square, no text, no letters, no logo, no border. Change only two details: (1) replace the open smiling mouth with protruding coral-red donut-shaped puckered lips exactly like the SECOND reference image (thick glossy coral ring with a deep round dark hole), centered below the eyes. (2) Replace the smooth round bottom edge of the head with the hem shown in the THIRD reference image: the head's lower edge becomes one continuous soft wavy jelly hem made of five or six broad, shallow, rounded bulges side by side, short and plump, resting on top of the T-shirt collar and shoulders; NOT separate tentacles, NOT long dangling strands; same light-blue color and gloss as the head, with soft highlights on each bulge.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792843158887,
+ "started_at": 1792843158890,
+ "finished_at": 1792843187771,
+ "expires_at": 1793102387771,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16dc7-9421-739c-ac78-a0e4fd299c40_0.png?Expires=1793102387&Signature=PRMkclIlJmLS53bqW4TUqqiuc6hr8zNIkW6ZnDe7X1WXswzZ2GsZIo~giyhEFNZonTb7zj9y725FtHb022BVHxHCqTskPvRYqlI4wS18OhByahBblMDSr9QuM3wVGTBl9xrtqd0Rq6ZNPtSr21LJCqzCXjWUpJunRwcMpKV4qYaaM8-hys8diSaUvR1eEnDZoCpSkcC8tdKPQCIz2o7s67srqTnlUZWdP~Y3b5dmCGX8xFL6Ujje5dr8Hbwzf2PklWxyWBdKp-YeMvY8ayGYTbIJmoDvyLDu8lEra2ywiqn1pifJXb3FXOSaFndPXYSuAyt-kUkY3FB160NumIjgaQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

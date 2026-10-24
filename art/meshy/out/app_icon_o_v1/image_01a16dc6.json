@@ -1,0 +1,16 @@
+{
+ "id": "01a16dc6-59f1-74f7-a835-a207ae2cd820",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Edit the FIRST reference image (a square mobile game app icon). Keep everything else exactly the same as the first image: same composition and framing, same cute light-blue glossy octopus with the same huge shiny dark eyes with white sparkles and eyebrows, same rosy cheeks, same yellow T-shirt, same waving tentacle pose, same warm golden sunrise rays, palm trees on the left, small red-and-white lighthouse on a green islet on the right, turquoise sea, same lighting and glossy vinyl-toy 3D style, full-bleed square, no text, no letters, no logo, no border. Change only these two details, copying them from the other reference images: (1) MOUTH: remove the open smiling mouth; instead give it the protruding coral-red donut-shaped puckered lips exactly like the SECOND reference image \u2014 a thick glossy coral ring sticking out from the face with a deep round dark hole in the middle, placed where the mouth was, below the eyes. (2) HEAD BOTTOM: the bottom of the round head no longer ends in a smooth circle; it flows down into the thick, soft, drooping jelly lobes exactly like the THIRD reference image \u2014 five or six fat rounded glossy scallops of the same light-blue translucent jelly that hang down over the shoulders and the T-shirt collar like the rim of a jellyfish bell, with shiny highlights on each lobe. Make it a faithful edit: lips the same size as in the second image.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792843078456,
+ "started_at": 1792843078464,
+ "finished_at": 1792843112833,
+ "expires_at": 1793102312833,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a16dc6-59f1-74f7-a835-a207ae2cd820_0.png?Expires=1793102312&Signature=MGoBCPaPt~V~rNBIlbp-D3oJmA9WETdCPsq-LOGqqibJSHqc6SfgD3DgRnM2fBkuOAeK2L3TcAuOnI0wcw1QKOwde2HUXubM42z233ZrzmtIaq-xFsTGlOpDjGiHrccZLbG02Y~QRCFh06wo4Czx7dmflC1gV-rTI2rJGuqoh6X0PFX7WSD-2iZ~Jl6AymWXYWWNJa8HYw5gEv4ZYmw3kQD28zyHqQ44rBWHzVmJpf6vyY3aBuiePx5USKDoWFlyi9bTgQuYNVXEoWzLZMXwMiBnI90OPGB5T~TGZWnp-n6nULNpg6dcIZVCjpTvxSCPzmn1Yx~GGi4tok5bQ2WBoA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
