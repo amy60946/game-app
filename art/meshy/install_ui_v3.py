@@ -20,7 +20,8 @@ SHEETS = {
     'ui_v3_e': ['ui_coconut', 'ui_coconut_gold', 'ui_settings', 'ui_home', 'ui_wardrobe', 'ui_album', 'ui_trophy', 'ui_fishing', 'ui_garden'],
 }
 UI_PARTS = {'bar_orange', 'bar_blue', 'btn_green', 'card', 'ribbon', 'round', 'plank', 'star_big', 'close'}
-SKIP = {'clean_soap_v3'}   # eşya simgesi (clean_soap) zaten aynı kalitede: değiştirilmez
+SKIP = {'clean_soap_v3',   # eşya simgesi (clean_soap) zaten aynı kalitede: değiştirilmez
+        'ui_coconut', 'ui_coconut_gold'}   # 24 Ekim 2026'dan beri kodla 3B: art/scripts/coconut_scene.py
 
 def square(im, size=256, pad=0.06):
     k = size * (1 - 2 * pad) / max(im.size)

@@ -103,7 +103,9 @@ namespace Pofi.EditorTools
                 var gi = (TextureImporter)assetImporter;
                 gi.alphaIsTransparency = true;
                 gi.mipmapEnabled = false;
-                gi.maxTextureSize = assetPath.Contains("/Resources/Art/") ? 2048 : 512;
+                // tam ekran sahne arka planları (Art/, Games/*_bg — ör. Ceviz Yakala kumsalı, art/scripts/coconut_scene.py) 2048
+                var fullScreen = assetPath.Contains("/Resources/Art/") || Path.GetFileNameWithoutExtension(assetPath).EndsWith("_bg");
+                gi.maxTextureSize = fullScreen ? 2048 : 512;
                 gi.npotScale = TextureImporterNPOTScale.None;
                 gi.sRGBTexture = true;
                 gi.textureCompression = TextureImporterCompression.Compressed;

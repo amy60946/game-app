@@ -1,4 +1,5 @@
 # Masa oyunları, ceviz oyunu ve festival için 3B görünümlü arayüz görselleri (kredisiz, prosedürel Blender).
+# Not: Ceviz Yakala'nın sepeti, arka planı ve ceviz simgeleri artık art/scripts/coconut_scene.py'den (basket burada eski sürüm).
 # Kullanım: python -I ui_games.py -- çıktı_klasörü [yalnız_bu_ad ...]
 # Katmanlı kart: card_body (beyaz kenar), card_inner (gri → oyunda renge boyanır), card_oval (beyaz eğik oval), card_back.
 # Domino: domino_tile (fildişi taş, ortada çizgi), domino_pip (gömük nokta). Kule: block_wood. Ceviz: basket.
@@ -189,7 +190,7 @@ def coconut(loc, s=0.5, gold=False):
     c.data.materials.append(mat('gc', (1.0, 0.72, 0.15), 0.35, metal=0.45) if gold else coco_mat())
     bpy.ops.object.shade_smooth(); return c
 
-if want('basket'):
+if 'basket' in ONLY:   # oyundaki sepet artık art/scripts/coconut_scene.py'den (24 Ekim 2026); bu eski sürüm yalnız adıyla istenirse
     sc = reset(512, 320); cam(sc, 4.0, loc=(0, -10, 2.2), rot=(78, 0, 0))
     basket()
     render(sc, 'basket', None)
