@@ -107,6 +107,7 @@ namespace Pofi.Screens
             _actionText = actLab;
             _actionIcon = actIcon;
             BuildBag(hud);    // Ç: sağdaki malzeme paneli yerine sol kenarda çanta
+            BuildHutChip(hud);
             BuildNeed(hud);   // İ1 + İ4
 
             // sol alt: yüzen joystick (parmak değince belirir)
@@ -238,6 +239,34 @@ namespace Pofi.Screens
             var w = Ui.Rect(hud, "Wrap", anchor, new Vector2(size, size), offset);
             _hudShrink.Add(w);
             return w;
+        }
+
+        // Kulübe çipi (taslak .x-chip): kulübe yapılana kadar sağ üstte küçük krem hap; yay dolar, "Kulübe 3/13". Dokununca Okti
+        // şantiyeye yürür. Şantiyenin yanındaki gereksinim kartı (E3) açıkken gizlenir.
+        private RectTransform _hutChip;
+        private Image _hutRing;
+        private Text _hutText;
+
+        private void BuildHutChip(RectTransform hud)
+        {
+            if (_site == null || App.State.Gather.HutBuilt) return;
+            _hutChip = Ui.Rect(hud, "HutChip", new Vector2(1f, 1f), new Vector2(200f * G, 48f * G));
+            _hutChip.pivot = new Vector2(1f, 1f); _hutChip.anchoredPosition = new Vector2(-22f * G, -146f * G);
+            GoldKit.RimCapsule(_hutChip, Theme.Hex("#FFF7E0"), Theme.Hex("#F4DEA8"), 3f * G);
+            var ring = Ui.Rect(_hutChip, "Ring", new Vector2(0f, 0.5f), new Vector2(28f * G, 28f * G), new Vector2((8f + 14f) * G, 0f));
+            var track = ring.gameObject.AddComponent<Image>(); track.sprite = GoldKit.Annulus; track.color = Theme.Hex("#E3CB92"); track.raycastTarget = false;
+            var fr = Ui.Fill(ring, "Fill");
+            _hutRing = fr.gameObject.AddComponent<Image>(); _hutRing.sprite = GoldKit.Annulus; _hutRing.color = Theme.Hex("#F2A81C"); _hutRing.raycastTarget = false;
+            _hutRing.type = Image.Type.Filled; _hutRing.fillMethod = Image.FillMethod.Radial360; _hutRing.fillOrigin = (int)Image.Origin360.Top;
+            Ui.IconImage(_hutChip, "tool_hammer", new Vector2(0f, 0.5f), 32f * G, new Vector2((8f + 28f + 8f + 16f) * G, 0f));
+            _hutText = Ui.Label(_hutChip, "", Mathf.RoundToInt(18f * G), Theme.Hex("#6B3F0E"), new Vector2(1f, 0.5f), new Vector2(110f * G, 44f * G), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(-(16f + 55f) * G, 0f));
+            _hutText.raycastTarget = false;
+            var hit = _hutChip.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0f);
+            var b = _hutChip.gameObject.AddComponent<Button>(); b.targetGraphic = hit; b.transition = Selectable.Transition.None;
+            b.onClick.AddListener(() => { Audio.Sfx.Play(Audio.SfxKind.Tap); if (_world.Walker != null) _world.Walker.WalkTo(_sitePos.x, _sitePos.z); });
+            _hutChip.gameObject.AddComponent<PressBounce>();
+            LongPressInfo.Add(_hutChip.gameObject, T("gather.hut_short"));
+            RefreshTracker();
         }
 
         /// <summary>Düğme kurdelesi yürürken söner.</summary>

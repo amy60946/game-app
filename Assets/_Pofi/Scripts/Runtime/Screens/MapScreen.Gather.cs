@@ -199,6 +199,15 @@ namespace Pofi.Screens
             if (_site != null && !st.HutBuilt)
                 _site.SetProgress(Gathering.Count(st, Gathering.Wood), Gathering.Count(st, Gathering.Branch), Gathering.Count(st, Gathering.Stone), Gathering.HutProgress(st));
             RefreshReq();
+            if (_hutChip != null)
+            {
+                var show = !st.HutBuilt && !_overview && (_req == null || !_req.gameObject.activeSelf);
+                if (_hutChip.gameObject.activeSelf != show) _hutChip.gameObject.SetActive(show);
+                var got = 0; var all = 0;
+                foreach (var (m, need) in Gathering.HutRecipe) { got += Mathf.Min(Gathering.Count(st, m), need); all += need; }
+                _hutText.text = T("gather.hut_short") + " " + got + "/" + all;
+                _hutRing.fillAmount = all > 0 ? got / (float)all : 0f;
+            }
             if (_tracker == null) return;
             _tracker.gameObject.SetActive(!st.HutBuilt && !_overview && (_req == null || !_req.gameObject.activeSelf));
             for (var i = 0; i < Gathering.HutRecipe.Length; i++)
@@ -257,6 +266,7 @@ namespace Pofi.Screens
                     _req.gameObject.SetActive(reqShow);
                     if (reqShow) RefreshReq();
                     if (_tracker != null) _tracker.gameObject.SetActive(!st.HutBuilt && !_overview && !reqShow);
+                    if (_hutChip != null) _hutChip.gameObject.SetActive(!st.HutBuilt && !_overview && !reqShow);
                 }
             }
 
