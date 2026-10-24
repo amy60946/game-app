@@ -269,10 +269,11 @@ def endgrain_cap(x, y, z, r, seed=0, lichen=True):
     out = [o]
     if lichen:
         R = random.Random(seed)
-        L = A.m_flat('#a9b77a', 0.3, 30, 'lichen')
-        for k in range(3):
-            a = R.uniform(0, 6.28); rr = R.uniform(0.2, 0.6) * r
-            out.append(blob('lich', (x + math.cos(a) * rr, y + math.sin(a) * rr, z + 0.009), (r * 0.22, r * 0.17, 0.003), L, sub=0, seg=8))
+        L = [A.m_flat('#a4ad84', 0.3, 30, 'lichen'), A.m_flat('#c2b978', 0.3, 30, 'lichen2')]
+        for k in range(6):                                    # düzensiz, farklı boyda (sıra sıra üç benek yüz gibi duruyordu)
+            a = R.uniform(0, 6.28); rr = R.uniform(0.45, 0.85) * r; s_ = R.uniform(0.06, 0.16) * r
+            out.append(blob('lich', (x + math.cos(a) * rr, y + math.sin(a) * rr, z + 0.009), (s_ * R.uniform(1.0, 1.8), s_, 0.003), L[k % 2],
+                            rot=(0, 0, R.uniform(0, 180)), sub=0, seg=8))
     return bk(out)
 
 

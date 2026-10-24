@@ -148,7 +148,7 @@ def build():
     for xx in (-0.6, 0.6):
         AT.prism('bracket', [(0.0, 0.0), (0.16, 0.0), (0.0, -0.16)], 0.04, DK, loc=(xx, -SD / 2 - 0.035, Z0 + 0.525), rot=(0, 0, -90), bevel=0.006)
     # saz çatı + iki halat kuşak + tepe topuzu
-    STRAW = overlay(A.m_leaf('#9a6e2e', '#c49a4c', '#e2bf78', '#ecd59a', 'straw'), L_thatchage(), 'straw_k')
+    STRAW = overlay(A.m_leaf('#b0823a', '#d4a856', '#ecca84', '#f4dfa6', 'straw'), L_thatchage(0.24), 'straw_k')
     AT.thatch(0, 0, Z0 + SH + 0.02, Z0 + SH + 0.62, 1.2, 0.2, 5, layers=7, m=STRAW)
     for zz, rr in ((Z0 + SH + 0.32, 0.6), (Z0 + SH + 0.5, 0.36)):
         pts = [(math.cos(t / 20 * 2 * math.pi) * rr, math.sin(t / 20 * 2 * math.pi) * rr, zz + 0.015 * math.sin(t * 1.3)) for t in range(21)]
@@ -280,4 +280,5 @@ WEIGHTS = [(r'^board$', 1.7), (r'^fin$', 0.8), (r'^(sign_lo|wave|sunic|signpost)
            (r'^(shell|star)$', 1.2), (r'^ropecore', 0.8), (r'^(sprout|tuft)$', 0.8), (r'^drift$', 1.0)]
 
 if __name__ == '__main__':
-    KK.main('b_surf', build, DECIM, WEIGHTS, budget=12000, tex=1024, ds_low=True, floor=0.03)
+    # oyuk gölgesi kısa mesafe: sık saz demetlerinde 0,5 m tüm çatıyı karartıyordu
+    KK.main('b_surf', build, DECIM, WEIGHTS, budget=12000, tex=1024, ds_low=True, floor=0.03, ao_dist=0.25)

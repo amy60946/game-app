@@ -34,7 +34,8 @@ NP, SUB = 16, 6            # kumaş paneli sayısı, panel başına sütun
 NA = NP * SUB
 A0 = -math.pi / 2 - math.pi / NP          # panel 0 = kapı (−Y merkezli)
 RE, RH = RAD + 0.15, 1.15                 # çatı saçak yarıçapı, çatı yüksekliği
-RED, CREAM, MUSTARD, TEAL = '#e5504b', '#fbecd0', '#f1b83e', '#33a8b0'
+RED, CREAM, MUSTARD, TEAL = '#e5504b', '#f8e6c4', '#f1b83e', '#33a8b0'
+SAND_Y = '#f8d98a'          # duvar şeridi: eski çadırdaki gibi sıcak sarı (krem beyaz göz alıyordu)
 
 
 def ang(i):
@@ -65,7 +66,7 @@ def roof_pt(i, t):
 
 def tent():
     """Duvar + çatı (ayrı nesneler: doku önemi ayrı), astar, taban, kilim, saçak, yaka."""
-    CW = E.m_canvas(RED, CREAM, stripes=NP / 2, name='canvas_wall', mud=0.2, drip=H - 0.02, fade=0.25)
+    CW = E.m_canvas(RED, SAND_Y, stripes=NP / 2, name='canvas_wall', mud=0.2, drip=H - 0.02, fade=0.25)
     CR = E.m_canvas(RED, CREAM, stripes=NP / 2, name='canvas_roof', mud=0, fade=0.35, bleach=(H + 0.35, H + RH, 0.55), stain=(H, H + 0.3))
     # duvar (kapı paneli = panel 0 boş)
     zs = [0.0, 0.06, 0.16, 0.32, 0.5, 0.68, 0.84, H, H + 0.12, H + 0.21]
@@ -94,7 +95,7 @@ def tent():
             uvs.append([(i / NA, ts[j] * 2), ((i + 1) / NA, ts[j] * 2), ((i + 1) / NA, ts[j + 1] * 2), (i / NA, ts[j + 1] * 2)])
     roof = E.mesh_obj('tentroof', verts, faces, [CR], uvs=uvs)
     # iç astar: kapıdan bakınca içi gölgeli kumaş (arka yüz oyunda çizilmez → dış duvarın arkası görünmesin)
-    LN = m_flat('#6e3434', 0.12, 6, 'liner')
+    LN = m_flat('#4a2627', 0.1, 6, 'liner')
     n = 24; verts = []; faces = []
     for k in range(n):
         a = k / n * 2 * math.pi
@@ -346,7 +347,7 @@ def props_left():
 def ground():
     """Duvar dibinde kum birikintisi (kapı önü açık), girişte talaşlı kum, yer yer yosun."""
     door = math.pi / NP + 0.08
-    E.sand_ring(0, 0, lambda a: wall_r(a, 0.0) + 0.02, 0.13, 0.05, seed=3, a0=-math.pi / 2 + door, a1=-math.pi / 2 + 2 * math.pi - door, n=80)
+    E.sand_ring(0, 0, lambda a: wall_r(a, 0.0) + 0.02, 0.1, 0.04, seed=3, m=E.m_sandy('festsand', '#d2b484'), a0=-math.pi / 2 + door, a1=-math.pi / 2 + 2 * math.pi - door, n=80)
     AT.dirt_patch(0.0, -1.22, 0.42, 0.3, 77, name='wornground', sand=True)
     for k, a in enumerate((math.radians(70), math.radians(100), math.radians(140), math.radians(40))):
         r = wall_r(a, 0.0) + 0.05

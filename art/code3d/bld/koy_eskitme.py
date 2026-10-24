@@ -326,24 +326,24 @@ def shell(loc, r, yaw=0.0, nrm=(0, 0, 1), hexc='#f6d9c4', band='#e59a8a', name='
 
 
 def buoy(loc, r, c1='#f0663a', c2='#f6efe0', name='buoy'):
-    """Şamandıra (ağ yüzdürücüsü): yumurta biçimi, iki renk bant (solmuş, lekeli), tepede halat halkası."""
+    """Şamandıra (ağ yüzdürücüsü): yumurta biçimi, ortada açık renk bant (solmuş, lekeli). Doku koordinatı nesnenin kendi birim
+    küresinde (blob ölçeği nesnede)."""
     def b(nt, bsdf):
         G = G2(nt); o = G.obj()
         sp = nt.nodes.new('ShaderNodeSeparateXYZ'); nt.links.new(o, sp.inputs[0])
-        bnd = G.rng(G.math('ABSOLUTE', sp.outputs['Z']), r * 0.3, r * 0.36)
-        col = G.mix(bnd, c1, c2)
-        col = G.mix(G.rng(G.noise(o, 3 / r * 0.1, 4), 0.5, 0.72, 0, 0.4), col, '#fff1d8')
-        col = G.mix(G.rng(G.noise(o, 12 / r * 0.1, 4), 0.62, 0.72, 0, 0.45), col, '#6a5844')
+        bnd = G.rng(G.math('ABSOLUTE', sp.outputs['Z']), 0.22, 0.3)
+        col = G.mix(bnd, c2, c1)
+        col = G.mix(G.rng(G.noise(o, 2.0, 4), 0.52, 0.72, 0, 0.35), col, '#fff1d8')
+        col = G.mix(G.rng(G.noise(o, 6.0, 4), 0.62, 0.72, 0, 0.45), col, '#6a5844')
         nt.links.new(col, bsdf.inputs['Base Color'])
     M = nodes_mat(name + c1, b)
-    o = blob(name, loc, (r, r, r * 1.2), M, sub=1, seg=16)
-    return o
+    return blob(name, loc, (r, r, r * 1.2), M, sub=1, seg=16)
 
 
 def sand_drift(cx, cy, rx, ry, h, seed=0, lean=(0.0, 0.0), m=None, name='sand'):
     """Kum birikintisi: yere yapışık alçak tümsek (kenarı yırtık), lean yönünde yığılmış (duvar/basamak dibine rüzgârla dolmuş)."""
     M = m or SAND()
-    NR, NA = 6, 28; verts = []; faces = []; rows = []
+    NR, NA = 4, 22; verts = []; faces = []; rows = []
     for i in range(NR + 1):
         t = i / NR; row = []
         for j in range(NA):
@@ -432,6 +432,16 @@ def rope3(pts, thick, m=None, closed=False, seg=None, around=9, twist=2.4, name=
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     o = link_mesh(name, bm, [M]); smooth(o)
     return o
+
+
+def post_center(base, top, seed, z):
+    """AT.post direğinin z yüksekliğindeki ekseni (x, y): taban–orta–tepe noktalarından ikinci derece yaklaşık (orta nokta gürültüyle
+    kayık; halat bağ direği tam sarsın diye)."""
+    b = V(base); t = V(top)
+    m = (b + t) / 2 + V((MN.noise(V((seed, 1, 2))) * 0.04, MN.noise(V((2, seed, 1))) * 0.04, 0))
+    u = (z - b.z) / (t.z - b.z)
+    p = b * (1 - u) * (1 - 2 * u) + m * 4 * u * (1 - u) + t * u * (2 * u - 1)
+    return p.x, p.y
 
 
 def lash(center, r, z0, z1, turns, thick=0.012, axis='z', seed=0, m=None, tail=True):

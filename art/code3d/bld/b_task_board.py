@@ -247,7 +247,7 @@ def _star_gold():
 # hedef: eğri/yoğun parçalar kendi içinde sadeleşir; kutular kalır
 DECIM = [(r'^shingle$', 0.12), (r'^roofbase$', 0.12), (r'^(frame|ledge|header|patch|back)$', 0.3), (r'^(lush|tufts|rosette)$', 0.3),
          (r'^(pet|fc)$', 0.25), (r'^(Icosphere|moss)$', 0.25), (r'^rope$', 0.1), (r'^fray$', 0.5), (r'^(stem)$', 0.35), (r'^(nail|streak)$', 0.45),
-         (r'^(starfish|shell)$', 0.3), (r'^(sand|wornground)$', 0.3), (r'^(ridge)$', 0.6), (r'^bell$', 0.6), (r'^(strap|star)$', 0.4),
+         (r'^(starfish|shell)$', 0.3), (r'^wornground$', 0.5), (r'^(ridge)$', 0.6), (r'^bell$', 0.6), (r'^(strap|star)$', 0.4),
          (r'^icon$', 0.4), (r'^pin$', 0.5), (r'^(pencil|cup)$', 0.6)]
 # UV önemi: okunması gereken notlar/başlık/simgeler büyük, çimen/çakıl küçük
 WEIGHTS = [(r'^(paper|line|icon|header)$', 1.9), (r'^(pin|star)$', 1.4), (r'^(cork)$', 1.3), (r'^(frame|strap)$', 1.15), (r'^(shingle|ridge)$', 1.05),

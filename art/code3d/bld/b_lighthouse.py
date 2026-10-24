@@ -154,7 +154,8 @@ def build():
     I = AT.m_metal('#3e3b46', name='lhiron')
     for m in (STN, SOFT, STEP): KK.bumpify(m, 0.35, 0.008)
     # ---- taş temel (eski profil) + iki sıra kabarık taş
-    prof_base = [(0.001, 0.0), (0.9, 0.0), (0.92, 0.18), (0.88, 0.42), (0.76, 0.5), (0.001, 0.5)]
+    # üstü açık halka: kulenin altında kalan tepe diski dokuda ~%4 yer tutuyordu (yelpaze yüzleri yarı görünür sayıldığından ayıklanmıyordu)
+    prof_base = [(0.001, 0.0), (0.9, 0.0), (0.92, 0.18), (0.88, 0.42), (0.76, 0.5), (0.6, 0.5)]
     AT.lathe('base', prof_base, STN, segs=24, noise_amt=0.06)
     for row, z in enumerate((0.1, 0.3)):
         for k in range(12):
@@ -164,7 +165,7 @@ def build():
             o.scale = (1.0, 0.8, 0.85); o.rotation_euler = (0, 0, a); o.name = 'bstone'
     # ---- kule
     prof = [(rad(0.5 + i / 16 * (H - 0.5)), 0.5 + i / 16 * (H - 0.5)) for i in range(17)]
-    AT.lathe('tower', [(0.001, 0.5)] + prof + [(0.001, H)], m_tower(), segs=32, noise_amt=0.01, seed=3)
+    AT.lathe('tower', prof + [(rad(H) - 0.06, H)], m_tower(), segs=32, noise_amt=0.01, seed=3)      # alt/üst kapak yok (gizli)
     # ---- kapı: taş kemer + ahşap kanat (soluk turkuaz) + demir menteşe + halka
     DR = A.m_wood('#b98a5a', 'lhdoor', paint='#3d9a96', age=1.5, grime=NOG)
     KK.bumpify(DR, 0.35, 0.005)
@@ -227,7 +228,7 @@ def build():
         bpy.context.object.name = 'toprail'; bpy.context.object.data.materials.append(RI)
     # ---- fener odası
     BASE = AT.m_plaster('#d9483f', name='lhbase', dirt=0.0)
-    AT.lathe('lroom', [(0.001, H + 0.08), (0.36, H + 0.08), (0.36, H + 0.2), (0.34, H + 0.22), (0.001, H + 0.22)], BASE, segs=24)
+    AT.lathe('lroom', [(0.3, H + 0.08), (0.36, H + 0.08), (0.36, H + 0.2), (0.34, H + 0.22), (0.29, H + 0.22)], BASE, segs=24)
     cyl('lantern', (0, 0, H + 0.465), 0.31, 0.53, m_lens(), verts=8, bevel=0)      # üstü kubbe tabanına değer (kapalı)
     for k in range(8):
         a = (k + 0.5) * 2 * math.pi / 8
@@ -235,7 +236,7 @@ def build():
     bpy.ops.mesh.primitive_torus_add(major_radius=0.3, minor_radius=0.02, location=(0, 0, H + 0.7), major_segments=24, minor_segments=5)
     bpy.context.object.name = 'lring'; bpy.context.object.data.materials.append(I)
     ROOF = overlay(AT.m_plaster('#c94a40', name='lhroof', dirt=0.0), L_streaks('#8a3a30', 0.35, z_top=H + 1.06, length=0.4, scale=22), 'lhroof_k')
-    AT.lathe('dome', [(0.001, H + 0.72), (0.42, H + 0.72), (0.4, H + 0.78), (0.3, H + 0.92), (0.15, H + 1.02), (0.001, H + 1.06)], ROOF, segs=32)
+    AT.lathe('dome', [(0.28, H + 0.72), (0.42, H + 0.72), (0.4, H + 0.78), (0.3, H + 0.92), (0.15, H + 1.02), (0.001, H + 1.06)], ROOF, segs=32)
     for k in range(12):
         a = k * 2 * math.pi / 12
         pts = [(math.cos(a) * r_ * 1.01, math.sin(a) * r_ * 1.01, z_) for r_, z_ in ((0.41, H + 0.75), (0.32, H + 0.9), (0.17, H + 1.01), (0.05, H + 1.055))]

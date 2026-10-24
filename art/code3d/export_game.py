@@ -11,17 +11,18 @@ STAGE = os.environ.get('POFI_STAGE', '/tmp/pofi_game_export')
 
 # oyun adı: (betik, yapıcı, üçgen bütçesi, doku boyu). Bütçe: iPhone'da tüm ada ~0.5 M üçgen altında kalsın.
 ASSETS = {
-    # yapılar (bölge başına 1)
+    # yapılar (bölge başına 1). bld/<ad>.py (24 Ekim 2026): taslağın tam ağından pişer (renk + AO + normal; bld/bld_kit.py),
+    # eskitme katmanları bld/ada_eskitme.py; bütçe yalnız üst sınır raporu (küresel sadeleştirme yok)
     'b_home': ('house_cottage.py', 'c_house', 9000, 1024),
     'b_shop': ('assets_town.py', 'c_shop', 10000, 1024),
     'b_pier': ('assets_town.py', 'c_pier', 7000, 1024),
     'b_lighthouse': ('assets_town.py', 'c_lighthouse', 6000, 1024),
     'b_task_board': ('assets_town.py', 'c_board', 4500, 1024),
-    'b_garden': ('assets_town.py', 'c_garden', 8000, 1024),
+    'b_garden': ('bld/b_garden.py', 'b_garden', 14000, 1024),
     'b_surf': ('assets_town.py', 'c_surf', 7000, 1024),
     'b_swim': ('assets_town.py', 'c_swim', 6500, 1024),
-    'b_game_hut': ('assets_town.py', 'c_game_hut', 8000, 1024),
-    'b_festival': ('assets_town.py', 'c_festival', 6500, 1024),
+    'b_game_hut': ('bld/b_game_hut.py', 'b_game_hut', 15000, 1024),
+    'b_festival': ('bld/b_festival.py', 'b_festival', 15000, 1024),
     'b_cave': ('assets_town.py', 'c_cave', 6000, 1024),
     'b_mountain': ('assets_town.py', 'c_mountain', 6000, 1024),
     'b_ski_hill': ('assets_town.py', 'c_ski', 7000, 1024),

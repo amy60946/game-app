@@ -108,7 +108,7 @@ def door():
     for s in (-1, 1):
         AT.plank('dframe', (s * 0.3, -RAD + 0.045, 0.5), (0.17, 0.06, 1.0), FR, seed=40 + s, amt=0.004)
     AT.plank('dlintel', (0, -RAD + 0.035, 1.02), (0.78, 0.06, 0.08), FR, seed=44, amt=0.004)
-    o = AT.rock((0.0, -RAD - 0.14, 0.012), 0.2, A.m_rock(moss_th=(0.9, 1.2), name='stepstone'), 5, sq=(1.35, 0.6, 0.18), sub=2, amt=0.08)
+    o = AT.rock((0.0, -RAD - 0.14, 0.012), 0.2, A.m_rock(moss_th=(1.12, 1.4), name='stepstone'), 5, sq=(1.35, 0.6, 0.18), sub=2, amt=0.08)
     o.name = 'doorstep'
 
 
@@ -177,7 +177,7 @@ def window():
     E.mesh_obj('winawning', verts, faces, [AW], uvs=[[uvs[i] for i in f] for f in faces], ds=True)
     for s in (-1, 1):
         tube('winrod', [(s * 0.17, -0.005, 0.12), (s * 0.19, -0.16, 0.13)], [0.006, 0.006], AT.m_metal('#4a4650', '#b0663a', 'rodm'), res=1)
-    p, n, t, up = frame_at(math.radians(-35), 0.7)
+    p, n, t, up = frame_at(math.radians(-35), 0.62)
     place([o for o in bpy.context.scene.objects if o.name not in before], p, n, t)
 
 
@@ -187,13 +187,13 @@ def roof():
     core = AT.lathe('roofcore', [(RB - 0.02, H + 0.02), (RB * 0.5, H + RH * 0.55), (0.05, H + RH), (0.001, H + RH + 0.01)], m_tile('#3f2c78', 'ghcore'), segs=32)
     def tmat(hexc, nm, fade=0.0, moss=False):
         m = m_tile(hexc, nm)
-        E.layer(m, E.sunfade(0.22 + fade, H + 0.4, H + RH, tint='#efe6ff'))
+        E.layer(m, E.sunfade(0.1 + fade, H + 0.4, H + RH, tint='#efe6ff'))   # ölçülü: çatı soluk görünmesin
         if moss:
             E.layer(m, lambda G, c: G.mix(G.rng(G.noise(G.obj(), 9, 4), 0.42, 0.6, 0, 0.85), c, G.mix(G.rng(G.noise(G.obj(), 30, 2), 0.4, 0.6), '#4d7a2c', '#86a843')))
         return m
-    PUR = tmat('#7656d0', 'ght_pur'); LIL = tmat('#9878e6', 'ght_lil'); TL = tmat('#2fa3a0', 'ght_teal')
-    FPUR = tmat('#9a86d8', 'ght_pur_f', 0.2); FLIL = tmat('#b4a2ea', 'ght_lil_f', 0.2)
-    MPUR = tmat('#7656d0', 'ght_pur_m', moss=True); MLIL = tmat('#9878e6', 'ght_lil_m', moss=True)
+    PUR = tmat('#6c4dca', 'ght_pur'); LIL = tmat('#8a69de', 'ght_lil'); TL = tmat('#2fa3a0', 'ght_teal')
+    FPUR = tmat('#8470d2', 'ght_pur_f', 0.1); FLIL = tmat('#9e86e6', 'ght_lil_f', 0.1)
+    MPUR = tmat('#6c4dca', 'ght_pur_m', moss=True); MLIL = tmat('#8a69de', 'ght_lil_m', moss=True)
     PATCH = [tmat('#f2b84a', 'ght_mustard'), tmat('#36aab2', 'ght_teal2')]
     phi = math.atan2(RH, RB)
     rows = 8
@@ -219,7 +219,7 @@ def roof():
                 M = (PUR, LIL)[(r // 2) % 2]
                 x = R.random()
                 if back and r < 3 and x < 0.45: M = (MPUR, MLIL)[(r // 2) % 2]
-                elif x < 0.14: M = (FPUR, FLIL)[(r // 2) % 2]
+                elif x < 0.11: M = (FPUR, FLIL)[(r // 2) % 2]
             for (rw, f), pm in special.items():
                 if rw == r and abs(fa - f) < 0.5 / cnt: M = pm
             yaw_j = math.radians(R.uniform(-4, 4) + (9 if R.random() < 0.06 else 0)); lift = R.uniform(0.012, 0.022) + (0.02 if R.random() < 0.05 else 0)
