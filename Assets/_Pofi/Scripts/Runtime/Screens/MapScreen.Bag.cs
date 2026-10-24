@@ -416,7 +416,7 @@ namespace Pofi.Screens
 
         private void UpdateMaviNews(float dt)
         {
-            if (_news != null && (_newsT -= dt) <= 0f) { Destroy(_news.gameObject); _news = null; }
+            if (_news != null && ((_newsT -= dt) <= 0f || _overview)) { Destroy(_news.gameObject); _news = null; }   // haritada yer adlarını örtmesin
         }
 
         /// <summary>N2: rehber okları açıkken Mavi hedefe önden uçar; oklar sönünce kona kona yerine döner.</summary>
