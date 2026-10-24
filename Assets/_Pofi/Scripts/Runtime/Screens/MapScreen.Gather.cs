@@ -58,6 +58,7 @@ namespace Pofi.Screens
             // kapı meydana baksın (model önü -z: Blender'da -y)
             var face = Mathf.Atan2(_terrain.PlazaX - _sitePos.x, _terrain.PlazaZ - _sitePos.z) * Mathf.Rad2Deg + 180f;
             _site = GatherSpot.CreateSite(_world.transform, new Vector3(_sitePos.x, _terrain.Height(_sitePos.x, _sitePos.z) - 0.05f, _sitePos.z), face, st.HutBuilt);
+            BuildSiteFog();   // GB19: hediye taş konana kadar kulübe yeri sisli, şantiye görünmez
             if (_world.Walker != null) _world.Walker.Blocked = Blocked;
 
             // nesne üstü baloncuklar (HUD'un altında)
@@ -203,7 +204,7 @@ namespace Pofi.Screens
             RefreshReq();
             if (_hutChip != null)
             {
-                var show = !st.HutBuilt && !_overview && (_req == null || !_req.gameObject.activeSelf);
+                var show = !st.HutBuilt && !SiteFogged && !_overview && (_req == null || !_req.gameObject.activeSelf);
                 if (_hutChip.gameObject.activeSelf != show) _hutChip.gameObject.SetActive(show);
                 var got = 0; var all = 0;
                 foreach (var (m, need) in Gathering.HutRecipe) { got += Mathf.Min(Gathering.Count(st, m), need); all += need; }
@@ -243,7 +244,8 @@ namespace Pofi.Screens
                 var d = Vector2.Distance(p, new Vector2(n.X, n.Z));
                 if (d < Reach + _gSpots[n.Index].Radius * 0.5f && d < best) { best = d; _gTarget = n.Index; }
             }
-            if (!st.HutBuilt && Vector2.Distance(p, new Vector2(_sitePos.x, _sitePos.z)) < SiteReach && _gTarget == int.MinValue) _gTarget = -1;
+            var siteOpen = !st.HutBuilt && !SiteFogged;   // sisliyken şantiye yok (önce hediye taş)
+            if (siteOpen && Vector2.Distance(p, new Vector2(_sitePos.x, _sitePos.z)) < SiteReach && _gTarget == int.MinValue) _gTarget = -1;
             if (_gTarget != _gCalmFor) { _gCalmFor = _gTarget; CalmBubbles(); }
 
             var cam = App.Stage.Camera;
@@ -256,8 +258,8 @@ namespace Pofi.Screens
                 if (b.gameObject.activeSelf != show) b.gameObject.SetActive(show);
             }
             // E3: şantiyedeyken alet baloncuğu yerine gereksinim kartı
-            var atSite = !_overview && !st.HutBuilt && _gTarget == -1;
-            var siteShow = !_overview && !st.HutBuilt && !atSite && Vector2.Distance(p, new Vector2(_sitePos.x, _sitePos.z)) < BubbleRange + 4f;
+            var atSite = !_overview && siteOpen && _gTarget == -1;
+            var siteShow = !_overview && siteOpen && !atSite && Vector2.Distance(p, new Vector2(_sitePos.x, _sitePos.z)) < BubbleRange + 4f;
             if (siteShow) siteShow = Place(_siteBubble, _site, cam, k, false);
             if (_siteBubble.gameObject.activeSelf != siteShow) _siteBubble.gameObject.SetActive(siteShow);
             if (_req != null)
@@ -268,7 +270,7 @@ namespace Pofi.Screens
                     _req.gameObject.SetActive(reqShow);
                     if (reqShow) RefreshReq();
                     if (_tracker != null) _tracker.gameObject.SetActive(!st.HutBuilt && !_overview && !reqShow);
-                    if (_hutChip != null) _hutChip.gameObject.SetActive(!st.HutBuilt && !_overview && !reqShow);
+                    if (_hutChip != null) _hutChip.gameObject.SetActive(siteOpen && !_overview && !reqShow);
                 }
             }
 
@@ -341,6 +343,7 @@ namespace Pofi.Screens
         private void TapSite()
         {
             if (_world.Walker == null) return;
+            if (SiteFogged) { _toast.Say(T("map.site_fog")); return; }
             if (_gTarget == -1) { BuildHut(); return; }
             var p = _world.Walker.Position;
             var c = new Vector2(_sitePos.x, _sitePos.z);

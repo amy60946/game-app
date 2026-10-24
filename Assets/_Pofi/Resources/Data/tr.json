@@ -313,12 +313,12 @@
     "guide.home": "Evim'e yürü ve içeri gir.",
     "guide.tidy": "Topla'ya dokun: ev toplansın!",
     "guide.wear": "{0} üstüne dokun, aksesuarını tak.",
-    "guide.board": "Ev Görevleri panosuna git.",
+    "guide.board": "Ev Görevleri panosuna git: yeni taşlar burada!",
     "guide.gather": "Kulübe için odun, dal ve taş topla.",
     "guide.hut": "Şantiyeye git, kulübeyi yap!",
     "guide.coconut": "2 hindistan cevizi bul: kumsalda ara ya da bahçede oyna.",
     "guide.shop": "Dükkâna git: ilk aksesuarını al!",
-    "guide.stone": "Güneş Taşını sisli yere götür, koy!",
+    "guide.stone": "Görevle kazandığın taşı koydaki sise götür!",
     "guide.reward": "+{0} XP",
     "guide.done": "Rehber görevi tamam! +{0} XP",
     "tip.mark": "Görevi yapınca Yaptım'a bas!",
@@ -619,6 +619,15 @@
     "map.fog_here": "Sis orada: {0}. Oklar yolu gösteriyor!",
     "res.hi_tosbi": "Merhaba evlat. Acele etme, deniz hep bekler.",
     "res.hi_pitir": "Merhaba {0}! Bugün cevizlerimiz çok tatlı!",
-    "res.hi_hisir": "Çok tatlı... Merhaba."
+    "res.hi_hisir": "Çok tatlı... Merhaba.",
+    "guide.gift": "Mavi sana bir hediye getirdi!",
+    "guide.clear": "Hediye taşı kulübe yerine götür, sisi dağıt!",
+    "gift.title": "Hediye Güneş Taşı",
+    "gift.l1": "Bu ilk taş Mavi'den sana hediye!",
+    "gift.l2": "Taşı kulübe yerine götür: sis dağılsın.",
+    "gift.l3": "Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
+    "gift.ok": "Hadi gidelim!",
+    "map.site_fog": "Önce kulübe yerindeki sisi dağıt!",
+    "unlock.hut_site": "Kulübe yeri"
   }
 }

@@ -22,10 +22,12 @@ namespace Pofi.Logic.App
     }
 
     /// <summary>
-    /// Rehberli görev zinciri (ilk sürüm 19 Ekim 2026; sıra kullanıcı GB17, 24 Ekim 2026): oyun çocuğu baştan sona adım adım
-    /// gezdirir, her adım tek şey öğretir ve küçük XP verir. Sıra: besle → yıka → Evim → topla → oyna → dükkândan ilk aksesuar
-    /// (hoş geldin coin'iyle) → tak → Kıskaç'a git → 2 hindistan cevizi → Kıskaç'a teslim → Mavi gelir → kulübe malzemesi →
-    /// kulübe → kamp ateşini harla (GB18) → Ev Görevleri panosu → Güneş Taşı. Hazır olmayan adım (ör. coin ya da taş yok) atlanır ve hazır olunca geri gelir.
+    /// Rehberli görev zinciri (ilk sürüm 19 Ekim 2026; sıra kullanıcı GB17/GB19, 24 Ekim 2026): oyun çocuğu baştan sona adım adım
+    /// gezdirir, her adım tek şey öğretir ve küçük XP verir. Rota adada tek yönde akar (batı → doğu; geri dönüş yok): besle → yıka →
+    /// Evim → topla → oyna → dükkândan ilk aksesuar (hoş geldin coin'iyle) → tak → Kıskaç'a git → 2 hindistan cevizi → Kıskaç'a
+    /// teslim → Mavi gelir → Mavi'nin hediye Güneş Taşı + bilgi kartı (GB19) → kulübe yerindeki sisi taşla aç (meydanın doğusu) →
+    /// kulübe malzemesi (yerin çevresinde) → kulübe → Ev Görevleri panosu (yanında; yeni taşlar buradan) → kamp ateşini harla
+    /// (GB18, doğudaki kamp) → koydaki sis (gerçek görevle kazanılan taşla). Hazır olmayan adım (ör. coin ya da taş yok) atlanır ve hazır olunca geri gelir.
     /// Ödül yalnız adım o an, canlı yapılınca verilir; önceden yapılmış adım ödülsüz geçilir. Rehber bir kez başladıysa seviye
     /// sınırı yoktur (zincir Sv3'ü aşabilir); Sv3'ü geçmiş ve hiç başlamamış oyuncuda kapalıdır. Durum GameState.SeenTips içinde.
     /// </summary>
@@ -41,10 +43,13 @@ namespace Pofi.Logic.App
         /// <summary>Sv1'de alınabilen en ucuz giyilebilir eşyanın fiyatı (hoş geldin coin'i bunu karşılar).</summary>
         public static int FirstWearPrice = 15;
 
+        private static SunStoneBook _book;
+
         /// <summary>Katalogla kurulum (oyun açılışında ve testlerde).</summary>
         public static void Configure(Data.GameData data)
         {
             if (data == null) return;
+            _book = data.SunBook;
             IsWearable = id => data.Item(id)?.IsWearable == true;
             var first = FirstWear(data, int.MaxValue);
             FirstWearPrice = first != null ? first.Price : 15;
@@ -75,13 +80,16 @@ namespace Pofi.Logic.App
                 AlreadyDone = s => s.Inventory.CountOf(Island.Gathering.CoconutItem) >= CoconutsNeeded },
             new GuideStep { Id = "deliver", Counter = "coconut_delivered", Xp = 15 },
             new GuideStep { Id = "mavi", Counter = "mavi_arrived", Xp = 10, AlreadyDone = s => s.Story.Seen.Contains("ch2_open") },
+            new GuideStep { Id = "gift", Counter = "gift_stone", Xp = 10, AlreadyDone = s => s.SunStones.Gift > 0 },   // Mavi'nin hediye taşı (GB19)
+            new GuideStep { Id = "clear", Counter = "hut_fog_cleared", Xp = 15,
+                AlreadyDone = s => SunStoneBook.PlacedIn(s.SunStones, SunStoneBook.HutSpot) > 0 },                           // kulübe yerindeki sis
             new GuideStep { Id = "gather", Counter = "hut_ready", Xp = 20,
                 AlreadyDone = s => s.Gather != null && (s.Gather.HutBuilt || Gathering.CanBuild(s.Gather)) },
             new GuideStep { Id = "hut", Counter = "hut_built", Xp = 10, AlreadyDone = s => s.Gather != null && s.Gather.HutBuilt },   // kulübe zaten 40 XP verir (Gathering.HutXp)
+            new GuideStep { Id = "board", Counter = "board_opened", Xp = 15 },   // kulübenin yanında: yeni taşlar gerçek görevden
             new GuideStep { Id = "fire", Counter = "fire_stoked", Xp = 10, AlreadyDone = s => s.Campfire != null && s.Campfire.Total > 0 },   // kamp ateşini harla (GB18)
-            new GuideStep { Id = "board", Counter = "board_opened", Xp = 15 },
-            new GuideStep { Id = "stone", Counter = "stone_placed", Xp = 30,
-                Ready = s => SunStoneBook.Available(s.SunStones) > 0, AlreadyDone = s => SunStoneBook.PlacedTotal(s.SunStones) > 0 },
+            new GuideStep { Id = "stone", Counter = "stone_placed", Xp = 30,   // koydaki sis: hediye değil, görevle kazanılan taş
+                Ready = s => SunStoneBook.Available(s.SunStones) > 0, AlreadyDone = s => SunStoneBook.RealPlaced(s.SunStones) > 0 },
         };
 
         public static GuideStep Get(string id) => Steps.FirstOrDefault(x => x.Id == id);
@@ -137,9 +145,25 @@ namespace Pofi.Logic.App
         public static void Start(GameState s, int level)
         {
             if (s == null) return;
+            CatchUpHutFog(s, level);
             if (level > MaxLevel && DoneCount(s) == 0) { s.SeenTips.Add(DoneFlag); return; }
             OnActivity(s, level, null);
         }
+
+        /// <summary>
+        /// Kulübe sisi sonradan geldi (GB19): kulübesini yapmış, başka sisi açmış ya da rehberi kapalı/ilerisinde olan eski oyuncu
+        /// sisi hiç görmez (hediye taş kendiliğinden konur, sahnesi izlenmiş sayılır). Rehberin ortasındaki yeni oyuncu adımları yapar.
+        /// </summary>
+        public static void CatchUpHutFog(GameState s, int level)
+        {
+            if (_book == null || s == null || !s.HasPet) return;
+            var old = (s.Gather != null && s.Gather.HutBuilt) || SunStoneBook.PlacedTotal(s.SunStones) > 0
+                || s.SeenTips.Contains(DoneFlag) || (level > MaxLevel && DoneCount(s) == 0);
+            if (_book.CatchUpHutFog(s.SunStones, old)) s.Story.Seen.Add(HutFogScene);
+        }
+
+        /// <summary>Kulübe sisi kalkınca oynayan kısa sahne (story.json).</summary>
+        public const string HutFogScene = "ch2_fog";
 
         /// <summary>Şu anki adım bu mu (çalışma zamanı kısayolu)?</summary>
         public static bool Is(GameState s, int level, string id) => Current(s, level)?.Id == id;

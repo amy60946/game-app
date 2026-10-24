@@ -23,6 +23,7 @@ namespace Pofi.Logic.Island
     {
         public int Earned;                                                    // sunucudaki toplam (child_me.sun_stones)
         public int Peak;                                                      // bugüne kadarki en yüksek toplam (geri alınıp yeniden gelen taş "yeni" sayılmaz)
+        public int Gift;                                                      // hediye taş (GB19, yalnız ada): ilk oyunda Mavi'den 1; sunucuya gitmez, harcanmaz
         public Dictionary<string, int> Placed = new Dictionary<string, int>(); // nokta → yerleştirilen taş
     }
 
@@ -53,7 +54,37 @@ namespace Pofi.Logic.Island
 
         public static int PlacedIn(SunStoneState st, string spotId) => st.Placed.TryGetValue(spotId, out var n) ? n : 0;
         public static int PlacedTotal(SunStoneState st) => st.Placed.Values.Sum();
-        public static int Available(SunStoneState st) => Math.Max(0, st.Earned - PlacedTotal(st));
+        public static int Available(SunStoneState st) => Math.Max(0, st.Earned + st.Gift - PlacedTotal(st));
+
+        /// <summary>
+        /// Kulübe yerindeki sis (GB19, kullanıcı 24 Ekim 2026): ilk sıradaki nokta; hediye taşla açılır. İlk oyunda Mavi bir
+        /// Güneş Taşı hediye eder (hoş geldin coin'i gibi), çocuk onunla sisi dağıtmayı öğrenir; sonraki taşlar gerçek görevden.
+        /// </summary>
+        public const string HutSpot = "spot_hut_fog";
+
+        /// <summary>Hediye taşı verir (çocuk başına bir kez, yalnız ada). Verildiyse true.</summary>
+        public static bool GiveGift(SunStoneState st)
+        {
+            if (st == null || st.Gift > 0) return false;
+            st.Gift = 1;
+            return true;
+        }
+
+        /// <summary>Gerçek görevden gelen taşlarla yapılmış yerleştirme sayısı (hediye hariç).</summary>
+        public static int RealPlaced(SunStoneState st) => Math.Max(0, PlacedTotal(st) - st.Gift);
+
+        /// <summary>
+        /// Kulübe sisi sonradan eklendi: kulübesini yapmış, başka bir sisi açmış ya da rehberi kapalı eski oyuncuda hediye taş
+        /// verilip kulübe yerine kendiliğinden konur (sis hiç görünmez; boştaki taş sayısı değişmez). Yapıldıysa true.
+        /// </summary>
+        public bool CatchUpHutFog(SunStoneState st, bool oldPlayer)
+        {
+            var s = Find(HutSpot);
+            if (s == null || st == null || !oldPlayer || IsRepaired(st, HutSpot)) return false;
+            st.Gift = Math.Max(st.Gift, 1);
+            st.Placed[HutSpot] = Math.Max(PlacedIn(st, HutSpot), s.Cost);
+            return true;
+        }
 
         public bool IsRepaired(SunStoneState st, string spotId)
         {

@@ -188,6 +188,11 @@ def clear_paths(lay):
             if min(_segd(p['x'], p['z'], q) for q in paths) < lim: gone += 1; continue
         keep.append(p)
     PROPS[:] = keep; IV.log('patikadan kaldırılan', gone)
+    # yapı yerleri boş kalsın: Mavi'nin kulübe yeri (GB19) ve Oyun Kulübesi (GB18, regions.json (30, 4))
+    clear = [(TV.SPOTS['hut'], 4.0), ((30.0, 4.0), 6.5)]
+    before = len(PROPS)
+    PROPS[:] = [p for p in PROPS if all((p['x'] - c[0]) ** 2 + (p['z'] - c[1]) ** 2 >= r * r for c, r in clear)]
+    IV.log('yapı yerinden kaldırılan', before - len(PROPS))
 
 def write_mask(L, W, H):
     """ground_v6_mask.png (r: kanyon kaldırımı; oyun gölgelendiricisi dünya koordinatlı taş döşer; g/b: çan çiçeği / turuncu çiçek

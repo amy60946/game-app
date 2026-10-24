@@ -440,7 +440,7 @@ namespace Pofi.Screens
             // hedef uzakta ve çocuk durdu: ilk kez el Harita'yı gösterir (GB18-8, haritada sarı im)
             if (MapFarTip(basicsDone)) return;
             // rehberli zincir: sıradaki adım, işaret eli hedefini gösterir; ilk gün pano/taş ipuçlarının yerine geçer
-            if (basicsDone && guide != null && !_overview) { GuideTip(guide); return; }
+            if (basicsDone && guide != null && !_overview) { if (guide.Id != "gift") GuideTip(guide); return; }   // hediye adımını kart anlatır
             // Gerçek ödüller yeni açıldı (Sv4, GB17-13): oturumda bir kez el dükkânı gösterir; dükkân sekmesi tanıtımla açılır
             if (basicsDone && guide == null && !_overview && !_rewardsToldThisSession && App.Levels.IsUnlocked(ShopScreen.RewardsUnlock, App.Level)
                 && !App.State.SeenTips.Contains(ShopScreen.RewardsIntroFlag))
@@ -505,7 +505,8 @@ namespace Pofi.Screens
                 case "home": case "tidy": case "play": return () => RegionScreen("region_home");
                 case "wear": return PetScreen;
                 case "board": return () => RegionScreen("region_task_board");
-                case "stone": return StoneTipScreen;   // sis kadrajda değilse kenardaki taş rozeti (GB18-5)
+                case "stone": case "clear": return StoneTipScreen;   // sis kadrajda değilse kenardaki taş rozeti (GB18-5)
+                case "gift": return MaviSky;
                 case "kiskac": case "deliver": return KiskacScreen;
                 case "coconut": return () => GuideWorld(g) is Vector2 c ? (Vector2)App.Stage.Camera.WorldToScreenPoint(_world.World(c.x, c.y) + Vector3.up * 0.8f) : RegionScreen("region_coconut_grove");
                 case "gather": return NearestGatherScreen;
@@ -550,7 +551,8 @@ namespace Pofi.Screens
             {
                 case "home": case "tidy": case "play": return DoorOf("region_home");
                 case "board": return DoorOf("region_task_board");
-                case "stone": return DoorOf(App.Data.SunBook.Next(App.State.SunStones)?.Region ?? "region_task_board");
+                case "stone": return SpotDoor(App.Data.SunBook.Next(App.State.SunStones)) ?? DoorOf("region_task_board");
+                case "clear": return new Vector2(_sitePos.x, _sitePos.z);   // GB19: kulübe yerindeki sis
                 case "gather":
                 {
                     var best = NearestNode(NeededForHut) ?? NearestNode(n => n.Kind != GatherKind.Coconut);
@@ -641,6 +643,7 @@ namespace Pofi.Screens
                     break;
                 }
             }
+            if (key == "hud.jump" && SiteFogAction(p, out var hact)) { key = "hud.place"; icon = "ui_sunstone"; act = hact; }   // GB19 kulübe sisi
             if (key == "hud.jump" && SpotAction(p, out var sact)) { key = "hud.place"; icon = "ui_sunstone"; act = sact; }
             if (key == "hud.jump" && CampfireAction(p, out var fact)) { key = "hud.stoke"; icon = "mat_wood"; act = fact; }   // kamp ateşini harla (GB18)
             if (key == "hud.jump")
@@ -702,7 +705,7 @@ namespace Pofi.Screens
             switch (r)
             {
                 case PlaceResult.NoStones:
-                    _toast.Say(T("map.locked_stones", App.Map.Find(spot.Region)?.Name ?? spot.Name, spot.Cost - SunStoneBook.PlacedIn(st, spot.Id)));
+                    _toast.Say(T("map.locked_stones", SpotName(spot), spot.Cost - SunStoneBook.PlacedIn(st, spot.Id)));
                     Audio.Sfx.Play(Audio.SfxKind.Fail);
                     return;
                 case PlaceResult.NotNext:
@@ -719,7 +722,18 @@ namespace Pofi.Screens
             var sp = PetScreen();
             StarSparkles.Around(Root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.14f, 0.2f), 10, 11);
             App.Save();
-            App.RecordActivity("stone_placed");
+            var hutFog = spot.Id == SunStoneBook.HutSpot;   // GB19: hediye taş — rehberin "taşı koy" adımı ayrı sayılır
+            if (!hutFog) App.RecordActivity("stone_placed");
+            if (r == PlaceResult.Repaired && hutFog)
+            {
+                StartCoroutine(FogLift(spot.Region, _sitePos.x, _sitePos.z, SiteFogRadius * 1.3f, () =>
+                {
+                    App.RecordActivity("hut_fog_cleared");
+                    Toast.Post(App.Overlay.transform, Th, spot.Say);
+                    App.Route();
+                }));
+                return;
+            }
             if (r == PlaceResult.Repaired)
             {
                 // H1: sis kalkış sahnesi (≈4 sn), sonra bölge açılır (ada yeniden kurulur)

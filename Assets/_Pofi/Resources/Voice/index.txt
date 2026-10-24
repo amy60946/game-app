@@ -234,4 +234,7 @@ e22b80986b55c58c	anlatici	Kamp ateşine 2 odun götür, harla!
 7c8eb6d20a94bc82	anlatici	Kocaman kütük! Baltayla birkaç kez vur, çok odun verir.
 3fe00c763f29306f	anlatici	Nereye gideceğini bulamadın mı? Haritaya bak!
 a8110c0f5a27aa33	anlatici	Sarı im, gideceğin yeri gösterir. İme dokun, oklar yolu göstersin!
+d025870943186928	adali	Merhaba evlat. Acele etme, deniz hep bekler.
+f51a4cf15e01efd6	adali	Merhaba Okti! Bugün cevizlerimiz çok tatlı!
+9a657605eb7a798d	adali	Çok tatlı... Merhaba.
 8d4c5d1cb1a05d97	anlatici	Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.

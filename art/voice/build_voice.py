@@ -105,8 +105,8 @@ def catalog():
             add(fill_pet(v), "adali", "tr:" + k, k[len("res.hi_"):])
         elif k in SPOKEN_EXTRA:   # GB17: hoş geldin coin'i, gerçek ödüller tanıtımı, ceviz haberi (oyunda Voice.Say ile)
             add(v.replace("{0}", SPOKEN_EXTRA[k]) if "{0}" in v else v, "anlatici", "tr:" + k, "narrator")
-    for a, b, c in [("rewards.intro_1", "rewards.intro_2", "rewards.intro_3")]:   # tanıtım kartı üç satırı tek seferde okur
-        add(" ".join(tr[x] for x in (a, b, c)), "anlatici", "tr:rewards.intro", "narrator")
+    for a, b, c in [("rewards.intro_1", "rewards.intro_2", "rewards.intro_3"), ("gift.l1", "gift.l2", "gift.l3")]:   # tanıtım kartı üç satırı tek seferde okur
+        add(" ".join(tr[x] for x in (a, b, c)), "anlatici", "tr:" + a.rsplit("_", 1)[0].rsplit(".", 1)[0] + ".intro" if a.startswith("rewards") else "tr:gift.card", "narrator")
     return out
 
 

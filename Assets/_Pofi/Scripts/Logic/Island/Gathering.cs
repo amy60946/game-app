@@ -71,9 +71,12 @@ namespace Pofi.Logic.Island
 
         /// <summary>
         /// Toplama noktaları: kütük ve çalı çimende, taş çimende/kumsalda/kayalıkta (kullanıcı, 24 Ekim 2026: kulübeye yetecek taş
-        /// bulunamıyordu → 10 taş), hindistan cevizi yürüme yollarına yakın kumda; meydana yakın olanlar önce (çocuk hemen bulsun).
+        /// bulunamıyordu → 10 taş), hindistan cevizi yürüme yollarına yakın kumda; kulübe malzemesi önce kulübe yerinin çevresinde (GB19: rehber rotası orada), diğerleri meydana yakın (çocuk hemen bulsun).
         /// Sıra (kütük, çalı, taş, ceviz) kayıttaki nokta numaralarını korur: yeni tür hep sona eklenir.
         /// </summary>
+        /// <summary>Kulübe yerinin çevresinde toplama noktası konmayan yarıçap (sis örtüsü + şantiye, m).</summary>
+        public const float SiteClear = 8.5f;
+
         public static List<GatherNode> Place(IslandTerrain t, int logs = 5, int bushes = 6, int rocks = 10, int coconuts = 5, int bigLogs = 3)
         {
             var list = new List<GatherNode>();
@@ -86,12 +89,13 @@ namespace Pofi.Logic.Island
                 if (t.PathDistance(x, z) < IslandTerrain.PathHalfWidth + 0.9f) return false;
                 if (t.Regions.Any(r => IslandTerrain.Dist(x, z, r.X, r.Z) < r.Size * 0.8f + 1.5f)) return false;
                 if (props.Any(p => IslandTerrain.Dist(x, z, p.X, p.Z) < IslandTerrain.Footprint(p) + 1.2f)) return false;
-                if (IslandTerrain.Dist(x, z, site.x, site.z) < 4.5f) return false;
+                if (IslandTerrain.Dist(x, z, site.x, site.z) < SiteClear) return false;   // kulübe yerinin sisi ve şantiyesi boş kalsın
                 return list.All(n => IslandTerrain.Dist(x, z, n.X, n.Z) > 3.2f);
             }
-            void Scatter(GatherKind kind, int count, Func<float, float, bool> where)
+            void Scatter(GatherKind kind, int count, Func<float, float, bool> where, bool nearSite = false)
             {
-                // önce meydana yakın halka, sonra tüm ada
+                // önce yakın halka (kulübe malzemesi kulübe yerinin, diğerleri meydanın çevresinde), sonra tüm ada
+                var (cx, cz) = nearSite ? site : (t.PlazaX, t.PlazaZ);
                 foreach (var radius in new[] { 22f, 1000f })
                 {
                     var placed = list.Count(n => n.Kind == kind);
@@ -99,16 +103,16 @@ namespace Pofi.Logic.Island
                     {
                         var x = t.MinX + (float)rng.NextDouble() * (t.MaxX - t.MinX);
                         var z = t.MinZ + (float)rng.NextDouble() * (t.MaxZ - t.MinZ);
-                        if (IslandTerrain.Dist(x, z, t.PlazaX, t.PlazaZ) > radius || !where(x, z) || !Free(x, z)) continue;
+                        if (IslandTerrain.Dist(x, z, cx, cz) > radius || !where(x, z) || !Free(x, z)) continue;
                         list.Add(new GatherNode { Index = list.Count, Kind = kind, X = x, Z = z, Yaw = (float)rng.NextDouble() * 360f });
                         placed++;
                     }
                     if (placed >= count) break;
                 }
             }
-            Scatter(GatherKind.Log, logs, (x, z) => t.SurfaceAt(x, z) == Surface.Grass);
-            Scatter(GatherKind.Bush, bushes, (x, z) => t.SurfaceAt(x, z) == Surface.Grass);
-            Scatter(GatherKind.Rock, rocks, (x, z) => t.SurfaceAt(x, z) == Surface.Sand || t.SurfaceAt(x, z) == Surface.Rock || t.SurfaceAt(x, z) == Surface.Grass);
+            Scatter(GatherKind.Log, logs, (x, z) => t.SurfaceAt(x, z) == Surface.Grass, true);
+            Scatter(GatherKind.Bush, bushes, (x, z) => t.SurfaceAt(x, z) == Surface.Grass, true);
+            Scatter(GatherKind.Rock, rocks, (x, z) => t.SurfaceAt(x, z) == Surface.Sand || t.SurfaceAt(x, z) == Surface.Rock || t.SurfaceAt(x, z) == Surface.Grass, true);
             // ceviz: önce patikaya yakın kum (yürürken görülsün), yetmezse herhangi bir kum
             // yalnız deniz kıyısındaki alçak kum (kanyon/patika kumu değil): kumsal ≤ 2,6 m
             bool Beach(float x, float z) => t.SurfaceAt(x, z) == Surface.Sand && t.Height(x, z) < BeachTop;
@@ -118,9 +122,15 @@ namespace Pofi.Logic.Island
             return list;
         }
 
-        /// <summary>Kulübenin yeri: meydanın yanında, yürünebilir, patika ve binalardan uzak düz bir çimen.</summary>
+        /// <summary>
+        /// Kulübenin yeri. Pişmiş adada elle seçilmiş "hut" noktası (GB19, kullanıcı: "kulübeyi uygun bir yere al"): meydanın
+        /// doğusunda düz çimen, patikadan ve binalardan uzak, Ev Görevleri panosuna 12 m, kamp ateşine giden yolun üstünde; rehber
+        /// rotası tek yönde akar. Nokta yoksa meydanın yanında yürünebilir, patika ve binalardan uzak düz bir çimen aranır.
+        /// </summary>
         public static (float x, float z) HutSite(IslandTerrain t)
         {
+            var spots = t.Baked?.Layout?.Spots;
+            if (spots != null && spots.TryGetValue("hut", out var hs) && hs != null && hs.Length >= 2) return (hs[0], hs[1]);
             var best = (x: t.PlazaX + 6f, z: t.PlazaZ - 4f); var bestScore = float.MaxValue;
             var props = t.Props();
             for (var ring = 5f; ring <= 16f; ring += 1.5f)

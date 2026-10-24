@@ -204,7 +204,7 @@
    "chapter": 1,
    "trigger": "event",
    "arg": "board_opened",
-   "summary": "Ev Görevleri panosu: yaptığın her görev ışıklı bir taş getirir.",
+   "summary": "Ev Görevleri panosu: yaptığın her görev bir Güneş Taşı getirir.",
    "lines": [
     {
      "who": "kiskac",
@@ -218,14 +218,14 @@
     },
     {
      "who": "okti",
-     "text": "Taşla ne yapacağız?",
-     "a": "Taşla ne yapacağız?",
+     "text": "Mavi'nin hediye ettiği taş gibi mi?",
+     "a": "Hediye taş gibi mi?",
      "mood": "think"
     },
     {
      "who": "kiskac",
-     "text": "Taşı kullanarak sisi kaldırabilirsin. Sahilden başlayalım mı?",
-     "a": "Taşı kullanarak sisi kaldır!",
+     "text": "Evet! Bundan sonrakileri görev yaparak kazanırsın. Koydaki sis seni bekliyor!",
+     "a": "Görev yap, taşı kazan!",
      "mood": "happy"
     }
    ]
@@ -292,6 +292,45 @@
      "who": "okti",
      "text": "Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.",
      "a": "Sana kulübe yaparım!",
+     "mood": "happy"
+    },
+    {
+     "who": "mavi",
+     "text": "Kulübemin yeri de sisin altında kaldı. Al, bu Güneş Taşı sana hediye!",
+     "a": "Al, bu taş sana hediye!",
+     "mood": "happy"
+    },
+    {
+     "who": "okti",
+     "text": "Teşekkürler! Taşla sisi dağıtırım.",
+     "a": "Taşla sisi dağıtırım!",
+     "mood": "happy"
+    }
+   ]
+  },
+  {
+   "id": "ch2_fog",
+   "chapter": 2,
+   "trigger": "spot",
+   "arg": "spot_hut_fog",
+   "art": "load_mavi",
+   "summary": "Kulübe yerindeki sis kalktı! Şimdi malzeme toplama zamanı.",
+   "lines": [
+    {
+     "who": "narrator",
+     "text": "Taştan bir ışık yayıldı, sis yavaşça çekildi.",
+     "a": "Işık yayıldı, sis kalktı!"
+    },
+    {
+     "who": "mavi",
+     "text": "İşte kulübemin yeri! Odun, dal ve taş toplayalım mı?",
+     "a": "İşte kulübemin yeri!",
+     "mood": "happy"
+    },
+    {
+     "who": "okti",
+     "text": "Hemen başlıyorum!",
+     "a": "Hemen başlıyorum!",
      "mood": "happy"
     }
    ]

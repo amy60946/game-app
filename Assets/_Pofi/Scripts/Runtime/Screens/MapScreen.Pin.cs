@@ -62,7 +62,7 @@ namespace Pofi.Screens
             if (SunStoneBook.Available(App.State.SunStones) > 0 && App.Data.SunBook.Next(App.State.SunStones) is SunSpotDef spot)
             {
                 icon = "ui_sunstone";
-                return DoorOf(spot.Region);
+                return SpotDoor(spot);
             }
             if (_boardCount > 0) { icon = "ui_board"; return DoorOf("region_task_board"); }
             return null;
@@ -84,7 +84,8 @@ namespace Pofi.Screens
                 case "hut": return "ui_hut";
                 case "fire": return "mat_wood";
                 case "board": return "ui_board";
-                case "stone": return "ui_sunstone";
+                case "stone": case "clear": return "ui_sunstone";
+                case "gift": return "ui_gift";
                 default: return "ui_star";
             }
         }
@@ -188,15 +189,15 @@ namespace Pofi.Screens
         {
             if (SunStoneBook.Available(App.State.SunStones) <= 0) return null;
             var g = Guide.Current(App.State, App.Level);
-            if (g != null && g.Id != "stone") return null;
+            if (g != null && g.Id != "stone" && g.Id != "clear") return null;   // rehber başka işteyken dikkati dağıtmaz
             var spot = App.Data.SunBook.Next(App.State.SunStones);
             return spot != null && _world.Fog.TryGetValue(spot.Region, out var f) && f != null ? spot : null;
         }
 
         private Vector3 BeaconWorld(SunSpotDef spot)
         {
-            var r = App.Map.Find(spot.Region);
-            return r == null ? Vector3.zero : _world.World(r.X, r.Z) + Vector3.up * 7.5f;   // sis perdelerinin üstü
+            var c = SpotPos(spot);
+            return c.HasValue ? _world.World(c.Value.x, c.Value.y) + Vector3.up * 7.5f : Vector3.zero;   // sis perdelerinin üstü
         }
 
         private void UpdateStoneBeacon(Camera cam, float scale, float dt)
@@ -213,8 +214,8 @@ namespace Pofi.Screens
             var on = spot != null;
             if (on)
             {
-                var r = App.Map.Find(spot.Region);
-                var near = Vector2.Distance(_world.Walker.Position, new Vector2(r.X, r.Z)) < 7f;   // yanındayken eylem tuşu "Taşı koy" yeter
+                var c0 = SpotPos(spot) ?? _world.Walker.Position;
+                var near = Vector2.Distance(_world.Walker.Position, c0) < 7f;   // yanındayken eylem tuşu "Taşı koy" yeter
                 var sp = cam.WorldToScreenPoint(BeaconWorld(spot));
                 var w = Root.rect.width; var h = Root.rect.height;
                 var inView = sp.z > 0f && sp.x > 0f && sp.x < Screen.width && sp.y > 0f && sp.y < Screen.height;
@@ -253,7 +254,8 @@ namespace Pofi.Screens
         private Vector2 StoneTipScreen()
         {
             if (_beacon != null && _beacon.gameObject.activeInHierarchy) return UiScreen(_beacon);
-            return RegionScreen(App.Data.SunBook.Next(App.State.SunStones)?.Region ?? "region_task_board");
+            var c = SpotPos(App.Data.SunBook.Next(App.State.SunStones));
+            return c.HasValue ? (Vector2)App.Stage.Camera.WorldToScreenPoint(_world.World(c.Value.x, c.Value.y) + Vector3.up * 3f) : RegionScreen("region_task_board");
         }
 
         private void BeaconTapped()
@@ -261,12 +263,13 @@ namespace Pofi.Screens
             Audio.Sfx.Play(Audio.SfxKind.Tap);
             var spot = BeaconSpot();
             if (spot == null || _world.Walker == null) return;
-            var r = App.Map.Find(spot.Region);
+            var c = SpotPos(spot);
+            if (!c.HasValue) return;
             var p = _world.Walker.Position;
-            _turnTo = Mathf.Atan2(r.X - p.x, r.Z - p.y) * Mathf.Rad2Deg;
+            _turnTo = Mathf.Atan2(c.Value.x - p.x, c.Value.y - p.y) * Mathf.Rad2Deg;
             _turnLeft = 2.5f;
             _pinGo = true;
-            _toast.Say(T("map.fog_here", r.Name));
+            _toast.Say(T("map.fog_here", SpotName(spot)));
         }
     }
 }

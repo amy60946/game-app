@@ -145,6 +145,8 @@ namespace Pofi.Core
                                 {
                                     if (g.Id == arg) break;
                                     st.SeenTips.Add(Logic.App.Guide.Prefix + g.Id); st.SeenTips.Add(Logic.App.Guide.DidPrefix + g.Counter);
+                                    if (g.Id == "gift") Logic.Island.SunStoneBook.GiveGift(st.SunStones);   // GB19: hediye taş
+                                    if (g.Id == "clear") app.Data.SunBook.PlaceOne(st.SunStones, Logic.Island.SunStoneBook.HutSpot);   // kulübe sisi kalktı
                                 }
                             app.Save();
                             Debug.Log("[PofiDebug] guide: " + (Logic.App.Guide.Current(st, app.Level)?.Id ?? "-") + " " + Logic.App.Guide.DoneCount(st) + "/" + Logic.App.Guide.Steps.Count

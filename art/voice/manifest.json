@@ -2600,6 +2600,39 @@
    "cer": 0.016
   },
   {
+   "key": "d025870943186928",
+   "text": "Merhaba evlat. Acele etme, deniz hep bekler.",
+   "role": "adali",
+   "src": "tr:res.hi_tosbi",
+   "who": "tosbi",
+   "tts": "Merhaba evlat. Acele etme, deniz hep bekler.",
+   "sec": 3.21,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "f51a4cf15e01efd6",
+   "text": "Merhaba Okti! Bugün cevizlerimiz çok tatlı!",
+   "role": "adali",
+   "src": "tr:res.hi_pitir",
+   "who": "pitir",
+   "tts": "Merhaba Okti! Bugün cevizlerimiz çok tatlı!",
+   "sec": 3.64,
+   "seed": 7,
+   "cer": 0.098
+  },
+  {
+   "key": "9a657605eb7a798d",
+   "text": "Çok tatlı... Merhaba.",
+   "role": "adali",
+   "src": "tr:res.hi_hisir",
+   "who": "hisir",
+   "tts": "Çok tatlı... Merhaba.",
+   "sec": 1.68,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
    "key": "8d4c5d1cb1a05d97",
    "text": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
    "role": "anlatici",

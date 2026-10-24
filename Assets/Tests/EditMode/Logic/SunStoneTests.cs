@@ -27,9 +27,11 @@ namespace Pofi.Tests.Logic
         {
             Assert.IsEmpty(TestData.Load().Validate());
             Assert.GreaterOrEqual(Book.Spots.Count, 3);
-            Assert.AreEqual(1, Book.Spots[0].Cost, "ilk onaylı görev ilk sisi kaldırır (Ö5)");
+            Assert.AreEqual(SunStoneBook.HutSpot, Book.Spots[0].Id, "ilk nokta kulübe yerindeki sis: Mavi'nin hediye taşıyla (GB19)");
+            Assert.AreEqual(1, Book.Spots[0].Cost);
+            Assert.AreEqual(1, Book.Spots[1].Cost, "ilk onaylı görev ilk gerçek sisi (koy) kaldırır (Ö5)");
             var map = new IslandMap(TestData.ReadText("regions.json"), Levels);
-            foreach (var s in Book.Spots) Assert.IsNotNull(map.Find(s.Region), s.Id);
+            foreach (var s in Book.Spots.Skip(1)) Assert.IsNotNull(map.Find(s.Region), s.Id);
         }
 
         [Test]
@@ -38,15 +40,17 @@ namespace Pofi.Tests.Logic
             var st = new SunStoneState();
             var first = Book.Spots[0];
             var second = Book.Spots[1];
+            var third = Book.Spots[2];   // birden çok taşlı nokta
             Assert.AreEqual(PlaceResult.NoStones, Book.PlaceOne(st, first.Id));
-            SunStoneBook.ApplyServerTotal(st, 3);
+            SunStoneBook.ApplyServerTotal(st, 4);
             Assert.AreEqual(PlaceResult.NotNext, Book.PlaceOne(st, second.Id), "sıradaki nokta önce");
             Assert.AreEqual(PlaceResult.Repaired, Book.PlaceOne(st, first.Id));
             Assert.AreEqual(PlaceResult.AlreadyRepaired, Book.PlaceOne(st, first.Id));
             Assert.AreEqual(second, Book.Next(st));
-            Assert.AreEqual(PlaceResult.Ok, Book.PlaceOne(st, second.Id));
+            Assert.AreEqual(PlaceResult.Repaired, Book.PlaceOne(st, second.Id));
+            Assert.AreEqual(PlaceResult.Ok, Book.PlaceOne(st, third.Id));
             Assert.AreEqual(1, SunStoneBook.Available(st));
-            Assert.AreEqual(3, st.Earned, "yerleştirme toplamı düşürmez");
+            Assert.AreEqual(4, st.Earned, "yerleştirme toplamı düşürmez");
         }
 
         [Test]
@@ -71,7 +75,7 @@ namespace Pofi.Tests.Logic
             var levels = Levels;
             var map = new IslandMap(TestData.ReadText("regions.json"), levels);
             var st = new SunStoneState();
-            var cove = Book.Spots[0];
+            var cove = Book.Find("spot_fog_cove");
             Assert.AreEqual("region_swim_cove", cove.Region);
             var v = map.View(15, new HashSet<string>(), Book, st).First(x => x.Region.Id == cove.Region);
             Assert.IsFalse(v.Unlocked, "Sv 15 de açmaz");
@@ -80,6 +84,8 @@ namespace Pofi.Tests.Logic
             Assert.IsTrue(Book.IsOpen("region_surf_beach", 3, levels, st), "taşsız içerik seviyeyle");
             Assert.AreNotEqual(cove.Region, map.NextToUnlock(1, new HashSet<string>(), Book, st).Region.Id, "seviye havucu taşlı bölgeyi göstermez");
 
+            SunStoneBook.GiveGift(st);
+            Book.PlaceOne(st, SunStoneBook.HutSpot);   // önce kulübe yerindeki sis (hediye taş)
             SunStoneBook.ApplyServerTotal(st, 1);
             Book.PlaceOne(st, cove.Id);
             v = map.View(1, new HashSet<string>(), Book, st).First(x => x.Region.Id == cove.Region);

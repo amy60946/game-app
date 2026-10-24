@@ -40,7 +40,7 @@ namespace Pofi.Logic.App
             if (!s.HasPet) return FirstDayStep.Pet;
             if (Onboarding.Pending(s, Onboarding.Walk)) return FirstDayStep.Walk;
             if (Onboarding.Pending(s, Onboarding.Feed)) return FirstDayStep.Feed;
-            if (SunStoneBook.PlacedTotal(s.SunStones) > 0) return FirstDayStep.Done;
+            if (SunStoneBook.RealPlaced(s.SunStones) > 0) return FirstDayStep.Done;   // hediye taş (GB19) ilk günü bitirmez
             if (SunStoneBook.Available(s.SunStones) > 0) return FirstDayStep.Stone;
             var tasks = s.Tasks.Tasks;
             if (tasks.Any(t => t.Status == ChildTaskStatus.ChildDone)) return FirstDayStep.Wait;

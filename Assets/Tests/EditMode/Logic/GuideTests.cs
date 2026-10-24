@@ -37,7 +37,7 @@ namespace Pofi.Tests.Logic
         public void Sira_kullanicinin_akisi_ve_sayaclar_essiz()
         {
             CollectionAssert.AreEqual(
-                new[] { "feed", "wash", "home", "tidy", "play", "shop", "wear", "kiskac", "coconut", "deliver", "mavi", "gather", "hut", "fire", "board", "stone" },
+                new[] { "feed", "wash", "home", "tidy", "play", "shop", "wear", "kiskac", "coconut", "deliver", "mavi", "gift", "clear", "gather", "hut", "board", "fire", "stone" },
                 Guide.Steps.Select(x => x.Id).ToArray());
             Assert.AreEqual(Guide.Steps.Count, Guide.Steps.Select(x => x.Counter).Distinct().Count());
             Assert.That(Guide.Steps.All(x => x.Xp > 0));
@@ -107,15 +107,18 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual("deliver", Do(s, "coconut_delivered").Single().Id);
             Assert.AreEqual("mavi", Guide.Current(s, 1).Id);
             Assert.AreEqual("mavi", Do(s, "mavi_arrived").Single().Id);
+            Assert.AreEqual("gift", Guide.Current(s, 1).Id, "Mavi'den sonra hediye taş (GB19)");
+            GiftAndClear(s);
             Assert.AreEqual("gather", Guide.Current(s, 1).Id);
             s.Gather.Materials[Gathering.Wood] = 6; s.Gather.Materials[Gathering.Branch] = 4; s.Gather.Materials[Gathering.Stone] = 3;
             Assert.AreEqual("gather", Do(s, "hut_ready").Single().Id);
             Assert.AreEqual("hut", Guide.Current(s, 1).Id);
             Gathering.Build(s.Gather);
             Assert.AreEqual("hut", Do(s, "hut_built").Single().Id);
-            Assert.AreEqual("fire", Guide.Current(s, 1).Id, "kulübeden sonra kamp ateşi (GB18)");
+            Assert.AreEqual("board", Guide.Current(s, 1).Id, "kulübenin yanındaki pano: yeni taşlar görevden (GB19)");
+            Assert.AreEqual("board", Do(s, "board_opened").Single().Id);
+            Assert.AreEqual("fire", Guide.Current(s, 1).Id, "sonra doğudaki kamp ateşi (GB18)");
             Assert.AreEqual("fire", Do(s, "fire_stoked").Single().Id);
-            Assert.AreEqual("board", Guide.Current(s, 1).Id);
         }
 
         [Test]
@@ -125,9 +128,10 @@ namespace Pofi.Tests.Logic
             s.Wallet.ServerCoins = 20;
             foreach (var c in new[] { "pet_fed", "pet_washed", "home_entered", "home_tidied", "pet_played" }) Do(s, c);
             BuyFirstWear(s);
-            foreach (var c in new[] { "kiskac_met", "coconuts_ready", "coconut_delivered", "mavi_arrived", "hut_ready", "hut_built", "fire_stoked", "board_opened" })
-                Do(s, c);
-            Assert.IsNull(Guide.Current(s, 1), "taş yok: gösterilecek adım yok");
+            foreach (var c in new[] { "kiskac_met", "coconuts_ready", "coconut_delivered", "mavi_arrived" }) Do(s, c);
+            GiftAndClear(s);
+            foreach (var c in new[] { "hut_ready", "hut_built", "board_opened", "fire_stoked" }) Do(s, c);
+            Assert.IsNull(Guide.Current(s, 1), "hediye taş kulübe sisine gitti, gerçek taş yok: gösterilecek adım yok");
             SunStoneBook.ApplyServerTotal(s.SunStones, 1);
             Assert.AreEqual("stone", Guide.Current(s, 1).Id);
             Assert.AreEqual("stone", Do(s, "stone_placed").Single().Id);
@@ -155,13 +159,68 @@ namespace Pofi.Tests.Logic
             var s = NewPlayer();
             s.Gather.HutBuilt = true;
             s.Story.Seen.Add("ch2_open");
+            Guide.Start(s, 1);   // kulübesi yapılmış eski oyuncu: kulübe sisi hiç görünmez (hediye taş kendiliğinden konur)
             s.Wallet.ServerCoins = 20;
             foreach (var c in new[] { "pet_fed", "pet_washed", "home_entered", "home_tidied", "pet_played" }) Do(s, c);
             BuyFirstWear(s);
             Do(s, "kiskac_met"); Do(s, "coconuts_ready");
             var r = Do(s, "coconut_delivered");
             Assert.AreEqual("deliver", r.Single().Id);
-            Assert.AreEqual("fire", Guide.Current(s, 1).Id, "Mavi'yi görmüş, kulübesi yapılmış: o adımlar geçildi");
+            Assert.AreEqual("board", Guide.Current(s, 1).Id, "Mavi'yi görmüş, kulübesi yapılmış: hediye, sis ve kulübe adımları geçildi");
+        }
+
+        /// <summary>Mavi'nin hediye taşı + kulübe yerindeki sisi kaldırma (rehberin "gift" ve "clear" adımları).</summary>
+        private static void GiftAndClear(GameState s)
+        {
+            Assert.IsTrue(SunStoneBook.GiveGift(s.SunStones));
+            Assert.AreEqual("gift", Do(s, "gift_stone").Single().Id);
+            Assert.AreEqual("clear", Guide.Current(s, 1).Id);
+            Assert.AreEqual(PlaceResult.Repaired, TestData.Load().SunBook.PlaceOne(s.SunStones, SunStoneBook.HutSpot));
+            Assert.AreEqual("clear", Do(s, "hut_fog_cleared").Single().Id);
+        }
+
+        [Test]
+        public void Hediye_tas_kulube_sisini_acar_tas_adimini_ve_ilk_gunu_bitirmez()
+        {
+            var s = NewPlayer();
+            Assert.IsTrue(SunStoneBook.GiveGift(s.SunStones));
+            Assert.IsFalse(SunStoneBook.GiveGift(s.SunStones), "çocuk başına bir kez");
+            Assert.AreEqual(1, SunStoneBook.Available(s.SunStones));
+            SunStoneBook.ApplyServerTotal(s.SunStones, 0);
+            Assert.AreEqual(1, SunStoneBook.Available(s.SunStones), "sunucu toplamı hediyeyi silmez (yalnız ada)");
+            var book = TestData.Load().SunBook;
+            Assert.AreEqual(SunStoneBook.HutSpot, book.Next(s.SunStones).Id, "ilk nokta kulübe yerindeki sis");
+            Assert.AreEqual(PlaceResult.Repaired, book.PlaceOne(s.SunStones, SunStoneBook.HutSpot));
+            Assert.AreEqual(0, SunStoneBook.RealPlaced(s.SunStones), "hediye taş gerçek taş sayılmaz");
+            Assert.IsFalse(Guide.Get("stone").AlreadyDone(s), "koydaki sis adımı hâlâ gerçek taş bekler");
+            Assert.AreNotEqual(FirstDayStep.Done, FirstDay.Current(s, Local, Local), "ilk gün akışı (Ev Görevleri) sürer");
+            Assert.AreEqual("spot_fog_cove", book.Next(s.SunStones).Id, "sonra koy");
+        }
+
+        [Test]
+        public void Rehberin_ortasindaki_oyuncu_hediye_adimina_doner_eski_oyuncu_sisi_gormez()
+        {
+            var book = TestData.Load().SunBook;
+            var mid = NewPlayer();
+            mid.Story.Seen.Add("ch2_open");
+            mid.Gather.Materials[Gathering.Wood] = 3;
+            foreach (var c in new[] { "pet_fed", "pet_washed", "home_entered", "home_tidied", "pet_played", "kiskac_met", "coconuts_ready", "coconut_delivered" }) Do(mid, c);
+            Guide.Start(mid, 2);
+            Assert.AreEqual("gift", Guide.Current(mid, 2).Id, "kulübesini yapmamış: hediye + sis adımları önce");
+            Assert.IsFalse(book.IsRepaired(mid.SunStones, SunStoneBook.HutSpot));
+
+            var old = NewPlayer();
+            old.Gather.HutBuilt = true;
+            SunStoneBook.ApplyServerTotal(old.SunStones, 2);
+            book.PlaceOne(old.SunStones, SunStoneBook.HutSpot);   // eski sürümde ilk nokta yoktu: bunun yerine koya konmuş olurdu
+            var fresh = NewPlayer();
+            fresh.Gather.HutBuilt = true;
+            SunStoneBook.ApplyServerTotal(fresh.SunStones, 2);
+            var before = SunStoneBook.Available(fresh.SunStones);
+            Guide.Start(fresh, 4);
+            Assert.IsTrue(book.IsRepaired(fresh.SunStones, SunStoneBook.HutSpot), "kulübesi var: sis kendiliğinden kalkmış");
+            Assert.AreEqual(before, SunStoneBook.Available(fresh.SunStones), "boştaki taş değişmez (hediye kendi yerine)");
+            Assert.IsTrue(fresh.Story.Seen.Contains(Guide.HutFogScene), "sahnesi izlenmiş sayılır");
         }
     }
 }

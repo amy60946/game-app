@@ -785,17 +785,29 @@ namespace Pofi.Screens
         /// </summary>
         private System.Collections.IEnumerator FogLift(RegionView v, System.Action done)
         {
-            if (v == null || _world.Walker == null) { done?.Invoke(); yield break; }
+            if (v == null) { done?.Invoke(); return Empty(); }
+            return FogLift(v.Region.Id, v.Region.X, v.Region.Z, v.Region.Size, done);
+        }
+
+        private static System.Collections.IEnumerator Empty() { yield break; }
+
+        /// <summary>
+        /// Sis kalkış sahnesi (GB19: bölge ya da kulübe yeri gibi bölge olmayan nokta). <paramref name="fogKey"/>: MapWorld.Fog anahtarı
+        /// (bölge kimliği ya da sun_spots "region"); aynı anahtarda bölge modeli varsa gri renk açılır.
+        /// </summary>
+        private System.Collections.IEnumerator FogLift(string fogKey, float cx, float cz, float size, System.Action done)
+        {
+            if (_world.Walker == null) { done?.Invoke(); yield break; }
             _cine = true;
             if (_hudGroup != null) _hudGroup.blocksRaycasts = false;   // görünmez düğmeler basılmasın
             _world.Walker.Steer(Vector2.zero); _world.Walker.Stop();
             var bars = new[] { Bar(true), Bar(false) };
-            var c = _world.World(v.Region.X, v.Region.Z);
+            var c = _world.World(cx, cz);
             var pet = _world.Walker.transform.position;
             var dir = c - pet; dir.y = 0f; dir = dir.sqrMagnitude > 0.01f ? dir.normalized : Vector3.forward;
             _cinePos = pet - dir * 7f + Vector3.up * 5.5f + Vector3.Cross(Vector3.up, dir) * 2.5f;
             _cineLook = c + Vector3.up * 1.6f;
-            _world.Walker.Face(v.Region.X, v.Region.Z);
+            _world.Walker.Face(cx, cz);
             for (var t = 0f; t < 1f; t += Time.deltaTime / 0.45f)
             {
                 if (_hudGroup != null) _hudGroup.alpha = 1f - t;
@@ -811,23 +823,23 @@ namespace Pofi.Screens
             glow.position = c + Vector3.up * 1.2f;
             var sp = App.Stage.Camera.WorldToScreenPoint(c + Vector3.up * 1.5f);
             StarSparkles.Around(Root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.2f, 0.26f), 14, 23);
-            _world.Fog.TryGetValue(v.Region.Id, out var fog);
+            _world.Fog.TryGetValue(fogKey, out var fog);
             var bank = fog != null ? fog.GetComponent<FogBank>() : null;   // GB18 yer sisi: yükselip söner
             var clouds = new List<(Transform T, Vector3 P, Vector3 S)>();
             if (fog != null && bank == null) foreach (Transform cl in fog) clouds.Add((cl, cl.localPosition, cl.localScale));
-            var region = _world.Regions.TryGetValue(v.Region.Id, out var rt) ? rt : null;
+            var region = _world.Regions.TryGetValue(fogKey, out var rt) ? rt : null;
             var mpb = new MaterialPropertyBlock();
             var rends = region != null ? region.GetComponentsInChildren<Renderer>(true) : new Renderer[0];
             for (var t = 0f; t < 1f; t += Time.deltaTime / 1.6f)
             {
                 var e = t * t * (3f - 2f * t);
-                glow.localScale = Vector3.one * Mathf.Lerp(0.5f, v.Region.Size * 1.6f, e);
+                glow.localScale = Vector3.one * Mathf.Lerp(0.5f, size * 1.6f, e);
                 if (bank != null) bank.SetLift(e);
                 foreach (var (cl, p0, s0) in clouds)
                 {
                     if (cl == null) continue;
                     var outw = p0 - fog.InverseTransformPoint(c); outw.y = 0f;
-                    cl.localPosition = p0 + outw.normalized * e * v.Region.Size * 0.8f + Vector3.up * e * 4f;
+                    cl.localPosition = p0 + outw.normalized * e * size * 0.8f + Vector3.up * e * 4f;
                     cl.localScale = s0 * Mathf.Lerp(1f, 0.05f, e);
                 }
                 // gri bölge renklenir

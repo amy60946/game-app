@@ -1,6 +1,7 @@
 {
-  "_doc": "Güneş Taşı onarım noktaları (Ö1; sözleşme ortak/sozlesme/ekonomi.md 5A). Sırayla onarılır; cost: gereken taş, opens: açılan içerik (levels.json kimlikleri; bu içerikte seviye yerine taş belirleyicidir), region: haritada yerleştirme yeri.",
+  "_doc": "Güneş Taşı onarım noktaları (Ö1; sözleşme ortak/sozlesme/ekonomi.md 5A). Sırayla onarılır; cost: gereken taş, opens: açılan içerik (levels.json kimlikleri; bu içerikte seviye yerine taş belirleyicidir), region: haritada yerleştirme yeri (\"site_hut\" = kulübe yeri, GB19: ilk nokta, hediye taşla açılır).",
   "spots": [
+    { "id": "spot_hut_fog",      "name": "Kulübe yerindeki sis", "cost": 1, "region": "site_hut",     "opens": ["hut_site"],                           "say": "Sis kalktı! Mavi'nin kulübesinin yeri açıldı." },
     { "id": "spot_fog_cove",     "name": "Koydaki sis",     "cost": 1,  "region": "region_swim_cove",  "opens": ["region_swim_cove", "minigame_swim"],   "say": "Sis kalktı! Yüzme Koyu açıldı." },
     { "id": "spot_pier_bridge",  "name": "İskele köprüsü",  "cost": 4,  "region": "region_pier",       "opens": ["region_pier", "minigame_fishing"],     "say": "Köprü onarıldı! İskeleye gidebiliriz." },
     { "id": "spot_cave_path",    "name": "Mağara yolu",     "cost": 6,  "region": "region_cave",       "opens": ["region_cave", "minigame_cave"],        "say": "Mağaranın yolu açıldı!" },

@@ -36,7 +36,8 @@ SNOW_PATH = [(-36.5, 40.5), (-46, 42), (-53, 47), (-54, 53), (-49, 59), (-43, 61
 BEACH_REGIONS = ('region_swim_cove', 'region_surf_beach', 'region_coconut_grove')
 # süs alanları (yalnız görsel; oyunda dekor)
 SPOTS = dict(temple=(28.0, 38.0), camp=(54.0, 2.0), spire=(9.0, 25.0), lake=(LAKE['x'], LAKE['z']), bluebell=(-40.0, -8.0),
-             forest=(44.0, 22.0), boulders=(-60.0, 14.0), canyon=(-3.0, 22.0))
+             forest=(44.0, 22.0), boulders=(-60.0, 14.0), canyon=(-3.0, 22.0),
+             hut=(14.0, -11.5))   # GB19: Mavi'nin kulübesinin yeri (oyunda Gathering.HutSite; sisli, hediye taşla açılır)
 
 # patikalar (çoklu çizgi); platoya çıkan yerlerde arazi rampa olur
 PATHS = [

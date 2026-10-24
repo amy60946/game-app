@@ -57,6 +57,9 @@ namespace Pofi.Screens
                     _kiskac.React();
                     RequestCard(Guide.CoconutRequest);
                     break;
+                case "gift":   // GB19: Mavi'nin hediye taşı (sahne bittikten sonra)
+                    UpdateGift();
+                    break;
                 case "mavi":
                     if (_maviArriveT < 0f && _maviLandT < 0f) { _maviArriveT = MaviDelay; Debug.Log("[PofiDebug] flow: Mavi " + MaviDelay + " sn sonra gelecek"); }
                     break;
