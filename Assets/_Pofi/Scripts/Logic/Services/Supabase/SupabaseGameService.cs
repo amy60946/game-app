@@ -332,9 +332,15 @@ namespace Pofi.Logic.Services.Supabase
             catch (Newtonsoft.Json.JsonException) { return new Mail.MailSend { Ok = true }; }
         }
 
+        private static readonly System.Text.RegularExpressions.Regex MediaPathRx =
+            new System.Text.RegularExpressions.Regex(@"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}(/[A-Za-z0-9_.\-]{1,120}){1,4}$");
+
+        /// <summary>Posta kutusu medya yolu (sunucudan gelir; ebeveyn yazar): "aile-kimliği/…/dosya.uzantı" biçiminde mi? (güvenlik denetimi 24 Ekim 2026)</summary>
+        public static bool SafeMediaPath(string p) => !string.IsNullOrEmpty(p) && p.Length <= 400 && !p.Contains("..") && MediaPathRx.IsMatch(p);
+
         public async Task<string> MediaUrlAsync(string mediaPath, CancellationToken ct = default)
         {
-            if (string.IsNullOrEmpty(mediaPath)) return null;
+            if (!SafeMediaPath(mediaPath)) return null;   // adrese eklenmeden önce: aile klasörü + düz dosya adı, ".." ve sorgu karakteri yok
             var h = new Dictionary<string, string> { ["apikey"] = _anonKey, ["Content-Type"] = "application/json" };
             var t = _token();
             if (!string.IsNullOrEmpty(t)) h["Authorization"] = "Bearer " + t;

@@ -13,17 +13,17 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# En az yetki (güvenlik denetimi 24 Ekim 2026): yazma yalnız gereken işte (test sonucu → checks, önizleme dalı → contents).
 permissions:
-  contents: write
-  checks: write
+  contents: read
 
 jobs:
   # Unity gerektirmeyen hızlı kontrol: oyun mantığı birim testleri (.NET)
   logic-tests:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9   # v4
         with:
           dotnet-version: "8.0.x"
       - run: dotnet test tests-dotnet --logger "console;verbosity=normal"
@@ -45,11 +45,14 @@ jobs:
 
   unity-tests:
     needs: [logic-tests, license]
+    permissions:
+      contents: read
+      checks: write
     if: needs.license.outputs.ok == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Diskte yer aç (Unity imajı ~15 GB)
-        uses: jlumbroso/free-disk-space@v1.3.1
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be   # v1.3.1
         with:
           tool-cache: false
           android: true
@@ -58,15 +61,15 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4
         with:
           lfs: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830   # v4
         with:
           path: Library
           key: Library-tests-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt') }}
           restore-keys: Library-tests-
-      - uses: game-ci/unity-test-runner@v4
+      - uses: game-ci/unity-test-runner@32e57712352b500e17974b245a6dce9e11a73213   # v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -79,10 +82,12 @@ jobs:
   # iPhone'da tarayıcıdan açılan önizleme. Çıktı `webgl-preview` dalına yazılır.
   build-webgl:
     needs: [unity-tests]
+    permissions:
+      contents: write   # webgl-preview dalına yazar
     runs-on: ubuntu-latest
     steps:
       - name: Diskte yer aç (Unity imajı ~15 GB)
-        uses: jlumbroso/free-disk-space@v1.3.1
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be   # v1.3.1
         with:
           tool-cache: false
           android: true
@@ -91,10 +96,10 @@ jobs:
           large-packages: true
           docker-images: true
           swap-storage: true
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4
         with:
           lfs: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830   # v4
         with:
           path: Library
           key: Library-WebGL-${{ hashFiles('Packages/manifest.json', 'ProjectSettings/ProjectVersion.txt') }}
@@ -105,7 +110,7 @@ jobs:
         env:
           SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
         run: bash tools/ci/server-config.sh
-      - uses: game-ci/unity-builder@v4
+      - uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00   # v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -120,7 +125,7 @@ jobs:
           sudo chown -R "$(id -u)" build
           echo "{\"commit\":\"${GITHUB_SHA}\",\"run\":\"${GITHUB_RUN_NUMBER}\",\"branch\":\"${GITHUB_REF_NAME}\"}" > build/WebGL/preview.json
           du -ah build/WebGL | sort -h | tail -20
-      - uses: peaceiris/actions-gh-pages@v4
+      - uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453   # v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: webgl-preview
@@ -133,11 +138,11 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.android
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4
         with:
           lfs: true
       - name: Diskte yer aç (Unity imajı ~15 GB)
-        uses: jlumbroso/free-disk-space@v1.3.1
+        uses: jlumbroso/free-disk-space@54081f138730dfa15788a46383842cd2f914a1be   # v1.3.1
         with:
           tool-cache: false
           android: false
@@ -150,7 +155,7 @@ jobs:
         env:
           SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
         run: bash tools/ci/server-config.sh
-      - uses: game-ci/unity-builder@v4
+      - uses: game-ci/unity-builder@4423ee75828dff56037d1d1cfdac6b68e3a6ba00   # v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -160,7 +165,7 @@ jobs:
           buildMethod: Pofi.EditorTools.BuildScript.Build
           buildName: PofiAdasi
           allowDirtyBuild: true   # server.json / build_number.txt derleme öncesi yazılıyor (gerçek sunucu anahtarı gelince "kirli dal" hatası)
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02   # v4
         with:
           name: pofi-adasi-android
           path: build/Android

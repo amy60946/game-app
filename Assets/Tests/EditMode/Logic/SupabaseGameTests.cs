@@ -173,5 +173,18 @@ namespace Pofi.Tests.Logic
             var old = await Svc(new FakeHttp { Handler = (fn, a) => R(200, "{\"balance\":7}") }).GetBalancesAsync();
             Assert.IsNull(old.SunStones, "sunucu taşı bilmiyorsa null (öneri uygulanmadan önce)");
         }
+
+        [Test]
+        public void Posta_medya_yolu_yalniz_aile_klasoru_ve_duz_dosya_adi()
+        {
+            Assert.IsTrue(SupabaseGameService.SafeMediaPath("3f2b8c1e-1a2b-4c3d-9e8f-0123456789ab/foto.jpg"));
+            Assert.IsTrue(SupabaseGameService.SafeMediaPath("3f2b8c1e-1a2b-4c3d-9e8f-0123456789ab/msg/5d1c_ses.m4a"));
+            Assert.IsFalse(SupabaseGameService.SafeMediaPath(null));
+            Assert.IsFalse(SupabaseGameService.SafeMediaPath("foto.jpg"), "aile klasörü yok");
+            Assert.IsFalse(SupabaseGameService.SafeMediaPath("3f2b8c1e-1a2b-4c3d-9e8f-0123456789ab/../x.jpg"), "üst klasöre çıkış");
+            Assert.IsFalse(SupabaseGameService.SafeMediaPath("3f2b8c1e-1a2b-4c3d-9e8f-0123456789ab/a.jpg?x=1"), "sorgu karakteri");
+            Assert.IsFalse(SupabaseGameService.SafeMediaPath("3f2b8c1e-1a2b-4c3d-9e8f-0123456789ab/a b.jpg"), "boşluk");
+            Assert.IsFalse(SupabaseGameService.SafeMediaPath("https://kotu.example/a.jpg"));
+        }
     }
 }
