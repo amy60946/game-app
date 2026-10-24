@@ -98,7 +98,7 @@ namespace Pofi.Screens
         private void Show()
         {
             var def = App.Data.Pet(_picker.Current);
-            App.Stage.ShowPet(def, GrowthStage.Genc);
+            App.Stage.ShowPet(def, GrowthStage.Yavru);   // herkes çocuk Okti ile başlar (Sv 5 ergen, Sv 10 yetişkin)
             // ad kurdelesi yazıya göre uzar: pet değişince yeniden kurulur
             if (_nameRibbon != null) Destroy(_nameRibbon.gameObject);
             _nameRibbon = (RectTransform)ModalTitle(_card, def.Name).transform.parent;

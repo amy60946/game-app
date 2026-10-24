@@ -14,7 +14,8 @@ namespace Pofi.UI
     {
         private string _text;
         private GameObject _slash;
-        private CanvasGroup _cg, _follow;
+        private CanvasGroup _cg;
+        private static readonly System.Collections.Generic.List<CanvasGroup> Parents = new System.Collections.Generic.List<CanvasGroup>();
         private RectTransform _rt;
         private float _t;
 
@@ -32,7 +33,6 @@ namespace Pofi.UI
             v._slash.SetActive(!Voice.Enabled);   // ilk karede (Update'ten önce) kapalı çizgisi yanlışlıkla görünmesin
             v._cg = b.gameObject.AddComponent<CanvasGroup>();
             v._cg.ignoreParentGroups = true;   // ipucu paneli dokunmayı kapatır; hoparlör yine dokunulur
-            v._follow = host.GetComponentInParent<CanvasGroup>();
             b.onClick.AddListener(v.Toggle);
             b.transform.SetAsLastSibling();
             v.SetText(null);
@@ -56,8 +56,15 @@ namespace Pofi.UI
 
         private void Update()
         {
-            // balon solarken/kapanırken düğme de (üst grubu yok saydığı için kendisi izler)
-            var a = _follow != null && _follow != _cg ? _follow.alpha : 1f;
+            // balon solarken/kapanırken düğme de (üst grubu yok saydığı için kendisi izler). Bütün üst gruplar çarpılır:
+            // hikâye sahnesi adanın arayüzünü gizlerken ipucu panelinin hoparlörü ortada kalıyordu (24 Ekim 2026)
+            var a = 1f;
+            var up = transform.parent;
+            if (up != null)
+            {
+                up.GetComponentsInParent(false, Parents);
+                foreach (var g in Parents) { a *= g.alpha; if (g.ignoreParentGroups) break; }
+            }
             _cg.alpha = a;
             _cg.blocksRaycasts = _cg.interactable = a > 0.5f;
             _slash.SetActive(!Voice.Enabled);

@@ -31,7 +31,7 @@ namespace Pofi.Screens
             App.Stage.AllowDrag = true;
             // Yatay: solda pet (kumda), sağda kod kartı
             PetCamera(0.3f, 0.13f, 0.8f);
-            App.Stage.ShowPet(App.Data.ActivePets[0], Logic.Progression.GrowthStage.Genc);
+            App.Stage.ShowPet(App.Data.ActivePets[0], Logic.Progression.GrowthStage.Yavru);   // herkes çocuk Okti ile başlar
 
             // oyun adı: oyun yazı tarzında (tanışma ekranı başlığıyla aynı), müzik düğmesinin altında kalır
             Candy.Caption(Root, T("auth.title"), 104, new Vector2(0.72f, 0.84f), new Vector2(1000f, 140f), Vector2.zero, Candy.Deep(Candy.Orange));

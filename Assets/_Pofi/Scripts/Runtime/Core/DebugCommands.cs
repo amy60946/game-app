@@ -109,6 +109,9 @@ namespace Pofi.Core
                             Screens.MapScreen.CamLookUp = c.Length > 3 ? float.Parse(c[3], ci) : 0f;
                         }
                         break;
+                    case "story":       // hikâye sahnesini kapat (çekimlerde araya girmesin): story off
+                        UI.StoryPlayer.Stop(); UI.FilmPlayer.Stop();
+                        break;
                     case "news":        // Mavi'nin yeni görev haberi denemesi
                         Object.FindAnyObjectByType<Screens.MapScreen>()?.MaviNews(app.Loc.Get("mavi.news_many", 2));
                         break;

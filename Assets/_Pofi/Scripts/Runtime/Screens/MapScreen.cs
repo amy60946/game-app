@@ -798,13 +798,15 @@ namespace Pofi.Screens
         /// <summary>Adadaysa büyüme sahnesini oynatır; değilse false (çağıran sayfayı yeniler).</summary>
         public bool PlayGrowUp(Logic.Progression.GrowthStage stage, System.Action done)
         {
-            if (!_built || _world == null || _world.Walker == null || !gameObject.activeInHierarchy || _overview || _cine) return false;
+            if (!_built || _world == null || _world.Walker == null || !gameObject.activeInHierarchy) return false;
             StartCoroutine(GrowUp(stage, done));
             return true;
         }
 
         private System.Collections.IEnumerator GrowUp(Logic.Progression.GrowthStage stage, System.Action done)
         {
+            while (StoryPlayer.Playing || _cine || _overview) yield return null;   // hikâye konuşması ya da sis sahnesi bitsin
+            if (_world == null || _world.Walker == null) { done?.Invoke(); yield break; }
             _cine = true;
             if (_hudGroup != null) _hudGroup.blocksRaycasts = false;
             HideCare();

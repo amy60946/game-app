@@ -30,13 +30,15 @@ namespace Pofi.UI
             var title = GoldKit.Ribbon(root, loc.Get("grow.title", app.State.PetName), GoldKit.Tone.Red, 120f, 62, new Vector2(0.5f, 1f), new Vector2(0f, -150f));
             title.transform.parent.gameObject.AddComponent<PopIn>();
             // bilgi kartı: krem, altın kenar; evrenin adı + yeni hareketler + kıyafet notu
-            var card = Ui.Rect(root, "Info", new Vector2(0.5f, 0f), new Vector2(980f, 190f), new Vector2(0f, 310f));
+            var card = Ui.Rect(root, "Info", new Vector2(0.5f, 0f), new Vector2(1060f, 250f), new Vector2(0f, 345f));
             var inner = GoldKit.RimCapsule(card, Theme.Hex("#FFF7E0"), Theme.Hex("#F4DEA8"), 7f);
             var key = stage == GrowthStage.Yetiskin ? "grow.yetiskin" : "grow.genc";
-            var t1 = Ui.Label(inner, loc.Get(key, app.State.PetName), 40, Theme.Hex("#6B3F0E"), new Vector2(0.5f, 0.66f), new Vector2(900f, 64f), FontStyle.Bold);
+            var t1 = Ui.Label(inner, loc.Get(key, app.State.PetName), 44, Theme.Hex("#6B3F0E"), new Vector2(0.5f, 0.74f), new Vector2(960f, 64f), FontStyle.Bold);
             t1.raycastTarget = false;
-            var t2 = Ui.Label(inner, loc.Get(key + "_moves") + "  ·  " + loc.Get("grow.clothes"), 30, Theme.Hex("#8A5A22"), new Vector2(0.5f, 0.3f), new Vector2(900f, 50f), FontStyle.Bold);
+            var t2 = Ui.Label(inner, loc.Get(key + "_moves"), 32, Theme.Hex("#8A5A22"), new Vector2(0.5f, 0.44f), new Vector2(960f, 50f), FontStyle.Bold);
             t2.raycastTarget = false;
+            var t3 = Ui.Label(inner, loc.Get("grow.clothes"), 28, Theme.Hex("#8A5A22"), new Vector2(0.5f, 0.2f), new Vector2(960f, 46f), FontStyle.Normal);
+            t3.raycastTarget = false;
             card.gameObject.AddComponent<PopIn>();
             c._go = (RectTransform)Candy.Pill(root, Candy.Green, loc.Get("levelup.ok"), new Vector2(0.5f, 0f), new Vector2(420f, 130f), new Vector2(0f, 120f), c.Close, null, 54).transform;
             c._go.gameObject.SetActive(false);
