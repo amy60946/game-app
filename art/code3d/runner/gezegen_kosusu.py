@@ -385,7 +385,8 @@ def kick_decal():
         if kind == 'planet': UK.d_planet(cv, y, 0.085, 0.05, body=UK.CORAL, ring=UK.SUN)
         elif kind == 'star':
             for d, c in ((-0.16, UK.SUN), (0.0, UK.MINT), (0.16, UK.CORAL)): UK.d_star(cv, y + d, 0.085, 0.045, col=c)
-        else: UK.d_chevrons(cv, y - 0.25, 0.035, 0.12, 0.11, 2, col=UK.SUN) if False else [UK.d_star(cv, y + d, 0.085, 0.04, col=UK.CYAN) for d in (-0.1, 0.1)]
+        else:
+            for d in (-0.1, 0.1): UK.d_star(cv, y + d, 0.085, 0.04, col=UK.CYAN)
     for k in range(80):
         y = -5.0 + k * 0.125 + 0.0625
         for v in (0.02, 0.2): UK.d_bolt(cv, y, v, 0.007)
@@ -415,8 +416,8 @@ def build_wall():
             hi.append(o)
             plate = EK.rounded_box('bplate', (0.012, 0.16, 0.2), 0.004, 0.01, [GUN], loc=(3.706, y, -0.12), seed=k)
             hi.append(plate)
-            for (dy, dz) in ((-0.05, -0.05), (0.05, -0.05), (-0.05, -0.18), (0.05, -0.18)):
-                hi.append(UK.bolt((3.712, y + dy, -0.12 + dz + 0.115 - 0.06), (1, 0, 0), 0.011))
+            for (dy, dz) in ((-0.05, 0.06), (0.05, 0.06), (-0.05, -0.06), (0.05, -0.06)):
+                hi.append(UK.bolt((3.712, y + dy, -0.12 + dz), (1, 0, 0), 0.011))
             if keep:
                 c = EK.mesh_obj('bracket_lo', verts, [(0, 2, 1), (3, 4, 5), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)], [], smooth=False)
                 bm = bmesh.new(); bm.from_mesh(c.data); bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(c.data); bm.free()
@@ -427,7 +428,7 @@ def build_wall():
     ys = np.linspace(-6.5, 6.5, 131); zs = np.linspace(0.08, 0.3, 6)
     YY, ZZ = np.meshgrid(ys, zs)
     P = np.stack([np.full_like(YY, WX - 0.016), YY, ZZ], -1); UV = np.stack([(YY + SEG / 2) / SEG, (ZZ - 0.08) / 0.22], -1)
-    hi.append(EK.grid_obj('kickface', P, UV, [KF], flip=False))
+    hi.append(EK.grid_obj('kickface', P, UV, [KF], flip=True))
     kp = rbox_loop(0.03, 0.22, WX, 0.19, 0.008, 2)
     hi.append(prism('kick', kp, -6.5, 6.5, [KP], rows=131)); lo.append(EK.tag_uvw(prism('kick_lo', kp, -5, 5, [], rows=2), 1.0))
     # direkler (y ≡ 1,25 mod 2,5): mercan kare boru, krem top başlık, cıvatalı taban levhası, sarı yansıtıcı
