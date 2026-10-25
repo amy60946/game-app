@@ -172,7 +172,8 @@ def apply_dec(G, col, dec, period=None):
         t = G.img(img, ext=dec.ext)
         return G.mix(t.outputs['Alpha'], neutral, t.outputs['Color']) if clip else t.outputs['Color']
     if dec.sand is not None:
-        col = G.mix(sample(dec.sand, '#000000'), col, sand_col(G, period))
+        sf = getattr(dec, 'sand_fn', None) or sand_col                 # uzay kiti: Ay tozu rengi
+        col = G.mix(sample(dec.sand, '#000000'), col, sf(G, period))
     if dec.shade is not None:
         col = G.mul(col, sample(dec.shade, '#ffffff'))
     if dec.over is not None:

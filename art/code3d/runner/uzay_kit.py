@@ -258,16 +258,45 @@ def d_chevrons(cv, x0, y0, w, h, n=3, col=SUN, layer='carve', val=90):
                 col=EK.C(col), layer=layer, val=val)
 
 
+def clip_rect(poly, x0, y0, x1, y1):
+    """Dışbükey çokgeni eksen hizalı dikdörtgene kırp (Sutherland–Hodgman)."""
+    def clip(pts, inside, inter):
+        out = []
+        for i in range(len(pts)):
+            a, b = pts[i - 1], pts[i]
+            if inside(b):
+                if not inside(a): out.append(inter(a, b))
+                out.append(b)
+            elif inside(a): out.append(inter(a, b))
+        return out
+    def ix(xc):
+        return lambda a, b: (xc, a[1] + (b[1] - a[1]) * (xc - a[0]) / ((b[0] - a[0]) or 1e-9))
+    def iy(yc):
+        return lambda a, b: (a[0] + (b[0] - a[0]) * (yc - a[1]) / ((b[1] - a[1]) or 1e-9), yc)
+    p = poly
+    for inside, inter in ((lambda q: q[0] >= x0, ix(x0)), (lambda q: q[0] <= x1, ix(x1)), (lambda q: q[1] >= y0, iy(y0)), (lambda q: q[1] <= y1, iy(y1))):
+        p = clip(p, inside, inter)
+        if not p: break
+    return p
+
+
 def d_hazard(cv, x0, y0, w, h, c1=SUN, c2=NAVY, step=0.12, carve=False):
     """Çapraz uyarı şeritleri (dikdörtgen içinde)."""
     cv.rect(x0, y0, x0 + w, y0 + h, carve=carve, col=EK.C(c2))
     k = -h
     while k < w:
-        pts = [(x0 + max(0, k), y0 + max(0, -k) if k < 0 else y0), (x0 + min(w, k + step * 0.5), y0)]
-        q = [(x0 + k, y0), (x0 + k + step * 0.5, y0), (x0 + k + step * 0.5 + h, y0 + h), (x0 + k + h, y0 + h)]
-        q = [(min(max(u, x0), x0 + w), v) for (u, v) in q]
-        cv.poly(q, carve=False, col=EK.C(c1))
+        q = clip_rect([(x0 + k, y0), (x0 + k + step * 0.5, y0), (x0 + k + step * 0.5 + h, y0 + h), (x0 + k + h, y0 + h)], x0, y0, x0 + w, y0 + h)
+        if len(q) >= 3: cv.poly(q, carve=False, col=EK.C(c1))
         k += step
+
+
+def dust_col(G, period=None, seed=0.0):
+    """Ay tozu (yüzeye yığılan): açık lavanta-gri, iri ton dalgası, ince tane benekleri."""
+    cw = G.coords(period, off=(seed, 0, 0))
+    col = G.mix(G.rng(G.noise4(cw, 0.8, 3), 0.3, 0.72), _sh(DUST, 0.88), _sh(DUST, 1.04))
+    col = G.mix(G.rng(G.vor4(cw, 70.0), 0.0, 0.07, 0.5, 0), col, '#f1eef6')
+    col = G.mix(G.rng(G.vor4(G.coords(period, off=(seed + 3, 0, 0)), 50.0), 0.0, 0.05, 0.35, 0), col, '#6d6782')
+    return col
 
 
 def d_bolt(cv, cx, cy, r=0.018):

@@ -14,8 +14,9 @@ using UnityEngine.UI;
 namespace Pofi.Screens
 {
     /// <summary>
-    /// Gezegen Koşusu (Oyun Kulübesi, 25 Ekim 2026; kullanıcı: "piramit değil gezegen konseptiyle başla"): Okti Ay'daki yolda kaçan
-    /// kuyrukluyıldızın peşinden koşar, kristal toplar, gezegen kartı bulur, istasyon kapısına ulaşır. Kurallar ve parkur
+    /// Gezegen Koşusu (Oyun Kulübesi, 25 Ekim 2026; kullanıcı: "piramit değil gezegen konseptiyle başla", "uzay boşluğundaki path'te
+    /// koşuyormuş gibi"): Okti uzay boşluğunda süzülen yolda kaçan kuyrukluyıldızın peşinden koşar, kristal toplar, gezegen kartı bulur,
+    /// istasyon kapısına ulaşır. Altında ve çevresinde yıldızlar, bulutsu, süzülen asteroitler, uydular, gezegenler. Kurallar ve parkur
     /// <c>Pofi.Logic.Runner</c>'da (deterministik, testli); burada 3B yol, kamera, dokunma ve arayüz.
     /// Dünya kendi kökünde (<see cref="Origin"/>), Stage kamerası kullanılır; yol 10 m'lik parçalar hâlinde önde kurulur, arkada
     /// havuza döner. Modeller art/code3d/runner (uzay Env/rs_*, Mısır rn_*; tema <see cref="RunnerTheme.Current"/>); yoksa basit kutularla.
@@ -450,8 +451,8 @@ namespace Pofi.Screens
         // ------------------------------------------------------------ dünya
 
         /// <summary>
-        /// Dünya kiti (RunnerTheme.Current): Env/ model adları + simgeler. Uzay (kullanıcı kararı 25 Ekim 2026, önce bu): Ay'da yürüyüş
-        /// yolu, kaçan kuyrukluyıldız, kristal, gezegen kartı, istasyon kapısı (art/code3d/runner, rs_*). Mısır: rn_* (sonraki dünya).
+        /// Dünya kiti (RunnerTheme.Current): Env/ model adları + simgeler. Uzay (kullanıcı kararı 25 Ekim 2026, önce bu): boşlukta süzülen
+        /// yürüyüş yolu, kaçan kuyrukluyıldız, kristal, gezegen kartı, istasyon kapısı (art/code3d/runner, rs_*). Mısır: rn_* (sonraki dünya).
         /// Model yoksa aynı ölçüde basit kutularla çizilir.
         /// </summary>
         private sealed class Kit
@@ -482,15 +483,18 @@ namespace Pofi.Screens
         {
             _world = new GameObject("RunnerWorld").transform;
             _world.position = Origin;
-            // zemin: oyuncuyla ilerleyen geniş düzlem (yolun altında); uzayda leylak-gri Ay tozu, Mısır'da kum
-            _ground = GameObject.CreatePrimitive(PrimitiveType.Plane).transform;
-            _ground.name = "Ground";
-            _ground.SetParent(_world, false);
-            _ground.localScale = new Vector3(70f, 1f, 70f);
-            Destroy(_ground.GetComponent<Collider>());
-            var gr = _ground.GetComponent<Renderer>();
-            gr.sharedMaterial = Mat(Theme.Hex(_kit.Space ? "#B9B2C8" : "#E9C887"), 0.08f);
-            gr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            // zemin: uzayda YOK (yol boşlukta süzülür, altı yıldızlı boşluk); Mısır'da oyuncuyla ilerleyen kum düzlemi
+            if (!_kit.Space)
+            {
+                _ground = GameObject.CreatePrimitive(PrimitiveType.Plane).transform;
+                _ground.name = "Ground";
+                _ground.SetParent(_world, false);
+                _ground.localScale = new Vector3(70f, 1f, 70f);
+                Destroy(_ground.GetComponent<Collider>());
+                var gr = _ground.GetComponent<Renderer>();
+                gr.sharedMaterial = Mat(Theme.Hex("#E9C887"), 0.08f);
+                gr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
             _far = new GameObject("Far").transform;     // uzak tepeler: çok yavaş yaklaşır
             _far.SetParent(_world, false);
             _sky = new GameObject("Sky").transform;     // gezegenler, yıldızlar
@@ -509,31 +513,57 @@ namespace Pofi.Screens
             foreach (var r in t.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         }
 
-        /// <summary>Uzay göğü: lacivert → leylak geçiş, bulut yok; ışık serin; yıldızlar; halkalı gezegen ve Dünya; uzakta Ay tepeleri.</summary>
+        /// <summary>
+        /// Uzay boşluğu: lacivert → mor → pembe-mor geçiş (ufkun altı da derin lacivert: yolun altı boşluk), bulut yok, ışık serin;
+        /// her yönde yıldızlar (altta da), bulutsu lekeleri, halkalı gezegen, Dünya, küçük ay; uzakta dev asteroitler (çok yavaş yaklaşır).
+        /// </summary>
         private void BuildSpaceSky()
         {
             _ambSky = RenderSettings.ambientSkyColor; _ambEq = RenderSettings.ambientEquatorColor; _ambGround = RenderSettings.ambientGroundColor;
-            App.Stage.SetSkyTones(Theme.Hex("#0E1442"), Theme.Hex("#2C2F7C"), Theme.Hex("#8C72CF"), Theme.Hex("#3B3474"), 0f, 0f);
+            App.Stage.SetSkyTones(Theme.Hex("#0B1038"), Theme.Hex("#25296E"), Theme.Hex("#6C4FB8"), Theme.Hex("#0D1240"), 0f, 0f);
             RenderSettings.ambientSkyColor = Theme.Hex("#9AA2E6");
-            RenderSettings.ambientEquatorColor = Theme.Hex("#C2B4E2");
-            RenderSettings.ambientGroundColor = Theme.Hex("#7A7298");
-            // yıldızlar: önde, ufkun üstünde kubbe (kameraya dönük ışık lekeleri)
+            RenderSettings.ambientEquatorColor = Theme.Hex("#B9A8E0");
+            RenderSettings.ambientGroundColor = Theme.Hex("#5E5A9A");
             var rng = new System.Random(7);
-            for (var i = 0; i < 110; i++)
+            // bulutsu: uzakta büyük, soluk renk lekeleri (mor, camgöbeği, pembe)
+            string[] neb = { "#8E5BFF", "#3FC8E8", "#FF7AC8", "#5B7BFF", "#B06CFF" };
+            for (var i = 0; i < 7; i++)
             {
-                var az = ((float)rng.NextDouble() * 2f - 1f) * 85f * Mathf.Deg2Rad;
-                var el = Mathf.Lerp(7f, 62f, Mathf.Pow((float)rng.NextDouble(), 0.8f)) * Mathf.Deg2Rad;
+                var az = ((float)rng.NextDouble() * 2f - 1f) * 70f * Mathf.Deg2Rad;
+                var el = Mathf.Lerp(-35f, 35f, (float)rng.NextDouble()) * Mathf.Deg2Rad;
+                var dir = new Vector3(Mathf.Sin(az) * Mathf.Cos(el), Mathf.Sin(el), Mathf.Cos(az) * Mathf.Cos(el));
+                var c = Theme.Hex(neb[i % neb.Length]);
+                var n = GainFx.Glow(_sky, c, 0.22f, false);
+                n.localPosition = dir * 560f;
+                n.localScale = Vector3.one * Mathf.Lerp(180f, 320f, (float)rng.NextDouble());
+            }
+            // yıldızlar: önde ve iki yanda, ufkun altında da (yol boşlukta)
+            for (var i = 0; i < 170; i++)
+            {
+                var az = ((float)rng.NextDouble() * 2f - 1f) * 95f * Mathf.Deg2Rad;
+                var el = Mathf.Lerp(-55f, 65f, (float)rng.NextDouble()) * Mathf.Deg2Rad;
                 var dir = new Vector3(Mathf.Sin(az) * Mathf.Cos(el), Mathf.Sin(el), Mathf.Cos(az) * Mathf.Cos(el));
                 var warm = rng.NextDouble() < 0.25;
                 var star = GainFx.Glow(_sky, warm ? new Color(1f, 0.92f, 0.7f) : new Color(0.85f, 0.92f, 1f), 0.9f, false);
-                star.localPosition = dir * 420f + Vector3.up * 2f;
-                star.localScale = Vector3.one * Mathf.Lerp(2.5f, 7.5f, (float)rng.NextDouble() * (float)rng.NextDouble());
+                star.localPosition = dir * 430f;
+                star.localScale = Vector3.one * Mathf.Lerp(2.5f, 8f, (float)rng.NextDouble() * (float)rng.NextDouble());
             }
-            FarProp(_sky, "rs_planet", new Vector3(-170f, 120f, 520f), 25f, () => Planet(32f, "#F2B36B", "#E88A5A", true));
-            FarProp(_sky, "rs_earth", new Vector3(150f, 85f, 470f), -20f, () => Planet(18f, "#3E8EE0", "#5BC27A", false));
-            FarProp(_far, "rs_hills", new Vector3(-75f, -0.4f, 170f), 10f, () => Hill(40f, 7f));
-            FarProp(_far, "rs_hills", new Vector3(85f, -0.4f, 210f), 160f, () => Hill(46f, 9f));
-            FarProp(_far, "rs_hills", new Vector3(-10f, -0.6f, 300f), 80f, () => Hill(60f, 12f));
+            FarProp(_sky, "rs_planet", new Vector3(-160f, 70f, 480f), 25f, () => Planet(32f, "#F2B36B", "#E88A5A", true));
+            FarProp(_sky, "rs_earth", new Vector3(170f, 25f, 440f), -20f, () => Planet(18f, "#3E8EE0", "#5BC27A", false));
+            FarProp(_sky, "rs_moon", new Vector3(40f, 120f, 520f), 0f, () => Planet(9f, "#C9C3D9", "#A39DB8", false));
+            FarProp(_sky, "rs_planet", new Vector3(120f, -150f, 420f), -40f, () => Planet(22f, "#7AD3C2", "#4FA9B8", true));
+            // uzakta dev asteroitler: yavaş yaklaşır (derinlik)
+            for (var i = 0; i < 7; i++)
+            {
+                var side = i % 2 == 0 ? -1f : 1f;
+                var pos = new Vector3(side * Mathf.Lerp(45f, 130f, (float)rng.NextDouble()), Mathf.Lerp(-45f, 35f, (float)rng.NextDouble()), Mathf.Lerp(120f, 380f, (float)rng.NextDouble()));
+                var t = RealAssets.EnvScaled("rs_asteroid", _far, Mathf.Lerp(4f, 11f, (float)rng.NextDouble())) ?? Asteroid(Mathf.Lerp(12f, 34f, (float)rng.NextDouble()));
+                t.SetParent(_far, false);
+                t.localPosition = pos;
+                t.localRotation = Quaternion.Euler((float)rng.NextDouble() * 360f, (float)rng.NextDouble() * 360f, (float)rng.NextDouble() * 360f);
+                t.gameObject.AddComponent<SpinAxis>().Speed = Mathf.Lerp(-4f, 4f, (float)rng.NextDouble());
+                foreach (var r in t.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
         }
 
         private void BuildDesertFar()
@@ -645,13 +675,7 @@ namespace Pofi.Screens
                     var r = _decorRng.NextDouble();
                     var x = side * (8f + (float)_decorRng.NextDouble() * 7f);
                     var face = side > 0 ? -90f : 90f;   // yola dönük
-                    if (k.Space)
-                    {
-                        if (r < 0.22) Live("rs_dome", () => Dome(), new Vector3(side * 12.5f, 0f, dz), face, dz + 6f);
-                        else if (r < 0.36) Live("rs_rocket", () => Rocket(), new Vector3(side * 13f, 0f, dz), (float)_decorRng.NextDouble() * 360f, dz + 4f);
-                        else if (r < 0.56) Live("rs_dish", () => Dish(), new Vector3(side * 8.5f, 0f, dz), face + 30f * side, dz + 3f);
-                        else if (r < 0.8) Live("rs_crater", () => Crater(), new Vector3(x, 0f, dz), (float)_decorRng.NextDouble() * 360f, dz + 10f);
-                    }
+                    if (k.Space) SpaceDecor(side, dz, r);
                     else
                     {
                         if (r < 0.45) Live("rn_palm", () => Palm(), new Vector3(x, 0f, dz), (float)_decorRng.NextDouble() * 360f, dz + 4f);
@@ -701,6 +725,31 @@ namespace Pofi.Screens
                 _live.RemoveAt(j);
             }
             foreach (var kv in _pickObjs.Where(kv => kv.Value == null || !kv.Value.gameObject.activeSelf).ToList()) _pickObjs.Remove(kv.Key);
+        }
+
+        /// <summary>
+        /// Yol kenarında süzülen süsler: asteroit (çeşitli boy, yavaş takla), uydu, işaret şamandırası (yolun hemen yanında, ritim verir).
+        /// Yolun içine ve kameranın görüş koridoruna girmez (|x| ≥ 6,5).
+        /// </summary>
+        private void SpaceDecor(float side, float dz, double r)
+        {
+            var rnd = _decorRng;
+            Transform t = null;
+            if (r < 0.42)
+            {
+                var x = side * (9f + (float)rnd.NextDouble() * 24f);
+                var y = Mathf.Lerp(-16f, 12f, (float)rnd.NextDouble());
+                t = Live("rs_asteroid", () => Asteroid(3.5f), new Vector3(x, y, dz), 0f, dz + 12f);
+                t.localScale = Vector3.one * Mathf.Lerp(0.5f, 2.4f, (float)rnd.NextDouble());
+            }
+            else if (r < 0.56)
+                t = Live("rs_satellite", () => Satellite(), new Vector3(side * (10f + (float)rnd.NextDouble() * 8f), 2f + (float)rnd.NextDouble() * 7f, dz), 0f, dz + 4f);
+            else if (r < 0.78)
+                t = Live("rs_buoy", () => Buoy(), new Vector3(side * 6.8f, 0.8f + (float)rnd.NextDouble() * 1.2f, dz), 0f, dz + 3f);
+            if (t == null) return;
+            if (t.name != "rs_buoy") t.localRotation = Quaternion.Euler((float)rnd.NextDouble() * 360f, (float)rnd.NextDouble() * 360f, (float)rnd.NextDouble() * 360f);
+            var spin = t.GetComponent<SpinAxis>() ?? t.gameObject.AddComponent<SpinAxis>();
+            spin.Speed = t.name == "rs_buoy" ? 25f : Mathf.Lerp(-18f, 18f, (float)rnd.NextDouble());
         }
 
         private Transform Live(string key, Func<Transform> fallback, Vector3 pos, float yaw, float until)
@@ -794,9 +843,19 @@ namespace Pofi.Screens
         private Transform Floor()
         {
             var t = Root3("floor");
-            Box(t, Main, new Vector3(0f, -0.15f, 0f), new Vector3(7.4f, 0.3f, Tile));
+            Box(t, Main, new Vector3(0f, _kit.Space ? -0.3f : -0.15f, 0f), new Vector3(7.4f, _kit.Space ? 0.6f : 0.3f, Tile));
             for (var l = 0; l < 2; l++) Box(t, Accent, new Vector3((l - 0.5f) * LaneW, 0.005f, 0f), new Vector3(0.1f, 0.01f, Tile * 0.92f));
-            if (_kit.Space) for (var e = -1; e <= 1; e += 2) Box(t, Dark, new Vector3(e * 3.55f, 0.04f, 0f), new Vector3(0.3f, 0.08f, Tile));
+            if (_kit.Space)
+            {
+                // boşlukta süzülen köprü: kenar pervazı + kenar lambaları + altta kiriş ve itici
+                for (var e = -1; e <= 1; e += 2)
+                {
+                    Box(t, Dark, new Vector3(e * 3.55f, 0.04f, 0f), new Vector3(0.3f, 0.08f, Tile));
+                    for (var q = 0; q < 3; q++) Box(t, Gold, new Vector3(e * 3.62f, -0.25f, (q - 1) * 3.3f), new Vector3(0.18f, 0.18f, 0.18f), PrimitiveType.Sphere);
+                }
+                Box(t, Dark, new Vector3(0f, -0.95f, 0f), new Vector3(1.2f, 0.7f, Tile));
+                Box(t, Coral, new Vector3(0f, -1.45f, 0f), new Vector3(0.8f, 0.5f, 0.8f), PrimitiveType.Cylinder);
+            }
             return t;
         }
 
@@ -805,10 +864,12 @@ namespace Pofi.Screens
             var t = Root3("wall");
             if (_kit.Space)
             {
-                Box(t, Dark, new Vector3(4.3f, 0.45f, 0f), new Vector3(0.25f, 0.9f, Tile));
-                Box(t, Main, new Vector3(4.3f, 1.05f, 0f), new Vector3(0.18f, 0.12f, Tile));
-                Box(t, Dark, new Vector3(4.3f, 0.7f, 0f), new Vector3(0.22f, 1.4f, 0.22f), PrimitiveType.Cylinder);
-                Box(t, Gold, new Vector3(4.3f, 1.45f, 0f), new Vector3(0.3f, 0.3f, 0.3f), PrimitiveType.Sphere);
+                // güverteye bağlı alçak korkuluk (aşağı inen bir şey yok)
+                for (var q = -2; q <= 2; q++) Box(t, Dark, new Vector3(3.9f, 0.5f, q * 2.2f), new Vector3(0.12f, 1f, 0.12f));
+                Box(t, Main, new Vector3(3.9f, 1.05f, 0f), new Vector3(0.14f, 0.1f, Tile));
+                Box(t, Accent, new Vector3(3.9f, 0.6f, 0f), new Vector3(0.08f, 0.06f, Tile));
+                Box(t, Dark, new Vector3(3.9f, 0.75f, 0f), new Vector3(0.2f, 1.5f, 0.2f), PrimitiveType.Cylinder);
+                Box(t, Gold, new Vector3(3.9f, 1.55f, 0f), new Vector3(0.32f, 0.32f, 0.32f), PrimitiveType.Sphere);
                 return t;
             }
             Box(t, Dark, new Vector3(4.45f, 1.1f, 0f), new Vector3(1.5f, 2.2f, Tile));
@@ -857,7 +918,7 @@ namespace Pofi.Screens
             var t = Root3("gate");
             if (_kit.Space)
             {
-                for (var s = -1; s <= 1; s += 2) Box(t, Dark, new Vector3(s * 4.6f, 1.2f, 0f), new Vector3(0.8f, 2.4f, 1.2f));
+                for (var s = -1; s <= 1; s += 2) Box(t, Dark, new Vector3(s * 4.4f, 0.4f, 0f), new Vector3(1.2f, 0.8f, 1.4f));
                 for (var i = 0; i < 20; i++)   // halka: 20 parça
                 {
                     var a = i / 20f * Mathf.PI * 2f;
@@ -921,46 +982,33 @@ namespace Pofi.Screens
             return t;
         }
 
-        // uzay süsleri
-        private Transform Dome()
+        // uzay süsleri (boşlukta süzülür; orijin ortada)
+        private Transform Asteroid(float size)
         {
-            var t = Root3("dome");
-            Box(t, Main, Vector3.zero, new Vector3(8f, 6f, 8f), PrimitiveType.Sphere);
-            Box(t, Accent, new Vector3(0f, 1.2f, -3.6f), new Vector3(1.6f, 2.2f, 1.2f));
-            Box(t, Gold, new Vector3(0f, 3.4f, 0f), new Vector3(0.2f, 1.6f, 0.2f), PrimitiveType.Cylinder);
+            var t = Root3("asteroid");
+            Box(t, M("#6E6A8C"), Vector3.zero, new Vector3(size, size * 0.82f, size * 0.9f), PrimitiveType.Sphere);
+            Box(t, M("#57537A"), new Vector3(size * 0.22f, size * 0.18f, -size * 0.2f), Vector3.one * size * 0.55f, PrimitiveType.Sphere);
+            Box(t, M("#A77BFF", 0.8f), new Vector3(-size * 0.2f, size * 0.36f, -size * 0.12f), new Vector3(size * 0.14f, size * 0.3f, size * 0.14f)).localRotation = Quaternion.Euler(20f, 45f, 15f);
             return t;
         }
 
-        private Transform Rocket()
+        private Transform Satellite()
         {
-            var t = Root3("rocket");
-            Box(t, Dark, new Vector3(0f, 0.3f, 0f), new Vector3(4f, 0.6f, 4f), PrimitiveType.Cylinder);
-            Box(t, M("#F4F1FA"), new Vector3(0f, 4.2f, 0f), new Vector3(1.6f, 3.3f, 1.6f), PrimitiveType.Cylinder);
-            Box(t, Coral, new Vector3(0f, 8f, 0f), new Vector3(1.6f, 2.2f, 1.6f), PrimitiveType.Sphere);
-            for (var f = 0; f < 3; f++)
-            {
-                var a = f * 120f * Mathf.Deg2Rad;
-                Box(t, Coral, new Vector3(Mathf.Cos(a) * 0.9f, 1.6f, Mathf.Sin(a) * 0.9f), new Vector3(0.15f, 1.6f, 0.9f)).localRotation = Quaternion.Euler(0f, -f * 120f, 0f);
-            }
-            Box(t, Accent, new Vector3(0f, 5.2f, -0.78f), new Vector3(0.6f, 0.6f, 0.1f), PrimitiveType.Sphere);
+            var t = Root3("satellite");
+            Box(t, M("#E9E4F4"), Vector3.zero, new Vector3(1f, 1f, 1.2f));
+            for (var s = -1; s <= 1; s += 2) Box(t, M("#3B5BC8", 0.7f), new Vector3(s * 1.6f, 0f, 0f), new Vector3(2f, 0.06f, 0.9f));
+            Box(t, Gold, new Vector3(0f, 0.85f, 0f), new Vector3(0.06f, 0.7f, 0.06f), PrimitiveType.Cylinder);
+            Box(t, Coral, new Vector3(0f, 0f, -0.65f), new Vector3(0.5f, 0.5f, 0.12f), PrimitiveType.Sphere);
             return t;
         }
 
-        private Transform Dish()
+        private Transform Buoy()
         {
-            var t = Root3("dish");
-            Box(t, Dark, new Vector3(0f, 1.2f, 0f), new Vector3(0.25f, 1.2f, 0.25f), PrimitiveType.Cylinder);
-            var d = Box(t, Main, new Vector3(0f, 2.8f, 0f), new Vector3(3f, 0.5f, 3f), PrimitiveType.Sphere);
-            d.localRotation = Quaternion.Euler(-35f, 0f, 0f);
-            Box(t, Gold, new Vector3(0f, 3.3f, -0.6f), new Vector3(0.25f, 0.25f, 0.25f), PrimitiveType.Sphere);
-            return t;
-        }
-
-        private Transform Crater()
-        {
-            var t = Root3("crater");
-            Box(t, Dark, new Vector3(0f, -0.1f, 0f), new Vector3(9f, 0.6f, 9f), PrimitiveType.Sphere);
-            Box(t, M("#A39DB8"), new Vector3(0f, 0.02f, 0f), new Vector3(6.5f, 0.1f, 6.5f), PrimitiveType.Cylinder);
+            var t = Root3("buoy");
+            Box(t, M("#E9E4F4"), Vector3.zero, new Vector3(0.6f, 0.6f, 0.6f), PrimitiveType.Cylinder);
+            Box(t, Coral, new Vector3(0f, -0.75f, 0f), new Vector3(0.5f, 0.3f, 0.5f), PrimitiveType.Sphere);
+            Box(t, M("#FFE27A", 0.9f), new Vector3(0f, 0.85f, 0f), Vector3.one * 0.5f, PrimitiveType.Sphere);
+            GainFx.Glow(t, new Color(1f, 0.9f, 0.5f), 0.8f, false).localPosition = new Vector3(0f, 0.85f, 0f);
             return t;
         }
 
