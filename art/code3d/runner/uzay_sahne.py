@@ -75,7 +75,7 @@ def icons():
             li = bpy.data.lights.new(n_, 'AREA'); li.energy = e; li.size = s; li.color = col
             o = bpy.data.objects.new(n_, li); sc.collection.objects.link(o); o.location = loc
             o.rotation_euler = (V((0, 0, 0.25)) - V(loc)).to_track_quat('-Z', 'Y').to_euler()
-        area('key', (-1.4, -1.8, 2.0), 300, 1.6, (1.0, 0.97, 0.92)); area('fill', (1.8, -1.0, 0.8), 110, 2.0, (0.85, 0.9, 1.0))
+        area('key', (-1.4, -1.8, 2.0), 210, 1.6, (1.0, 0.97, 0.92)); area('fill', (1.8, -1.0, 0.8), 90, 2.0, (0.85, 0.9, 1.0))
         area('rim', (0.6, 1.8, 1.4), 140, 1.2, (1.0, 0.95, 0.9))
         sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value = 0.6
         sc.render.film_transparent = True; sc.render.resolution_x = sc.render.resolution_y = 256

@@ -299,12 +299,12 @@ def smooth_ring(bm, iters=3):
         for v, c in new.items(): v.co = c
 
 
-GROUP5 = {'head': 0, 'torso': 0, 'hips': 0, 'armL': 1, 'handL': 1, 'armR': 2, 'handR': 2, 'legL': 3, 'footL': 3, 'legR': 4, 'footR': 4}
+GROUP5 = {'head': 5, 'torso': 0, 'hips': 0, 'armL': 1, 'handL': 1, 'armR': 2, 'handR': 2, 'legL': 3, 'footL': 3, 'legR': 4, 'footR': 4}
 
 
 def group5(W):
-    """11 bölge ağırlığı → 5 grup (gövde, sol kol, sağ kol, sol bacak, sağ bacak)."""
-    G = np.zeros((len(W), 5), np.float32)
+    """11 bölge ağırlığı → 6 grup (gövde, sol kol, sağ kol, sol bacak, sağ bacak, baş). Baş eteği yakanın üstünde: örtüye katılmaz."""
+    G = np.zeros((len(W), 6), np.float32)
     for c, g in GROUP5.items(): G[:, g] += W[:, CI[c]]
     return G
 
@@ -339,16 +339,17 @@ def blanket(bm, B, offs, R, lap_iters=15, reach=0.07):
     for i in range(n):
         p = V(P[i]); nn = V(N[i]); best = 0.0
         for (co, j, d) in kd.find_range(p, Rq):
-            if np.minimum(Gv[i], Gb[j]).sum() < 0.3: continue
+            if Gb[j][5] > 0.5 or np.minimum(Gv[i], Gb[j]).sum() < 0.3: continue
             r = co - p; hg = r.dot(nn)
             if hg <= 0: continue
             lat = (r - nn * hg).length
             if lat >= R: continue
-            x = 1 - lat / R; f = x * x * (3 - 2 * x)
-            best = max(best, hg * (0.35 + 0.65 * f))
+            x = min(1.0, 2.0 * (1 - lat / R)); f = x * x * (3 - 2 * x)      # iç yarıda tam, dışa doğru yumuşak
+            best = max(best, hg * (0.5 + 0.5 * f))
         h[i] = best
+    # vantuz halkasının ortası çukur kalmasın: önce iki halka en büyük taşırma, sonra ortalama
     for _ in range(1): h = np.array([max([h[i]] + [h[j] for j in nb[i]]) for i in range(n)])
-    for _ in range(3): h = np.array([(2 * h[i] + sum(h[j] for j in nb[i])) / (2 + len(nb[i])) for i in range(n)])
+    for _ in range(4): h = np.array([(2 * h[i] + sum(h[j] for j in nb[i])) / (2 + len(nb[i])) for i in range(n)])
     out = P + N * (h + offs)[:, None]
     for i, v in enumerate(vs): v.co = V(out[i])
     return P, N
@@ -415,8 +416,8 @@ class SuitSpec:
         self.leg_into = 0.025         # paça botun içine (× H)
         self.off_suit = 0.010; self.off_glove = 0.015; self.off_boot = 0.020; self.gap = 0.004
         self.thick = 0.0045           # kenar kıvrımı (× H)
-        self.smooth = 12              # düzleştirme (Laplace) adımı: gövde; eldiven/bot smooth_end (vantuzlar tümüyle düzleşsin)
-        self.smooth_end = 18
+        self.smooth = 8               # düzleştirme (Laplace) adımı: gövde; eldiven/bot smooth_end (vantuz bölgesi ayrıca zar)
+        self.smooth_end = 10
         self.blanket_r = 0.018        # örtü yanal yarıçapı (× H)
         self.subdiv = 0               # 1: ağ bir kez bölünür (kabarık dilimler için), sonra bütçeye sadeleşir
         self.target = 0               # üçgen bütçesi (yalnız subdiv)
@@ -435,6 +436,7 @@ def _bm_from_body(B):
 def _cut_piece(B, spec, piece, S=None):
     """piece: 'suit' | 'glove' | 'boot'. Dinlenme duruşunda vücut ağından bölge kesilir."""
     bm = _bm_from_body(B); H = B.H
+    tag_suckers(bm, B)
     W = vert_cats(bm, B)
     ci = lambda *ks: (lambda v: sum(W[v][CI[k]] for k in ks))
     head = ci('head')
@@ -474,7 +476,41 @@ def _cut_piece(B, spec, piece, S=None):
         delete_faces(bm, [f for f in bm.faces if f.calc_center_median().z > bz])
     bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context='VERTS')
     keep_big(bm)
+    # vantuz çukurlarındaki küçük delikler (vücut ağında açık): kapat, yoksa kenar köşeleri sabit kalıp çukur iz bırakıyor
+    bmesh.ops.holes_fill(bm, edges=[e for e in bm.edges if e.is_boundary], sides=12)
+    bmesh.ops.triangulate(bm, faces=[f for f in bm.faces if len(f.verts) > 4])
     return bm
+
+
+def tag_suckers(bm, B):
+    """Vantuz bölgesi yüzleri (vücut dokusunda mor/lila: ton 0,64–0,9, parlaklık > 0,45): 'suck' = 1."""
+    import colorsys
+    from PIL import Image
+    if getattr(B, '_tex', None) is None:
+        B._tex = np.asarray(Image.open(os.path.join(B.dir, B.name + '_basecolor.jpg')).convert('RGB'), np.float32) / 255
+    img = B._tex; h, w, _ = img.shape
+    uvl = bm.loops.layers.uv.active; lay = bm.faces.layers.int.get('suck') or bm.faces.layers.int.new('suck')
+    for f in bm.faces:
+        u = sum(l[uvl].uv[0] for l in f.loops) / len(f.loops); v = sum(l[uvl].uv[1] for l in f.loops) / len(f.loops)
+        c = img[min(h - 1, max(0, int((1 - v) * h))), min(w - 1, max(0, int(u * w)))]
+        hh, ss, vv = colorsys.rgb_to_hsv(*c)
+        f[lay] = 1 if (0.64 < hh < 0.9 and vv > 0.45) else 0
+
+
+def membrane(bm, rings=1, iters=160):
+    """Vantuz bölgesini zar gibi ger: bölgedeki köşeler (1 halka genişletilmiş) çevredeki sabit köşeler arasında Laplace ile
+    yeniden dağılır (Tutte gibi; katlanmış vantuz halkası düz, katlanmasız bir yamaya döner)."""
+    lay = bm.faces.layers.int.get('suck')
+    if lay is None: return 0
+    free = {v for f in bm.faces if f[lay] for v in f.verts}
+    for _ in range(rings): free |= {e.other_vert(v) for v in list(free) for e in v.link_edges}
+    free = [v for v in free if not v.is_boundary]
+    if not free: return 0
+    nb = {v: [e.other_vert(v) for e in v.link_edges] for v in free}
+    for _ in range(iters):
+        new = {v: sum((x.co for x in ns), V()) / len(ns) for v, ns in nb.items() if ns}
+        for v, c in new.items(): v.co = v.co.lerp(c, 0.8)
+    return len(free)
 
 
 def _boot_z(B, spec, S):
@@ -497,6 +533,7 @@ def build_piece(B, spec, piece, S=None):
     C = garment_coords(B, P0)
     extra = spec.disp(B, C, piece, S) if spec.disp else np.zeros(len(verts))
     offs = off + extra + np.array([0.2 * off if v.is_boundary else 0.0 for v in verts])
+    membrane(bm)
     blanket(bm, B, offs, spec.blanket_r * H, lap_iters=spec.smooth if piece == 'suit' else spec.smooth_end)
     if piece == 'boot' and spec.boot_shape: spec.boot_shape(B, bm, S)
     clearance(bm, B, spec.gap * H * 0.5, iters=2)

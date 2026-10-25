@@ -774,11 +774,12 @@ namespace Pofi.Screens
             var aspect = (float)Screen.width / Mathf.Max(1, Screen.height);
             // hız hissi: hız arttıkça görüş biraz genişler (+7°), koşu adımıyla kamera çok hafif sallanır
             _speedNorm = Mathf.Clamp01((_run.Speed - _course.Config.StartSpeed) / Mathf.Max(0.1f, _course.Config.MaxSpeed - _course.Config.StartSpeed));
-            var fov = (aspect < 1.5f ? 60f : 52f) + 7f * _speedNorm;   // iPad (4:3): üç şerit sığsın
+            var fov = (aspect < 1.5f ? 62f : 54f) + 7f * _speedNorm;   // iPad (4:3): üç şerit sığsın
             if (_playing && !_run.Over && _countdown <= 0f) _bob += dt * _run.Speed * 1.15f;
-            var y = 3.3f + _lastHeight * 0.35f + Mathf.Sin(_bob) * 0.035f;
-            var pos = Origin + new Vector3(_camX, y, _run.Z - 6.9f);
-            var look = Origin + new Vector3(_camX * 0.75f, 1.15f + _lastHeight * 0.25f, _run.Z + 7.5f);
+            // kamera yakın (25 Ekim, çekim denetimi: 6,9 m'de yetişkin Okti ekran boyunun %14'üydü, hareketleri seçilmiyordu → ~%20)
+            var y = 2.75f + _lastHeight * 0.35f + Mathf.Sin(_bob) * 0.035f;
+            var pos = Origin + new Vector3(_camX, y, _run.Z - 5.3f);
+            var look = Origin + new Vector3(_camX * 0.75f, 1.25f + _lastHeight * 0.25f, _run.Z + 7f);
             if (_shake > 0f)
             {
                 _shake = Mathf.Max(0f, _shake - dt);
@@ -794,9 +795,9 @@ namespace Pofi.Screens
         private void Lead(float dt)
         {
             var t = Time.time;
-            var z = _run.Z + 11f;
+            var z = _run.Z + 9f;
             if (_run.Finished) z = Mathf.Max(_lead.localPosition.z + dt * 14f, z);
-            _lead.localPosition = new Vector3(Mathf.Sin(t * 1.3f) * 1.4f, 2.1f + Mathf.Sin(t * 3.1f) * 0.25f, z);
+            _lead.localPosition = new Vector3(Mathf.Sin(t * 1.3f) * 1.4f, 2.7f + Mathf.Sin(t * 3.1f) * 0.25f, z);
             // kuyruk geriye (oyuncuya) bakar: model önü +Y/Blender → koşu yönü; hafif yalpalar
             _lead.localRotation = Quaternion.Euler(-6f, Mathf.Cos(t * 1.3f) * 14f, Mathf.Sin(t * 2.2f) * 8f);
         }
@@ -1136,15 +1137,15 @@ namespace Pofi.Screens
 
         private Transform MakeLead()
         {
-            var t = RealAssets.EnvScaled(_kit.Lead, _world, _kit.Space ? 1.6f : 2.2f);
+            var t = RealAssets.EnvScaled(_kit.Lead, _world, _kit.Space ? 1.9f : 2.2f);
             if (t == null)
             {
                 t = Root3("lead");
                 if (_kit.Space)
                 {
-                    Box(t, M("#FFE27A", 0.9f), Vector3.zero, Vector3.one * 0.7f, PrimitiveType.Sphere);
+                    Box(t, M("#FFE27A", 0.9f), Vector3.zero, Vector3.one * 1.1f, PrimitiveType.Sphere);
                     for (var i = 1; i <= 4; i++)   // kuyruk geriye (oyuncuya) doğru küçülür
-                        Box(t, M(i % 2 == 0 ? "#FFF3C2" : "#FFD15A", 0.9f), new Vector3(0f, 0.04f * i, -0.42f * i), Vector3.one * (0.62f - i * 0.11f), PrimitiveType.Sphere);
+                        Box(t, M(i % 2 == 0 ? "#FFF3C2" : "#FFD15A", 0.9f), new Vector3(0f, 0.06f * i, -0.6f * i), Vector3.one * (0.95f - i * 0.17f), PrimitiveType.Sphere);
                 }
                 else
                 {
@@ -1152,7 +1153,7 @@ namespace Pofi.Screens
                     t.localScale = Vector3.one * 2.2f;
                 }
             }
-            GainFx.Glow(t, _kit.Space ? new Color(1f, 0.92f, 0.55f) : new Color(1f, 0.85f, 0.3f), 0.85f, false).localScale = Vector3.one * (_kit.Space ? 1.8f : 1.1f);
+            GainFx.Glow(t, _kit.Space ? new Color(1f, 0.92f, 0.55f) : new Color(1f, 0.85f, 0.3f), 0.85f, false).localScale = Vector3.one * (_kit.Space ? 2.6f : 1.1f);
             foreach (var r in t.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             return t;
         }

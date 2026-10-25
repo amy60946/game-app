@@ -332,7 +332,7 @@ def build_high():
 
 def build_crystal():
     """Uzun sekizgen çift piramit mücevher (altta uç z = 0, kuşak 0,19, tepe 0,52) + kuşak bandı; düz gölgeli, pahlı."""
-    M = UK.m_crystal('gem', '#6a34c8', '#7fd8f0', 0.02, 0.85, local=True)
+    M = UK.m_crystal('gem', '#5a2bb8', '#56bfe6', 0.02, 0.8, local=True)
     n = 8; rg = 0.16; zg = 0.19; hb = 0.035
     verts = [(0, 0, 0.0)]
     for z in (zg, zg + hb):
@@ -414,12 +414,14 @@ def build_comet():
     EYE = EK.m_flatc('ceye', '#3a2440', 0.0, 0.0); WH = EK.m_flatc('cshine', '#ffffff', 0.0, 0.0); BL = EK.m_flatc('cblush', '#ff8a7a', 0.05, 0.0)
     hi = [blob('head', (0, 0, 0), (0.35, 0.35, 0.34), HEAD, seg=32)]
     # ana kuyruk: başın arkasından −Y'ye kıvrılarak incelen alev (tombul, yumuşak)
-    pts = [(0.0, -0.05, 0.0), (0.03, -0.45, 0.06), (-0.04, -0.85, 0.15), (0.05, -1.2, 0.26), (0.0, -1.55, 0.38)]
-    hi.append(tube('tail', pts, [0.33, 0.29, 0.21, 0.12, 0.03], TL, res=16))
-    # yan alev dilleri (üç kısa, incelen)
-    for (p0, p1, p2, r0) in (((0.18, -0.35, 0.1), (0.36, -0.7, 0.2), (0.42, -1.0, 0.34), 0.13), ((-0.2, -0.4, 0.05), (-0.38, -0.78, 0.1), (-0.4, -1.08, 0.22), 0.12),
-                             ((0.0, -0.4, -0.18), (0.08, -0.82, -0.2), (0.12, -1.12, -0.12), 0.1)):
-        hi.append(tube('lick', [p0, p1, p2], [r0, r0 * 0.6, 0.02], TL, res=10))
+    pts = [(0.0, -0.05, 0.0), (0.03, -0.45, 0.06), (-0.04, -0.85, 0.15), (0.04, -1.18, 0.25), (0.0, -1.42, 0.34)]
+    hi.append(tube('tail', pts, [0.33, 0.3, 0.24, 0.16, 0.09], TL, res=16))
+    hi.append(blob('tailtip', (0.0, -1.44, 0.35), (0.09, 0.1, 0.09), TL, seg=16))
+    # yan alev dilimleri: kuyruğa kaynaşan, geriye uzanan yumuşak loblar (tombul, uçları yuvarlak)
+    for (c, r, rot) in (((0.22, -0.6, 0.14), (0.15, 0.34, 0.14), (12, 0, -22)), ((-0.21, -0.72, 0.1), (0.14, 0.32, 0.13), (10, 0, 24)),
+                        ((0.04, -0.62, -0.17), (0.15, 0.3, 0.12), (-14, 0, 6)), ((0.08, -0.95, 0.33), (0.11, 0.26, 0.1), (28, 0, -10)),
+                        ((-0.14, -1.08, 0.12), (0.09, 0.22, 0.09), (16, 0, 18))):
+        hi.append(blob('lick', c, r, TL, rot=rot, seg=20))
     for sx in (-1, 1):
         hi.append(blob('ceye', (sx * 0.12, 0.315, 0.06), (0.045, 0.02, 0.06), EYE, rot=(0, 0, -sx * 12), seg=16, sub=1))
         hi.append(blob('cshine', (sx * 0.11, 0.33, 0.085), (0.015, 0.006, 0.018), WH, seg=8, sub=0))
@@ -438,7 +440,7 @@ def build_comet():
         bm = bmesh.new(); bm.from_mesh(o.data); bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(o.data); bm.free()
         o.location = c; o.rotation_euler = (math.radians(10), math.radians(rot), math.radians(25)); hi.append(o)
     kit.to_mesh_all()
-    decim = [(r'^head$', 320), (r'^tail$', 360), (r'^lick$', 90), (r'^(ceye|cblush)$', 30), (r'^cshine$', 12), (r'^csmile$', 40), (r'^cstar$', 1.0)]
+    decim = [(r'^head$', 300), (r'^tail$', 300), (r'^tailtip$', 40), (r'^lick$', 90), (r'^(ceye|cblush)$', 30), (r'^cshine$', 12), (r'^csmile$', 40), (r'^cstar$', 1.0)]
     weights = [(r'^(head|ceye|cshine|cblush|csmile)$', 1.6), (r'^tail$', 1.2)]
     return hi, None, dict(decim=decim, weights=weights, tex=512, budget=1500, ao_dist=0.12)
 
