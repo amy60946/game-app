@@ -10,7 +10,7 @@ namespace Pofi.Core
     /// <summary>
     /// Otomatik test kancası (yalnızca sahte arka uçla): tarayıcıdan
     /// <c>unityInstance.SendMessage("Bootstrap", "PofiDebug", "login A1A1A1")</c> ile çağrılır. Gerçek sunucuda kapalıdır.
-    /// Komutlar: login KOD · pick pet_XX · name (ad hep Okti; eski betikler için) · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · tp X Z YAW · hud 0|1 · region ID · wear ID… · place ID… · gather [near|site|give|state] · audio · petpos
+    /// Komutlar: login KOD · pick pet_XX · name (ad hep Okti; eski betikler için) · open Sayfa · xp N · approve · minigame ID · tap Etiket · dismiss · maptoggle · walk X Z · tp X Z YAW · hud 0|1 · region ID · run start|auto 1|state · wear ID… · place ID… · gather [near|site|give|state] · audio · petpos
     /// </summary>
     public static class DebugCommands
     {
@@ -132,6 +132,9 @@ namespace Pofi.Core
                     case "outline":     // gösterge çerçevesi denemesi: outline 0..4 (ekran yeniden kurulur)
                         UI.GoldKit.Frame = int.Parse(arg);
                         app.Route();
+                        break;
+                    case "run":         // Piramit Koşusu: run start | auto 1 | auto 0 | left | right | jump | slide | state
+                        Debug.Log("[PofiDebug] run " + (Screens.RunnerScreen.Current?.Debug(arg) ?? "koşu ekranı yok"));
                         break;
                     case "flow":        // GB17 akış durumu (Mavi zamanlayıcıları, hikâye, sinema)
                         Debug.Log("[PofiDebug] flow " + (Object.FindAnyObjectByType<Screens.MapScreen>()?.DebugFlow() ?? "ada yok"));

@@ -366,7 +366,7 @@ namespace Pofi.Core
                         : arg == "festival" ? AppPage.Festival : arg == "lighthouse" ? AppPage.Lighthouse : AppPage.Home);
                     break;
                 case RegionTargetKind.MiniGame:
-                    if (MiniGameScreen.Supports(arg)) { MiniGameId = arg; Open(AppPage.MiniGame); }
+                    if (MiniGameScreen.Supports(arg) || arg == Logic.Runner.RunnerTheme.Id) { MiniGameId = arg; Open(AppPage.MiniGame); }
                     else say(Loc.Get("map.soon", region.Name));
                     break;
                 case RegionTargetKind.Cards:
@@ -534,7 +534,9 @@ namespace Pofi.Core
                         case AppPage.Shop: _screen = root.gameObject.AddComponent<ShopScreen>(); break;
                         case AppPage.Wardrobe: _screen = root.gameObject.AddComponent<WardrobeScreen>(); break;
                         case AppPage.Map: _screen = root.gameObject.AddComponent<MapScreen>(); break;
-                        case AppPage.MiniGame: _screen = root.gameObject.AddComponent<MiniGameScreen>(); break;
+                        case AppPage.MiniGame:   // Oyun Kulübesi koşusu kendi 3B ekranında (25 Ekim 2026)
+                            _screen = MiniGameId == Logic.Runner.RunnerTheme.Id ? root.gameObject.AddComponent<RunnerScreen>() : (ScreenBase)root.gameObject.AddComponent<MiniGameScreen>();
+                            break;
                         case AppPage.Cards: _screen = root.gameObject.AddComponent<CardsScreen>(); break;
                         case AppPage.Garden: _screen = root.gameObject.AddComponent<GardenScreen>(); break;
                         case AppPage.Album: _screen = root.gameObject.AddComponent<AlbumScreen>(); break;

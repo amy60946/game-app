@@ -9,7 +9,8 @@ namespace Pofi.Logic.Island
     /// </summary>
     public static class GameHold
     {
-        public static readonly HashSet<string> ActiveMiniGames = new HashSet<string> { "coconut" };
+        /// <summary>Açık mini oyunlar: Ceviz Yakala + Oyun Kulübesi'nde Piramit Koşusu (25 Ekim 2026, kart oyunlarının yerine).</summary>
+        public static readonly HashSet<string> ActiveMiniGames = new HashSet<string> { "coconut", "runner" };
         /// <summary>Masa/kart oyunları (Oyun Kulübesi) da beklemede.</summary>
         public static bool CardsOnHold = true;
 
