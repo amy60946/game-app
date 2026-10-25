@@ -395,28 +395,42 @@ def build_card():
 
 # ================================================================== rs_comet (orijin baş merkezi)
 
+def m_tail(name):
+    """Kuyruk ışık boyası: başta sıcak sarı → mercan → pembe → uçta lavanta (dünya y'sine göre), yukarı-dışa bakan yüzde açık çekirdek."""
+    def b(nt, bsdf):
+        G = EK.EG(nt); x, y, z = G.sep(G.pos()); nx, ny, nz = G.sep(G.nrm())
+        t = G.rng(y, -0.15, -1.55)
+        r = EK.ramp(nt, [(0.0, '#ffd257'), (0.35, '#ffa45c'), (0.68, '#f283a6'), (1.0, '#b08cec')]); G.l.new(t, r.inputs['Fac'])
+        f = G.math('ADD', G.math('MULTIPLY', nz, 0.6), G.math('MULTIPLY', G.math('ABSOLUTE', nx), -0.3))
+        col = G.mix(G.rng(f, 0.0, 0.9, 0, 0.55), r.outputs[0], '#fff6e0')
+        col = G.mix(G.rng(f, -0.4, -0.9, 0, 0.25), col, '#c7609a')
+        G.l.new(col, bsdf.inputs['Base Color'])
+    return EK.nodes_mat(name, b)
+
+
 def build_comet():
     HEAD = UK.m_glow('comethead', '#ffd257', core='#fffaf0', hot=0.95)
-    L1 = UK.m_glow('lobe1', '#ffc04a', core='#fff3d0', hot=0.7); L2 = UK.m_glow('lobe2', '#ff9a5a', core='#ffe2c4', hot=0.6)
-    L3 = UK.m_glow('lobe3', '#f47fa0', core='#ffd6e2', hot=0.55); L4 = UK.m_glow('lobe4', '#b48ae8', core='#eadcff', hot=0.5)
+    TL = m_tail('cometail')
     EYE = EK.m_flatc('ceye', '#3a2440', 0.0, 0.0); WH = EK.m_flatc('cshine', '#ffffff', 0.0, 0.0); BL = EK.m_flatc('cblush', '#ff8a7a', 0.05, 0.0)
     hi = [blob('head', (0, 0, 0), (0.35, 0.35, 0.34), HEAD, seg=32)]
-    for (c, r, m) in (((0.02, -0.34, 0.03), (0.3, 0.4, 0.28), L1), ((-0.04, -0.68, 0.1), (0.24, 0.36, 0.22), L2),
-                      ((0.03, -0.98, 0.17), (0.18, 0.3, 0.165), L3), ((-0.02, -1.24, 0.24), (0.12, 0.24, 0.11), L4),
-                      ((0.06, -1.44, 0.3), (0.07, 0.15, 0.065), L4)):
-        hi.append(blob('lobe', c, r, m, rot=(-8, 0, 0), seg=24))
+    # ana kuyruk: başın arkasından −Y'ye kıvrılarak incelen alev (tombul, yumuşak)
+    pts = [(0.0, -0.05, 0.0), (0.03, -0.45, 0.06), (-0.04, -0.85, 0.15), (0.05, -1.2, 0.26), (0.0, -1.55, 0.38)]
+    hi.append(tube('tail', pts, [0.33, 0.29, 0.21, 0.12, 0.03], TL, res=16))
+    # yan alev dilleri (üç kısa, incelen)
+    for (p0, p1, p2, r0) in (((0.18, -0.35, 0.1), (0.36, -0.7, 0.2), (0.42, -1.0, 0.34), 0.13), ((-0.2, -0.4, 0.05), (-0.38, -0.78, 0.1), (-0.4, -1.08, 0.22), 0.12),
+                             ((0.0, -0.4, -0.18), (0.08, -0.82, -0.2), (0.12, -1.12, -0.12), 0.1)):
+        hi.append(tube('lick', [p0, p1, p2], [r0, r0 * 0.6, 0.02], TL, res=10))
     for sx in (-1, 1):
         hi.append(blob('ceye', (sx * 0.12, 0.315, 0.06), (0.045, 0.02, 0.06), EYE, rot=(0, 0, -sx * 12), seg=16, sub=1))
         hi.append(blob('cshine', (sx * 0.11, 0.33, 0.085), (0.015, 0.006, 0.018), WH, seg=8, sub=0))
         hi.append(blob('cblush', (sx * 0.2, 0.285, -0.04), (0.05, 0.012, 0.03), BL, rot=(0, 0, -sx * 30), seg=12, sub=1))
     hi.append(tube('csmile', [(-0.07, 0.335, -0.06), (0.0, 0.345, -0.1), (0.07, 0.335, -0.06)], [0.012, 0.014, 0.012], EYE, res=3))
-    # kuyruğun yanında üç küçük yıldız
     ST = UK.m_glow('cstar', '#fff1b0', core='#ffffff', hot=0.6)
-    for (c, r, rot) in (((0.36, -0.75, 0.32), 0.06, 20), ((-0.33, -1.05, -0.05), 0.05, -15), ((0.22, -1.45, 0.42), 0.04, 40)):
-        pts = []
+    for (c, r, rot) in (((0.48, -0.65, 0.42), 0.065, 20), ((-0.5, -1.0, 0.0), 0.055, -15), ((0.3, -1.5, 0.55), 0.045, 40), ((-0.25, -1.45, 0.5), 0.035, 10)):
+        pts_ = []
         for i in range(10):
-            a = math.radians(90 + i * 36); rr = r if i % 2 == 0 else r * 0.45; pts.append((math.cos(a) * rr, math.sin(a) * rr))
-        verts = [(x, -0.012, z) for (x, z) in pts] + [(x, 0.012, z) for (x, z) in pts] + [(0, -0.02, 0), (0, 0.02, 0)]
+            a = math.radians(90 + i * 36); rr = r if i % 2 == 0 else r * 0.45; pts_.append((math.cos(a) * rr, math.sin(a) * rr))
+        verts = [(x, -0.012, z) for (x, z) in pts_] + [(x, 0.012, z) for (x, z) in pts_] + [(0, -0.02, 0), (0, 0.02, 0)]
         faces = []
         for i in range(10):
             i2 = (i + 1) % 10; faces.append((20, i2, i)); faces.append((21, 10 + i, 10 + i2)); faces.append((i, i2, 10 + i2, 10 + i))
@@ -424,9 +438,9 @@ def build_comet():
         bm = bmesh.new(); bm.from_mesh(o.data); bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(o.data); bm.free()
         o.location = c; o.rotation_euler = (math.radians(10), math.radians(rot), math.radians(25)); hi.append(o)
     kit.to_mesh_all()
-    decim = [(r'^head$', 320), (r'^lobe$', 150), (r'^(ceye|cblush)$', 30), (r'^cshine$', 12), (r'^csmile$', 40), (r'^cstar$', 1.0)]
-    weights = [(r'^(head|ceye|cshine|cblush|csmile)$', 1.6)]
-    return hi, None, dict(decim=decim, weights=weights, tex=512, budget=1500, ao_dist=0.15)
+    decim = [(r'^head$', 320), (r'^tail$', 360), (r'^lick$', 90), (r'^(ceye|cblush)$', 30), (r'^cshine$', 12), (r'^csmile$', 40), (r'^cstar$', 1.0)]
+    weights = [(r'^(head|ceye|cshine|cblush|csmile)$', 1.6), (r'^tail$', 1.2)]
+    return hi, None, dict(decim=decim, weights=weights, tex=512, budget=1500, ao_dist=0.12)
 
 
 # ================================================================== rs_gate

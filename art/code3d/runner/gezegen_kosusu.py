@@ -519,23 +519,29 @@ def main():
         for o in [o for o in bpy.data.objects if o.name.startswith('occ')]: bpy.data.objects.remove(o)
         d = dict(opt.get('draft', {}))
         if '--angle' in args: y_, p_ = args[args.index('--angle') + 1].split(','); d['yaw'] = float(y_); d['pitch'] = float(p_)
+        if '--moon' in args or name.startswith(('rs_ground', 'rs_crater')):
+            import uzay_sahne; d['light'] = uzay_sahne.moon_light
         EK.draft(args[args.index('--draft') + 1], **d); return
     opt.pop('draft', None)
     if lo is None: EK.bake_auto(name, hi, **opt)
     else: UK.bake_custom(name, hi, lo, **opt)
     if '--preview' in args:
         png = args[args.index('--preview') + 1]
-        EK.preview(name, png, **preview_angle(name))
+        kw = dict(preview_angle(name))
+        if name.startswith(('rs_ground', 'rs_crater', 'rs_ridge')):
+            import uzay_sahne; kw['light'] = uzay_sahne.moon_light
+        EK.preview(name, png, **kw)
 
 
 try:
     import gezegen_engeller; BUILD.update(gezegen_engeller.BUILD)
 except ImportError as e:
     if 'gezegen_engeller' not in str(e): raise
-try:
-    import uzay_arka; BUILD.update(uzay_arka.BUILD)
-except ImportError as e:
-    if 'uzay_arka' not in str(e): raise
+for _m in ('ay_zemin', 'ay_donatim'):
+    try:
+        BUILD.update(__import__(_m).BUILD)
+    except ImportError as e:
+        if _m not in str(e): raise
 
 if __name__ == '__main__':
     main()

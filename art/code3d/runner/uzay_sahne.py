@@ -33,6 +33,18 @@ def space_world(sc, ambient=0.85):
     l.new(mix.outputs[0], out.inputs['Surface'])
 
 
+def moon_light(sc, sun_e=3.4, fill=0.9):
+    """Oyundaki ışık: alçak güneş (≈22°, önden-soldan: koşucunun ilerisinden ve solundan → uzun gölgeler kameraya doğru, kenarlar
+    parlar), Dünya yönünden serin mavi dolgu, kamera ışınında koyu uzay."""
+    space_world(sc, ambient=0.55)
+    for o in [o for o in bpy.data.objects if o.type == 'LIGHT']: bpy.data.objects.remove(o)
+    d = V((0.42, -0.84, -0.375)).normalized()
+    sun = bpy.data.lights.new('sun', 'SUN'); sun.energy = sun_e; sun.angle = math.radians(2.5); sun.color = (1.0, 0.94, 0.86)
+    so = bpy.data.objects.new('sun', sun); sc.collection.objects.link(so); so.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
+    f = bpy.data.lights.new('fill', 'SUN'); f.energy = fill; f.angle = math.radians(20); f.color = (0.62, 0.74, 1.0)
+    fo = bpy.data.objects.new('fill', f); sc.collection.objects.link(fo); fo.rotation_euler = V((-0.6, -0.5, -0.62)).normalized().to_track_quat('-Z', 'Y').to_euler()
+
+
 def render(png, size=(1280, 720), samples=96):
     sc = kit.reset(); space_world(sc)
     sun = bpy.data.objects['sun']; sun.rotation_euler = (math.radians(50), 0, math.radians(-30)); sun.data.energy = 3.6

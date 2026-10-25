@@ -765,10 +765,12 @@ def tag_uvw(o, w=1.0, down=0.45):
     return o
 
 
-def preview(name, png, yaw=35.0, pitch=22.0, size=(800, 640), dist=None, target=None, lens=50, samples=40, back=True):
-    """Oyun modelinin (FBX + dokular) Cycles çizimi; arka yüzler (oyunda çizilmez) macenta görünür → ters normal denetimi."""
+def preview(name, png, yaw=35.0, pitch=22.0, size=(800, 640), dist=None, target=None, lens=50, samples=40, back=True, light=None):
+    """Oyun modelinin (FBX + dokular) Cycles çizimi; arka yüzler (oyunda çizilmez) macenta görünür → ters normal denetimi.
+    light(sc): isteğe bağlı ışık kurulumu (ör. Ay sahnesi)."""
     from mathutils import Vector as Vv
     kit.reset()
+    if light: light(bpy.context.scene)
     p = out_dir(name)
     bpy.ops.import_scene.fbx(filepath=p + '.fbx')
     obs = [o for o in bpy.context.scene.objects if o.type == 'MESH']
@@ -807,9 +809,10 @@ def game_mat(path_noext, back=True, name=None):
     return m
 
 
-def draft(png, yaw=35.0, pitch=22.0, size=(800, 640), samples=24, dist=None, target=None):
+def draft(png, yaw=35.0, pitch=22.0, size=(800, 640), samples=24, dist=None, target=None, light=None):
     """Taslağın (pişirmesiz) çizimi."""
     import koy_eskitme as KE
+    if light: light(bpy.context.scene)
     lo, hi = KE.scene_bounds(); ctr = V(target) if target else (lo + hi) / 2; r = (hi - lo).length * 0.5; d = dist or r * 2.5
     sc = bpy.context.scene; sc.render.engine = 'CYCLES'; sc.cycles.samples = samples
     sc.render.resolution_x, sc.render.resolution_y = size
