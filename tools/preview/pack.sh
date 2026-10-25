@@ -11,6 +11,8 @@ TMP="$(mktemp -d)"
 git -C "$ROOT" archive origin/webgl-preview | tar -x -C "$TMP"
 rm -rf "$OUT" && mkdir -p "$OUT/Build"
 B="$TMP/PofiAdasi/Build"
+# CI 100 MB üstü dosyaları parçalı yazar (ci.yml "Önizleme bilgisini yaz"): yeniden birleştir
+for f in "$B"/*.part00; do [ -e "$f" ] || continue; base="${f%.part00}"; cat "$base".part[0-9][0-9] > "$base"; rm -f "$base".part[0-9][0-9]; done
 cp "$B/PofiAdasi.loader.js" "$OUT/Build/"
 cp "$B/PofiAdasi.framework.js.unityweb" "$OUT/Build/PofiAdasi.framework.wasm"
 # Veri dosyası 14 MB'lık parçalara bölünür (önizleme sayfası tek dosyada 15 MB sınırı); sayfa parts.json'a göre birleştirir

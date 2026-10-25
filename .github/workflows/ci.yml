@@ -125,6 +125,9 @@ jobs:
           sudo chown -R "$(id -u)" build
           echo "{\"commit\":\"${GITHUB_SHA}\",\"run\":\"${GITHUB_RUN_NUMBER}\",\"branch\":\"${GITHUB_REF_NAME}\"}" > build/WebGL/preview.json
           du -ah build/WebGL | sort -h | tail -20
+          # GitHub dosya başına 100 MB sınırı (derleme 134: veri 102 MB): büyük dosyalar 90 MB parçalara bölünür,
+          # tools/preview/pack.sh birleştirir (<dosya>.part00, .part01 …)
+          find build/WebGL -type f -size +90M | while read -r f; do split -b 90000000 -d -a 2 "$f" "$f.part"; rm "$f"; done
       - uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453   # v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
