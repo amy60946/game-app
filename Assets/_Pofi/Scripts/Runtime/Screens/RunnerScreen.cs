@@ -113,7 +113,7 @@ namespace Pofi.Screens
             _run = new RunnerRun(_course);
             foreach (var l in _live) Put(l.Key, l.T);
             _live.Clear(); _pickObjs.Clear();
-            foreach (var p in _pops) if (p.T != null) Put("rn_scarab", p.T);
+            foreach (var p in _pops) if (p.T != null) { p.T.localScale = Vector3.one; Put(p.T.name, p.T); }
             _pops.Clear();
             _spawnObs = 0; _spawnPick = 0; _spawnTile = -2; _spawnDecor = -2; _gateSpawned = false;
             _decorRng = new System.Random(seed ^ 0x5f3759);
@@ -207,6 +207,7 @@ namespace Pofi.Screens
         private void EndRun()
         {
             _ending = true;
+            foreach (var r in _petRenderers) if (r != null) r.enabled = true;   // son çarpmada yanıp sönerken kalmasın
             _endTimer = _run.Finished ? 1.8f : 1.2f;
             HideTeach();
             if (_run.Finished)
@@ -504,7 +505,7 @@ namespace Pofi.Screens
             var x = (_run.LaneX - 1f) * LaneW;
             var lean = (_run.TargetLane - _run.LaneX) * 22f;
             _holder.localPosition = new Vector3(x, _run.Height, _run.Z);
-            _holder.localRotation = Quaternion.Euler(_run.Sliding ? -14f : 0f, 180f - lean, lean * 0.4f);
+            _holder.localRotation = Quaternion.Euler(_run.Sliding ? -14f : 0f, 180f + lean, lean * 0.4f);   // geçtiği yöne döner ve yatar
             // kayma: yassılır (kirişin altından geçer); zıplama: havada hafif uzar
             var sq = _run.Sliding ? new Vector3(1.18f, 0.48f, 1.18f) : _run.Jumping ? new Vector3(0.94f, 1.08f, 0.94f) : Vector3.one;
             _holder.localScale = Vector3.Lerp(_holder.localScale, sq * _petScale, dt <= 0f ? 1f : Mathf.Min(1f, dt * 14f));
