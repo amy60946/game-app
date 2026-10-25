@@ -54,7 +54,10 @@ def spec(B):
                     L, st = seg[kind]; t = C[kind + S_ + '_t']
                     f = np.mod((t - st) / L, 1.0)
                     on = K.sstep(st + 0.3 * L, st + 0.8 * L, t)
-                    out += g[:, gi] * on * K.puff(f) * 0.0032 * H
+                    # diz/dirsek bükülme bölgesinde dilim kabarığı yok (derin bükülmede kat kat buruşuyordu)
+                    jt = B.knee_t[S_] if kind == 'leg' else B.elbow_t[S_]
+                    calm = K.sstep(0.03 * H, 0.06 * H, np.abs(t - jt))
+                    out += g[:, gi] * on * calm * K.puff(f) * 0.0032 * H
             # gövde: hafif yatay kapitone
             w0 = g[:, 0]
             zf = (C['tz'] - B.hips_z) / max(1e-6, K.torso_z(B, 1.0) - B.hips_z)
@@ -64,7 +67,8 @@ def spec(B):
             for key, (c, u) in pads.items():
                 d = np.linalg.norm(C['P'] - c, axis=1)
                 r = 0.060 * H if key.startswith('sh') else 0.050 * H
-                out += 0.0055 * H * (1 - K.sstep(r * 0.75, r * 1.02, d)) * K.sstep(-0.3, 0.2, (C['P'] - c) @ u / max(1e-6, r) + 0.6)
+                amp = 0.0055 if key.startswith('sh') else 0.0028          # diz yastığı ince (bükülmede katlanmasın)
+                out += amp * H * (1 - K.sstep(r * 0.6, r * 1.02, d)) * K.sstep(-0.3, 0.2, (C['P'] - c) @ u / max(1e-6, r) + 0.6)
         elif piece and piece.startswith('glove'):
             ch = B.arms[S]; t = C['arm' + S + '_t'] - ch.L * 0.66
             out += 0.004 * H * np.exp(-((t - 0.012 * H) / (0.009 * H)) ** 2)        # ağız kıvrımı
@@ -110,7 +114,7 @@ def extras(B, ob, bvh):
         bpy.ops.mesh.primitive_cylinder_add(vertices=12, radius=W * 0.05, depth=D * 0.25)
         s = bpy.context.object; s.location = V(ctr + rt * (k * W * 0.2) - up * Hh * 0.24 + n * (D * 0.5)); s.rotation_euler = Mm.to_euler()
         K.merge_bm(bm, K.obj_to_bm(s, 26))
-    parts = [K.extra_object(bm, B, 20, 'astro_box')]
+    parts = [K.extra_object(bm, B, 20, 'astro_box', labels=lambda b: {v: 0 for v in b.verts})]     # ünite tek parça (göğüsle)
     # hortumlar: kutunun alt köşelerinden aşağı sarkar, yana kıvrılıp göğsün yan önündeki bağlantıya girer
     hr = 0.0085 * H
     for sgn in (1, -1):        # +1: Okti'nin solu (+X)
@@ -143,7 +147,10 @@ def extras(B, ob, bvh):
         for p, q in ((res[0], res[1]), (res[-1], res[-2])):
             d = (q - p).normalized()
             K.tube_along(hb, [p - d * 0.006 * H, p + d * 0.012 * H], hr * 1.35, seg=12, code=26)
-        parts.append(K.extra_object(hb, B, 25, 'astro_hose'))
+        cl = np.array([tuple(p) for p in res])
+        def lab(b, cl=cl):                                   # hortum: merkez çizgisindeki en yakın örnek → halka kümesi
+            return {v: int(np.argmin(np.linalg.norm(cl - np.array(tuple(v.co)), axis=1))) for v in b.verts}
+        parts.append(K.extra_object(hb, B, 25, 'astro_hose', labels=lab, smooth=3))
     return parts
 
 

@@ -89,18 +89,35 @@ def head_center(B):
 
 
 def back_y(B, z, gap):
-    """Sırt ortasında (x ≈ omurga) z yüksekliğinde vücut yüzeyinin en arka noktası + gap."""
-    g5 = K.group5(B.W); m = (g5[:, 0] > 0.5) & ~B.head_shell
-    cx, cy = B.spine_xy(z)
-    sel = m & (np.abs(B.P[:, 2] - z) < 0.015 * B.H) & (np.abs(B.P[:, 0] - cx) < 0.06 * B.H)
-    if not sel.any(): sel = m & (np.abs(B.P[:, 2] - z) < 0.04 * B.H)
-    return float(B.P[sel, 1].max()) + gap
+    """Sırt ortasında z yüksekliğinde vücudun en arka yüzeyi (arkadan ışın; baş kabuğu dahil değil) + gap."""
+    cx, cy = B.spine_xy(z); best = None
+    for dx in (-0.03, 0.0, 0.03):
+        o = V((cx + dx * B.H, cy + 2.0, z)); d = V((0, -1, 0))
+        for _ in range(4):
+            hit = B.bvh.ray_cast(o, d, 4.0)
+            if hit[0] is None: break
+            # baş eteği (sırtın arkasında, yukarıda) ise geç
+            if hit[0].z > z - 1e-4 and hit[1].z < -0.5: o = hit[0] + d * 1e-4; continue
+            best = hit[0].y if best is None else max(best, hit[0].y); break
+    return (best if best is not None else cy + 0.12 * B.H) + gap
 
 
-def torso_width(B, z):
-    g5 = K.group5(B.W); m = (g5[:, 0] > 0.5) & ~B.head_shell & (np.abs(B.P[:, 2] - z) < 0.015 * B.H)
-    cx, _ = B.spine_xy(z)
-    return 2 * float(np.abs(B.P[m, 0] - cx).max()) if m.any() else 0.3 * B.H
+def head_ceiling(B, x0, x1, y0, y1, default):
+    """Bu dikdörtgenin (sırtın arkası) üstündeki başın (etek) en alt noktası: sırt eşyası bunun altında kalmalı."""
+    hp = head_pts(B)
+    sel = (hp[:, 0] > x0) & (hp[:, 0] < x1) & (hp[:, 1] > y0) & (hp[:, 1] < y1)
+    return float(hp[sel, 2].min()) if sel.any() else default
+
+
+def torso_width(B, z=None):
+    """Gövde genişliği (evre başına tek sayı): kalça/omurga/boyun kemiklerine bağlı köşelerin x yayılımı (%95), baş kabuğu hariç."""
+    if getattr(B, '_tw', None) is None:
+        gname = {g.index: K.short(g.name) for g in B.body.vertex_groups}
+        w = np.array([sum(g.weight for g in v.groups if gname[g.group] in ('Hips', 'Spine', 'Spine1', 'Spine2', 'Neck')) for v in B.body.data.vertices])
+        m = (w > 0.5) & ~B.head_shell
+        cx = B.spine_xy(B.hips_z)[0]
+        B._tw = 2 * float(np.percentile(np.abs(B.P[m, 0] - cx), 95))
+    return B._tw
 
 
 def rim_back(B):
@@ -143,12 +160,13 @@ def desired(B, iid, objs):
             s = (xh(ze) + 0.006 * H) / SI.BAND_A
         ze = top + 0.004 * H - s * SI.BAND_B
         return s, cx, cy + s * c[1], ze + s * mn[2], None
-    # sırt eşyaları
-    zt = rim_back(B) - 0.012 * H
+    # sırt eşyaları: üst kenar başın eteğinin altında (çocukta etek sırttan uzakta: çanta eteğin altına girebilir)
+    yb0 = back_y(B, B.hips_z + 0.6 * (rim_back(B) - B.hips_z), 0.0)
+    zt = head_ceiling(B, -0.12 * H, 0.12 * H, yb0, yb0 + 0.12 * H, rim_back(B)) - (0.03 if B.stage == 'yavru' else 0.012) * H
     if iid == 'back_star_cape':
-        zt = rim_back(B) - 0.006 * H
-        wt = torso_width(B, zt - 0.05 * H)
-        s = max(0.55 * (zt - B.minz) / 0.62, 0.42 * wt / 0.21)
+        zt = head_ceiling(B, -0.08 * H, 0.08 * H, yb0, yb0 + 0.05 * H, rim_back(B)) - 0.006 * H
+        wt = torso_width(B, min(zt, rim_back(B)) - 0.05 * H)
+        s = max((0.55 if B.stage == 'yavru' else 0.64) * (zt - B.minz) / 0.62, 0.5 * wt / 0.21)
         yb = back_y(B, zt - 0.02 * H, 0.012 * H)
         # tutturma bandının ortası (model y ≈ 0.035, z ≈ 0) sırta
         cz = zt - s * (0.0 - c[2]); cyw = yb + s * (c[1] - 0.026)
@@ -156,7 +174,7 @@ def desired(B, iid, objs):
     zm = (zt + B.hips_z) / 2
     wt = torso_width(B, zm)
     if iid == 'back_astro_pack':
-        s = min(0.80 * wt / 0.30, 0.95 * (zt - (B.hips_z - 0.03 * H)) / (mx[2] - mn[2]))
+        s = min(0.80 * wt / 0.30, 1.0 * (zt - (B.hips_z - 0.05 * H)) / (mx[2] - mn[2]))
     else:
         s = min(0.78 * wt / 0.22, 1.0 * (zt - (B.hips_z - 0.06 * H)) / (mx[2] - mn[2]))
     cz = zt - s * (mx[2] - c[2])
@@ -247,15 +265,24 @@ def inside_frac(tree, pts, h):
     return n / max(1, len(pts)), deep / h
 
 
-def poke(B, body_pts, suit_tree, mask):
-    """Vücut köşelerinin tulumdan dışarı taşması (baş hariç): oran ve en derin (boya oran)."""
-    n = 0; deep = 0.0; idx = np.nonzero(mask)[0]
-    for i in idx:
-        p = V(body_pts[i]); loc, nor, _, d = suit_tree.find_nearest(p)
-        if loc is None: continue
-        s = (p - loc).dot(nor)
-        if s > 0.001 * B.H: n += 1; deep = max(deep, s)
-    return n / max(1, len(idx)), deep / B.H
+def body_normals(B):
+    dg = bpy.context.evaluated_depsgraph_get(); e = B.body.evaluated_get(dg); me = e.to_mesh()
+    P = np.array([tuple(B.body.matrix_world @ v.co) for v in me.vertices]); N = np.array([tuple((B.body.matrix_world.to_3x3() @ v.normal).normalized()) for v in me.vertices])
+    e.to_mesh_clear(); return P, N
+
+
+def cover(B, P, N, tree, idx, reach):
+    """Işınla örtü testi (açık kabukta en yakın-normal işareti güvenilmez): vücut köşesinden normal yönünde ışın tulumun
+    dış yüzüne içeriden çarparsa örtülü (0); çarpmazsa ters yönde tulumun dış yüzüne dışarıdan çarpıyorsa dışarı taşmış
+    (taşma derinliği), ikisi de değilse açık (−1: tasarımca örtülmeyen yer)."""
+    out = np.full(len(idx), -1.0)
+    for k, i in enumerate(idx):
+        p = V(P[i]); n = V(N[i])
+        h = tree.ray_cast(p + n * 1e-4, n, reach)
+        if h[0] is not None and h[1].dot(n) > 0: out[k] = 0.0; continue
+        h = tree.ray_cast(p - n * 1e-4, -n, reach * 0.6)
+        if h[0] is not None and h[1].dot(n) > 0: out[k] = h[3]
+    return out
 
 
 def set_clip(B, clip):
@@ -286,7 +313,11 @@ def run_test(item_dir, suit_dir, rules, stages, clips):
         K.reset_scene(); B = K.Body(st); H = B.H
         rep[st] = {}
         nonhead = ~B.head_shell & (B.W[:, K.CI['head']] < 0.5)
-        # tulumlar (ayrı ayrı)
+        # tulumlar (ayrı ayrı): örtü/taşma (ışın) ve kenar uzaması (tulum ve aynı karede vücudun kendisi)
+        Pb0, _, _ = evaluated(B.body)
+        cand = np.nonzero(nonhead & np.array([Pb0[i, 2] < B.rim_at(Pb0[i, 0], Pb0[i, 1]) - 0.01 * H for i in range(len(Pb0))]))[0]
+        bme = B.body.data; bed = np.array([tuple(e.vertices) for e in bme.edges])
+        bl0 = np.linalg.norm(Pb0[bed[:, 0]] - Pb0[bed[:, 1]], axis=1); bok = bl0 > 0.002 * H
         for oid in SUITS:
             if not os.path.exists(os.path.join(suit_dir, '%s_%s.fbx' % (oid, st))): continue
             meshes = load_suit(B, suit_dir, oid)
@@ -294,22 +325,26 @@ def run_test(item_dir, suit_dir, rules, stages, clips):
             if B.arm.animation_data: B.arm.animation_data.action = None
             bpy.context.view_layer.update()
             rest_pts, edges, tree = evaluated(meshes[0])
-            rest_len = np.linalg.norm(rest_pts[edges[:, 0]] - rest_pts[edges[:, 1]], axis=1) + 1e-9
-            bp, _, _ = evaluated(B.body)
-            base_poke = poke(B, bp, tree, nonhead)
-            r = {'rest_poke': [round(base_poke[0], 4), round(base_poke[1], 4)], 'clips': {}}
+            rest_len = np.linalg.norm(rest_pts[edges[:, 0]] - rest_pts[edges[:, 1]], axis=1); ok = rest_len > 0.002 * H
+            P, N = body_normals(B)
+            c0 = cover(B, P, N, tree, cand, 0.15 * H)
+            covered = cand[c0 == 0.0]
+            r = {'covered_body_verts': int(len(covered)), 'rest_poke_frac': round(float((c0 > 0).mean()), 4), 'clips': {}}
             for clip in clips:
                 act = set_clip(B, clip)
                 if act is None: continue
-                worst = [0, 0, 0, 0, 0]
+                worst = dict(poke_frac=0.0, poke_deep_h=0.0, frame=0, stretch_max=0.0, stretch_p99=0.0, body_stretch_max=0.0, body_stretch_p99=0.0)
                 for f in frames_for(clip, act):
                     bpy.context.scene.frame_set(f)
-                    pts, _, tree = evaluated(meshes[0]); bp, _, _ = evaluated(B.body)
-                    pk = poke(B, bp, tree, nonhead)
-                    ln = np.linalg.norm(pts[edges[:, 0]] - pts[edges[:, 1]], axis=1) / rest_len
-                    if pk[1] > worst[1]: worst[0], worst[1], worst[2] = round(pk[0], 4), round(pk[1], 4), f
-                    worst[3] = max(worst[3], round(float(ln.max()), 3)); worst[4] = max(worst[4], round(float(np.percentile(ln, 99)), 3))
-                r['clips'][clip] = {'poke_frac': worst[0], 'poke_deep_h': worst[1], 'frame': worst[2], 'stretch_max': worst[3], 'stretch_p99': worst[4]}
+                    pts, _, tree = evaluated(meshes[0]); P, N = body_normals(B)
+                    c = cover(B, P, N, tree, covered, 0.15 * H)
+                    frac = float((c > 0).mean()); deep = float(c.max()) / H if (c > 0).any() else 0.0
+                    if deep > worst['poke_deep_h']: worst.update(poke_frac=round(frac, 4), poke_deep_h=round(deep, 4), frame=f)
+                    ln = np.linalg.norm(pts[edges[:, 0]] - pts[edges[:, 1]], axis=1)[ok] / rest_len[ok]
+                    bl = np.linalg.norm(P[bed[:, 0]] - P[bed[:, 1]], axis=1)[bok] / bl0[bok]
+                    worst['stretch_max'] = max(worst['stretch_max'], round(float(ln.max()), 2)); worst['stretch_p99'] = max(worst['stretch_p99'], round(float(np.percentile(ln, 99)), 2))
+                    worst['body_stretch_max'] = max(worst['body_stretch_max'], round(float(bl.max()), 2)); worst['body_stretch_p99'] = max(worst['body_stretch_p99'], round(float(np.percentile(bl, 99)), 2))
+                r['clips'][clip] = worst
             rep[st][oid] = r
             for o in meshes: bpy.data.objects.remove(o)
             if B.arm.animation_data: B.arm.animation_data.action = None

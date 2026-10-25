@@ -338,7 +338,6 @@ def build_rover():
     bpy.context.view_layer.update()
     EK.planar_dec_uv(chassis, (0.76, 1.1, 0.48), (0, -1, 0), (0, 0, 1), 2.2, 0.5, face_dir=(1, 0, 0))
     hi.append(chassis)
-    hi.append(EK.rounded_box('skirt', (1.62, 2.7, 0.12), 0.05, 0.05, [COR], loc=(0, 0, 0.5), seed=5))
     # kabin: kubbe camlı küçük oturak (önde)
     cab = blob('cab', (0, -0.55, 1.18), (0.58, 0.62, 0.5), GLASS, seg=32); hi.append(cab)
     bpy.ops.mesh.primitive_torus_add(major_radius=0.6, minor_radius=0.06, major_segments=32, minor_segments=8, location=(0, -0.55, 1.0))

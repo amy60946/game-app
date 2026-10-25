@@ -142,6 +142,9 @@ def imprints(G, cw, scale, density, depth, seed=0.0):
     v.inputs['Scale'].default_value = scale; v.inputs['Randomness'].default_value = 0.9
     G.l.new(vec, v.inputs['Vector'])
     if w is not None: G.l.new(G.math('ADD', w, seed), v.inputs['W'])
+    if w is None and seed:
+        vm = G.n.new('ShaderNodeVectorMath'); vm.operation = 'ADD'; vm.inputs[1].default_value = (seed * 3.7, seed * 1.3, 0.0)
+        G.l.new(vec, vm.inputs[0]); G.l.new(vm.outputs[0], v.inputs['Vector'])
     d = v.outputs['Distance']; rc, gc, bc = G.sep(v.outputs['Color'])
     present = G.rng(rc, 1.0 - density, 1.0 - density + 0.02)
     size = G.math('ADD', 0.14, G.math('MULTIPLY', gc, 0.24))
@@ -157,7 +160,7 @@ def m_moon(name, period=L_TILE, off_y=0.0, seed=0.0):
     (mor) + güneşli kenar + ışınsal saçılım + araç izi ('mask'/'mask2' köşe nitelikleri); çok ölçekli küçük krater izleri, rüzgârsız Ay'da
     yumuşak toz dalgacıkları, koridor yanında iki bot izi patikası (sol/sağ adım, tabanda tırtıl), regolit tanesi, renk lekeleri."""
     def b(nt, bsdf):
-        G = EK.EG(nt); cw = G.coords(period, off=(seed * 3.1, off_y, 0.0))
+        G = EK.EG(nt); cw = G.coords_xy(period, off=(seed * 3.1, off_y, 0.0))
         m1 = G.n.new('ShaderNodeAttribute'); m1.attribute_name = 'mask'; m1.attribute_type = 'GEOMETRY'
         m2 = G.n.new('ShaderNodeAttribute'); m2.attribute_name = 'mask2'; m2.attribute_type = 'GEOMETRY'
         cin, rim, trk = G.sep(m1.outputs['Vector']); mar = m1.outputs['Alpha']
@@ -177,7 +180,7 @@ def m_moon(name, period=L_TILE, off_y=0.0, seed=0.0):
         col = G.mix(G.math('MULTIPLY', rim, 0.55), col, '#ece4d8')
         # küçük krater izleri: üç ölçek (hücre ≈ 0,5 / 1,6 / 4,5 m)
         hsum = None
-        for (sc_, den, dp, sd) in ((2.0, 0.35, 0.6, 1.0), (0.62, 0.3, 1.0, 7.0), (0.22, 0.28, 1.4, 13.0)):
+        for (sc_, den, dp, sd) in ((1.6, 0.38, 0.8, 1.0), (0.42, 0.32, 1.3, 7.0)):
             h_, bowl, ring = imprints(G, cw, sc_, den, dp, sd)
             col = G.mix(G.math('MULTIPLY', bowl, 0.5), col, '#7a6d97')
             col = G.mix(G.math('MULTIPLY', ring, 0.45), col, '#ddd6e2')
@@ -204,9 +207,9 @@ def m_moon(name, period=L_TILE, off_y=0.0, seed=0.0):
         col = G.mix(0.16, col, G.noise4(cw, 6.0, 3, 0.6, 'Color'), 'OVERLAY')
         pv = G.vor4(cw, 2.2)
         col = G.mix(G.rng(pv, 0.05, 0.0, 0, 0.35), col, '#5d5672')
-        col = G.mix(G.rng(G.vor4(G.coords(period, off=(seed + 4, off_y, 0)), 30.0), 0.0, 0.08, 0.5, 0), col, '#f1eef6')
-        col = G.mix(G.rng(G.vor4(G.coords(period, off=(seed + 8, off_y, 0)), 22.0), 0.0, 0.07, 0.4, 0), col, '#4e4862')
-        col = G.mix(G.rng(G.vor4(G.coords(period, off=(seed + 12, off_y, 0)), 60.0), 0.0, 0.06, 0.45, 0), col, '#b9b2c8')
+        col = G.mix(G.rng(G.vor4(G.coords_xy(period, off=(seed + 4, off_y, 0)), 30.0), 0.0, 0.08, 0.5, 0), col, '#f1eef6')
+        col = G.mix(G.rng(G.vor4(G.coords_xy(period, off=(seed + 8, off_y, 0)), 22.0), 0.0, 0.07, 0.4, 0), col, '#4e4862')
+        col = G.mix(G.rng(G.vor4(G.coords_xy(period, off=(seed + 12, off_y, 0)), 60.0), 0.0, 0.06, 0.45, 0), col, '#b9b2c8')
         # araç izi: koyu, sıkıştırılmış toz + tırtıl çizgisi (y'de 0,32 m — 40 m'ye tam bölünür)
         tread = G.math('ABSOLUTE', G.math('SINE', G.math('MULTIPLY', G.math('ADD', y, G.math('MULTIPLY', G.math('ABSOLUTE', G.math('SUBTRACT', G.math('FRACT', G.math('MULTIPLY', x, 3.6)), 0.5)), 0.25)), TAU / 0.32 / 2)))
         col = G.mix(G.math('MULTIPLY', trk, 0.55), col, G.mix(G.rng(tread, 0.3, 0.8), '#6d6680', '#8c86a0'))

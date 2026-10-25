@@ -108,7 +108,7 @@ def extras(B, ob, bvh):
         Mt.translation = V(kc + rt * sg * Wt * 0.2 - up * Wt * 0.1 + n * 0.002 * H)
         t.matrix_world = Mt @ Matrix.Rotation(sg * 0.6, 4, 'Z') @ Matrix.Diagonal((Wt * 0.07, Wt * 0.17, Wt * 0.03, 1))
         K.merge_bm(bm, K.obj_to_bm(t, 31))
-    return [K.extra_object(bm, B, 30, 'pilot_scarf')]
+    return [K.extra_object(bm, B, 30, 'pilot_scarf', labels=lambda b: {v: 0 for v in b.verts})]      # fular göğüsle tek parça
 
 
 # ------------------------------------------------------------------ boya

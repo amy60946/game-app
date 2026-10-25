@@ -249,10 +249,6 @@ class Body:
 
 # ------------------------------------------------------------------ bmesh yardımcıları (base_wear.py ile aynı fikir)
 
-def _face_w(f, VW):
-    return sum(VW[v.index] for v in f.verts) / len(f.verts)
-
-
 def delete_faces(bm, faces):
     faces = [f for f in set(faces) if f.is_valid]
     if faces: bmesh.ops.delete(bm, geom=faces, context='FACES')
@@ -293,33 +289,6 @@ def vert_cats(bm, B):
             if c: w[CI[c]] += x
         s = w.sum(); out[v] = w / s if s > 0 else w
     return out
-
-
-def taubin(bm, verts, iters=6, lam=0.5, mu=-0.53):
-    """Büzülmeyen yumuşatma (λ/μ): Meshy yüzey pürüzü ve vantuzlar düzleşir, ince dokunaç incelmez."""
-    verts = [v for v in verts if v.is_valid]
-    idx = {v: i for i, v in enumerate(verts)}
-    nb = [[e.other_vert(v) for e in v.link_edges] for v in verts]
-    for _ in range(iters):
-        for k in (lam, mu):
-            new = []
-            for v, ns in zip(verts, nb):
-                if not ns: new.append(v.co.copy()); continue
-                c = sum((x.co for x in ns), V()) / len(ns)
-                new.append(v.co + (c - v.co) * k)
-            for v, c in zip(verts, new): v.co = c
-
-
-def push_dirs(bm):
-    bm.normal_update(); push = {}
-    for v in bm.verts:
-        if not v.is_boundary: push[v] = v.normal.copy()
-    for v in bm.verts:
-        if v.is_boundary:
-            ns = [e.other_vert(v).normal for e in v.link_edges if not e.other_vert(v).is_boundary]
-            n = sum(ns, V()) if ns else v.normal.copy()
-            push[v] = n.normalized() if n.length > 1e-6 else v.normal.copy()
-    return push
 
 
 def smooth_ring(bm, iters=3):
@@ -397,7 +366,7 @@ def blanket(bm, B, offs, R, lap_iters=15, reach=0.07, only=None):
     for _ in range(1): h = np.array([max([h[i]] + [h[j] for j in nb[i]]) for i in range(n)])
     for _ in range(4): h = np.array([(2 * h[i] + sum(h[j] for j in nb[i])) / (2 + len(nb[i])) for i in range(n)])
     tot = h + offs
-    capped = np.minimum(tot, np.maximum(gapcap, 0.25 * offs))
+    capped = np.minimum(tot, np.maximum(gapcap, 0.5 * offs))       # en az yarı kalınlık: kol kalkınca koltuk altında vücut görünmesin
     # yumuşat (kesik basamak olmasın)
     for _ in range(3): capped = np.array([(2 * capped[i] + sum(capped[j] for j in nb[i])) / (2 + len(nb[i])) for i in range(n)])
     capped = np.minimum(capped, tot)
@@ -433,7 +402,7 @@ def clearance(bm, B, gap, iters=3, verts=None):
 
 # ------------------------------------------------------------------ giysi koordinatları (köşe başına; boyama + şekil için)
 
-def garment_coords(B, P, faces_piece=None):
+def garment_coords(B, P):
     """P: (n,3) dinlenme konumları → sözlük: gövde z/açı/yarıçap, her uzuv için t, çevre ön/dış bileşenleri, eksene uzaklık."""
     C = {'P': P}
     # gövde: dikey eksen omurga noktasından
@@ -463,16 +432,12 @@ class SuitSpec:
     disp(B, C, piece, S) → köşe başına ek dışarı itme (metre); C = garment_coords."""
     def __init__(self, **kw):
         self.collar = 0.02            # yaka: baş eteğinin en yüksek alt noktası + collar × H
-        self.arm_root = 0.8           # gövde parçası kolda dirseğe oranla burada biter (yetişkinde vantuzlar dirsekten aşağı)
-        self.leg_root = 0.8           # bacakta dize oranla
-        self.overlap = 0.035          # tüp bu kadar önce başlar, gövde parçasının altına girer (× H)
         self.glove_s = 0.66           # eldiven başlangıcı (kol zinciri oranı, 0 omuz → 1 uç)
         self.sleeve_into = 0.012      # kol eldivenin içine (× H)
         self.cuff = 0.03              # eldiven ağzı bu boyda biraz geniş (kolun ucunu örter, × H)
         self.boot_k = 0.4             # bot ağzı: bilekten dize oran
         self.leg_into = 0.03          # paça botun içine (× H)
         self.off_suit = 0.010; self.off_glove = 0.015; self.off_boot = 0.020; self.gap = 0.004
-        self.tuck = 0.005             # tüp başı gövde parçasının altına girer (× H)
         self.thick = 0.0045           # kenar kıvrımı (× H)
         self.smooth = 4               # gövde parçası düzleştirme (Laplace; az: koltuk altı gibi dar kıvrımlarda katlanma yapıyordu)
         self.blanket_r = 0.018        # örtü yanal yarıçapı (× H)
@@ -489,10 +454,6 @@ def _bm_from_body(B):
     me = B.body.data.copy(); bm = bmesh.new(); bm.from_mesh(me); bpy.data.meshes.remove(me)
     bm.transform(B.body.matrix_world)
     return bm
-
-
-def arm_root_t(B, spec, S): return B.elbow_t[S] * spec.arm_root     # gövde parçası kesimi: dirseğin üstü
-def leg_root_t(B, spec, S): return B.knee_t[S] * spec.leg_root      # dizin üstü
 
 
 def _cut_torso(B, spec):
@@ -560,7 +521,17 @@ def build_torso(B, spec):
     # örtü itmesi yalnız vantuz bölgesi ve çevresinde (yetişkinin önkol/baldırı); başka yerde düz kalınlık (base_wear gibi).
     # Her yerde örtü, çocuğun koltuk altı ve omuzunda kolu gövdenin üstüne kaldırıp buruşturuyordu
     for _ in range(3): zone |= {e.other_vert(v) for v in list(zone) for e in v.link_edges}
+    zone0 = set(zone)
     blanket(bm, B, offs, spec.blanket_r * H, lap_iters=spec.smooth, only=zone)
+    # zarla gerilen köşeler yüzey boyunca kaydı: eski ağırlıkları yeni yerlerine uymuyor (diz bükülünce katlanıyordu) →
+    # bulundukları yerin en yakın vücut köşelerinden (aynı uzuv) ağırlık al
+    if zone0:
+        g5 = group5(B.W); vg = {}
+        for v in zone0:
+            if v.is_valid: vg.setdefault(int(np.argmax(group5(vert_cats_one(v, B)[None])[0])), []).append(v)
+        for gi, vs in vg.items():
+            kd = _weights_kd(B, (g5[:, gi] > 0.5) & ~B.head_shell)
+            assign_weights(bm, B, kd, verts=vs)
     clearance(bm, B, spec.gap * H * 0.5, iters=2)
     smooth_ring(bm, iters=8)
     bm.normal_update()
@@ -697,10 +668,9 @@ def assign_weights(bm, B, kd, k=4, verts=None):
         for gi, x in top: dv[gi] = x / tot
 
 
-def tube_piece(B, spec, S, kind, t0, t1, off, cap=False, tuck_rings=0, piece=None):
+def tube_piece(B, spec, S, kind, t0, t1, off, cap=False, piece=None):
     """Uzuv tüpü: t0 → t1 halkalar (zincire dik), her halkada yarıçap = o dilimdeki vücut noktalarının 2B dışbükey zarfı
-    (vantuzlar dahil) + off (+ disp). cap: uçta yarım küre kapak (uç noktalarının 3B zarfına). tuck_rings: ilk halkalar
-    gövde parçasının altına girsin diye küçülür."""
+    (vantuzlar dahil) + off (+ disp). cap: uçta yarım küre kapak (uç noktalarının 3B zarfına)."""
     H = B.H; ch = B.arms[S] if kind == 'arm' else B.legs[S]
     pts = _limb_points(B, kind, S)
     tp, foot, dirs, dist = ch.project_np(pts)
@@ -758,15 +728,12 @@ def tube_piece(B, spec, S, kind, t0, t1, off, cap=False, tuck_rings=0, piece=Non
     if piece and piece.startswith('glove'):          # eldiven ağzı: kolun ucunun üstüne genişçe otursun
         tt = C['arm' + S + '_t']
         extra = extra + 0.006 * H * np.clip(1 - (tt - t0) / (spec.cuff * H), 0, 1) ** 0.7
-    tuck = np.zeros(len(P))
-    for i in range(min(tuck_rings, n)):
-        tuck[i * nseg:(i + 1) * nseg] = spec.tuck * H * (1 - i / max(1, tuck_rings))
     idx = 0
     for i in range(n):
         c, d, f, o = centers[i]; row = []
         for k, a in enumerate(ang):
             u = f * math.cos(a) + o * math.sin(a)
-            row.append(bm.verts.new(c + u * (R[i, k] + off + extra[idx] - tuck[idx]))); idx += 1
+            row.append(bm.verts.new(c + u * (R[i, k] + off + extra[idx]))); idx += 1
         grid.append(row)
     for row in cap_rows:
         r2 = []
@@ -891,22 +858,6 @@ def build_suit(B, spec, name):
     return ob
 
 
-def _root_weights(bm, B, kd_all, chain, t_lim):
-    """Tüp başındaki halkalar: tüm vücut köşelerinden (omuz/kalça geçişi gövde parçasıyla aynı esnesin)."""
-    vs = [v for v in bm.verts if chain.project_np(np.array([tuple(v.co)]))[0][0] < t_lim]
-    assign_weights(bm, B, kd_all, verts=vs)
-
-
-def _t_at_z(chain, z):
-    best = None
-    for i in range(len(chain.pts) - 1):
-        a, b = chain.pts[i], chain.pts[i + 1]
-        if (a.z - z) * (b.z - z) <= 0 and abs(b.z - a.z) > 1e-9:
-            k = (z - a.z) / (b.z - a.z); t = chain.cum[i] + k * (chain.cum[i + 1] - chain.cum[i])
-            best = t if best is None else min(best, t)
-    return best if best is not None else chain.L * 0.8
-
-
 def bm_to_object(bm, name, B):
     for f in bm.faces: f.smooth = True
     me = bpy.data.meshes.new(name); bm.to_mesh(me); bm.free()
@@ -938,14 +889,6 @@ def add_rim(ob, thick):
     s = ob.modifiers.new('rim', 'SOLIDIFY'); s.thickness = thick; s.offset = -1.0; s.use_rim = True; s.use_rim_only = True
     s.use_even_offset = False; s.use_quality_normals = True
     apply_mods(ob)
-
-
-def decimate(ob, target):
-    cur = sum(len(p.vertices) - 2 for p in ob.data.polygons)
-    if target and cur > target:
-        d = ob.modifiers.new('dec', 'DECIMATE'); d.ratio = target / cur; d.use_collapse_triangulate = True
-        d.use_symmetry = False
-        apply_mods(ob)
 
 
 def tri_count(ob):
@@ -982,16 +925,6 @@ def skin_like_nearest(obj, ref_obj, k=4, torso_only=False, B=None):
             for gi, gw in wts[idx].items(): acc[gi] = acc.get(gi, 0.0) + gw * iw
         top = sorted(acc.items(), key=lambda kv: -kv[1])[:4]; tot = sum(x for _, x in top) or 1.0
         for gi, x in top: groups[gi].add([v.index], x / tot, 'REPLACE')
-
-
-def surface_point(B, suit_bvh, z, ang, out=0.0):
-    """Gövde ekseninden (z yüksekliğinde) ang yönüne ışın → giysi yüzeyi; out kadar dışarı."""
-    cx, cy = B.spine_xy(z)
-    d = V((math.sin(ang), -math.cos(ang), 0.0))
-    o = V((cx, cy, z))
-    loc, nor, _, _ = suit_bvh.ray_cast(o + d * 2.0, -d, 4.0)
-    if loc is None: return o + d * 0.1, d
-    return loc + nor * out, nor
 
 
 def object_bvh(objs):
@@ -1404,17 +1337,39 @@ def surf_point(B, bvh, kind, S=None, t=None, a=0.0, z=None, out=0.0):
 
 # ------------------------------------------------------------------ ek parçalar (hortum, ünite, fular): kur, ağırlıkla, nesneye çevir
 
+SPINE = ('Hips', 'Spine', 'Spine1', 'Spine2', 'Neck')
+
+
+def spine_weight(B):
+    if getattr(B, '_spw', None) is None:
+        gname = {g.index: short(g.name) for g in B.body.vertex_groups}
+        B._spw = np.array([sum(g.weight for g in v.groups if gname[g.group] in SPINE) for v in B.body.data.vertices])
+    return B._spw
+
+
 def torso_kd(B):
-    g5 = group5(B.W)
-    return _weights_kd(B, (g5[:, 0] > 0.5) & ~B.head_shell)
+    """Ek parçalar için: yalnız omurga zinciri (kalça…boyun) köşeleri. 'Gövde' kategorisi omuz kemiklerini de içeriyor:
+    kollar öne gelince (çömelme) hortum omuza bağlı halkalardan 10 kat geriliyordu."""
+    return _weights_kd(B, (spine_weight(B) > 0.6) & ~B.head_shell)
 
 
-def extra_object(bm, B, code, name, kd=None):
-    """Ek parça bmesh'i: yüz kodu (piece), en yakın gövde köşelerinden ağırlık → nesne."""
+def keep_spine(bm, B):
+    dl = bm.verts.layers.deform.verify()
+    keep = {g.index for g in B.body.vertex_groups if short(g.name) in SPINE}
+    for v in bm.verts:
+        d = {gi: w for gi, w in v[dl].items() if gi in keep}; tot = sum(d.values())
+        dv = v[dl]; dv.clear()
+        for gi, w in d.items(): dv[gi] = w / tot if tot > 0 else w
+
+
+def extra_object(bm, B, code, name, kd=None, labels=None, smooth=0):
+    """Ek parça bmesh'i: yüz kodu (piece), en yakın gövde köşelerinden ağırlık (labels verilirse küme ortalaması) → nesne."""
     lay = bm.faces.layers.int.get('piece') or bm.faces.layers.int.new('piece')
     for f in bm.faces:
         if f[lay] < PIECE['extra']: f[lay] = code
     assign_weights(bm, B, kd or torso_kd(B))
+    if kd is None: keep_spine(bm, B)
+    if labels is not None: cluster_weights(bm, labels(bm) if callable(labels) else labels, smooth)
     return bm_to_object(bm, name, B)
 
 
@@ -1476,6 +1431,11 @@ def make_suit(stage, O, out_dir, size=1024, keep=False):
         bvh = object_bvh([ob])
         ex = [e for e in O.extras(B, ob, bvh) if e is not None]
         if ex: ob = join([ob] + ex, O.ID)
+    # n-gen (ünite kutusunun yuvarlatılmış köşeleri) üçgenlenir: FBX'te teğet uzayı yazılabilsin (normal haritası için)
+    bmt = bmesh.new(); bmt.from_mesh(ob.data)
+    ng = [f for f in bmt.faces if len(f.verts) > 4]
+    if ng: bmesh.ops.triangulate(bmt, faces=ng)
+    bmt.to_mesh(ob.data); bmt.free()
     add_rim(ob, spec.thick * H)
     for p in ob.data.polygons: p.use_smooth = True
     smart_uv(ob)
@@ -1560,3 +1520,27 @@ def sd_rrect(x, y, w, h, r):
 
 
 def inside(sd, soft): return 1.0 - sstep(-soft, soft, sd)
+
+
+def cluster_weights(bm, labels, smooth=0):
+    """Küme başına ortak ağırlık (kümenin ortalaması): kutu tek parça, hortum halka halka esner (yanyana köşeler farklı
+    kemik karışımı alınca hortum koşuda gerilip kıvrılıyordu). labels: köşe → tamsayı küme; smooth: ardışık kümeler arasında
+    pencere (hortum boyunca yumuşak geçiş)."""
+    dl = bm.verts.layers.deform.verify()
+    acc = {}; cnt = {}
+    for v, lab in labels.items():
+        d = acc.setdefault(lab, {}); cnt[lab] = cnt.get(lab, 0) + 1
+        for gi, w in v[dl].items(): d[gi] = d.get(gi, 0.0) + w
+    mean = {lab: {gi: w / cnt[lab] for gi, w in d.items()} for lab, d in acc.items()}
+    if smooth:
+        keys = sorted(mean); sm = {}
+        for i, k in enumerate(keys):
+            d = {}
+            for j in range(max(0, i - smooth), min(len(keys), i + smooth + 1)):
+                for gi, w in mean[keys[j]].items(): d[gi] = d.get(gi, 0.0) + w
+            sm[k] = d
+        mean = sm
+    for v, lab in labels.items():
+        top = sorted(mean[lab].items(), key=lambda kv: -kv[1])[:4]; tot = sum(x for _, x in top) or 1.0
+        dv = v[dl]; dv.clear()
+        for gi, x in top: dv[gi] = x / tot

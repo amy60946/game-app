@@ -422,7 +422,9 @@ def export_glass(out):
             co = me.vertices[me.loops[li].vertex_index].co
             a = math.atan2(co.y, co.x); h = (co.z - 0.03) / (R * HELM_K)
             uv.data[li].uv = ((a + math.pi) / TAU, min(1.0, max(0.0, h)))
-    me.materials.clear(); me.materials.append(bpy.data.materials.new('glass'))
+    for m in list(bpy.data.materials):
+        if m.name.startswith('glass'): bpy.data.materials.remove(m)
+    me.materials.clear(); gm = bpy.data.materials.new('glass'); me.materials.append(gm)
     g.name = 'glass'; me.name = 'glass'
     S = 256
     u = (np.arange(S) + 0.5) / S; U, Vv = np.meshgrid(u, u)

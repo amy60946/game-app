@@ -6,6 +6,7 @@
 #   preview <çıktı> <önizleme_klasörü>      onay görselleri (yetişkin ön/arka/koşu/zıplama/çömelme + çocuk/genç paftası)
 #   icons   <çıktı> <simge_klasörü>         256² şeffaf simgeler (wear_icon.py havası)
 #   install <çıktı>                        oyun klasörlerine kopyala (Assets/_Pofi/Resources/Items/<id>/…)
+#   notes   <çıktı>                        okti_fit_rules girdileri + CosmeticModels (OktiItem/OktiItemStage) satırları
 # <çıktı> = ara klasör (ör. scratchpad/kiyafet/export): suits/, items/, rules.json burada.
 import os, sys, json, shutil, subprocess
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -62,6 +63,22 @@ def install(out):
     for p in done: print('KOPYA', os.path.relpath(p, os.path.join(RES, '..', '..', '..')))
 
 
+def notes(out):
+    """rules.json → okti_fit_rules.json girdileri (çocuk = "item:<id>", genç/yetişkin evreye özel) + C# OktiItem / OktiItemStage satırları."""
+    r = json.load(open(os.path.join(out, 'rules.json')))
+    fit = {}; cs_item = []; cs_stage = []
+    for iid in r['yavru']:
+        for st in STAGES:
+            v = r[st][iid]
+            key = ('item:' if st == 'yavru' else st + ':item:') + iid
+            fit[key] = {'size': v['size_mult'], 'up': v['up_add'], 'fwd': v['fwd_add']}
+            line = '["%s%s"] = new Vector3(%.4ff, %.4ff, %.4ff),' % ('' if st == 'yavru' else st + ':', iid, v['size_mult'], v['up_add'], v['fwd_add'])
+            (cs_item if st == 'yavru' else cs_stage).append(line)
+    json.dump(fit, open(os.path.join(out, 'okti_fit_rules_space.json'), 'w'), indent=1)
+    open(os.path.join(out, 'cosmetic_models_space.txt'), 'w').write('// OktiItem\n' + '\n'.join(cs_item) + '\n// OktiItemStage\n' + '\n'.join(cs_stage) + '\n')
+    print(json.dumps(fit, indent=1)); print('\n'.join(cs_item + cs_stage))
+
+
 if __name__ == '__main__':
     a = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else sys.argv[1:]
     cmd, out = a[0], a[1]
@@ -82,3 +99,5 @@ if __name__ == '__main__':
         subprocess.run([PY, '-I', os.path.join(HERE, 'space_preview.py'), '--', out, a[2], 'icons'], check=True)
     elif cmd == 'install':
         install(out)
+    elif cmd == 'notes':
+        notes(out)

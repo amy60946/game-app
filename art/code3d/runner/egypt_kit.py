@@ -64,6 +64,11 @@ class EG(A._G):
             return self.comb(x, self.math('MULTIPLY', self.math('ADD', y, off[1]), sy), z), None
         th = self.math('MULTIPLY', y, TAU / period); R = period * sy / TAU
         return self.comb(x, z, self.math('MULTIPLY', self.math('COSINE', th), R)), self.math('MULTIPLY', self.math('SINE', th), R)
+    def coords_xy(self, period, off=(0.0, 0.0, 0.0)):
+        """Yükseklik alanı için ucuz dönemli koordinat: (x, R·cos θ, R·sin θ) — z yok, 3B gürültü/Voronoi (4B'nin yaklaşık yarı maliyeti)."""
+        x, y, z = self.sep(self.pos())
+        th = self.math('MULTIPLY', self.math('ADD', y, off[1]), TAU / period); R = period / TAU
+        return self.comb(self.math('ADD', x, off[0]), self.math('MULTIPLY', self.math('COSINE', th), R), self.math('MULTIPLY', self.math('SINE', th), R)), None
     def noise4(self, cw, scale, detail=4, rough=0.5, out='Fac', distort=0.0):
         vec, w = cw; z = self.n.new('ShaderNodeTexNoise')
         z.noise_dimensions = '4D' if w is not None else '3D'
