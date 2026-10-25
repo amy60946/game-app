@@ -72,13 +72,13 @@ def rbox_loop(w, h, cx, cz, r=0.02, n=3):
 
 # ================================================================== rs_floor (uzayda süzülen yürüyüş yolu)
 
-def deck_profile(step=0.01):
+def deck_profile(step=0.01, arcs=(8, 8, 5)):
     """Güverte kesiti (saat yönünde, normaller dışa): sol alt kenar → sol yan yüz → sol bordür → üst (z = 0) → sağ bordür → sağ yan →
     sağ alt kenar. Bordür: 3,30'da yükselen yuvarlak kenarlı kalın şerit (tepe 0,12), dış yüz 3,70'te −0,26'ya iner, alt kenar −0,30."""
     def arc(cx, cz, r, a0, a1, n):
         return [(cx + r * math.cos(math.radians(a0 + (a1 - a0) * k / n)), cz + r * math.sin(math.radians(a0 + (a1 - a0) * k / n))) for k in range(n + 1)]
-    R_ = [(0.0, 0.0), (TRIM, 0.0), (TRIM, 0.04)] + arc(3.38, 0.04, 0.08, 180, 90, 8) + [(3.62, 0.12)] + arc(3.62, 0.04, 0.08, 90, 0, 8) + \
-         [(ROAD, -0.26)] + arc(3.66, -0.26, 0.04, 0, -90, 5) + [(3.4, -0.3), (3.4, -0.24)]
+    R_ = [(0.0, 0.0), (TRIM, 0.0), (TRIM, 0.04)] + arc(3.38, 0.04, 0.08, 180, 90, arcs[0]) + [(3.62, 0.12)] + arc(3.62, 0.04, 0.08, 90, 0, arcs[1]) + \
+         [(ROAD, -0.26)] + arc(3.66, -0.26, 0.04, 0, -90, arcs[2]) + [(3.4, -0.3), (3.4, -0.24)]
     L_ = [(-x, z) for (x, z) in reversed(R_)]
     full = L_ + R_[1:]
     pts = [full[0]]
@@ -250,10 +250,15 @@ def build_floor():
     UV[..., 0] = s[:, None] / S_; UV[..., 1] = (ys[None, :] + SEG / 2) / SEG
     hi = [EK.grid_obj('deck_hi', PP, UV, [TOP], flip=True)]
     lo = []
-    _, _, SP = deck_profile()
+    _, _, SP = deck_profile(arcs=(3, 3, 2))
     for (ya, yb) in ((-5.0, 0.0), (0.0, 5.0)):
-        Pk = np.zeros((len(SP), 3, 3)); Pk[..., 0] = SP[:, 0:1]; Pk[..., 2] = SP[:, 1:2]; Pk[..., 1] = np.linspace(ya, yb, 3)[None, :]
+        Pk = np.zeros((len(SP), 2, 3)); Pk[..., 0] = SP[:, 0:1]; Pk[..., 2] = SP[:, 1:2]; Pk[..., 1] = np.array([ya, yb])[None, :]
         lo.append(EK.tag_uvw(EK.grid_obj('deck_lo', Pk, None, [], flip=True), 1.0))
+    for (yc, sgn) in ((-5.0, -1), (5.0, 1)):      # uç kapakları (komşu parçayla iç içe; yalnız yolun en uzak ucunda görünür)
+        cap = EK.mesh_obj('deck_cap', [(x, yc, z) for (x, z) in SP], [list(range(len(SP)))], [])
+        bm = bmesh.new(); bm.from_mesh(cap.data); bmesh.ops.triangulate(bm, faces=bm.faces[:]); bm.normal_update()
+        if sum(f.normal.y for f in bm.faces) * sgn < 0: bmesh.ops.reverse_faces(bm, faces=bm.faces[:])
+        bm.to_mesh(cap.data); bm.free(); lo.append(EK.tag_uvw(cap, 0.05))
     # alt sac
     UM = under_mat('undermat')
     xs = np.linspace(-3.4, 3.4, 69); X, Y = np.meshgrid(xs, ys)
@@ -276,7 +281,7 @@ def build_floor():
             y = yb + sh
             o = EK.rounded_box('crossb', (4.3, 0.16, 0.14), 0.02, 0.03, [YB], loc=(0, y, -0.49), chips=0.008, seed=int(y * 10) + 50)
             hi.append(o)
-            if keep: lo += [EK.tag_uvw(q, 0.5) for q in EK.BK.build_low([o], [(r'.', 0.012)])]
+            if keep: lo += UK.lows([o], [(r'.', 24)], 0.5)
     for k in range(8):
         yb = -4.375 + k * 1.25; d = 0.5 if k % 2 == 0 else -0.5
         for sgn in (-1, 1):
@@ -286,7 +291,7 @@ def build_floor():
                 t = UK.cable('strut', [a, tuple((V(a) + V(b)) / 2), b], 0.028, ST, res=2)
                 hi.append(t)
                 if keep:
-                    q = ptube_seg('strut_lo', a, b, 0.03, 6); lo.append(EK.tag_uvw(q, 0.4))
+                    q = ptube_seg('strut_lo', a, b, 0.03, 4); lo.append(EK.tag_uvw(q, 0.4))
     # sarkan kablo demetleri (mercan, camgöbeği): çapraz kirişler arasında sarkar
     CC = UK.m_rubber('cab_coral', UK.CORAL, period=SEG); CT = UK.m_rubber('cab_teal', UK.TEAL, period=SEG)
     for (cx, r, m, ph) in ((-0.45, 0.035, CC, 0.0), (-0.36, 0.028, CT, 0.4), (0.55, 0.032, CT, 0.9)):
@@ -294,21 +299,21 @@ def build_floor():
             q = ((y - 1.25) % 2.5) / 2.5
             return (cx + 0.02 * math.sin(y * 1.3 + ph), -0.6 - 0.2 * math.sin(math.pi * q) ** 1.3)
         hi.append(ptube('cable', fn, -6.5, 6.5, r, [m], sides=10, step=0.06))
-        lo.append(EK.tag_uvw(ptube('cable_lo', fn, -5.0, 5.0, r, [], sides=5, step=0.42), 0.4))
+        lo.append(EK.tag_uvw(ptube('cable_lo', fn, -5.0, 5.0, r, [], sides=4, step=0.625), 0.4))
     for yb in (-3.75, -1.25, 1.25, 3.75):                          # kablo askısı: kirişten sarkan kelepçe
         for sh, keep in repeats(yb):
             hk = EK.rounded_box('hanger', (1.25, 0.05, 0.06), 0.01, 0.02, [ST], loc=(0.05, yb + sh, -0.575), seed=int(yb * 7 + sh))
             hi.append(hk)
-            if keep: lo += [EK.tag_uvw(q, 0.3) for q in EK.BK.build_low([hk], [(r'.', 0.05)])]
+            if keep: lo += UK.lows([hk], [(r'.', 12)], 0.3)
     # itici kapsüller (y = 0, iki yanda) ve dengeleyici kanatçıklar (y = ±2,5)
     for sgn in (-1, 1):
         parts = thruster((sgn * 3.15, 0.0, -0.3))
-        hi += parts; lo += [EK.tag_uvw(q, 0.9) for q in EK.BK.build_low([q for q in parts if not q.name.startswith('rivet')], [(r'_body$', 0.06), (r'_cap$', 0.12), (r'_nozzle$', 0.3), (r'_glow$', 0.3), (r'_bracket$', 0.02)])]
+        hi += parts; lo += UK.lows(parts, [(r'_body$', 110), (r'_cap$', 48), (r'_nozzle$', 72), (r'_glow$', 16), (r'_bracket$', 12)], 0.9)
         for yb in (-2.5, 2.5):
             for sh, keep in repeats(yb):
                 f = fin((sgn * 3.5, yb + sh, -0.3), sgn)
                 hi.append(f)
-                if keep: lo += [EK.tag_uvw(q, 0.6) for q in EK.BK.build_low([f], [(r'.', 0.3)])]
+                if keep: lo += UK.lows([f], [(r'.', 28)], 0.6)
     # bordür üstünde yuvarlak işaret lambaları (1,25 m'de bir, camgöbeği/sarı)
     for sgn in (-1, 1):
         for k in range(8):
@@ -316,7 +321,7 @@ def build_floor():
             for sh, keep in repeats(yb):
                 parts = UK.lamp('mlamp', (sgn * 3.5, yb + sh, 0.105), 0.05, UK.CYAN if k % 2 == 0 else UK.SUN, cage=False, base_h=0.035, dome=True)
                 hi += parts
-                if keep: lo += [EK.tag_uvw(q, 1.0) for q in EK.BK.build_low(parts, [(r'_bulb$', 0.12), (r'_base$', 0.5)])]
+                if keep: lo += UK.lows(parts, [(r'_bulb$', 24), (r'_base$', 16)], 1.0)
     return hi, lo, dict(cull=False, ao_dist=0.45, ao_strength=0.5, tex=1024, cage=0.02, ray=0.08, draft=dict(yaw=24, pitch=6, target=(2.6, 0, -0.2), dist=6.5))
 
 
@@ -421,7 +426,7 @@ def build_wall():
             if keep:
                 c = EK.mesh_obj('bracket_lo', verts, [(0, 2, 1), (3, 4, 5), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)], [], smooth=False)
                 bm = bmesh.new(); bm.from_mesh(c.data); bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(c.data); bm.free()
-                lo.append(EK.tag_uvw(c, 0.4)); lo += [EK.tag_uvw(q, 0.3) for q in EK.BK.build_low([plate], [(r'.', 0.05)])]
+                lo.append(EK.tag_uvw(c, 0.4)); lo += UK.lows([plate], [(r'.', 12)], 0.3)
     # tekmelik paneli (eşik üstünde, z 0,08–0,30): yüzü çıkartmalı
     dec = kick_decal()
     KF = UK.m_paint('kickface', UK.NAVY, period=SEG, chips=0.0, dust=0.0, grime=0.4, dec=dec, scratch=0.3, seed=5.0)
@@ -442,7 +447,7 @@ def build_wall():
                      EK.rounded_box('reflect', (0.012, 0.04, 0.09), 0.005, 0.01, [REF], loc=(WX - 0.045, y, 0.95))]
             hi += parts
             for (dx, dy) in ((-0.055, -0.055), (0.055, -0.055), (-0.055, 0.055), (0.055, 0.055)): hi.append(UK.bolt((WX + dx, y + dy, 0.085), (0, 0, 1), 0.01))
-            if keep: lo += [EK.tag_uvw(q, 1.0) for q in EK.BK.build_low(parts, [(r'^post$', 0.008), (r'^postcap$', 0.08), (r'^postbase$', 0.03), (r'^reflect$', 0.1)])]
+            if keep: lo += UK.lows(parts, [(r'^post$', 40), (r'^postcap$', 32), (r'^postbase$', 12), (r'^reflect$', 12)], 1.0)
     # küpeşte (z 1,2) ve ara korkuluk (z 0,68): dönemli borular
     for (z, r, m) in ((1.195, 0.034, RAIL), (0.68, 0.022, RAIL)):
         fn = (lambda y, z=z: (WX, z))
@@ -475,8 +480,8 @@ def build_wall():
     for dz in (0.37, 0.47): hi.append(UK.rivet((WX - 0.11, 0.0, dz), (-1, 0, 0), 0.01))
     kit.to_mesh_all()
     hi += lp
-    lo += [EK.tag_uvw(q, 1.4) for q in EK.BK.build_low(lp, [(r'^lp_pole$', 0.5), (r'^lp_box$', 0.03), (r'^lp_bulb$', 0.1), (r'^lp_band$', 0.6), (r'^lp_hood$', 0.6),
-                                                          (r'^lp_neck$', 0.5), (r'^lp_base$', 0.03), (r'^lp_cab$', 0.3)])]
+    lo += UK.lows(lp, [(r'^lp_pole$', 32), (r'^lp_box$', 40), (r'^lp_bulb$', 120), (r'^lp_band$', 48), (r'^lp_hood$', 48),
+                       (r'^lp_neck$', 32), (r'^lp_base$', 12), (r'^lp_cab$', 30)], 1.4)
     # AO gölgeleyici: güverte (seçilmez, dışa aktarılmaz)
     bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, -0.09)); o = bpy.context.object; o.scale = (7.4, 16, 0.42); o.name = 'occ'
     return hi, lo, dict(cull=True, ao_dist=0.35, ao_strength=0.5, tex=1024, cage=0.015, ray=0.06,

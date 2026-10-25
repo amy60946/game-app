@@ -331,3 +331,8 @@ def bake_custom(name, high, low, uv_fn=None, cull=False, tex=1024, ao_dist=0.5, 
                            uv_fn=uv_fn, uv_weight=None if uv_fn else 'uvw', dilate=16, ao_dist=ao_dist, ao_strength=ao_strength, **kw)
     print(name, 'üçgen', t, flush=True)
     return t
+
+
+def lows(objs, table, w=1.0):
+    """Elle hedef listesi için: nesne başına mutlak üçgen hedefi (> 1) ya da oran; 'uvw' katsayısı w."""
+    return [EK.tag_uvw(q, w) for q in EK.build_low2([o for o in objs if not o.name.startswith(('bolt', 'rivet', 'tie'))], table)]

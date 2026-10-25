@@ -723,13 +723,30 @@ def out_dir(name):
     d = os.path.join(ENV, name); os.makedirs(d, exist_ok=True); return os.path.join(d, name)
 
 
+def obj_tris(o):
+    dg = bpy.context.evaluated_depsgraph_get(); e = o.evaluated_get(dg); me = e.to_mesh()
+    n = sum(len(p.vertices) - 2 for p in me.polygons); e.to_mesh_clear(); return n
+
+
+def build_low2(objs, decim=(), weights=()):
+    """BK.build_low gibi; decim değeri > 1 ise MUTLAK üçgen hedefi (nesne başına), ≤ 1 ise oran. Alt bölmeli küreler oranla
+    öngörülemez büyüyordu (16 işaret lambası 13 bin üçgen)."""
+    out = []
+    for o in objs:
+        if o.type != 'MESH': continue
+        v = BK._lookup(decim, o.name, 1.0)
+        r = v if v <= 1.0 else min(1.0, v / max(1, obj_tris(o)))
+        out += BK.build_low([o], [(r'.', r)], weights)
+    return out
+
+
 def bake_auto(name, high, decim=(), weights=(), tex=512, budget=None, exclude=(), ao_dist=0.35, ao_strength=0.55, cage=0.03, ray=0.12,
               cull=True, low_extra=(), **kw):
     """Engeller/arka plan: hedef = taslağın aynı ağı (decim: parça içi sadeleşme), exclude: hedefe girmeyen yalnız-taslak parçalar
     (düzenli ifade), low_extra: elle kurulmuş hedef parçaları. Döner: üçgen sayısı."""
     tex = int(os.environ.get('POFI_TEX', '0') or 0) or tex
     srcs = [o for o in high if not any(re.search(p, BK._key(o.name)) for p in exclude)]
-    low = BK.build_low(srcs, decim, weights) + list(low_extra)
+    low = build_low2(srcs, decim, weights) + list(low_extra)
     tris = PB.export_proxy(out_dir(name), high, low, target=budget, size=tex, nsize=tex, cage=cage, ray=ray, cull_hidden=cull,
                            uv_weight='uvw', dilate=16, ao_dist=ao_dist, ao_strength=ao_strength, **kw)
     print(name, 'üçgen', tris, flush=True)
