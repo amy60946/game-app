@@ -16,6 +16,11 @@ WHITE = '#f2f0eb'; WHITE2 = '#e4e3e0'; ORANGE = '#f27d4a'; ORANGE_D = '#d9653a';
 NAVY = '#2c4672'; HOSE = '#a3aac6'; METAL = '#c8ccd6'
 
 
+def _arm_up(B, S):
+    """Kol armasının yukarısı: kol zinciri boyunca omuza doğru."""
+    c, d = B.arms[S].point(B.elbow_t[S] * 0.6); return tuple(-np.array(d))
+
+
 def _seg(B):
     H = B.H
     return dict(arm=(0.048 * H, 0.03 * H), leg=(0.052 * H, 0.06 * H))     # dilim boyu, başlangıç (zincirde)
@@ -112,7 +117,7 @@ def extras(B, ob, bvh):
         start = ctr + rt * (W * 0.36) * sgn - up * (Hh * 0.45)            # rt = +X (Okti'nin solu)
         pts = [start]
         # önde U: aşağı sarkar, yana kıvrılıp göğsün yan önündeki bağlantıya çıkar (kolun altından geçmez: koltuk altında kol çarpıyordu)
-        for fr, a in ((0.42, 0.32), (0.30, 0.62), (0.33, 0.92), (0.45, 1.08), (0.56, 1.12)):
+        for fr, a in ((0.40, 0.30), (0.22, 0.55), (0.24, 0.86), (0.42, 1.04), (0.54, 1.10)):
             p, nn = K.surf_point(B, bvh, 'torso', z=K.torso_z(B, fr), a=sgn * a, out=hr + 0.004 * H)
             pts.append(p)
         curve = K.catmull([V(p) for p in pts], per=10)
@@ -210,7 +215,7 @@ def paint(Pt):
     for S, rg in (('L', 5), ('R', 6)):
         L = Pt.lim['arm' + S]; tg = L['L'] * 0.66; m = Pt.m_reg(rg)
         cuff = m * (1 - K.sstep(tg + 0.026 * H, tg + 0.029 * H, L['t']))
-        Pt.fill(m, '#f4f2ee'); Pt.fill(cuff, ORANGE)
+        Pt.fill(m, '#f4f2ee'); Pt.fill(cuff, '#d3d7df')
         Pt.seam(np.where(m > 0.5, L['t'] - (tg + 0.0275 * H), 1e3), width=0.002 * H, depth=0.001 * H, dark=0.75)
         Pt.seam(np.where((m > 0.5) & (L['t'] > tg + 0.03 * H), (L['a'] - math.pi / 2) * L['r'], 1e3), width=0.0022 * H, depth=0.001 * H, dark=0.84)
         Pt.stitches(np.where((m > 0.5) & (L['t'] > tg + 0.03 * H), (L['a'] - math.pi / 2) * L['r'], 1e3), 0.004 * H, along=L['t'], col='#d4d0c8', width=0.0008 * H, period=0.006 * H)
@@ -225,6 +230,9 @@ def paint(Pt):
         Pt.bump(sole * K.puff(rib) * 0.0012 * H)
         Pt.shade(sole * (1 - K.puff(rib)) ** 3, 0.82)
         Pt.seam(np.where(m > 0.5, zf - 0.25, 1e3) * (bz - zb), width=0.0024 * H, depth=0.0014 * H, dark=0.72)
+        under = m * (1 - K.sstep(0.015, 0.03, zf)) * (Pt.N[:, 2] < -0.5)
+        tread = K.puff(np.mod((Pt.P[:, 1] + 0.3 * Pt.P[:, 0]) / (0.012 * H), 1.0))
+        Pt.fill(under, GREY_D); Pt.bump(under * tread * 0.0015 * H)
         cuffm = m * K.sstep(0.84, 0.86, zf)
         Pt.fill(cuffm, '#d6d9e0'); Pt.bump(cuffm * 0.001 * H)
         Pt.seam(np.where(m > 0.5, zf - 0.85, 1e3) * (bz - zb), width=0.002 * H, depth=0.001 * H, dark=0.8)
@@ -240,10 +248,11 @@ def paint(Pt):
         hole = mm * m * K.inside(K.sd_rrect(X, Y, 0.014 * H, 0.009 * H, 0.002 * H), 0.0008 * H)
         Pt.fill(buckle, METAL); Pt.fill(hole, ORANGE_D); Pt.bump((buckle - hole * 0.6) * 0.0018 * H)
     # yamalar: sol göğüs gezegen arması, sağ göğüs ada güneşi
-    zc = K.torso_z(B, 0.80)
-    c, u = K.anchor_torso(B, zc, 0.62)
-    X, Y, mm = Pt.decal(c, u); mm = mm * Pt.m_reg(0)
-    R = 0.032 * H
+    # kol armaları (omuz yastığının altında, dış yanda): sol kolda gezegenli arma, sağ kolda ada güneşi
+    c, u = K.anchor_limb(B, 'arm', 'L', B.elbow_t['L'] * 0.62, math.pi / 2)
+    X, Y, mm = Pt.decal(c, u, up=_arm_up(B, 'L')); mm = mm * Pt.m_reg(1)
+    R = 0.026 * H
+    Pt.h = Pt.h * (1 - mm * K.inside(K.sd_circle(X, Y, R + 0.004 * H), 0.002 * H))     # arma düz dursun (kapitone altında kalmasın)
     sdo = K.sd_circle(X, Y, R)
     disk = mm * K.inside(sdo, 0.0008 * H)
     Pt.fill(disk, NAVY); Pt.bump(disk * 0.0012 * H)
@@ -257,9 +266,10 @@ def paint(Pt):
     Pt.fill(st, '#ffd84d')
     for (sx, sy, sr) in ((-0.018, 0.008, 0.0028), (-0.012, -0.017, 0.0022), (0.019, -0.012, 0.002)):
         Pt.fill(mm * K.inside(K.star_sdf(X - sx * H, Y - sy * H, sr * H), 0.0004 * H), '#ffffff')
-    c, u = K.anchor_torso(B, zc, -0.62)
-    X, Y, mm = Pt.decal(c, u); mm = mm * Pt.m_reg(0)
-    sdr = K.sd_rrect(X, Y, 0.05 * H, 0.032 * H, 0.006 * H)
+    c, u = K.anchor_limb(B, 'arm', 'R', B.elbow_t['R'] * 0.62, math.pi / 2)
+    X, Y, mm = Pt.decal(c, u, up=_arm_up(B, 'R')); mm = mm * Pt.m_reg(2)
+    sdr = K.sd_rrect(X, Y, 0.042 * H, 0.03 * H, 0.006 * H)
+    Pt.h = Pt.h * (1 - mm * K.inside(sdr - 0.004 * H, 0.002 * H))
     tag = mm * K.inside(sdr, 0.0008 * H)
     Pt.fill(tag, '#4aa3df'); Pt.bump(tag * 0.0011 * H)
     Pt.fill(tag * K.inside(K.sd_circle(X, Y + 0.012 * H, 0.011 * H), 0.0005 * H), '#ffd24d')

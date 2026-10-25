@@ -314,8 +314,8 @@ def wheel(name, loc, r=0.32, w=0.24):
     t = EK.grid_obj(name, P, None, [TY], flip=False); EK.weld(t)
     parts = [t]
     for s in (-1, 1):
-        parts.append(EK.disc(name + '_side', r * 0.82, 0, 24, [TY], loc=(0, 0)))
-        o = parts[-1]; o.rotation_euler = (0, math.radians(90 * s), 0); o.location = (s * w * 0.48, 0, 0)
+        parts.append(EK.disc(name + '_side', r * 0.9, 0, 24, [TY], loc=(0, 0)))
+        o = parts[-1]; o.rotation_euler = (0, math.radians(90 * s), 0); o.location = (s * w * 0.5, 0, 0)
     parts.append(cyl(name + '_hub', (-w * 0.5, 0, 0), r * 0.5, 0.06, HUB, rot=(0, 90, 0), verts=16, bevel=0.01))
     parts.append(cyl(name + '_hub', (w * 0.5, 0, 0), r * 0.5, 0.06, HUB, rot=(0, 90, 0), verts=16, bevel=0.01))
     return group_transform(parts, loc)
@@ -507,5 +507,49 @@ def build_earth():
     return [hi], [lo], dict(cull=False, tex=512, ao_dist=0.1, ao_strength=0.0, cage=0.3, ray=0.8)
 
 
-BUILD = {'rs_dome': build_dome, 'rs_rocks': build_rocks, 'rs_crystals': build_crystals, 'rs_pennant': build_pennant, 'rs_cargo': build_cargo,
+# ================================================================== rs_planet (orijin merkez; küçük halkalı gezegen)
+
+def m_bands(name):
+    """Gezegen bantları (nesne z'si, gürültüyle dalgalı): mercan, kum, lavanta, krem; ince koyu ayrım çizgileri; bir girdap lekesi."""
+    def b(nt, bsdf):
+        G = EK.EG(nt); o = G.obj(); x, y, z = G.sep(o)
+        zz = G.math('ADD', z, G.math('MULTIPLY', G.noise(o, 0.12, 3), 2.2))
+        r = EK.ramp(nt, [(0.0, '#e07a5f'), (0.2, '#f1c27d'), (0.38, '#b39ddb'), (0.55, '#f6e3c3'), (0.72, '#e8936a'), (0.88, '#9e8bd0'), (1.0, '#f1c27d')])
+        G.l.new(G.math('FRACT', G.math('DIVIDE', G.math('ADD', zz, 12.0), 7.5)), r.inputs['Fac'])
+        col = r.outputs[0]
+        col = G.mix(G.rng(G.math('ABSOLUTE', G.math('SINE', G.math('MULTIPLY', zz, 2.6))), 0.06, 0.0, 0, 0.35), col, '#6b4f7a')
+        G.l.new(col, bsdf.inputs['Base Color'])
+    return EK.nodes_mat(name, b)
+
+
+def m_ring(name):
+    def b(nt, bsdf):
+        G = EK.EG(nt); o = G.obj(); x, y, z = G.sep(o)
+        rr = G.math('SQRT', G.math('ADD', G.math('MULTIPLY', x, x), G.math('MULTIPLY', y, y)))
+        r = EK.ramp(nt, [(0.0, '#d9c7a3'), (0.25, '#f2e2c0'), (0.45, '#b9a6d9'), (0.6, '#e9d2a8'), (0.8, '#c8b6e2'), (1.0, '#efe0c4')])
+        G.l.new(G.rng(rr, 16.0, 27.0), r.inputs['Fac'])
+        col = G.mix(G.rng(G.math('ABSOLUTE', G.math('SINE', G.math('MULTIPLY', rr, 5.0))), 0.1, 0.0, 0, 0.4), r.outputs[0], '#8f7fb0')
+        G.l.new(col, bsdf.inputs['Base Color'])
+    return EK.nodes_mat(name, b)
+
+
+def build_planet():
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=64, ring_count=32, radius=12.0, location=(0, 0, 0))
+    hi = bpy.context.object; hi.name = 'planet'; hi.data.materials.append(m_bands('pbands')); EK.A.smooth(hi)
+    def annulus(name, r0, r1, n, rows, mats):
+        th = np.linspace(0, TAU, n + 1); rs = np.linspace(r0, r1, rows)
+        TH, RR = np.meshgrid(th, rs)
+        o = EK.grid_obj(name, np.stack([RR * np.cos(TH), RR * np.sin(TH), np.zeros_like(TH)], -1), None, mats); EK.weld(o)
+        o.data.attributes.new('ds', 'INT', 'FACE').data.foreach_set('value', [1] * len(o.data.polygons))
+        o.rotation_euler = (math.radians(68), math.radians(-14), 0)
+        return o
+    ring = annulus('ring', 16.0, 27.0, 128, 12, [m_ring('pring')])
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=16, radius=12.0, location=(0, 0, 0))
+    lo = bpy.context.object; lo.name = 'planet_lo'; EK.A.smooth(lo)
+    for l in list(lo.data.uv_layers): lo.data.uv_layers.remove(l)
+    lr = annulus('ring_lo', 16.0, 27.0, 48, 3, [])
+    return [hi, ring], [EK.tag_uvw(lo, 1.0), EK.tag_uvw(lr, 0.8)], dict(cull=False, tex=1024, ao_dist=0.5, ao_strength=0.2, cage=0.25, ray=0.6, ds_low=True)
+
+
+BUILD = {'rs_planet': build_planet, 'rs_dome': build_dome, 'rs_rocks': build_rocks, 'rs_crystals': build_crystals, 'rs_pennant': build_pennant, 'rs_cargo': build_cargo,
          'rs_dish': build_dish, 'rs_rover': build_rover, 'rs_rocket': build_rocket, 'rs_ridge': build_ridge, 'rs_earth': build_earth}

@@ -383,9 +383,25 @@ def blanket(bm, B, offs, R, lap_iters=15, reach=0.07, only=None):
             best = max(best, hg * (0.5 + 0.5 * f))
         h[i] = best
     # vantuz halkasının ortası çukur kalmasın: önce iki halka en büyük taşırma, sonra ortalama
+    # dar aralık (koltuk altı: kol ile gövde arası birkaç cm): iki yanın kumaşı birbirinin içine girmesin → itme aralığın %42'si
+    gapcap = np.full(n, 1e9)
+    for i in range(n):
+        o = V(P[i]); d = V(N[i]); acc = 0.0
+        for _ in range(4):                    # kendi yüzeyinden çıkış (normal aynı yöne) atlanır; karşı parçaya giriş aranır
+            hit = B.bvh.ray_cast(o + d * 0.0005, d, 0.12 * B.H - acc)
+            if hit[0] is None: break
+            acc += hit[3] + 0.0005
+            if hit[1].dot(d) < 0: gapcap[i] = 0.42 * acc; break
+            o = hit[0]
+    for _ in range(2): gapcap = np.array([min([gapcap[i]] + [gapcap[j] for j in nb[i]]) for i in range(n)])
     for _ in range(1): h = np.array([max([h[i]] + [h[j] for j in nb[i]]) for i in range(n)])
     for _ in range(4): h = np.array([(2 * h[i] + sum(h[j] for j in nb[i])) / (2 + len(nb[i])) for i in range(n)])
-    out = P + N * (h + offs)[:, None]
+    tot = h + offs
+    capped = np.minimum(tot, np.maximum(gapcap, 0.25 * offs))
+    # yumuşat (kesik basamak olmasın)
+    for _ in range(3): capped = np.array([(2 * capped[i] + sum(capped[j] for j in nb[i])) / (2 + len(nb[i])) for i in range(n)])
+    capped = np.minimum(capped, tot)
+    out = P + N * capped[:, None]
     for i, v in enumerate(vs): v.co = V(out[i])
     return P, N
 

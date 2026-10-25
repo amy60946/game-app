@@ -49,7 +49,9 @@ namespace Pofi.EditorTools
             m.importCameras = false;
             m.importLights = false;
             // evre petleri: CosmeticModels deri ağını pişirip gerçek boyu/yüzü ölçer; eşyalar: gövde giysisi vücuttan kemik ağırlığı alır (SkinToBody)
-            m.isReadable = IsStagePet || assetPath.Replace('\\', '/').Contains("/Resources/Items/");
+            // Gezegen Koşusu Ay arazisi/krateri okunabilir: oyunda çarpıştırıcı olur, ayrıntı katmanı (MoonField) taşları zemine oturtur
+            var moonGround = assetPath.Replace('\\', '/').Contains("/Resources/Env/rs_ground") || assetPath.Replace('\\', '/').Contains("/Resources/Env/rs_crater");
+            m.isReadable = IsStagePet || assetPath.Replace('\\', '/').Contains("/Resources/Items/") || moonGround;
             // çevre modellerinde normal haritası var: yüksek sıkıştırma UV/teğetleri kaydırıp pişmiş dikişleri belli ediyordu
             m.meshCompression = assetPath.Replace('\\', '/').Contains("/Resources/Env/") ? ModelImporterMeshCompression.Low : ModelImporterMeshCompression.High;
             var isAnim = Path.GetFileNameWithoutExtension(assetPath).Contains("@");

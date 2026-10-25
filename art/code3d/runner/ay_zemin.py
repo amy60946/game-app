@@ -268,7 +268,7 @@ def prep_uvs(lo, y0, y1, um=U_GROUND, v_terrain=0.86, rows=2):
             co = co @ np.array(o.matrix_world.to_3x3()).T + np.array(o.matrix_world.translation)
             vi = np.empty(len(me.loops), np.int32); me.loops.foreach_get('vertex_index', vi)
             d = np.stack([u_of_x(co[vi, 0], um), (co[vi, 1] - y0) / (y1 - y0) * v_terrain], -1).astype(np.float32)
-            uv.data.foreach_set('uv', d.reshape(-1)); continue
+            uv.data.foreach_set('uv', d.reshape(-1)); me.update(); continue
         bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active = o
         bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
         bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.03, scale_to_bounds=True)
@@ -278,8 +278,8 @@ def prep_uvs(lo, y0, y1, um=U_GROUND, v_terrain=0.86, rows=2):
         d = np.empty(len(me.loops) * 2, np.float32); uv.data.foreach_get('uv', d); d = d.reshape(-1, 2)
         r, c = divmod(k, cols)
         d[:, 0] = (c + 0.03 + d[:, 0] * 0.94) * cw; d[:, 1] = v_terrain + (r + 0.03 + d[:, 1] * 0.94) * rh
-        uv.data.foreach_set('uv', d.reshape(-1)); k += 1
-    bpy.ops.object.select_all(action='DESELECT')
+        uv.data.foreach_set('uv', d.reshape(-1)); me.update(); k += 1      # update: birleştirme değerlendirilmiş ağı okur (yoksa eski UV)
+    bpy.ops.object.select_all(action='DESELECT'); bpy.context.view_layer.update()
 
 
 def keep_uv(L):

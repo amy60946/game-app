@@ -131,10 +131,12 @@ namespace Pofi.Screens
             // krater köprüsü: parkurun ~%48'inde, 40 m'lik arazi sınırına oturur
             _craterFrom = Mathf.Round(_course.Config.Goal * 0.48f / GroundTile) * GroundTile;
             _craterTo = _craterFrom + CraterLen;
+            if (_field != null) { _field.Clear(_course.Config.Goal); _field.CraterFrom = _craterFrom; _field.CraterTo = _craterTo; }
             for (var i = 0; i < _puffs.Length; i++) if (_puffs[i] != null) _puffs[i].gameObject.SetActive(false);
             _decorRng = new System.Random(seed ^ 0x5f3759);
             _camX = 0f; _wasJumping = false; _wasSliding = false; _lastLane = 1; _hop = 0f; _stumble = 0f; _teach = null; _teachBlock = false;
             Stream();
+            for (var i = 0; i < 4 && _field != null; i++) _field.Tick(_run.Z);   // açılışta önü dolu olsun
             PlacePet(0f);
             Cam(0f, true);
         }
@@ -184,6 +186,7 @@ namespace Pofi.Screens
             _run.Step(simDt, act, _events);
             foreach (var e in _events) OnEvent(e);
             Stream();
+            if (_field != null) _field.Tick(_run.Z);
             PlacePet(dt);
             Cam(dt, false);
             UpdateHud();
@@ -496,6 +499,7 @@ namespace Pofi.Screens
 
         private Transform _sky;   // gök cisimleri + yıldızlar: kamerayla birlikte ilerler (hiç yaklaşmaz)
         private Transform _earth; private Vector3 _earthScale;
+        private MoonField _field;   // Ay zemininin yakın ayrıntısı (çakıl, kaya, küçük krater, toz, iz, kristal kırıntısı)
         private Color _ambSky, _ambEq, _ambGround;
         private readonly List<(Light L, Quaternion Rot, Color Col, float Int)> _lights = new List<(Light, Quaternion, Color, float)>();
 
@@ -532,7 +536,14 @@ namespace Pofi.Screens
                 mid.SetParent(_ground, false); mid.localScale = new Vector3(20f, 1f, 70f); mid.localPosition = new Vector3(0f, -0.03f, 0f);
                 var mr = mid.GetComponent<Renderer>(); mr.sharedMaterial = baseMat; mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             }
-            if (_kit.Space) BuildMoonSky(); else BuildDesertFar();
+            if (_kit.Space)
+            {
+                BuildMoonSky();
+                _field = new GameObject("MoonField").AddComponent<MoonField>();
+                _field.transform.SetParent(_world, false);
+                _field.Init(1e9f);
+            }
+            else BuildDesertFar();
             // kaçan rehber (kuyrukluyıldız / altın skarabe)
             _lead = MakeLead();
             _lead.SetParent(_world, false);
@@ -827,9 +838,9 @@ namespace Pofi.Screens
                     if (g0 >= _craterFrom && g0 < _craterTo)
                     {
                         if (Mathf.Abs(g0 - _craterFrom) < 0.1f)
-                            Live("rs_crater_bridge", () => CraterBridge(), new Vector3(0f, 0f, _craterFrom + CraterLen / 2f), 0f, _craterTo + 30f);
+                            GroundCollider(Live("rs_crater_bridge", () => CraterBridge(), new Vector3(0f, 0f, _craterFrom + CraterLen / 2f), 0f, _craterTo + 30f));
                     }
-                    else Live(_spawnGround % 2 == 0 ? "rs_ground_a" : "rs_ground_b", () => GroundPiece(), new Vector3(0f, 0f, g0 + GroundTile / 2f), 0f, g0 + GroundTile + 30f);
+                    else GroundCollider(Live(_spawnGround % 2 == 0 ? "rs_ground_a" : "rs_ground_b", () => GroundPiece(), new Vector3(0f, 0f, g0 + GroundTile / 2f), 0f, g0 + GroundTile + 30f));
                     _spawnGround++;
                 }
                 // yolun dibinden akan çakıllar (en güçlü hız ipucu: yakından hızla geçen küçük nesneler)
@@ -927,6 +938,18 @@ namespace Pofi.Screens
                 t.localScale = Vector3.one * F(0.6f, 1.7f);
             }
             else Live("rs_crystals", () => Crystals(), new Vector3(side * F(7f, 14f), 0f, dz), F(0f, 360f), dz + 3f);
+        }
+
+        /// <summary>Ay arazisi parçasına çarpıştırıcı (bir kez): ayrıntı katmanı taşları gerçek zemin yüksekliğine oturtur.</summary>
+        private static void GroundCollider(Transform t)
+        {
+            if (t == null || t.GetComponentInChildren<MeshCollider>() != null) return;
+            foreach (var mf in t.GetComponentsInChildren<MeshFilter>())
+            {
+                if (mf.sharedMesh == null || !mf.sharedMesh.isReadable) continue;
+                mf.gameObject.layer = MoonField.GroundLayer;
+                mf.gameObject.AddComponent<MeshCollider>().sharedMesh = mf.sharedMesh;
+            }
         }
 
         private Transform Live(string key, Func<Transform> fallback, Vector3 pos, float yaw, float until)
