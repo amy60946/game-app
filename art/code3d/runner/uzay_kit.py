@@ -197,10 +197,15 @@ def tie(loc, axis, r, mat=None):
     t.data.materials.append(mat or _cached('tiemat', lambda: m_rubber('tiemat', '#2b2a38'))); return t
 
 
-def lamp(name, loc, r, hexc, cage=True, base_h=0.04, metal=None):
-    """Lamba: ampul (ışık boyası), metal taban halkası, isteğe bağlı 3 tel kafes. Döner: parçalar."""
+def lamp(name, loc, r, hexc, cage=True, base_h=0.04, metal=None, dome=False):
+    """Lamba: ampul (ışık boyası), metal taban halkası, isteğe bağlı 3 tel kafes. dome: yuvaya oturmuş basık kubbe (işaret lambası).
+    Döner: parçalar."""
     M = metal or _cached('lampmetal', lambda: m_metal('lampmetal', GUN, dust=0.4))
-    G_ = m_glow(name + '_glow', hexc)
+    G_ = _cached('glow' + hexc, lambda: m_glow('glow' + hexc, hexc))
+    if dome:
+        parts = [cyl(name + '_base', (loc[0], loc[1], loc[2] + base_h / 2), r * 1.3, base_h, M, verts=16, bevel=0.006),
+                 blob(name + '_bulb', (loc[0], loc[1], loc[2] + base_h * 0.8), (r, r, r * 0.75), G_, seg=20)]
+        return parts
     parts = [blob(name + '_bulb', (loc[0], loc[1], loc[2] + r * 0.85), (r, r, r * 0.95), G_, seg=20)]
     parts.append(cyl(name + '_base', (loc[0], loc[1], loc[2] + base_h / 2), r * 0.8, base_h, M, verts=14, bevel=0.004))
     if cage:

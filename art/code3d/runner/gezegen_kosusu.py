@@ -193,11 +193,11 @@ def floor_maps(ppm=140, seed=5):
         for k in range(8):
             ys_ = -SEG / 2 + k * 1.25
             cv.line([(min(f0, f1), ys_), (max(f0, f1), ys_)], 0.01, layer='groove')
-    hc, over, shade = EK.finish_relief(cv, depth=0.006, groove=0.004, bevel=0.003, fade=0.22, chips=0.45, seed=seed, wrap=(True, False), stone_dark=0.05)
+    hc, over, shade = EK.finish_relief(cv, depth=0.006, groove=0.004, bevel=0.003, fade=0.15, chips=0.15, seed=seed, wrap=(True, False), stone_dark=0.05)
     h = h + hc
     # çizik + lastik sürtme izi (şerit ortasında), oyuk kiri
     sc = Image.new('L', (nx, ny), 0); ds = ImageDraw.Draw(sc)
-    for k in range(260):
+    for k in range(150):
         c = R.choice(LANES) + R.gauss(0, 0.3); y = R.uniform(-5, 5); Ln = R.uniform(0.15, 0.6); ang = R.gauss(math.pi / 2, 0.25)
         pts = [px(sx(c + math.cos(ang) * Ln * t), y + math.sin(ang) * Ln * t) for t in (0, 0.5, 1)]
         for sh in (-SEG, 0, SEG): ds.line([(q[0], q[1] + sh * ppm) for q in pts], fill=R.randint(90, 200), width=1)
@@ -213,7 +213,7 @@ def floor_maps(ppm=140, seed=5):
     sh3 *= (0.95 + 0.1 * fnoise(h.shape, 0.4 * ppm, seed + 9, 3))[..., None]
     o3 = over[..., :3]; oa = over[..., 3]
     sca = scuff * 0.45; o3 = np.where((sca > oa)[..., None], EK.lin('#4a465c'), o3); oa = np.maximum(oa, sca)
-    sra = SCR * 0.55; o3 = np.where((sra > oa)[..., None], EK.lin('#d7dbe3'), o3); oa = np.maximum(oa, sra)
+    sra = SCR * 0.35; o3 = np.where((sra > oa)[..., None], EK.lin('#d7dbe3'), o3); oa = np.maximum(oa, sra)
     over = np.concatenate([o3, oa[..., None]], -1)
     h = h - 0.0006 * SCR
     nrm = EK.normal_from_height(h, ppm, (True, False))
@@ -261,7 +261,7 @@ def build_floor():
     XL, YL = np.meshgrid(np.array([-3.4, 0.0, 3.4]), np.linspace(-5, 5, 3))
     lo.append(EK.tag_uvw(EK.grid_obj('under_lo', np.stack([XL, YL, np.full_like(XL, -0.24)], -1), None, [], flip=True), 0.3))
     # kirişler (lacivert, I kesitli): x = ±2,0, z −0,24..−0,56
-    GD = UK.m_paint('girder', UK.NAVY, period=SEG, chips=0.5, dust=0.0, grime=0.5, under=UK.STEEL, seed=2.0)
+    GD = UK.m_paint('girder', UK.NAVY, period=SEG, chips=0.3, dust=0.0, grime=0.5, under=UK.STEEL, seed=2.0)
     def ibeam(cx):
         return [(cx - 0.05, -0.53), (cx - 0.05, -0.27), (cx - 0.13, -0.27), (cx - 0.13, -0.24), (cx + 0.13, -0.24), (cx + 0.13, -0.27), (cx + 0.05, -0.27),
                 (cx + 0.05, -0.53), (cx + 0.13, -0.53), (cx + 0.13, -0.56), (cx - 0.13, -0.56), (cx - 0.13, -0.53)]
@@ -292,9 +292,14 @@ def build_floor():
     for (cx, r, m, ph) in ((-0.45, 0.035, CC, 0.0), (-0.36, 0.028, CT, 0.4), (0.55, 0.032, CT, 0.9)):
         def fn(y, cx=cx, ph=ph):
             q = ((y - 1.25) % 2.5) / 2.5
-            return (cx + 0.02 * math.sin(y * 1.3 + ph), -0.5 - 0.22 * math.sin(math.pi * q) ** 1.3)
+            return (cx + 0.02 * math.sin(y * 1.3 + ph), -0.6 - 0.2 * math.sin(math.pi * q) ** 1.3)
         hi.append(ptube('cable', fn, -6.5, 6.5, r, [m], sides=10, step=0.06))
         lo.append(EK.tag_uvw(ptube('cable_lo', fn, -5.0, 5.0, r, [], sides=5, step=0.42), 0.4))
+    for yb in (-3.75, -1.25, 1.25, 3.75):                          # kablo askısı: kirişten sarkan kelepçe
+        for sh, keep in repeats(yb):
+            hk = EK.rounded_box('hanger', (1.25, 0.05, 0.06), 0.01, 0.02, [ST], loc=(0.05, yb + sh, -0.575), seed=int(yb * 7 + sh))
+            hi.append(hk)
+            if keep: lo += [EK.tag_uvw(q, 0.3) for q in EK.BK.build_low([hk], [(r'.', 0.05)])]
     # itici kapsüller (y = 0, iki yanda) ve dengeleyici kanatçıklar (y = ±2,5)
     for sgn in (-1, 1):
         parts = thruster((sgn * 3.15, 0.0, -0.3))
@@ -309,7 +314,7 @@ def build_floor():
         for k in range(8):
             yb = -4.375 + k * 1.25
             for sh, keep in repeats(yb):
-                parts = UK.lamp('mlamp', (sgn * 3.5, yb + sh, 0.12), 0.045, UK.CYAN if k % 2 == 0 else UK.SUN, cage=False, base_h=0.025)
+                parts = UK.lamp('mlamp', (sgn * 3.5, yb + sh, 0.105), 0.05, UK.CYAN if k % 2 == 0 else UK.SUN, cage=False, base_h=0.035, dome=True)
                 hi += parts
                 if keep: lo += [EK.tag_uvw(q, 1.0) for q in EK.BK.build_low(parts, [(r'_bulb$', 0.12), (r'_base$', 0.5)])]
     return hi, lo, dict(cull=False, ao_dist=0.45, ao_strength=0.5, tex=1024, cage=0.02, ray=0.08, draft=dict(yaw=24, pitch=6, target=(2.6, 0, -0.2), dist=6.5))
@@ -362,9 +367,124 @@ def fin(loc, sgn):
     return o
 
 
+# ================================================================== rs_wall (sağ korkuluk; sol = aynı model, x ölçeği −1)
+
+WX = 3.86                  # direk / küpeşte ekseni
+
+
+def kick_decal():
+    """Tekmelik paneli haritası (u = y, 10 m sarmalı; v = yükseklik 0,22 m): lacivert zemin, nane çizgi, direk aralarında
+    çıkartmalar (yıldız, gezegen, ok), kenarlarda perçin sırası."""
+    cv = EK.Canvas(SEG, 0.22, 300, wrap_u=True, u0=-SEG / 2)
+    cv.rect(-SEG / 2 - 1, 0.0, SEG / 2 + 1, 0.22, carve=False, col=EK.C(UK.NAVY))
+    cv.rect(-SEG / 2 - 1, 0.165, SEG / 2 + 1, 0.18, carve=False, col=EK.C(UK.MINT))
+    R = random.Random(7)
+    for k in range(4):
+        y = -5.0 + k * 2.5
+        kind = ('planet', 'star', 'chev', 'star')[k]
+        if kind == 'planet': UK.d_planet(cv, y, 0.085, 0.05, body=UK.CORAL, ring=UK.SUN)
+        elif kind == 'star':
+            for d, c in ((-0.16, UK.SUN), (0.0, UK.MINT), (0.16, UK.CORAL)): UK.d_star(cv, y + d, 0.085, 0.045, col=c)
+        else: UK.d_chevrons(cv, y - 0.25, 0.035, 0.12, 0.11, 2, col=UK.SUN) if False else [UK.d_star(cv, y + d, 0.085, 0.04, col=UK.CYAN) for d in (-0.1, 0.1)]
+    for k in range(80):
+        y = -5.0 + k * 0.125 + 0.0625
+        for v in (0.02, 0.2): UK.d_bolt(cv, y, v, 0.007)
+    h, over, shade = EK.finish_relief(cv, depth=0.004, groove=0.002, bevel=0.002, fade=0.15, chips=0.2, seed=7, wrap=(False, True), stone_dark=0.0)
+    return EK.Decal('kick', over=over, shade=shade, normal=EK.normal_from_height(h, 300, (False, True)), ext='REPEAT')
+
+
+def build_wall():
+    hi = []; lo = []
+    SIL = UK.m_paint('sill', UK.TEAL, period=SEG, chips=0.35, dust=0.0, grime=0.45, seed=1.0)
+    STL = UK.m_metal('wallsteel', UK.STEEL, period=SEG, dust=0.0)
+    POST = UK.m_paint('post', UK.CORAL, chips=0.4, dust=0.0, grime=0.45, seed=2.0)
+    RAIL = UK.m_paint('rail', UK.CREAM, period=SEG, chips=0.3, dust=0.0, grime=0.4, under=UK.STEEL, seed=3.0)
+    KP = UK.m_paint('kickedge', UK.NAVY, period=SEG, chips=0.3, dust=0.0, grime=0.4, seed=4.0)
+    GUN = UK.m_metal('wallgun', UK.GUN, dust=0.0)
+    # küpeşte altı kiriş (eşik): güverte yan yüzüne konsollarla bağlı, x 3,74–3,98
+    sill = rbox_loop(0.24, 0.08, 3.86, 0.02, 0.015, 3)
+    hi.append(prism('sill', sill, -6.5, 6.5, [SIL], rows=131)); lo.append(EK.tag_uvw(prism('sill_lo', rbox_loop(0.24, 0.08, 3.86, 0.02, 0.015, 2), -5, 5, [], rows=2), 0.6))
+    # konsollar (1,25 m'de bir): yan yüze cıvatalı üçgen levha
+    for k in range(8):
+        yb = -4.375 + k * 1.25
+        for sh, keep in repeats(yb):
+            y = yb + sh
+            verts = [(3.7, y - 0.02, -0.22), (3.7, y - 0.02, -0.02), (3.98, y - 0.02, -0.02), (3.7, y + 0.02, -0.22), (3.7, y + 0.02, -0.02), (3.98, y + 0.02, -0.02)]
+            o = EK.mesh_obj('bracket', verts, [(0, 2, 1), (3, 4, 5), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)], [GUN], smooth=False)
+            bm = bmesh.new(); bm.from_mesh(o.data); bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(o.data); bm.free()
+            hi.append(o)
+            plate = EK.rounded_box('bplate', (0.012, 0.16, 0.2), 0.004, 0.01, [GUN], loc=(3.706, y, -0.12), seed=k)
+            hi.append(plate)
+            for (dy, dz) in ((-0.05, -0.05), (0.05, -0.05), (-0.05, -0.18), (0.05, -0.18)):
+                hi.append(UK.bolt((3.712, y + dy, -0.12 + dz + 0.115 - 0.06), (1, 0, 0), 0.011))
+            if keep:
+                c = EK.mesh_obj('bracket_lo', verts, [(0, 2, 1), (3, 4, 5), (0, 1, 4, 3), (1, 2, 5, 4), (2, 0, 3, 5)], [], smooth=False)
+                bm = bmesh.new(); bm.from_mesh(c.data); bmesh.ops.recalc_face_normals(bm, faces=bm.faces); bm.to_mesh(c.data); bm.free()
+                lo.append(EK.tag_uvw(c, 0.4)); lo += [EK.tag_uvw(q, 0.3) for q in EK.BK.build_low([plate], [(r'.', 0.05)])]
+    # tekmelik paneli (eşik üstünde, z 0,08–0,30): yüzü çıkartmalı
+    dec = kick_decal()
+    KF = UK.m_paint('kickface', UK.NAVY, period=SEG, chips=0.0, dust=0.0, grime=0.4, dec=dec, scratch=0.3, seed=5.0)
+    ys = np.linspace(-6.5, 6.5, 131); zs = np.linspace(0.08, 0.3, 6)
+    YY, ZZ = np.meshgrid(ys, zs)
+    P = np.stack([np.full_like(YY, WX - 0.016), YY, ZZ], -1); UV = np.stack([(YY + SEG / 2) / SEG, (ZZ - 0.08) / 0.22], -1)
+    hi.append(EK.grid_obj('kickface', P, UV, [KF], flip=False))
+    kp = rbox_loop(0.03, 0.22, WX, 0.19, 0.008, 2)
+    hi.append(prism('kick', kp, -6.5, 6.5, [KP], rows=131)); lo.append(EK.tag_uvw(prism('kick_lo', kp, -5, 5, [], rows=2), 1.0))
+    # direkler (y ≡ 1,25 mod 2,5): mercan kare boru, krem top başlık, cıvatalı taban levhası, sarı yansıtıcı
+    CAP = UK.m_paint('postcap', UK.CREAM, chips=0.3, dust=0.0, seed=6.0); REF = UK.m_glow('reflector', UK.SUN, hot=0.5)
+    for yb in (-3.75, -1.25, 1.25, 3.75):
+        for sh, keep in repeats(yb):
+            y = yb + sh
+            parts = [EK.rounded_box('post', (0.08, 0.08, 1.14), 0.018, 0.02, [POST], loc=(WX, y, 0.06 + 0.57), chips=0.004, seed=int(y * 9) + 90),
+                     blob('postcap', (WX, y, 1.24), (0.055, 0.055, 0.05), CAP, seg=16),
+                     EK.rounded_box('postbase', (0.16, 0.16, 0.025), 0.006, 0.02, [STL], loc=(WX, y, 0.072), seed=int(y * 3) + 3),
+                     EK.rounded_box('reflect', (0.012, 0.04, 0.09), 0.005, 0.01, [REF], loc=(WX - 0.045, y, 0.95))]
+            hi += parts
+            for (dx, dy) in ((-0.055, -0.055), (0.055, -0.055), (-0.055, 0.055), (0.055, 0.055)): hi.append(UK.bolt((WX + dx, y + dy, 0.085), (0, 0, 1), 0.01))
+            if keep: lo += [EK.tag_uvw(q, 1.0) for q in EK.BK.build_low(parts, [(r'^post$', 0.008), (r'^postcap$', 0.08), (r'^postbase$', 0.03), (r'^reflect$', 0.1)])]
+    # küpeşte (z 1,2) ve ara korkuluk (z 0,68): dönemli borular
+    for (z, r, m) in ((1.195, 0.034, RAIL), (0.68, 0.022, RAIL)):
+        fn = (lambda y, z=z: (WX, z))
+        hi.append(ptube('rail', fn, -6.5, 6.5, r, [m], sides=12, step=0.1)); lo.append(EK.tag_uvw(ptube('rail_lo', fn, -5, 5, r, [], sides=6, step=2.5), 0.7))
+    # kablo demeti (mercan + camgöbeği) ara korkuluğun altında, 0,625 m'de bir kelepçe, aralarda hafif sarkma
+    CC = UK.m_rubber('wcab_c', UK.CORAL, period=SEG); CT = UK.m_rubber('wcab_t', UK.TEAL, period=SEG)
+    for (dx, r, m) in ((-0.012, 0.016, CC), (0.022, 0.014, CT)):
+        def fn(y, dx=dx):
+            q = ((y + 0.3125) % 0.625) / 0.625
+            return (WX + dx, 0.63 - 0.035 * math.sin(math.pi * q) ** 1.5)
+        hi.append(ptube('wcable', fn, -6.5, 6.5, r, [m], sides=8, step=0.04)); lo.append(EK.tag_uvw(ptube('wcable_lo', fn, -5, 5, r, [], sides=5, step=0.3125), 0.4))
+    TIE = UK.m_rubber('wtie', '#2b2a38')
+    for k in range(16):
+        yb = -4.6875 + k * 0.625
+        for sh, keep in repeats(yb):
+            hi.append(UK.tie((WX + 0.005, yb + sh, 0.645), (0, 1, 0), 0.04, TIE))
+    # lamba direği (y = 0): ince direk, bağlantı kutusu, yuvarlak ampul (sarı, camgöbeği bant), lacivert şapka
+    LP = UK.m_paint('lpole', UK.NAVY, chips=0.4, dust=0.0, seed=7.0)
+    BOX = UK.m_paint('jbox', UK.SUN, chips=0.4, dust=0.0, seed=8.0)
+    BULB = UK.m_glow('bulb', UK.SUN, hot=0.85); BAND = UK.m_glow('bulbband', UK.CYAN, hot=0.5)
+    lp = [cyl('lp_pole', (WX, 0.0, 0.06 + 0.78), 0.032, 1.56, LP, verts=16, bevel=0.0),
+          EK.rounded_box('lp_box', (0.1, 0.16, 0.2), 0.015, 0.02, [BOX], loc=(WX - 0.06, 0.0, 0.42), chips=0.004, seed=11),
+          blob('lp_bulb', (WX, 0.0, 1.74), (0.12, 0.12, 0.12), BULB, seg=24),
+          EK.lathe_grid('lp_band', [(0.0, 0.0), (0.124, 0.0), (0.124, 0.03), (0.0, 0.03)], 24, [BAND], loc=(WX, 0.0, 1.725), uv=False),
+          EK.lathe_grid('lp_hood', [(0.0, 0.0), (0.1, 0.0), (0.075, 0.05), (0.03, 0.08), (0.0, 0.085)], 20, [LP], loc=(WX, 0.0, 1.84), uv=False),
+          EK.lathe_grid('lp_neck', [(0.0, 0.0), (0.04, 0.0), (0.05, 0.05), (0.06, 0.08), (0.0, 0.08)], 16, [GUN], loc=(WX, 0.0, 1.6), uv=False),
+          EK.rounded_box('lp_base', (0.18, 0.18, 0.03), 0.008, 0.02, [STL], loc=(WX, 0.0, 0.075), seed=12)]
+    lp.append(UK.cable('lp_cab', [(WX - 0.06, 0.03, 0.32), (WX - 0.05, 0.08, 0.5), (WX - 0.02, 0.1, 0.6)], 0.012, CC, res=3))
+    for (dx, dy) in ((-0.065, -0.065), (0.065, -0.065), (-0.065, 0.065), (0.065, 0.065)): hi.append(UK.bolt((WX + dx, dy, 0.09), (0, 0, 1), 0.01))
+    for dz in (0.37, 0.47): hi.append(UK.rivet((WX - 0.11, 0.0, dz), (-1, 0, 0), 0.01))
+    kit.to_mesh_all()
+    hi += lp
+    lo += [EK.tag_uvw(q, 1.4) for q in EK.BK.build_low(lp, [(r'^lp_pole$', 0.5), (r'^lp_box$', 0.03), (r'^lp_bulb$', 0.1), (r'^lp_band$', 0.6), (r'^lp_hood$', 0.6),
+                                                          (r'^lp_neck$', 0.5), (r'^lp_base$', 0.03), (r'^lp_cab$', 0.3)])]
+    # AO gölgeleyici: güverte (seçilmez, dışa aktarılmaz)
+    bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, -0.09)); o = bpy.context.object; o.scale = (7.4, 16, 0.42); o.name = 'occ'
+    return hi, lo, dict(cull=True, ao_dist=0.35, ao_strength=0.5, tex=1024, cage=0.015, ray=0.06,
+                        draft=dict(yaw=-62, pitch=14, target=(3.9, 0.0, 0.6), dist=5.5))
+
+
 # ================================================================== çalıştırma
 
-BUILD = {'rs_floor': build_floor}
+BUILD = {'rs_floor': build_floor, 'rs_wall': build_wall}
 
 
 def preview_angle(name):
