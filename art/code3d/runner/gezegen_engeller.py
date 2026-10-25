@@ -203,7 +203,7 @@ def build_low():
     STRIPE = UK.m_paint('pipes', UK.CORAL, chips=0.25, dust=0.2, grime=0.4, seed=2.0, scale=3.0)
     FL = UK.m_metal('flange', UK.STEEL, dust=0.3); GN = UK.m_metal('pfoot', UK.GUN, dust=0.3)
     GL = UK.m_glow('pglow', UK.CYAN, hot=0.6); WH = UK.m_paint('wheel', UK.SUN, chips=0.4, dust=0.2, seed=3.0)
-    R0, ZC, X1 = 0.2, 0.32, 3.1
+    R0, ZC, X1 = 0.2, 0.305, 3.1
     hi = []
     # düz boru: 0,3 m'lik mercan/krem bantlar (ayrı parçalar: renk sınırı keskin)
     n = int(round(2 * X1 / 0.3))
@@ -214,20 +214,20 @@ def build_low():
     # uçlarda dirsek: aşağı kıvrılıp flanşlı tabana iner
     for sx in (-1, 1):
         rr = 0.3
-        pts = []
+        pts = [(sx * (X1 - 0.05), 0.0, ZC)]
         for k in range(9):
             a = k / 8 * math.pi / 2
             pts.append((sx * (X1 + rr * math.sin(a)), 0.0, ZC - rr * (1 - math.cos(a))))
-        pts.append((sx * (X1 + rr), 0.0, 0.05))
-        hi.append(tube('elbow', pts, [R0] * len(pts), STRIPE, res=6))
+        pts.append((sx * (X1 + rr), 0.0, 0.02))
+        hi.append(EK.sweep('elbow', pts, [R0] * len(pts), [STRIPE], sides=16))
         hi.append(cyl('basefl', (sx * (X1 + rr), 0, 0.03), 0.26, 0.06, FL, verts=24, bevel=0.01))
         for k in range(8):
             a = k / 8 * TAU; hi.append(UK.bolt((sx * (X1 + rr) + math.cos(a) * 0.21, math.sin(a) * 0.21, 0.06), (0, 0, 1), 0.016))
         hi.append(cyl('flange', (sx * (X1 + rr), 0, 0.16), R0 + 0.03, 0.05, FL, verts=24, bevel=0.008))
     # flanşlar + ışık halkası (1,1 m'de bir), ayaklar
     for fx in (-2.2, -1.1, 0.0, 1.1, 2.2):
-        hi.append(cyl('flange', (fx, 0, ZC), R0 + 0.035, 0.07, FL, rot=(0, 90, 0), verts=28, bevel=0.01))
-        hi.append(cyl('glowring', (fx, 0, ZC), R0 + 0.038, 0.018, GL, rot=(0, 90, 0), verts=28, bevel=0.0))
+        hi.append(cyl('flange', (fx, 0, ZC), R0 + 0.03, 0.07, FL, rot=(0, 90, 0), verts=28, bevel=0.01))
+        hi.append(cyl('glowring', (fx, 0, ZC), R0 + 0.033, 0.018, GL, rot=(0, 90, 0), verts=28, bevel=0.0))
         for k in range(8):
             a = k / 8 * TAU + 0.2
             for s in (-1, 1): hi.append(UK.bolt((fx + s * 0.037, math.cos(a) * (R0 + 0.022), ZC + math.sin(a) * (R0 + 0.022)), (s, 0, 0), 0.011))

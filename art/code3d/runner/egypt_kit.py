@@ -836,3 +836,38 @@ def fbx_stats(name):
     lo = [min(p_[i] for p_ in pts) for i in range(3)]; hi = [max(p_[i] for p_ in pts) for i in range(3)]
     tex = {k: Image.open(p + k + '.png').size[0] for k in ('_basecolor', '_normal') if os.path.exists(p + k + '.png')}
     return dict(tris=tris, lo=[round(x, 3) for x in lo], hi=[round(x, 3) for x in hi], tex=tex)
+
+
+def sweep(name, pts, radii, mats=(), sides=12, caps=True):
+    """Yol boyunca boru (paralel taşıma çerçeveli; Bezier tutamak taşması yok). pts: [(x,y,z)], radii: nokta başına yarıçap."""
+    P = [V(p) for p in pts]; n = len(P)
+    T = [(P[min(i + 1, n - 1)] - P[max(i - 1, 0)]).normalized() for i in range(n)]
+    N = T[0].orthogonal().normalized(); frames = []
+    for i in range(n):
+        if i:
+            b = T[i - 1].cross(T[i])
+            if b.length > 1e-6:
+                ang = T[i - 1].angle(T[i]); from mathutils import Matrix
+                N = Matrix.Rotation(ang, 3, b.normalized()) @ N
+        frames.append((N.copy(), T[i].cross(N).normalized()))
+    G = np.zeros((n, sides + 1, 3))
+    for i in range(n):
+        Nn, Bn = frames[i]
+        for j in range(sides + 1):
+            a = j / sides * TAU; G[i, j] = tuple(P[i] + (Nn * math.cos(a) + Bn * math.sin(a)) * radii[i])
+    o = grid_obj(name, G, None, mats)
+    weld(o)
+    bm = bmesh.new(); bm.from_mesh(o.data); bm.verts.ensure_lookup_table()
+    if caps:
+        for i in (0, n - 1):
+            ring = [v for v in bm.verts if (v.co - P[i]).length < radii[i] * 1.01 + 1e-5 and abs((v.co - P[i]).dot(T[i])) < 1e-4]
+            if len(ring) >= 3:
+                c = P[i]; Nn, Bn = frames[i]
+                ring.sort(key=lambda v: math.atan2((v.co - c).dot(Bn), (v.co - c).dot(Nn)))
+                try: bm.faces.new(ring)
+                except ValueError: pass
+    bm.normal_update()
+    ctr = sum((V(p) for p in pts), V((0, 0, 0))) / n
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(o.data); bm.free()
+    return o

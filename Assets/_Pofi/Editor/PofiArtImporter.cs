@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 13;   // 13: eşyalar okunabilir (gövde giysisi vücuda deri olarak bağlanır)   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
+        public override uint GetVersion() => 14;   // 14: koşu oyunu Env/rs_* dokuları 1024, Ay arazisi/krater 2048   // 13: eşyalar okunabilir (gövde giysisi vücuda deri olarak bağlanır)   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -175,7 +175,11 @@ namespace Pofi.EditorTools
             var resident = (assetPath.Replace('\\', '/').Contains("/Resources/Env/res_") || assetPath.Replace('\\', '/').Contains("/Resources/Env/palm/")) && !normal;   // + ayrıntılı palmiye (palm_v2)
             // tapınak avlusu (30 × 22 m, tek doku; art/code3d/v6/temple_game.py): eskitme/fener ayrıntısı 1024'te siliniyordu (24 Ekim 2026)
             var hero = file.StartsWith("b_temple") && !normal;
-            t.maxTextureSize = hero ? 2048 : (IsPet && !normal) || building || tree || resident ? 1024 : 512;
+            // Gezegen Koşusu (25 Ekim 2026; art/code3d/runner): yol, korkuluk, kapı, Ay üssü 1024; Ay arazisi ve krater köprüsü
+            // (40–80 m'ye tek doku, kamera hemen üstünde) 2048 — kullanıcı: "hız, derinlik ve ayrıntı en iyi şekilde geçsin"
+            var runnerPath = assetPath.Replace('\', '/').Contains("/Resources/Env/rs_");
+            var runnerGround = runnerPath && (file.StartsWith("rs_ground") || file.StartsWith("rs_crater")) && !normal;
+            t.maxTextureSize = hero || runnerGround ? 2048 : (IsPet && !normal) || building || tree || resident || runnerPath ? 1024 : 512;
             t.mipmapEnabled = true;
             t.textureCompression = TextureImporterCompression.Compressed;
             t.crunchedCompression = false;

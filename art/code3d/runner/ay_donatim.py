@@ -130,8 +130,8 @@ def build_dome():
     for k in range(32):
         a = k / 32 * TAU; hi.append(UK.bolt((math.cos(a) * (R0 + 0.06), math.sin(a) * (R0 + 0.06), ZB / 2), (math.cos(a), math.sin(a), 0), 0.04))
     # lomboz pencereler (önde yarım çevre)
-    for k, a_deg in enumerate((-150, -120, -60, -30, 200, -10)):
-        a = math.radians(a_deg); el = math.radians(28 if k % 2 == 0 else 40)
+    for k, a_deg in enumerate((-148, -112, -68, -32, 160, 20)):
+        a = math.radians(a_deg); el = math.radians(30 if k % 2 == 0 else 22)
         n = V((math.cos(a) * math.cos(el), math.sin(a) * math.cos(el), math.sin(el)))
         hi += porthole('port', tuple(V((0, 0, ZB)) + n * (R0 + 0.02)), tuple(n), 0.42 if k % 2 == 0 else 0.32, glow=UK.SUN if k % 3 else '#ffcf6a')
     # hava kilidi tüneli (önde, −Y) + kapı
@@ -186,7 +186,7 @@ def build_rocks():
         o = GE.lumpy_rock('mrock', (s * 1.35, s * 1.05, s * 0.85), REG(), seed=60 + k, sub=4, flat=s * 0.15, rough=0.2,
                           craters=[((0.3, -1, 0.6), 0.32, 0.16), ((-0.7, 0.2, 0.8), 0.22, 0.12)] if s > 0.5 else ())
         o.location = (x, y, -s * 0.1); o.rotation_euler = (0, 0, k * 1.3); hi.append(o)
-    hi.append(GE_mound('rdust', 0.1, 0.0, 1.9, 1.5, 0.16, 4))
+    hi.append(GE_mound('rdust', 0.1, 0.0, 1.45, 1.1, 0.09, 4))
     R = random.Random(5)
     for k in range(10):
         s = R.uniform(0.06, 0.16); a = R.uniform(0, TAU); r = R.uniform(1.1, 1.9)
@@ -210,7 +210,7 @@ def build_crystals():
     for k in range(5):
         a = R.uniform(0, TAU); hi.append(GE.crystal('gcry', (math.cos(a) * 0.85, math.sin(a) * 0.7, 0.0), (R.uniform(-0.6, 0.6), R.uniform(-0.6, 0.6), 1.0), R.uniform(0.15, 0.28), 0.04,
                                                     UK._cached('gcv', lambda: UK.m_crystal('gcv', UK.VIOLET, UK.CYAN, -0.1, 0.9)), twist=R.uniform(0, 1)))
-    hi.append(GE_mound('cdust', 0.0, 0.0, 1.2, 1.0, 0.12, 6))
+    hi.append(GE_mound('cdust', 0.0, 0.0, 0.95, 0.8, 0.07, 6))
     decim = [(r'^cbase$', 200), (r'^gcry$', 36), (r'^cdust$', 1.0)]
     weights = [(r'^gcry$', 1.5), (r'^cbase$', 0.8), (r'^cdust$', 0.3)]
     return hi, None, dict(decim=decim, weights=weights, tex=512, budget=1200, ao_dist=0.3)
@@ -294,7 +294,6 @@ def build_dish():
     grp = group_transform([dish] + feed + back, (0, -0.1, 3.2), (48, 0, 0))
     hi += grp
     hi += UK.lamp('dlamp', (0.0, 0.42, 2.78), 0.08, UK.CORAL, cage=True, base_h=0.05)
-    hi.append(GE_mound('ddust', 0, 0, 1.8, 1.8, 0.08, 9))
     kit.to_mesh_all()
     decim = [(r'^leg$', 60), (r'^dfoot$', 30), (r'^head$', 40), (r'^yoke$', 40), (r'^dish$', 420), (r'^feed$', 40), (r'^feedtip$', 30), (r'^strut$', 30),
              (r'^dhub$', 40), (r'^dlamp_', 30), (r'^ddust$', 1.0)]
@@ -370,7 +369,6 @@ def build_rover():
             hi += wheel('wheel', (sx * 0.98, wy, 0.32))
             hi.append(UK.cable('arm', [(sx * 0.7, wy * 0.9, 0.62), (sx * 0.85, wy, 0.45), (sx * 0.9, wy, 0.33)], 0.04, AL, res=2))
             hi.append(EK.rounded_box('fender', (0.32, 0.62, 0.06), 0.03, 0.04, [COR], loc=(sx * 0.98, wy, 0.7), rot=(0, sx * -8, 0), seed=10 + k))
-    hi.append(GE_mound('rvdust', 0, 0, 1.6, 1.9, 0.05, 3))
     kit.to_mesh_all()
     decim = [(r'^chassis$', 90), (r'^skirt$', 40), (r'^cab$', 300), (r'^cabring$', 80), (r'^rsolar', 12), (r'^rmast$', 1.0), (r'^rflag$', 1.0), (r'^rdish$', 50),
              (r'^rdmast$', 1.0), (r'^rhead_', 30), (r'^bumper$', 24), (r'^rbox$', 24), (r'^rbox_', 10), (r'^wheel$', 120), (r'^wheel_side$', 16), (r'^wheel_hub$', 24),
@@ -426,7 +424,6 @@ def build_rocket():
     hi.append(EK.rounded_box('tarm', (1.6, 0.4, 0.12), 0.03, 0.05, [UK.m_paint('tarmp', UK.SUN, chips=0.35, dust=0.4, seed=6.0)], loc=(tx - 1.15, ty - 0.2, z0 + 4.4), seed=21))
     hi.append(EK.rounded_box('ttop', (1.1, 1.1, 0.12), 0.03, 0.05, [TW], loc=(tx, ty, 9.25), seed=22))
     hi += UK.lamp('tlamp', (tx, ty, 9.31), 0.16, UK.CORAL, cage=True, base_h=0.07)
-    hi.append(GE_mound('rkdust', 0, 0, 3.6, 3.6, 0.2, 5))
     kit.to_mesh_all()
     decim = [(r'^pad$', 60), (r'^padring$', 40), (r'^padhole$', 40), (r'^rkbody$', 300), (r'^rknose$', 200), (r'^rkband$', 70), (r'^rktip$', 30),
              (r'^rkport_frame$', 50), (r'^rkport_glass$', 30), (r'^rkfin$', 60), (r'^rkbell$', 100), (r'^tleg$', 12), (r'^tbrace$', 12), (r'^tring$', 12),
@@ -459,11 +456,12 @@ def build_ridge():
         for k in range(14):
             cx = R2[k][0]; w = R2[k][1]; hh = R2[k][2]
             peaks += hh * np.exp(-((X - cx) / w) ** 2 - ((Y - R2[k][3]) / 7.0) ** 2)
-        ridge = (base * (0.55 + 0.45 * np.cos(X / 23.0 + 0.7) * np.cos(X / 9.0)) + peaks)
+        jag = 3.0 * np.sin(X / 3.1 + 0.4) * np.sin(X / 5.3) + 2.0 * np.sin(X / 1.7 + 1.1)
+        ridge = (base * (0.45 + 0.3 * np.cos(X / 23.0 + 0.7) + 0.25 * np.cos(X / 8.0 + 2.0)) + peaks + jag * smoothstep(-6, 4, Y) * smoothstep(12, 4, Y))
         ridge *= smoothstep(110.0, 85.0, a) * smoothstep(-20.0, -8.0, Y) * smoothstep(20.0, 10.0, Y)
         ter = np.round(ridge / 3.5) * 3.5
         return 0.75 * ridge + 0.25 * ter
-    R2 = [(R.uniform(-95, 95), R.uniform(6, 16), R.uniform(4, 14), R.uniform(-4, 6)) for _ in range(14)]
+    R2 = [(R.uniform(-100, 100), R.uniform(3, 14), R.uniform(3, 16), R.uniform(-4, 6)) for _ in range(14)]
     xs = np.linspace(-110, 110, 441); ys = np.linspace(-20, 20, 81); X, Y = np.meshgrid(xs, ys)
     Z = hgt(X, Y)
     hi = [EK.grid_obj('ridge', np.stack([X, Y, Z], -1), None, [m_far('ridgem')])]
@@ -478,8 +476,8 @@ def m_earth(name):
     """Stilize Dünya: derinden sığa mavi okyanus, yeşil-aşı uydurma kıtalar (gerçek harita değil), kutup buzu, beyaz bulut girdapları."""
     def b(nt, bsdf):
         G = EK.EG(nt); o = G.obj(); x, y, z = G.sep(o)
-        ocean = G.mix(G.rng(G.noise(o, 1.2, 3), 0.3, 0.7), '#1f5fb8', '#3b8fe0')
-        land = G.noise(G.mapping(o, (1.0, 1.0, 1.0)), 0.09, 5, 0.55)
+        ocean = G.mix(G.rng(G.noise(o, 0.07, 2), 0.3, 0.7), '#1d58b0', '#3a8ddc')
+        land = G.noise(G.mapping(o, (1.0, 1.0, 1.0)), 0.075, 3, 0.5)
         landm = G.rng(land, 0.52, 0.56)
         shore = G.math('MULTIPLY', G.rng(land, 0.47, 0.52), G.rng(land, 0.56, 0.52))
         lc = G.mix(G.rng(G.noise(o, 0.25, 3), 0.35, 0.7), '#4f9a4a', '#c9a45a')
@@ -487,9 +485,9 @@ def m_earth(name):
         col = G.mix(landm, col, lc)
         polar = G.rng(G.math('ABSOLUTE', z), 15.0, 18.0)
         col = G.mix(polar, col, '#f2f6fb')
-        sw = G.n.new('ShaderNodeTexNoise'); sw.noise_dimensions = '3D'; sw.inputs['Scale'].default_value = 0.08; sw.inputs['Detail'].default_value = 4
-        sw.inputs['Distortion'].default_value = 3.5; G.l.new(o, sw.inputs['Vector'])
-        cloud = G.rng(sw.outputs['Fac'], 0.56, 0.66)
+        sw = G.n.new('ShaderNodeTexNoise'); sw.noise_dimensions = '3D'; sw.inputs['Scale'].default_value = 0.055; sw.inputs['Detail'].default_value = 2
+        sw.inputs['Distortion'].default_value = 5.0; G.l.new(o, sw.inputs['Vector'])
+        cloud = G.rng(sw.outputs['Fac'], 0.6, 0.68)
         col = G.mix(G.math('MULTIPLY', cloud, 0.92), col, '#ffffff')
         G.l.new(col, bsdf.inputs['Base Color'])
     return EK.nodes_mat(name, b)

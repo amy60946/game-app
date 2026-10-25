@@ -45,11 +45,18 @@ def moon_light(sc, sun_e=3.4, fill=0.9):
     fo = bpy.data.objects.new('fill', f); sc.collection.objects.link(fo); fo.rotation_euler = V((-0.6, -0.5, -0.62)).normalized().to_track_quat('-Z', 'Y').to_euler()
 
 
-def render(png, size=(1280, 720), samples=96):
-    sc = kit.reset(); space_world(sc)
-    sun = bpy.data.objects['sun']; sun.rotation_euler = (math.radians(50), 0, math.radians(-30)); sun.data.energy = 3.6
+def render(png, size=(1280, 720), samples=96, moon=True):
+    sc = kit.reset()
+    moon_light(sc)
     P = KS.place
-    for i in range(-1, 5):
+    if moon:
+        P('rs_ground_a', (0, 14.0, 0)); P('rs_ground_b', (0, 54.0, 0)); P('rs_ground_a', (0, 94.0, 0)); P('rs_ground_b', (0, 134.0, 0))
+        P('rs_ridge', (0, 230.0, 0)); P('rs_ridge', (-150, 260.0, 0), yaw=12, s=1.2); P('rs_ridge', (160, 250.0, 0), yaw=-15)
+        P('rs_earth', (-70.0, 520.0, 150.0), s=2.2)
+        P('rs_dome', (-15.0, 34.0, 0), yaw=20); P('rs_rocket', (19.0, 62.0, 0)); P('rs_dish', (-11.5, 52.0, 0), yaw=-30)
+        P('rs_rover', (8.8, 21.0, 0), yaw=-70); P('rs_cargo', (-7.6, 15.0, 0), yaw=15); P('rs_pennant', (6.3, 9.0, 0)); P('rs_pennant', (-6.3, 45.0, 0), yaw=180)
+        P('rs_rocks', (8.5, 33.0, 0), yaw=40); P('rs_rocks', (-9.0, 26.0, 0), yaw=200, s=0.8); P('rs_crystals', (-8.7, 40.0, 0), yaw=30); P('rs_crystals', (10.5, 47.0, 0), yaw=-50)
+    for i in range(-1, 9):
         y = 10 * i + 5
         P('rs_floor', (0, y, 0)); P('rs_wall', (0, y, 0)); P('rs_wall', (0, y, 0), sx=-1.0)
     P('rs_block', (-2.2, 9.0, 0)); P('rs_low', (0, 15.0, 0)); P('rs_block2', (2.2, 20.0, 0)); P('rs_high', (0, 25.0, 0))
@@ -58,7 +65,7 @@ def render(png, size=(1280, 720), samples=96):
     P('rs_card', (2.2, 6.5, 0.35), yaw=-20); P('rs_card', (0, 21.0, 0.35), yaw=15)
     P('rs_comet', (0.4, 31.0, 1.7))
     P('rs_gate', (0, 37.0, 0))
-    cam = bpy.data.cameras.new('cam'); cam.lens = 24; cam.clip_end = 2000
+    cam = bpy.data.cameras.new('cam'); cam.lens = 24; cam.clip_end = 3000
     co = bpy.data.objects.new('cam', cam); sc.collection.objects.link(co); sc.camera = co
     co.location = (0, -6.0, 3.4); co.rotation_euler = (math.radians(75), 0, 0)
     sc.cycles.samples = samples; sc.render.resolution_x, sc.render.resolution_y = size
@@ -66,11 +73,14 @@ def render(png, size=(1280, 720), samples=96):
 
 
 def icons():
-    for name, out, yaw, pitch in (('rs_crystal', 'ui_crystal', 28.0, 26.0), ('rs_card', 'ui_card', -26.0, 18.0)):
+    only = [a for a in sys.argv[sys.argv.index('--') + 1:] if a.startswith('rs_')] if '--' in sys.argv else []
+    for name, out, yaw, pitch in (('rs_crystal', 'ui_crystal', 28.0, 26.0), ('rs_card', 'ui_card', -26.0, 18.0), ('rs_earth', 'ui_earth', 0.0, 8.0)):
+        if only and name not in only: continue
         sc = kit.reset()
         for o in list(bpy.data.objects):
             if o.type == 'LIGHT': bpy.data.objects.remove(o)
         obs = P_icon(name)
+        if not obs: continue
         def area(n_, loc, e, s, col):
             li = bpy.data.lights.new(n_, 'AREA'); li.energy = e; li.size = s; li.color = col
             o = bpy.data.objects.new(n_, li); sc.collection.objects.link(o); o.location = loc

@@ -14,6 +14,7 @@ import egypt_kit as EK
 import uzay_kit as UK
 from egypt_kit import np, bpy, bmesh, V, MN, TAU, smoothstep
 import kit
+from kit import blob, tube, cyl
 
 L_TILE, W_HALF, CORR = 40.0, 70.0, 5.0
 ZC = -0.08
@@ -108,8 +109,9 @@ def hills(X, Y, seed):
     return h
 
 
-def height(X, Y, seed, craters, half=L_TILE / 2, extra_fn=None):
+def height(X, Y, seed, craters, half=L_TILE / 2, extra_fn=None, corridor_fn=None):
     """Toplam yükseklik + maskeler. extra_fn(X, Y) → (h, maskeler) (krater köprüsü çanağı)."""
+    X = np.asarray(X, np.float64); Y = np.asarray(Y, np.float64)
     th, tm = track(X)
     w = w_edge(Y, half)
     H = E(X) + th + w * hills(X, Y, seed)
@@ -117,7 +119,8 @@ def height(X, Y, seed, craters, half=L_TILE / 2, extra_fn=None):
     H = H + ch
     if extra_fn is not None:
         H, cin, rim, ej = extra_fn(X, Y, H, cin, rim, ej)
-    H = np.where(np.abs(X) <= CORR, ZC, H)
+    cm = (np.abs(X) <= CORR) if corridor_fn is None else corridor_fn(X, Y)
+    H = np.where(cm, ZC, H)
     # deniz lekeleri: 40 m dönemli ortak alan (kenar) ↔ karoya özgü (iç)
     a = np.abs(X)
     mc = periodic_field(X, Y, 77, 12, kx=(0.02, 0.09))
@@ -155,7 +158,6 @@ def m_moon(name, period=L_TILE, off_y=0.0, seed=0.0):
         x, y, z = G.sep(G.pos())
         tread = G.math('ABSOLUTE', G.math('SINE', G.math('MULTIPLY', G.math('ADD', y, G.math('MULTIPLY', G.math('ABSOLUTE', G.math('SUBTRACT', G.math('FRACT', G.math('MULTIPLY', x, 3.6)), 0.5)), 0.25)), TAU / 0.32 / 2)))
         col = G.mix(G.math('MULTIPLY', trk, 0.55), col, G.mix(G.rng(tread, 0.3, 0.8), '#6d6680', '#8c86a0'))
-        col = G.mix(G.rng(G.ao(0.6), 0.85, 0.35, 0, 0.45), col, '#3d3854')
         G.l.new(col, bsdf.inputs['Base Color'])
         bb = G.n.new('ShaderNodeBump'); bb.inputs['Strength'].default_value = 0.35; bb.inputs['Distance'].default_value = 0.02
         hgt = G.math('ADD', G.math('MULTIPLY', G.noise4(cw, 3.0, 4, 0.6), 1.0), G.math('MULTIPLY', G.math('MULTIPLY', trk, G.rng(tread, 0.3, 0.8)), 1.5))
@@ -199,12 +201,12 @@ def crystal_cluster(cx, cy, cz, scale, seed, name='gcry'):
     return out
 
 
-def scatter(H_fn, seed, half, n_rocks=22, n_boulders=4, n_pebbles=380, avoid=()):
+def scatter(H_fn, seed, half, n_rocks=22, n_boulders=4, n_pebbles=380, avoid=(), ok_fn=None):
     """Taşlar (hedefte) + çakıllar (yalnız taslak): koridora yakın sık. H_fn(x, y) → z."""
     R = random.Random(seed); ROCK = UK._cached('gl_rock', lambda: UK.m_regolith('gl_rock', ('#6e6a80', '#928da4', '#bab5c8'), craters=0.6, dust=0.35, seed=2.0, scale=1.5))
     rocks = []; pebbles = []
     def ok(x, y, r):
-        return abs(y) < half - r - 0.3 and all(math.hypot(x - ax, y - ay) > r + ar for (ax, ay, ar) in avoid)
+        return abs(y) < half - r - 0.3 and all(math.hypot(x - ax, y - ay) > r + ar for (ax, ay, ar) in avoid) and (ok_fn is None or ok_fn(x, y))
     k = 0; t = 0
     while k < n_rocks and t < 500:
         t += 1
@@ -224,6 +226,7 @@ def scatter(H_fn, seed, half, n_rocks=22, n_boulders=4, n_pebbles=380, avoid=())
     for k in range(n_pebbles):
         a = 5.3 + R.expovariate(1 / 3.0); x = math.copysign(min(a, 22.0), R.choice((-1, 1))); y = R.uniform(-half - 2.5, half + 2.5)
         s = R.uniform(0.04, 0.16) * (1.0 if a < 9 else 1.6)
+        if ok_fn is not None and not ok_fn(x, y): continue
         bm = bmesh.new(); bmesh.ops.create_icosphere(bm, subdivisions=1, radius=1.0)
         so = V((R.uniform(0, 30), R.uniform(0, 30), 0))
         for v in bm.verts:
@@ -241,52 +244,53 @@ def band_columns(half_w=W_HALF):
     return np.array(sorted([-v for v in side] + [0.0] + side))
 
 
-def u_of_x(x):
+U_GROUND = ([-70, -34, -14, -5, 5, 14, 34, 70], [0.0, 0.12, 0.27, 0.47, 0.53, 0.73, 0.88, 1.0])
+U_BRIDGE = ([-70, -45, -20, 20, 45, 70], [0.0, 0.11, 0.29, 0.71, 0.89, 1.0])
+
+
+def u_of_x(x, um=U_GROUND):
     """Dokuda x yerleşimi: koridor dar, yakın bant geniş (≈ 41 px/m), orta 15, uzak 7 px/m (2048'de)."""
-    xs = [-70, -34, -14, -5, 5, 14, 34, 70]; us = [0.0, 0.12, 0.27, 0.47, 0.53, 0.73, 0.88, 1.0]
-    return np.interp(x, xs, us)
+    return np.interp(x, um[0], um[1])
 
 
-def ground_uv(y0=-20.0, y1=20.0, v_terrain=0.9, groups=10):
-    """uv_fn: arazi yüzleri (part 0) üstten izdüşüm, v 0..0,9; taş/kristal yüzleri (part ≥ 1) grup grup akıllı açılıp üst şeride
-    (v 0,9..1) yan yana paketlenir."""
-    def f(L):
-        me = L.data
+def prep_uvs(lo, y0, y1, um=U_GROUND, v_terrain=0.86, rows=2):
+    """UV'ler birleştirmeden ÖNCE, nesne başına: arazi (part 0) üstten izdüşüm (x bantlı), v 0..v_terrain; diğer her nesne tek başına
+    akıllı açılıp üst şeritte kendi kutucuğuna paketlenir. (Birleşik ağda seçimle grup grup açmak tüm yüzleri yeniden açıyordu.)"""
+    others = [o for o in lo if int(o.get('part', 0)) != 0]
+    cols = max(1, int(math.ceil(len(others) / rows))); cw = 1.0 / cols; rh = (1.0 - v_terrain) / rows
+    k = 0
+    for o in lo:
+        me = o.data
         for l in list(me.uv_layers): me.uv_layers.remove(l)
         uv = me.uv_layers.new(name='UVMap'); me.uv_layers.active = uv
-        co = np.empty(len(me.vertices) * 3, np.float32); me.vertices.foreach_get('co', co); co = co.reshape(-1, 3)
-        vi = np.empty(len(me.loops), np.int32); me.loops.foreach_get('vertex_index', vi)
-        part = np.zeros(len(me.polygons), np.int32)
-        if 'part' in me.attributes: me.attributes['part'].data.foreach_get('value', part)
-        ls = np.empty(len(me.polygons), np.int32); me.polygons.foreach_get('loop_start', ls)
-        lt = np.empty(len(me.polygons), np.int32); me.polygons.foreach_get('loop_total', lt)
-        lpart = np.repeat(part, lt)
-        U = u_of_x(co[vi, 0]); Vv = (co[vi, 1] - y0) / (y1 - y0) * v_terrain
-        uvd = np.stack([U, Vv], -1).astype(np.float32)
-        uv.data.foreach_set('uv', uvd.reshape(-1))
-        ng = int(part.max())
-        bpy.ops.object.select_all(action='DESELECT'); L.select_set(True); bpy.context.view_layer.objects.active = L
-        for g in range(1, ng + 1):
-            bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_mode(type='FACE'); bpy.ops.mesh.select_all(action='DESELECT')
-            bpy.ops.object.mode_set(mode='OBJECT')
-            sel = (part == g)
-            me.polygons.foreach_set('select', sel.tolist())
-            bpy.ops.object.mode_set(mode='EDIT')
-            bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.02, scale_to_bounds=True)
-            bpy.ops.uv.pack_islands(rotate=True, margin=0.01)
-            bpy.ops.object.mode_set(mode='OBJECT')
-            d = np.empty(len(me.loops) * 2, np.float32); uv.data.foreach_get('uv', d); d = d.reshape(-1, 2)
-            m = lpart == g
-            gi = g - 1
-            d[m, 0] = (gi % groups + d[m, 0]) / groups; d[m, 1] = v_terrain + d[m, 1] * (1 - v_terrain)
-            uv.data.foreach_set('uv', d.reshape(-1))
-        bpy.ops.object.select_all(action='DESELECT')
-    return f
+        if int(o.get('part', 0)) == 0:
+            co = np.empty(len(me.vertices) * 3, np.float32); me.vertices.foreach_get('co', co); co = co.reshape(-1, 3)
+            co = co @ np.array(o.matrix_world.to_3x3()).T + np.array(o.matrix_world.translation)
+            vi = np.empty(len(me.loops), np.int32); me.loops.foreach_get('vertex_index', vi)
+            d = np.stack([u_of_x(co[vi, 0], um), (co[vi, 1] - y0) / (y1 - y0) * v_terrain], -1).astype(np.float32)
+            uv.data.foreach_set('uv', d.reshape(-1)); continue
+        bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active = o
+        bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
+        bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.03, scale_to_bounds=True)
+        bpy.ops.uv.pack_islands(rotate=True, margin=0.02)
+        bpy.ops.object.mode_set(mode='OBJECT')
+        me = o.data; uv = me.uv_layers['UVMap']                    # düzenleme kipinden sonra eski başvuru geçersiz (çöküyordu)
+        d = np.empty(len(me.loops) * 2, np.float32); uv.data.foreach_get('uv', d); d = d.reshape(-1, 2)
+        r, c = divmod(k, cols)
+        d[:, 0] = (c + 0.03 + d[:, 0] * 0.94) * cw; d[:, 1] = v_terrain + (r + 0.03 + d[:, 1] * 0.94) * rh
+        uv.data.foreach_set('uv', d.reshape(-1)); k += 1
+    bpy.ops.object.select_all(action='DESELECT')
+
+
+def keep_uv(L):
+    """uv_fn: birleşik ağda hazır 'UVMap' korunur."""
+    me = L.data
+    for l in [l for l in me.uv_layers if l.name != 'UVMap']: me.uv_layers.remove(l)
+    me.uv_layers.active = me.uv_layers['UVMap']
 
 
 def tag_part(o, g):
-    a = o.data.attributes.get('part') or o.data.attributes.new('part', 'INT', 'FACE')
-    a.data.foreach_set('value', [g] * len(o.data.polygons))
+    o['part'] = g
     return o
 
 
@@ -324,7 +328,8 @@ def build_ground(seed):
         lo += [tag_part(q, 1 + i % 8) for q in EK.build_low2([o], [(r'.', tgt)])]
     for i, grp in enumerate(props):
         lo += [tag_part(q, 9 + i) for q in EK.build_low2(grp, [(r'.', 30)])]
-    return hi, lo, dict(uv_fn=ground_uv(-half, half), cull=False, tex=2048, ao_dist=1.5, ao_strength=0.5, cage=0.35, ray=1.4,
+    prep_uvs(lo, -half, half)
+    return hi, lo, dict(uv_fn=keep_uv, cull=False, tex=2048, ao_dist=1.5, ao_strength=0.5, cage=0.35, ray=1.4,
                         draft=dict(yaw=-20, pitch=12, target=(0, -8, 1.0), dist=26))
 
 
@@ -333,3 +338,152 @@ def build_ground_b(): return build_ground(2)
 
 
 BUILD = {'rs_ground_a': build_ground_a, 'rs_ground_b': build_ground_b}
+
+
+# ================================================================== rs_crater_bridge (80 m: yol krateri köprüyle geçer)
+
+BR_HALF = 40.0
+CR_RX, CR_RY, CR_D = 46.0, 30.0, 20.0
+
+
+def crater_rho(X, Y):
+    return np.sqrt((X / CR_RX) ** 2 + (Y / CR_RY) ** 2)
+
+
+def big_crater(X, Y, H, cin, rim, ej):
+    """Büyük krater: elips (x 46 m, y 30 m), 20 m derin, basamaklı iç duvar, düz taban, kabarık kenar (koridorda çentikli: güverte
+    dudaktan krater üstüne çıkar). Kenarlarda (|y| → 40) etkisi sıfır: uçlar zemin karolarıyla aynı kesitte."""
+    rho = crater_rho(X, Y); w = smoothstep(BR_HALF, BR_HALF - 6.0, np.abs(Y))
+    t = np.clip(1 - rho ** 2, 0, 1)
+    bowl = -CR_D * t ** 0.75
+    q = bowl / 3.2; fl = np.floor(q)
+    terr = (fl + smoothstep(0.3, 0.7, q - fl)) * 3.2                                 # yumuşak basamak (keskin kenar çentik çizgisi yapıyordu)
+    inner = smoothstep(0.3, 0.45, rho) * smoothstep(0.98, 0.9, rho)
+    bowl = bowl * (1 - 0.45 * inner) + terr * 0.45 * inner
+    bowl = np.where(rho < 0.36, -CR_D + 0.8 * np.sin(X * 0.4) * np.cos(Y * 0.5) * smoothstep(0.36, 0.2, rho), bowl)
+    notch = smoothstep(5.0, 10.0, np.abs(X))
+    ridge = 2.2 * np.exp(-((rho - 1.0) / 0.07) ** 2) * notch + 0.9 * np.exp(-((rho - 1.18) / 0.15) ** 2) * notch
+    Hn = H + w * (np.where(rho < 1.0, bowl - (H - ZC) * t, 0.0) + ridge)
+    cin2 = np.maximum(cin, smoothstep(1.0, 0.7, rho) * w)
+    rim2 = np.maximum(rim, np.exp(-((rho - 1.0) / 0.06) ** 2) * notch * w)
+    ang = np.arctan2(Y, X); rays = np.abs(np.sin(ang * 7 + 1.3))
+    ej2 = np.maximum(ej, smoothstep(0.8, 0.97, rays) * smoothstep(1.6, 1.05, rho) * smoothstep(1.0, 1.06, rho) * w)
+    return Hn, cin2, rim2, ej2
+
+
+def bridge_corridor(X, Y):
+    return (np.abs(X) <= CORR) & (crater_rho(X, Y) >= 1.0)
+
+
+def tower(name, y, zg, mat, cap_mat):
+    """Kafes destek kulesi: 4 ayak (dikdörtgen kutu), her 2,5 m'de yatay halka + çapraz, tepede güverte kirişlerini taşıyan başlık
+    (z −0,7'ye dek). zg: tabandaki zemin yüksekliği."""
+    parts = []; hw = 1.2; top = -0.7; z0 = zg - 0.3
+    for (dx, dy) in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+        parts.append(EK.rounded_box(name + '_leg', (0.28, 0.28, top - 0.25 - z0), 0.04, 0.12, [mat], loc=(dx * hw, y + dy * hw, (z0 + top - 0.25) / 2), seed=int(y)))
+    n = max(2, int((top - z0) / 2.5))
+    for k in range(n):
+        za = z0 + 0.8 + k * (top - 0.6 - z0 - 0.8) / n; zb = za + (top - 0.6 - z0 - 0.8) / n
+        for (a, b) in (((-1, -1), (1, -1)), ((1, -1), (1, 1)), ((1, 1), (-1, 1)), ((-1, 1), (-1, -1))):
+            pa = V((a[0] * hw, y + a[1] * hw, za)); pb = V((b[0] * hw, y + b[1] * hw, zb)); pc = V((b[0] * hw, y + b[1] * hw, za))
+            parts.append(UK.cable(name + '_br', [tuple(pa), tuple((pa + pb) / 2), tuple(pb)], 0.07, mat, res=1))
+            parts.append(UK.cable(name + '_ring', [tuple(pa), tuple((pa + pc) / 2), tuple(pc)], 0.07, mat, res=1))
+    parts.append(EK.rounded_box(name + '_cap', (6.6, 1.0, 0.35), 0.05, 0.1, [cap_mat], loc=(0, y, top - 0.175), seed=int(y) + 3))
+    parts.append(EK.rounded_box(name + '_head', (3.0, 3.0, 0.3), 0.05, 0.1, [cap_mat], loc=(0, y, top - 0.5), seed=int(y) + 4))
+    parts.append(EK.rounded_box(name + '_foot', (3.2, 3.2, 0.5), 0.06, 0.12, [cap_mat], loc=(0, y, z0 + 0.1), seed=int(y) + 5))
+    for sx in (-1, 1):
+        parts += UK.lamp(name + '_lamp', (sx * 3.1, y - 0.3, top), 0.12, UK.SUN if sx < 0 else UK.CYAN, cage=True, base_h=0.06)
+    return parts
+
+
+def tent(name, loc, yaw):
+    """Küçük araştırma çadırı: çizgili kubbe çadır, kapı perdesi, kazık + gergi ipleri, minik lamba."""
+    TN = EK.m_cloth(name + 'c', UK.CORAL, UK.CREAM, stripes=1.6, axis='Z', fade=0.15)
+    prof = [(0.0, 0.0), (1.45, 0.0), (1.4, 0.45), (1.2, 0.9), (0.85, 1.25), (0.4, 1.45), (0.0, 1.5)]
+    t = EK.lathe_grid(name, prof, 24, [TN], uv=False)
+    door = EK.rounded_box(name + '_door', (0.8, 0.12, 1.0), 0.1, 0.05, [EK.m_cloth(name + 'd', UK.NAVY, None)], loc=(0, -1.38, 0.5))
+    parts = [t, door]
+    AL = UK._cached('alu', lambda: UK.m_metal('alu', UK.ALU, dust=0.3))
+    for k in range(4):
+        a = k / 4 * TAU + 0.6; p0 = V((math.cos(a) * 1.25, math.sin(a) * 1.25, 0.9)); p1 = V((math.cos(a) * 2.1, math.sin(a) * 2.1, 0.02))
+        parts.append(UK.cable(name + '_rope', [tuple(p0), tuple((p0 + p1) / 2), tuple(p1)], 0.015, AL, res=1))
+        parts.append(cyl(name + '_stake', tuple(p1 + V((0, 0, 0.08))), 0.03, 0.18, AL, verts=6, bevel=0.0))
+    parts += UK.lamp(name + '_lamp', (0.9, -1.0, 0.0), 0.1, UK.SUN, cage=True, base_h=0.05)
+    import ay_donatim as AD
+    return AD.group_transform(parts, loc, (0, 0, yaw))
+
+
+def build_crater_bridge():
+    half = BR_HALF
+    ok_out = lambda x, y: crater_rho(np.array(x), np.array(y)) > 1.25
+    craters = [c for c in make_craters(911, half, n=(5, 12, 36)) if ok_out(c[0], c[1]) and crater_rho(np.array(c[0]), np.array(c[1])) > 1.25 + c[2] / 30]
+    floor_c = [(-12.0, 4.0, 2.2, 0.6), (9.0, -6.0, 1.6, 0.45), (3.0, 9.0, 1.2, 0.35), (-6.0, -8.0, 1.4, 0.4), (15.0, 8.0, 1.8, 0.5)]
+    def extra(X, Y, H, cin, rim, ej):
+        H, cin, rim, ej = big_crater(X, Y, H, cin, rim, ej)
+        h2, c2, r2, e2 = crater_field(X, Y, floor_c)                 # taban kraterleri büyük çanaktan SONRA
+        return H + h2, np.maximum(cin, c2), np.maximum(rim, r2), np.maximum(ej, e2)
+    hk = dict(extra_fn=extra, corridor_fn=bridge_corridor, half=half)
+    hfn = lambda x, y: height(np.array([[x]]), np.array([[y]]), 3, craters, **hk)[0][0, 0]
+    mat = m_moon('moonbr', off_y=L_TILE / 2)
+    xs = np.concatenate([np.arange(-W_HALF, -20, 0.5), np.arange(-20, 20, 0.2), np.arange(20, W_HALF + 0.01, 0.5)])
+    ys = np.arange(-half - 3, half + 3 + 1e-6, 0.2)
+    X, Y = np.meshgrid(xs, ys)
+    Yp = np.where(np.abs(Y) > half, np.sign(Y) * (half - (np.abs(Y) - half)), Y)     # uç dışı: kenara simetrik (w ≈ 0: ortak kesit)
+    H, M = height(X, Yp, 3, craters, **hk)
+    hi_t = EK.grid_obj('terrain_hi', np.stack([X, Y, H], -1), None, [mat]); set_masks(hi_t, M)
+    hi = [hi_t]
+    cols = sorted(set(list(band_columns()) + [-4.0, -3.0, -2.0, -1.0, 1.0, 2.0, 3.0, 4.0] + list(np.arange(-20, 20.1, 2.0))))
+    XL, YL = np.meshgrid(np.array(cols), np.linspace(-half, half, 41))
+    HL, _ = height(XL, YL, 3, craters, **hk)
+    lo_t = EK.grid_obj('terrain_lo', np.stack([XL, YL, HL], -1), None, []); tag_part(lo_t, 0)
+    lo = [lo_t]
+    groups = []
+    # destek kuleleri (y = −20, 0, 20)
+    TW = UK.m_paint('brtower', UK.CORAL, chips=0.35, dust=0.3, grime=0.45, seed=1.0); CP = UK.m_paint('brcap', UK.NAVY, chips=0.35, dust=0.3, seed=2.0)
+    for yt in (-20.0, 0.0, 20.0):
+        zg = min(float(hfn(-1.2, yt)), float(hfn(1.2, yt)), float(hfn(0, yt)))
+        groups.append(tower('tw', yt, zg, TW, CP))
+    kit.to_mesh_all()
+    # krater tabanı: kaya blokları, kristal öbekleri, park etmiş minik araç, çadır, lambalar
+    ROCK = UK._cached('gl_rock', lambda: UK.m_regolith('gl_rock', ('#6e6a80', '#928da4', '#bab5c8'), craters=0.6, dust=0.35, seed=2.0, scale=1.5))
+    R = random.Random(8); bould = []
+    for k in range(7):
+        a = R.uniform(0, TAU); r = R.uniform(0.15, 0.5); x, y = math.cos(a) * r * CR_RX * 0.7, math.sin(a) * r * CR_RY * 0.7
+        if abs(x) < 3.5: x += 6 * (1 if x >= 0 else -1)
+        s = R.uniform(1.0, 2.6)
+        bould.append(rock('cboulder', (s * 1.3, s, s * 0.8), (x, y, float(hfn(x, y))), ROCK, 700 + k, sub=4, rough=0.18))
+    cl = []
+    for i, (x, y, sc) in enumerate(((-4.0, 12.0, 1.6), (12.0, 3.0, 1.3), (-14.0, -5.0, 1.4), (5.0, -13.0, 1.1))):
+        cl.append(crystal_cluster(x, y, float(hfn(x, y)), sc, 40 + i))
+    import ay_donatim as AD
+    rv_hi, _, _ = AD.build_rover()
+    kit.to_mesh_all()
+    rv = AD.group_transform(rv_hi, (-9.0, 6.0, float(hfn(-9.0, 6.0)) - 0.02), (0, 0, 35))
+    tn = tent('tent', (8.0, -4.0, float(hfn(8.0, -4.0)) - 0.03), -25)
+    lamps = []
+    for (x, y) in ((6.0, -1.5), (-6.5, 3.5), (0.0, -9.0)):
+        z = float(hfn(x, y))
+        lamps.append([cyl('flpole', (x, y, z + 0.9), 0.05, 1.8, UK._cached('alu', lambda: UK.m_metal('alu', UK.ALU, dust=0.3)), verts=8, bevel=0.0)]
+                     + UK.lamp('fllamp', (x, y, z + 1.8), 0.14, UK.SUN, cage=True, base_h=0.06))
+    kit.to_mesh_all()
+    hi += [o for g in groups for o in g] + bould + [o for c in cl for o in c] + rv + tn + [o for l in lamps for o in l]
+    rocks_out, pebbles = scatter(hfn, 3, half, n_rocks=26, n_boulders=5, n_pebbles=420, avoid=[(c[0], c[1], c[2] * 1.1) for c in craters if c[2] > 1.5],
+                                 ok_fn=lambda x, y: crater_rho(np.array(x), np.array(y)) > 1.06)
+    hi += rocks_out + pebbles
+    gi = 1
+    def add_low(objs, table, g):
+        return [tag_part(q, g) for q in EK.build_low2([o for o in objs if not o.name.startswith(('bolt', 'rivet', 'tie'))], table)]
+    for i, g in enumerate(groups):
+        lo += add_low(g, [(r'_leg$', 12), (r'_(br|ring)$', 8), (r'_(cap|head|foot)$', 16), (r'_lamp_bulb$', 24), (r'_lamp_base$', 12), (r'_lamp_cage$', 12)], 1 + i)
+    lo += add_low(bould, [(r'.', 70)], 4)
+    for i, c in enumerate(cl): lo += add_low(c, [(r'.', 26)], 5 + (i % 2))
+    lo += add_low(rv, [(r'^cab$', 60), (r'^wheel$', 24), (r'.', 10)], 7)
+    lo += add_low(tn, [(r'^tent$', 80), (r'.', 12)], 8)
+    for l in lamps: lo += add_low(l, [(r'.', 16)], 8)
+    for i, o in enumerate(rocks_out): lo += add_low([o], [(r'.', 80 if o.name.startswith('gboulder') else 26)], 9 + (i % 2))
+    prep_uvs(lo, -half, half, um=U_BRIDGE)
+    return hi, lo, dict(uv_fn=keep_uv, cull=False, tex=2048, ao_dist=2.0, ao_strength=0.5, cage=0.35, ray=1.6,
+                        draft=dict(yaw=-25, pitch=22, target=(0, 0, -8.0), dist=70))
+
+
+BUILD['rs_crater_bridge'] = build_crater_bridge
