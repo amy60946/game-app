@@ -131,7 +131,7 @@ def stone_col(G, pal=SANDSTONE, period=None, bands=0.5, pits=0.6, wear=0.5, cav=
     return col
 
 
-def sand_col(G, period=None, seed=0.0, ripple=0.11):
+def sand_col(G, period=None, seed=0.0, ripple=0.16):
     """Kum: rüzgâr dalgacıkları (y'de dönemli: dalga boyu 10 m'ye tam bölünür), iri ton dalgası, açık tepe / koyu oyuk, tane benekleri."""
     cw = G.coords(period, off=(seed, 0, 0))
     x, y, z = G.sep(G.pos())
@@ -140,8 +140,8 @@ def sand_col(G, period=None, seed=0.0, ripple=0.11):
     rip = G.math('SINE', ph)
     col = G.mix(G.rng(G.noise4(cw, 0.35, 3), 0.3, 0.72), SAND[0], SAND[1])
     col = G.mix(G.rng(G.noise4(cw, 1.4, 3), 0.45, 0.7, 0, 0.45), col, SAND[2])
-    col = G.mix(G.math('MULTIPLY', G.rng(rip, -0.2, 1.0, 0, 0.32), G.rng(G.noise4(cw, 0.6, 2), 0.3, 0.6, 0.4, 1.0)), col, _shade(SAND[2], 1.03))
-    col = G.mix(G.math('MULTIPLY', G.rng(rip, -0.75, -1.0, 0, 0.28), 1.0), col, _shade(SAND[0], 0.9))
+    col = G.mix(G.math('MULTIPLY', G.rng(rip, -0.2, 1.0, 0, 0.22), G.rng(G.noise4(cw, 0.6, 2), 0.3, 0.6, 0.3, 1.0)), col, _shade(SAND[2], 1.03))
+    col = G.mix(G.math('MULTIPLY', G.rng(rip, -0.75, -1.0, 0, 0.18), 1.0), col, _shade(SAND[0], 0.92))
     col = G.mix(G.rng(G.vor4(cw, 70.0), 0.0, 0.07, 0.55, 0), col, '#fbf1da')
     col = G.mix(G.rng(G.vor4(G.coords(period, off=(seed + 4, 0, 0)), 55.0), 0.0, 0.05, 0.4, 0), col, '#a87a48')
     return col
@@ -159,9 +159,30 @@ class Decal:
     def __init__(self, name, over=None, shade=None, normal=None, sandmask=None, ext='REPEAT'):
         self.name = name; self.ext = ext
         self.over = to_image(name + '_over', over, alpha=True) if over is not None else None
-        self.shade = to_image(name + '_shade', shade) if shade is not None else None
-        self.normal = to_image(name + '_nrm', normal, noncolor=True) if normal is not None else None
-        self.sand = to_image(name + '_sand', np.repeat(sandmask[..., None], 3, -1), noncolor=True) if sandmask is not None else None
+        one = lambda a: np.concatenate([a, np.ones(a.shape[:2] + (1,), np.float32)], -1)    # alfa 1: CLIP dışında 0 → nötr
+        self.shade = to_image(name + '_shade', one(shade), alpha=True) if shade is not None else None
+        self.normal = to_image(name + '_nrm', one(normal), alpha=True, noncolor=True) if normal is not None else None
+        self.sand = to_image(name + '_sand', one(np.repeat(sandmask[..., None], 3, -1)), alpha=True, noncolor=True) if sandmask is not None else None
+
+
+def apply_dec(G, col, dec, period=None):
+    """Decal katmanları: kum maskesi, gölge çarpanı, üst boya, normal. CLIP decal'de alan dışı (alfa 0) nötr kalır. Döner (renk, normal|None)."""
+    clip = dec.ext == 'CLIP'
+    def sample(img, neutral):
+        t = G.img(img, ext=dec.ext)
+        return G.mix(t.outputs['Alpha'], neutral, t.outputs['Color']) if clip else t.outputs['Color']
+    if dec.sand is not None:
+        col = G.mix(sample(dec.sand, '#000000'), col, sand_col(G, period))
+    if dec.shade is not None:
+        col = G.mul(col, sample(dec.shade, '#ffffff'))
+    if dec.over is not None:
+        t = G.img(dec.over, ext=dec.ext); col = G.mix(t.outputs['Alpha'], col, t.outputs['Color'])
+    nin = None
+    if dec.normal is not None:
+        nc = sample(dec.normal, '#bcbcff')     # sRGB #bcbcff ≈ doğrusal (0,5; 0,5; 1)
+        nm = G.n.new('ShaderNodeNormalMap'); nm.space = 'TANGENT'; nm.uv_map = 'dec'
+        G.l.new(nc, nm.inputs['Color']); nin = nm.outputs['Normal']
+    return col, nin
 
 
 def m_stone(name, pal=SANDSTONE, period=None, dec=None, bump=0.22, bump_scale=30.0, **kw):
@@ -171,16 +192,7 @@ def m_stone(name, pal=SANDSTONE, period=None, dec=None, bump=0.22, bump_scale=30
         col = stone_col(G, pal, period, **kw)
         nin = None
         if dec is not None:
-            if dec.sand is not None:
-                col = G.mix(G.img(dec.sand, ext=dec.ext).outputs['Color'], col, sand_col(G, period))
-            if dec.shade is not None:
-                col = G.mul(col, G.img(dec.shade, ext=dec.ext).outputs['Color'])
-            if dec.over is not None:
-                t = G.img(dec.over, ext=dec.ext); col = G.mix(t.outputs['Alpha'], col, t.outputs['Color'])
-            if dec.normal is not None:
-                t = G.img(dec.normal, ext=dec.ext)
-                nm = G.n.new('ShaderNodeNormalMap'); nm.space = 'TANGENT'; nm.uv_map = 'dec'
-                G.l.new(t.outputs['Color'], nm.inputs['Color']); nin = nm.outputs['Normal']
+            col, nin = apply_dec(G, col, dec, period)
         G.l.new(col, bsdf.inputs['Base Color'])
         if bump: G.l.new(bump_noise(G, nin, period, bump, bump_scale), bsdf.inputs['Normal'])
         elif nin is not None: G.l.new(nin, bsdf.inputs['Normal'])
@@ -275,13 +287,9 @@ def m_flatc(name, hexc, var=0.1, ao=0.35):
 def m_decal(name, base_mat_fn, dec):
     """Görüntü renkli yüzey (ör. altın üstüne lapis): base_mat_fn(G) → renk; dec üst boya + normal."""
     def b(nt, bsdf):
-        G = EG(nt); col = base_mat_fn(G); nin = None
-        if dec.shade is not None: col = G.mul(col, G.img(dec.shade, ext=dec.ext).outputs['Color'])
-        if dec.over is not None:
-            t = G.img(dec.over, ext=dec.ext); col = G.mix(t.outputs['Alpha'], col, t.outputs['Color'])
-        if dec.normal is not None:
-            t = G.img(dec.normal, ext=dec.ext); nm = G.n.new('ShaderNodeNormalMap'); nm.space = 'TANGENT'; nm.uv_map = 'dec'
-            G.l.new(t.outputs['Color'], nm.inputs['Color']); G.l.new(nm.outputs['Normal'], bsdf.inputs['Normal'])
+        G = EG(nt); col = base_mat_fn(G)
+        col, nin = apply_dec(G, col, dec)
+        if nin is not None: G.l.new(nin, bsdf.inputs['Normal'])
         G.l.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 
@@ -294,6 +302,7 @@ def to_image(name, arr, alpha=False, noncolor=False):
     a = np.ones((h, w, 4), np.float32)
     a[..., :arr.shape[2]] = arr
     if not alpha: a[..., 3] = 1.0
+    else: a[..., :3] *= a[..., 3:4]          # Blender'da kayan noktalı görüntü tamponu önçarpımlı sayılır (düz renk alfaya bölünüp parlıyordu)
     img = bpy.data.images.new(name, w, h, alpha=alpha, float_buffer=True)
     img.colorspace_settings.name = 'Non-Color' if noncolor else 'Linear Rec.709'
     if alpha: img.alpha_mode = 'STRAIGHT'
@@ -578,9 +587,9 @@ def finish_relief(cv, depth=0.012, groove=0.004, bevel=0.006, fade=0.3, chips=0.
     h = -depth * car + depth * 0.55 * rai * car - groove * gro
     rgb, pa = cv.paint()
     sh = (h.shape[0], h.shape[1])
-    n1 = fnoise(sh, 0.25 * ppm, seed + 1); n2 = fnoise(sh, 0.06 * ppm, seed + 2, 4)
+    n1 = fnoise(sh, 0.25 * ppm, seed + 1); n2 = fnoise(sh, 0.11 * ppm, seed + 2, 3)
     alpha = pa * np.clip(0.95 - fade * smoothstep(0.4, 0.75, n1), 0, 1)
-    alpha *= 1.0 - smoothstep(0.66 - 0.1 * chips, 0.7 - 0.1 * chips, n2)
+    alpha *= 1.0 - smoothstep(0.72 - 0.08 * chips, 0.75 - 0.08 * chips, n2) * smoothstep(0.45, 0.6, n1)   # dökülme: seyrek, iri pul
     rgb = rgb * (0.92 + 0.16 * n1[..., None])
     over = np.concatenate([rgb, alpha[..., None]], -1)
     cav = cavity(h, ppm, 0.02, 60.0, wrap)
