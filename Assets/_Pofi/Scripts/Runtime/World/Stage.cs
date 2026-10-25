@@ -195,6 +195,21 @@ namespace Pofi.World
             }
         }
 
+        /// <summary>
+        /// Özel gökyüzü tonları (koşu dünyaları, ör. uzay: lacivert tepe, leylak ufuk, bulutsuz). Gündüze dönmek için <see cref="SetSky"/>.
+        /// </summary>
+        public void SetSkyTones(Color zenith, Color mid, Color horizon, Color ground, float clouds, float sun)
+        {
+            Camera.backgroundColor = mid;
+            if (_skyMat == null) return;
+            _skyMat.SetColor("_Zenith", zenith);
+            _skyMat.SetColor("_Mid", mid);
+            _skyMat.SetColor("_Horizon", horizon);
+            _skyMat.SetColor("_Ground", ground);
+            _skyMat.SetFloat("_Clouds", clouds);
+            _skyMat.SetFloat("_Sun", sun);
+        }
+
         private GrowthStage _petStage = GrowthStage.Genc;
 
         public void ShowPet(PetSpeciesDef def, GrowthStage stage, IEnumerable<string> equipped = null, bool resetYaw = true)

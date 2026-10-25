@@ -120,6 +120,64 @@ def sand_skirt(name, cx, cy, rx, ry, h, seed=0, mat=None, n=36, rings=5, lift=0.
     return o
 
 
+def _rr_path(w, d, r, seg_len, corner=3):
+    """Yuvarlak köşeli dikdörtgen çevresi (saat yönü tersine): [(x, y, nx, ny)], son nokta = ilk."""
+    hw, hd = w / 2 - r, d / 2 - r
+    corners = [(hw, -hd, -90), (hw, hd, 0), (-hw, hd, 90), (-hw, -hd, 180)]
+    path = []
+    for i, (qx, qy, a0) in enumerate(corners):
+        for k in range(corner):
+            a = math.radians(a0 + 90 * k / (corner - 1)); path.append((qx, qy, math.cos(a), math.sin(a)))
+        nx_, ny_ = corners[(i + 1) % 4][:2]
+        seg = int(max(1, math.hypot(nx_ - qx, ny_ - qy) / seg_len))
+        for k in range(1, seg):
+            t = k / seg; a = math.radians(a0 + 90)
+            path.append((qx + (nx_ - qx) * t, qy + (ny_ - qy) * t, math.cos(a), math.sin(a)))
+    path.append(path[0])
+    return path
+
+
+def sand_rect(name, cx, cy, w, d, h, spread, mat=None, seed=0, seg_len=0.15, rows=5, r=None):
+    """Dikdörtgen tabanı saran kum eteği: dışta z = 0, içte tabana yaslanır (iç satır tabanın 5 cm içinde → boşluk kalmaz);
+    yükseklik ve yayılma çevre boyunca dalgalanır."""
+    R = random.Random(seed); ph = [R.uniform(0, TAU) for _ in range(4)]
+    r = r if r is not None else min(w, d) * 0.08
+    path = _rr_path(w, d, r, seg_len)
+    L = np.concatenate([[0], np.cumsum([math.hypot(path[i + 1][0] - path[i][0], path[i + 1][1] - path[i][1]) for i in range(len(path) - 1)])])
+    per = L[-1]
+    P = np.zeros((rows + 2, len(path), 3))
+    for j, (x, y, nx_, ny_) in enumerate(path):
+        u = L[j] / per * TAU
+        m = 0.7 + 0.2 * math.sin(3 * u + ph[0]) + 0.1 * math.sin(7 * u + ph[1])
+        sp = spread * (0.75 + 0.2 * math.sin(2 * u + ph[2]) + 0.1 * math.sin(5 * u + ph[3]))
+        for i in range(rows + 1):
+            t = i / rows
+            off = r + sp * (1 - t) ** 1.25
+            P[i, j] = (cx + x + nx_ * off, cy + y + ny_ * off, h * m * smoothstep(0, 1, t ** 0.8))
+        P[rows + 1, j] = (cx + x + nx_ * (r - 0.05), cy + y + ny_ * (r - 0.05), h * m)
+    o = EK.grid_obj(name, P, None, [mat or EK.m_sand('ssand')])
+    EK.weld(o)
+    return o
+
+
+def sand_mound(name, cx, cy, rx, ry, h, mat=None, seed=0, n=28, rings=6):
+    """Kapalı kum öbeği (kubbe): merkezde h, kenarda 0; dalgalı kenar."""
+    R = random.Random(seed); ph = [R.uniform(0, TAU) for _ in range(2)]
+    verts = [(cx, cy, h)]; faces = []
+    for i in range(1, rings + 1):
+        t = i / rings
+        for j in range(n):
+            a = j / n * TAU; k = 1 + 0.1 * math.sin(2 * a + ph[0]) + 0.06 * math.sin(5 * a + ph[1])
+            verts.append((cx + math.cos(a) * rx * t * k, cy + math.sin(a) * ry * t * k, h * (1 - t * t) ** 1.4))
+    for j in range(n): faces.append((0, 1 + j, 1 + (j + 1) % n))
+    for i in range(1, rings):
+        b0 = 1 + (i - 1) * n; b1 = 1 + i * n
+        for j in range(n):
+            j2 = (j + 1) % n; faces.append((b0 + j, b1 + j, b1 + j2, b0 + j2))
+    o = EK.mesh_obj(name, verts, faces, [mat or EK.m_sand('smound')])
+    return o
+
+
 def rubble(name, loc, size, seed, mat, rot=None):
     R = random.Random(seed)
     return EK.rounded_box(name, size, min(size) * 0.2, max(0.015, min(size) / 6), [mat], loc=loc,
@@ -257,7 +315,7 @@ def build_block():
     hi.append(jar('blkjar', (-0.5, 0.05, 1.265), 0.3))
     hi.append(jar('blkjar2', (-0.3, 0.3, 1.265), 0.22, hexc='#d68d5c', band=EK.TURQ))
     SD = EK.m_sand('blksand')
-    hi.append(sand_skirt('blksand', 0, 0, 0.98, 0.64, 0.13, 3, SD))
+    hi.append(sand_rect('blksand', 0, 0, 1.9, 1.2, 0.13, 0.22, SD, 3, r=0.05))
     STN = EK.m_stone('blkrub', ST, seed=5.0)
     hi.append(rubble('rub', (0.82, -0.62, 0.05), (0.18, 0.14, 0.1), 11, STN))
     hi.append(rubble('rub', (-0.88, 0.55, 0.04), (0.14, 0.12, 0.09), 12, STN))
@@ -316,11 +374,11 @@ def build_block2():
     hi.append(EK.rounded_box('chock', (0.42, 1.0, 0.56), 0.05, 0.03, [ST], loc=(-0.6, 0.0, 0.28), rot=(0, 0, 3), chips=0.04, lump=0.006, seed=21))
     hi.append(EK.rounded_box('chock', (0.4, 0.95, 0.56), 0.05, 0.03, [ST], loc=(-0.05, 0.02, 0.28), rot=(0, 0, -5), chips=0.04, lump=0.006, seed=22))
     SD = EK.m_sand('dsand')
-    hi.append(sand_skirt('dsand', -0.2, 0.0, 0.85, 0.52, 0.34, 7, SD))
-    hi.append(sand_skirt('dsand', 0.62, 0.0, 0.36, 0.42, 0.5, 8, SD))
+    hi.append(sand_mound('dsand', -0.3, 0.0, 0.95, 0.66, 0.36, SD, 7))
+    hi.append(sand_mound('dsand', 0.62, 0.02, 0.5, 0.6, 0.5, SD, 8))
     hi.append(rubble('rub', (-0.75, -0.55, 0.06), (0.22, 0.16, 0.12), 31, ST))
     hi.append(rubble('rub', (0.8, 0.5, 0.05), (0.16, 0.14, 0.1), 32, ST))
-    decim = [(r'^drum$', 0.035), (r'^break$', 0.6), (r'^chock$', 0.012), (r'^dsand$', 0.6), (r'^rub$', 0.03)]
+    decim = [(r'^drum$', 0.035), (r'^break$', 0.6), (r'^chock$', 0.012), (r'^dsand$', 0.7), (r'^rub$', 0.03)]
     weights = [(r'^drum$', 1.3), (r'^break$', 0.9), (r'sand', 0.4), (r'^rub$', 0.5)]
     return hi, None, dict(decim=decim, weights=weights, tex=512, budget=2500, ao_dist=0.3)
 
@@ -375,7 +433,7 @@ def build_high():
     dc = cornice_decal('hcorn', 0.15)
     hi.append(rect_sweep('hcornice', 0, 0, 7.82, 0.62, cavetto(0.1, 0.07, -0.01, 1.595, 0.045), [EK.m_stone('hcst', ST, dec=dc, seed=5.0)], r=0.03))
     SD = EK.m_sand('hsand')
-    for sx in (-1, 1): hi.append(sand_skirt('hsand', sx * 3.5, 0, 0.3, 0.33, 0.14, 81 + sx, SD))
+    for sx in (-1, 1): hi.append(sand_rect('hsand', sx * 3.5, 0, 0.44, 0.5, 0.13, 0.2, SD, 81 + sx, seg_len=0.08, r=0.035))
     decim = [(r'^pillar$', 0.015), (r'^beam$', 0.006), (r'^hcornice$', 0.5), (r'^hsand$', 0.5)]
     weights = [(r'^beam$', 1.25), (r'^pillar$', 1.0), (r'^hcornice', 0.8), (r'sand', 0.35)]
     return hi, None, dict(decim=decim, weights=weights, tex=512, budget=3000, ao_dist=0.3)
@@ -507,7 +565,7 @@ def build_gate():
         f.data.attributes.new('ds', 'INT', 'FACE').data.foreach_set('value', [1] * len(f.data.polygons))
         hi.append(f)
         SD = EK.m_sand('gsand%d' % sx)
-        hi.append(sand_skirt('gsand', sx * 4.6, 0, 1.3, 0.9, 0.22, 95 + sx, SD))
+        hi.append(sand_rect('gsand', sx * 4.6, 0, BW, BD, 0.24, 0.5, SD, 95 + sx, seg_len=0.2, r=0.06))
         hi.append(jar('gjar', (sx * 5.55, -1.05, 0.0), 0.55, rot=(0, 0, 20 * sx), hexc='#c9774a', band=EK.BLUE if sx > 0 else EK.TURQ))
     # lento (açıklık z 5'e dek boş) + saçak + kanatlı süs + güneş diski
     dl = relief('lintel', 5.6, 0.7, lambda cv: draw_winged_sun(cv, disc=False), ppm=140, seed=17)

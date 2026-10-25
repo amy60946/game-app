@@ -133,7 +133,7 @@ namespace Pofi.Core
                         UI.GoldKit.Frame = int.Parse(arg);
                         app.Route();
                         break;
-                    case "run":         // Piramit Koşusu: run start | auto 1 | auto 0 | left | right | jump | slide | state
+                    case "run":         // Gezegen Koşusu: run start | auto 1 | auto 0 | left | right | jump | slide | state
                         Debug.Log("[PofiDebug] run " + (Screens.RunnerScreen.Current?.Debug(arg) ?? "koşu ekranı yok"));
                         break;
                     case "flow":        // GB17 akış durumu (Mavi zamanlayıcıları, hikâye, sinema)

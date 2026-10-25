@@ -8,7 +8,7 @@
     { "id": "dq_coconut_10", "text": "10 hindistan cevizi yakala",          "counter": "coconuts_caught",  "target": 10, "xp": 20, "unlock": "minigame_coconut" },
     { "id": "dq_help_1",     "text": "Bir pet'in kayıp eşyasını bul",        "counter": "pets_helped",      "target": 1, "xp": 15, "unlock": "minigame_help_pet" },
     { "id": "dq_swim_1",     "text": "Yüzme koyunda bir tur at",            "counter": "swim_runs",        "target": 1, "xp": 15, "unlock": "minigame_swim" },
-    { "id": "dq_runner_1",   "text": "Piramit Koşusu'nda kapıya ulaş",      "counter": "runner_finished",  "target": 1, "xp": 20, "unlock": "minigame_runner" },
+    { "id": "dq_runner_1",   "text": "Gezegen Koşusu'nda kapıya ulaş",      "counter": "runner_finished",  "target": 1, "xp": 20, "unlock": "minigame_runner" },
     { "id": "dq_cards_1",    "text": "Bir masa oyunu oyna",                 "counter": "card_games_played","target": 1, "xp": 20, "unlock": "card_color_match" },
     { "id": "dq_harvest_2",  "text": "Bahçeden 2 ürün topla",              "counter": "harvests",         "target": 2, "xp": 15, "unlock": "region_garden" },
     { "id": "dq_water_3",    "text": "Bahçede 3 bitki sula",                "counter": "plants_watered",   "target": 3, "xp": 15, "unlock": "region_garden" },

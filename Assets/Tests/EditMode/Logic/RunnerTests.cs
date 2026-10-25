@@ -60,8 +60,8 @@ namespace Pofi.Tests.Logic
                     // K'de iki şeridi birden kapatan sıra yok
                     if (band == AgeBand.K) Assert.IsFalse(rows.Any(r => r.Count(o => o.Kind == Hazard.Block) > 1));
                     // tek papirüs; toplanacaklar Block'un içinde değil
-                    Assert.AreEqual(1, c.Pickups.Count(p => p.Scroll));
-                    Assert.AreEqual(c.Pickups.Count - 1, c.ScarabTotal);
+                    Assert.AreEqual(1, c.Pickups.Count(p => p.Card));
+                    Assert.AreEqual(c.Pickups.Count - 1, c.GemTotal);
                     foreach (var p in c.Pickups)
                         Assert.IsFalse(c.Obstacles.Any(o => o.Kind == Hazard.Block && o.Lane == p.Lane && Math.Abs(o.Z - p.Z) < 1.5f),
                             $"{band}/{seed}: skarabe engelin içinde ({p.Z})");
@@ -79,7 +79,7 @@ namespace Pofi.Tests.Logic
                     for (var i = 0; i < 60 * 200 && !run.Over; i++) run.Step(Dt, Bot(run), events);
                     Assert.IsTrue(run.Finished, $"{band}/{seed}: bitmedi");
                     Assert.AreEqual(0, run.Hits, $"{band}/{seed}: çarptı");
-                    Assert.Greater(run.Scarabs, 0);
+                    Assert.Greater(run.Gems, 0);
                     Assert.AreEqual(1, events.Count(e => e == RunEvent.Finish));
                     Assert.That(run.Elapsed, Is.InRange(45f, 95f), $"{band}/{seed}: süre");
                 }
@@ -140,7 +140,7 @@ namespace Pofi.Tests.Logic
             for (var i = 0; i < 60 * 200 && !run.Over; i++) run.Step(Dt, Bot(run));
             var r = run.Result();
             Assert.AreEqual(RunnerTheme.GameId, r.GameId);
-            Assert.AreEqual(run.Scarabs + 25 + (run.ScrollFound ? 10 : 0), r.Score);
+            Assert.AreEqual(run.Gems + 25 + (run.CardFound ? 10 : 0), r.Score);
             Assert.LessOrEqual(r.SuggestedXp, 40, "mini oyun kuralı: oyun başına en çok 40");
             Assert.GreaterOrEqual(r.SuggestedXp, 25, "bitiren en az 5 + 15 + skarabe payı");
             var idle = new RunnerRun(new RunnerCourse(AgeBand.C, 11)).Result();
@@ -155,7 +155,7 @@ namespace Pofi.Tests.Logic
             for (var i = 0; i < 60 * 25 && !run.Over; i++) run.Step(Dt, Bot(run));
             Assert.IsFalse(run.Over);
             var r = run.Result();
-            Assert.AreEqual(5 + run.Scarabs / 5, r.SuggestedXp);
+            Assert.AreEqual(5 + run.Gems / 5, r.SuggestedXp);
             Assert.Less(r.SuggestedXp, 25);
         }
 
@@ -166,16 +166,28 @@ namespace Pofi.Tests.Logic
             {
                 var c = new RunnerCourse(band, 9);
                 var secs = c.Config.Goal / ((c.Config.StartSpeed + c.Config.MaxSpeed) / 2f);
-                Assert.That(c.ScarabTotal / secs, Is.InRange(0.5f, 1.8f), $"{band}: saniyede skarabe");
+                Assert.That(c.GemTotal / secs, Is.InRange(0.5f, 1.8f), $"{band}: saniyede skarabe");
             }
         }
 
         [Test]
         public void Bilgi_karti_sirayla_doner()
         {
-            var seen = Enumerable.Range(0, RunnerTheme.EgyptFacts).Select(i => RunnerTheme.FactIndex(i, RunnerTheme.EgyptFacts)).ToList();
-            CollectionAssert.AreEquivalent(Enumerable.Range(1, RunnerTheme.EgyptFacts), seen);
-            Assert.AreEqual(1, RunnerTheme.FactIndex(RunnerTheme.EgyptFacts, RunnerTheme.EgyptFacts));
+            var seen = Enumerable.Range(0, RunnerTheme.FactCount(RunnerTheme.Current)).Select(i => RunnerTheme.FactIndex(i, RunnerTheme.FactCount(RunnerTheme.Current))).ToList();
+            CollectionAssert.AreEquivalent(Enumerable.Range(1, RunnerTheme.FactCount(RunnerTheme.Current)), seen);
+            Assert.AreEqual(1, RunnerTheme.FactIndex(RunnerTheme.FactCount(RunnerTheme.Current), RunnerTheme.FactCount(RunnerTheme.Current)));
+        }
+
+        [Test]
+        public void Tema_metinleri_eksiksiz()
+        {
+            var loc = new Pofi.Logic.Core.Localization(TestData.ReadText("tr.json"));
+            foreach (var theme in new[] { RunnerTheme.Space, RunnerTheme.Egypt })
+                for (var i = 1; i <= RunnerTheme.FactCount(theme); i++)
+                    Assert.IsTrue(loc.Has($"runner.{theme}.fact{i}"), $"{theme} bilgi {i}");
+            Assert.AreEqual(RunnerTheme.Space, RunnerTheme.Current, "kullanıcı kararı: önce gezegen teması");
+            foreach (var k in new[] { "mg.runner.title", "mg.runner.howto", "runner.card", "runner.fact_card", "runner.fact_title", "unlock.minigame_runner" })
+                Assert.IsTrue(loc.Has(k), k);
         }
 
         [Test]

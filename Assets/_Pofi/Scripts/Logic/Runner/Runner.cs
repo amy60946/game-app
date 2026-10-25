@@ -6,8 +6,9 @@ using Pofi.Logic.Profile;
 namespace Pofi.Logic.Runner
 {
     // Oyun Kulübesi koşu oyunu (25 Ekim 2026, kullanıcı: "kart oyunlarının yerine çocukların bugün sevdiği tarzda bir koşu oyunu
-    // koy, nabız yoklayalım"; araştırma + alternatifler https://claude.ai/artifact/DHw1MjM35Zi9cSbZkdXT1m, öneri A "Piramit Koşusu").
-    // Üç şerit, sağa/sola kaydır = şerit, yukarı = zıpla, aşağı = kay. Kovalayan canavar yok: Okti kaçan altın skarabenin peşinden koşar.
+    // koy, nabız yoklayalım"; araştırma + alternatifler https://claude.ai/artifact/DHw1MjM35Zi9cSbZkdXT1m). Kullanıcı kararı (25 Ekim):
+    // önce GEZEGEN teması ("Gezegen Koşusu": Ay'da yol, kaçan kuyrukluyıldız, kristal, gezegen kartı); Mısır sonra (kit hazır, rn_*).
+    // Üç şerit, sağa/sola kaydır = şerit, yukarı = zıpla, aşağı = kay. Kovalayan canavar yok: Okti kaçan rehberin peşinden koşar.
     // Koşu sonsuz değil: her parkurun bir varış kapısı var (~55–75 sn), sonra adaya dönüş. Coin yok; XP mevcut mini oyun kuralıyla
     // (MiniGameXp, oyun başına ≤ 40, günlük sınıra sayılır). Parkur tohumla deterministik üretilir (testli); çizim Runtime/Screens/RunnerScreen.
 
@@ -29,11 +30,11 @@ namespace Pofi.Logic.Runner
         public float Z;
         public int Lane;
         public float Height;   // yerden yükseklik (zıplama yayında havada)
-        public bool Scroll;    // papirüs (koşu başına bir tane, bilgi kartı)
+        public bool Card;      // bilgi kartı (koşu başına bir tane; uzay: gezegen kartı, Mısır: papirüs)
     }
 
     /// <summary>Koşu olayları (ses, efekt, sayaç için ekrana bildirilir).</summary>
-    public enum RunEvent { Hit, Scarab, Scroll, Finish, Out }
+    public enum RunEvent { Hit, Gem, Card, Finish, Out }
 
     /// <summary>Yaş grubuna göre koşu ayarı (ortak/sozlesme/durumlar.md §4: K 5 ve altı / A 6–8 / B 9–12 / C 13+).</summary>
     public sealed class RunnerConfig
@@ -61,7 +62,7 @@ namespace Pofi.Logic.Runner
     }
 
     /// <summary>
-    /// Parkur: engel sıraları + skarabe dizileri + bir papirüs. Kurallar (testli): hiçbir sırada üç şerit birden kapalı değil;
+    /// Parkur: engel sıraları + toplanacak dizileri (uzay: kristal, Mısır: skarabe) + bir bilgi kartı. Kurallar (testli): hiçbir sırada üç şerit birden kapalı değil;
     /// yol boyu Low/High tek başına (yanında Block yok); sıralar arası en az <see cref="RunnerConfig.MinGap"/> ve o hızda tepki mesafesi;
     /// başlangıçta 30 m, varıştan önce 25 m boş; toplanacaklar engelin içinde değil.
     /// </summary>
@@ -69,12 +70,12 @@ namespace Pofi.Logic.Runner
     {
         public const int Lanes = 3;
         public const float StartClear = 30f, EndClear = 25f;
-        public const float ScarabStep = 2.6f;
+        public const float GemStep = 2.6f;
 
         public RunnerConfig Config { get; }
         public List<Obstacle> Obstacles { get; } = new List<Obstacle>();
         public List<Pickup> Pickups { get; } = new List<Pickup>();
-        public int ScarabTotal { get; private set; }
+        public int GemTotal { get; private set; }
 
         public RunnerCourse(AgeBand band, int seed) : this(RunnerConfig.For(band), seed) { }
 
@@ -83,7 +84,7 @@ namespace Pofi.Logic.Runner
             Config = cfg;
             var rng = new Random(seed);
             var z = StartClear;
-            var free = 1;   // önceki sıranın açık şeridi (skarabe dizisi oradan akar)
+            var free = 1;   // önceki sıranın açık şeridi (toplanacak dizisi oradan akar)
             var rows = new List<(float z, bool full)>();
             while (z < cfg.Goal - EndClear)
             {
@@ -93,7 +94,7 @@ namespace Pofi.Logic.Runner
                     var kind = rng.NextDouble() < 0.5 ? Hazard.Low : Hazard.High;
                     Obstacles.Add(new Obstacle { Z = z, Lane = -1, Kind = kind });
                     rows.Add((z, true));
-                    // Low'un üstünden yay çizen skarabeler (zıplayana ödül)
+                    // Low'un üstünden yay çizen toplanacaklar (zıplayana ödül)
                     if (kind == Hazard.Low) Arc(z, free);
                 }
                 else
@@ -112,12 +113,12 @@ namespace Pofi.Logic.Runner
                     free = open;
                 }
                 var gap = Math.Max(cfg.MinGap, cfg.SpeedAt(z) * cfg.Reaction) + (float)rng.NextDouble() * 6f;
-                // skarabe dizisi: bu sıradan sonraki aralığın ortasında, açık şeritte
+                // toplanacak dizisi: bu sıradan sonraki aralığın ortasında, açık şeritte
                 var next = z + gap;
                 if (rng.NextDouble() < 0.6) Trail(z + 4f, Math.Min(next - 4f, cfg.Goal - EndClear), free);
                 z = next;
             }
-            // papirüs: parkurun ~%55'inde, iki sıra arasında, açık şeritte
+            // bilgi kartı: parkurun ~%55'inde, iki sıra arasında, açık şeritte
             var target = cfg.Goal * 0.55f;
             var best = StartClear; var bestLane = 1;
             for (var i = 0; i + 1 < rows.Count; i++)
@@ -126,9 +127,9 @@ namespace Pofi.Logic.Runner
                 if (Math.Abs(mid - target) < Math.Abs(best - target) && rows[i + 1].z - rows[i].z >= 12f) { best = mid; bestLane = LaneFreeAt(rows[i].z); }
             }
             Pickups.RemoveAll(p => Math.Abs(p.Z - best) < 2f && p.Lane == bestLane);
-            Pickups.Add(new Pickup { Z = best, Lane = bestLane, Height = 0.4f, Scroll = true });
+            Pickups.Add(new Pickup { Z = best, Lane = bestLane, Height = 0.4f, Card = true });
             Pickups.Sort((a, b) => a.Z.CompareTo(b.Z));
-            ScarabTotal = Pickups.Count - 1;
+            GemTotal = Pickups.Count - 1;
         }
 
         private static int Other(int open, Random rng)
@@ -151,15 +152,15 @@ namespace Pofi.Logic.Runner
 
         private void Trail(float from, float to, int lane)
         {
-            var n = Math.Min(5, (int)((to - from) / ScarabStep));
+            var n = Math.Min(5, (int)((to - from) / GemStep));
             if (n < 3) return;
-            var start = (from + to) / 2f - (n - 1) * ScarabStep / 2f;
-            for (var i = 0; i < n; i++) Pickups.Add(new Pickup { Z = start + i * ScarabStep, Lane = lane, Height = 0.35f });
+            var start = (from + to) / 2f - (n - 1) * GemStep / 2f;
+            for (var i = 0; i < n; i++) Pickups.Add(new Pickup { Z = start + i * GemStep, Lane = lane, Height = 0.35f });
         }
 
         private void Arc(float z, int lane)
         {
-            // zıplama yayı: tepe 1,3 m; skarabeler engelin önünde-üstünde-arkasında
+            // zıplama yayı: tepe 1,3 m; toplanacaklar engelin önünde-üstünde-arkasında
             for (var i = -2; i <= 2; i++)
             {
                 var t = 0.5f + i * 0.2f;
@@ -200,8 +201,8 @@ namespace Pofi.Logic.Runner
         public int Hearts { get; private set; }
         public int Hits { get; private set; }
         public bool Invuln => _inv > 0f;
-        public int Scarabs { get; private set; }
-        public bool ScrollFound { get; private set; }
+        public int Gems { get; private set; }
+        public bool CardFound { get; private set; }
         public bool Finished { get; private set; }
         public bool Out { get; private set; }
         public bool Over => Finished || Out;
@@ -280,8 +281,8 @@ namespace Pofi.Logic.Runner
                 var bodyTop = Sliding ? 0.8f : 1.5f;
                 if (p.Height > Height + bodyTop || p.Height + 0.5f < Height) continue;
                 Taken.Add(i);
-                if (p.Scroll) { ScrollFound = true; events?.Add(RunEvent.Scroll); }
-                else { Scarabs++; events?.Add(RunEvent.Scarab); }
+                if (p.Card) { CardFound = true; events?.Add(RunEvent.Card); }
+                else { Gems++; events?.Add(RunEvent.Gem); }
             }
             if (Z >= cfg.Goal) { Z = cfg.Goal; Finished = true; events?.Add(RunEvent.Finish); }
         }
@@ -297,17 +298,17 @@ namespace Pofi.Logic.Runner
         }
 
         /// <summary>
-        /// Puan (ekranda): skarabe + kapıya ulaşınca 25 + papirüs 10. XP mini oyun kuralıyla (5 + x, ≤ 40) ama ağırlık bitirmede:
-        /// x = skarabe / 5 + (bitirdi 15) + (papirüs 5) — çok skarabe toplayıp bitirmeyen çabuk 40'a ulaşmaz.
+        /// Puan (ekranda): toplanan + kapıya ulaşınca 25 + kart 10. XP mini oyun kuralıyla (5 + x, ≤ 40) ama ağırlık bitirmede:
+        /// x = toplanan / 5 + (bitirdi 15) + (kart 5) — çok toplayıp bitirmeyen çabuk 40'a ulaşmaz.
         /// </summary>
         public MiniGameResult Result()
         {
-            var score = Scarabs + (Finished ? 25 : 0) + (ScrollFound ? 10 : 0);
-            var xpPoints = Scarabs / 5 + (Finished ? 15 : 0) + (ScrollFound ? 5 : 0);
+            var score = Gems + (Finished ? 25 : 0) + (CardFound ? 10 : 0);
+            var xpPoints = Gems / 5 + (Finished ? 15 : 0) + (CardFound ? 5 : 0);
             return new MiniGameResult { GameId = RunnerTheme.GameId, Score = score, SuggestedXp = MiniGameXp.For(xpPoints, 1) };
         }
 
-        /// <summary>Ayıklama/çekim: çarpışmasız ileri sar (atlanan engel ve skarabeler sayılmaz).</summary>
+        /// <summary>Ayıklama/çekim: çarpışmasız ileri sar (atlanan engel ve toplanacaklar sayılmaz).</summary>
         public void DebugAdvance(float meters)
         {
             if (Over) return;
@@ -316,15 +317,20 @@ namespace Pofi.Logic.Runner
     }
 
     /// <summary>
-    /// Konu yolu (araştırma sayfası: önce Mısır, ilgi tutarsa Uzay, sonra Dinozor). Motor aynı; tema yalnız görünüş + bilgi kartları.
-    /// Bilgiler tr.json "runner.&lt;tema&gt;.fact&lt;n&gt;" (çocuğa uygun, korkutucu imge yok); her koşuda sıradaki.
+    /// Konu yolu (araştırma sayfası; kullanıcı kararı 25 Ekim 2026: önce Uzay/gezegenler, sonra Mısır, Dinozor). Motor aynı; tema yalnız
+    /// görünüş (Runtime RunnerScreen kitleri: uzay rs_*, Mısır rn_*) + metinler. Bilgiler tr.json "runner.&lt;tema&gt;.fact&lt;n&gt;"
+    /// (çocuğa uygun, korkutucu imge yok); her koşuda sıradaki.
     /// </summary>
     public static class RunnerTheme
     {
         public const string GameId = "minigame_runner";
         public const string Id = "runner";
+        public const string Space = "space";
         public const string Egypt = "egypt";
-        public const int EgyptFacts = 12;
+        /// <summary>Açık tema (şimdilik tek dünya).</summary>
+        public const string Current = Space;
+
+        public static int FactCount(string theme) => theme == Egypt ? 12 : theme == Space ? 12 : 0;
 
         public static int FactIndex(int runsPlayed, int count) => count <= 0 ? 0 : 1 + ((Math.Max(0, runsPlayed) % count + count) % count);
     }
