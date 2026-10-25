@@ -176,8 +176,8 @@ def m_tile2(hexc, name, age=1.0, moss=0.6):
         col = G.mix(G.rng(occl, 0.8, 0.35, 0, 0.55), col, '#4b3022')
         mm = G.math('MULTIPLY', G.rng(occl, 0.85, 0.5, 0, moss), G.rng(G.noise(p, 3.5, 4), 0.45, 0.6))
         col = G.mix(mm, col, '#5f8a30')
-        sl = G.math('MULTIPLY', G.rng(G.noise(p, 5.0, 4), 0.62, 0.72), 0.35 * age)
-        col = G.mix(sl, col, '#ece4d2')                                                                    # tuz kabuğu
+        sl = G.math('MULTIPLY', G.rng(G.noise(p, 2.2, 4), 0.66, 0.74), 0.3 * age)
+        col = G.mix(sl, col, '#ece4d2')                                                                    # tuz kabuğu (seyrek, iri)
         l.new(col, bsdf.inputs['Base Color'])
     return nodes_mat(name, b)
 

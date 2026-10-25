@@ -26,14 +26,17 @@ RISE, OVY, OVX = 0.95, 0.38, 0.3
 
 
 def m_chimney():
-    """Baca taşı: taş + tepeye doğru is (dünya z), liken."""
+    """Baca taşı: taş taş ton farkı (sıcak gri ↔ kum rengi), koyu benek, sarı-yeşil ve turuncu liken, tepeye doğru is; oyukta kir.
+    Desen dünya konumunda (taşlar küçük: nesne koordinatında her taş tek düze görünüyordu)."""
     def b(nt, bsdf):
-        G = KE.G2(nt); o = G.obj()
-        rp = KE.ramp(nt, list(zip((0.3, 0.5, 0.72), ('#8d877d', '#a49d91', '#bfb7a8')))); nt.links.new(G.noise(o, 2.4, 6), rp.inputs['Fac'])
-        col = G.mix(G.rng(G.vor(o, 14), 0.0, 0.1, 0.35, 0), rp.outputs[0], '#5d574f')
-        lich = G.math('MULTIPLY', G.rng(G.vor(o, 7), 0.0, 0.16, 1, 0), G.rng(G.noise(o, 3.0, 3), 0.5, 0.62, 0, 0.8))
-        col = G.mix(lich, col, '#d2cf96')
-        soot = G.rng(G.math('ADD', G.wz(), G.math('MULTIPLY', G.noise(o, 4, 4), 0.25)), TOP + RISE + 0.25, TOP + RISE + 0.75, 0, 0.75)
+        G = KE.G2(nt); p = G.pos()
+        rp = KE.ramp(nt, list(zip((0.3, 0.45, 0.6, 0.75), ('#756e64', '#938a7d', '#ad9f88', '#bdb3a2')))); nt.links.new(G.noise(p, 3.2, 3), rp.inputs['Fac'])
+        col = G.mix(G.rng(G.vor(p, 34), 0.0, 0.12, 0.45, 0), rp.outputs[0], '#4f4a44')
+        lich = G.math('MULTIPLY', G.rng(G.vor(p, 11), 0.0, 0.2, 1, 0), G.rng(G.noise(p, 2.5, 3), 0.45, 0.6, 0, 0.85))
+        col = G.mix(lich, col, '#cfcb8a')
+        lich2 = G.math('MULTIPLY', G.rng(G.vor(G.mapping(p, (1.3, 1.3, 1.3)), 9), 0.0, 0.12, 1, 0), G.rng(G.noise(p, 2.0, 3), 0.6, 0.7, 0, 0.7))
+        col = G.mix(lich2, col, '#d8954a')
+        soot = G.rng(G.math('ADD', G.wz(), G.math('MULTIPLY', G.noise(p, 4, 4), 0.25)), TOP + RISE + 0.15, TOP + RISE + 0.6, 0, 0.85)
         col = G.mix(soot, col, '#3a3530')
         col = G.mix(G.rng(G.ao(0.12), 0.8, 0.35, 0, 0.55), col, '#3f3a35')
         nt.links.new(col, bsdf.inputs['Base Color'])
@@ -41,7 +44,8 @@ def m_chimney():
 
 
 def curtain(cx, cy, cz, w, h, axis, M, side, seed=0):
-    """Pencere ardında toplanmış perde (yan tarafta kıvrımlı kumaş şerit). axis 'x': ön duvar (−Y'ye bakar), 'y': yan duvar."""
+    """Pencerede toplanmış perde (yanda kıvrımlı kumaş şerit). Camın hemen önünde durur: cam pişirmede opak, arkasındaki perde
+    görünmezdi. axis 'x': ön duvar (−Y'ye bakar), 'y': yan duvar."""
     NY, NZ = 8, 4; verts = []; faces = []; grid = []
     for i in range(NZ + 1):
         t = i / NZ; row = []
@@ -50,8 +54,8 @@ def curtain(cx, cy, cz, w, h, axis, M, side, seed=0):
             a = (side * (w / 2) - side * u * w * 0.34)
             fold = 0.018 * math.sin(u * math.pi * 4 + seed)
             z = cz + h / 2 - t * h
-            if axis == 'x': p = (cx + a, cy + 0.04 + fold, z)
-            else: p = (cx + (-0.04 - fold if cx > 0 else 0.04 + fold), cy + a, z)
+            if axis == 'x': p = (cx + a, cy - 0.024 - fold, z)                   # camın önünde, pervaz/kayıtların arkasında
+            else: p = (cx + (0.024 + fold if cx > 0 else -0.024 - fold), cy + a, z)
             row.append(len(verts)); verts.append(p)
         grid.append(row)
     for i in range(NZ):
@@ -75,6 +79,7 @@ def build():
     CREAM = KE.m_wood2('#b98e5e', 'trim', paint='#f3e4c2', age=1.1, salt=0.8, ground=0.0)
     ROOF = [KE.m_tile2(c, f'roof{i}') for i, c in enumerate(['#d9613f', '#cb5639', '#e2724e', '#c96447'])]
     ROOF_NEW = KE.m_tile2('#ee8a5f', 'roofnew', age=0.3, moss=0.1); ROOF_OLD = KE.m_tile2('#a9553e', 'roofold', age=1.4, moss=0.9)
+    WSH = KE.m_wood2('#9a7048', 'woodshingle', salt=0.8, ground=0.0)
     STONE = KE.m_stone2('housestone'); CH = m_chimney()
     def glass(nt, bsdf):
         G = KE.G2(nt); o = G.obj()
@@ -185,7 +190,7 @@ def build():
             t = 1 - (r + 0.5) / rows
             yy = side * half * t
             zz = TOP + RISE * (1 - abs(yy) / (D / 2)) + 0.07
-            x = -W / 2 - OVX + (0.16 if r % 2 else 0.0)
+            x = -W / 2 - OVX + (0.16 if r % 2 else 0.0); xi = 0
             while x < W / 2 + OVX - 0.05:
                 wdt = min(0.31, W / 2 + OVX - x)
                 m = R.choice(ROOF); rot = (-side * math.degrees(ang) + R.uniform(-2, 2), R.uniform(-1.5, 1.5), 0)
@@ -195,8 +200,10 @@ def build():
                 elif q < 0.13: m = ROOF_OLD                                            # eski, koyu, yosunlu
                 elif q < 0.17: sz = (wdt * 0.7, 0.2, 0.035); off = (RW.uniform(-0.03, 0.03), -side * 0.02, 0)   # kırık, kaymış
                 rot = (rot[0] + RW.uniform(-2.5, 2.5), rot[1] + RW.uniform(-2, 2), RW.uniform(-3, 3))
-                objs.append(rbox('shingle', (x + wdt / 2 + off[0], yy + off[1], zz), sz, m, rot=rot, bevel=0.012))
-                x += 0.32
+                if side < 0 and (r, xi) in ((3, 2), (3, 3), (4, 2)): m = WSH        # ön eğimde tahta pul yaması (okunur onarım)
+                if not (side < 0 and (r, xi) == (5, 9)):                            # bir kiremit düşmüş: alttaki koyu tahta görünür
+                    objs.append(rbox('shingle', (x + wdt / 2 + off[0], yy + off[1], zz), sz, m, rot=rot, bevel=0.012))
+                x += 0.32; xi += 1
     objs.append(cyl('ridge', (0, 0, TOP + RISE + 0.1), 0.09, W + 2 * OVX + 0.05, ROOF[1], rot=(0, 90, 0), verts=14))
     # alınlıklar + yuvarlak tavan penceresi
     for sx in (-1, 1):
@@ -304,7 +311,7 @@ def build():
     nrm_b = (0, math.sin(ang), math.cos(ang)); nrm_f = (0, -math.sin(ang), math.cos(ang))
     for k, (x, t, rr) in enumerate(((-1.1, 0.82, 0.11), (-0.3, 0.55, 0.09), (0.35, 0.9, 0.1), (1.25, 0.7, 0.085), (-0.85, 0.3, 0.07), (0.9, 0.35, 0.075))):
         KE.moss_clump(roof_pt(x, t, 1), rr, 30 + k, nrm_b)
-    for k, (x, t, rr) in enumerate(((-1.45, 0.88, 0.07), (1.4, 0.85, 0.06))):
+    for k, (x, t, rr) in enumerate(((-1.45, 0.88, 0.07), (1.4, 0.85, 0.06), (-0.62, 0.7, 0.06), (0.42, 0.93, 0.055), (1.02, 0.55, 0.05))):
         KE.moss_clump(roof_pt(x, t, -1), rr, 40 + k, nrm_f)
     for k, x in enumerate((-1.2, -0.2, 0.95)):
         KE.moss_clump((x, 0.02, TOP + RISE + 0.17), 0.06, 45 + k, (0, 0.3, 1))
@@ -313,6 +320,18 @@ def build():
         KE.moss_clump((x, y + 0.07, 0.05), 0.08, 50 + k, (0, 0.6, 0.8))
     KE.moss_clump((-W / 2 + 0.1, D / 2 + 0.06, Z0 + 0.04), 0.07, 56, (0, 0.6, 0.8))
 
+    # arka duvar dibinde (güverte üstünde) saçak altına istiflenmiş odun + duvarda asılı eski şamandıralar
+    LOGM = KE.m_bark2('homelog', '#7a5536'); EG = KE.m_endgrain2('homeend')
+    for k in range(7):
+        row = 0 if k < 4 else 1
+        x = -1.05 + (k % 4) * 0.15 + row * 0.075; z = Z0 + 0.065 + row * 0.12; yc = D / 2 + 0.21
+        lg = AT.lathe('wood', [(0.001, -0.175), (0.065, -0.175), (0.065, 0.175), (0.001, 0.175)], LOGM, segs=10)
+        lg.rotation_euler = (math.radians(90), 0, 0); lg.location = (x, yc, z)
+        cyl('wend', (x, yc + 0.178, z), 0.06, 0.008, EG, rot=(90, 0, 0), verts=10, bevel=0)
+    for k, (x, c) in enumerate(((0.55, '#f0663a'), (0.78, '#f2b632'))):
+        KE.buoy((x, D / 2 + 0.11, Z0 + 0.95 - 0.08 * k), 0.07, c)
+        KE.rope3([(x, D / 2 + 0.06, Z0 + 1.3), (x, D / 2 + 0.1, Z0 + 1.1), (x, D / 2 + 0.11, Z0 + 1.03 - 0.08 * k)], 0.008, seg=0.03, around=6)
+    AT.nail((0.665, D / 2 + 0.04, Z0 + 1.3), (0, 1, 0), streak=True)
     # evin dibi (house_cottage v3): kazık diplerinde taş, basamak taşları, ot öbekleri, çalı, çiçek
     R3 = random.Random(31)
     for x in (-1.5, 0, 1.5):
@@ -343,10 +362,10 @@ def _brass():
 
 DECIM = [(r'^shingle$', 0.12), (r'^(plank|gable)$', 0.25), (r'^(deck|step|stepside)$', 0.25), (r'^(roofbase)$', 0.3),
          (r'^(corner|rpost|rail|rail2|dframe|door|brace|wframe|shutter|fbox|soil|slat|crate|chcap|arm|lamptop|lamp)$', 0.3),
-         (r'^stone$', 0.25), (r'^(tufts|basebush|boxleaf|potplant|lush|rosette)$', 0.3), (r'^(pet|fc)$', 0.25), (r'^(Icosphere|moss)$', 0.25),
-         (r'^(stem)$', 0.3), (r'^(nail|streak)$', 0.3), (r'^(starfish|shell)$', 0.25), (r'^(attic)$', 0.3), (r'^(ridge)$', 0.5),
-         (r'^(paw|knob)$', 0.3), (r'^(barrel|hoop)$', 0.4), (r'^(post)$', 0.5), (r'^(pot|reel|rod|line|bobber|chimebar|chimestr)$', 0.4),
-         (r'^(curtain)$', 0.5), (r'^(sign|mat)$', 0.4), (r'^(rope)$', 0.3)]
+         (r'^stone$', 0.15), (r'^(tufts|basebush|boxleaf|potplant|lush|rosette)$', 0.3), (r'^(pet|fc)$', 0.2), (r'^(Icosphere)$', 0.25),
+         (r'^moss$', 0.18), (r'^(stem)$', 0.25), (r'^(nail|streak)$', 0.3), (r'^(starfish|shell)$', 0.18), (r'^(attic)$', 0.15), (r'^(ridge)$', 0.5),
+         (r'^(paw|knob)$', 0.12), (r'^barrel$', 0.4), (r'^hoop$', 0.25), (r'^(post)$', 0.25), (r'^(pot|reel|rod|line|chimebar|chimestr)$', 0.4),
+         (r'^(bobber|buoy)$', 0.12), (r'^(curtain)$', 0.5), (r'^(sign|mat)$', 0.4), (r'^(rope)$', 0.3), (r'^(wood|wend)$', 0.4)]
 WEIGHTS = [(r'^(door|brace|knob|dframe|sign|paw|starfish|mat)$', 1.6), (r'^(glass|wframe|shutter|curtain|fbox|boxleaf)$', 1.4),
            (r'^(shingle|ridge)$', 1.1), (r'^(plank)$', 1.0), (r'^(gable)$', 0.9), (r'^(deck|step)$', 1.0),
            (r'^(tufts|basebush|stem|pet|fc|Icosphere|sand)$', 0.5), (r'^(inner|post|roofbase)$', 0.4)]

@@ -13,11 +13,11 @@ STAGE = os.environ.get('POFI_STAGE', '/tmp/pofi_game_export')
 ASSETS = {
     # yapılar (bölge başına 1). bld/<ad>.py (24 Ekim 2026): taslağın tam ağından pişer (renk + AO + normal; bld/bld_kit.py),
     # eskitme katmanları bld/ada_eskitme.py; bütçe yalnız üst sınır raporu (küresel sadeleştirme yok)
-    'b_home': ('house_cottage.py', 'c_house', 9000, 1024),
-    'b_shop': ('assets_town.py', 'c_shop', 10000, 1024),
+    'b_home': ('bld/b_home.py', 'b_home', 18000, 1024),
+    'b_shop': ('bld/b_shop.py', 'b_shop', 18000, 1024),
     'b_pier': ('bld/b_pier.py', 'b_pier', 13000, 1024),
     'b_lighthouse': ('bld/b_lighthouse.py', 'b_lighthouse', 12000, 1024),
-    'b_task_board': ('assets_town.py', 'c_board', 4500, 1024),
+    'b_task_board': ('bld/b_task_board.py', 'b_task_board', 9000, 1024),
     'b_garden': ('bld/b_garden.py', 'b_garden', 14000, 1024),
     'b_surf': ('bld/b_surf.py', 'b_surf', 12000, 1024),
     'b_swim': ('bld/b_swim.py', 'b_swim', 12000, 1024),   # v6 adada koy p_pool ile kurulur; bu yalnız eski ada
@@ -26,7 +26,7 @@ ASSETS = {
     'b_cave': ('assets_town.py', 'c_cave', 6000, 1024),
     'b_mountain': ('assets_town.py', 'c_mountain', 6000, 1024),
     'b_ski_hill': ('assets_town.py', 'c_ski', 7000, 1024),
-    'b_hut': ('assets_town.py', 'c_hut', 6000, 1024),
+    'b_hut': ('bld/b_hut.py', 'b_hut', 12000, 1024),
     'p_site': ('assets_town.py', 'c_site', 3500, 512),
     'island_chunk': ('assets_town.py', 'c_chunk', 5000, 1024),
     # süsler (adada çok sayıda)
