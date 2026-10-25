@@ -179,7 +179,7 @@ namespace Pofi.EditorTools
             var hero = file.StartsWith("b_temple") && !normal;
             // Gezegen Koşusu (25 Ekim 2026; art/code3d/runner): yol, korkuluk, kapı, Ay üssü 1024; Ay arazisi ve krater köprüsü
             // (40–80 m'ye tek doku, kamera hemen üstünde) 2048 — kullanıcı: "hız, derinlik ve ayrıntı en iyi şekilde geçsin"
-            var runnerPath = assetPath.Replace('\', '/').Contains("/Resources/Env/rs_");
+            var runnerPath = assetPath.Replace('\\', '/').Contains("/Resources/Env/rs_");
             var runnerGround = runnerPath && (file.StartsWith("rs_ground") || file.StartsWith("rs_crater")) && !normal;
             t.maxTextureSize = hero || runnerGround ? 2048 : (IsPet && !normal) || building || tree || resident || runnerPath ? 1024 : 512;
             t.mipmapEnabled = true;
