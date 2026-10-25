@@ -1,0 +1,92 @@
+# Gezegen Koşusu — önizleme ve simgeler (25 Ekim 2026).
+#   render(png): dışa aktarılmış oyun modelleriyle yol kompozisyonu (oyundaki gibi tek doku): 6 güverte parçası + iki yan korkuluk
+#                (sol = sağın x'te −1 ölçeklisi), engeller, kristaller, kartlar, önde kuyruklu yıldız, uzakta geçit halkası. Gökyüzünü oyun
+#                kendisi çizer; burada yalnız kamera ışınına koyu lacivert-mor uzay + yıldız (aydınlatma ayrı, nötr). Kamera orta şeridin
+#                arkasında (0, −6, 3,4), ileri ve ~15° aşağı. Koordinat = Blender = Unity (EnvScaled 180° sonrası (x, y) → (x, z)).
+#   icons():     ui_crystal.png, ui_card.png → Assets/_Pofi/Resources/Icons (256 px, saydam, 3/4 üstten, nesne karenin ~%85'i).
+import os, sys, math
+HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path: sys.path.insert(0, HERE)
+import egypt_kit as EK
+from egypt_kit import bpy, V
+import kit
+import kosu_sahne as KS
+
+ICONS = KS.ICONS
+
+
+def space_world(sc, ambient=0.85):
+    """Kamera ışınında: lacivert → mor geçişli uzay + seyrek yıldız; diğer ışınlarda nötr lavanta ortam ışığı."""
+    w = sc.world; nt = w.node_tree; n = nt.nodes; l = nt.links
+    for x in list(n): n.remove(x)
+    out = n.new('ShaderNodeOutputWorld'); mix = n.new('ShaderNodeMixShader')
+    lp = n.new('ShaderNodeLightPath')
+    amb = n.new('ShaderNodeBackground'); amb.inputs['Color'].default_value = kit.srgb('#c9c6e0'); amb.inputs['Strength'].default_value = ambient
+    sky = n.new('ShaderNodeBackground'); sky.inputs['Strength'].default_value = 1.0
+    tc = n.new('ShaderNodeTexCoord'); sp = n.new('ShaderNodeSeparateXYZ'); l.new(tc.outputs['Generated'], sp.inputs[0])
+    r = kit.ramp(nt, [(0.35, '#141634'), (0.55, '#2a2160'), (0.8, '#3b2a6e')]); l.new(sp.outputs['Z'], r.inputs['Fac'])
+    vo = n.new('ShaderNodeTexVoronoi'); vo.inputs['Scale'].default_value = 180.0; l.new(tc.outputs['Generated'], vo.inputs['Vector'])
+    mr = n.new('ShaderNodeMapRange'); mr.inputs['From Min'].default_value = 0.06; mr.inputs['From Max'].default_value = 0.0; l.new(vo.outputs['Distance'], mr.inputs['Value'])
+    mx = n.new('ShaderNodeMix'); mx.data_type = 'RGBA'; l.new(mr.outputs[0], mx.inputs['Factor']); l.new(r.outputs[0], mx.inputs[6]); mx.inputs[7].default_value = (1, 1, 1, 1)
+    l.new(mx.outputs[2], sky.inputs['Color'])
+    l.new(lp.outputs['Is Camera Ray'], mix.inputs['Fac']); l.new(amb.outputs[0], mix.inputs[1]); l.new(sky.outputs[0], mix.inputs[2])
+    l.new(mix.outputs[0], out.inputs['Surface'])
+
+
+def render(png, size=(1280, 720), samples=96):
+    sc = kit.reset(); space_world(sc)
+    sun = bpy.data.objects['sun']; sun.rotation_euler = (math.radians(50), 0, math.radians(-30)); sun.data.energy = 3.6
+    P = KS.place
+    for i in range(-1, 5):
+        y = 10 * i + 5
+        P('rs_floor', (0, y, 0)); P('rs_wall', (0, y, 0)); P('rs_wall', (0, y, 0), sx=-1.0)
+    P('rs_block', (-2.2, 9.0, 0)); P('rs_low', (0, 15.0, 0)); P('rs_block2', (2.2, 20.0, 0)); P('rs_high', (0, 25.0, 0))
+    for k in range(5): P('rs_crystal', (0, 2.5 + k * 1.2, 0.35), yaw=20 * k)
+    P('rs_crystal', (-2.2, 17.0, 0.35)); P('rs_crystal', (2.2, 12.0, 0.35), yaw=30)
+    P('rs_card', (2.2, 6.5, 0.35), yaw=-20); P('rs_card', (0, 21.0, 0.35), yaw=15)
+    P('rs_comet', (0.4, 31.0, 1.7))
+    P('rs_gate', (0, 37.0, 0))
+    cam = bpy.data.cameras.new('cam'); cam.lens = 24; cam.clip_end = 2000
+    co = bpy.data.objects.new('cam', cam); sc.collection.objects.link(co); sc.camera = co
+    co.location = (0, -6.0, 3.4); co.rotation_euler = (math.radians(75), 0, 0)
+    sc.cycles.samples = samples; sc.render.resolution_x, sc.render.resolution_y = size
+    sc.render.filepath = png; bpy.ops.render.render(write_still=True)
+
+
+def icons():
+    for name, out, yaw, pitch in (('rs_crystal', 'ui_crystal', 28.0, 26.0), ('rs_card', 'ui_card', -26.0, 18.0)):
+        sc = kit.reset()
+        for o in list(bpy.data.objects):
+            if o.type == 'LIGHT': bpy.data.objects.remove(o)
+        obs = P_icon(name)
+        def area(n_, loc, e, s, col):
+            li = bpy.data.lights.new(n_, 'AREA'); li.energy = e; li.size = s; li.color = col
+            o = bpy.data.objects.new(n_, li); sc.collection.objects.link(o); o.location = loc
+            o.rotation_euler = (V((0, 0, 0.25)) - V(loc)).to_track_quat('-Z', 'Y').to_euler()
+        area('key', (-1.4, -1.8, 2.0), 300, 1.6, (1.0, 0.97, 0.92)); area('fill', (1.8, -1.0, 0.8), 110, 2.0, (0.85, 0.9, 1.0))
+        area('rim', (0.6, 1.8, 1.4), 140, 1.2, (1.0, 0.95, 0.9))
+        sc.world.node_tree.nodes['Background'].inputs['Strength'].default_value = 0.6
+        sc.render.film_transparent = True; sc.render.resolution_x = sc.render.resolution_y = 256
+        sc.render.image_settings.file_format = 'PNG'; sc.render.image_settings.color_mode = 'RGBA'
+        sc.cycles.samples = 128
+        cam = bpy.data.cameras.new('cam'); cam.type = 'ORTHO'
+        co = bpy.data.objects.new('cam', cam); sc.collection.objects.link(co); sc.camera = co
+        yr, pr = math.radians(yaw), math.radians(pitch)
+        pts = [o.matrix_world @ v.co for o in obs for v in o.data.vertices]
+        ctr = sum(pts, V((0, 0, 0))) / len(pts)
+        co.location = ctr + V((math.sin(yr) * math.cos(pr) * 5, -math.cos(yr) * math.cos(pr) * 5, math.sin(pr) * 5))
+        co.rotation_euler = (ctr - co.location).to_track_quat('-Z', 'Y').to_euler()
+        bpy.context.view_layer.update()
+        inv = co.matrix_world.inverted(); cp = [inv @ p for p in pts]
+        xs = [p.x for p in cp]; ys = [p.y for p in cp]
+        co.location = co.matrix_world @ V(((max(xs) + min(xs)) / 2, (max(ys) + min(ys)) / 2, 0))
+        cam.ortho_scale = max(max(xs) - min(xs), max(ys) - min(ys)) / 0.85
+        sc.render.filepath = os.path.join(ICONS, out + '.png')
+        bpy.ops.render.render(write_still=True)
+        print('simge', sc.render.filepath, flush=True)
+
+
+def P_icon(name):
+    obs = KS.place(name)
+    bpy.context.view_layer.update()
+    return obs

@@ -111,8 +111,8 @@ def m_regolith(name, pal=MOON, period=None, craters=0.6, dust=0.5, seed=0.0, sca
         col = G.mix(0.18, col, G.noise4(cw, 25.0 * scale, 3, 0.6, 'Color'), 'OVERLAY')
         if craters:
             v = G.vor4(cw, 3.0 * scale)
-            col = G.mix(G.math('MULTIPLY', G.rng(v, 0.18, 0.08, 0, 0.45 * craters), G.rng(G.noise4(cw, 1.1, 2), 0.45, 0.6)), col, _sh(pal[0], 0.8))
-            col = G.mix(G.math('MULTIPLY', G.math('MULTIPLY', G.rng(v, 0.18, 0.22), G.rng(v, 0.3, 0.22)), G.rng(G.noise4(cw, 1.1, 2), 0.45, 0.6, 0, 0.6 * craters)), col, _sh(pal[2], 1.06))
+            pit = G.rng(G.math('ADD', v, G.math('MULTIPLY', G.noise4(cw, 6.0, 3), 0.08)), 0.2, 0.06)
+            col = G.mix(G.math('MULTIPLY', pit, G.rng(G.noise4(cw, 1.1, 2), 0.45, 0.6, 0, 0.3 * craters)), col, _sh(pal[0], 0.82))
             v2 = G.vor4(cw, 11.0 * scale)
             col = G.mix(G.rng(v2, 0.12, 0.04, 0, 0.35 * craters), col, _sh(pal[0], 0.82))
         col = G.mix(G.rng(G.vor4(G.coords(period, off=(seed + 5, 0, 0)), 60.0), 0.0, 0.07, 0.45, 0), col, '#ece8f2')
@@ -133,15 +133,15 @@ def m_crystal(name, c0=VIOLET, c1=CYAN, z0=0.0, z1=0.5, local=True):
             x, y, z = G.sep(G.obj())
         else:
             x, y, z = G.sep(G.pos())
-        col = G.mix(G.rng(z, z0, z1), _sh(c0, 0.95), c1)
+        col = G.mix(G.rng(z, z0, z1), c0, c1)
         nx, ny, nz = G.sep(G.nrm())
         f = G.math('ADD', G.math('ADD', G.math('MULTIPLY', nx, 0.45), G.math('MULTIPLY', ny, -0.35)), G.math('MULTIPLY', nz, 0.55))
-        col = G.mix(G.rng(f, -0.8, 0.1, 0.45, 0), col, _sh(c0, 0.55))
-        col = G.mix(G.rng(f, 0.2, 0.95, 0, 0.6), col, '#f2fbff')
-        col = G.mix(G.math('MULTIPLY', G.edges(0.51, 0.56), 0.8), col, '#ffffff')
+        col = G.mix(G.rng(f, -0.8, 0.1, 0.5, 0), col, _sh(c0, 0.55))                  # gölgedeki yüzey koyu
+        col = G.mix(G.rng(f, 0.3, 0.95, 0, 0.35), col, _sh(c1, 1.35))                  # ışığa bakan yüzey açık (beyaz değil)
+        col = G.mix(G.math('MULTIPLY', G.edges(0.56, 0.68), 0.45), col, '#f4fbff')      # pah kenarı parlar
         cw = G.coords()
-        col = G.mix(G.rng(G.vor4(cw, 14.0), 0.0, 0.06, 0.8, 0), col, '#ffffff')
-        col = G.mix(G.rng(G.noise4(cw, 3.0, 3), 0.55, 0.75, 0, 0.25), col, _sh(c1, 1.3))
+        col = G.mix(G.rng(G.vor4(cw, 14.0), 0.0, 0.045, 0.7, 0), col, '#ffffff')
+        col = G.mix(G.rng(G.noise4(cw, 3.0, 3), 0.55, 0.75, 0, 0.2), col, _sh(c1, 1.2))
         G.l.new(col, bsdf.inputs['Base Color'])
     return EK.nodes_mat(name, b)
 

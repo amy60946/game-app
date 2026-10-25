@@ -84,8 +84,9 @@ def lumpy_rock(name, size, mat, seed=0, sub=4, craters=(), flat=0.0, rough=0.12)
 
 def build_block():
     ROCK = UK.m_regolith('astrock', ('#6e6a80', '#928da4', '#b9b4c8'), craters=0.8, dust=0.35, seed=1.0, scale=1.6)
-    rock = lumpy_rock('rock', (1.85, 1.15, 1.25), ROCK, seed=4, sub=5, flat=0.18, rough=0.13,
-                      craters=[((-0.3, -1, 0.4), 0.32, 0.12), ((0.8, -0.6, 0.1), 0.22, 0.1), ((-0.6, 0.2, 0.9), 0.25, 0.08), ((0.4, 0.8, 0.5), 0.3, 0.1)])
+    rock = lumpy_rock('rock', (1.85, 1.15, 1.25), ROCK, seed=4, sub=5, flat=0.18, rough=0.16,
+                      craters=[((-0.3, -1, 0.4), 0.34, 0.2), ((0.75, -0.7, 0.15), 0.22, 0.16), ((-0.65, 0.2, 0.9), 0.26, 0.14), ((0.4, 0.8, 0.5), 0.3, 0.16),
+                               ((-0.9, -0.5, 0.0), 0.18, 0.12), ((0.2, -0.9, -0.3), 0.14, 0.1)])
     hi = [rock]
     C1 = UK.m_crystal('cryv', UK.VIOLET, UK.CYAN, -0.1, 0.55); C2 = UK.m_crystal('cryc', '#3a6fd1', '#7ff0f0', -0.1, 0.45)
     C3 = UK.m_crystal('cryp', '#8a4fd8', '#f0a8ff', -0.1, 0.4)
@@ -198,11 +199,11 @@ def build_block2():
 # ================================================================== rs_low
 
 def build_low():
-    PIPE = UK.m_paint('pipep', UK.CREAM, chips=0.45, dust=0.25, grime=0.4, seed=1.0)
-    STRIPE = UK.m_paint('pipes', UK.CORAL, chips=0.45, dust=0.25, grime=0.4, seed=2.0)
+    PIPE = UK.m_paint('pipep', UK.CREAM, chips=0.25, dust=0.2, grime=0.4, seed=1.0, scale=3.0)
+    STRIPE = UK.m_paint('pipes', UK.CORAL, chips=0.25, dust=0.2, grime=0.4, seed=2.0, scale=3.0)
     FL = UK.m_metal('flange', UK.STEEL, dust=0.3); GN = UK.m_metal('pfoot', UK.GUN, dust=0.3)
     GL = UK.m_glow('pglow', UK.CYAN, hot=0.6); WH = UK.m_paint('wheel', UK.SUN, chips=0.4, dust=0.2, seed=3.0)
-    R0, ZC, X1 = 0.165, 0.32, 3.12
+    R0, ZC, X1 = 0.2, 0.32, 3.1
     hi = []
     # düz boru: 0,3 m'lik mercan/krem bantlar (ayrı parçalar: renk sınırı keskin)
     n = int(round(2 * X1 / 0.3))
@@ -238,21 +239,22 @@ def build_low():
         for s in (-1, 1): hi.append(UK.bolt((fx, 0.05 + s * 0.24, 0.05), (0, 0, 1), 0.012))
     # ikinci ince boru (arkada) + vana çarkı + gösterge (önde)
     hi.append(cyl('pipe2', (0, 0.27, 0.11), 0.055, 2 * X1 + 0.5, UK.m_paint('pipe2p', UK.TEAL, chips=0.4, dust=0.3, seed=4.0), rot=(0, 90, 0), verts=16, bevel=0.0))
-    vx = 1.1
-    hi.append(cyl('vstem', (vx + 0.25, 0, ZC + R0 + 0.035), 0.022, 0.07, FL, verts=10, bevel=0.0))
-    bpy.ops.mesh.primitive_torus_add(major_radius=0.1, minor_radius=0.016, major_segments=24, minor_segments=6, location=(vx + 0.25, 0, 0.525))
+    vx = 1.35; vy = -R0 - 0.075                                   # vana çarkı önde (−Y), dik
+    hi.append(cyl('vstem', (vx, -R0 - 0.035, ZC), 0.024, 0.08, FL, rot=(90, 0, 0), verts=10, bevel=0.0))
+    hi.append(cyl('vbody', (vx, -R0 + 0.01, ZC), 0.06, 0.06, FL, rot=(90, 0, 0), verts=14, bevel=0.006))
+    bpy.ops.mesh.primitive_torus_add(major_radius=0.11, minor_radius=0.017, major_segments=24, minor_segments=6, location=(vx, vy, ZC), rotation=(math.radians(90), 0, 0))
     t = bpy.context.object; t.name = 'vwheel'; t.data.materials.append(WH); hi.append(t)
     for k in range(4):
         a = k / 4 * TAU + 0.4
-        hi.append(tube('vspoke', [(vx + 0.25, 0, 0.525), (vx + 0.25 + math.cos(a) * 0.1, math.sin(a) * 0.1, 0.525)], [0.012, 0.012], WH, res=2))
-    hi.append(cyl('vhub', (vx + 0.25, 0, 0.525), 0.03, 0.03, WH, verts=12, bevel=0.005))
+        hi.append(tube('vspoke', [(vx, vy, ZC), (vx + math.cos(a) * 0.11, vy, ZC + math.sin(a) * 0.11)], [0.013, 0.013], WH, res=2))
+    hi.append(cyl('vhub', (vx, vy, ZC), 0.032, 0.035, WH, rot=(90, 0, 0), verts=12, bevel=0.005))
     gx = -1.1 + 0.3
     hi.append(cyl('gauge', (gx, -R0 - 0.03, ZC + 0.04), 0.075, 0.05, FL, rot=(90, 0, 0), verts=20, bevel=0.008))
     hi.append(cyl('gface', (gx, -R0 - 0.056, ZC + 0.04), 0.06, 0.004, UK.m_flatc('gface', UK.CREAM, 0.02, 0.1) if hasattr(UK, 'm_flatc') else EK.m_flatc('gface', UK.CREAM, 0.02, 0.1), rot=(90, 0, 0), verts=20, bevel=0.0))
     hi.append(EK.rounded_box('gneedle', (0.008, 0.004, 0.05), 0.002, 0.005, [EK.m_flatc('gneedle', UK.CORAL, 0.0, 0.0)], loc=(gx + 0.012, -R0 - 0.06, ZC + 0.055), rot=(0, 35, 0)))
     kit.to_mesh_all()
     decim = [(r'^pipe$', 1.0), (r'^elbow$', 120), (r'^(basefl|flange)$', 48), (r'^glowring$', 32), (r'^(foot|saddle)$', 12), (r'^clamp$', 32),
-             (r'^pipe2$', 1.0), (r'^(vstem|vhub)$', 24), (r'^vspoke$', 10), (r'^vwheel$', 72), (r'^(gauge|gface)$', 40), (r'^gneedle$', 12)]
+             (r'^pipe2$', 1.0), (r'^(vstem|vhub|vbody)$', 24), (r'^vspoke$', 10), (r'^vwheel$', 72), (r'^(gauge|gface)$', 40), (r'^gneedle$', 12)]
     weights = [(r'^(pipe|elbow)$', 1.0), (r'^(vwheel|vhub|vspoke|gauge|gface|gneedle)$', 1.6), (r'^(flange|glowring)$', 1.2)]
     return hi, None, dict(decim=decim, weights=weights, tex=512, budget=2500, ao_dist=0.25, exclude=[r'^(bolt|rivet)$'])
 
@@ -297,16 +299,32 @@ def build_high():
     beam = EK.rounded_box('beam', (7.8, 0.55, 0.5), 0.04, 0.03, [BEAM], loc=(0, 0, 1.16 + 0.25), chips=0.008, lump=0.0, seed=20)
     front_dec(beam, -3.8, -0.275, 1.18, 7.6, 0.46); hi.append(beam)
     hi.append(EK.rounded_box('btrim', (7.86, 0.6, 0.06), 0.02, 0.03, [TRIMP], loc=(0, 0, 1.66 + 0.03), chips=0.006, seed=21))
+    # önde büyük yuvarlak amblem levhası (alt kenarı 1,19: kayma boşluğu korunur)
+    def emb(cv):
+        W, H = cv.wm, cv.H / cv.ppm
+        cv.ell(W / 2, H / 2, W / 2 - 0.02, H / 2 - 0.02, col=EK.C('#262c5e'), carve=False)
+        cv.line(EK.arcpts(W / 2, H / 2, W / 2 - 0.05, H / 2 - 0.05, 0, 360, 48), 0.02, col=EK.C(UK.SUN))
+        UK.d_planet(cv, W / 2, H / 2, W * 0.19, body=UK.CORAL, ring=UK.SUN)
+        for k in range(6):
+            a = math.radians(30 + k * 60); UK.d_star(cv, W / 2 + math.cos(a) * W * 0.36, H / 2 + math.sin(a) * H * 0.36, 0.03, col=(UK.CREAM, UK.CYAN)[k % 2])
+    de = decal('hemblem', 0.72, 0.72, emb, ppm=400, seed=9)
+    EMB = UK.m_paint('hembp', UK.CREAM, chips=0.2, dust=0.1, dec=de, seed=6.0)
+    em = cyl('hemblem', (0, -0.275 - 0.035, 1.55), 0.36, 0.06, EMB, rot=(90, 0, 0), verts=32, bevel=0.015)
+    bpy.context.view_layer.update()
+    EK.planar_dec_uv(em, (-0.36, -0.4, 1.55 - 0.36), (1, 0, 0), (0, 0, 1), 0.72, 0.72, face_dir=(0, -1, 0)); hi.append(em)
+    for k in range(8):
+        a = k / 8 * TAU + 0.2; hi.append(UK.bolt((math.cos(a) * 0.32, -0.345, 1.55 + math.sin(a) * 0.32), (0, -1, 0), 0.012))
     # tepe: iki işaret lambası (ayakların üstünde) + anten
     for sx, c in ((-1, UK.CORAL), (1, UK.SUN)):
-        hi += UK.lamp('hbeacon', (sx * 3.5, 0, 1.72), 0.075, c, cage=True, base_h=0.05)
+        hi += UK.lamp('hbeacon', (sx * 3.5, 0, 1.72), 0.1, c, cage=True, base_h=0.06)
     hi.append(cyl('antmast', (2.6, 0.1, 1.72 + 0.25), 0.015, 0.5, GM, verts=8, bevel=0.0))
     hi.append(blob('anttip', (2.6, 0.1, 2.23), (0.035, 0.035, 0.035), UK.m_glow('anttip', UK.CYAN), seg=12))
     hi.append(EK.rounded_box('antbase', (0.12, 0.12, 0.05), 0.01, 0.015, [GM], loc=(2.6, 0.1, 1.745), seed=22))
     kit.to_mesh_all()
     decim = [(r'^pillar$', 48), (r'^pband$', 24), (r'^pfoot$', 12), (r'^ctrl$', 24), (r'^btn$', 20), (r'^beam$', 90), (r'^btrim$', 30),
-             (r'^hbeacon_bulb$', 60), (r'^hbeacon_base$', 30), (r'^hbeacon_cage$', 40), (r'^(antmast)$', 1.0), (r'^anttip$', 24), (r'^antbase$', 12)]
-    weights = [(r'^beam$', 1.3), (r'^hbeacon', 1.3), (r'^(ctrl|btn)$', 1.3), (r'^pillar$', 1.0)]
+             (r'^hbeacon_bulb$', 60), (r'^hbeacon_base$', 30), (r'^hbeacon_cage$', 40), (r'^(antmast)$', 1.0), (r'^anttip$', 24), (r'^antbase$', 12),
+             (r'^hemblem$', 80)]
+    weights = [(r'^beam$', 1.3), (r'^hemblem$', 2.4), (r'^hbeacon', 1.3), (r'^(ctrl|btn)$', 1.3), (r'^pillar$', 1.0)]
     return hi, None, dict(decim=decim, weights=weights, tex=512, budget=3000, ao_dist=0.3, exclude=[r'^(bolt|rivet)$'])
 
 
@@ -314,7 +332,7 @@ def build_high():
 
 def build_crystal():
     """Uzun sekizgen çift piramit mücevher (altta uç z = 0, kuşak 0,19, tepe 0,52) + kuşak bandı; düz gölgeli, pahlı."""
-    M = UK.m_crystal('gem', '#7b3fd0', '#46d8e6', 0.0, 0.52, local=True)
+    M = UK.m_crystal('gem', '#6a34c8', '#7fd8f0', 0.02, 0.85, local=True)
     n = 8; rg = 0.16; zg = 0.19; hb = 0.035
     verts = [(0, 0, 0.0)]
     for z in (zg, zg + hb):
@@ -383,9 +401,10 @@ def build_comet():
     L3 = UK.m_glow('lobe3', '#f47fa0', core='#ffd6e2', hot=0.55); L4 = UK.m_glow('lobe4', '#b48ae8', core='#eadcff', hot=0.5)
     EYE = EK.m_flatc('ceye', '#3a2440', 0.0, 0.0); WH = EK.m_flatc('cshine', '#ffffff', 0.0, 0.0); BL = EK.m_flatc('cblush', '#ff8a7a', 0.05, 0.0)
     hi = [blob('head', (0, 0, 0), (0.35, 0.35, 0.34), HEAD, seg=32)]
-    for (c, r, m) in (((0.02, -0.42, 0.05), (0.29, 0.34, 0.27), L1), ((-0.03, -0.8, 0.13), (0.22, 0.28, 0.2), L2),
-                      ((0.04, -1.1, 0.2), (0.155, 0.2, 0.145), L3), ((-0.02, -1.33, 0.26), (0.1, 0.13, 0.095), L4)):
-        hi.append(blob('lobe', c, r, m, seg=24))
+    for (c, r, m) in (((0.02, -0.34, 0.03), (0.3, 0.4, 0.28), L1), ((-0.04, -0.68, 0.1), (0.24, 0.36, 0.22), L2),
+                      ((0.03, -0.98, 0.17), (0.18, 0.3, 0.165), L3), ((-0.02, -1.24, 0.24), (0.12, 0.24, 0.11), L4),
+                      ((0.06, -1.44, 0.3), (0.07, 0.15, 0.065), L4)):
+        hi.append(blob('lobe', c, r, m, rot=(-8, 0, 0), seg=24))
     for sx in (-1, 1):
         hi.append(blob('ceye', (sx * 0.12, 0.315, 0.06), (0.045, 0.02, 0.06), EYE, rot=(0, 0, -sx * 12), seg=16, sub=1))
         hi.append(blob('cshine', (sx * 0.11, 0.33, 0.085), (0.015, 0.006, 0.018), WH, seg=8, sub=0))
@@ -415,10 +434,10 @@ def build_comet():
 def build_gate():
     C_, RI, RO, DEP = 2.5, 4.3, 5.0, 1.0           # merkez z, iç/dış yarıçap, derinlik (y)
     NSEG = 16
-    COR = UK.m_paint('gcoral', UK.CORAL, chips=0.4, dust=0.0, grime=0.45, seed=1.0)
-    TEA = UK.m_paint('gteal', UK.TEAL, chips=0.4, dust=0.0, grime=0.45, seed=2.0)
-    CRM = UK.m_paint('gcream', UK.CREAM, chips=0.35, dust=0.0, grime=0.4, seed=3.0)
-    NAV = UK.m_paint('gnavy', UK.NAVY, chips=0.35, dust=0.0, grime=0.45, seed=4.0)
+    COR = UK.m_paint('gcoral', UK.CORAL, chips=0.2, dust=0.0, grime=0.45, seed=1.0, scale=1.6)
+    TEA = UK.m_paint('gteal', UK.TEAL, chips=0.2, dust=0.0, grime=0.45, seed=2.0, scale=1.6)
+    CRM = UK.m_paint('gcream', UK.CREAM, chips=0.15, dust=0.0, grime=0.4, seed=3.0, scale=1.6)
+    NAV = UK.m_paint('gnavy', UK.NAVY, chips=0.15, dust=0.0, grime=0.45, seed=4.0, scale=1.6)
     GM = UK.m_metal('gmetal', UK.GUN, dust=0.0); ST = UK.m_metal('gsteel', UK.STEEL, dust=0.0)
     hi = []
     def ring_seg(name, a0, a1, r0, r1, y0, y1, mat, n=8):
@@ -473,13 +492,15 @@ def build_gate():
         UK.d_planet(cv, W / 2, H / 2, W * 0.2, body=UK.SUN, ring=UK.CORAL)
         for k in range(5):
             a = math.radians(90 + k * 72); UK.d_star(cv, W / 2 + math.cos(a) * W * 0.4, H / 2 + math.sin(a) * H * 0.4, 0.05, col=UK.CREAM)
-    de = decal('gemblem', 1.3, 1.3, emblem, ppm=260, seed=8)
+    de = decal('gemblem', 2.0, 2.0, emblem, ppm=200, seed=8)
     EM = UK.m_paint('gemb', UK.CREAM, chips=0.3, dust=0.0, dec=de, seed=5.0)
-    em = cyl('emblem', (0, -DEP / 2 - 0.06, C_ + RO - 0.25), 0.66, 0.08, EM, rot=(90, 0, 0), verts=32, bevel=0.02)
+    em = cyl('emblem', (0, -DEP / 2 - 0.08, C_ + RO - 0.35), 1.0, 0.12, EM, rot=(90, 0, 0), verts=40, bevel=0.03)
     bpy.context.view_layer.update()
-    EK.planar_dec_uv(em, (-0.65, -DEP / 2 - 0.1, C_ + RO - 0.25 - 0.65), (1, 0, 0), (0, 0, 1), 1.3, 1.3, face_dir=(0, -1, 0))
+    EK.planar_dec_uv(em, (-1.0, -DEP / 2 - 0.2, C_ + RO - 0.35 - 1.0), (1, 0, 0), (0, 0, 1), 2.0, 2.0, face_dir=(0, -1, 0))
+    for k in range(12):
+        a = k / 12 * TAU; hi.append(UK.bolt((math.cos(a) * 0.9, -DEP / 2 - 0.145, C_ + RO - 0.35 + math.sin(a) * 0.9), (0, -1, 0), 0.025))
     hi.append(em)
-    hi += UK.lamp('gbeacon', (0, 0, C_ + RO), 0.16, UK.CORAL, cage=True, base_h=0.08)
+    hi += UK.lamp('gbeacon', (0, 0.2, C_ + RO), 0.2, UK.CORAL, cage=True, base_h=0.1)
     for sx in (-1, 1):
         a = math.radians(90 + sx * 28); bx, bz = math.cos(a) * RO, C_ + math.sin(a) * RO
         hi.append(cyl('gant', (bx, 0.2, bz + 0.45), 0.025, 0.9, ST, rot=(0, -sx * 28, 0), verts=8, bevel=0.0))

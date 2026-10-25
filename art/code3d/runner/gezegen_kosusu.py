@@ -254,6 +254,12 @@ def build_floor():
     for (ya, yb) in ((-5.0, 0.0), (0.0, 5.0)):
         Pk = np.zeros((len(SP), 2, 3)); Pk[..., 0] = SP[:, 0:1]; Pk[..., 2] = SP[:, 1:2]; Pk[..., 1] = np.array([ya, yb])[None, :]
         lo.append(EK.tag_uvw(EK.grid_obj('deck_lo', Pk, None, [], flip=True), 1.0))
+    CAPM = UK.m_paint('deckcap', UK.NAVY, chips=0.0, dust=0.0, grime=0.3, seed=9.0)
+    for (yc, sgn) in ((-5.0, -1), (5.0, 1)):      # taslakta da kapak (pişirme ışını boşluğa gitmesin)
+        hc = EK.mesh_obj('deck_caphi', [(x, yc, z) for (x, z) in SP], [list(range(len(SP)))], [CAPM])
+        bm = bmesh.new(); bm.from_mesh(hc.data); bmesh.ops.triangulate(bm, faces=bm.faces[:]); bm.normal_update()
+        if sum(f.normal.y for f in bm.faces) * sgn < 0: bmesh.ops.reverse_faces(bm, faces=bm.faces[:])
+        bm.to_mesh(hc.data); bm.free(); hi.append(hc)
     for (yc, sgn) in ((-5.0, -1), (5.0, 1)):      # uç kapakları (komşu parçayla iç içe; yalnız yolun en uzak ucunda görünür)
         cap = EK.mesh_obj('deck_cap', [(x, yc, z) for (x, z) in SP], [list(range(len(SP)))], [])
         bm = bmesh.new(); bm.from_mesh(cap.data); bmesh.ops.triangulate(bm, faces=bm.faces[:]); bm.normal_update()
@@ -441,43 +447,44 @@ def build_wall():
     for yb in (-3.75, -1.25, 1.25, 3.75):
         for sh, keep in repeats(yb):
             y = yb + sh
-            parts = [EK.rounded_box('post', (0.08, 0.08, 1.14), 0.018, 0.02, [POST], loc=(WX, y, 0.06 + 0.57), chips=0.004, seed=int(y * 9) + 90),
-                     blob('postcap', (WX, y, 1.24), (0.055, 0.055, 0.05), CAP, seg=16),
-                     EK.rounded_box('postbase', (0.16, 0.16, 0.025), 0.006, 0.02, [STL], loc=(WX, y, 0.072), seed=int(y * 3) + 3),
-                     EK.rounded_box('reflect', (0.012, 0.04, 0.09), 0.005, 0.01, [REF], loc=(WX - 0.045, y, 0.95))]
+            parts = [EK.rounded_box('post', (0.11, 0.11, 1.14), 0.025, 0.02, [POST], loc=(WX, y, 0.06 + 0.57), chips=0.005, seed=int(y * 9) + 90),
+                     blob('postcap', (WX, y, 1.26), (0.078, 0.078, 0.068), CAP, seg=16),
+                     EK.rounded_box('postband', (0.125, 0.125, 0.06), 0.02, 0.02, [CAP], loc=(WX, y, 1.06), seed=int(y * 5) + 4),
+                     EK.rounded_box('postbase', (0.2, 0.2, 0.03), 0.008, 0.02, [STL], loc=(WX, y, 0.075), seed=int(y * 3) + 3),
+                     EK.rounded_box('reflect', (0.014, 0.05, 0.11), 0.006, 0.01, [REF], loc=(WX - 0.06, y, 0.9))]
             hi += parts
-            for (dx, dy) in ((-0.055, -0.055), (0.055, -0.055), (-0.055, 0.055), (0.055, 0.055)): hi.append(UK.bolt((WX + dx, y + dy, 0.085), (0, 0, 1), 0.01))
-            if keep: lo += UK.lows(parts, [(r'^post$', 40), (r'^postcap$', 32), (r'^postbase$', 12), (r'^reflect$', 12)], 1.0)
+            for (dx, dy) in ((-0.075, -0.075), (0.075, -0.075), (-0.075, 0.075), (0.075, 0.075)): hi.append(UK.bolt((WX + dx, y + dy, 0.09), (0, 0, 1), 0.012))
+            if keep: lo += UK.lows(parts, [(r'^post$', 40), (r'^postcap$', 40), (r'^postband$', 16), (r'^postbase$', 12), (r'^reflect$', 12)], 1.0)
     # küpeşte (z 1,2) ve ara korkuluk (z 0,68): dönemli borular
-    for (z, r, m) in ((1.195, 0.034, RAIL), (0.68, 0.022, RAIL)):
+    for (z, r, m) in ((1.2, 0.05, RAIL), (0.68, 0.032, RAIL)):
         fn = (lambda y, z=z: (WX, z))
         hi.append(ptube('rail', fn, -6.5, 6.5, r, [m], sides=12, step=0.1)); lo.append(EK.tag_uvw(ptube('rail_lo', fn, -5, 5, r, [], sides=6, step=2.5), 0.7))
     # kablo demeti (mercan + camgöbeği) ara korkuluğun altında, 0,625 m'de bir kelepçe, aralarda hafif sarkma
     CC = UK.m_rubber('wcab_c', UK.CORAL, period=SEG); CT = UK.m_rubber('wcab_t', UK.TEAL, period=SEG)
-    for (dx, r, m) in ((-0.012, 0.016, CC), (0.022, 0.014, CT)):
+    for (dx, r, m) in ((-0.016, 0.02, CC), (0.026, 0.018, CT)):
         def fn(y, dx=dx):
             q = ((y + 0.3125) % 0.625) / 0.625
-            return (WX + dx, 0.63 - 0.035 * math.sin(math.pi * q) ** 1.5)
+            return (WX + dx, 0.615 - 0.012 * math.sin(math.pi * q) ** 2)
         hi.append(ptube('wcable', fn, -6.5, 6.5, r, [m], sides=8, step=0.04)); lo.append(EK.tag_uvw(ptube('wcable_lo', fn, -5, 5, r, [], sides=5, step=0.3125), 0.4))
     TIE = UK.m_rubber('wtie', '#2b2a38')
     for k in range(16):
         yb = -4.6875 + k * 0.625
         for sh, keep in repeats(yb):
-            hi.append(UK.tie((WX + 0.005, yb + sh, 0.645), (0, 1, 0), 0.04, TIE))
+            hi.append(UK.tie((WX + 0.005, yb + sh, 0.63), (0, 1, 0), 0.05, TIE))
     # lamba direği (y = 0): ince direk, bağlantı kutusu, yuvarlak ampul (sarı, camgöbeği bant), lacivert şapka
     LP = UK.m_paint('lpole', UK.NAVY, chips=0.4, dust=0.0, seed=7.0)
     BOX = UK.m_paint('jbox', UK.SUN, chips=0.4, dust=0.0, seed=8.0)
     BULB = UK.m_glow('bulb', UK.SUN, hot=0.85); BAND = UK.m_glow('bulbband', UK.CYAN, hot=0.5)
-    lp = [cyl('lp_pole', (WX, 0.0, 0.06 + 0.78), 0.032, 1.56, LP, verts=16, bevel=0.0),
-          EK.rounded_box('lp_box', (0.1, 0.16, 0.2), 0.015, 0.02, [BOX], loc=(WX - 0.06, 0.0, 0.42), chips=0.004, seed=11),
-          blob('lp_bulb', (WX, 0.0, 1.74), (0.12, 0.12, 0.12), BULB, seg=24),
-          EK.lathe_grid('lp_band', [(0.0, 0.0), (0.124, 0.0), (0.124, 0.03), (0.0, 0.03)], 24, [BAND], loc=(WX, 0.0, 1.725), uv=False),
-          EK.lathe_grid('lp_hood', [(0.0, 0.0), (0.1, 0.0), (0.075, 0.05), (0.03, 0.08), (0.0, 0.085)], 20, [LP], loc=(WX, 0.0, 1.84), uv=False),
-          EK.lathe_grid('lp_neck', [(0.0, 0.0), (0.04, 0.0), (0.05, 0.05), (0.06, 0.08), (0.0, 0.08)], 16, [GUN], loc=(WX, 0.0, 1.6), uv=False),
-          EK.rounded_box('lp_base', (0.18, 0.18, 0.03), 0.008, 0.02, [STL], loc=(WX, 0.0, 0.075), seed=12)]
-    lp.append(UK.cable('lp_cab', [(WX - 0.06, 0.03, 0.32), (WX - 0.05, 0.08, 0.5), (WX - 0.02, 0.1, 0.6)], 0.012, CC, res=3))
+    lp = [cyl('lp_pole', (WX, 0.0, 0.06 + 0.8), 0.045, 1.6, LP, verts=16, bevel=0.0),
+          EK.rounded_box('lp_box', (0.12, 0.2, 0.24), 0.02, 0.02, [BOX], loc=(WX - 0.075, 0.0, 0.44), chips=0.004, seed=11),
+          blob('lp_bulb', (WX, 0.0, 1.84), (0.16, 0.16, 0.155), BULB, seg=24),
+          EK.lathe_grid('lp_band', [(0.0, 0.0), (0.165, 0.0), (0.165, 0.035), (0.0, 0.035)], 24, [BAND], loc=(WX, 0.0, 1.82), uv=False),
+          EK.lathe_grid('lp_hood', [(0.0, 0.0), (0.13, 0.0), (0.1, 0.06), (0.04, 0.1), (0.0, 0.105)], 20, [LP], loc=(WX, 0.0, 1.98), uv=False),
+          EK.lathe_grid('lp_neck', [(0.0, 0.0), (0.055, 0.0), (0.07, 0.06), (0.085, 0.1), (0.0, 0.1)], 16, [GUN], loc=(WX, 0.0, 1.64), uv=False),
+          EK.rounded_box('lp_base', (0.22, 0.22, 0.035), 0.01, 0.02, [STL], loc=(WX, 0.0, 0.078), seed=12)]
+    lp.append(UK.cable('lp_cab', [(WX - 0.075, 0.05, 0.33), (WX - 0.06, 0.1, 0.5), (WX - 0.02, 0.12, 0.6)], 0.016, CC, res=3))
     for (dx, dy) in ((-0.065, -0.065), (0.065, -0.065), (-0.065, 0.065), (0.065, 0.065)): hi.append(UK.bolt((WX + dx, dy, 0.09), (0, 0, 1), 0.01))
-    for dz in (0.37, 0.47): hi.append(UK.rivet((WX - 0.11, 0.0, dz), (-1, 0, 0), 0.01))
+    for dz in (0.37, 0.51): hi.append(UK.rivet((WX - 0.136, 0.0, dz), (-1, 0, 0), 0.011))
     kit.to_mesh_all()
     hi += lp
     lo += UK.lows(lp, [(r'^lp_pole$', 32), (r'^lp_box$', 40), (r'^lp_bulb$', 120), (r'^lp_band$', 48), (r'^lp_hood$', 48),
