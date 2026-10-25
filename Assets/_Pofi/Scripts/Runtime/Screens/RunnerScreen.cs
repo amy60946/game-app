@@ -862,7 +862,7 @@ namespace Pofi.Screens
                 {
                     var r = _decorRng.NextDouble();
                     var x = side * (8f + (float)_decorRng.NextDouble() * 7f);
-                    var face = side > 0 ? -90f : 90f;   // yola dönük
+                    var face = side > 0 ? 90f : -90f;   // yola dönük: model önü (Blender −Y) kökün −Z'si; sağda +90° → −x
                     if (k.Space) MoonDecor(side, dz, r);
                     else
                     {
@@ -924,7 +924,7 @@ namespace Pofi.Screens
             if (InCrater(dz, 8f)) return;
             var rnd = _decorRng;
             float F(float a, float b) => Mathf.Lerp(a, b, (float)rnd.NextDouble());
-            var face = side > 0 ? -90f : 90f;   // yola dönük
+            var face = side > 0 ? 90f : -90f;   // yola dönük: model önü (Blender −Y) kökün −Z'si; sağda +90° → −x
             Transform t;
             if (r < 0.15) Live("rs_dome", () => Dome(), new Vector3(side * F(13f, 17f), 0f, dz), face + F(-25f, 25f), dz + 8f);
             else if (r < 0.24) Live("rs_rocket", () => Rocket(), new Vector3(side * F(18f, 24f), 0f, dz), F(0f, 360f), dz + 6f);

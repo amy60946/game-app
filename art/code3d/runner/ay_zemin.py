@@ -102,6 +102,9 @@ def hills(X, Y, seed):
     for _ in range(26):
         cx = R.uniform(10, 70) * R.choice((-1, 1)); cy = R.uniform(-22, 22); r = R.uniform(4, 12); amp = R.uniform(-1.2, 1.8)
         h += amp * np.exp(-(((X - cx) ** 2 + (Y - cy) ** 2) / (r * r)))
+    for _ in range(3):                                                  # uzun sırtlar (y boyunca), dış bantta
+        cx = R.uniform(28, 60) * R.choice((-1, 1)); amp = R.uniform(1.0, 2.2); r = R.uniform(2.5, 4.5); ph = R.uniform(0, TAU)
+        h += amp * np.exp(-((X - cx - 2.0 * np.sin(Y / 9.0 + ph)) / r) ** 2)
     h *= smoothstep(9.0, 24.0, a)
     for _ in range(18):
         cx = R.uniform(6.5, 16) * R.choice((-1, 1)); cy = R.uniform(-22, 22); r = R.uniform(1.0, 3.0); amp = R.uniform(-0.12, 0.2)
@@ -131,37 +134,89 @@ def height(X, Y, seed, craters, half=L_TILE / 2, extra_fn=None, corridor_fn=None
 
 # ------------------------------------------------------------------ malzeme
 
+def imprints(G, cw, scale, density, depth, seed=0.0):
+    """Çok sayıda küçük krater izi (Voronoi hücresi başına rastgele boy, yalnız hücrelerin bir kısmında): çukur + kabarık halka.
+    Döner (yükseklik, iç maske, halka maske)."""
+    vec, w = cw
+    v = G.n.new('ShaderNodeTexVoronoi'); v.voronoi_dimensions = '4D' if w is not None else '3D'; v.feature = 'F1'
+    v.inputs['Scale'].default_value = scale; v.inputs['Randomness'].default_value = 0.9
+    G.l.new(vec, v.inputs['Vector'])
+    if w is not None: G.l.new(G.math('ADD', w, seed), v.inputs['W'])
+    d = v.outputs['Distance']; rc, gc, bc = G.sep(v.outputs['Color'])
+    present = G.rng(rc, 1.0 - density, 1.0 - density + 0.02)
+    size = G.math('ADD', 0.14, G.math('MULTIPLY', gc, 0.24))
+    t = G.math('DIVIDE', d, size)
+    bowl = G.math('MULTIPLY', G.rng(t, 1.0, 0.55), present)
+    ring = G.math('MULTIPLY', G.rng(G.math('ABSOLUTE', G.math('SUBTRACT', t, 1.08)), 0.22, 0.0), present)
+    h = G.math('ADD', G.math('MULTIPLY', bowl, -depth), G.math('MULTIPLY', ring, depth * 0.55))
+    return h, bowl, ring
+
+
 def m_moon(name, period=L_TILE, off_y=0.0, seed=0.0):
-    """Ay toprağı: yayla (sıcak lavanta-gri) + deniz (koyu mavi-gri) + krater içi (mor ton) + güneşli kenar (açık sıcak) + ışınsal saçılım
-    (açık) + araç izi (koyu, tırtıl desenli kabartma); ince tane, minik çukur benekleri; 'mask' (R iç, G kenar, B iz, A deniz) ve
-    'mask2' (R saçılım) köşe nitelikleri."""
+    """Ay toprağı (ada zemini yoğunluğunda ayrıntı, piştirilir): yayla (sıcak lavanta-gri) + deniz (koyu mavi-gri, benekli kenar) + krater içi
+    (mor) + güneşli kenar + ışınsal saçılım + araç izi ('mask'/'mask2' köşe nitelikleri); çok ölçekli küçük krater izleri, rüzgârsız Ay'da
+    yumuşak toz dalgacıkları, koridor yanında iki bot izi patikası (sol/sağ adım, tabanda tırtıl), regolit tanesi, renk lekeleri."""
     def b(nt, bsdf):
         G = EK.EG(nt); cw = G.coords(period, off=(seed * 3.1, off_y, 0.0))
         m1 = G.n.new('ShaderNodeAttribute'); m1.attribute_name = 'mask'; m1.attribute_type = 'GEOMETRY'
         m2 = G.n.new('ShaderNodeAttribute'); m2.attribute_name = 'mask2'; m2.attribute_type = 'GEOMETRY'
         cin, rim, trk = G.sep(m1.outputs['Vector']); mar = m1.outputs['Alpha']
         ej, _, _ = G.sep(m2.outputs['Vector'])
+        x, y, z = G.sep(G.pos()); ax = G.math('ABSOLUTE', x)
+        yy = G.math('ADD', y, off_y)
         rp = EK.ramp(nt, [(0.28, '#857f95'), (0.5, '#a19bb0'), (0.74, '#bdb6c6')]); G.l.new(G.noise4(cw, 0.08, 3), rp.inputs['Fac'])
         col = rp.outputs[0]
         col = G.mix(G.rng(G.noise4(cw, 0.18, 4), 0.4, 0.7, 0, 0.5), col, '#bfae98')          # sıcak bej yayla lekeleri
         col = G.mix(G.rng(G.noise4(cw, 0.6, 4), 0.35, 0.65, 0, 0.25), col, '#8c84a3')        # morumsu ara ton
-        col = G.mix(G.math('MULTIPLY', mar, 0.92), col, G.mix(G.rng(G.noise4(cw, 0.5, 3), 0.3, 0.7), '#4a5172', '#626a8c'))
+        col = G.mix(G.rng(G.noise4(cw, 1.7, 4), 0.42, 0.62, 0, 0.18), col, '#d2cbd8')        # açık leke
+        mfl = G.math('MULTIPLY', G.rng(G.noise4(cw, 2.6, 3), 0.55, 0.62), G.rng(G.noise4(cw, 0.3, 3), 0.45, 0.6))
+        col = G.mix(G.math('MAXIMUM', G.math('MULTIPLY', mar, 0.9), G.math('MULTIPLY', mfl, 0.55)), col,
+                    G.mix(G.rng(G.noise4(cw, 0.5, 3), 0.3, 0.7), '#4a5172', '#626a8c'))            # deniz + benekli kenar
         col = G.mix(G.math('MULTIPLY', cin, 0.85), col, G.mix(G.rng(G.noise4(cw, 0.9, 3), 0.3, 0.7), '#6e5e94', '#8a7cb0'))
         col = G.mix(G.math('MULTIPLY', ej, 0.45), col, '#e6e1ec')
         col = G.mix(G.math('MULTIPLY', rim, 0.55), col, '#ece4d8')
+        # küçük krater izleri: üç ölçek (hücre ≈ 0,5 / 1,6 / 4,5 m)
+        hsum = None
+        for (sc_, den, dp, sd) in ((2.0, 0.35, 0.6, 1.0), (0.62, 0.3, 1.0, 7.0), (0.22, 0.28, 1.4, 13.0)):
+            h_, bowl, ring = imprints(G, cw, sc_, den, dp, sd)
+            col = G.mix(G.math('MULTIPLY', bowl, 0.5), col, '#7a6d97')
+            col = G.mix(G.math('MULTIPLY', ring, 0.45), col, '#ddd6e2')
+            hsum = h_ if hsum is None else G.math('ADD', hsum, h_)
+        # toz dalgacıkları (bölge bölge)
+        k = TAU * 140 / 40.0
+        rip = G.math('SINE', G.math('ADD', G.math('MULTIPLY', G.math('ADD', yy, G.math('MULTIPLY', x, 0.35)), k), G.math('MULTIPLY', G.noise4(cw, 0.4, 2), 6.0)))
+        ripm = G.rng(G.noise4(cw, 0.12, 3), 0.5, 0.62)
+        col = G.mix(G.math('MULTIPLY', G.rng(rip, 0.3, 1.0), G.math('MULTIPLY', ripm, 0.18)), col, '#d0c9d9')
+        # bot izi patikaları (iki yanda, hafif kıvrılarak; 0,3636 m adım = 40 m'de 110 adım)
+        fp_sum = None
+        for (x0, amp, ph) in ((-5.7, 0.35, 0.3), (8.2, 0.5, 2.1)):
+            xc = G.math('ADD', x0, G.math('MULTIPLY', G.math('SINE', G.math('ADD', G.math('MULTIPLY', yy, TAU * 3 / 40.0), ph)), amp))
+            dx = G.math('SUBTRACT', x, xc)
+            st = G.math('DIVIDE', yy, 0.3636)
+            side = G.math('SUBTRACT', G.math('MULTIPLY', G.math('MODULO', G.math('FLOOR', st), 2.0), 2.0), 1.0)
+            cy = G.math('MULTIPLY', G.math('SUBTRACT', G.math('FRACT', st), 0.5), 0.3636)
+            cx = G.math('SUBTRACT', dx, G.math('MULTIPLY', side, 0.1))
+            e = G.math('ADD', G.math('POWER', G.math('DIVIDE', cx, 0.055), 2.0), G.math('POWER', G.math('DIVIDE', cy, 0.125), 2.0))
+            fp = G.rng(e, 1.0, 0.6)
+            fp_sum = fp if fp_sum is None else G.math('MAXIMUM', fp_sum, fp)
+        tread2 = G.rng(G.math('ABSOLUTE', G.math('SINE', G.math('MULTIPLY', yy, 140.0))), 0.4, 0.8)
+        col = G.mix(G.math('MULTIPLY', fp_sum, 0.55), col, G.mix(tread2, '#6f6884', '#857e98'))
         col = G.mix(0.16, col, G.noise4(cw, 6.0, 3, 0.6, 'Color'), 'OVERLAY')
         pv = G.vor4(cw, 2.2)
         col = G.mix(G.rng(pv, 0.05, 0.0, 0, 0.35), col, '#5d5672')
         col = G.mix(G.rng(G.vor4(G.coords(period, off=(seed + 4, off_y, 0)), 30.0), 0.0, 0.08, 0.5, 0), col, '#f1eef6')
         col = G.mix(G.rng(G.vor4(G.coords(period, off=(seed + 8, off_y, 0)), 22.0), 0.0, 0.07, 0.4, 0), col, '#4e4862')
+        col = G.mix(G.rng(G.vor4(G.coords(period, off=(seed + 12, off_y, 0)), 60.0), 0.0, 0.06, 0.45, 0), col, '#b9b2c8')
         # araç izi: koyu, sıkıştırılmış toz + tırtıl çizgisi (y'de 0,32 m — 40 m'ye tam bölünür)
-        x, y, z = G.sep(G.pos())
         tread = G.math('ABSOLUTE', G.math('SINE', G.math('MULTIPLY', G.math('ADD', y, G.math('MULTIPLY', G.math('ABSOLUTE', G.math('SUBTRACT', G.math('FRACT', G.math('MULTIPLY', x, 3.6)), 0.5)), 0.25)), TAU / 0.32 / 2)))
         col = G.mix(G.math('MULTIPLY', trk, 0.55), col, G.mix(G.rng(tread, 0.3, 0.8), '#6d6680', '#8c86a0'))
         G.l.new(col, bsdf.inputs['Base Color'])
-        bb = G.n.new('ShaderNodeBump'); bb.inputs['Strength'].default_value = 0.35; bb.inputs['Distance'].default_value = 0.02
-        hgt = G.math('ADD', G.math('MULTIPLY', G.noise4(cw, 3.0, 4, 0.6), 1.0), G.math('MULTIPLY', G.math('MULTIPLY', trk, G.rng(tread, 0.3, 0.8)), 1.5))
+        bb = G.n.new('ShaderNodeBump'); bb.inputs['Strength'].default_value = 0.4; bb.inputs['Distance'].default_value = 0.02
+        hgt = G.math('ADD', G.math('MULTIPLY', G.noise4(cw, 3.0, 4, 0.6), 0.8), G.math('MULTIPLY', G.math('MULTIPLY', trk, G.rng(tread, 0.3, 0.8)), 1.5))
         hgt = G.math('ADD', hgt, G.math('MULTIPLY', G.rng(pv, 0.06, 0.0), -0.8))
+        hgt = G.math('ADD', hgt, G.math('MULTIPLY', hsum, 1.0))
+        hgt = G.math('ADD', hgt, G.math('MULTIPLY', G.math('MULTIPLY', rip, ripm), 0.12))
+        hgt = G.math('ADD', hgt, G.math('MULTIPLY', fp_sum, -0.7))
         G.l.new(hgt, bb.inputs['Height']); G.l.new(bb.outputs['Normal'], bsdf.inputs['Normal'])
     return EK.nodes_mat(name, b)
 
@@ -201,31 +256,25 @@ def crystal_cluster(cx, cy, cz, scale, seed, name='gcry'):
     return out
 
 
-def scatter(H_fn, seed, half, n_rocks=22, n_boulders=4, n_pebbles=380, avoid=(), ok_fn=None):
-    """Taşlar (hedefte) + çakıllar (yalnız taslak): koridora yakın sık. H_fn(x, y) → z."""
+def scatter(H_fn, seed, half, n_boulders=10, n_pebbles=160, avoid=(), ok_fn=None):
+    """Hedefe giren 1–3 m kaya blokları (|x| 9–60; koridora yakın küçük taş/çakılı oyun kodu (MoonField) 3B serper) + yalnız taslakta
+    uzak bant (|x| > 25) çakılları. H_fn(x, y) → z."""
     R = random.Random(seed); ROCK = UK._cached('gl_rock', lambda: UK.m_regolith('gl_rock', ('#6e6a80', '#928da4', '#bab5c8'), craters=0.6, dust=0.35, seed=2.0, scale=1.5))
     rocks = []; pebbles = []
     def ok(x, y, r):
         return abs(y) < half - r - 0.3 and all(math.hypot(x - ax, y - ay) > r + ar for (ax, ay, ar) in avoid) and (ok_fn is None or ok_fn(x, y))
     k = 0; t = 0
-    while k < n_rocks and t < 500:
+    while k < n_boulders and t < 600:
         t += 1
-        x = R.uniform(5.7, 13.5) * R.choice((-1, 1)); x = math.copysign(5.7 + (abs(x) - 5.7) ** 1.0 * R.uniform(0.3, 1.0), x)
-        y = R.uniform(-half, half); s = R.uniform(0.18, 0.7)
-        if not ok(x, y, s) or any(abs(abs(x) - c) < 0.3 for c in TRACKS): continue
-        rocks.append(rock('grock', (s * R.uniform(1.0, 1.5), s * R.uniform(0.8, 1.2), s * R.uniform(0.55, 0.9)), (x, y, float(H_fn(x, y))), ROCK, seed * 100 + k, sub=3))
-        k += 1
-    k = 0; t = 0
-    while k < n_boulders and t < 300:
-        t += 1
-        x = R.uniform(14, 30) * R.choice((-1, 1)); y = R.uniform(-half + 3, half - 3); s = R.uniform(1.1, 2.4)
+        a = R.uniform(9, 26) if k < n_boulders * 0.6 else R.uniform(26, 60)
+        x = a * R.choice((-1, 1)); y = R.uniform(-half + 3, half - 3); s = R.uniform(1.0, 2.8)
         if not ok(x, y, s * 1.2): continue
-        rocks.append(rock('gboulder', (s * 1.3, s, s * 0.8), (x, y, float(H_fn(x, y))), ROCK, seed * 100 + 50 + k, sub=4, rough=0.18))
+        rocks.append(rock('gboulder', (s * R.uniform(1.1, 1.5), s, s * R.uniform(0.6, 0.85)), (x, y, float(H_fn(x, y))), ROCK, seed * 100 + 50 + k, sub=4, rough=0.2))
         k += 1
     PEB = UK._cached('gl_peb', lambda: UK.m_regolith('gl_peb', ('#77728a', '#9a95ab', '#c4bfd2'), craters=0.2, dust=0.3, seed=5.0, scale=4.0))
     for k in range(n_pebbles):
-        a = 5.3 + R.expovariate(1 / 3.0); x = math.copysign(min(a, 22.0), R.choice((-1, 1))); y = R.uniform(-half - 2.5, half + 2.5)
-        s = R.uniform(0.04, 0.16) * (1.0 if a < 9 else 1.6)
+        x = math.copysign(R.uniform(25.5, 60.0), R.choice((-1, 1))); y = R.uniform(-half - 2.5, half + 2.5)
+        s = R.uniform(0.12, 0.35)
         if ok_fn is not None and not ok_fn(x, y): continue
         bm = bmesh.new(); bmesh.ops.create_icosphere(bm, subdivisions=1, radius=1.0)
         so = V((R.uniform(0, 30), R.uniform(0, 30), 0))
@@ -239,12 +288,13 @@ def scatter(H_fn, seed, half, n_rocks=22, n_boulders=4, n_pebbles=380, avoid=(),
 # ------------------------------------------------------------------ hedef ağ ve UV
 
 def band_columns(half_w=W_HALF):
-    near = list(np.arange(CORR, 14.0 + 1e-6, 0.6)); mid = list(np.arange(16.5, 34.0 + 1e-6, 2.5)); far = list(np.arange(39.0, half_w + 1e-6, 5.0))
-    side = sorted(set([round(v, 3) for v in near + mid + far + [half_w]]))
+    near = list(np.arange(CORR, 14.0 + 1e-6, 0.75)); mid = list(np.arange(15.25, 25.0 + 1e-6, 1.25)); m2 = list(np.arange(28.0, 40.0 + 1e-6, 3.0))
+    far = list(np.arange(45.0, half_w + 1e-6, 5.0))
+    side = sorted(set([round(v, 3) for v in near + mid + m2 + far + [half_w]]))
     return np.array(sorted([-v for v in side] + [0.0] + side))
 
 
-U_GROUND = ([-70, -34, -14, -5, 5, 14, 34, 70], [0.0, 0.12, 0.27, 0.47, 0.53, 0.73, 0.88, 1.0])
+U_GROUND = ([-70, -25, -4.2, 4.2, 25, 70], [0.0, 0.2033, 0.485, 0.515, 0.7967, 1.0])     # iç bant 3× yoğun (≈ 28 px/m), dış ≈ 9 px/m
 U_BRIDGE = ([-70, -45, -20, 20, 45, 70], [0.0, 0.11, 0.29, 0.71, 0.89, 1.0])
 
 
@@ -322,14 +372,12 @@ def build_ground(seed):
         props.append(crystal_cluster(cx, cy, float(hfn(cx, cy)), 0.9 + r * 0.25, seed * 10 + i))
     rocks, pebbles = scatter(hfn, seed, half, avoid=avoid)
     hi += rocks + pebbles + [o for p in props for o in p]
-    g = 1
     for i, o in enumerate(rocks):
-        tgt = 90 if o.name.startswith('gboulder') else 32
-        lo += [tag_part(q, 1 + i % 8) for q in EK.build_low2([o], [(r'.', tgt)])]
+        lo += [tag_part(q, 1 + i % 8) for q in EK.build_low2([o], [(r'.', 110)])]
     for i, grp in enumerate(props):
         lo += [tag_part(q, 9 + i) for q in EK.build_low2(grp, [(r'.', 30)])]
     prep_uvs(lo, -half, half)
-    return hi, lo, dict(uv_fn=keep_uv, cull=False, tex=2048, ao_dist=1.5, ao_strength=0.5, cage=0.35, ray=1.4,
+    return hi, lo, dict(uv_fn=keep_uv, cull=False, tex=2048, ntex=1024, ao_dist=1.5, ao_strength=0.5, cage=0.35, ray=1.4,
                         draft=dict(yaw=-20, pitch=12, target=(0, -8, 1.0), dist=26))
 
 
@@ -467,7 +515,7 @@ def build_crater_bridge():
                      + UK.lamp('fllamp', (x, y, z + 1.8), 0.14, UK.SUN, cage=True, base_h=0.06))
     kit.to_mesh_all()
     hi += [o for g in groups for o in g] + bould + [o for c in cl for o in c] + rv + tn + [o for l in lamps for o in l]
-    rocks_out, pebbles = scatter(hfn, 3, half, n_rocks=26, n_boulders=5, n_pebbles=420, avoid=[(c[0], c[1], c[2] * 1.1) for c in craters if c[2] > 1.5],
+    rocks_out, pebbles = scatter(hfn, 3, half, n_boulders=10, n_pebbles=200, avoid=[(c[0], c[1], c[2] * 1.1) for c in craters if c[2] > 1.5],
                                  ok_fn=lambda x, y: crater_rho(np.array(x), np.array(y)) > 1.06)
     hi += rocks_out + pebbles
     gi = 1
@@ -480,9 +528,9 @@ def build_crater_bridge():
     lo += add_low(rv, [(r'^cab$', 60), (r'^wheel$', 24), (r'.', 10)], 7)
     lo += add_low(tn, [(r'^tent$', 80), (r'.', 12)], 8)
     for l in lamps: lo += add_low(l, [(r'.', 16)], 8)
-    for i, o in enumerate(rocks_out): lo += add_low([o], [(r'.', 80 if o.name.startswith('gboulder') else 26)], 9 + (i % 2))
+    for i, o in enumerate(rocks_out): lo += add_low([o], [(r'.', 90)], 9 + (i % 2))
     prep_uvs(lo, -half, half, um=U_BRIDGE)
-    return hi, lo, dict(uv_fn=keep_uv, cull=False, tex=2048, ao_dist=2.0, ao_strength=0.5, cage=0.35, ray=1.6,
+    return hi, lo, dict(uv_fn=keep_uv, cull=False, tex=2048, ntex=1024, ao_dist=2.0, ao_strength=0.5, cage=0.35, ray=1.6,
                         draft=dict(yaw=-25, pitch=22, target=(0, 0, -8.0), dist=70))
 
 

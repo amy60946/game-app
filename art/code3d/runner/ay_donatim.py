@@ -370,8 +370,8 @@ def build_rover():
             hi.append(UK.cable('arm', [(sx * 0.7, wy * 0.9, 0.62), (sx * 0.85, wy, 0.45), (sx * 0.9, wy, 0.33)], 0.04, AL, res=2))
             hi.append(EK.rounded_box('fender', (0.32, 0.62, 0.06), 0.03, 0.04, [COR], loc=(sx * 0.98, wy, 0.7), rot=(0, sx * -8, 0), seed=10 + k))
     kit.to_mesh_all()
-    decim = [(r'^chassis$', 90), (r'^skirt$', 40), (r'^cab$', 300), (r'^cabring$', 80), (r'^rsolar', 12), (r'^rmast$', 1.0), (r'^rflag$', 1.0), (r'^rdish$', 50),
-             (r'^rdmast$', 1.0), (r'^rhead_', 30), (r'^bumper$', 24), (r'^rbox$', 24), (r'^rbox_', 10), (r'^wheel$', 120), (r'^wheel_side$', 16), (r'^wheel_hub$', 24),
+    decim = [(r'^chassis$', 120), (r'^skirt$', 90), (r'^cab$', 300), (r'^cabring$', 80), (r'^rsolar', 12), (r'^rmast$', 1.0), (r'^rflag$', 1.0), (r'^rdish$', 50),
+             (r'^rdmast$', 1.0), (r'^rhead_', 30), (r'^bumper$', 24), (r'^rbox$', 24), (r'^rbox_', 10), (r'^wheel$', 220), (r'^wheel_side$', 16), (r'^wheel_hub$', 24),
              (r'^arm$', 20), (r'^fender$', 16), (r'^rvdust$', 1.0)]
     weights = [(r'^(chassis|cab|rhead_)', 1.4), (r'^wheel', 0.8), (r'^rvdust$', 0.3)]
     return hi, None, dict(decim=decim, weights=weights, tex=1024, budget=2500, ao_dist=0.3, ds_low=True, exclude=[r'^(bolt|rivet)$'])
@@ -460,7 +460,7 @@ def build_ridge():
         ridge = (base * (0.45 + 0.3 * np.cos(X / 23.0 + 0.7) + 0.25 * np.cos(X / 8.0 + 2.0)) + peaks + jag * smoothstep(-6, 4, Y) * smoothstep(12, 4, Y))
         ridge *= smoothstep(110.0, 85.0, a) * smoothstep(-20.0, -8.0, Y) * smoothstep(20.0, 10.0, Y)
         ter = np.round(ridge / 3.5) * 3.5
-        return 0.75 * ridge + 0.25 * ter
+        return (0.75 * ridge + 0.25 * ter) * 0.74                      # tepe ≈ 35 m
     R2 = [(R.uniform(-100, 100), R.uniform(3, 14), R.uniform(3, 16), R.uniform(-4, 6)) for _ in range(14)]
     xs = np.linspace(-110, 110, 441); ys = np.linspace(-20, 20, 81); X, Y = np.meshgrid(xs, ys)
     Z = hgt(X, Y)

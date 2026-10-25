@@ -72,6 +72,22 @@ def render(png, size=(1280, 720), samples=96, moon=True):
     sc.render.filepath = png; bpy.ops.render.render(write_still=True)
 
 
+def close(png, size=(1280, 720), samples=64, ground='rs_ground_a'):
+    """Oyun kamerasına yakın alçak bakış: x = 0, güvertenin 2,75 m üstü, koridor boyunca hafif aşağı."""
+    sc = kit.reset(); moon_light(sc)
+    P = KS.place
+    P(ground, (0, 14.0, 0)); P('rs_ground_b' if ground == 'rs_ground_a' else 'rs_ground_a', (0, 54.0, 0))
+    for i in range(-1, 7):
+        y = 10 * i + 5
+        P('rs_floor', (0, y, 0)); P('rs_wall', (0, y, 0)); P('rs_wall', (0, y, 0), sx=-1.0)
+    P('rs_ridge', (0, 200.0, 0)); P('rs_earth', (-60.0, 450.0, 110.0), s=2.0)
+    cam = bpy.data.cameras.new('cam'); cam.lens = 24; cam.clip_end = 3000
+    co = bpy.data.objects.new('cam', cam); sc.collection.objects.link(co); sc.camera = co
+    co.location = (0, -4.0, 2.75); co.rotation_euler = (math.radians(84), 0, 0)
+    sc.cycles.samples = samples; sc.render.resolution_x, sc.render.resolution_y = size
+    sc.render.filepath = png; bpy.ops.render.render(write_still=True)
+
+
 def icons():
     only = [a for a in sys.argv[sys.argv.index('--') + 1:] if a.startswith('rs_')] if '--' in sys.argv else []
     for name, out, yaw, pitch in (('rs_crystal', 'ui_crystal', 28.0, 26.0), ('rs_card', 'ui_card', -26.0, 18.0), ('rs_earth', 'ui_earth', 0.0, 8.0)):

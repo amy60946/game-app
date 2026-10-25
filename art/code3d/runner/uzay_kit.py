@@ -325,9 +325,10 @@ def planar_uv(x0, x1, y0, y1):
     return f
 
 
-def bake_custom(name, high, low, uv_fn=None, cull=False, tex=1024, ao_dist=0.5, ao_strength=0.55, cage=0.03, ray=0.12, **kw):
+def bake_custom(name, high, low, uv_fn=None, cull=False, tex=1024, ao_dist=0.5, ao_strength=0.55, cage=0.03, ray=0.12, ntex=None, **kw):
     tex = int(os.environ.get('POFI_TEX', '0') or 0) or tex
-    t = EK.PB.export_proxy(EK.out_dir(name), high, low, target=None, size=tex, nsize=tex, cage=cage, ray=ray, cull_hidden=cull,
+    ntex = min(ntex or tex, tex)
+    t = EK.PB.export_proxy(EK.out_dir(name), high, low, target=None, size=tex, nsize=ntex, cage=cage, ray=ray, cull_hidden=cull,
                            uv_fn=uv_fn, uv_weight=None if uv_fn else 'uvw', dilate=16, ao_dist=ao_dist, ao_strength=ao_strength, **kw)
     print(name, 'üçgen', t, flush=True)
     return t

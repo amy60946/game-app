@@ -510,6 +510,8 @@ def main():
     kit.reset()
     if name == 'scene':
         import uzay_sahne; uzay_sahne.render(args[1]); return
+    if name == 'close':
+        import uzay_sahne; uzay_sahne.close(args[1]); return
     if name == 'icons':
         import uzay_sahne; uzay_sahne.icons(); return
     hi, lo, opt = BUILD[name]()
