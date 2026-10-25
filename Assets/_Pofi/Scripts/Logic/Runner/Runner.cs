@@ -114,7 +114,7 @@ namespace Pofi.Logic.Runner
                 var gap = Math.Max(cfg.MinGap, cfg.SpeedAt(z) * cfg.Reaction) + (float)rng.NextDouble() * 6f;
                 // skarabe dizisi: bu sıradan sonraki aralığın ortasında, açık şeritte
                 var next = z + gap;
-                if (rng.NextDouble() < 0.8) Trail(z + 4f, Math.Min(next - 4f, cfg.Goal - EndClear), free);
+                if (rng.NextDouble() < 0.6) Trail(z + 4f, Math.Min(next - 4f, cfg.Goal - EndClear), free);
                 z = next;
             }
             // papirüs: parkurun ~%55'inde, iki sıra arasında, açık şeritte
@@ -151,7 +151,7 @@ namespace Pofi.Logic.Runner
 
         private void Trail(float from, float to, int lane)
         {
-            var n = Math.Min(6, (int)((to - from) / ScarabStep));
+            var n = Math.Min(5, (int)((to - from) / ScarabStep));
             if (n < 3) return;
             var start = (from + to) / 2f - (n - 1) * ScarabStep / 2f;
             for (var i = 0; i < n; i++) Pickups.Add(new Pickup { Z = start + i * ScarabStep, Lane = lane, Height = 0.35f });
@@ -296,11 +296,22 @@ namespace Pofi.Logic.Runner
             }
         }
 
-        /// <summary>Puan: skarabe + bitirme 10 + papirüs 3. XP mini oyun kuralı (5 + puan, ≤ 40).</summary>
+        /// <summary>
+        /// Puan (ekranda): skarabe + kapıya ulaşınca 25 + papirüs 10. XP mini oyun kuralıyla (5 + x, ≤ 40) ama ağırlık bitirmede:
+        /// x = skarabe / 5 + (bitirdi 15) + (papirüs 5) — çok skarabe toplayıp bitirmeyen çabuk 40'a ulaşmaz.
+        /// </summary>
         public MiniGameResult Result()
         {
-            var score = Scarabs + (Finished ? 10 : 0) + (ScrollFound ? 3 : 0);
-            return new MiniGameResult { GameId = RunnerTheme.GameId, Score = score, SuggestedXp = MiniGameXp.For(score, 1) };
+            var score = Scarabs + (Finished ? 25 : 0) + (ScrollFound ? 10 : 0);
+            var xpPoints = Scarabs / 5 + (Finished ? 15 : 0) + (ScrollFound ? 5 : 0);
+            return new MiniGameResult { GameId = RunnerTheme.GameId, Score = score, SuggestedXp = MiniGameXp.For(xpPoints, 1) };
+        }
+
+        /// <summary>Ayıklama/çekim: çarpışmasız ileri sar (atlanan engel ve skarabeler sayılmaz).</summary>
+        public void DebugAdvance(float meters)
+        {
+            if (Over) return;
+            Z = Math.Min(Course.Config.Goal - 1f, Z + Math.Max(0f, meters));
         }
     }
 

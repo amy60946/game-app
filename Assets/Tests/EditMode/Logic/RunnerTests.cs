@@ -140,10 +140,34 @@ namespace Pofi.Tests.Logic
             for (var i = 0; i < 60 * 200 && !run.Over; i++) run.Step(Dt, Bot(run));
             var r = run.Result();
             Assert.AreEqual(RunnerTheme.GameId, r.GameId);
-            Assert.AreEqual(run.Scarabs + 10 + (run.ScrollFound ? 3 : 0), r.Score);
+            Assert.AreEqual(run.Scarabs + 25 + (run.ScrollFound ? 10 : 0), r.Score);
             Assert.LessOrEqual(r.SuggestedXp, 40, "mini oyun kuralı: oyun başına en çok 40");
+            Assert.GreaterOrEqual(r.SuggestedXp, 25, "bitiren en az 5 + 15 + skarabe payı");
             var idle = new RunnerRun(new RunnerCourse(AgeBand.C, 11)).Result();
             Assert.AreEqual(5, idle.SuggestedXp, "katılım XP'si");
+        }
+
+        [Test]
+        public void Bitirmeyen_az_xp_alir()
+        {
+            // çok skarabe toplayıp kapıya ulaşmayan: skarabe/5 kadar
+            var run = new RunnerRun(new RunnerCourse(AgeBand.C, 5));
+            for (var i = 0; i < 60 * 25 && !run.Over; i++) run.Step(Dt, Bot(run));
+            Assert.IsFalse(run.Over);
+            var r = run.Result();
+            Assert.AreEqual(5 + run.Scarabs / 5, r.SuggestedXp);
+            Assert.Less(r.SuggestedXp, 25);
+        }
+
+        [Test]
+        public void Parkurda_skarabe_yogunlugu_olculu()
+        {
+            foreach (var band in Bands)
+            {
+                var c = new RunnerCourse(band, 9);
+                var secs = c.Config.Goal / ((c.Config.StartSpeed + c.Config.MaxSpeed) / 2f);
+                Assert.That(c.ScarabTotal / secs, Is.InRange(0.5f, 1.8f), $"{band}: saniyede skarabe");
+            }
         }
 
         [Test]

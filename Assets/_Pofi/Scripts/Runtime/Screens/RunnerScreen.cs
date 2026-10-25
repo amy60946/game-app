@@ -830,7 +830,7 @@ namespace Pofi.Screens
 
         // ------------------------------------------------------------ temizlik / ayıklama
 
-        /// <summary>PofiDebug "run": start (tanıtımı atla) · auto 1|0 · left|right|jump|slide · state.</summary>
+        /// <summary>PofiDebug "run": start (tanıtımı atla) · auto 1|0 · left|right|jump|slide · skip M (ileri sar) · result (varışa) · state.</summary>
         public string Debug(string arg)
         {
             switch (arg)
@@ -844,7 +844,10 @@ namespace Pofi.Screens
                 case "right": _run.Step(0.001f, RunAction.Right); return "sağ";
                 case "jump": _run.Step(0.001f, RunAction.Jump); return "zıpla";
                 case "slide": _run.Step(0.001f, RunAction.Slide); return "kay";
+                case "result": _run.DebugAdvance(99999f); _run.Step(0.5f, RunAction.None); return "varışa";
                 default:
+                    if (arg.StartsWith("skip ") && float.TryParse(arg.Substring(5), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var meters))
+                    { _run.DebugAdvance(meters); return "ileri " + meters; }
                     return $"z {_run.Z:0.0}/{_course.Config.Goal:0} hız {_run.Speed:0.0} şerit {_run.LaneX:0.00} can {_run.Hearts} skarabe {_run.Scarabs}/{_course.ScarabTotal} " +
                            $"papirüs {_run.ScrollFound} bitti {_run.Finished} çıktı {_run.Out} canlı {_live.Count} havuz {_pool.Sum(kv => kv.Value.Count)}";
             }
