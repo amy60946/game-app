@@ -33,16 +33,42 @@ def space_world(sc, ambient=0.85):
     l.new(mix.outputs[0], out.inputs['Surface'])
 
 
-def moon_light(sc, sun_e=3.4, fill=0.9):
-    """Oyundaki ışık: alçak güneş (≈22°, önden-soldan: koşucunun ilerisinden ve solundan → uzun gölgeler kameraya doğru, kenarlar
-    parlar), Dünya yönünden serin mavi dolgu, kamera ışınında koyu uzay."""
-    space_world(sc, ambient=0.55)
+def moon_light(sc, sun_e=3.2, rim=1.3):
+    """Oyundaki ışık (RunnerScreen, 25 Ekim 2026): güneş Euler(24°, 68°) → ışık yönü Unity (0,85; −0,41; 0,34) = Blender (0,85; 0,34;
+    −0,41): alçak (24°), soldan ve hafif arkadan, sıcak; "Rim" Euler(14°, 200°) → önden-sağdan gelen serin mavi kenar ışığı; ortam
+    lavanta (oyun üç renkli ortam #8E95CC / #ABA0CC / #726B94). Unity yoğunluğu (1,4 / 0,6) Cycles'ta ≈ π× (Lambert'te 1/π yok);
+    Pofi/Toon basamağı ışığı biraz sıkıştırdığı için biraz altında tutulur. Kamera ışınında koyu uzay."""
+    space_world(sc, ambient=0.5)
+    w = sc.world.node_tree.nodes
+    for n in w:
+        if n.type == 'BACKGROUND' and abs(n.inputs['Strength'].default_value - 0.5) < 1e-6: n.inputs['Color'].default_value = kit.srgb('#aba0cc')
     for o in [o for o in bpy.data.objects if o.type == 'LIGHT']: bpy.data.objects.remove(o)
-    d = V((0.42, -0.84, -0.375)).normalized()
-    sun = bpy.data.lights.new('sun', 'SUN'); sun.energy = sun_e; sun.angle = math.radians(2.5); sun.color = (1.0, 0.94, 0.86)
+    d = V((0.847, 0.342, -0.407)).normalized()
+    sun = bpy.data.lights.new('sun', 'SUN'); sun.energy = sun_e; sun.angle = math.radians(2.5); sun.color = (1.0, 0.96, 0.9)
     so = bpy.data.objects.new('sun', sun); sc.collection.objects.link(so); so.rotation_euler = d.to_track_quat('-Z', 'Y').to_euler()
-    f = bpy.data.lights.new('fill', 'SUN'); f.energy = fill; f.angle = math.radians(20); f.color = (0.62, 0.74, 1.0)
-    fo = bpy.data.objects.new('fill', f); sc.collection.objects.link(fo); fo.rotation_euler = V((-0.6, -0.5, -0.62)).normalized().to_track_quat('-Z', 'Y').to_euler()
+    f = bpy.data.lights.new('rim', 'SUN'); f.energy = rim; f.angle = math.radians(6); f.color = (0.55, 0.72, 1.0)
+    fo = bpy.data.objects.new('rim', f); sc.collection.objects.link(fo); fo.rotation_euler = V((-0.332, -0.912, -0.242)).normalized().to_track_quat('-Z', 'Y').to_euler()
+
+
+def game_cam(sc, y=-5.3, h=2.75, aspect=(1280, 720)):
+    """Oyun kamerası (RunnerScreen.Cam): koşucunun 5,3 m arkası, 2,75 m yukarı, 12,3 m ilerideki 1,25 m'ye bakar (≈ 7° aşağı),
+    düşey görüş 54° (16:9)."""
+    cam = bpy.data.cameras.new('cam'); cam.sensor_fit = 'VERTICAL'; cam.angle_y = math.radians(54.0); cam.clip_end = 3000
+    co = bpy.data.objects.new('cam', cam); sc.collection.objects.link(co); sc.camera = co
+    co.location = (0, y, h); co.rotation_euler = (math.radians(90.0) - math.atan2(h - 1.25, 12.3), 0, 0)
+    sc.render.resolution_x, sc.render.resolution_y = aspect
+    return co
+
+
+def matte(prefixes=('game_rs_ground', 'game_rs_crater', 'game_rs_ridge'), spec=0.12):
+    """Oyundaki Pofi/Toon parlama yapmaz (yalnız hafif mavi kenar): alçak bakışta Principled'ın yansıması araziyi ağartıp gri
+    gösteriyordu → önizlemede arazi malzemelerinin yansıması kısılır."""
+    for m in bpy.data.materials:
+        if not m.use_nodes or not m.name.startswith(tuple(prefixes)): continue
+        for n in m.node_tree.nodes:
+            if n.type == 'BSDF_PRINCIPLED':
+                for k in ('Specular IOR Level', 'Specular'):
+                    if k in n.inputs: n.inputs[k].default_value = spec; break
 
 
 def render(png, size=(1280, 720), samples=96, moon=True):
@@ -65,6 +91,7 @@ def render(png, size=(1280, 720), samples=96, moon=True):
     P('rs_card', (2.2, 6.5, 0.35), yaw=-20); P('rs_card', (0, 21.0, 0.35), yaw=15)
     P('rs_comet', (0.4, 31.0, 1.7))
     P('rs_gate', (0, 37.0, 0))
+    matte()
     cam = bpy.data.cameras.new('cam'); cam.lens = 24; cam.clip_end = 3000
     co = bpy.data.objects.new('cam', cam); sc.collection.objects.link(co); sc.camera = co
     co.location = (0, -6.0, 3.4); co.rotation_euler = (math.radians(75), 0, 0)
@@ -73,18 +100,18 @@ def render(png, size=(1280, 720), samples=96, moon=True):
 
 
 def close(png, size=(1280, 720), samples=64, ground='rs_ground_a'):
-    """Oyun kamerasına yakın alçak bakış: x = 0, güvertenin 2,75 m üstü, koridor boyunca hafif aşağı."""
+    """Oyun kamerasıyla alçak bakış (RunnerScreen.Cam): x = 0, 2,75 m, koridor boyunca; 4 zemin karosu + uzak sırt + Dünya."""
     sc = kit.reset(); moon_light(sc)
     P = KS.place
-    P(ground, (0, 14.0, 0)); P('rs_ground_b' if ground == 'rs_ground_a' else 'rs_ground_a', (0, 54.0, 0))
-    for i in range(-1, 7):
+    other = 'rs_ground_b' if ground == 'rs_ground_a' else 'rs_ground_a'
+    for k in range(4): P(ground if k % 2 == 0 else other, (0, 14.0 + 40.0 * k, 0))
+    for i in range(-1, 15):
         y = 10 * i + 5
         P('rs_floor', (0, y, 0)); P('rs_wall', (0, y, 0)); P('rs_wall', (0, y, 0), sx=-1.0)
     P('rs_ridge', (0, 200.0, 0)); P('rs_earth', (-60.0, 450.0, 110.0), s=2.0)
-    cam = bpy.data.cameras.new('cam'); cam.lens = 24; cam.clip_end = 3000
-    co = bpy.data.objects.new('cam', cam); sc.collection.objects.link(co); sc.camera = co
-    co.location = (0, -4.0, 2.75); co.rotation_euler = (math.radians(84), 0, 0)
-    sc.cycles.samples = samples; sc.render.resolution_x, sc.render.resolution_y = size
+    matte()
+    game_cam(sc, aspect=size)
+    sc.cycles.samples = samples
     sc.render.filepath = png; bpy.ops.render.render(write_still=True)
 
 

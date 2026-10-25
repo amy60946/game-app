@@ -314,7 +314,7 @@ def wheel(name, loc, r=0.32, w=0.24):
     t = EK.grid_obj(name, P, None, [TY], flip=False); EK.weld(t)
     parts = [t]
     for s in (-1, 1):
-        parts.append(EK.disc(name + '_side', r * 0.9, 0, 24, [TY], loc=(0, 0)))
+        parts.append(EK.disc(name + '_side', r * 0.95, 0, 24, [TY], loc=(0, 0)))   # yan kapak lastik kenarını örtsün (inceltmede açılıp arka yüz görünüyordu)
         o = parts[-1]; o.rotation_euler = (0, math.radians(90 * s), 0); o.location = (s * w * 0.5, 0, 0)
     parts.append(cyl(name + '_hub', (-w * 0.5, 0, 0), r * 0.5, 0.06, HUB, rot=(0, 90, 0), verts=16, bevel=0.01))
     parts.append(cyl(name + '_hub', (w * 0.5, 0, 0), r * 0.5, 0.06, HUB, rot=(0, 90, 0), verts=16, bevel=0.01))
@@ -370,7 +370,7 @@ def build_rover():
             hi.append(EK.rounded_box('fender', (0.32, 0.62, 0.06), 0.03, 0.04, [COR], loc=(sx * 0.98, wy, 0.7), rot=(0, sx * -8, 0), seed=10 + k))
     kit.to_mesh_all()
     decim = [(r'^chassis$', 120), (r'^skirt$', 90), (r'^cab$', 300), (r'^cabring$', 80), (r'^rsolar', 12), (r'^rmast$', 1.0), (r'^rflag$', 1.0), (r'^rdish$', 50),
-             (r'^rdmast$', 1.0), (r'^rhead_', 30), (r'^bumper$', 24), (r'^rbox$', 24), (r'^rbox_', 10), (r'^wheel$', 220), (r'^wheel_side$', 16), (r'^wheel_hub$', 24),
+             (r'^rdmast$', 1.0), (r'^rhead_', 30), (r'^bumper$', 24), (r'^rbox$', 24), (r'^rbox_', 10), (r'^wheel$', 200), (r'^wheel_side$', 1.0), (r'^wheel_hub$', 24),
              (r'^arm$', 20), (r'^fender$', 16), (r'^rvdust$', 1.0)]
     weights = [(r'^(chassis|cab|rhead_)', 1.4), (r'^wheel', 0.8), (r'^rvdust$', 0.3)]
     return hi, None, dict(decim=decim, weights=weights, tex=1024, budget=2500, ao_dist=0.3, ds_low=True, exclude=[r'^(bolt|rivet)$'])
@@ -433,40 +433,103 @@ def build_rocket():
 
 # ================================================================== rs_ridge (uzak sırt)
 
-def m_far(name):
-    """Uzak arazi: açık, mavimsi lavanta (hava perspektifi yok ama derinlik için daha açık/soğuk), tepelerde açık, yamaçta mor."""
+RIDGE_TONES = {   # katman: (etek, tepe, gölge, sıcak ışık) — arkaya doğru açık ve mavimsi (derinlik), önde koyu mor-arduvaz
+    0: ('#655b92', '#a497c2', '#4b4479', '#e9d3bd'),
+    1: ('#837fb4', '#bdb8db', '#625f98', '#ecdccb'),
+    2: ('#a0a7d0', '#d4d6ec', '#8288bb', '#f0e6dc'),
+}
+SUN_TO = (-0.847, -0.342, 0.407)       # oyundaki güneşe doğru (RunnerScreen: soldan, hafif arkadan, 24°)
+
+
+def m_far(name, layer=1, hmax=30.0, step=3.5):
+    """Uzak sırt katmanı (piştirilir): etekten tepeye renk geçişi, basamak/tabaka çizgileri (düz basamak üstü açık, yar yüzü koyu),
+    güneş yönüne göre hafif boyalı gölgelendirme (soldaki yüzler sıcak, sağdakiler serin mor) — uzaktan düz kesik karton gibi
+    durmasın. Arkadaki katman daha açık, mavimsi ve az karşıtlı."""
+    c0, c1, csh, cw_ = RIDGE_TONES[layer]
+    k = (1.0, 0.8, 0.55)[layer]                                         # karşıtlık (arkada az)
     def b(nt, bsdf):
         G = EK.EG(nt); cw = G.coords()
-        x, y, z = G.sep(G.pos())
-        col = G.mix(G.rng(z, 0.0, 30.0), '#8f93b6', '#c6c6dc')
-        col = G.mix(G.rng(G.noise4(cw, 0.05, 3), 0.35, 0.7, 0, 0.35), col, '#9a8fbf')
-        col = G.mix(G.rng(G.nz(), 0.5, 0.95, 0, 0.35), col, '#dcdbea')
-        col = G.mix(G.rng(G.ao(4.0), 0.85, 0.35, 0, 0.35), col, '#6f6f98')
+        x, y, z = G.sep(G.pos()); nx, ny, nzz = G.sep(G.nrm())
+        col = G.mix(G.rng(z, 0.0, hmax), c0, c1)
+        col = G.mix(G.rng(G.noise4(cw, 0.035, 3), 0.35, 0.7, 0, 0.3 * k), col, '#9284bb' if layer < 2 else '#b3b6d8')
+        col = G.mix(G.rng(G.noise4(cw, 0.12, 3), 0.45, 0.7, 0, 0.22 * k), col, cw_)
+        # tabakalar: basamak üstü (yatay) açık şerit, yar (dik) yüzü koyu + ince yatay çizgiler
+        flat = G.rng(nzz, 0.55, 0.85)
+        band = G.rng(G.math('FRACT', G.math('DIVIDE', G.math('ADD', z, G.math('MULTIPLY', G.noise4(cw, 0.08, 2), 1.2)), step)), 0.78, 0.95)
+        col = G.mix(G.math('MULTIPLY', G.math('MULTIPLY', band, flat), 0.45 * k), col, '#f1e6dc')
+        col = G.mix(G.math('MULTIPLY', G.rng(nzz, 0.6, 0.2), 0.4 * k), col, csh)
+        lines = G.rng(G.math('ABSOLUTE', G.math('SINE', G.math('MULTIPLY', z, math.pi / (step / 3.0)))), 0.9, 1.0)
+        col = G.mix(G.math('MULTIPLY', G.math('MULTIPLY', lines, G.rng(nzz, 0.7, 0.3)), 0.25 * k), col, csh)
+        # boyalı ışık: güneşe dönük yüz sıcak, ters yüz serin mor
+        lit = G.math('ADD', G.math('ADD', G.math('MULTIPLY', nx, SUN_TO[0]), G.math('MULTIPLY', ny, SUN_TO[1])), G.math('MULTIPLY', nzz, SUN_TO[2]))
+        col = G.mix(G.math('MULTIPLY', G.rng(lit, 0.25, -0.45), 0.55 * k), col, csh)
+        col = G.mix(G.math('MULTIPLY', G.rng(lit, 0.35, 0.85), 0.35 * k), col, cw_)
+        col = G.mix(G.math('MULTIPLY', G.rng(nzz, 0.5, 0.95), G.math('MULTIPLY', G.rng(z, hmax * 0.55, hmax * 0.9), 0.4)), col, '#f4f1fa')   # tepe tozu
         G.l.new(col, bsdf.inputs['Base Color'])
+        bb = G.n.new('ShaderNodeBump'); bb.inputs['Strength'].default_value = 0.5; bb.inputs['Distance'].default_value = 0.3
+        G.l.new(G.noise4(cw, 0.6, 4), bb.inputs['Height']); G.l.new(bb.outputs['Normal'], bsdf.inputs['Normal'])
     return EK.nodes_mat(name, b)
 
 
+# katman: (orta y, ön derinlik, arka düşüş, tepe en çok, basamak, tohum, sütun) — ön (−y) oyuncuya bakar
+RIDGE_LAYERS = [(-12.0, 9.0, 3.0, 13.0, 2.6, 11, 60), (0.0, 10.0, 3.0, 24.0, 3.5, 23, 80), (12.0, 11.0, 3.0, 35.0, 4.5, 37, 80)]
+
+
+def ridge_crest(X, layer, hmax, seed):
+    """Katmanın tepe çizgisi (yalnız x): taban dalgası + rastgele zirveler (arka sivri, ön yuvarlak tepeler, orta masa/zirve)."""
+    R = random.Random(seed); a = np.abs(X)
+    base = hmax * (0.42 + 0.16 * np.cos(X / (23.0 - 5 * layer) + R.uniform(0, 6)) + 0.1 * np.cos(X / 8.5 + R.uniform(0, 6)))
+    pk = np.zeros_like(X)
+    for _ in range((7, 10, 14)[layer]):
+        cx = R.uniform(-100, 100); w = R.uniform(4, 14) * (1.3 if layer == 0 else 1.0); hh = hmax * R.uniform(0.15, 0.55)
+        sharp = (2.0, 1.4, 1.0)[layer]
+        pk += hh * np.exp(-np.abs((X - cx) / w) ** sharp)
+    jag = (0.0, 0.6, 1.2)[layer] * (np.sin(X / 3.1 + seed) * np.sin(X / 5.3) + 0.6 * np.sin(X / 1.7 + 1.1 * seed))
+    return (base + pk + jag) * smoothstep(112.0, 88.0 - 8 * layer, a)
+
+
+_CREST_K = {}
+
+
+def ridge_crest_n(X, layer, hmax, seed):
+    """Tepe çizgisi en yüksek noktası hmax olacak biçimde ölçekli (kırpmak masa gibi düz tepe yapıyordu); ölçek sık örnekten, sabit."""
+    if layer not in _CREST_K:
+        _CREST_K[layer] = hmax / float(ridge_crest(np.linspace(-112, 112, 4481), layer, hmax, seed).max())
+    return ridge_crest(X, layer, hmax, seed) * _CREST_K[layer]
+
+
+def ridge_layer(X, Y, li, fine):
+    yc, dep, back, hmax, step, seed, _ = RIDGE_LAYERS[li]
+    crest = ridge_crest_n(X, li, hmax, seed)
+    t = np.clip((Y - (yc - dep)) / dep, 0, 1); s = np.clip((Y - yc) / back, 0, 1)
+    prof = np.where(Y <= yc, smoothstep(0.0, 1.0, t) ** 0.85, 1.0 - smoothstep(0.0, 1.0, s))
+    H = crest * prof
+    if fine:                                                      # yamaç oyukları (aşağı inen dereler) + basamaklar: yalnız taslak (doku)
+        g = (0.5 + 0.5 * np.sin(X / (1.9 + 0.5 * li) + 2.5 * np.sin(X / 6.7 + seed))) ** 3
+        H = H - g * 0.7 * (1 + li * 0.4) * prof * (1 - prof) * 4 * (Y <= yc)
+        ter = np.floor(H / step) * step + step * smoothstep(0.35, 0.65, H / step - np.floor(H / step))
+        H = 0.65 * H + 0.35 * ter
+    return np.maximum(H, 0.0)
+
+
 def build_ridge():
-    R = random.Random(4)
-    def hgt(X, Y):
-        a = np.abs(X)
-        base = 35.0 * np.exp(-((Y - 2.0) / 9.0) ** 2)
-        peaks = np.zeros_like(X)
-        for k in range(14):
-            cx = R2[k][0]; w = R2[k][1]; hh = R2[k][2]
-            peaks += hh * np.exp(-((X - cx) / w) ** 2 - ((Y - R2[k][3]) / 7.0) ** 2)
-        jag = 3.0 * np.sin(X / 3.1 + 0.4) * np.sin(X / 5.3) + 2.0 * np.sin(X / 1.7 + 1.1)
-        ridge = (base * (0.45 + 0.3 * np.cos(X / 23.0 + 0.7) + 0.25 * np.cos(X / 8.0 + 2.0)) + peaks + jag * smoothstep(-6, 4, Y) * smoothstep(12, 4, Y))
-        ridge *= smoothstep(110.0, 85.0, a) * smoothstep(-20.0, -8.0, Y) * smoothstep(20.0, 10.0, Y)
-        ter = np.round(ridge / 3.5) * 3.5
-        return (0.75 * ridge + 0.25 * ter) * 0.74                      # tepe ≈ 35 m
-    R2 = [(R.uniform(-100, 100), R.uniform(3, 14), R.uniform(3, 16), R.uniform(-4, 6)) for _ in range(14)]
-    xs = np.linspace(-110, 110, 441); ys = np.linspace(-20, 20, 81); X, Y = np.meshgrid(xs, ys)
-    Z = hgt(X, Y)
-    hi = [EK.grid_obj('ridge', np.stack([X, Y, Z], -1), None, [m_far('ridgem')])]
-    xl = np.linspace(-110, 110, 56); yl = np.linspace(-20, 20, 9); XL, YL = np.meshgrid(xl, yl)
-    lo = [EK.tag_uvw(EK.grid_obj('ridge_lo', np.stack([XL, YL, hgt(XL, YL)], -1), None, []), 1.0)]
-    return hi, lo, dict(cull=False, tex=1024, ao_dist=6.0, ao_strength=0.4, cage=1.5, ray=5.0)
+    """Uzak sırt (~220 × 35 m), 3 iç içe katman: önde alçak yuvarlak tepeler (koyu mor), ortada basamaklı masalar, arkada sivri
+    zirveler (açık mavimsi). Katmanların tepe çizgileri birbirini keser → kesik karton yerine derin dağ sırası. Orijin zeminde ortada."""
+    hi = []; lo = []
+    for li, (yc, dep, back, hmax, step, seed, ncol) in enumerate(RIDGE_LAYERS):
+        xs = np.arange(-112.0, 112.0 + 1e-6, 0.3); ys = np.arange(yc - dep - 0.5, yc + back + 0.5 + 1e-6, 0.3)
+        X, Y = np.meshgrid(xs, ys)
+        hi.append(EK.grid_obj('ridge%d' % li, np.stack([X, Y, ridge_layer(X, Y, li, True)], -1), None, [m_far('ridgem%d' % li, li, hmax, step)]))
+        xl = np.linspace(-112.0, 112.0, ncol)
+        yl = np.array([yc - dep, yc - dep * 0.62, yc - dep * 0.34, yc - dep * 0.14, yc, yc + back])
+        XL, YL = np.meshgrid(xl, yl)
+        L = EK.grid_obj('ridge%d_lo' % li, np.stack([XL, YL, ridge_layer(XL, YL, li, False)], -1), None, [])
+        EK.tag_uvw(L, 1.0)
+        me = L.data; a = me.attributes['uvw']; n = np.empty(len(me.polygons) * 3, np.float32); me.polygons.foreach_get('normal', n)
+        wv = np.where(n.reshape(-1, 3)[:, 1] > 0.2, 0.25, 1.0).astype(np.float32)      # arkaya bakan yüz görünmez: az doku
+        a.data.foreach_set('value', wv * (1.0, 1.0, 0.8)[li]); lo.append(L)
+    return hi, lo, dict(cull=False, tex=1024, ao_dist=6.0, ao_strength=0.45, cage=1.5, ray=5.0,
+                        draft=dict(yaw=0, pitch=4, target=(0, 0, 12.0), dist=260))
 
 
 # ================================================================== rs_earth (orijin merkez)

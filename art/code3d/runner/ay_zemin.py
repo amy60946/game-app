@@ -80,8 +80,10 @@ def crater_field(X, Y, craters):
     """Krater yüksekliği + maskeler (iç, kenar, ışınsal saçılım)."""
     h = np.zeros_like(X); cin = np.zeros_like(X); rim = np.zeros_like(X); ej = np.zeros_like(X)
     for (cx, cy, r, d) in craters:
+        R = random.Random(int(cx * 7919 + cy * 104729) & 0xFFFFFF)
+        rayed = r > 1.5 and R.random() < 0.3                        # ışınlı yalnız birkaç krater (hepsi "güneş" deseni gibi duruyordu)
         dx = X - cx; dy = Y - cy; rho = np.sqrt(dx * dx + dy * dy) / r
-        near = rho < 2.6
+        near = rho < (3.6 if rayed else 2.6)
         if not near.any(): continue
         rr = rho[near]
         bowl = -d * np.clip(1 - rr ** 2, 0, 1) ** 0.9
@@ -90,9 +92,16 @@ def crater_field(X, Y, craters):
         h[near] += bowl + ridge + apron
         cin[near] = np.maximum(cin[near], smoothstep(0.95, 0.6, rr))
         rim[near] = np.maximum(rim[near], np.exp(-((rr - 1.02) / 0.16) ** 2))
-        if r > 1.5:
-            ang = np.arctan2(dy[near], dx[near]); rays = np.abs(np.sin(ang * (5 + int(r) % 4) + cx))
-            ej[near] = np.maximum(ej[near], smoothstep(0.75, 0.95, rays) * smoothstep(2.4, 1.15, rr) * smoothstep(1.0, 1.15, rr))
+        out = smoothstep(1.0, 1.12, rr)
+        e = 0.35 * smoothstep(1.75, 1.1, rr) * out                    # yumuşak açık saçılım örtüsü (her kraterde)
+        if rayed:                                                     # düzensiz krem ışınlar: rastgele açı, genişlik, boy
+            ang = np.arctan2(dy[near], dx[near]); ray = np.zeros_like(rr)
+            for _ in range(R.randint(7, 12)):
+                a0 = R.uniform(-math.pi, math.pi); wd = R.uniform(0.05, 0.13); ln = R.uniform(1.8, 3.4)
+                da = np.angle(np.exp(1j * (ang - a0)))
+                ray = np.maximum(ray, np.exp(-(da / (wd * (1.25 - 0.25 * smoothstep(1.0, ln, rr)))) ** 2) * smoothstep(ln, 1.2, rr))
+            e = np.maximum(e, ray * out)
+        ej[near] = np.maximum(ej[near], e)
     return h, cin, rim, ej
 
 
@@ -120,15 +129,18 @@ def height(X, Y, seed, craters, half=L_TILE / 2, extra_fn=None, corridor_fn=None
     H = E(X) + th + w * hills(X, Y, seed)
     ch, cin, rim, ej = crater_field(X, Y, craters)
     H = H + ch
+    ej = ej * w                                                       # ışınlar karo ucunu geçmesin (dikiş)
     if extra_fn is not None:
         H, cin, rim, ej = extra_fn(X, Y, H, cin, rim, ej)
     cm = (np.abs(X) <= CORR) if corridor_fn is None else corridor_fn(X, Y)
     H = np.where(cm, ZC, H)
-    # deniz lekeleri: 40 m dönemli ortak alan (kenar) ↔ karoya özgü (iç)
-    a = np.abs(X)
-    mc = periodic_field(X, Y, 77, 12, kx=(0.02, 0.09))
-    mt = periodic_field(X, Y + seed * 13.7, seed + 5, 12, L=97.0, kx=(0.02, 0.09))
-    mar = smoothstep(-0.35, 0.25, (1 - w) * mc + w * mt) * smoothstep(6.0, 10.0, a)
+    # deniz lekeleri (10–30 m'lik iri yumuşak biçimler): 40 m dönemli ortak alan (kenar) ↔ karoya özgü (iç). Ortak alan karo
+    # başından ölçülür (köprüde y + 20): köprü uçları (±40) zemin karosu uçlarıyla (±20) aynı lekeyi taşır
+    a = np.abs(X); yo = half - L_TILE / 2
+    mc = periodic_field(X, Y + yo, 77, 12, kx=(0.05, 0.2))
+    mt = periodic_field(X, Y + seed * 13.7, seed + 5, 12, L=97.0, kx=(0.05, 0.2))
+    near = 0.3 * smoothstep(26.0, 9.0, a)                            # oyun kamerasının gördüğü yakın bantta biraz daha deniz
+    mar = smoothstep(-0.2, 0.35, (1 - w) * mc + w * mt + near) * smoothstep(4.6, 7.5, a)
     return H, dict(cin=cin, rim=rim, trk=tm * smoothstep(5.2, 5.6, a), mar=mar, ej=ej)
 
 
@@ -167,29 +179,34 @@ def m_moon(name, period=L_TILE, off_y=0.0, seed=0.0):
         ej, _, _ = G.sep(m2.outputs['Vector'])
         x, y, z = G.sep(G.pos()); ax = G.math('ABSOLUTE', x)
         yy = G.math('ADD', y, off_y)
-        rp = EK.ramp(nt, [(0.28, '#857f95'), (0.5, '#a19bb0'), (0.74, '#bdb6c6')]); G.l.new(G.noise4(cw, 0.08, 3), rp.inputs['Fac'])
+        # renk çeşitliliği 2× (koordinatör, 25 Ekim: "gri çöl gibi okunmasın"): sıcak lavanta-krem yayla ↔ belirgin koyu mavi-arduvaz
+        # deniz, mor krater içi, krem ışınlar, enine hafif sıcak/soğuk geçiş, koyu iz. Oyun ışığı (alçak sıcak güneş + mavi kenar) ve
+        # çalışma anındaki taş/toz katmanı bunu yumuşatır; nötr çekimde biraz doygun görünmesi olağan
+        rp = EK.ramp(nt, [(0.26, '#7d6e9c'), (0.5, '#9a87b2'), (0.76, '#b8a3bf')]); G.l.new(G.noise4(cw, 0.08, 3), rp.inputs['Fac'])
         col = rp.outputs[0]
-        col = G.mix(G.rng(G.noise4(cw, 0.18, 4), 0.4, 0.7, 0, 0.5), col, '#bfae98')          # sıcak bej yayla lekeleri
-        col = G.mix(G.rng(G.noise4(cw, 0.6, 4), 0.35, 0.65, 0, 0.25), col, '#8c84a3')        # morumsu ara ton
-        col = G.mix(G.rng(G.noise4(cw, 1.7, 4), 0.42, 0.62, 0, 0.18), col, '#d2cbd8')        # açık leke
+        col = G.mix(G.rng(G.noise4(cw, 0.045, 3), 0.42, 0.66, 0, 0.5), col, '#cdb08e')        # iri krem yayla bölgeleri (≈ 20 m)
+        col = G.mix(G.rng(G.noise4(cw, 0.18, 4), 0.4, 0.7, 0, 0.5), col, '#d3b897')          # sıcak krem lekeler
+        col = G.mix(G.rng(G.noise4(cw, 0.6, 4), 0.35, 0.65, 0, 0.35), col, '#8f7cb8')        # morumsu ara ton
+        col = G.mix(G.rng(G.noise4(cw, 1.7, 4), 0.42, 0.62, 0, 0.24), col, '#e6d6da')        # açık leke
         mfl = G.math('MULTIPLY', G.rng(G.noise4(cw, 2.6, 3), 0.55, 0.62), G.rng(G.noise4(cw, 0.3, 3), 0.45, 0.6))
-        col = G.mix(G.math('MAXIMUM', G.math('MULTIPLY', mar, 0.9), G.math('MULTIPLY', mfl, 0.55)), col,
-                    G.mix(G.rng(G.noise4(cw, 0.5, 3), 0.3, 0.7), '#4a5172', '#626a8c'))            # deniz + benekli kenar
-        col = G.mix(G.math('MULTIPLY', cin, 0.85), col, G.mix(G.rng(G.noise4(cw, 0.9, 3), 0.3, 0.7), '#6e5e94', '#8a7cb0'))
-        col = G.mix(G.math('MULTIPLY', ej, 0.45), col, '#e6e1ec')
-        col = G.mix(G.math('MULTIPLY', rim, 0.55), col, '#ece4d8')
-        # küçük krater izleri: üç ölçek (hücre ≈ 0,5 / 1,6 / 4,5 m)
+        mar_c = G.mix(G.rng(G.noise4(cw, 0.5, 3), 0.3, 0.7), '#343e68', '#4c5a8a')
+        col = G.mix(G.math('MULTIPLY', mar, 0.55), col, '#6f74a4')                            # deniz kıyısı: yumuşak mavi-lavanta hale
+        col = G.mix(G.math('MAXIMUM', G.math('POWER', mar, 1.6), G.math('MULTIPLY', mfl, 0.6)), col, mar_c)   # deniz + benekli kenar
+        col = G.mix(cin, col, G.mix(G.rng(G.noise4(cw, 0.9, 3), 0.3, 0.7), '#5f4699', '#8263bd'))
+        col = G.mix(G.math('MULTIPLY', ej, 0.85), col, '#f6e8cc')
+        col = G.mix(G.math('MULTIPLY', rim, 0.7), col, '#f6e9d0')
+        # küçük krater izleri: iki ölçek (hücre ≈ 0,6 / 2,4 m)
         hsum = None
         for (sc_, den, dp, sd) in ((1.6, 0.38, 0.8, 1.0), (0.42, 0.32, 1.3, 7.0)):
             h_, bowl, ring = imprints(G, cw, sc_, den, dp, sd)
-            col = G.mix(G.math('MULTIPLY', bowl, 0.5), col, '#7a6d97')
-            col = G.mix(G.math('MULTIPLY', ring, 0.45), col, '#ddd6e2')
+            col = G.mix(G.math('MULTIPLY', bowl, 0.6), col, '#6c55a6')
+            col = G.mix(G.math('MULTIPLY', ring, 0.5), col, '#eadccb')
             hsum = h_ if hsum is None else G.math('ADD', hsum, h_)
         # toz dalgacıkları (bölge bölge)
         k = TAU * 140 / 40.0
         rip = G.math('SINE', G.math('ADD', G.math('MULTIPLY', G.math('ADD', yy, G.math('MULTIPLY', x, 0.35)), k), G.math('MULTIPLY', G.noise4(cw, 0.4, 2), 6.0)))
         ripm = G.rng(G.noise4(cw, 0.12, 3), 0.5, 0.62)
-        col = G.mix(G.math('MULTIPLY', G.rng(rip, 0.3, 1.0), G.math('MULTIPLY', ripm, 0.18)), col, '#d0c9d9')
+        col = G.mix(G.math('MULTIPLY', G.rng(rip, 0.3, 1.0), G.math('MULTIPLY', ripm, 0.22)), col, '#e2d2d2')
         # bot izi patikaları (iki yanda, hafif kıvrılarak; 0,3636 m adım = 40 m'de 110 adım)
         fp_sum = None
         for (x0, amp, ph) in ((-5.7, 0.35, 0.3), (8.2, 0.5, 2.1)):
@@ -203,7 +220,7 @@ def m_moon(name, period=L_TILE, off_y=0.0, seed=0.0):
             fp = G.rng(e, 1.0, 0.6)
             fp_sum = fp if fp_sum is None else G.math('MAXIMUM', fp_sum, fp)
         tread2 = G.rng(G.math('ABSOLUTE', G.math('SINE', G.math('MULTIPLY', yy, 140.0))), 0.4, 0.8)
-        col = G.mix(G.math('MULTIPLY', fp_sum, 0.55), col, G.mix(tread2, '#6f6884', '#857e98'))
+        col = G.mix(G.math('MULTIPLY', fp_sum, 0.78), col, G.mix(tread2, '#4b4366', '#605880'))      # bot izi: koyu, sıkışmış regolit
         col = G.mix(0.16, col, G.noise4(cw, 6.0, 3, 0.6, 'Color'), 'OVERLAY')
         pv = G.vor4(cw, 2.2)
         col = G.mix(G.rng(pv, 0.05, 0.0, 0, 0.35), col, '#5d5672')
@@ -212,7 +229,9 @@ def m_moon(name, period=L_TILE, off_y=0.0, seed=0.0):
         col = G.mix(G.rng(G.vor4(G.coords_xy(period, off=(seed + 12, off_y, 0)), 60.0), 0.0, 0.06, 0.45, 0), col, '#b9b2c8')
         # araç izi: koyu, sıkıştırılmış toz + tırtıl çizgisi (y'de 0,32 m — 40 m'ye tam bölünür)
         tread = G.math('ABSOLUTE', G.math('SINE', G.math('MULTIPLY', G.math('ADD', y, G.math('MULTIPLY', G.math('ABSOLUTE', G.math('SUBTRACT', G.math('FRACT', G.math('MULTIPLY', x, 3.6)), 0.5)), 0.25)), TAU / 0.32 / 2)))
-        col = G.mix(G.math('MULTIPLY', trk, 0.55), col, G.mix(G.rng(tread, 0.3, 0.8), '#6d6680', '#8c86a0'))
+        col = G.mix(G.math('MULTIPLY', trk, 0.82), col, G.mix(G.rng(tread, 0.3, 0.8), '#463f62', '#5f577e'))
+        # enine hafif sıcak/soğuk geçiş (yalnız x: karo uçlarında ortak): sol serin mavi, sağ sıcak krem
+        col = G.mix(0.55, col, G.mix(G.rng(x, -60.0, 60.0), '#d9ddff', '#fff0da'), 'MULTIPLY')
         G.l.new(col, bsdf.inputs['Base Color'])
         bb = G.n.new('ShaderNodeBump'); bb.inputs['Strength'].default_value = 0.4; bb.inputs['Distance'].default_value = 0.02
         hgt = G.math('ADD', G.math('MULTIPLY', G.noise4(cw, 3.0, 4, 0.6), 0.8), G.math('MULTIPLY', G.math('MULTIPLY', trk, G.rng(tread, 0.3, 0.8)), 1.5))
