@@ -1,0 +1,16 @@
+{
+ "id": "01a17346-e23b-73d2-aa55-e16d90edff0f",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Costume concept sheet on a plain light lavender background: the same character shown six times in one row, three space outfits, each outfit shown as a pair (front view, then back view), standing relaxed. Pair 1 on the left, CLASSIC ASTRONAUT: puffy white space suit with coral-orange shoulder and knee pads, a round clear glass bubble helmet over his jelly head, a chunky life-support backpack with small round lights and a hose, white gloves on the tentacle hands, chunky moon boots. Pair 2 in the middle, ROCKET PILOT: navy-blue and teal flight jumpsuit with sunflower-yellow stripes and many small pockets, round aviator goggles on his head, a scarf, a small jetpack with two rocket thrusters and fins on his back, soft gloves and boots. Pair 3 on the right, STAR EXPLORER: lilac-purple suit with small star and planet patches, cyan piping on the seams, a short cape like a comet tail in yellow and white on his back, a headband with a tiny star antenna, purple boots. Each costume is clearly different and readable from behind. The character is exactly the octopus from the reference image: a tall slim blue octopus with a light-blue jelly-like bell-shaped head with a wavy frilled rim, a round coral-pink snout, two small black dot eyes, long tentacle arms and long tentacle legs with lilac suckers on the inner side. Keep his body shape, colors and face exactly. Soft matte vinyl-toy 3D look like a premium kids mobile game, painted miniature style, soft studio light with clean soft shadows, saturated but balanced colors (never neon, never washed out), rounded friendly shapes, no outlines, no text, no letters, no numbers, no logos.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792935387827,
+ "started_at": 1792935387836,
+ "finished_at": 1792935417636,
+ "expires_at": 1793194617636,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a17346-e23b-73d2-aa55-e16d90edff0f_0.png?Expires=1793194617&Signature=Kp02kfgmb-gXbpg1FriVdVGFiYCqn1nbf-GbdW2-z0WCbTfoIrpA9kaHzlORF-oybMMZGCu9P4dRCPkFj-fKYlCxtVBYImaCUhFbNpy-zwgCdwn8R5pJffLa~t~yv0GFD2086tJ2u0gopxdB8vPEhlOEUEwgAh0R5lwn7G9dFhFf0TSeg9muBGdNznDqDz3ejo~iCJz1T9NVvNQIb1qJEZji69hrzStwyBjhV9nGLKNMsySj-AporTDDpniw8mkmAR2DGOq6ZbT~JiZadc73GOPdaDBXQAQz~~7IirmBrKHyv6I3Iw0ETKK-6RwvdY7fdNZK8Fpb7T8UclIWeuDCcA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

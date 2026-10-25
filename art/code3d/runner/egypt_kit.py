@@ -380,9 +380,10 @@ def cavity(h, ppm, r=0.03, k=40.0, wrap=(False, True)):
 class Canvas:
     """Kabartma/boya tuvali: metre koordinatı (u sağ, v yukarı; satır = v·ppm). Katmanlar: carve (oyma alanı), groove (ince çizgi),
     raise (oyma içinde kabarık kalan), paint RGB + paint alfa. wrap_u: u dönemli (sınırı aşan şekil öbür yandan da çizilir)."""
-    def __init__(self, wm, hm, ppm, wrap_u=False, u0=0.0, v0=0.0):
+    def __init__(self, wm, hm, ppm, wrap_u=False, u0=0.0, v0=0.0, wrap_v=False):
         from PIL import Image, ImageDraw
         self.W, self.H = int(round(wm * ppm)), int(round(hm * ppm)); self.ppm = ppm; self.wm = wm; self.wrap = wrap_u
+        self.hm = hm; self.wrapv = wrap_v
         self.u0, self.v0 = u0, v0
         self.L = {k: Image.new('L', (self.W, self.H), 0) for k in ('carve', 'groove', 'raise', 'pa', 'mask')}
         self.P = Image.new('RGB', (self.W, self.H), (0, 0, 0))
@@ -390,7 +391,9 @@ class Canvas:
     def px(self, u, v):
         return ((u - self.u0) * self.ppm, (v - self.v0) * self.ppm)
     def _shifts(self):
-        return (0.0, -self.wm, self.wm) if self.wrap else (0.0,)
+        su = (0.0, -self.wm, self.wm) if self.wrap else (0.0,)
+        sv = (0.0, -self.hm, self.hm) if self.wrapv else (0.0,)
+        return [(a, b) for a in su for b in sv]
     def _draw(self, fn, layers, col):
         for sh in self._shifts():
             for k, val in layers:
@@ -399,15 +402,15 @@ class Canvas:
                 c = tuple(int(255 * x) for x in col)
                 fn(self.DP, sh, c); fn(self.D['pa'], sh, 255)
     def poly(self, pts, carve=True, col=None, layer='carve', val=255):
-        def f(d, sh, fill): d.polygon([self.px(u + sh, v) for u, v in pts], fill=fill)
+        def f(d, sh, fill): d.polygon([self.px(u + sh[0], v + sh[1]) for u, v in pts], fill=fill)
         self._draw(f, [(layer, val)] if carve else [], col)
     def ell(self, cu, cv, ru, rv, carve=True, col=None, layer='carve', val=255):
         def f(d, sh, fill):
-            a = self.px(cu - ru + sh, cv - rv); b = self.px(cu + ru + sh, cv + rv); d.ellipse([a, b], fill=fill)
+            a = self.px(cu - ru + sh[0], cv - rv + sh[1]); b = self.px(cu + ru + sh[0], cv + rv + sh[1]); d.ellipse([a, b], fill=fill)
         self._draw(f, [(layer, val)] if carve else [], col)
     def line(self, pts, w, carve=True, col=None, layer='groove', val=255):
         def f(d, sh, fill):
-            q = [self.px(u + sh, v) for u, v in pts]; wp = max(1, int(round(w * self.ppm)))
+            q = [self.px(u + sh[0], v + sh[1]) for u, v in pts]; wp = max(1, int(round(w * self.ppm)))
             d.line(q, fill=fill, width=wp, joint='curve')
             r = wp / 2.0
             for (x, y) in (q[0], q[-1]): d.ellipse([x - r, y - r, x + r, y + r], fill=fill)
@@ -630,23 +633,35 @@ def mesh_obj(name, verts, faces, mats=(), smooth=True, uvs=None):
     return o
 
 
+def box_bm(size, cell):
+    """Eksen başına çözünürlüklü ızgara kutu (bmesh, merkez 0): uzun ince kutular gereksiz sık bölünmez."""
+    bm = bmesh.new(); h = [x / 2 for x in size]; n = [max(1, int(math.ceil(size[i] / cell))) for i in range(3)]
+    X, Y, Z = V((1, 0, 0)), V((0, 1, 0)), V((0, 0, 1))
+    faces = [(V((-h[0], -h[1], h[2])), X * size[0], Y * size[1], n[0], n[1]), (V((-h[0], h[1], -h[2])), X * size[0], -Y * size[1], n[0], n[1]),
+             (V((h[0], -h[1], -h[2])), Y * size[1], Z * size[2], n[1], n[2]), (V((-h[0], h[1], -h[2])), -Y * size[1], Z * size[2], n[1], n[2]),
+             (V((h[0], h[1], -h[2])), -X * size[0], Z * size[2], n[0], n[2]), (V((-h[0], -h[1], -h[2])), X * size[0], Z * size[2], n[0], n[2])]
+    for (o, du, dv, nu, nv) in faces:
+        g = [[bm.verts.new(o + du * (i / nu) + dv * (j / nv)) for i in range(nu + 1)] for j in range(nv + 1)]
+        for j in range(nv):
+            for i in range(nu): bm.faces.new((g[j][i], g[j][i + 1], g[j + 1][i + 1], g[j + 1][i]))
+    bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-6)
+    return bm
+
+
 def rounded_box(name, size, r, cell=0.03, mats=(), loc=(0, 0, 0), rot=(0, 0, 0), chips=0.0, lump=0.0, seed=0, flat_bottom=True):
-    """Yuvarlak kenarlı kutu (ızgara küp → yuvarlatılmış kutu yüzeyine izdüşüm), isteğe bağlı kenar kırığı + hafif yumruluk.
+    """Yuvarlak kenarlı kutu (ızgara kutu → yuvarlatılmış kutu yüzeyine izdüşüm), isteğe bağlı kenar kırığı + hafif yumruluk.
     chips: kenara yakın köşelerde içe göçük (m); lump: yüzey dalgası (m). Taban (z−) düz kalır (yere oturur)."""
     hx, hy, hz = size[0] / 2, size[1] / 2, size[2] / 2
-    bm = bmesh.new(); bmesh.ops.create_cube(bm, size=1.0)
-    cuts = max(1, int(max(size) / cell))
-    bmesh.ops.subdivide_edges(bm, edges=bm.edges[:], cuts=cuts, use_grid_fill=True)
+    bm = box_bm(size, cell)
     R = random.Random(seed); so = V((R.uniform(0, 50), R.uniform(0, 50), R.uniform(0, 50)))
     for v in bm.verts:
-        p = V((v.co.x * size[0], v.co.y * size[1], v.co.z * size[2]))
+        p = v.co.copy()
         q = V((max(-hx + r, min(hx - r, p.x)), max(-hy + r, min(hy - r, p.y)), max(-hz + r, min(hz - r, p.z))))
         d = p - q
         if d.length > 1e-9: p = q + d.normalized() * r
         n = (p - q).normalized() if (p - q).length > 1e-9 else V((0, 0, 1))
         if chips or lump:
-            # kenara yakınlık: en az iki eksende sınıra yakın
-            ex = [1.0 - min(1.0, (h - abs(c)) / max(0.08, r * 2.5)) for c, h in ((p.x, hx), (p.y, hy), (p.z, hz))]
+            ex = [1.0 - min(1.0, (hh - abs(c)) / max(0.08, r * 2.5)) for c, hh in ((p.x, hx), (p.y, hy), (p.z, hz))]
             ex.sort(reverse=True); edge = ex[1]
             dn = MN.noise(p * 5.0 + so); dn2 = MN.noise(p * 13.0 + so * 1.3)
             k = -chips * max(0.0, dn * 1.6 + 0.35 * dn2 - 0.15) * edge ** 1.5 + lump * (MN.noise(p * 2.2 + so) * 0.7 + 0.3 * dn2)

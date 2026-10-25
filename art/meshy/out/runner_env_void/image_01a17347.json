@@ -1,0 +1,16 @@
+{
+ "id": "01a17347-b7d2-701c-b6b0-e479e133aeab",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "SETTING B, FLOATING IN OPEN SPACE: the walkway is a floating space bridge with visible thickness, edge lamps and truss beams underneath, hovering in the starry void with no ground at all; lumpy asteroids drift beside and below it, a little satellite and glowing marker buoys float nearby, a large ringed planet and colorful violet-teal nebula clouds fill the deep space background, stars below the path too. Gameplay screenshot of a kids endless-runner game, landscape 16:9, third-person camera behind and above the runner. A straight three-lane walkway leads into the distance; small purple crystals float in the lanes, a low striped pipe crosses the path ahead to jump over, and a cute glowing yellow comet with a soft tail flies ahead as the thing he chases. The runner is exactly the octopus from the reference image (tall slim blue octopus, light-blue jelly bell-shaped head with a wavy rim, coral-pink round snout, long tentacle arms and legs), seen from behind, wearing a simple yellow t-shirt and coral shorts, running with arms swinging. Painted miniature diorama look like a premium kids mobile game, soft matte vinyl-toy materials, rounded friendly shapes, rich detail (panel seams, bolts, little lamps, worn paint), soft toon lighting with clean shadows, saturated but balanced colors (never neon, never washed out, no heavy bloom), no outlines, no text, no letters, no logos, no user interface.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792935442508,
+ "started_at": 1792935442513,
+ "finished_at": 1792935461511,
+ "expires_at": 1793194661511,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a17347-b7d2-701c-b6b0-e479e133aeab_0.png?Expires=1793194661&Signature=llrV-DCZulcrqPQDEOQ5M4m-C3jfCgmVz86HbpJnoWsliHyBa-km3GUYY4qtbp9PBUSZMiigw~ptN~~LZKjSBzETR7MxMXD1S4pl0sa37dKyvnq0f~UDPq1zOpzCo-4kJe1V6pgpjHOd8To95cYBaGXlCilpkizo~AkZ4HTcfIDPIfeMevTHyM3N9A1Fs-E9vvtJahsRiH1vPbVNHLGDg7V8YnkEZRsN5NFXwnLEec6-0GFX00gGPvTJR98NXKTK5jfwb9e~pzwjag9s59xn7PqgsVLfsYMz1h5ROGG-J08PudYrQ~IUgUg2WDW1maqX2lZMrSavWv8IUtH2FylVUQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

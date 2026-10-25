@@ -1,0 +1,16 @@
+{
+ "id": "01a17347-b7e9-7291-9d4e-2a462f3d7748",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "SETTING C, FROM THE MOON INTO SPACE: the walkway is a floating space bridge hovering a few meters above the cratered lunar surface, which curves away below so the Moon's horizon is visible; ahead the bridge rises gently toward open space with a big ringed planet and Earth hanging close in the violet starry sky, asteroids drifting above the Moon. Gameplay screenshot of a kids endless-runner game, landscape 16:9, third-person camera behind and above the runner. A straight three-lane walkway leads into the distance; small purple crystals float in the lanes, a low striped pipe crosses the path ahead to jump over, and a cute glowing yellow comet with a soft tail flies ahead as the thing he chases. The runner is exactly the octopus from the reference image (tall slim blue octopus, light-blue jelly bell-shaped head with a wavy rim, coral-pink round snout, long tentacle arms and legs), seen from behind, wearing a simple yellow t-shirt and coral shorts, running with arms swinging. Painted miniature diorama look like a premium kids mobile game, soft matte vinyl-toy materials, rounded friendly shapes, rich detail (panel seams, bolts, little lamps, worn paint), soft toon lighting with clean shadows, saturated but balanced colors (never neon, never washed out, no heavy bloom), no outlines, no text, no letters, no logos, no user interface.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792935442549,
+ "started_at": 1792935442553,
+ "finished_at": 1792935468078,
+ "expires_at": 1793194668078,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a17347-b7e9-7291-9d4e-2a462f3d7748_0.png?Expires=1793194668&Signature=DgtPr-1M1JQLED8K2IdjxYXDRH1r282R~iCKITqs1JzVhcBcUAtasanSPHWGbd2DUABtjp4iVGAoYziSaGh7WujerTw08RhGQm6oFX46EP5UqDcHqHFAa3OqxK5II91UixPjEnqsxJPoeubWsSFI-BJ3HteVb6bFo9tBp1clUb~PSnYqaG3TxAuLX-B3Ii4E1tRJGNClB5KEEEAQskCE70abgNe69hUM1UINWip5wnkmBTNm-cE9fEf4fMM3jujF2zFUavVv9tdIliKpyjhCwaSWI3DRa1aD2q-plEx528o1~fw~PA0oY7TGaEH160O1XUUgHzLa8VB5zDwTxxzHPg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

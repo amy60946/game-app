@@ -4,6 +4,7 @@ using System.Linq;
 using Pofi.Logic.App;
 using Pofi.Logic.Economy;
 using Pofi.Logic.Profile;
+using Pofi.Logic.Progression;
 using Pofi.Logic.Runner;
 using Pofi.UI;
 using Pofi.World;
@@ -37,7 +38,10 @@ namespace Pofi.Screens
         private Renderer[] _petRenderers = new Renderer[0];
         private readonly List<RunEvent> _events = new List<RunEvent>();
         private float _petScale = 1f, _camX, _shake, _lastHeight;
-        private bool _playing, _wasJumping, _ending;
+        private bool _playing, _wasJumping, _wasSliding, _ending;
+        private int _lastLane = 1;
+        private float _hop, _stumble;
+        private Animation _anim;
         private float _countdown, _endTimer;
         private int _seed, _spawnObs, _spawnPick, _spawnTile, _spawnDecor;
         private bool _gateSpawned;
@@ -119,7 +123,7 @@ namespace Pofi.Screens
             _pops.Clear();
             _spawnObs = 0; _spawnPick = 0; _spawnTile = -2; _spawnDecor = -2; _gateSpawned = false;
             _decorRng = new System.Random(seed ^ 0x5f3759);
-            _camX = 0f; _wasJumping = false; _teach = null; _teachBlock = false;
+            _camX = 0f; _wasJumping = false; _wasSliding = false; _lastLane = 1; _hop = 0f; _stumble = 0f; _teach = null; _teachBlock = false;
             Stream();
             PlacePet(0f);
             Cam(0f, true);
@@ -191,7 +195,7 @@ namespace Pofi.Screens
                 case RunEvent.Hit:
                     Audio.Sfx.Play(Audio.SfxKind.Pop);
                     Audio.Haptics.Light();
-                    _shake = 0.35f;
+                    _shake = 0.35f; _stumble = 0.45f;
                     _bubble.Say(T("runner.oops"), 1.4f);
                     break;
             }
@@ -210,7 +214,7 @@ namespace Pofi.Screens
         {
             _ending = true;
             foreach (var r in _petRenderers) if (r != null) r.enabled = true;   // son çarpmada yanıp sönerken kalmasın
-            _endTimer = _run.Finished ? 1.8f : 1.2f;
+            _endTimer = _run.Finished ? 1.8f : 1.9f;
             HideTeach();
             if (_run.Finished)
             {
@@ -220,7 +224,7 @@ namespace Pofi.Screens
             }
             else
             {
-                RealAssets.Play(_pet, "idle", false);
+                if (!PlayFrom("tumble", 0f, 1.2f, 0.1f)) RealAssets.Play(_pet, "idle", false);   // yetişkin: yuvarlanıp oturur
                 _bubble.Say(T("runner.out_bubble"), 2f);
             }
         }
@@ -575,43 +579,88 @@ namespace Pofi.Screens
             FarProp(_far, "rn_dune", new Vector3(-70f, -0.3f, 190f), 70f, () => Hill(30f, 4f));
         }
 
+        /// <summary>Koşuda Okti her zaman yetişkin evresiyle (kullanıcı, 25 Ekim 2026); adadaki evresi değişmez.</summary>
+        private const GrowthStage RunStage = GrowthStage.Yetiskin;
+        /// <summary>
+        /// Yetişkin modeli 1,75 m (adadaki 1,17 büyütmesi yok): ayakta kirişe çarpar (1,15 m), çömelince altından geçer
+        /// (squat klibinin dibinde baş boyun %65'i ≈ 1,14 m, ölçü 25 Ekim: Blender, klip başı 1,17 → dip 0,76).
+        /// </summary>
+        private const float RunScale = 1f;
+        // klip zamanları (yetişkin dosyaları, 24 kare/sn; ölçü 25 Ekim): zıplama 0,42 sn'de kalkışa başlar, 1,25 sn'de iner;
+        // çömelme 0,83 sn'de en dipte
+        private const float JumpFrom = 0.42f, JumpTo = 1.25f, SquatFrom = 0.45f, SquatLow = 0.83f;
+
         private void BuildPet()
         {
             var def = App.Data.Pet(App.State.PetId);
             _holder = new GameObject("RunnerPet").transform;
             _holder.SetParent(_world, false);
-            _petScale = PetModels.StageScale(App.Growth);
+            _petScale = RunScale;
             if (def != null)
             {
-                _pet = PetModels.Build(def, _holder, App.Growth);
+                _pet = PetModels.Build(def, _holder, RunStage);
                 var items = App.State.Inventory.Equipped.Values.Select(App.Data.Item).Where(i => i != null).ToList();
-                CosmeticModels.Apply(_pet, def, items, App.Growth);
+                CosmeticModels.Apply(_pet, def, items, RunStage);
             }
             _holder.localScale = Vector3.one * _petScale;
             _holder.localRotation = Quaternion.Euler(0f, 180f, 0f);   // model kameraya (−Z) bakar; koşu +Z
             _petRenderers = _holder.GetComponentsInChildren<Renderer>();
-            if (_pet != null)
+            // adadaki yürüyüş yumuşatması (GaitCalm) kapalı: koşuda kollar ve bacaklar klipteki gibi tam sallansın (kullanıcı: hareket hissedilsin)
+            foreach (var g in _holder.GetComponentsInChildren<GaitCalm>()) g.enabled = false;
+            _anim = _pet != null ? _pet.GetComponentInChildren<Animation>() : null;
+            if (_anim != null)
             {
-                var anim = _pet.GetComponentInChildren<Animation>();
-                if (anim != null && anim.GetClip("jump") != null) anim["jump"].wrapMode = WrapMode.ClampForever;
+                if (_anim.GetClip("jump") != null) _anim["jump"].wrapMode = WrapMode.ClampForever;
+                if (_anim.GetClip("squat") != null) _anim["squat"].wrapMode = WrapMode.ClampForever;
+                if (_anim.GetClip("tumble") != null) _anim["tumble"].wrapMode = WrapMode.ClampForever;
             }
         }
 
+        /// <summary>Klibi verilen andan, verilen hızla oynat (yoksa false).</summary>
+        private bool PlayFrom(string clip, float from, float speed, float fade = 0.08f)
+        {
+            if (_anim == null || _anim.GetClip(clip) == null) return false;
+            _anim.CrossFade(clip, fade);
+            _anim[clip].time = from;
+            _anim[clip].speed = speed;
+            return true;
+        }
+
+        private void RunClip(float fade = 0.14f)
+        {
+            if (_anim != null && _anim.GetClip("run") != null) _anim.CrossFade("run", fade);
+        }
+
+        /// <summary>
+        /// Okti'nin bedeni eylemi gösterir (kullanıcı: "koşma, sağa sola geçme, zıplama ve eğilme el, ayak ve bedende gözle görülsün"):
+        /// koşu klibi tam salınımla ve hıza göre; zıplamada yetişkin zıplama klibinin havalanma–iniş bölümü; kaymada çömelme klibi
+        /// dibe iner ve orada durur, gövde öne eğilir; şerit değiştirirken gidilen yöne döner, yatar ve küçük bir sıçrama yapar;
+        /// çarpınca geriye sendeler.
+        /// </summary>
         private void PlacePet(float dt)
         {
             var x = (_run.LaneX - 1f) * LaneW;
-            var lean = (_run.TargetLane - _run.LaneX) * 22f;
-            _holder.localPosition = new Vector3(x, _run.Height, _run.Z);
-            _holder.localRotation = Quaternion.Euler(_run.Sliding ? -14f : 0f, 180f + lean, lean * 0.4f);   // geçtiği yöne döner ve yatar
-            // kayma: yassılır (kirişin altından geçer); zıplama: havada hafif uzar
-            var sq = _run.Sliding ? new Vector3(1.18f, 0.48f, 1.18f) : _run.Jumping ? new Vector3(0.94f, 1.08f, 0.94f) : Vector3.one;
+            // şerit değişimi başladı: küçük yan sıçrama
+            if (_run.TargetLane != _lastLane) { _hop = 0.24f; _lastLane = _run.TargetLane; }
+            if (_hop > 0f) _hop = Mathf.Max(0f, _hop - dt);
+            var hopY = _hop > 0f ? Mathf.Sin((1f - _hop / 0.24f) * Mathf.PI) * 0.22f : 0f;
+            if (_stumble > 0f) _stumble = Mathf.Max(0f, _stumble - dt);
+            var lean = (_run.TargetLane - _run.LaneX) * 26f;
+            var pitch = _run.Sliding ? -16f : _stumble > 0f ? Mathf.Sin(_stumble / 0.45f * Mathf.PI) * 14f : -4f;   // koşarken hafif öne eğik
+            _holder.localPosition = new Vector3(x, _run.Height + (_run.Jumping ? 0f : hopY), _run.Z);
+            _holder.localRotation = Quaternion.Euler(pitch, 180f + lean, lean * 0.6f);   // gittiği yöne döner ve yatar
+            var sq = _run.Jumping ? new Vector3(0.97f, 1.04f, 0.97f) : Vector3.one;
             _holder.localScale = Vector3.Lerp(_holder.localScale, sq * _petScale, dt <= 0f ? 1f : Mathf.Min(1f, dt * 14f));
-            // klip: zıplama başlayınca jump, bitince run; koşu hızına göre adım
-            if (_run.Jumping && !_wasJumping) { if (!RealAssets.Play(_pet, "jump", false)) RealAssets.Play(_pet, "run", false); }
-            if (!_run.Jumping && _wasJumping && !_run.Over) RealAssets.Play(_pet, "run", false);
-            _wasJumping = _run.Jumping;
-            var anim = _pet != null ? _pet.GetComponentInChildren<Animation>() : null;
-            if (anim != null && anim.GetClip("run") != null) anim["run"].speed = Mathf.Clamp(_run.Speed / 9f, 0.75f, 1.5f) * Mathf.Max(0.15f, _slowmo);
+            // klipler: zıplama / çömelme / koşu
+            if (!_run.Over)
+            {
+                if (_run.Jumping && !_wasJumping && !PlayFrom("jump", JumpFrom, (JumpTo - JumpFrom) / RunnerRun.JumpTime)) RunClip();
+                if (_run.Sliding && !_wasSliding) PlayFrom("squat", SquatFrom, 1.7f);
+                if ((!_run.Jumping && _wasJumping && !_run.Sliding) || (!_run.Sliding && _wasSliding && !_run.Jumping)) RunClip();
+            }
+            if (_anim != null && _run.Sliding && _anim.GetClip("squat") != null && _anim["squat"].time >= SquatLow) _anim["squat"].speed = 0f;   // dipte dur
+            _wasJumping = _run.Jumping; _wasSliding = _run.Sliding;
+            if (_anim != null && _anim.GetClip("run") != null) _anim["run"].speed = Mathf.Clamp(_run.Speed / 8.5f, 0.85f, 1.6f) * Mathf.Max(0.15f, _slowmo);
             // çarpınca dokunulmazlık süresince yanıp söner
             var vis = !_run.Invuln || Mathf.Repeat(Time.time * 10f, 1f) > 0.35f;
             foreach (var r in _petRenderers) if (r != null) r.enabled = vis;

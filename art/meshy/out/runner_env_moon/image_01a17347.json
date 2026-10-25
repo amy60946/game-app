@@ -1,0 +1,16 @@
+{
+ "id": "01a17347-b7ee-73a0-adf2-b9d581f62c48",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "SETTING A, ON THE MOON SURFACE: the walkway is a metal moon-base path laid on the grey-lavender cratered lunar ground, with soft moon-dust drifts at its edges, small habitat domes with round windows, a cute rocket on a launch pad, satellite dishes and lamp posts beside the path; big blue-green Earth rising over the horizon, black-violet starry sky. Gameplay screenshot of a kids endless-runner game, landscape 16:9, third-person camera behind and above the runner. A straight three-lane walkway leads into the distance; small purple crystals float in the lanes, a low striped pipe crosses the path ahead to jump over, and a cute glowing yellow comet with a soft tail flies ahead as the thing he chases. The runner is exactly the octopus from the reference image (tall slim blue octopus, light-blue jelly bell-shaped head with a wavy rim, coral-pink round snout, long tentacle arms and legs), seen from behind, wearing a simple yellow t-shirt and coral shorts, running with arms swinging. Painted miniature diorama look like a premium kids mobile game, soft matte vinyl-toy materials, rounded friendly shapes, rich detail (panel seams, bolts, little lamps, worn paint), soft toon lighting with clean shadows, saturated but balanced colors (never neon, never washed out, no heavy bloom), no outlines, no text, no letters, no logos, no user interface.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1792935442544,
+ "started_at": 1792935442549,
+ "finished_at": 1792935507735,
+ "expires_at": 1793194707735,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a17347-b7ee-73a0-adf2-b9d581f62c48_0.png?Expires=1793194707&Signature=QbMKhowC6sSrS2kGIb57dFp0gl-2FyfJBK4GzFxKaT536R-iWPFcJjOSnISKNHahRS~hM-e5bS-WXwD28ACD2bZGQpthV6P26Q7eK5M7y6AUyyM8gqwfL18vYNREq~T6lS6WKEjTs6FSN-oA4BJQxyikJmJh9SMKGKNeCGsdopM~TaW8ca-aDv1AdKZrdTQxjkJDAsR9N48kQ9SGWoMYTetNWzGx~pKR3YonpIt3znweMNkI4fy3p-jt-osNLuJRpo1lavWrLPN2dEBBtkEbv6T9W-NihfG-o3TciuNTGYk3d4mFhw13l46-Jw3ocshTjivRVvW1GoWWL5hwbphQ~g__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
