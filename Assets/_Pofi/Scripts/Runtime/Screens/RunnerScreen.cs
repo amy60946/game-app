@@ -677,10 +677,11 @@ namespace Pofi.Screens
             var hopY = _hop > 0f ? Mathf.Sin((1f - _hop / 0.24f) * Mathf.PI) * 0.22f : 0f;
             if (_stumble > 0f) _stumble = Mathf.Max(0f, _stumble - dt);
             var lean = (_run.TargetLane - _run.LaneX) * 26f;
-            var pitch = _run.Sliding ? -16f : _stumble > 0f ? Mathf.Sin(_stumble / 0.45f * Mathf.PI) * 14f : -4f;   // koşarken hafif öne eğik
-            _holder.localPosition = new Vector3(x, _run.Height + (_run.Jumping ? 0f : hopY), _run.Z);
+            // kayma: çömelme klibi + belirgin öne eğilme ve biraz alçalma (çekim denetimi 25 Ekim: yalnız çömelme az seçiliyordu)
+            var pitch = _run.Sliding ? -26f : _stumble > 0f ? Mathf.Sin(_stumble / 0.45f * Mathf.PI) * 14f : -4f;   // koşarken hafif öne eğik
+            _holder.localPosition = new Vector3(x, _run.Height + (_run.Jumping ? 0f : hopY) - (_run.Sliding ? 0.12f : 0f), _run.Z);
             _holder.localRotation = Quaternion.Euler(pitch, 180f + lean, lean * 0.6f);   // gittiği yöne döner ve yatar
-            var sq = _run.Jumping ? new Vector3(0.97f, 1.04f, 0.97f) : Vector3.one;
+            var sq = _run.Jumping ? new Vector3(0.97f, 1.04f, 0.97f) : _run.Sliding ? new Vector3(1.06f, 0.9f, 1.06f) : Vector3.one;
             _holder.localScale = Vector3.Lerp(_holder.localScale, sq * _petScale, dt <= 0f ? 1f : Mathf.Min(1f, dt * 14f));
             // klipler: zıplama / çömelme / koşu
             if (!_run.Over)
