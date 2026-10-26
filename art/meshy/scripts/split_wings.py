@@ -7,9 +7,11 @@ Mavi (martı postacı, Env/res_mavi) kanat çırpabilsin (26 Ekim 2026): Meshy'n
 Çıktı hiyerarşisi: res_mavi (kök) → body, wing_l, wing_r. Dokular ve UV'ler aynı (res_mavi_basecolor.jpg / _normal.jpg, yeniden yazılmaz).
   - Kanat bölgesi: yandan bakışta kanadın (yuvarlak omuz + koyu uçlar) çevresini saran çokgen + yüzün o yandan açıkta olması
     (yan yöne ışın atılır) + renk (kayış, mektup, gaga dışarıda). En büyük parça kalır, içindeki küçük boşluklar kanada katılır.
-  - Gövdedeki delik "iki halkalı" düzgün yüzeyle kapanır (biharmonik dolgu: çevredeki gövde eğimini sürdürür), kanadın altında
-    kalacak kadar içeri itilir; rengi yakındaki gövde rengi (dokuda tek renkli bir nokta). Aynı yüzey ters çevrilip kanadın iç
-    yüzü olur (kanat açılınca içi boş görünmez). Dinlenme duruşunda görünüş özgün modelle aynı.
+    Kesim kenarı düzeltilir (testere dişi kalmaz); kanadın ince kenarları (içe ışın kısa mesafede çıkan yüzler) kanada katılır.
+  - Gövdedeki delik düzgün bir "zar" yüzeyle kapanır (harmonik dolgu; biharmonik kanat ucunda dışa yüzgeç açıyordu, BULGE ile
+    karıştırılabilir), kanat yüzünün en az MARGIN içinde ve özgün kapalı yüzeyin içinde kalır; rengi yakındaki gövde rengi
+    (dokuda tek renkli bir nokta). Aynı yüzey ters çevrilip kanadın iç yüzü olur (kanat açılınca içi boş görünmez).
+    Dinlenme duruşunda görünüş özgün modelle aynı (özgün yüzler, UV'ler ve normaller değişmez).
   - Kanadın orijini omuz eklemi (kanat kenarının üst-ön noktası, biraz içeride): nesneyi ileri-geri ekseni etrafında döndürmek
     kanadı yana/yukarı açar.
 Dışa aktarma prepare_asset.py ile aynı (ileri −Z, yukarı Y, FBX_SCALE_UNITS).
@@ -21,7 +23,7 @@ import sys
 import bpy
 import bmesh  # bpy'den sonra (PyPI bpy)
 import numpy as np
-from mathutils import Vector as V
+from mathutils import Matrix, Vector as V
 from mathutils.bvhtree import BVHTree
 
 args = sys.argv[sys.argv.index("--") + 1:]
@@ -32,13 +34,18 @@ OUTDIR = os.path.dirname(OUT)
 
 # Kanadın yandan görünüşü (Blender y = arka, z = yukarı; kuş −y'ye bakar). İki yan aynı çokgeni kullanır.
 POLY = [(-0.68, 0.06), (-0.66, -0.12), (-0.60, -0.26), (-0.48, -0.36), (-0.30, -0.40), (-0.10, -0.40), (0.10, -0.36),
-        (0.30, -0.31), (0.50, -0.26), (0.62, -0.22), (0.64, -0.16), (0.54, -0.10), (0.35, -0.02), (0.15, 0.07),
-        (0.00, 0.14), (-0.15, 0.19), (-0.35, 0.21), (-0.55, 0.17), (-0.66, 0.12)]
+        (0.30, -0.31), (0.50, -0.26), (0.62, -0.22), (0.66, -0.14), (0.58, -0.06), (0.45, 0.03), (0.30, 0.10),
+        (0.15, 0.16), (0.00, 0.19), (-0.15, 0.20), (-0.35, 0.21), (-0.55, 0.17), (-0.66, 0.12)]
 XMIN = 0.18          # kanat yüzü bu yanal uzaklıktan dışarıda
 MARGIN = 0.03        # kapak, kanat yüzünün en az bu kadar içinde (m, model birimi)
 PIVOT_IN = 0.04      # omuz noktası kanat kenarından bu kadar içeride
 GROW_STEPS = 8       # görünmeyen kanat kıvrımlarına büyüme adımı
+UP_SIDE = 0.5        # sırt rafı ışını: yan-yukarı
+SHELF_Y, SHELF_Z = 9.0, 9.0       # sırt rafı ışını kapalı (açınca kanadın iç yüzü büyük düz plaka oluyordu)
+SMOOTH_STEPS = 6     # kesim kenarı düzeltme adımı
+THIN = 0.05          # bu kalınlıktan ince parça kanadın kenarıdır
 GROW_YMAX = 0.62     # kuyruk (gri) kanada katılmasın
+BULGE, LIFT = 0.0, 0.03   # kapak kabarıklığı (biharmonik payı) ve üst sınırı
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=SRC)
@@ -134,12 +141,16 @@ def select_wing(sg):
     r, g, b = FCOL[:, 0], FCOL[:, 1], FCOL[:, 2]
     cand &= ~((r - b) > 0.08)                     # kayış/çanta (kahve), mektup (krem), gaga/ayak (turuncu)
     # yandan açıkta mı: yüz merkezinden yan yöne ışın
+    # yandan açıkta mı: yüz merkezinden yan yöne (ve sırtta kanadın üst kenarıyla sırt arasındaki "raf" için yan-yukarı) ışın
     vis = np.zeros(nf, bool)
-    d = V((sg, 0, 0))
+    dirs = [V((sg, 0, 0)), V((sg * UP_SIDE, 0, 1)).normalized()]
     for f in np.where(cand)[0]:
-        o = V(FC[f]) + d * 0.002
-        hit = bvh.ray_cast(o, d, 2.0)
-        vis[f] = hit[0] is None
+        for k, d in enumerate(dirs):
+            if k == 1 and not (FC[f, 1] > SHELF_Y and FC[f, 2] > SHELF_Z):
+                continue
+            if bvh.ray_cast(V(FC[f]) + d * 0.002, d, 2.0)[0] is None:
+                vis[f] = True
+                break
     sel = cand & vis
     comps = sorted(components(sel), key=len, reverse=True)
     sel = np.zeros(nf, bool); sel[comps[0]] = True
@@ -151,6 +162,27 @@ def select_wing(sg):
         if not add:
             break
         sel[add] = True
+    # kanadın ince kenarları (üst kenarın yukarı bakan beyaz tüyleri): yüzün içine doğru ışın kısa mesafede çıkıyorsa
+    # o parça incedir = kanat; gövde kalındır. Bunlar gövdede kalınca kanat açılınca "yüzgeç" gibi dikiliyordu
+    thin_ok = (FC[:, 0] * sg > XMIN) & (FC[:, 1] < GROW_YMAX) & ~((r - b) > 0.08)
+    def thin(f):
+        n = V(FN[f]); hit = bvh.ray_cast(V(FC[f]) - n * 0.002, -n, THIN)
+        return hit[0] is not None
+    for _ in range(GROW_STEPS):
+        add = [g for f in np.where(sel)[0] for g in FADJ[f] if not sel[g] and thin_ok[g] and thin(g)]
+        if not add:
+            break
+        sel[add] = True
+    # kesim kenarını düzelt (testere dişi olmasın): komşularının çoğu seçiliyse katıl, çoğu seçili değilse çıkar
+    for _ in range(SMOOTH_STEPS):
+        cnt = np.array([sum(sel[g] for g in FADJ[f]) for f in range(nf)])
+        grow = ~sel & (cnt >= 2) & (FC[:, 0] * sg > XMIN - 0.06) & ~((r - b) > 0.08) & (FC[:, 1] < GROW_YMAX)
+        shrink = sel & (cnt <= 1)
+        if not grow.any() and not shrink.any():
+            break
+        sel = (sel | grow) & ~shrink
+    comps = sorted(components(sel), key=len, reverse=True)
+    sel = np.zeros(nf, bool); sel[comps[0]] = True
     # kanadın içinde kalan seçilmemiş adacıklar (çanta arkası, ışının kaçırdığı kıvrım) kanada katılır
     for comp in components(~sel):
         if len(comp) < 0.25 * sel.sum() and all(FC[f, 0] * sg > XMIN - 0.05 for f in comp):
@@ -181,6 +213,20 @@ NP = vnormals(P, WF)
 NBR = [set() for _ in range(NW)]
 for (u, v) in EDGE:
     NBR[u].add(v); NBR[v].add(u)
+
+
+def inside(p):
+    """Nokta özgün ağın içinde mi (üç yönde ışın kesişim sayısı tek; çoğunluk)."""
+    votes = 0
+    for d in (V((0.31, 0.17, 0.93)).normalized(), V((-0.6, 0.5, -0.62)).normalized(), V((0.2, -0.97, 0.1)).normalized()):
+        o, n = V(p), 0
+        while n < 64:
+            hit = bvh.ray_cast(o, d, 10.0)
+            if hit[0] is None:
+                break
+            n += 1; o = hit[0] + d * 1e-5
+        votes += n % 2
+    return votes >= 2
 
 
 def cap_positions(sel):
@@ -215,8 +261,14 @@ def cap_positions(sel):
     L2 = LuR @ Lr                          # (U, A)
     ucols = [ai[v] for v in U]
     kmask = np.ones(len(A), bool); kmask[ucols] = False
-    X = np.linalg.solve(L2[:, ucols], -L2[:, kmask] @ P[A[kmask]])
-    C = P.copy(); C[U] = X
+    Xb = np.linalg.solve(L2[:, ucols], -L2[:, kmask] @ P[A[kmask]])
+    # harmonik (zar) dolgu: sınırın dışına taşmaz; biharmonik gövde eğimini sürdürür ama ince kanat ucunda dışa "yüzgeç" açıyordu.
+    # Zar + biharmonik farkının dışa doğru kısmı (en çok LIFT) → gövde kabarıklığı korunur, yüzgeç olmaz
+    rcols = [ri[v] for v in U]
+    rk = np.ones(len(R), bool); rk[rcols] = False
+    Xh = np.linalg.solve(LuR[:, rcols], -LuR[:, rk] @ P[R[rk]])
+    lift = np.clip(((Xb - Xh) * NP[U]).sum(1), 0.0, LIFT) * BULGE
+    C = P.copy(); C[U] = Xh + lift[:, None] * NP[U]
     # sınırdan uzaklık (adım): içe itme payı sınıra doğru sıfıra iner
     hop = {v: 0 for v in bv}
     front = list(bv)
@@ -233,6 +285,12 @@ def cap_positions(sel):
             dd = np.dot(C[v] - P[v], NP[v])
             if dd > -m:
                 C[v] -= (dd + m) * NP[v]
+            # özgün kapalı yüzeyin dışına taşmasın (kanat ucuyla gövde arasındaki aralıkta dinlenmede görünürdü)
+            if hop.get(v, 3) >= 1:
+                for _ in range(12):
+                    if inside(C[v]):
+                        break
+                    C[v] -= 0.01 * NP[v]
         if it < 5:  # hafif yumuşatma (sınır sabit)
             C2 = C.copy()
             for v in U:
@@ -338,7 +396,7 @@ for ob in [body] + list(wings.values()):
     ob.parent = root
 for name, w in wings.items():
     p = V(PIV[name])
-    w.data.transform(__import__("mathutils").Matrix.Translation(-p))
+    w.data.transform(Matrix.Translation(-p))
     w.location = p
 bpy.data.objects.remove(src, do_unlink=True)
 

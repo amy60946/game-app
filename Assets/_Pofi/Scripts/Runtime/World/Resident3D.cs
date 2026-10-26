@@ -226,7 +226,7 @@ namespace Pofi.World
         }
 
         /// <summary>Kanadı dışarı/yukarı açan yerel eksen ve yön (res_mavi kanat dönme noktası omuzda).</summary>
-        public static Vector3 WingAxis = Vector3.forward;
+        public static Vector3 WingAxis = Vector3.up;   // art/meshy/scripts/split_wings.py: dönme noktası omuzda, yerel Y çevresinde sol +, sağ − açar
         public static float WingSign = 1f;
 
         private static Transform Deep(Transform t, string name)
