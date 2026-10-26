@@ -163,6 +163,22 @@ namespace Pofi.World
                 sp.name = SpinPart;
                 ApplyMaterial(sp, $"Items/{id}/{id}_spin", 0.3f);
             }
+            var glass = Resources.Load<GameObject>($"Items/{id}/{id}_glass");   // saydam parça (astronot kaskının camı): aynı koordinatta
+            if (glass != null)
+            {
+                var gl = Object.Instantiate(glass, root, false);
+                gl.name = "glass";
+                if (!Materials.TryGetValue($"Items/{id}/{id}_glass", out var gm))
+                {
+                    gm = new Material(InkHeart.SpriteMat(Resources.Load<Texture2D>($"Items/{id}/{id}_glass_basecolor"))) { name = id + "_glass" };
+                    Materials[$"Items/{id}/{id}_glass"] = gm;
+                }
+                foreach (var r in gl.GetComponentsInChildren<Renderer>())
+                {
+                    r.sharedMaterial = gm;
+                    r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; r.receiveShadows = false;
+                }
+            }
             return root;
         }
 

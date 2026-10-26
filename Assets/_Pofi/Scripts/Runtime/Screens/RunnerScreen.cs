@@ -98,12 +98,59 @@ namespace Pofi.Screens
         private void Intro()
         {
             Ui.Clear(Root);
-            var root = Modal(780f, out var box, closeOutside: false);
+            var root = Modal(880f, out var box, closeOutside: false);
             ModalTitle(box, Title);
-            Ui.Label(box, T("mg.runner.howto", App.State.PetName), Th.Font(40), Th.SubtleText, new Vector2(0.5f, 0.6f), new Vector2(840f, 330f));
-            Ui.Button(box, Th, T("mg.start"), new Vector2(0.5f, 0.24f), new Vector2(560f, 140f), () => { Destroy(root.gameObject); Play(); },
+            Ui.Label(box, T("mg.runner.howto", App.State.PetName), Th.Font(33), Th.SubtleText, new Vector2(0.5f, 0.72f), new Vector2(860f, 230f));
+            // uzay kıyafeti seçimi (kullanıcı onayı, 26 Ekim 2026): üç takımdan biri koşuda ücretsiz giyilir (envantere girmez);
+            // dükkânda da satılır. Seçim hatırlanır.
+            Ui.Label(box, T("runner.pick_suit"), Th.Font(34), Th.Text, new Vector2(0.5f, 0.52f), new Vector2(760f, 60f), FontStyle.Bold);
+            for (var i = 0; i < Suits.Length; i++)
+            {
+                var k = i;
+                var on = Suits[i][0] == SuitChoice;
+                var b = Candy.Round(box, on ? new Color(1f, 0.9f, 0.55f) : Candy.White, Suits[i][0], on ? 190f : 160f, new Vector2(0.5f, 0.36f),
+                    new Vector2((i - 1) * 230f, 0f), () => { SuitChoice = Suits[k][0]; Audio.Sfx.Play(Audio.SfxKind.Tap); WearSuit(); Destroy(root.gameObject); Intro(); });
+                Candy.Caption(b.transform, App.Data.Item(Suits[i][0])?.Name ?? "", 24, new Vector2(0.5f, 0f), new Vector2(240f, 40f), new Vector2(0f, -26f));
+            }
+            Ui.Button(box, Th, T("mg.start"), new Vector2(0.5f, 0.15f), new Vector2(560f, 130f), () => { Destroy(root.gameObject); Play(); },
                 true, default, 52, true, GoldKit.RibbonGreenBot);
-            Ui.Button(box, Th, T("mg.exit"), new Vector2(0.5f, 0.07f), new Vector2(400f, 90f), () => App.Open(AppPage.Map), false, default, 36);
+            Ui.Button(box, Th, T("mg.exit"), new Vector2(0.5f, 0.03f), new Vector2(400f, 80f), () => App.Open(AppPage.Map), false, default, 34);
+        }
+
+        /// <summary>Uzay takımları: takım, kask/başlık, sırt parçası (art/code3d/space_wear; dükkânda da satılır).</summary>
+        private static readonly string[][] Suits =
+        {
+            new[] { "outfit_astro", "hat_astro_helmet", "back_astro_pack" },
+            new[] { "outfit_pilot", "hat_pilot_goggles", "back_pilot_jetpack" },
+            new[] { "outfit_star", "hat_star_antenna", "back_star_cape" },
+        };
+        private const string SuitFlag = "runner_suit:";
+
+        /// <summary>Koşuda giyilen takım (oyun kaydında hatırlanır; ilk kez: astronot).</summary>
+        private string SuitChoice
+        {
+            get
+            {
+                foreach (var t in App.State.SeenTips) if (t.StartsWith(SuitFlag)) return t.Substring(SuitFlag.Length);
+                return Suits[0][0];
+            }
+            set
+            {
+                App.State.SeenTips.RemoveWhere(t => t.StartsWith(SuitFlag));
+                App.State.SeenTips.Add(SuitFlag + value);
+                App.Save();
+            }
+        }
+
+        /// <summary>Seçili takımı koşudaki yetişkin Okti'ye giydirir (adadaki kıyafetine dokunmaz).</summary>
+        private void WearSuit()
+        {
+            var def = App.Data.Pet(App.State.PetId);
+            if (_pet == null || def == null) return;
+            var set = Suits.FirstOrDefault(x => x[0] == SuitChoice) ?? Suits[0];
+            var items = set.Select(App.Data.Item).Where(i => i != null).ToList();
+            CosmeticModels.Apply(_pet, def, items, RunStage);
+            _petRenderers = _holder.GetComponentsInChildren<Renderer>();
         }
 
         private void Play()
@@ -641,8 +688,7 @@ namespace Pofi.Screens
             if (def != null)
             {
                 _pet = PetModels.Build(def, _holder, RunStage);
-                var items = App.State.Inventory.Equipped.Values.Select(App.Data.Item).Where(i => i != null).ToList();
-                CosmeticModels.Apply(_pet, def, items, RunStage);
+                WearSuit();   // koşuda seçili uzay takımı
             }
             _holder.localScale = Vector3.one * _petScale;
             _holder.localRotation = Quaternion.Euler(0f, 180f, 0f);   // model kameraya (−Z) bakar; koşu +Z

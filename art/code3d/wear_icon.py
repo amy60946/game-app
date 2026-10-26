@@ -29,6 +29,14 @@ def load(part):
             for p in o.data.polygons: p.use_smooth = True
     return objs
 objs = load(iid) + load(iid + '_spin')
+glass = load(iid + '_glass')   # saydam parça (astronot kaskı camı; oyunda RealAssets.Item ile aynı)
+for o in glass:
+    for m in (o.data.materials if o.type == 'MESH' else []):
+        b = m.node_tree.nodes['Principled BSDF']; tn = next((n for n in m.node_tree.nodes if n.type == 'TEX_IMAGE'), None)
+        if tn is not None: m.node_tree.links.new(tn.outputs['Alpha'], b.inputs['Alpha'])
+        b.inputs['Roughness'].default_value = 0.05
+        if hasattr(m, 'surface_render_method'): m.surface_render_method = 'BLENDED'
+objs += glass
 bpy.context.view_layer.update()
 pts = [o.matrix_world @ V(c) for o in objs if o.type == 'MESH' for c in o.bound_box]
 mn = V([min(p[i] for p in pts) for i in range(3)]); mx = V([max(p[i] for p in pts) for i in range(3)])

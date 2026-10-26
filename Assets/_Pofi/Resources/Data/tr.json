@@ -204,6 +204,7 @@
     "mg.lane.howto": "Ekranın sağına ya da soluna dokunarak şerit değiştir. Engellerden kaç, deniz kabuklarını topla!",
     "mg.lane.crash": "Ups! Çarptın.",
     "mg.runner.title": "Gezegen Koşusu",
+    "runner.pick_suit": "Uzay kıyafetini seç:",
     "mg.runner.howto": "Bir kuyrukluyıldız kaçıyor! {0} Ay'daki yolda, Dünya'ya doğru peşinden koşsun. Sağa ya da sola kaydır: şerit değiştir. Yukarı kaydır: zıpla. Aşağı kaydır: kay. Kristalleri topla, istasyon kapısına ulaş!",
     "runner.go": "Koş!",
     "runner.first": "Kuyrukluyıldızın peşinden, Dünya'ya doğru!",

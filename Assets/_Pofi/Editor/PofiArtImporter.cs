@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 14;   // 14: koşu oyunu Env/rs_* dokuları 1024, Ay arazisi/krater 2048   // 13: eşyalar okunabilir (gövde giysisi vücuda deri olarak bağlanır)   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
+        public override uint GetVersion() => 15;   // 15: uzay kıyafetleri 1024   // 14: koşu oyunu Env/rs_* dokuları 1024, Ay arazisi/krater 2048   // 13: eşyalar okunabilir (gövde giysisi vücuda deri olarak bağlanır)   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -55,6 +55,15 @@ namespace Pofi.EditorTools
             // çevre modellerinde normal haritası var: yüksek sıkıştırma UV/teğetleri kaydırıp pişmiş dikişleri belli ediyordu
             m.meshCompression = assetPath.Replace('\\', '/').Contains("/Resources/Env/") ? ModelImporterMeshCompression.Low : ModelImporterMeshCompression.High;
             var isAnim = Path.GetFileNameWithoutExtension(assetPath).Contains("@");
+            // uzay takımlarının evre derileri (Items/<id>/skin_<evre>.fbx): vücudun kemik ağırlıklarıyla gelir; temel giysi gibi Legacy
+            // iskelet (deri ağı ve kemikler korunsun, animasyon yok)
+            if (!IsPet && assetPath.Replace('\\', '/').Contains("/Resources/Items/") && Path.GetFileName(assetPath).StartsWith("skin_"))
+            {
+                m.animationType = ModelImporterAnimationType.Legacy;
+                m.importAnimation = false;
+                m.preserveHierarchy = true;
+                return;
+            }
             if (IsPet)
             {
                 m.animationType = ModelImporterAnimationType.Legacy;
@@ -181,7 +190,10 @@ namespace Pofi.EditorTools
             // (40–80 m'ye tek doku, kamera hemen üstünde) 2048 — kullanıcı: "hız, derinlik ve ayrıntı en iyi şekilde geçsin"
             var runnerPath = assetPath.Replace('\\', '/').Contains("/Resources/Env/rs_");
             var runnerGround = runnerPath && (file.StartsWith("rs_ground") || file.StartsWith("rs_crater")) && !normal;
-            t.maxTextureSize = hero || runnerGround ? 2048 : (IsPet && !normal) || building || tree || resident || runnerPath ? 1024 : 512;
+            // uzay kıyafetleri (26 Ekim 2026; art/code3d/space_wear): kask, takım dikişleri, rozetler 512'de siliniyordu; kask camı saydam (RGBA)
+            var space = System.Text.RegularExpressions.Regex.IsMatch(assetPath.Replace('\\', '/'),
+                "/Resources/Items/(outfit_(astro|pilot|star)|hat_(astro_helmet|pilot_goggles|star_antenna)|back_(astro_pack|pilot_jetpack|star_cape))/");
+            t.maxTextureSize = hero || runnerGround ? 2048 : (IsPet && !normal) || building || tree || resident || runnerPath || space ? 1024 : 512;
             t.mipmapEnabled = true;
             t.textureCompression = TextureImporterCompression.Compressed;
             t.crunchedCompression = false;

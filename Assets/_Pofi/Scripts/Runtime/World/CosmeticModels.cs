@@ -73,7 +73,12 @@ namespace Pofi.World
         private static readonly ItemDef BaseTop = new ItemDef { Id = "base_top", Name = "Temel tişört", Category = ItemCategory.Clothes, Slot = "body", Cut = "full" };
         private static readonly ItemDef BaseBottom = new ItemDef { Id = "base_bottom", Name = "Temel şort", Category = ItemCategory.Clothes, Slot = "hips" };
         /// <summary>Altı da kaplayan eşyalar (çim etek, hamburger, tavuk kostümü): şort giyilmez.</summary>
-        private static readonly HashSet<string> CoversBottom = new HashSet<string> { "outfit_hula", "outfit_burger", "outfit_chicken" };
+        private static readonly HashSet<string> CoversBottom = new HashSet<string> { "outfit_hula", "outfit_burger", "outfit_chicken", "outfit_astro", "outfit_pilot", "outfit_star" };
+        /// <summary>
+        /// Uzay takımları (kullanıcı onayı, 26 Ekim 2026; art/code3d/space_wear): her evre için vücuttan kesilmiş, vücudun kemik
+        /// ağırlıklarıyla esneyen tam takım (Items/&lt;id&gt;/skin_&lt;evre&gt;.fbx); koşarken, zıplarken vücutla birlikte bükülür.
+        /// </summary>
+        private static readonly HashSet<string> SuitSkins = new HashSet<string> { "outfit_astro", "outfit_pilot", "outfit_star" };
 
         private static void BuildBase(Transform pet, Transform root, List<ItemDef> items)
         {
@@ -94,6 +99,37 @@ namespace Pofi.World
         // kesilip biraz dışarı itilmiş, kalınlık verilmiş kabuklardır; ağırlıkları vücuttan gelir. Burada vücudun kemiklerine
         // bağlanır (kemik sırası vücudunkine çevrilir, bağlanma duruşu vücudunki) → yürürken, dans ederken kumaş vücutla esner.
         private static readonly Dictionary<string, Mesh> WearMeshes = new Dictionary<string, Mesh>();
+
+        /// <summary>Uzay takımını vücuda deri olarak giydirir (evrenin skin_ dosyası yoksa false: eski yol denenir).</summary>
+        private static bool BuildSuit(Transform pet, string id)
+        {
+            SkinnedMeshRenderer body = null;
+            foreach (var r in pet.GetComponentsInChildren<SkinnedMeshRenderer>())
+                if (r.GetComponentInParent<RealCosmetic>() == null && r.sharedMesh != null && (body == null || r.sharedMesh.vertexCount > body.sharedMesh.vertexCount)) body = r;
+            if (body == null || body.bones == null || body.bones.Length == 0) return false;
+            var path = "Items/" + id + "/skin_" + StageKey(_stage);
+            var key = path + "/" + body.sharedMesh.GetInstanceID();
+            if (!WearMeshes.TryGetValue(key, out var mesh))
+            {
+                mesh = RemapSkin(Resources.Load<GameObject>(path), null, body, id + "_" + StageKey(_stage));
+                WearMeshes[key] = mesh;
+            }
+            if (mesh == null) return false;
+            var go = new GameObject(id);
+            go.AddComponent<RealCosmetic>();
+            var t = go.transform;
+            t.SetParent(body.transform.parent, false);
+            t.localPosition = body.transform.localPosition; t.localRotation = body.transform.localRotation; t.localScale = body.transform.localScale;
+            go.layer = body.gameObject.layer;
+            var smr = go.AddComponent<SkinnedMeshRenderer>();
+            smr.sharedMesh = mesh;
+            smr.bones = body.bones;
+            smr.rootBone = body.rootBone;
+            smr.updateWhenOffscreen = true;
+            smr.shadowCastingMode = body.shadowCastingMode;
+            smr.sharedMaterial = RealAssets.SharedMaterial(path, 0.3f);
+            return true;
+        }
 
         private static bool BuildSkinWear(Transform pet, string part)
         {
@@ -133,7 +169,7 @@ namespace Pofi.World
         // Yalnız vücuda yakın giysiler: kabarık kostümlerde (tavuk, hamburger, çim etek, simit) vücuttan uzak kabuk bacak ve kalça
         // ağırlıkları arasında gerilip yırtılmış gibi görünüyordu (Blender önce/sonra paftası) → onlar kemiğe sert bağlı kalır.
         private static readonly HashSet<string> SkinItems = new HashSet<string>
-            { "shirt_stripes", "shirt_hawaii", "apron_sailor", "hoodie_soft", "vest_explorer", "raincoat", "set_captain", "scarf_knit", "sash_belt" };
+            { "shirt_stripes", "shirt_hawaii", "apron_sailor", "hoodie_soft", "vest_explorer", "raincoat", "set_captain", "scarf_knit", "sash_belt", "back_star_cape" };
         private static readonly Dictionary<string, Mesh[]> SkinMeshes = new Dictionary<string, Mesh[]>();
 
         private static SkinnedMeshRenderer BodyOf(Transform pet)
@@ -368,12 +404,15 @@ namespace Pofi.World
         }
 
         /// <summary>Giysi ağının kemik dizinleri vücudun kemik sırasına çevrilmiş kopyası; olmazsa null.</summary>
-        private static Mesh WearMesh(string model, string part, SkinnedMeshRenderer body)
+        private static Mesh WearMesh(string model, string part, SkinnedMeshRenderer body) =>
+            RemapSkin(Resources.Load<GameObject>("Pets/" + model + "/" + model + "_wear"), part, body, model + "_" + part);
+
+        /// <summary>Dosyadaki deri ağını vücudun kemik sırasına çevirir (<paramref name="part"/> null: ilk deri ağı).</summary>
+        private static Mesh RemapSkin(GameObject prefab, string part, SkinnedMeshRenderer body, string name)
         {
-            var prefab = Resources.Load<GameObject>("Pets/" + model + "/" + model + "_wear");
             if (prefab == null) return null;
             SkinnedMeshRenderer src = null;
-            foreach (var r in prefab.GetComponentsInChildren<SkinnedMeshRenderer>(true)) if (r.name == part) src = r;
+            foreach (var r in prefab.GetComponentsInChildren<SkinnedMeshRenderer>(true)) if (part == null ? src == null : r.name == part) src = r;
             if (src == null || src.sharedMesh == null || !src.sharedMesh.isReadable || body.sharedMesh.bindposes.Length != body.bones.Length) return null;
             var index = new Dictionary<string, int>();
             for (var i = 0; i < body.bones.Length; i++) if (body.bones[i] != null) index[body.bones[i].name] = i;
@@ -381,7 +420,7 @@ namespace Pofi.World
             for (var i = 0; i < map.Length; i++)
                 if (src.bones[i] == null || !index.TryGetValue(src.bones[i].name, out map[i])) return null;
             var mesh = Object.Instantiate(src.sharedMesh);
-            mesh.name = model + "_" + part;
+            mesh.name = name;
             var w = mesh.boneWeights;
             for (var i = 0; i < w.Length; i++)
             {
@@ -467,6 +506,10 @@ namespace Pofi.World
             ["glasses_heart"] = new Vector3(0.98f, 0f, 0.0125f), ["glasses_nose"] = new Vector3(0.77f, 0f, 0.089f), ["glasses_snorkel"] = new Vector3(1.05f, 0f, 0.097f),
             ["mask_hero"] = new Vector3(1.06f, 0f, 0.005f), ["socks_arm"] = new Vector3(1.163f, 0f, 0.016f), ["pompom"] = new Vector3(1.3f, 0f, 0.12f),
             ["outfit_hula"] = new Vector3(0.925f, -0.034f, -0.05f), ["base_top"] = new Vector3(1f, 0.04f),
+            // uzay kıyafetleri (26 Ekim 2026; art/code3d/space_wear/space_fit.py, çocuk evre)
+            ["hat_astro_helmet"] = new Vector3(1.4647f, -0.4675f, 0.0137f), ["hat_pilot_goggles"] = new Vector3(0.8698f, 0.0072f, 0.0480f),
+            ["hat_star_antenna"] = new Vector3(0.9324f, -0.1758f, 0.0139f), ["back_astro_pack"] = new Vector3(0.5327f, -0.0088f, -0.0776f),
+            ["back_pilot_jetpack"] = new Vector3(0.5359f, -0.0138f, -0.0954f), ["back_star_cape"] = new Vector3(0.5201f, -0.0104f, -0.0451f),
         };
         /// <summary>Evreye özel eşya ayarı ("genc:&lt;id&gt;"; varsa <see cref="OktiItem"/> yerine): köpekbalığı kapüşonu ve bere ergen/yetişkinde gözü örtmesin.</summary>
         private static readonly Dictionary<string, Vector3> OktiItemStage = new Dictionary<string, Vector3>
@@ -474,6 +517,13 @@ namespace Pofi.World
             ["genc:hat_shark"] = new Vector3(1.35f, 0.04f), ["yetiskin:hat_shark"] = new Vector3(1.35f, 0.04f),
             ["genc:hat_beanie"] = new Vector3(0.92f, 0f), ["yetiskin:hat_beanie"] = new Vector3(0.92f, 0f),
             ["genc:base_top"] = new Vector3(1.06f, 0.04f),
+            // uzay kıyafetleri, ergen ve yetişkin (space_fit.py)
+            ["genc:hat_astro_helmet"] = new Vector3(1.5135f, -0.2938f, 0.0030f), ["yetiskin:hat_astro_helmet"] = new Vector3(1.3682f, -0.2148f, 0.0035f),
+            ["genc:hat_pilot_goggles"] = new Vector3(0.9110f, 0.0387f, 0.0300f), ["yetiskin:hat_pilot_goggles"] = new Vector3(0.8718f, 0.0564f, 0.0268f),
+            ["genc:hat_star_antenna"] = new Vector3(1.0520f, -0.1266f, 0.0032f), ["yetiskin:hat_star_antenna"] = new Vector3(1.0041f, -0.0893f, 0.0036f),
+            ["genc:back_astro_pack"] = new Vector3(1.0048f, -0.0043f, -0.0401f), ["yetiskin:back_astro_pack"] = new Vector3(0.8858f, 0.0076f, -0.0359f),
+            ["genc:back_pilot_jetpack"] = new Vector3(0.9988f, -0.0093f, -0.0630f), ["yetiskin:back_pilot_jetpack"] = new Vector3(0.9116f, -0.0005f, -0.0574f),
+            ["genc:back_star_cape"] = new Vector3(1.1741f, -0.0646f, -0.0196f), ["yetiskin:back_star_cape"] = new Vector3(1.2760f, -0.0875f, -0.0363f),
         };
         /// <summary>Dosyada ters dönük eşyalar: sırt çantasının cebi önde, askıları arkada modellenmiş → petin sırtında askılar gövdeye dönsün.</summary>
         private static readonly HashSet<string> Reversed = new HashSet<string> { "backpack_small" };
@@ -671,6 +721,7 @@ namespace Pofi.World
 
         private static void Build(Transform pet, Transform root, ItemDef item, string variant)
         {
+            if (_petId == "pet_13" && SuitSkins.Contains(item.Id) && BuildSuit(pet, item.Id)) return;
             if (BuildReal(pet, root, item, variant, _petId)) return;
             var col = ColorOf(item.Id);
             var m = PetModels.NewMaterial(col, 0.55f);

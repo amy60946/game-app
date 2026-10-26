@@ -76,6 +76,15 @@
     { "id": "backpack_rocket",     "name": "Roket sırt çantası",        "category": "accessory", "slot": "back", "price": 70,  "level": 6,   "flat": false, "fancy": true },
     { "id": "hat_shark",           "name": "Köpekbalığı kapüşonu",      "category": "accessory", "slot": "head", "price": 70,  "level": 7,   "variants": ["normal"], "fancy": true },
     { "id": "outfit_burger",       "name": "Hamburger kostümü",         "category": "clothes",   "slot": "body", "price": 80,  "level": 8,   "cut": "full", "fancy": true },
-    { "id": "outfit_chicken",      "name": "Tavuk kostümü",             "category": "clothes",   "slot": "body", "price": 80,  "level": 8,   "cut": "full", "fancy": true }
+    { "id": "outfit_chicken",      "name": "Tavuk kostümü",             "category": "clothes",   "slot": "body", "price": 80,  "level": 8,   "cut": "full", "fancy": true },
+    { "id": "outfit_astro",       "name": "Astronot takımı",          "category": "clothes",   "slot": "body", "price": 80, "level": 3,   "cut": "full", "space": true },
+    { "id": "outfit_pilot",       "name": "Roket pilotu tulumu",      "category": "clothes",   "slot": "body", "price": 80, "level": 3,   "cut": "full", "space": true },
+    { "id": "outfit_star",        "name": "Yıldız kaşifi kıyafeti",   "category": "clothes",   "slot": "body", "price": 80, "level": 3,   "cut": "full", "space": true },
+    { "id": "hat_astro_helmet",   "name": "Astronot kaskı",           "category": "accessory", "slot": "head", "price": 40, "level": 3,   "variants": ["normal"], "space": true },
+    { "id": "hat_pilot_goggles",  "name": "Pilot gözlüklü başlık",    "category": "accessory", "slot": "head", "price": 40, "level": 3,   "variants": ["normal"], "space": true },
+    { "id": "hat_star_antenna",   "name": "Yıldız anteni",            "category": "accessory", "slot": "head", "price": 40, "level": 3,   "variants": ["normal"], "space": true },
+    { "id": "back_astro_pack",    "name": "Oksijen çantası",          "category": "accessory", "slot": "back", "price": 45, "level": 3,   "flat": false, "space": true },
+    { "id": "back_pilot_jetpack", "name": "Roket motoru",             "category": "accessory", "slot": "back", "price": 45, "level": 3,   "flat": false, "space": true },
+    { "id": "back_star_cape",     "name": "Yıldız pelerini",          "category": "accessory", "slot": "back", "price": 45, "level": 3,   "flat": true, "space": true }
   ]
 }
