@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 16;   // 16: normal haritaları en çok 512   // 15: uzay kıyafetleri 1024   // 14: koşu oyunu Env/rs_* dokuları 1024, Ay arazisi/krater 2048   // 13: eşyalar okunabilir (gövde giysisi vücuda deri olarak bağlanır)   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
+        public override uint GetVersion() => 17;   // 17: WebGL ASTC   // 16: normal haritaları en çok 512   // 15: uzay kıyafetleri 1024   // 14: koşu oyunu Env/rs_* dokuları 1024, Ay arazisi/krater 2048   // 13: eşyalar okunabilir (gövde giysisi vücuda deri olarak bağlanır)   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -108,6 +108,31 @@ namespace Pofi.EditorTools
         }
 
         private void OnPreprocessTexture()
+        {
+            PreprocessTexture();
+            WebGLAstc();
+        }
+
+        /// <summary>
+        /// WebGL'de ASTC (26 Ekim 2026): varsayılan DXT iPhone tarayıcısında okunamıyor, Unity açılışta sıkıştırmasız RGBA'ya açıyordu
+        /// (önizleme belleğe sığmayıp çöktü). Sıkıştırılan her dokuya WebGL için ASTC (renk 6x6, normal 5x5) yazılır; derleme alt hedefinden
+        /// bağımsız. Masaüstü tarayıcı ASTC bilmiyorsa Unity yine açar (bulut ekran görüntüsü yavaşlar, sorun değil).
+        /// </summary>
+        private void WebGLAstc()
+        {
+            if (!(assetImporter is TextureImporter t) || t.textureCompression == TextureImporterCompression.Uncompressed) return;
+            var p = assetPath.Replace('\\', '/');
+            if (!p.Contains("/Resources/") && !p.Contains("/_Pofi/Art/")) return;
+            var normal = t.textureType == TextureImporterType.NormalMap;
+            t.SetPlatformTextureSettings(new TextureImporterPlatformSettings
+            {
+                name = "WebGL", overridden = true, maxTextureSize = t.maxTextureSize,
+                format = normal ? TextureImporterFormat.ASTC_5x5 : TextureImporterFormat.ASTC_6x6,
+                compressionQuality = 50, crunchedCompression = false,
+            });
+        }
+
+        private void PreprocessTexture()
         {
             if (assetPath.Replace('\\', '/').Contains("/Resources/Games/") || assetPath.Replace('\\', '/').Contains("/Resources/Art/") || assetPath.Replace('\\', '/').Contains("/Resources/UI/"))
             {

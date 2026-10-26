@@ -59,6 +59,8 @@ namespace Pofi.EditorTools
                 target = target,
                 options = BuildOptions.None,
             };
+            // 26 Ekim 2026 (derleme 148): yalnız EditorUserBuildSettings yetmedi, BuildPlayer seçeneklerdeki alt hedefi (varsayılan 0) kullanıyor
+            if (target == BuildTarget.WebGL) options.subtarget = (int)WebGLTextureSubtarget.ASTC;
             Debug.Log($"[Pofi] Derleniyor: {target} → {path}");
             var report = BuildPipeline.BuildPlayer(options);
             var s = report.summary;
