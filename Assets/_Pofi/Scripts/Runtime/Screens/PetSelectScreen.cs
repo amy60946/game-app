@@ -25,7 +25,8 @@ namespace Pofi.Screens
         private Text _species, _feature;
         private Image[] _dots;
         private RectTransform _confirm;
-        private bool _going;
+        private bool _going, _said;
+        private VoiceButton _voice;
 
         protected override void Build()
         {
@@ -59,6 +60,7 @@ namespace Pofi.Screens
             _feature = Ui.Label(_card, "", Th.Font(40), Ink, new Vector2(0.5f, 0.38f), new Vector2(530f, 170f), FontStyle.Bold);
             _feature.resizeTextForBestFit = true; _feature.resizeTextMinSize = 24; _feature.resizeTextMaxSize = Th.Font(40);   // uzun yazı kutudan taşmasın
             _feature.lineSpacing = 0.92f;
+            _voice = VoiceButton.Attach(_feature.rectTransform);   // Okti kendini tanıtır (kaydı varsa hoparlör görünür)
 
             _dots = new Image[single ? 0 : _picker.Count];
             // iri şeker çerçeveli küçük resimler (ekran genişliğine göre en çok 170): çocuk kolayca seçer
@@ -109,12 +111,21 @@ namespace Pofi.Screens
             _species.text = single ? "" : def.Species;
             _feature.text = single ? T("pet.meet_intro") : def.Feature;
             _feature.rectTransform.anchoredPosition = new Vector2(0f, single ? 20f : 0f);
+            _voice?.SetText(_feature.text);
             for (var i = 0; i < _dots.Length; i++)
             {
                 var on = i == _picker.Index;
                 _dots[i].transform.parent.localScale = Vector3.one * (on ? 1.2f : 0.94f);
                 _dots[i].color = on ? Candy.Gold : Color.Lerp(Theme.Hex(App.Data.ActivePets[i].MainColor), Color.white, 0.45f);
             }
+        }
+
+        private void Update()
+        {
+            // giriş filmi bitince Okti tanıtım cümlesini bir kez söyler (filmin anlatımıyla üst üste binmesin)
+            if (_said || _feature == null || UI.FilmPlayer.Playing) return;
+            _said = true;
+            Audio.Voice.Say(_feature.text);
         }
 
         private void AskConfirm()

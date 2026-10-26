@@ -12,7 +12,8 @@ Eşleşme: oyunda ekrana yazılan metin → anahtar (Logic/Audio/VoiceKey: etike
 Her kayıt Whisper ile denetlenir; hatalıysa başka tohumla yeniden üretilir (en çok 6 deneme), en iyisi kalır; uzun duraktan
 sonraki kuyruk kesilir; ses düzeyi −18 LUFS'ye eşitlenir.
 
-Kullanım: <venv>/bin/python -I art/voice/build_voice.py <çalışma_klasörü> [--list] [--only anahtar,...] [--part i/n]
+Kullanım: <venv>/bin/python -I art/voice/build_voice.py <çalışma_klasörü> [--list] [--missing] [--only anahtar,...] [--part i/n]
+  (--missing: sesi eksik satırlar; düz python3 ile de çalışır, ses ortamı gerekmez)
   (--part: n paralel iş; hepsi bitince bir kez --part olmadan çalıştırılır: dosyalar ve index.txt yazılır)
 Çalışma klasörü önbellektir: metni ve sesi değişmeyen satır yeniden üretilmez. Satır listesi ve sonuçlar art/voice/manifest.json.
 """
@@ -105,6 +106,9 @@ def catalog():
             add(fill_pet(v), "adali", "tr:" + k, k[len("res.hi_"):])
         elif k in SPOKEN_EXTRA:   # GB17: hoş geldin coin'i, gerçek ödüller tanıtımı, ceviz haberi (oyunda Voice.Say ile)
             add(v.replace("{0}", SPOKEN_EXTRA[k]) if "{0}" in v else v, "anlatici", "tr:" + k, "narrator")
+    # 26 Ekim 2026: tanışma kartında Okti kendini tanıtır (Okti sesi), panodaki Mavi'nin hoş geldin görevi ipucu (anlatıcı)
+    for k, role, who in (("pet.meet_intro", "okti", "okti"), ("welcome_task.tip", "anlatici", "narrator")):
+        if k in tr: add(fill_pet(tr[k]), role, "tr:" + k, who)
     for a, b, c in [("rewards.intro_1", "rewards.intro_2", "rewards.intro_3"), ("gift.l1", "gift.l2", "gift.l3")]:   # tanıtım kartı üç satırı tek seferde okur
         add(" ".join(tr[x] for x in (a, b, c)), "anlatici", "tr:" + a.rsplit("_", 1)[0].rsplit(".", 1)[0] + ".intro" if a.startswith("rewards") else "tr:gift.card", "narrator")
     return out
@@ -218,6 +222,15 @@ def main():
     work = sys.argv[1]
     G.set_out(work)
     lines = catalog()
+    if "--missing" in sys.argv:
+        # sesi henüz üretilmemiş satırlar (ses ortamı gerekmez): yeni/değişen metinden sonra ve oturum sonunda bakılır
+        idx = os.path.join(DST, "index.txt")
+        have = {r.split("\t")[0] for r in open(idx, encoding="utf-8") if r.strip()} if os.path.exists(idx) else set()
+        miss = [l for l in lines if l["key"] not in have]
+        for l in miss:
+            print(l["src"], "|", l["text"])
+        print(len(miss), "eksik /", len(lines), "satır")
+        return
     for l in lines:
         l["tts"] = spoken(l["text"])
     if "--list" in sys.argv:
