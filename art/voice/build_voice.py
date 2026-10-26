@@ -277,9 +277,14 @@ def main():
         torch.set_num_threads(max(1, (os.cpu_count() or 4) // part[1]))
     cache_p = os.path.join(work, f"cache_{part[0]}.json" if part else "cache.json")
     cache = {}
-    for f in sorted(os.listdir(work)):
+    for f in sorted(os.listdir(work)):   # cache.json önce, parça dosyaları sonra (parçalar son birleştirmeden yenidir)
         if f.startswith("cache") and f.endswith(".json"):
             cache.update(json.load(open(os.path.join(work, f))))
+    if not part:   # parçasız çalışma: hepsi tek dosyada birleşir (eski parça kaydı sonraki sonuçları ezmesin)
+        json.dump(cache, open(cache_p, "w"), ensure_ascii=False, indent=1)
+        for f in os.listdir(work):
+            if f.startswith("cache_") and f.endswith(".json"):
+                os.remove(os.path.join(work, f))
     os.makedirs(DST, exist_ok=True)
     retry = "--retry" in sys.argv
     idx = os.path.join(DST, "index.txt")

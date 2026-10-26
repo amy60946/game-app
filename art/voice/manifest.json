@@ -2528,10 +2528,10 @@
    "role": "anlatici",
    "src": "tr:guide.levelup_ok",
    "who": "narrator",
-   "tts": "Harikaya bas!",
-   "sec": 2.44,
-   "seed": 7,
-   "cer": 0.167
+   "tts": "Harika'ya bas!",
+   "sec": 1.0,
+   "seed": 100,
+   "cer": 0.0
   },
   {
    "key": "e020978d88ffbf72",
@@ -2649,7 +2649,10 @@
    "role": "anlatici",
    "src": "tr:tip.mark",
    "who": "narrator",
-   "tts": "Görevi yapınca Yaptıma bas!"
+   "tts": "Görevi yapınca Yaptıma bas!",
+   "sec": 1.64,
+   "seed": 102,
+   "cer": 0.115
   },
   {
    "key": "970acf480b821ac6",
@@ -2690,7 +2693,10 @@
    "role": "anlatici",
    "src": "tr:tip.tasks_done",
    "who": "narrator",
-   "tts": "Yaptın mı? Yaptıma bas, Mavi ailene götürsün."
+   "tts": "Yaptın mı? Yaptıma bas, Mavi ailene götürsün.",
+   "sec": 4.68,
+   "seed": 101,
+   "cer": 0.048
   },
   {
    "key": "4bd33d627fcc39b5",
