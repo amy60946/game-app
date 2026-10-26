@@ -204,7 +204,7 @@
    "chapter": 1,
    "trigger": "event",
    "arg": "board_guided",
-   "summary": "Ev Görevleri panosu: yaptığın her görev bir Güneş Taşı getirir.",
+   "summary": "Ev Görevleri panosu: Mavi'nin hoş geldin görevi burada; yaptığın her görev bir Güneş Taşı getirir.",
    "lines": [
     {
      "who": "kiskac",
@@ -218,14 +218,14 @@
     },
     {
      "who": "okti",
-     "text": "Mavi'nin hediye ettiği taş gibi mi?",
-     "a": "Hediye taş gibi mi?",
-     "mood": "think"
+     "text": "Mavi de bana bir görev bırakmış!",
+     "a": "Mavi'nin görevi burada!",
+     "mood": "happy"
     },
     {
      "who": "kiskac",
-     "text": "Evet! Bundan sonrakileri görev yaparak kazanırsın. Koydaki sis seni bekliyor!",
-     "a": "Görev yap, taşı kazan!",
+     "text": "Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
+     "a": "Yaptım'a bas, taş senin!",
      "mood": "happy"
     }
    ]
@@ -296,14 +296,14 @@
     },
     {
      "who": "mavi",
-     "text": "Kulübemin yeri de sisin altında kaldı. Al, bu Güneş Taşı sana hediye!",
-     "a": "Al, bu taş sana hediye!",
+     "text": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!",
+     "a": "Panoya sana bir görev bıraktım!",
      "mood": "happy"
     },
     {
      "who": "okti",
-     "text": "Teşekkürler! Taşla sisi dağıtırım.",
-     "a": "Teşekkürler Mavi!",
+     "text": "Hemen panoya gidiyorum!",
+     "a": "Panoya gidiyorum!",
      "mood": "happy"
     }
    ]

@@ -284,6 +284,90 @@ namespace Pofi.Screens
 
         /// <summary>Konuşma balonu (petin üstünde); kısa süre sonra kaybolur.</summary>
         protected SpeechBubble Bubble(Vector2 anchor) => SpeechBubble.Create(Root, Th, anchor);
+
+        // ------------------------------------------------------------------ Güneş Taşı kazanma (hoş geldin görevi, 26 Ekim 2026)
+
+        /// <summary>Güneş Taşı kazanma gösterisi (≈2,6 sn): ışınlar + taş + kurdele, sonra taş sayaca uçar (RewardFlight).</summary>
+        protected System.Collections.IEnumerator StoneReveal()
+        {
+            var root = Ui.Fill(App.Overlay.transform, "StoneReveal");
+            var veil = root.gameObject.AddComponent<Image>(); veil.color = new Color(0.02f, 0.06f, 0.14f, 0f); veil.raycastTarget = true;
+            var rays = Ui.Rect(root, "Rays", new Vector2(0.5f, 0.55f), new Vector2(900f, 900f));
+            var ri = rays.gameObject.AddComponent<RawImage>(); ri.texture = LevelUpCelebration.RaysTex(); ri.raycastTarget = false; ri.color = new Color(1f, 0.8f, 0.3f, 0f);
+            var halo = Ui.Rect(root, "Halo", new Vector2(0.5f, 0.55f), new Vector2(420f, 420f));
+            var hi = halo.gameObject.AddComponent<Image>(); hi.sprite = Ui.Rounded; hi.type = Image.Type.Sliced; hi.pixelsPerUnitMultiplier = 0.25f;
+            hi.color = new Color(1f, 0.9f, 0.55f, 0f); hi.raycastTarget = false;
+            var stone = Ui.Rect(root, "Stone", new Vector2(0.5f, 0.55f), new Vector2(300f, 300f));
+            var si = stone.gameObject.AddComponent<Image>(); si.sprite = Ui.Icon("ui_sunstone"); si.preserveAspect = true; si.raycastTarget = false;
+            stone.localScale = Vector3.zero;
+            Audio.Sfx.Play(Audio.SfxKind.Success);
+            Audio.Haptics.Medium();
+            Text title = null, sub = null;
+            for (var t = 0f; t < 2.0f; t += Time.unscaledDeltaTime)
+            {
+                veil.color = new Color(0.02f, 0.06f, 0.14f, Mathf.Min(0.45f, t * 1.6f));
+                ri.color = new Color(1f, 0.8f, 0.3f, Mathf.Clamp01(t / 0.4f) * 0.42f);
+                rays.localRotation = Quaternion.Euler(0f, 0f, -t * 22f);
+                // 0 → 1,3 (0,3 sn) → 1, sonra hafif nefes ve dönme
+                var s = t < 0.3f ? Mathf.SmoothStep(0f, 1.3f, t / 0.3f) : t < 0.48f ? Mathf.Lerp(1.3f, 1f, (t - 0.3f) / 0.18f) : 1f + Mathf.Sin((t - 0.48f) * 4f) * 0.04f;
+                stone.localScale = Vector3.one * s;
+                stone.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 2.4f) * 6f);
+                var hp = Mathf.Repeat(t / 0.9f, 1f);
+                halo.localScale = Vector3.one * Mathf.Lerp(0.6f, 1.5f, hp);
+                hi.color = new Color(1f, 0.9f, 0.55f, (1f - hp) * 0.45f);
+                if (title == null && t > 0.45f)
+                {
+                    title = Candy.Ribbon(root, T("gift.reveal"), new Vector2(0.5f, 0.55f), new Vector2(0f, -215f), 120f, 54);
+                    title.transform.parent.gameObject.AddComponent<PopIn>();
+                    var sp = RectTransformUtility.WorldToScreenPoint(null, stone.position);
+                    StarSparkles.Around(root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.14f, 0.2f), 12, 77, 1.6f);
+                    Audio.Sfx.Play(Audio.SfxKind.Chime);
+                }
+                if (sub == null && t > 0.8f)
+                {
+                    sub = Candy.Caption(root, T("gift.reveal_sub"), 40, new Vector2(0.5f, 0.55f), new Vector2(1300f, 64f), new Vector2(0f, -310f));
+                    Audio.Voice.Say(T("gift.reveal") + " " + T("gift.reveal_sub"));
+                }
+                yield return null;
+            }
+            // taş sayaca süzülür: büyük görsel küçülürken aynı yerden uçan taş çıkar
+            var from = RectTransformUtility.WorldToScreenPoint(null, stone.position);
+            RewardFlight.Fly(App.Overlay.transform, "sunstone", "ui_sunstone", 1, from, 150f, Audio.SfxKind.Success, true);
+            for (var t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.35f)
+            {
+                stone.localScale = Vector3.one * Mathf.Lerp(1f, 0f, t);
+                var a = 1f - t;
+                veil.color = new Color(0.02f, 0.06f, 0.14f, 0.45f * a);
+                ri.color = new Color(1f, 0.8f, 0.3f, 0.42f * a);
+                if (title != null) title.transform.parent.localScale = Vector3.one * a;
+                if (sub != null) sub.color = new Color(sub.color.r, sub.color.g, sub.color.b, a);
+                yield return null;
+            }
+            Destroy(root.gameObject);
+        }
+
+        /// <summary>Bilgi kartı (E dili; ödül tanıtımıyla aynı düzen): hoş geldin taşı · sisi dağıtır · sonrakiler gerçek görevden.</summary>
+        protected void GiftCard(System.Action done)
+        {
+            var root = Modal(640f, out var box, false);
+            ModalTitle(box, T("gift.title"));
+            var rows = new[] { ("ui_gift", "gift.l1"), ("ui_sunstone", "gift.l2"), ("ui_board", "gift.l3") };
+            for (var i = 0; i < rows.Length; i++)
+            {
+                var y = 0.72f - i * 0.19f;
+                Ui.Label(box, (i + 1).ToString(), Th.Font(56), Theme.Hex("#C26A08"), new Vector2(0.1f, y), new Vector2(80f, 90f), FontStyle.Bold);
+                Ui.IconImage(box, rows[i].Item1, new Vector2(0.21f, y), 96f);
+                Ui.Label(box, T(rows[i].Item2), Th.Font(38), Th.Text, new Vector2(0.62f, y), new Vector2(700f, 110f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            }
+            var say = T("gift.l1") + " " + T("gift.l2") + " " + T("gift.l3");
+            Audio.Voice.Say(say);
+            Ui.Button(box, Th, T("gift.ok"), new Vector2(0.5f, 0.1f), new Vector2(420f, 120f), () =>
+            {
+                Audio.Voice.StopIf(say);
+                Destroy(root.gameObject);
+                done?.Invoke();
+            });
+        }
     }
 
     /// <summary>Görevler sekmesindeki sayaç: yapılmayı bekleyen görev sayısı; senkron sonrası kendini günceller.</summary>
@@ -374,5 +458,6 @@ namespace Pofi.Screens
     public sealed class ClickSink : MonoBehaviour, UnityEngine.EventSystems.IPointerClickHandler
     {
         public void OnPointerClick(UnityEngine.EventSystems.PointerEventData e) { }
+
     }
 }

@@ -82,7 +82,7 @@ namespace Pofi.Screens
             if (_mavi != null && _maviArriveT < 0f && _maviLandT < 0f && _maviNewsT <= 0f
                 && (id == "gift" || id == "clear" || id == "gather" || id == "hut" || (id == "mavi" && App.State.Counters.Total("mavi_arrived") > 0)))
                 _mavi.Hover(1.2f, PetTop, App.Stage.Camera);
-            var walk = id == "board" && _kiskac != null && !_cine;
+            var walk = id == "gift" && _kiskac != null && !_cine && App.State.Story.Seen.Contains("ch2_open");   // panoya birlikte (hoş geldin görevi)
             if (walk && !_kiskacWalks)
             {
                 var p = _world.Walker.Position;

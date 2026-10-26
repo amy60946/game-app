@@ -39,7 +39,7 @@ namespace Pofi.Logic.App
         public const int CoconutsNeeded = 2;
         /// <summary>Hoş geldin coin'i alındı işareti (GameState.SeenTips; GameBootstrap.ClaimWelcome yazar).</summary>
         public const string WelcomeFlag = "welcome_coins";
-        /// <summary>Rehberin pano adımında açılan Ev Görevleri (hikâye ch1_board da bununla oynar).</summary>
+        /// <summary>Hoş geldin görevi adımında panonun kapısına varıldı (Kıskaç'ın pano sahnesi ch1_board bununla oynar).</summary>
         public const string BoardCounter = "board_guided";
         /// <summary>Rehberden önceki temel ipuçları (yürü, etrafa bak): sayaç bunlarla başlar ("1/20").</summary>
         public const int BasicsCount = 2;
@@ -94,15 +94,14 @@ namespace Pofi.Logic.App
                 AlreadyDone = s => s.Inventory.CountOf(Island.Gathering.CoconutItem) >= CoconutsNeeded },
             new GuideStep { Id = "deliver", Counter = "coconut_delivered", Xp = 15 },
             new GuideStep { Id = "mavi", Counter = "mavi_arrived", Xp = 10, AlreadyDone = s => s.Story.Seen.Contains("ch2_open") },
-            new GuideStep { Id = "gift", Counter = "gift_stone", Xp = 10, AlreadyDone = s => s.SunStones.Gift > 0 },   // Mavi'nin hediye taşı (GB19)
+            // hoş geldin görevi (kullanıcı, 26 Ekim 2026): Mavi "panoya sana bir görev bıraktım" der; Okti panoya gider (Kıskaç'ın pano
+            // sahnesi), Ev Görevleri'nin en üstündeki Mavi kartında "Yaptım" → ilk (hediye) Güneş Taşı. Taş yalnız adada geçer (GB19).
+            new GuideStep { Id = "gift", Counter = "gift_stone", Xp = 10, AlreadyDone = s => s.SunStones.Gift > 0 },
             new GuideStep { Id = "clear", Counter = "hut_fog_cleared", Xp = 15,
                 AlreadyDone = s => SunStoneBook.PlacedIn(s.SunStones, SunStoneBook.HutSpot) > 0 },                           // kulübe yerindeki sis
             new GuideStep { Id = "gather", Counter = "hut_ready", Xp = 20,
                 AlreadyDone = s => s.Gather != null && (s.Gather.HutBuilt || Gathering.CanBuild(s.Gather)) },
             new GuideStep { Id = "hut", Counter = "hut_built", Xp = 10, AlreadyDone = s => s.Gather != null && s.Gather.HutBuilt },   // kulübe zaten 40 XP verir (Gathering.HutXp)
-            // kulübenin yanında: yeni taşlar gerçek görevden. Sayaç yalnız bu adımdayken açılan pano (board_guided): Görev penceresi
-            // daha önce açılmış olsa da adım ve Kıskaç'ın pano sahnesi kulübeden sonra gelir (akış haritası yorumu, 25 Ekim 2026)
-            new GuideStep { Id = "board", Counter = BoardCounter, Xp = 15 },
             new GuideStep { Id = "fire", Counter = "fire_stoked", Xp = 10, AlreadyDone = s => s.Campfire != null && s.Campfire.Total > 0 },   // kamp ateşini harla (GB18)
             new GuideStep { Id = "stone", Counter = "stone_placed", Xp = 30,   // koydaki sis: hediye değil, görevle kazanılan taş
                 Ready = s => SunStoneBook.Available(s.SunStones) > 0, AlreadyDone = s => SunStoneBook.RealPlaced(s.SunStones) > 0 },
@@ -183,5 +182,8 @@ namespace Pofi.Logic.App
 
         /// <summary>Şu anki adım bu mu (çalışma zamanı kısayolu)?</summary>
         public static bool Is(GameState s, int level, string id) => Current(s, level)?.Id == id;
+
+        /// <summary>Panoda Mavi'nin hoş geldin görevi kartı görünsün mü (rehber hediye adımında)?</summary>
+        public static bool WelcomeTaskOpen(GameState s, int level) => Is(s, level, "gift");
     }
 }

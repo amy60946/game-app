@@ -56,7 +56,6 @@ namespace Pofi.Screens
             }
             NavBar(AppPage.Tasks);
             if (Onboarding.Pending(App.State, Onboarding.Board)) { Onboarding.Done(App.State, Onboarding.Board); App.Save(); }
-            if (Guide.Is(App.State, App.Level, "board")) App.RecordActivity(Guide.BoardCounter);   // rehberin pano adımı (+ Kıskaç'ın sahnesi)
             App.RecordActivity("board_opened");
             Activity.EnsureQuests(App.State, App.Data, App.Levels, App.LocalNow);
             App.Synced += OnSynced;
@@ -204,11 +203,15 @@ namespace Pofi.Screens
 
         private void FillHome()
         {
-            _firstDone = null;
+            _firstDone = null; _welcomeBtn = null;
             Ui.Clear(_list);
             var local = App.LocalNow;
             var today = DemoParent.Day(local);
             var tasks = App.State.Tasks.ForDisplay(local).Where(t => t.Date == today).ToList();
+            // hoş geldin görevi (kullanıcı, 26 Ekim 2026): rehberin hediye adımında Mavi'nin kartı en üstte; "Yaptım" → ilk Güneş Taşı
+            if (Guide.WelcomeTaskOpen(App.State, App.Level))
+                tasks.Insert(0, new ChildTask { TaskId = WelcomeId, Date = today, Title = T("welcome_task.title"), Difficulty = "easy",
+                    Status = ChildTaskStatus.Assigned, DueLocalTicks = long.MaxValue });
             _evSub.text = tasks.Count > 0 ? T("tasks.today", tasks.Count) : T("tasks.from_family");
             var empty = tasks.Count == 0;
             _listView.gameObject.SetActive(!empty);
@@ -428,6 +431,51 @@ namespace Pofi.Screens
         }
 
         private readonly List<IntroStep> _intro = new List<IntroStep>();
+        // ------------------------------------------------------------------ hoş geldin görevi (rehberin hediye adımı)
+        public const string WelcomeId = "welcome";
+        private RectTransform _welcomeBtn;
+        private Coach _guideCoach;
+        private bool _welcomeBusy, _welcomeVisit;
+        private float _welcomeT;
+
+        /// <summary>Tanıtım eli bitince el hoş geldin kartının "Yaptım"ını gösterir; taş alınınca çarpıyı (sıradaki iş adada).</summary>
+        private void UpdateWelcomeGuide()
+        {
+            if (App == null || (_welcomeT -= Time.unscaledDeltaTime) > 0f) return;
+            _welcomeT = 0.3f;
+            if (Guide.WelcomeTaskOpen(App.State, App.Level)) _welcomeVisit = true;
+            if (!_welcomeVisit || _welcomeBusy || Root.Find("Modal") != null) return;
+            if (_introAt >= 0 && _introAt < _intro.Count) return;   // önce pencerenin kendi tanıtımı
+            if (!Guide.WelcomeTaskOpen(App.State, App.Level)) { GuideToClose(ref _guideCoach, id => id == "gift"); return; }
+            if (_welcomeBtn == null || (_guideCoach != null && _guideCoach.Id == "guide_welcome")) return;
+            if (_guideCoach != null) _guideCoach.Done();
+            var btn = _welcomeBtn;
+            var say = T("welcome_task.tip");
+            _guideCoach = Coach.Show(Root, "guide_welcome", say, TipGesture.Tap, () => Center(btn), null, 99, Guide.Label(App.State), null, say);
+        }
+
+        /// <summary>Hoş geldin görevi yapıldı: taş kazanma gösterisi + bilgi kartı, sonra hediye taş (yalnız adada geçer).</summary>
+        private void WelcomeDone()
+        {
+            if (_welcomeBusy) return;
+            _welcomeBusy = true;
+            if (_guideCoach != null) { _guideCoach.Done(); _guideCoach = null; }
+            if (Logic.Island.SunStoneBook.GiveGift(App.State.SunStones)) App.Save();
+            StartCoroutine(WelcomeRoutine());
+        }
+
+        private System.Collections.IEnumerator WelcomeRoutine()
+        {
+            yield return StoneReveal();
+            yield return new WaitForSeconds(0.4f);
+            GiftCard(() =>
+            {
+                App.RecordActivity("gift_stone");   // rehber: sıradaki adım kulübe yerindeki sis
+                _welcomeBusy = false;
+                Fill();
+            });
+        }
+
         private int _introAt = -1;
         private float _introT;
         private Coach _coach;
@@ -470,6 +518,7 @@ namespace Pofi.Screens
 
         private void Update()
         {
+            UpdateWelcomeGuide();
             if (_introAt < 0 || _introAt >= _intro.Count || App == null) return;
             if (Root.Find("Modal") != null) return;   // ebeveyn sorusu, 2× teklifi açıkken bekle
             _introT += Time.unscaledDeltaTime;

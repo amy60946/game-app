@@ -443,7 +443,7 @@ namespace Pofi.Screens
             // adım ya da adımın alt aşaması değişti (Okti'ye dokun → elmaya dokun → eylem tuşu …): el hemen yeni hedefe geçer
             if (_coach != null && _coach.Id.StartsWith("guide_") && (stage == null || _coach.Id != "guide_" + stage.Key)) { _coach.Done(); _coach = null; _tipGap = 2.5f; }
             if (_coach != null || _tray != null) return;
-            if (StoryPlayer.Playing || _cine || _giftBusy || LevelUpCelebration.Showing) { _tipGap = 0f; return; }   // hikâye, hediye kartı ya da seviye kutlaması sürerken yeni ipucu açılmaz (üst üste binmesin)
+            if (StoryPlayer.Playing || _cine || LevelUpCelebration.Showing) { _tipGap = 0f; return; }   // hikâye, hediye kartı ya da seviye kutlaması sürerken yeni ipucu açılmaz (üst üste binmesin)
             _tipGap += Time.deltaTime;
             if (_tipGap < 2.5f) return;                                     // ipuçları arasında kısa nefes
             var st = App.State;
@@ -466,7 +466,7 @@ namespace Pofi.Screens
             // hedef uzakta ve çocuk durdu: ilk kez el Harita'yı gösterir (GB18-8, haritada sarı im)
             if (MapFarTip(basicsDone)) return;
             // rehberli zincir: sıradaki adım, işaret eli hedefini gösterir; ilk gün pano/taş ipuçlarının yerine geçer
-            if (basicsDone && guide != null && !_overview) { if (stage != null) GuideTip(stage); return; }   // hediye adımını kart anlatır
+            if (basicsDone && guide != null && !_overview) { if (stage != null) GuideTip(stage); return; }
             // Gerçek ödüller yeni açıldı (Sv4, GB17-13): oturumda bir kez el dükkânı gösterir; dükkân sekmesi tanıtımla açılır
             if (basicsDone && guide == null && !_overview && !_rewardsToldThisSession && App.Levels.IsUnlocked(ShopScreen.RewardsUnlock, App.Level)
                 && !App.State.SeenTips.Contains(ShopScreen.RewardsIntroFlag))
@@ -523,7 +523,6 @@ namespace Pofi.Screens
 
         private GuideStage GuideStageFor(GuideStep g)
         {
-            if (g.Id == "gift") return null;                                  // hediye adımını kart anlatır
             var arg = g.Id == "feed" || g.Id == "wash" ? PetDat : g.Id == "wear" ? PetGen : App.State.PetName;
             // hedefin yanındaysa: el sağ alttaki eylem tuşunu gösterir (Gir, Kes, Topla, Yap, Taşı koy, ateş)
             if (ActionServes(g))
@@ -590,7 +589,7 @@ namespace Pofi.Screens
             {
                 case "home": case "tidy": case "play": return _actionKey == "hud.enter" && _actionRegion == "region_home";
                 case "shop": return _actionKey == "hud.enter" && _actionRegion == "region_shop";
-                case "board": return _actionKey == "hud.enter" && _actionRegion == "region_task_board";
+                case "board": case "gift": return _actionKey == "hud.enter" && _actionRegion == "region_task_board";
                 case "coconut": return _gTarget >= 0 && _gNodes[_gTarget].Kind == GatherKind.Coconut && _actionKey == "hud.collect";
                 case "gather": return _gTarget >= 0 && _gNodes[_gTarget].Kind != GatherKind.Coconut && _actionKey != "hud.jump";
                 case "hut": return _actionKey == "hud.build";
@@ -624,7 +623,7 @@ namespace Pofi.Screens
                 case "wear": return PetScreen;
                 case "board": return () => DoorScreen("region_task_board");
                 case "stone": case "clear": return StoneTipScreen;   // sis kadrajda değilse kenardaki taş rozeti (GB18-5)
-                case "gift": return MaviSky;
+                case "gift": return () => DoorScreen("region_task_board");   // hoş geldin görevi panoda
                 case "kiskac": case "deliver": return KiskacScreen;
                 case "coconut": return () => GuideWorld(g) is Vector2 c ? (Vector2)App.Stage.Camera.WorldToScreenPoint(_world.World(c.x, c.y) + Vector3.up * 0.8f) : RegionScreen("region_coconut_grove");
                 case "gather": return NearestGatherScreen;
@@ -677,7 +676,7 @@ namespace Pofi.Screens
             switch (g.Id)
             {
                 case "home": case "tidy": case "play": return DoorOf("region_home");
-                case "board": return DoorOf("region_task_board");
+                case "board": case "gift": return DoorOf("region_task_board");
                 case "stone": return SpotDoor(App.Data.SunBook.Next(App.State.SunStones)) ?? DoorOf("region_task_board");
                 case "clear": return new Vector2(_sitePos.x, _sitePos.z);   // GB19: kulübe yerindeki sis
                 case "gather":

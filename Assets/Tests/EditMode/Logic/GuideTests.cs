@@ -37,7 +37,7 @@ namespace Pofi.Tests.Logic
         public void Sira_kullanicinin_akisi_ve_sayaclar_essiz()
         {
             CollectionAssert.AreEqual(
-                new[] { "feed", "wash", "home", "tidy", "play", "shop", "wear", "kiskac", "coconut", "deliver", "mavi", "gift", "clear", "gather", "hut", "board", "fire", "stone" },
+                new[] { "feed", "wash", "home", "tidy", "play", "shop", "wear", "kiskac", "coconut", "deliver", "mavi", "gift", "clear", "gather", "hut", "fire", "stone" },
                 Guide.Steps.Select(x => x.Id).ToArray());
             Assert.AreEqual(Guide.Steps.Count, Guide.Steps.Select(x => x.Counter).Distinct().Count());
             Assert.That(Guide.Steps.All(x => x.Xp > 0));
@@ -64,7 +64,7 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual("feed", r.Single().Id, "yıkama önceden yapıldı: ödülsüz geçilir");
             Assert.AreEqual("home", Guide.Current(s, 1).Id);
             Assert.AreEqual(2, Guide.DoneCount(s));
-            Assert.AreEqual("5/20", Guide.Label(s), "temel ipuçları (yürü, etrafa bak) 1–2; rehber 3'ten başlar");
+            Assert.AreEqual("5/19", Guide.Label(s), "temel ipuçları (yürü, etrafa bak) 1–2; rehber 3'ten başlar");
         }
 
         [Test]
@@ -118,9 +118,7 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual("hut", Guide.Current(s, 1).Id);
             Gathering.Build(s.Gather);
             Assert.AreEqual("hut", Do(s, "hut_built").Single().Id);
-            Assert.AreEqual("board", Guide.Current(s, 1).Id, "kulübenin yanındaki pano: yeni taşlar görevden (GB19)");
-            Assert.AreEqual("board", Do(s, Guide.BoardCounter).Single().Id);
-            Assert.AreEqual("fire", Guide.Current(s, 1).Id, "sonra doğudaki kamp ateşi (GB18)");
+            Assert.AreEqual("fire", Guide.Current(s, 1).Id, "kulübeden sonra doğudaki kamp ateşi (pano hoş geldin göreviyle önce geldi)");
             Assert.AreEqual("fire", Do(s, "fire_stoked").Single().Id);
         }
 
@@ -133,7 +131,7 @@ namespace Pofi.Tests.Logic
             BuyFirstWear(s);
             foreach (var c in new[] { "kiskac_met", "coconuts_ready", "coconut_delivered", "mavi_arrived" }) Do(s, c);
             GiftAndClear(s);
-            foreach (var c in new[] { "hut_ready", "hut_built", Guide.BoardCounter, "fire_stoked" }) Do(s, c);
+            foreach (var c in new[] { "hut_ready", "hut_built", "fire_stoked" }) Do(s, c);
             Assert.IsNull(Guide.Current(s, 1), "hediye taş kulübe sisine gitti, gerçek taş yok: gösterilecek adım yok");
             SunStoneBook.ApplyServerTotal(s.SunStones, 1);
             Assert.AreEqual("stone", Guide.Current(s, 1).Id);
@@ -169,7 +167,7 @@ namespace Pofi.Tests.Logic
             Do(s, "kiskac_met"); Do(s, "coconuts_ready");
             var r = Do(s, "coconut_delivered");
             Assert.AreEqual("deliver", r.Single().Id);
-            Assert.AreEqual("board", Guide.Current(s, 1).Id, "Mavi'yi görmüş, kulübesi yapılmış: hediye, sis ve kulübe adımları geçildi");
+            Assert.AreEqual("fire", Guide.Current(s, 1).Id, "Mavi'yi görmüş, kulübesi yapılmış: hediye, sis ve kulübe adımları geçildi");
         }
 
         /// <summary>Mavi'nin hediye taşı + kulübe yerindeki sisi kaldırma (rehberin "gift" ve "clear" adımları).</summary>

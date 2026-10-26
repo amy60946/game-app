@@ -90,18 +90,25 @@ namespace Pofi.Screens
             var le = row.GetComponent<LayoutElement>(); le.preferredHeight = le.minHeight = h;
             row.sizeDelta = new Vector2(0f, h);
 
-            // sol: "Ailenden" mührü
+            // sol: "Ailenden" mührü (hoş geldin görevinde Mavi: "Mavi'den")
+            var welcome = task.TaskId == WelcomeId;
             var seal = Ui.Rect(row, "Seal", new Vector2(0f, 0.5f), new Vector2(SealD, SealD), new Vector2(CardPadL + SealD * 0.5f, 8f));
-            GoldKit.RimDisc(seal, Theme.Hex("#FFF7DE"), Theme.Hex("#F6DFA4"), 6f);
-            Ui.IconImage(seal, "ui_home", new Vector2(0.5f, 0.5f), 78f, new Vector2(0f, 10f));
-            GoldKit.Ribbon(seal, T("tasks.from_family"), GoldKit.Tone.Red, 36f, 21, new Vector2(0.5f, 0f), new Vector2(0f, 3f));
+            GoldKit.RimDisc(seal, welcome ? Theme.Hex("#E7F0FF") : Theme.Hex("#FFF7DE"), welcome ? Theme.Hex("#BCD3F2") : Theme.Hex("#F6DFA4"), 6f);
+            if (welcome && Mavi != null) Pic(seal, Mavi, "Mavi", new Vector2(0.5f, 0.5f), new Vector2(72f, 100f), new Vector2(0f, 12f));
+            else Ui.IconImage(seal, "ui_home", new Vector2(0.5f, 0.5f), 78f, new Vector2(0f, 10f));
+            GoldKit.Ribbon(seal, T(welcome ? "welcome_task.from" : "tasks.from_family"), welcome ? GoldKit.Tone.Blue : GoldKit.Tone.Red, 36f, 21, new Vector2(0.5f, 0f), new Vector2(0f, 3f));
 
             // sağda ödül: büyük Güneş Taşı × zorluk (kolay 1 / orta 2 / zor 3), altında küçük coin
-            Reward(row, RealTaskRewards.Stones(task.Difficulty), task.RewardCoins);
+            Reward(row, welcome ? 1 : RealTaskRewards.Stones(task.Difficulty), task.RewardCoins);
 
             // en sağda eylemler
             var act = Ui.Rect(row, "Act", new Vector2(1f, 0.5f), new Vector2(ActW, 141f), new Vector2(-(CardPadR + ActW * 0.5f), 2f));
-            if (missed) Note(act, T("tasks.missed_short"), 0f, 141f);
+            if (welcome)
+            {
+                var wd = GoBtn(act, T("task.done"), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(ActW, 78f), Vector2.zero, WelcomeDone, 34);
+                _welcomeBtn = (RectTransform)wd.transform;   // "Yaptım" tanıtımı gerçek görevlere kalır; buradaki eli rehber gösterir
+            }
+            else if (missed) Note(act, T("tasks.missed_short"), 0f, 141f);
             else
             {
                 switch (s)

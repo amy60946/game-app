@@ -186,7 +186,7 @@ details.refs a{color:var(--sky);word-break:break-word}
   <div class="panel">
     <h2>Her adımda çalışan yardımcılar</h2>
     <ul>
-      <li><b>İpucu paneli</b> ekranın altında: adım numarası (oyundaki tek sayaç: yürü 1/20, etrafa bak 2/20, rehber 3/20 … 20/20 — kartlardaki numaralar bununla aynı), kısa cümle, "+XP", sesli okuma.</li>
+      <li><b>İpucu paneli</b> ekranın altında: adım numarası (oyundaki tek sayaç: yürü 1/19, etrafa bak 2/19, rehber 3/19 … 19/19 — kartlardaki numaralar bununla aynı), kısa cümle, "+XP", sesli okuma.</li>
       <li><b>El</b>: dokun (hedefe 3 kez), sürükle (eşyayı Okti'ye taşır, gider gelir), kaydır (yürü/bak).</li>
       <li><b>Yer okları</b>: çocuk 8 sn durursa altın oklar hedefe uzanır, hedefte zıplayan ok.</li>
       <li><b>Mavi önden uçar</b>: oklar açıkken Mavi hedefe uçup konar (Mavi geldikten sonra).</li>
@@ -270,17 +270,17 @@ const nodeColor = {w:"#8B5A2B",W:"#8B5A2B",b:"#5DAA3C",r:"#8A96A0",c:"#6B4423"};
 for (const [k,x,z] of nodes) { const c = document.createElementNS(NS,"circle"); const [px,py]=P(x,z);
   c.setAttribute("cx",px); c.setAttribute("cy",py); c.setAttribute("r", k==="W"?1.3:0.85); c.setAttribute("fill",nodeColor[k]); c.setAttribute("stroke","#fff"); c.setAttribute("stroke-width","0.3"); svg.appendChild(c); }
 const pins = [
-  {t:"1–2", x:0,z:-36.1, lab:"Başlangıç: besle, yıka", id:"feed", c:"var(--coral)", dx:2.6, dy:0},
-  {t:"3–5", x:0,z:-30, lab:"Evim", id:"home", c:"var(--coral)", dx:2.6, dy:0},
-  {t:"6–7", x:-22,z:-23, lab:"Dükkân", id:"shop", c:"var(--coral)", dx:-2.6, dy:-3.2, left:true},
-  {t:"8·10", x:-16.6,z:-23.4, lab:"Kıskaç", id:"kiskac", c:"var(--coral)", dx:2.8, dy:2.4},
-  {t:"9", x:-6,z:-57, lab:"Cevizler (kumsal)", id:"coconut", c:"var(--coral)", dx:2.6, dy:0},
-  {t:"11–12", x:-10,z:-17.5, lab:"Mavi gelir, hediye taş", id:"mavi", c:"var(--sky)", dx:-2.8, dy:-2.6, left:true},
-  {t:"13·15", x:14,z:-11.5, lab:"Kulübe yeri (sis)", id:"clear", c:"var(--sky)", dx:2.8, dy:-2},
-  {t:"14", x:18.5,z:-18, lab:"Malzeme", id:"gather", c:"var(--sky)", dx:2.6, dy:0.8},
-  {t:"16", x:17,z:-24, lab:"Ev Görevleri panosu", id:"board", c:"var(--sea)", dx:2.6, dy:1.2},
-  {t:"17", x:54,z:2, lab:"Kamp ateşi", id:"fire", c:"var(--sea)", dx:2.6, dy:0},
-  {t:"18", x:61,z:-37, lab:"Yüzme Koyu (sis)", id:"stone", c:"var(--sea)", dx:-2.6, dy:-3, left:true},
+  {t:"1–4", x:0,z:-36.1, lab:"Başlangıç: yürü, bak, besle, yıka", id:"feed", c:"var(--coral)", dx:2.6, dy:0},
+  {t:"5–7", x:0,z:-30, lab:"Evim", id:"home", c:"var(--coral)", dx:2.6, dy:0},
+  {t:"8–9", x:-22,z:-23, lab:"Dükkân", id:"shop", c:"var(--coral)", dx:-2.6, dy:-3.2, left:true},
+  {t:"10·12", x:-26.3,z:-28.8, lab:"Kıskaç", id:"kiskac", c:"var(--coral)", dx:-2.8, dy:2.4, left:true},
+  {t:"11", x:-6,z:-57, lab:"Cevizler (kumsal)", id:"coconut", c:"var(--coral)", dx:2.6, dy:0},
+  {t:"13", x:-16,z:-24, lab:"Adayı dolaş, Mavi gelir", id:"mavi", c:"var(--sky)", dx:2.8, dy:-2.6},
+  {t:"14", x:17,z:-24, lab:"Pano: hoş geldin görevi (taş)", id:"gift", c:"var(--sky)", dx:2.6, dy:1.2},
+  {t:"15·17", x:14,z:-11.5, lab:"Kulübe yeri (sis)", id:"clear", c:"var(--sky)", dx:2.8, dy:-2},
+  {t:"16", x:18.5,z:-18, lab:"Malzeme", id:"gather", c:"var(--sky)", dx:2.6, dy:0.8},
+  {t:"18", x:54,z:2, lab:"Kamp ateşi", id:"fire", c:"var(--sea)", dx:2.6, dy:0},
+  {t:"19", x:61,z:-37, lab:"Yüzme Koyu (sis)", id:"stone", c:"var(--sea)", dx:-2.6, dy:-3, left:true},
 ];
 for (const p of pins) {
   const g = document.createElementNS(NS,"g"); g.setAttribute("class","pin"); g.dataset.id = p.id; g.setAttribute("tabindex","0");
