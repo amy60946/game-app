@@ -65,5 +65,41 @@ namespace Pofi.Logic.Auth
         }
 
         public static bool IsWellFormed(string normalized) => normalized != null && normalized.Length == Length;
+
+        /// <summary>QR / bağlantı şeması (ortak akislar.md §2.0): <c>pofiadasi://baglan?kod=AB12CD</c>.</summary>
+        public const string Scheme = "pofiadasi://";
+
+        /// <summary>
+        /// Okunan QR ya da açılan bağlantıdan giriş kodu (26 Ekim 2026). Kabul: bizim şemamız (<c>pofiadasi://baglan?kod=…</c>, büyük/küçük
+        /// harf fark etmez) ya da yalnız kodun kendisi (boşluk/tire olabilir). Başka bağlantılar (https://…, başka şema) ve 6 karakter
+        /// tutmayan her şey null — kod denemesi sayılmaz.
+        /// </summary>
+        public static string FromScan(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return null;
+            var t = text.Trim();
+            if (t.IndexOf("://", System.StringComparison.Ordinal) >= 0)
+            {
+                if (!t.StartsWith(Scheme, System.StringComparison.OrdinalIgnoreCase)) return null;
+                var rest = t.Substring(Scheme.Length);
+                var q = rest.IndexOf('?');
+                if (q < 0) return null;
+                var path = rest.Substring(0, q).TrimEnd('/');
+                if (!string.Equals(path, "baglan", System.StringComparison.OrdinalIgnoreCase)) return null;
+                foreach (var part in rest.Substring(q + 1).Split('&'))
+                {
+                    var eq = part.IndexOf('=');
+                    if (eq <= 0 || !string.Equals(part.Substring(0, eq), "kod", System.StringComparison.OrdinalIgnoreCase)) continue;
+                    var code = Normalize(System.Uri.UnescapeDataString(part.Substring(eq + 1)));
+                    return IsWellFormed(code) ? code : null;
+                }
+                return null;
+            }
+            // yalnız kod: harf, rakam, boşluk ve tire dışında karakter varsa (cümle, adres) bizim değil
+            foreach (var c in t)
+                if (!(char.IsLetterOrDigit(c) && c < 128) && c != ' ' && c != '-') return null;
+            var raw = Normalize(t);
+            return IsWellFormed(raw) ? raw : null;
+        }
     }
 }

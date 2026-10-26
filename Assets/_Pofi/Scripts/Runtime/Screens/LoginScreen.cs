@@ -1,4 +1,5 @@
 using System;
+using Pofi.Core;
 using Pofi.Logic.Auth;
 using Pofi.Logic.Services;
 using Pofi.UI;
@@ -12,6 +13,9 @@ namespace Pofi.Screens
     /// Görünüş oyunun içindeki pencere diliyle aynı (24 Ekim 2026, kullanıcı; "E · Altın Atölye"): krem kart, üst kenarında
     /// mavi kurdele başlık, altın çerçeveli gömme kod kutusu (altında 6 harf yuvası), tek yeşil ana düğme, Baloo 2.
     /// Arkada kumsal (<see cref="World.Stage.SetBeach"/>), solda Okti.
+    /// QR (26 Ekim 2026, ortak akislar §2.0): iOS uygulamasında "QR okut" düğmesi (kamera okur, kod kutuya yazılır ve giriş başlar);
+    /// tarayıcı/bilgisayarda düğme yok, kod yazılır. Telefonun kendi kamerasıyla okutulan bağlantı (<see cref="DeepLink"/>) kodu yalnız
+    /// kutuya yazar: çocuk "Adaya gir"e basar.
     /// </summary>
     public sealed class LoginScreen : ScreenBase
     {
@@ -48,9 +52,14 @@ namespace Pofi.Screens
             _pips = Pips(card, new Vector2(0.5f, 0.44f));
             _error = Ui.Label(card, "", 32, Error, new Vector2(0.5f, 0.33f), new Vector2(780f, 90f), FontStyle.Bold);
 
-            _go = Candy.Pill(card, Candy.Green, T("auth.button"), new Vector2(0.5f, 0.14f), new Vector2(560f, 128f), Vector2.zero, Submit, null, 54);
+            var qr = QrScanner.Available;
+            _go = Candy.Pill(card, Candy.Green, T("auth.button"), new Vector2(0.5f, 0.14f), new Vector2(qr ? 460f : 560f, 128f), new Vector2(qr ? 150f : 0f, 0f), Submit, null, 54);
             _goPulse = _go.gameObject.AddComponent<Pulse>();
+            if (qr) Candy.Pill(card, new Color(1f, 0.96f, 0.86f), T("auth.qr_button"), new Vector2(0.5f, 0.14f), new Vector2(300f, 112f), new Vector2(-250f, 0f), ScanQr, "ui_qr", 40);
             SetReady(false);
+            var pending = DeepLink.Take();
+            if (pending != null) Prefill(pending);
+            DeepLink.Arrived += OnDeepLink;
 
             // Önizleme Mock arka uçla çalışır: deneme kodlarını göster.
             if (App.Router.DemoCodesEnabled)
@@ -148,9 +157,52 @@ namespace Pofi.Screens
                 App.OnSignedIn(r.Session);
                 return;
             }
-            _error.text = ErrorText(r.Error);
+            Note(ErrorText(r.Error), true);
             SetReady(true);
             App.Stage.Hop();
+        }
+
+        private void OnDestroy() => DeepLink.Arrived -= OnDeepLink;
+
+        private void OnDeepLink()
+        {
+            if (this == null || _busy) return;
+            var c = DeepLink.Take();
+            if (c != null) Prefill(c);
+        }
+
+        /// <summary>Bağlantıdan gelen kod: kutuya yazılır, giriş başlamaz (çocuk basar).</summary>
+        private void Prefill(string code)
+        {
+            _code.text = code;   // OnTyped: harf yuvaları + düğme hazır
+            Note(T("auth.qr_ready"), false);
+            Bump.Play(_go.transform, 0.3f);
+        }
+
+        /// <summary>Uygulama içi QR: okunan kod kutuya yazılır ve giriş hemen başlar (çocuk bilerek okuttu).</summary>
+        private void ScanQr()
+        {
+            if (_busy) return;
+            QrScanner.Scan(T("auth.qr_title"), T("auth.qr_cancel"), (text, reason) =>
+            {
+                if (this == null) return;
+                if (text == null)
+                {
+                    if (reason == "denied") Note(T("auth.qr_denied"), true);
+                    else if (reason == "nocamera") Note(T("auth.qr_nocamera"), true);
+                    return;
+                }
+                var code = ChildCode.FromScan(text);
+                if (code == null) { Note(T("auth.qr_wrong"), true); App.Stage.Hop(); return; }
+                _code.text = code;
+                Submit();
+            });
+        }
+
+        private void Note(string text, bool error)
+        {
+            _error.color = error ? Error : new Color(0.18f, 0.5f, 0.16f);
+            _error.text = text;
         }
 
         private string ErrorText(AuthErrorKind e)

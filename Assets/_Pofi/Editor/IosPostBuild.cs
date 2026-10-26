@@ -23,6 +23,8 @@ namespace Pofi.EditorTools
             root.SetBoolean("ITSAppUsesNonExemptEncryption", false);
             root.SetString("CFBundleDisplayName", "Pofi Adası");
             root.SetBoolean("UIRequiresFullScreen", true);
+            // QR okuma (PofiNative.mm PofiQrScan): kamera izni metni (yalnız giriş ekranında, görüntü kaydedilmez)
+            root.SetString("NSCameraUsageDescription", "Ailenin telefonundaki QR kodunu okuyup oyuna bağlanmak için. Görüntü kaydedilmez.");
             plist.WriteToFile(plistPath);
 
             // Keychain (PofiNative.mm, oturum belirteci) için Security.framework

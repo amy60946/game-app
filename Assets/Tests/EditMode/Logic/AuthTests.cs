@@ -17,6 +17,15 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual("AB12CD", ChildCode.Normalize(" ab 12-cd "));
             Assert.IsTrue(ChildCode.IsWellFormed("AB12CD"));
             Assert.IsFalse(ChildCode.IsWellFormed("AB12C"));
+            // QR / bağlantı (akislar §2.0)
+            Assert.AreEqual("AB12CD", ChildCode.FromScan("pofiadasi://baglan?kod=AB12CD"));
+            Assert.AreEqual("AB12CD", ChildCode.FromScan("POFIADASI://Baglan/?KOD=ab12cd"));
+            Assert.AreEqual("AB12CD", ChildCode.FromScan(" ab12-cd "));
+            Assert.IsNull(ChildCode.FromScan("https://example.com/baglan?kod=AB12CD"));
+            Assert.IsNull(ChildCode.FromScan("pofiadasi://baska?kod=AB12CD"));
+            Assert.IsNull(ChildCode.FromScan("pofiadasi://baglan?kod=AB12"));
+            Assert.IsNull(ChildCode.FromScan("Merhaba dünya!"));
+            Assert.IsNull(ChildCode.FromScan(""));
             Assert.AreEqual("", ChildCode.Normalize(null));
         }
 

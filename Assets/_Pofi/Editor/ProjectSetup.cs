@@ -65,6 +65,9 @@ namespace Pofi.EditorTools
             // iOS / TestFlight (15 Ekim 2026): tam ekran, durum çubuğu gizli, sürüm; imza Xcode'da otomatik (CI: tools/ci/ios-testflight.sh)
             PlayerSettings.bundleVersion = AppVersion;
             PlayerSettings.iOS.requiresFullScreen = true;
+            // QR ile bağlanma (26 Ekim 2026, ortak akislar §2.0): telefonun kamerasıyla okutulan pofiadasi://baglan?kod=… oyunu açar
+            PlayerSettings.iOS.iOSUrlSchemes = new[] { "pofiadasi" };
+            PlayerSettings.iOS.cameraUsageDescription = "Ailenin telefonundaki QR kodunu okuyup oyuna bağlanmak için. Görüntü kaydedilmez.";
             PlayerSettings.statusBarHidden = true;
             PlayerSettings.iOS.appleEnableAutomaticSigning = true;
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);

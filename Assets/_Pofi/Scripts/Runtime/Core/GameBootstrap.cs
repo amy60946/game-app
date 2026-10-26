@@ -139,6 +139,7 @@ namespace Pofi.Core
             Canvas = Ui.CreateCanvas("Canvas", 0);
             Overlay = Ui.CreateCanvas("Overlay", 10);
             Audio.Haptics.InitAudioSession();                        // iOS: sessiz düğmesine rağmen ses (WebGL'de index.html yapar)
+            DeepLink.Init();                                         // pofiadasi://baglan?kod= (QR; giriş ekranı kodu kutuya yazar)
             Audio.Music.Init(Audio.Music.DefaultVolume);           // arka plan müziği (ilk dokunuşta duyulur)
             var safeOverlay = Ui.Fill(Overlay.transform, "Safe");     // iPhone çentiği: köşe düğmeleri güvenli alanda
             safeOverlay.gameObject.AddComponent<SafeArea>();
