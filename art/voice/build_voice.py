@@ -142,7 +142,6 @@ def catalog():
 
 # Modelin yanlış okuduğu yazımlar (yalnız seslendirilen metin; ekrandaki metin ve anahtar aynı kalır)
 PRONOUNCE = {"Yaptım'a": "Yaptıma",            # 26 Ekim 2026: kesme işaretiyle "yaptığıma" okunuyordu
-             "Harika'ya": "Harikaya",          # "haykaya"
              "Arma (sırt yaması):": "Arma, sırt yaması:"}   # ayraç okunuşu bozuyordu
 
 
