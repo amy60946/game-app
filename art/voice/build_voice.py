@@ -139,8 +139,14 @@ def catalog():
 
 # ---------------------------------------------------------------- üretim
 
+# Modelin yanlış okuduğu yazımlar (yalnız seslendirilen metin; ekrandaki metin ve anahtar aynı kalır)
+PRONOUNCE = {"Yaptım'a": "Yaptıma"}   # 26 Ekim 2026: kesme işaretiyle "yaptığıma" okunuyordu
+
+
 def spoken(text):
     from trnorm import normalize as trn
+    for a, b in PRONOUNCE.items():
+        text = text.replace(a, b)
     return trn(text)   # sayılar yazıyla ("3 taş" → "üç taş"); başka değişiklik yapmaz
 
 
