@@ -110,7 +110,7 @@ namespace Pofi.Screens
                 var on = Suits[i][0] == SuitChoice;
                 var b = Candy.Round(box, on ? new Color(1f, 0.9f, 0.55f) : Candy.White, Suits[i][0], on ? 190f : 160f, new Vector2(0.5f, 0.36f),
                     new Vector2((i - 1) * 230f, 0f), () => { SuitChoice = Suits[k][0]; Audio.Sfx.Play(Audio.SfxKind.Tap); WearSuit(); Destroy(root.gameObject); Intro(); });
-                Candy.Caption(b.transform, App.Data.Item(Suits[i][0])?.Name ?? "", 24, new Vector2(0.5f, 0f), new Vector2(240f, 40f), new Vector2(0f, -26f));
+                Candy.Caption(b.transform, App.Data.Item(Suits[i][0])?.Name ?? "", 20, new Vector2(0.5f, 0f), new Vector2(210f, 34f), new Vector2(0f, -24f));
             }
             Ui.Button(box, Th, T("mg.start"), new Vector2(0.5f, 0.15f), new Vector2(560f, 130f), () => { Destroy(root.gameObject); Play(); },
                 true, default, 52, true, GoldKit.RibbonGreenBot);

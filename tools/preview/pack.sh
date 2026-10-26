@@ -16,8 +16,9 @@ for f in "$B"/*.part00; do [ -e "$f" ] || continue; base="${f%.part00}"; cat "$b
 cp "$B/PofiAdasi.loader.js" "$OUT/Build/"
 cp "$B/PofiAdasi.framework.js.unityweb" "$OUT/Build/PofiAdasi.framework.wasm"
 # Veri dosyası 14 MB'lık parçalara bölünür (önizleme sayfası tek dosyada 15 MB sınırı); sayfa parts.json'a göre birleştirir
-split -b 14000000 -d -a 1 "$B/PofiAdasi.data.unityweb" "$OUT/Build/PofiAdasi.data.part"
-n=0; for f in "$OUT"/Build/PofiAdasi.data.part[0-9]; do mv "$f" "$f.wasm"; n=$((n+1)); done
+# 26 Ekim 2026: veri 140 MB'ı aştı (10 parça) → iki haneli bölüp sayfanın beklediği sade numaraya (part0 … part12) çevir
+split -b 14000000 -d -a 2 "$B/PofiAdasi.data.unityweb" "$OUT/Build/PofiAdasi.data.part"
+n=0; for f in "$OUT"/Build/PofiAdasi.data.part[0-9][0-9]; do mv "$f" "$OUT/Build/PofiAdasi.data.part$n.wasm"; n=$((n+1)); done
 echo "{\"parts\": $n}" > "$OUT/Build/parts.json"
 cp "$B/PofiAdasi.wasm.unityweb" "$OUT/Build/PofiAdasi.code.wasm"
 cp "$ROOT/tools/preview/index.html" "$OUT/index.html"

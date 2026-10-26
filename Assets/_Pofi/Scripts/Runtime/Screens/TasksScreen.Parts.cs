@@ -202,6 +202,7 @@ namespace Pofi.Screens
             var n = Ui.Label(rew, "×" + stones, 39, Theme.Hex("#8A3B00"), new Vector2(0.5f, 1f), new Vector2(90f, 50f), FontStyle.Bold, TextAnchor.LowerRight, new Vector2(74f, -111f));
             n.rectTransform.pivot = new Vector2(1f, 0f);
             var o = n.gameObject.AddComponent<Outline>(); o.effectColor = Color.white; o.effectDistance = new Vector2(3f, -3f);
+            if (coins <= 0) return;   // Mavi'nin hoş geldin görevi yalnız taş verir
             var c = Ui.Label(rew, T("tasks.coin", coins), 25, Theme.Hex("#8A5A22"), new Vector2(0.5f, 0f), new Vector2(120f, 40f), FontStyle.Bold, TextAnchor.MiddleLeft);
             var cw = 39f + 4f + Mathf.Min(100f, c.preferredWidth);
             c.rectTransform.pivot = new Vector2(0f, 0.5f);

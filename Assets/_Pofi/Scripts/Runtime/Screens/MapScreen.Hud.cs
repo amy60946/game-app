@@ -448,7 +448,7 @@ namespace Pofi.Screens
             if (_tipGap < 2.5f) return;                                     // ipuçları arasında kısa nefes
             var st = App.State;
             var basicsDone = !Onboarding.Pending(st, Onboarding.Walk) && !Onboarding.Pending(st, Onboarding.Look);
-            if (basicsDone)
+            if (basicsDone && guide == null)   // rehber varken bağlamsal ipuçları (kapı, oyun yeri, parıltı) araya girmez: el rehberin hedefinde kalır
             {
                 if (_actionKey == "hud.enter") { Tip(Onboarding.Enter, TipGesture.Tap, () => UiScreen(_action)); if (_coach != null) return; }
                 if (_actionKey == "hud.play") { Tip(Onboarding.Play, TipGesture.Tap, () => UiScreen(_action)); if (_coach != null) return; }

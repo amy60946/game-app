@@ -492,7 +492,9 @@ namespace Pofi.Screens
             var st = App.State;
             var day = FirstDay.Current(st, App.LocalNow, App.UtcNow);
             if (Onboarding.Pending(st, Onboarding.TasksHome)) AddStep(_intro.Count, Onboarding.TasksHome, T("tip.tasks_home"), () => _evTitle, false);
-            if (_firstDone != null)
+            // Hoş geldin görevi açıkken el yalnız onu gösterir (UpdateWelcomeGuide); ailenin görevine "Yaptım" ipucu karışmaz.
+            var welcome = Guide.WelcomeTaskOpen(st, App.Level);
+            if (_firstDone != null && !welcome)
             {
                 if (Onboarding.Pending(st, Onboarding.TasksDone)) AddStep(_intro.Count, Onboarding.TasksDone, T("tip.tasks_done"), () => _firstDone, false);
                 else if (day == FirstDayStep.Mark && Onboarding.Pending(st, Onboarding.Mark)) AddStep(_intro.Count, Onboarding.Mark, T("tip.mark"), () => _firstDone, true);
@@ -512,6 +514,7 @@ namespace Pofi.Screens
         private void UpdateIntro()
         {
             if (_introAt < 0 || _firstDone == null || !Onboarding.Pending(App.State, Onboarding.TasksDone)) return;
+            if (Guide.WelcomeTaskOpen(App.State, App.Level)) return;
             if (_intro.Any(s => s.Id == Onboarding.TasksDone || s.Id == Onboarding.Mark)) return;
             AddStep(Mathf.Min(_introAt + 1, _intro.Count), Onboarding.TasksDone, T("tip.tasks_done"), () => _firstDone, false);
         }
