@@ -34,16 +34,16 @@ b5e05e98ebd8f7a9	adali	Harika! Tezgâhım yine şenlendi.
 46da488715ecd402	adali	Harika, teşekkürler!
 575ce0e1ebce08a3	okti	Sana yardım etmek çok güzeldi!
 41755806d2f4c910	okti	Çok güzeldi!
-1792395906e5ac4b	adali	Bak, gökyüzünde biri var... Postacı Mavi mi o?
-0e737976088173de	adali	Bak, gökyüzünde biri var!
+3aacfe7c508ca87f	adali	Hadi şimdi adayı biraz dolaş, bakalım kimlerle karşılaşacaksın!
+44ce6d9d664a98ce	adali	Hadi, adayı biraz dolaş!
 4214ec568063e929	adali	Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.
 afb1b8b7229e055e	adali	Evdeki büyüklerin buraya görev bırakır.
 72fcc3ff8aa6bbf3	adali	Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!
 a44c382dccc586d1	adali	Görevi yapınca Güneş Taşı gelir!
-215b521c675e039f	okti	Mavi'nin hediye ettiği taş gibi mi?
-2049ad35c1c15d58	okti	Hediye taş gibi mi?
-a3c9ef082c074623	adali	Evet! Bundan sonrakileri görev yaparak kazanırsın. Koydaki sis seni bekliyor!
-caaec36e252f5e62	adali	Görev yap, taşı kazan!
+1e84605228bee57f	okti	Mavi de bana bir görev bırakmış!
+7deecc6a2a733882	okti	Mavi'nin görevi burada!
+fdf32fb1a7effde2	adali	Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.
+58dfcf8d3c038cae	adali	Yaptım'a bas, taş senin!
 89322a00f0a4b63b	anlatici	Taştan bir ışık halkası yayıldı, sis geri çekildi.
 1ae19a171149155d	anlatici	Işık yayıldı, sis kalktı!
 04197bdca9ee64f9	okti	Bak! Su ne kadar turkuazmış!
@@ -59,10 +59,10 @@ d891c4d4459471ea	adali	Ben Mavi, postacıyım!
 53d552d4cd2aef90	adali	Mektuplar nerede kalacak?
 5eab34e9fa002b2c	okti	Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.
 381de71d99f97652	okti	Sana kulübe yaparım!
-0e0f269dd0615156	adali	Kulübemin yeri de sisin altında kaldı. Al, bu Güneş Taşı sana hediye!
-35d59ece6c081600	adali	Al, bu taş sana hediye!
-c2df5d94372505be	okti	Teşekkürler! Taşla sisi dağıtırım.
-d873150084216e9f	okti	Teşekkürler Mavi!
+75dda12e5285d87e	adali	Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!
+c6b667c7985a4e6c	adali	Panoya sana bir görev bıraktım!
+8ec655319b977d84	okti	Hemen panoya gidiyorum!
+693a90667b306925	okti	Panoya gidiyorum!
 31fe7b02ee1e8a6b	anlatici	Taştan bir ışık yayıldı, sis yavaşça çekildi.
 b99d574d368b6440	adali	İşte kulübemin yeri! Odun, dal ve taş toplayalım mı?
 19b535f16bf4e6be	adali	Kulübemin yeri açıldı!
@@ -211,10 +211,33 @@ add097760df22d24	anlatici	Okti'ye dokun, sabunu seç: tertemiz olsun!
 bf34ad2751ded534	anlatici	Okti'nin üstüne dokun, aksesuarını tak.
 5a5dff4822093ac7	anlatici	Ev Görevleri panosuna git: yeni taşlar burada!
 384353bbc381e0a8	anlatici	Kulübe için odun, dal ve taş topla.
-0c1ecedab996c52b	anlatici	Şantiyeye git, kulübeyi yap!
+943286e24c75987c	anlatici	Kulübenin oraya ilerle ve yapımına başla.
 19cc35099b517b5b	anlatici	2 hindistan cevizi bul: kumsalda ara ya da bahçede oyna.
 9c50bb1715dc8ca3	anlatici	Dükkâna git: ilk aksesuarını al!
 21bd65f3eb97c215	anlatici	Görevle kazandığın taşı koydaki sise götür!
+3e42622012a522ba	anlatici	Sağ alttaki Gir tuşuna bas!
+0d499b48cbad5f33	anlatici	Sağ alttaki Oyna tuşuna bas!
+ae63c206a5650a60	anlatici	Sağ alttaki Topla tuşuna bas!
+a0843d1d78fae21b	anlatici	Sağ alttaki Kes tuşuna bas!
+be59921560b2327c	anlatici	Sağ alttaki Kır tuşuna bas!
+284ce09e92499452	anlatici	Sağ alttaki İnşa et tuşuna bas!
+a01b266d7665770b	anlatici	Sağ alttaki Taşı koy tuşuna bas!
+f1145c044c0ceea7	anlatici	Sağ alttaki Odun at tuşuna bas!
+682121c3b028a540	anlatici	Elmaya dokun!
+c25956b78f1ca27f	anlatici	Sabuna dokun!
+0a630faafde2e345	anlatici	Giydir'e dokun!
+f7857440d382b0e7	anlatici	Çarpıya bas, adaya dön!
+1a633b38f631ceaf	anlatici	Harika'ya bas!
+e020978d88ffbf72	anlatici	Aksesuarının yerine dokun!
+8f5a80b322181eda	anlatici	Yuvarlak gözlük: dokun, tak!
+dfb24fed975ed4f5	anlatici	Güneş gözlüğü: dokun, tak!
+05bde2e72d8146df	anlatici	Çizgili tişört: dokun, tak!
+59836e3dca47bb2e	anlatici	Çiçekli gömlek: dokun, tak!
+f0161034a85b9119	anlatici	Denizci önlüğü: dokun, tak!
+47e1232d15517713	anlatici	Örgü atkı: dokun, tak!
+a71d6dafd2d65bb3	anlatici	Arma (sırt yaması): dokun, tak!
+76f359df57cf1ad1	anlatici	Bayrakçık: dokun, tak!
+fd1d46ca86e25f39	anlatici	Kova şapka: dokun, tak!
 e6660ad2dc4dfa59	anlatici	Görevi yapınca Yaptım'a bas!
 970acf480b821ac6	anlatici	Güneş Taşını yerleştir, sis kalksın!
 9095eb9334346648	anlatici	Sisli yere git, taşı koy!
@@ -231,7 +254,7 @@ e3ca72e419c1755a	anlatici	Malzemeler tamam! Kulübe yerine git.
 9539ce0707d58e71	anlatici	Bu aksesuar sana yeter! Seçili, Al'a bas.
 9856eb4453e0e995	anlatici	Kıskaç seni bekliyor: yanına git!
 e3a06c0eda726064	anlatici	Hindistan cevizlerini Kıskaç'a götür!
-df12febcc85bf2b6	anlatici	Gökyüzüne bak: biri sana uçuyor!
+a1beb4eeba77c751	anlatici	Adayı biraz dolaş, keşfet!
 efc20cc54f3c4c1a	anlatici	Kıskaç'tan hoş geldin hediyesi: 20 coin! İlk aksesuarını alabilirsin.
 d0d374892a320aeb	anlatici	Bir hindistan cevizi buldun!
 1a1ea375f8122f0c	anlatici	2 hindistan cevizin oldu! Kıskaç'a götür.
@@ -239,14 +262,16 @@ d0d374892a320aeb	anlatici	Bir hindistan cevizi buldun!
 79972de144eb410f	anlatici	Bir ödüle dokun, sonra İste'ye bas!
 bc46eaf845ecadc7	anlatici	İlk isteğin ailene gitti! Onaylayınca sana haber gelir.
 313d92e501a0422f	anlatici	Yeni: Gerçek ödüller! Dükkâna git.
-e22b80986b55c58c	anlatici	Kamp ateşine 2 odun götür, harla!
+29ea2b984e312fa0	anlatici	Kamp ateşine git, 2 odun at!
 7c8eb6d20a94bc82	anlatici	Kocaman kütük! Baltayla birkaç kez vur, çok odun verir.
 3fe00c763f29306f	anlatici	Nereye gideceğini bulamadın mı? Haritaya bak!
 a8110c0f5a27aa33	anlatici	Sarı im, gideceğin yeri gösterir. İme dokun, oklar yolu göstersin!
 d025870943186928	adali	Merhaba evlat. Acele etme, deniz hep bekler.
 f51a4cf15e01efd6	adali	Merhaba Okti! Bugün cevizlerimiz çok tatlı!
 9a657605eb7a798d	adali	Çok tatlı... Merhaba.
-0582d69da801cb63	anlatici	Mavi sana bir hediye getirdi!
-8402e77d32b16696	anlatici	Hediye taşı kulübe yerine götür, sisi dağıt!
+5fa2b5914c88bf64	anlatici	Mavi panoya sana bir görev bıraktı: panoya git!
+33b4de6a39fafe56	anlatici	Hediye Güneş Taşı'nı kullanarak sisi dağıt, kulübe açığa çıksın!
+78719aeee332a8e4	okti	Ben meraklı ve şakacı bir ahtapotum. Seninle adayı keşfetmek istiyorum.
+475b309b96a69b31	anlatici	Mavi'nin görevini yaptın! Yaptım'a bas.
 8d4c5d1cb1a05d97	anlatici	Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.
-1d590e810e4d47f9	anlatici	Bu ilk taş Mavi'den sana hediye! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.
+11eee713d3d2d797	anlatici	Hoş geldin görevini yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.

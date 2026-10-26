@@ -400,25 +400,25 @@
    "cer": 0.0
   },
   {
-   "key": "1792395906e5ac4b",
-   "text": "Bak, gökyüzünde biri var... Postacı Mavi mi o?",
+   "key": "3aacfe7c508ca87f",
+   "text": "Hadi şimdi adayı biraz dolaş, bakalım kimlerle karşılaşacaksın!",
    "role": "adali",
    "src": "story:ch1_thanks:2:text",
    "who": "kiskac",
-   "tts": "Bak, gökyüzünde biri var... Postacı Mavi mi o?",
-   "sec": 3.52,
-   "seed": 100,
+   "tts": "Hadi şimdi adayı biraz dolaş, bakalım kimlerle karşılaşacaksın!",
+   "sec": 3.27,
+   "seed": 101,
    "cer": 0.0
   },
   {
-   "key": "0e737976088173de",
-   "text": "Bak, gökyüzünde biri var!",
+   "key": "44ce6d9d664a98ce",
+   "text": "Hadi, adayı biraz dolaş!",
    "role": "adali",
    "src": "story:ch1_thanks:2:a",
    "who": "kiskac",
-   "tts": "Bak, gökyüzünde biri var!",
-   "sec": 5.04,
-   "seed": 7,
+   "tts": "Hadi, adayı biraz dolaş!",
+   "sec": 4.64,
+   "seed": 100,
    "cer": 0.0
   },
   {
@@ -466,48 +466,48 @@
    "cer": 0.032
   },
   {
-   "key": "215b521c675e039f",
-   "text": "Mavi'nin hediye ettiği taş gibi mi?",
+   "key": "1e84605228bee57f",
+   "text": "Mavi de bana bir görev bırakmış!",
    "role": "okti",
    "src": "story:ch1_board:2:text",
    "who": "okti",
-   "tts": "Mavi'nin hediye ettiği taş gibi mi?",
-   "sec": 2.91,
+   "tts": "Mavi de bana bir görev bırakmış!",
+   "sec": 2.13,
    "seed": 7,
    "cer": 0.0
   },
   {
-   "key": "2049ad35c1c15d58",
-   "text": "Hediye taş gibi mi?",
+   "key": "7deecc6a2a733882",
+   "text": "Mavi'nin görevi burada!",
    "role": "okti",
    "src": "story:ch1_board:2:a",
    "who": "okti",
-   "tts": "Hediye taş gibi mi?",
-   "sec": 3.83,
+   "tts": "Mavi'nin görevi burada!",
+   "sec": 4.31,
    "seed": 7,
    "cer": 0.0
   },
   {
-   "key": "a3c9ef082c074623",
-   "text": "Evet! Bundan sonrakileri görev yaparak kazanırsın. Koydaki sis seni bekliyor!",
+   "key": "fdf32fb1a7effde2",
+   "text": "Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
    "role": "adali",
    "src": "story:ch1_board:3:text",
    "who": "kiskac",
-   "tts": "Evet! Bundan sonrakileri görev yaparak kazanırsın. Koydaki sis seni bekliyor!",
-   "sec": 4.66,
+   "tts": "Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
+   "sec": 5.04,
    "seed": 7,
-   "cer": 0.014
+   "cer": 0.056
   },
   {
-   "key": "caaec36e252f5e62",
-   "text": "Görev yap, taşı kazan!",
+   "key": "58dfcf8d3c038cae",
+   "text": "Yaptım'a bas, taş senin!",
    "role": "adali",
    "src": "story:ch1_board:3:a",
    "who": "kiskac",
-   "tts": "Görev yap, taşı kazan!",
-   "sec": 2.68,
-   "seed": 7,
-   "cer": 0.0
+   "tts": "Yaptım'a bas, taş senin!",
+   "sec": 2.0,
+   "seed": 101,
+   "cer": 0.095
   },
   {
    "key": "89322a00f0a4b63b",
@@ -675,47 +675,47 @@
    "cer": 0.0
   },
   {
-   "key": "0e0f269dd0615156",
-   "text": "Kulübemin yeri de sisin altında kaldı. Al, bu Güneş Taşı sana hediye!",
+   "key": "75dda12e5285d87e",
+   "text": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!",
    "role": "adali",
    "src": "story:ch2_open:4:text",
    "who": "mavi",
-   "tts": "Kulübemin yeri de sisin altında kaldı. Al, bu Güneş Taşı sana hediye!",
-   "sec": 4.81,
-   "seed": 101,
-   "cer": 0.015
+   "tts": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!",
+   "sec": 12.65,
+   "seed": 100,
+   "cer": 0.026
   },
   {
-   "key": "35d59ece6c081600",
-   "text": "Al, bu taş sana hediye!",
+   "key": "c6b667c7985a4e6c",
+   "text": "Panoya sana bir görev bıraktım!",
    "role": "adali",
    "src": "story:ch2_open:4:a",
    "who": "mavi",
-   "tts": "Al, bu taş sana hediye!",
-   "sec": 3.64,
+   "tts": "Panoya sana bir görev bıraktım!",
+   "sec": 1.77,
+   "seed": 106,
+   "cer": 0.0
+  },
+  {
+   "key": "8ec655319b977d84",
+   "text": "Hemen panoya gidiyorum!",
+   "role": "okti",
+   "src": "story:ch2_open:5:text",
+   "who": "okti",
+   "tts": "Hemen panoya gidiyorum!",
+   "sec": 1.59,
    "seed": 7,
    "cer": 0.0
   },
   {
-   "key": "c2df5d94372505be",
-   "text": "Teşekkürler! Taşla sisi dağıtırım.",
-   "role": "okti",
-   "src": "story:ch2_open:5:text",
-   "who": "okti",
-   "tts": "Teşekkürler! Taşla sisi dağıtırım.",
-   "sec": 2.12,
-   "seed": 100,
-   "cer": 0.031
-  },
-  {
-   "key": "d873150084216e9f",
-   "text": "Teşekkürler Mavi!",
+   "key": "693a90667b306925",
+   "text": "Panoya gidiyorum!",
    "role": "okti",
    "src": "story:ch2_open:5:a",
    "who": "okti",
-   "tts": "Teşekkürler Mavi!",
-   "sec": 2.31,
-   "seed": 7,
+   "tts": "Panoya gidiyorum!",
+   "sec": 2.54,
+   "seed": 103,
    "cer": 0.0
   },
   {
@@ -2347,15 +2347,15 @@
    "cer": 0.03
   },
   {
-   "key": "0c1ecedab996c52b",
-   "text": "Şantiyeye git, kulübeyi yap!",
+   "key": "943286e24c75987c",
+   "text": "Kulübenin oraya ilerle ve yapımına başla.",
    "role": "anlatici",
    "src": "tr:guide.hut",
    "who": "narrator",
-   "tts": "Şantiyeye git, kulübeyi yap!",
-   "sec": 2.69,
-   "seed": 102,
-   "cer": 0.077
+   "tts": "Kulübenin oraya ilerle ve yapımına başla.",
+   "sec": 2.31,
+   "seed": 7,
+   "cer": 0.025
   },
   {
    "key": "19cc35099b517b5b",
@@ -2389,6 +2389,259 @@
    "sec": 4.78,
    "seed": 7,
    "cer": 0.0
+  },
+  {
+   "key": "3e42622012a522ba",
+   "text": "Sağ alttaki Gir tuşuna bas!",
+   "role": "anlatici",
+   "src": "tr:guide.press:Gir",
+   "who": "narrator",
+   "tts": "Sağ alttaki Gir tuşuna bas!",
+   "sec": 1.72,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "0d499b48cbad5f33",
+   "text": "Sağ alttaki Oyna tuşuna bas!",
+   "role": "anlatici",
+   "src": "tr:guide.press:Oyna",
+   "who": "narrator",
+   "tts": "Sağ alttaki Oyna tuşuna bas!",
+   "sec": 2.12,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "ae63c206a5650a60",
+   "text": "Sağ alttaki Topla tuşuna bas!",
+   "role": "anlatici",
+   "src": "tr:guide.press:Topla",
+   "who": "narrator",
+   "tts": "Sağ alttaki Topla tuşuna bas!",
+   "sec": 2.04,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "a0843d1d78fae21b",
+   "text": "Sağ alttaki Kes tuşuna bas!",
+   "role": "anlatici",
+   "src": "tr:guide.press:Kes",
+   "who": "narrator",
+   "tts": "Sağ alttaki Kes tuşuna bas!",
+   "sec": 1.96,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "be59921560b2327c",
+   "text": "Sağ alttaki Kır tuşuna bas!",
+   "role": "anlatici",
+   "src": "tr:guide.press:Kır",
+   "who": "narrator",
+   "tts": "Sağ alttaki Kır tuşuna bas!",
+   "sec": 2.04,
+   "seed": 102,
+   "cer": 0.077
+  },
+  {
+   "key": "284ce09e92499452",
+   "text": "Sağ alttaki İnşa et tuşuna bas!",
+   "role": "anlatici",
+   "src": "tr:guide.press:İnşa et",
+   "who": "narrator",
+   "tts": "Sağ alttaki İnşa et tuşuna bas!",
+   "sec": 3.2,
+   "seed": 100,
+   "cer": 0.0
+  },
+  {
+   "key": "a01b266d7665770b",
+   "text": "Sağ alttaki Taşı koy tuşuna bas!",
+   "role": "anlatici",
+   "src": "tr:guide.press:Taşı koy",
+   "who": "narrator",
+   "tts": "Sağ alttaki Taşı koy tuşuna bas!",
+   "sec": 1.88,
+   "seed": 101,
+   "cer": 0.0
+  },
+  {
+   "key": "f1145c044c0ceea7",
+   "text": "Sağ alttaki Odun at tuşuna bas!",
+   "role": "anlatici",
+   "src": "tr:guide.press:Odun at",
+   "who": "narrator",
+   "tts": "Sağ alttaki Odun at tuşuna bas!",
+   "sec": 1.92,
+   "seed": 104,
+   "cer": 0.0
+  },
+  {
+   "key": "682121c3b028a540",
+   "text": "Elmaya dokun!",
+   "role": "anlatici",
+   "src": "tr:guide.pick_feed",
+   "who": "narrator",
+   "tts": "Elmaya dokun!",
+   "sec": 0.98,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "c25956b78f1ca27f",
+   "text": "Sabuna dokun!",
+   "role": "anlatici",
+   "src": "tr:guide.pick_wash",
+   "who": "narrator",
+   "tts": "Sabuna dokun!",
+   "sec": 2.8,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "0a630faafde2e345",
+   "text": "Giydir'e dokun!",
+   "role": "anlatici",
+   "src": "tr:guide.pick_wear",
+   "who": "narrator",
+   "tts": "Giydir'e dokun!",
+   "sec": 0.91,
+   "seed": 101,
+   "cer": 0.0
+  },
+  {
+   "key": "f7857440d382b0e7",
+   "text": "Çarpıya bas, adaya dön!",
+   "role": "anlatici",
+   "src": "tr:guide.close",
+   "who": "narrator",
+   "tts": "Çarpıya bas, adaya dön!",
+   "sec": 3.92,
+   "seed": 104,
+   "cer": 0.0
+  },
+  {
+   "key": "1a633b38f631ceaf",
+   "text": "Harika'ya bas!",
+   "role": "anlatici",
+   "src": "tr:guide.levelup_ok",
+   "who": "narrator",
+   "tts": "Harika'ya bas!",
+   "sec": 1.02,
+   "seed": 7,
+   "cer": 0.167
+  },
+  {
+   "key": "e020978d88ffbf72",
+   "text": "Aksesuarının yerine dokun!",
+   "role": "anlatici",
+   "src": "tr:guide.wear_slot",
+   "who": "narrator",
+   "tts": "Aksesuarının yerine dokun!",
+   "sec": 3.84,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "8f5a80b322181eda",
+   "text": "Yuvarlak gözlük: dokun, tak!",
+   "role": "anlatici",
+   "src": "tr:guide.wear_item:Yuvarlak gözlük",
+   "who": "narrator",
+   "tts": "Yuvarlak gözlük: dokun, tak!",
+   "sec": 2.36,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "dfb24fed975ed4f5",
+   "text": "Güneş gözlüğü: dokun, tak!",
+   "role": "anlatici",
+   "src": "tr:guide.wear_item:Güneş gözlüğü",
+   "who": "narrator",
+   "tts": "Güneş gözlüğü: dokun, tak!",
+   "sec": 2.36,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "05bde2e72d8146df",
+   "text": "Çizgili tişört: dokun, tak!",
+   "role": "anlatici",
+   "src": "tr:guide.wear_item:Çizgili tişört",
+   "who": "narrator",
+   "tts": "Çizgili tişört: dokun, tak!",
+   "sec": 2.24,
+   "seed": 101,
+   "cer": 0.042
+  },
+  {
+   "key": "59836e3dca47bb2e",
+   "text": "Çiçekli gömlek: dokun, tak!",
+   "role": "anlatici",
+   "src": "tr:guide.wear_item:Çiçekli gömlek",
+   "who": "narrator",
+   "tts": "Çiçekli gömlek: dokun, tak!",
+   "sec": 2.4,
+   "seed": 103,
+   "cer": 0.0
+  },
+  {
+   "key": "f0161034a85b9119",
+   "text": "Denizci önlüğü: dokun, tak!",
+   "role": "anlatici",
+   "src": "tr:guide.wear_item:Denizci önlüğü",
+   "who": "narrator",
+   "tts": "Denizci önlüğü: dokun, tak!",
+   "sec": 2.12,
+   "seed": 7,
+   "cer": 0.042
+  },
+  {
+   "key": "47e1232d15517713",
+   "text": "Örgü atkı: dokun, tak!",
+   "role": "anlatici",
+   "src": "tr:guide.wear_item:Örgü atkı",
+   "who": "narrator",
+   "tts": "Örgü atkı: dokun, tak!",
+   "sec": 2.36,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "a71d6dafd2d65bb3",
+   "text": "Arma (sırt yaması): dokun, tak!",
+   "role": "anlatici",
+   "src": "tr:guide.wear_item:Arma (sırt yaması)",
+   "who": "narrator",
+   "tts": "Arma (sırt yaması): dokun, tak!",
+   "sec": 2.48,
+   "seed": 7,
+   "cer": 0.077
+  },
+  {
+   "key": "76f359df57cf1ad1",
+   "text": "Bayrakçık: dokun, tak!",
+   "role": "anlatici",
+   "src": "tr:guide.wear_item:Bayrakçık",
+   "who": "narrator",
+   "tts": "Bayrakçık: dokun, tak!",
+   "sec": 2.64,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "fd1d46ca86e25f39",
+   "text": "Kova şapka: dokun, tak!",
+   "role": "anlatici",
+   "src": "tr:guide.wear_item:Kova şapka",
+   "who": "narrator",
+   "tts": "Kova şapka: dokun, tak!",
+   "sec": 4.2,
+   "seed": 7,
+   "cer": 0.05
   },
   {
    "key": "e6660ad2dc4dfa59",
@@ -2567,14 +2820,14 @@
    "cer": 0.0
   },
   {
-   "key": "df12febcc85bf2b6",
-   "text": "Gökyüzüne bak: biri sana uçuyor!",
+   "key": "a1beb4eeba77c751",
+   "text": "Adayı biraz dolaş, keşfet!",
    "role": "anlatici",
    "src": "tr:guide.mavi",
    "who": "narrator",
-   "tts": "Gökyüzüne bak: biri sana uçuyor!",
-   "sec": 2.6,
-   "seed": 100,
+   "tts": "Adayı biraz dolaş, keşfet!",
+   "sec": 2.72,
+   "seed": 7,
    "cer": 0.0
   },
   {
@@ -2655,13 +2908,13 @@
    "cer": 0.032
   },
   {
-   "key": "e22b80986b55c58c",
-   "text": "Kamp ateşine 2 odun götür, harla!",
+   "key": "29ea2b984e312fa0",
+   "text": "Kamp ateşine git, 2 odun at!",
    "role": "anlatici",
    "src": "tr:guide.fire",
    "who": "narrator",
-   "tts": "Kamp ateşine iki odun götür, harla!",
-   "sec": 3.28,
+   "tts": "Kamp ateşine git, iki odun at!",
+   "sec": 4.64,
    "seed": 7,
    "cer": 0.0
   },
@@ -2732,26 +2985,48 @@
    "cer": 0.0
   },
   {
-   "key": "0582d69da801cb63",
-   "text": "Mavi sana bir hediye getirdi!",
+   "key": "5fa2b5914c88bf64",
+   "text": "Mavi panoya sana bir görev bıraktı: panoya git!",
    "role": "anlatici",
    "src": "tr:guide.gift",
    "who": "narrator",
-   "tts": "Mavi sana bir hediye getirdi!",
-   "sec": 2.6,
+   "tts": "Mavi panoya sana bir görev bıraktı: panoya git!",
+   "sec": 4.48,
    "seed": 7,
    "cer": 0.0
   },
   {
-   "key": "8402e77d32b16696",
-   "text": "Hediye taşı kulübe yerine götür, sisi dağıt!",
+   "key": "33b4de6a39fafe56",
+   "text": "Hediye Güneş Taşı'nı kullanarak sisi dağıt, kulübe açığa çıksın!",
    "role": "anlatici",
    "src": "tr:guide.clear",
    "who": "narrator",
-   "tts": "Hediye taşı kulübe yerine götür, sisi dağıt!",
-   "sec": 3.44,
-   "seed": 100,
-   "cer": 0.024
+   "tts": "Hediye Güneş Taşı'nı kullanarak sisi dağıt, kulübe açığa çıksın!",
+   "sec": 4.2,
+   "seed": 7,
+   "cer": 0.016
+  },
+  {
+   "key": "78719aeee332a8e4",
+   "text": "Ben meraklı ve şakacı bir ahtapotum. Seninle adayı keşfetmek istiyorum.",
+   "role": "okti",
+   "src": "tr:pet.meet_intro",
+   "who": "okti",
+   "tts": "Ben meraklı ve şakacı bir ahtapotum. Seninle adayı keşfetmek istiyorum.",
+   "sec": 4.83,
+   "seed": 7,
+   "cer": 0.0
+  },
+  {
+   "key": "475b309b96a69b31",
+   "text": "Mavi'nin görevini yaptın! Yaptım'a bas.",
+   "role": "anlatici",
+   "src": "tr:welcome_task.tip",
+   "who": "narrator",
+   "tts": "Mavi'nin görevini yaptın! Yaptım'a bas.",
+   "sec": 2.28,
+   "seed": 7,
+   "cer": 0.057
   },
   {
    "key": "8d4c5d1cb1a05d97",
@@ -2765,15 +3040,15 @@
    "cer": 0.009
   },
   {
-   "key": "1d590e810e4d47f9",
-   "text": "Bu ilk taş Mavi'den sana hediye! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
+   "key": "11eee713d3d2d797",
+   "text": "Hoş geldin görevini yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
    "role": "anlatici",
    "src": "tr:gift.card",
    "who": "narrator",
-   "tts": "Bu ilk taş Mavi'den sana hediye! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
-   "sec": 7.28,
-   "seed": 7,
-   "cer": 0.024
+   "tts": "Hoş geldin görevini yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
+   "sec": 8.37,
+   "seed": 101,
+   "cer": 0.0
   }
  ]
 }
