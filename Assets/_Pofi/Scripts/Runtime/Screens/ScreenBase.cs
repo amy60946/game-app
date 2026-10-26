@@ -242,7 +242,8 @@ namespace Pofi.Screens
             var wait = _gateLock.Remaining(System.DateTime.UtcNow);
             if (wait > System.TimeSpan.Zero) { onFail?.Invoke(T("gate.wait", (int)System.Math.Ceiling(wait.TotalSeconds))); return; }
             App.Stage.AllowDrag = false;
-            var ch = Logic.Safety.ParentGate.Create(App.Session.AgeBand, new System.Random());
+            // giriş ekranında (QR izni) henüz oturum yok: soru zaten her bantta aynı zorlukta
+            var ch = Logic.Safety.ParentGate.Create(App.Session != null ? App.Session.AgeBand : Logic.Profile.AgeBand.C, new System.Random());
             RectTransform root = null;
             void Close() { if (root != null) Destroy(root.gameObject); App.Stage.AllowDrag = true; }
             root = Modal(860f, out var box, true, Close);

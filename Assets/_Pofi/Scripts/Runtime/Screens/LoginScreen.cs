@@ -179,10 +179,23 @@ namespace Pofi.Screens
             Bump.Play(_go.transform, 0.3f);
         }
 
-        /// <summary>Uygulama içi QR: okunan kod kutuya yazılır ve giriş hemen başlar (çocuk bilerek okuttu).</summary>
+        private const string QrGateKey = "pofi.qr.gate";
+
+        /// <summary>
+        /// Uygulama içi QR: okunan kod kutuya yazılır ve giriş hemen başlar (çocuk bilerek okuttu). Kamera ilk kez istenmeden önce
+        /// ebeveyn kapısı (ClinicApp/ParentApp ile ortak karar, 26 Ekim 2026: "kamera izni ebeveyn kapısı kuralına uygun"); geçildikten
+        /// sonra bu cihazda yeniden sorulmaz (izin sistemde kalır).
+        /// </summary>
         private void ScanQr()
         {
             if (_busy) return;
+            if (PlayerPrefs.GetInt(QrGateKey, 0) == 1) { OpenScanner(); return; }
+            ParentGate(() => { PlayerPrefs.SetInt(QrGateKey, 1); PlayerPrefs.Save(); OpenScanner(); }, msg => Note(msg, true));
+        }
+
+        private void OpenScanner()
+        {
+            if (_busy || this == null) return;
             QrScanner.Scan(T("auth.qr_title"), T("auth.qr_cancel"), (text, reason) =>
             {
                 if (this == null) return;
