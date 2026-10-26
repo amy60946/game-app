@@ -815,14 +815,45 @@ namespace Pofi.Screens
                 yield return null;
             }
             if (_hudGroup != null) _hudGroup.alpha = 0f;
-            yield return new WaitForSeconds(0.8f);
+            // zengin kalkış (akış haritası yorumu, 25 Ekim 2026: "daha detaylı ve zengin"): Okti taşı havaya kaldırır, taş parlayan bir
+            // kuyrukla yay çizip sisin ortasına iner; yere çakılınca ışık sütunu yükselir, zeminde altın halkalar yayılır, sisin
+            // içinde sırayla parıltılar patlar; sis dönerek yükselip söner, bölge renklenir, sonunda konfeti
+            _world.Walker.Cheer();
+            yield return new WaitForSeconds(0.35f);
+            var orb = GainFx.Glow(_world.transform, GainFx.StoneColor, 1.4f, false);
+            var from = pet + Vector3.up * 1.6f;
+            var trail = new List<Transform>();
+            Audio.Sfx.Play(Audio.SfxKind.Pop);
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 0.9f)
+            {
+                var e = t * t * (3f - 2f * t);
+                var pos = Vector3.Lerp(from, c + Vector3.up * 0.4f, e) + Vector3.up * Mathf.Sin(e * Mathf.PI) * (2.5f + size * 0.25f);
+                orb.position = pos;
+                orb.localScale = Vector3.one * (0.7f + Mathf.Sin(t * 30f) * 0.08f);
+                if (trail.Count < 14 && t * 14f > trail.Count)
+                {
+                    var tr = GainFx.Glow(_world.transform, GainFx.StoneColor, 0.6f, false);
+                    tr.position = pos; tr.localScale = Vector3.one * 0.45f;
+                    trail.Add(tr);
+                }
+                foreach (var tr in trail) if (tr != null) tr.localScale *= 0.93f;
+                yield return null;
+            }
+            foreach (var tr in trail) if (tr != null) Destroy(tr.gameObject);
+            Destroy(orb.gameObject);
             // ışık patlaması + sis dağılır
             Audio.Sfx.Play(Audio.SfxKind.Chime);
             Audio.Haptics.Medium();
+            World.HitStop.Do();
             var glow = GainFx.Glow(_world.transform, GainFx.StoneColor, 1.2f, false);
             glow.position = c + Vector3.up * 1.2f;
+            var pillar = GainFx.Glow(_world.transform, new Color(1f, 0.92f, 0.6f), 1.6f, false);   // ışık sütunu
+            pillar.position = c + Vector3.up * 3f;
+            Ripple.Spawn(c + Vector3.up * 0.05f, size * 0.55f, 3, new Color(1f, 0.85f, 0.4f));
             var sp = App.Stage.Camera.WorldToScreenPoint(c + Vector3.up * 1.5f);
             StarSparkles.Around(Root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.2f, 0.26f), 14, 23);
+            var bursts = 0;
+            var rnd = new System.Random(fogKey.GetHashCode());
             _world.Fog.TryGetValue(fogKey, out var fog);
             var bank = fog != null ? fog.GetComponent<FogBank>() : null;   // GB18 yer sisi: yükselip söner
             var clouds = new List<(Transform T, Vector3 P, Vector3 S)>();
@@ -830,11 +861,24 @@ namespace Pofi.Screens
             var region = _world.Regions.TryGetValue(fogKey, out var rt) ? rt : null;
             var mpb = new MaterialPropertyBlock();
             var rends = region != null ? region.GetComponentsInChildren<Renderer>(true) : new Renderer[0];
-            for (var t = 0f; t < 1f; t += Time.deltaTime / 1.6f)
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 2.2f)
             {
                 var e = t * t * (3f - 2f * t);
                 glow.localScale = Vector3.one * Mathf.Lerp(0.5f, size * 1.6f, e);
+                pillar.localScale = new Vector3(Mathf.Lerp(1.6f, 0.2f, e), Mathf.Lerp(3f, 9f, e), Mathf.Lerp(1.6f, 0.2f, e));
                 if (bank != null) bank.SetLift(e);
+                // sisin içinde sırayla parıltı patlamaları (5 kez)
+                if (bursts < 5 && t > bursts * 0.16f)
+                {
+                    bursts++;
+                    var a = (float)rnd.NextDouble() * Mathf.PI * 2f; var r = (0.3f + (float)rnd.NextDouble() * 0.6f) * size * 0.5f;
+                    var bp = c + new Vector3(Mathf.Cos(a) * r, 0.8f + (float)rnd.NextDouble() * 1.5f, Mathf.Sin(a) * r);
+                    var bs = App.Stage.Camera.WorldToScreenPoint(bp);
+                    if (bs.z > 0f) StarSparkles.Around(Root, new Vector2(bs.x / Mathf.Max(1f, Screen.width), bs.y / Mathf.Max(1f, Screen.height)), new Vector2(0.06f, 0.08f), 6, 31 + bursts, 1.2f);
+                    Audio.Sfx.Play(Audio.SfxKind.Pop);
+                }
+                // kamera yavaşça sise yaklaşır
+                _cinePos = Vector3.Lerp(_cinePos, c + (_cinePos - c).normalized * Mathf.Max(6f, (_cinePos - c).magnitude * 0.997f), 0.5f);
                 foreach (var (cl, p0, s0) in clouds)
                 {
                     if (cl == null) continue;
@@ -849,8 +893,10 @@ namespace Pofi.Screens
                 yield return null;
             }
             if (fog != null) Destroy(fog.gameObject);
-            for (var t = 0f; t < 1f; t += Time.deltaTime / 0.5f) { glow.localScale *= 0.92f; yield return null; }
-            Destroy(glow.gameObject);
+            Confetti.Burst(App.Overlay.transform, 70, 2.6f);
+            Audio.Sfx.Play(Audio.SfxKind.Success);
+            for (var t = 0f; t < 1f; t += Time.deltaTime / 0.5f) { glow.localScale *= 0.92f; pillar.localScale *= 0.9f; yield return null; }
+            Destroy(glow.gameObject); Destroy(pillar.gameObject);
             yield return new WaitForSeconds(0.5f);
             for (var t = 0f; t < 1f; t += Time.deltaTime / 0.4f)
             {
@@ -967,7 +1013,7 @@ namespace Pofi.Screens
         {
             if (_careBubbles.Count == 0)
             {
-                Add("food_apple", T("hud.feed"), "#7A1E14", new Vector2(-170f, 40f), () => { HideCare(); TipDone(Onboarding.Feed); OnFeed(); });
+                Add("food_apple", T("hud.feed"), "#7A1E14", new Vector2(-170f, 40f), () => { HideCare(); OnFeed(); });   // besleme ipucu beslenince biter (sürükleme eli gösterilsin)
                 Add("clean_soap", T("hud.wash"), "#A04C6A", new Vector2(0f, 120f), () => { HideCare(); OnWash(); });
                 Add("hoodie_soft", T("hud.dress"), "#27467E", new Vector2(170f, 40f), () =>
                 {
@@ -1006,6 +1052,7 @@ namespace Pofi.Screens
         {
             UpdateNeedBubble();
             if (_careBubbles.Count == 0 || !_careBubbles[0].B.gameObject.activeSelf) return;
+            if (GuideHoldsCare) _careFor = Mathf.Max(_careFor, 0.5f);   // rehberin bakım adımında menü kendiliğinden kapanmaz (ilk kullanım)
             if ((_careFor -= Time.deltaTime) <= 0f || _overview || _cine || _world.Walker == null || _world.Walker.Moving) { HideCare(); return; }
             var sp = App.Stage.Camera.WorldToScreenPoint(PetHeadWorld);
             if (sp.z <= 0f) return;

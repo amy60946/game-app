@@ -99,14 +99,16 @@ namespace Pofi.Screens
             if (_coach != null)
             {
                 if (!_coach.Id.StartsWith("guide_")) return false;                       // başka ipucu (Evim tanıtımı, sürükleme)
+                if (_coach.Id == "guide_close") { if (!LevelUpCelebration.Showing) return true; _coach.Done(); _coach = null; return false; }
                 if (Guide.Is(App.State, App.Level, _coach.Id.Substring(6))) return true;   // adım sürüyor
                 _coach.Done(); _coach = null;
             }
+            if (LevelUpCelebration.Showing) return _coach != null;   // önce "Harika!" (el orada), sonra kapat
             var g = Guide.Current(App.State, App.Level);
             var btn = g == null ? null : g.Id == "tidy" ? _careBtns[3] : g.Id == "play" ? _careBtns[2] : null;
-            if (btn == null) return false;
+            if (btn == null) return GuideToClose(ref _coach, id => id == "home" || id == "tidy" || id == "play");   // sıradaki iş adada: çarpı
             _coach = Coach.Show(Root, "guide_" + g.Id, T(g.TextKey, App.State.PetName) + "  " + T("guide.reward", g.Xp), TipGesture.Tap,
-                () => RectTransformUtility.WorldToScreenPoint(null, btn.position), null, 3, (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count,
+                () => RectTransformUtility.WorldToScreenPoint(null, btn.position), null, 3, Guide.Label(App.State),
                 null, T(g.TextKey, App.State.PetName));
             return true;
         }

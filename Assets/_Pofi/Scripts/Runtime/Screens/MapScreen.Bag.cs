@@ -350,17 +350,28 @@ namespace Pofi.Screens
             var pet = _world.Walker != null ? _world.Walker.transform : null;
             System.Func<float, float, float> ground = (x, z) => _terrain.Height(x, z);
             var seen = App.State.Story.Seen;
-            // Kıskaç: dükkânın meydana bakan önünde (meydandan gelen çocuk hemen görür), meydana döner
+            // Kıskaç: dükkânın güneybatısında (akış haritası yorumu, 25 Ekim 2026: evden gelen çocuk önce dükkânla, sonra Kıskaç'la
+            // karşılaşsın — rota tek yönde batıya akar); dükkânın kapısına, yani gelen çocuğa döner
             var shop = _terrain.Regions.FirstOrDefault(r => r.Id == "region_shop");
             if (shop != null)
             {
-                var d = new Vector2(_terrain.PlazaX - shop.X, _terrain.PlazaZ - shop.Z); d = d.sqrMagnitude > 0.01f ? d.normalized : Vector2.up;
-                var side = new Vector2(d.y, -d.x) * 1.8f;
-                var p = new Vector2(shop.X, shop.Z) + d * (shop.Size * 0.5f + 1.1f) + side;
+                var d = new Vector2(-0.6f, -0.8f);   // güneybatı (x batı −, z güney −)
+                var p = new Vector2(shop.X, shop.Z) + d * (shop.Size * 0.5f + 3.2f);
                 var w = _terrain.NearestWalkable(p.x, p.y);
                 if (!float.IsNaN(w.x)) p = new Vector2(w.x, w.z);
+                var (dx, dz) = _terrain.Door(shop);
+                var look = new Vector2(dx - p.x, dz - p.y);
                 _kiskac = Resident3D.Create(_world.transform, "kiskac", "res_kiskac", new Vector3(p.x, _terrain.Height(p.x, p.y), p.y), 1.25f,
-                    Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg, ground, pet);
+                    Mathf.Atan2(look.x, look.y) * Mathf.Rad2Deg, ground, pet);
+            }
+            // pano açıldı, Kıskaç'ın pano sahnesi henüz oynamadı: adaya dönünce Kıskaç Okti'nin yanında durur (birlikte gelmişlerdi),
+            // sahneden sonra dükkânına yürür
+            if (_kiskac != null && pet != null && !seen.Contains("ch1_board") && App.State.Counters.Total(Logic.App.Guide.BoardCounter) > 0)
+            {
+                var q = _world.Walker.Position + new Vector2(_world.Walker.transform.right.x, _world.Walker.transform.right.z).normalized * 1.6f;
+                _kiskac.Teleport(new Vector3(q.x, _terrain.Height(q.x, q.y), q.y));
+                _kiskac.Follow(pet);
+                _kiskacWalks = true;
             }
             // Mavi: posta kutusunun yanında; ilk oyunda Kıskaç'a cevizler teslim edilince uçarak gelir (GB17, MapScreen.Flow)
             var maviCame = seen.Contains("ch2_open") || App.State.Counters.Total("mavi_arrived") > 0

@@ -148,16 +148,20 @@ namespace Pofi.World
     {
         private static Mesh _ring;
         private Material _m;
-        private float _t;
+        private float _t, _size = 1f;
+        private Color _tint = Color.white;
 
-        public static void Spawn(Vector3 at)
+        public static void Spawn(Vector3 at) => Spawn(at, 1f, 2, null);
+
+        /// <summary>Büyük halka (sis kalkışı, ateş): <paramref name="size"/> kat, <paramref name="count"/> halka, renk.</summary>
+        public static void Spawn(Vector3 at, float size, int count, Color? tint)
         {
-            for (var i = 0; i < 2; i++)
+            for (var i = 0; i < count; i++)
             {
                 var go = new GameObject("ripple");
                 go.transform.position = at + Vector3.up * 0.03f;
                 var r = go.AddComponent<Ripple>();
-                r._t = -i * 0.25f;
+                r._t = -i * 0.25f; r._size = size; r._tint = tint ?? Color.white;
                 var mf = go.AddComponent<MeshFilter>(); mf.sharedMesh = Ring();
                 var mr = go.AddComponent<MeshRenderer>();
                 r._m = InkHeart.SpriteMat(null);
@@ -172,9 +176,10 @@ namespace Pofi.World
         {
             _t += Time.deltaTime / 1.1f;
             if (_t < 0f) return;
-            var s = Mathf.Lerp(0.3f, 2.6f, 1f - (1f - _t) * (1f - _t));
+            var s = Mathf.Lerp(0.3f, 2.6f, 1f - (1f - _t) * (1f - _t)) * _size;
             transform.localScale = new Vector3(s, 1f, s);
-            _m.SetColor("_Color", new Color(1f, 1f, 1f, 0.75f * (1f - _t)));
+            var c = _tint; c.a = 0.75f * (1f - _t);
+            _m.SetColor("_Color", c);
             if (_t >= 1f) Destroy(gameObject);
         }
 

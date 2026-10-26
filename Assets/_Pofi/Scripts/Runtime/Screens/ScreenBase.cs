@@ -95,8 +95,27 @@ namespace Pofi.Screens
             if (App.Page == AppPage.Map) return;
             var home = App.Page == AppPage.Settings || App.Page == AppPage.Album || App.Page == AppPage.Decorate;
             var target = home ? AppPage.Home : AppPage.Map;
-            CloseButton(Root, () => { if (_grow != null) _grow.Close(() => App.Open(target)); else App.Open(target); });
+            CloseRect = (RectTransform)CloseButton(Root, () => { if (_grow != null) _grow.Close(() => App.Open(target)); else App.Open(target); }).transform;
             MusicButton.Place(MusicButton.BesideClose);
+        }
+
+        /// <summary>Sağ üstteki kapat düğmesi (NavBar kurduysa).</summary>
+        protected RectTransform CloseRect;
+
+        /// <summary>
+        /// Rehberin sıradaki adımı bu pencerede değilse el kapat düğmesini gösterir (akış haritası yorumları, 25 Ekim 2026: "oynadıktan,
+        /// giyindikten sonra el kapat tuşunu göstersin"). <paramref name="here"/>: adım bu pencerede mi yapılır. Gösterdiyse true.
+        /// </summary>
+        protected bool GuideToClose(ref Coach coach, System.Func<string, bool> here)
+        {
+            var g = Guide.Current(App.State, App.Level);
+            if (g == null || CloseRect == null || here(g.Id) || LevelUpCelebration.Showing) return false;
+            if (coach != null && coach.Id == "guide_close") return true;
+            if (coach != null) coach.Done();
+            var say = T("guide.close");
+            var rt = CloseRect;
+            coach = Coach.Show(Root, "guide_close", say, TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, rt.position), null, 99, Guide.Label(App.State), null, say);
+            return true;
         }
 
         /// <summary>Sağ üst köşede kırmızı yuvarlak çarpı düğmesi (v3 "close" görseli; yoksa iki çubukla çizilir).</summary>

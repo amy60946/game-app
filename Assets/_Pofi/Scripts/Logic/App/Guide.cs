@@ -37,6 +37,16 @@ namespace Pofi.Logic.App
         public const string DoneFlag = "guide_done", Prefix = "guide:", DidPrefix = "did:";
         public const string CoconutRequest = "req_kiskac_coconut";
         public const int CoconutsNeeded = 2;
+        /// <summary>Hoş geldin coin'i alındı işareti (GameState.SeenTips; GameBootstrap.ClaimWelcome yazar).</summary>
+        public const string WelcomeFlag = "welcome_coins";
+        /// <summary>Rehberin pano adımında açılan Ev Görevleri (hikâye ch1_board da bununla oynar).</summary>
+        public const string BoardCounter = "board_guided";
+        /// <summary>Rehberden önceki temel ipuçları (yürü, etrafa bak): sayaç bunlarla başlar ("1/20").</summary>
+        public const int BasicsCount = 2;
+        /// <summary>Oyundaki tek adım numarası (temel ipuçları + rehber): "3/20". Akış haritası belgesi de bu numarayı yazar.</summary>
+        public static string Label(int index) => (index + 1) + "/" + (Steps.Count + BasicsCount);
+        /// <summary>Şu anki rehber adımının numarası (temel ipuçlarından sonra).</summary>
+        public static string Label(GameState s) => Label(BasicsCount + DoneCount(s));
 
         /// <summary>Giyilebilir eşya mı (katalogdan; <see cref="Configure"/>)? Varsayılan: hiçbiri.</summary>
         public static Func<string, bool> IsWearable = id => false;
@@ -72,8 +82,12 @@ namespace Pofi.Logic.App
             new GuideStep { Id = "home", Counter = "home_entered", Xp = 10 },
             new GuideStep { Id = "tidy", Counter = "home_tidied", Xp = 15 },
             new GuideStep { Id = "play", Counter = "pet_played", Xp = 10 },
+            // Hoş geldin coin'i henüz gelmediyse (ilk beslemede istenir) dükkân adımı yine sırada bekler: Kıskaç ancak dükkân ve giydirme
+            // bitince gelir (akış haritası yorumu, 25 Ekim 2026: "her aksiyon sırasıyla"). Coin gelmiş ama yetmiyorsa ya da oyuncu Kıskaç'la
+            // zaten tanışmışsa (eski kayıt) adım atlanır.
             new GuideStep { Id = "shop", Counter = "wear_bought", Xp = 20,
-                Ready = s => s.Wallet.Available >= FirstWearPrice, AlreadyDone = OwnsWearable },
+                Ready = s => s.Wallet.Available >= FirstWearPrice || (!s.SeenTips.Contains(WelcomeFlag) && !s.SeenTips.Contains(DidPrefix + "kiskac_met")),
+                AlreadyDone = OwnsWearable },
             new GuideStep { Id = "wear", Counter = "item_equipped", Xp = 15, Ready = OwnsWearable },
             new GuideStep { Id = "kiskac", Counter = "kiskac_met", Xp = 10 },
             new GuideStep { Id = "coconut", Counter = "coconuts_ready", Xp = 20,
@@ -86,7 +100,9 @@ namespace Pofi.Logic.App
             new GuideStep { Id = "gather", Counter = "hut_ready", Xp = 20,
                 AlreadyDone = s => s.Gather != null && (s.Gather.HutBuilt || Gathering.CanBuild(s.Gather)) },
             new GuideStep { Id = "hut", Counter = "hut_built", Xp = 10, AlreadyDone = s => s.Gather != null && s.Gather.HutBuilt },   // kulübe zaten 40 XP verir (Gathering.HutXp)
-            new GuideStep { Id = "board", Counter = "board_opened", Xp = 15 },   // kulübenin yanında: yeni taşlar gerçek görevden
+            // kulübenin yanında: yeni taşlar gerçek görevden. Sayaç yalnız bu adımdayken açılan pano (board_guided): Görev penceresi
+            // daha önce açılmış olsa da adım ve Kıskaç'ın pano sahnesi kulübeden sonra gelir (akış haritası yorumu, 25 Ekim 2026)
+            new GuideStep { Id = "board", Counter = BoardCounter, Xp = 15 },
             new GuideStep { Id = "fire", Counter = "fire_stoked", Xp = 10, AlreadyDone = s => s.Campfire != null && s.Campfire.Total > 0 },   // kamp ateşini harla (GB18)
             new GuideStep { Id = "stone", Counter = "stone_placed", Xp = 30,   // koydaki sis: hediye değil, görevle kazanılan taş
                 Ready = s => SunStoneBook.Available(s.SunStones) > 0, AlreadyDone = s => SunStoneBook.RealPlaced(s.SunStones) > 0 },

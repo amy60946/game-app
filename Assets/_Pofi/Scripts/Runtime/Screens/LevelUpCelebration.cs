@@ -25,6 +25,10 @@ namespace Pofi.Screens
         private Image _veil;
         private float _t;
         private bool _shownText, _shownGo, _closing;
+        private static int _open;
+
+        /// <summary>Kutlama ekranda mı? (rehber ipuçları ve "sıradaki" haberleri beklesin: üst üste binmesin)</summary>
+        public static bool Showing => _open > 0;
 
         public static void Show(GameBootstrap app, LevelUp up)
         {
@@ -35,6 +39,7 @@ namespace Pofi.Screens
             var root = Ui.Fill(app.Overlay.transform, "LevelUp");
             var c = root.gameObject.AddComponent<LevelUpCelebration>();
             c._app = app; c._up = up; c._gifts = gifts; c._root = root;
+            _open++;
             c.Build();
         }
 
@@ -99,7 +104,16 @@ namespace Pofi.Screens
             var b = Candy.Pill(_root, Candy.Green, _app.Loc.Get("levelup.ok"), new Vector2(0.5f, 0f), new Vector2(420f, 130f), new Vector2(0f, 120f), Close, null, 54);
             _go = (RectTransform)b.transform;
             _go.gameObject.AddComponent<PopIn>();
+            // ilk seviyelerde el "Harika!"ya dokunur (akış haritası yorumu, 25 Ekim 2026: "basması gerektiğini anlasın")
+            if (_up.To <= Logic.App.Guide.MaxLevel + 1 || Logic.App.Guide.Active(_app.State, _up.To))
+            {
+                var go = _go;
+                Coach.Show(_root, "levelup_ok", _app.Loc.Get("guide.levelup_ok"), Logic.App.TipGesture.Tap,
+                    () => RectTransformUtility.WorldToScreenPoint(null, go.position), null, 99).HandOnly();
+            }
         }
+
+        private void OnDestroy() { _open = Mathf.Max(0, _open - 1); }
 
         private void Close()
         {
@@ -135,7 +149,7 @@ namespace Pofi.Screens
         private static Texture2D _rayTex;
 
         /// <summary>Yarı saydam ışın demeti: 14 yumuşak kenarlı dilim, merkezden dışa söner.</summary>
-        private static Texture2D RaysTex()
+        internal static Texture2D RaysTex()
         {
             if (_rayTex != null) return _rayTex;
             const int n = 256;

@@ -64,6 +64,7 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual("feed", r.Single().Id, "yıkama önceden yapıldı: ödülsüz geçilir");
             Assert.AreEqual("home", Guide.Current(s, 1).Id);
             Assert.AreEqual(2, Guide.DoneCount(s));
+            Assert.AreEqual("5/20", Guide.Label(s), "temel ipuçları (yürü, etrafa bak) 1–2; rehber 3'ten başlar");
         }
 
         [Test]
@@ -71,7 +72,9 @@ namespace Pofi.Tests.Logic
         {
             var s = NewPlayer();
             foreach (var c in new[] { "pet_fed", "pet_washed", "home_entered", "home_tidied", "pet_played" }) Do(s, c);
-            Assert.AreEqual("kiskac", Guide.Current(s, 1).Id, "coin yok: rehber takılmaz, Kıskaç'a geçer");
+            Assert.AreEqual("shop", Guide.Current(s, 1).Id, "hoş geldin coin'i beklenirken sıra dükkânda kalır (Kıskaç erken gelmez)");
+            s.SeenTips.Add(Guide.WelcomeFlag);
+            Assert.AreEqual("kiskac", Guide.Current(s, 1).Id, "coin geldi ama yetmiyor: rehber takılmaz, Kıskaç'a geçer");
             s.Wallet.ServerCoins = 20;
             Assert.AreEqual("shop", Guide.Current(s, 1).Id, "hoş geldin coin'i gelince dükkân adımı");
             BuyFirstWear(s);
@@ -116,7 +119,7 @@ namespace Pofi.Tests.Logic
             Gathering.Build(s.Gather);
             Assert.AreEqual("hut", Do(s, "hut_built").Single().Id);
             Assert.AreEqual("board", Guide.Current(s, 1).Id, "kulübenin yanındaki pano: yeni taşlar görevden (GB19)");
-            Assert.AreEqual("board", Do(s, "board_opened").Single().Id);
+            Assert.AreEqual("board", Do(s, Guide.BoardCounter).Single().Id);
             Assert.AreEqual("fire", Guide.Current(s, 1).Id, "sonra doğudaki kamp ateşi (GB18)");
             Assert.AreEqual("fire", Do(s, "fire_stoked").Single().Id);
         }
@@ -130,7 +133,7 @@ namespace Pofi.Tests.Logic
             BuyFirstWear(s);
             foreach (var c in new[] { "kiskac_met", "coconuts_ready", "coconut_delivered", "mavi_arrived" }) Do(s, c);
             GiftAndClear(s);
-            foreach (var c in new[] { "hut_ready", "hut_built", "board_opened", "fire_stoked" }) Do(s, c);
+            foreach (var c in new[] { "hut_ready", "hut_built", Guide.BoardCounter, "fire_stoked" }) Do(s, c);
             Assert.IsNull(Guide.Current(s, 1), "hediye taş kulübe sisine gitti, gerçek taş yok: gösterilecek adım yok");
             SunStoneBook.ApplyServerTotal(s.SunStones, 1);
             Assert.AreEqual("stone", Guide.Current(s, 1).Id);

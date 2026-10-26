@@ -15,7 +15,9 @@ namespace Pofi.Screens
     /// </summary>
     public sealed partial class MapScreen
     {
-        private const float MeetRange = 3.6f, MaviDelay = 8f;
+        // Kıskaç'a teslimden sonra "adayı biraz dolaş" (akış haritası yorumu, 25 Ekim 2026: araya 15–20 sn es; Mavi kadrajın içinden uçarak gelir)
+        private const float MeetRange = 3.6f, MaviDelay = 16f;
+        private bool _kiskacWalks;
         private float _flowT, _maviArriveT = -1f, _maviLandT = -1f;
         private bool _storyBusy, _deliverOpened;
 
@@ -36,6 +38,7 @@ namespace Pofi.Screens
             if ((_flowT -= dt) > 0f) return;
             _flowT = 0.25f;
             var g = Guide.Current(App.State, App.Level);
+            UpdateCompanions(g);
             if (g == null) return;
             var p = _world.Walker.Position;
             var nearKiskac = _kiskac != null && Vector2.Distance(p, KiskacPos) < MeetRange;
@@ -68,6 +71,44 @@ namespace Pofi.Screens
                     break;
             }
         }
+
+        /// <summary>
+        /// Yol arkadaşları (akış haritası yorumları, 25 Ekim 2026): Mavi kendi bölümünde (hediye, sis, malzeme, kulübe) Okti'nin başının
+        /// yanında kanat çırparak süzülür; panoya giderken Kıskaç Okti'nin yanında yürür (uzaktaysa yanına gelir).
+        /// </summary>
+        private void UpdateCompanions(GuideStep g)
+        {
+            var id = g?.Id;
+            if (_mavi != null && _maviArriveT < 0f && _maviLandT < 0f && _maviNewsT <= 0f
+                && (id == "gift" || id == "clear" || id == "gather" || id == "hut" || (id == "mavi" && App.State.Counters.Total("mavi_arrived") > 0)))
+                _mavi.Hover(1.2f, PetTop, App.Stage.Camera);
+            var walk = id == "board" && _kiskac != null && !_cine;
+            if (walk && !_kiskacWalks)
+            {
+                var p = _world.Walker.Position;
+                var k = _kiskac.transform.localPosition;
+                if (Vector2.Distance(p, new Vector2(k.x, k.z)) > 14f)
+                {
+                    // uzaktaysa yanına gelir (kısa ışıltıyla), sonra birlikte yürürler
+                    var side = p + new Vector2(_world.Walker.transform.right.x, _world.Walker.transform.right.z).normalized * 1.6f;
+                    _kiskac.Teleport(new Vector3(side.x, _terrain.Height(side.x, side.y), side.y));
+                    var glow = GainFx.Glow(_world.transform, new Color(1f, 0.6f, 0.4f), 0.7f, false);
+                    glow.position = _kiskac.transform.position + Vector3.up * 0.6f;
+                    Destroy(glow.gameObject, 0.6f);
+                    Audio.Sfx.Play(Audio.SfxKind.Pop);
+                }
+                _kiskac.Follow(_world.Walker.transform);
+                _kiskacWalks = true;
+            }
+            else if (!walk && _kiskacWalks && !StoryPlayer.Playing)
+            {
+                _kiskac.Follow(null);   // pano sahnesinden sonra dükkânına döner
+                _kiskacWalks = false;
+            }
+        }
+
+        /// <summary>Okti'nin boyu (Mavi başının yanında süzülsün).</summary>
+        private float PetTop => _world.Walker != null ? Mathf.Max(0.8f, (PetHeadWorld.y - _world.Walker.transform.position.y) * 0.62f) : 1.4f;
 
         /// <summary>Kıskaç'la tanışma: isteği açılır, sahne oynar ("2 hindistan cevizi getirir misin?").</summary>
         private void MeetKiskac()
@@ -116,6 +157,11 @@ namespace Pofi.Screens
                 if (_mavi == null) CreateMavi();
                 Debug.Log("[PofiDebug] flow: Mavi uçuyor (model " + (_mavi != null) + ")");
                 if (_mavi == null) { App.RecordActivity("mavi_arrived"); TriggerStory(); return; }
+                // kadrajın içinden gelsin: Okti'nin önünde, gökyüzünde belirir ve süzülerek iner (posta kutusu çoğu zaman görünmüyordu)
+                var cam = App.Stage.Camera.transform;
+                var fwd = cam.forward; fwd.y = 0f; fwd = fwd.sqrMagnitude > 0.01f ? fwd.normalized : Vector3.forward;
+                var sky = _world.Walker.transform.position + fwd * 11f + cam.right * 3f + Vector3.up * 7f;
+                _mavi.Appear(_world.transform.InverseTransformPoint(sky));
                 _maviNewsT = 2.6f;   // Okti'nin yanına uç (UpdateMaviGuide)
                 _maviLandT = 2.9f;
                 Audio.Sfx.Play(Audio.SfxKind.Chime);
@@ -125,7 +171,7 @@ namespace Pofi.Screens
                 _maviLandT = -1f;
                 Debug.Log("[PofiDebug] flow: Mavi kondu");
                 _mavi.React();
-                _mavi.Linger(16f);   // sahne boyunca Okti'nin yanında kalsın
+                _mavi.Hover(18f, PetTop, App.Stage.Camera);   // sahne boyunca Okti'nin başının yanında kanat çırpar
                 App.RecordActivity("mavi_arrived");
                 TriggerStory();
             }

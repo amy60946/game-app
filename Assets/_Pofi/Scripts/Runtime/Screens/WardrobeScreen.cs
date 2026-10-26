@@ -48,6 +48,8 @@ namespace Pofi.Screens
             }
             _items = Ui.Fill(Root, "Items");
             NavBar(AppPage.Wardrobe);
+            _guideVisit = Guide.Is(App.State, App.Level, "wear");
+            if (_guideVisit) SpotsTipDone();   // yuva tanıtımının yerine rehber eli
             Fill();
             if (Onboarding.Pending(App.State, Onboarding.WardrobeSpots))
                 _coach = Coach.Show(Root, Onboarding.WardrobeSpots, T("tip.wardrobe_spots"), TipGesture.Tap,
@@ -55,6 +57,40 @@ namespace Pofi.Screens
         }
 
         private Coach _coach;
+        private readonly System.Collections.Generic.Dictionary<string, RectTransform> _cells = new System.Collections.Generic.Dictionary<string, RectTransform>();
+        private bool _guideVisit;   // bu ziyaret rehberin "aksesuarı tak" adımıyla başladı
+        private float _guideT;
+
+        /// <summary>
+        /// Rehberin giydirme adımı (akış haritası yorumu, 25 Ekim 2026: "el önce gözlük simgesini, sonra ilgili gözlüğü göstersin;
+        /// giyinince kapat tuşunu"): sahip olunan ilk aksesuarın yuvası → eşyanın kendisi → takılınca çarpı.
+        /// </summary>
+        private void Update()
+        {
+            if ((_guideT -= Time.deltaTime) > 0f) return;
+            _guideT = 0.3f;
+            if (!_guideVisit) return;
+            if (!Guide.Is(App.State, App.Level, "wear")) { GuideToClose(ref _coach, id => id == "wear"); return; }
+            var inv = App.State.Inventory;
+            var item = inv.Owned.Select(App.Data.Item).Where(i => i != null && i.IsWearable && !i.Fancy).OrderBy(i => i.Price).FirstOrDefault()
+                ?? inv.Owned.Select(App.Data.Item).FirstOrDefault(i => i != null && i.IsWearable);
+            if (item == null) return;
+            var slotIdx = System.Array.IndexOf(Slot.All, item.Slot);
+            string key, say; System.Func<Vector2> at;
+            if (_slot != item.Slot && slotIdx >= 0)
+            {
+                var spot = _spots[slotIdx];
+                key = "guide_wear_slot"; say = T("guide.wear_slot"); at = () => RectTransformUtility.WorldToScreenPoint(null, spot.position);
+            }
+            else if (_cells.TryGetValue(item.Id, out var cell) && cell != null)
+            {
+                key = "guide_wear_item"; say = T("guide.wear_item", item.Name); at = () => RectTransformUtility.WorldToScreenPoint(null, cell.position);
+            }
+            else return;
+            if (_coach != null && _coach.Id == key) return;
+            if (_coach != null) _coach.Done();
+            _coach = Coach.Show(Root, key, say, TipGesture.Tap, at, null, 99, Guide.Label(App.State), null, say);
+        }
 
         private void SpotsTipDone()
         {
@@ -98,6 +134,7 @@ namespace Pofi.Screens
                 _spots[i].localScale = Vector3.one * (on ? 1.15f : 1f);
             }
             Ui.Clear(_items);
+            _cells.Clear();
             inv.Equipped.TryGetValue(_slot, out var equipped);
             var owned = inv.Owned.Select(App.Data.Item).Where(i => i != null && i.IsWearable && i.Slot == _slot).ToList();
             // sahip olunmayanlar soluk ve fiyatlı: dokununca dükkân
@@ -116,6 +153,7 @@ namespace Pofi.Screens
                 var b = Candy.Round(_items, on ? new Color(1f, 0.93f, 0.6f) : Candy.White, item.Id, on ? 225f : 205f, new Vector2(1f, 0.5f), pos,
                     have ? (System.Action)(() => Toggle(item, on))
                     : locked ? () => _bubble.Say(T("wardrobe.locked", item.Level)) : (System.Action)(() => App.Open(AppPage.Shop)));
+                _cells[item.Id] = (RectTransform)b.transform;
                 if (on) Ui.IconImage(b.transform, "ui_star", new Vector2(0.86f, 0.86f), 70f);   // takılı işareti
                 var fit = CosmeticFit.Evaluate(_pet, item);
                 if (!have || !fit.Allowed) foreach (var img in b.GetComponentsInChildren<Image>()) img.color *= new Color(1f, 1f, 1f, 0.5f);

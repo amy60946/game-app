@@ -43,6 +43,7 @@ namespace Pofi.Screens
         private Text _nextTip;
         private RectTransform _detail, _xpBar, _curRow;
         private CanvasGroup _detailG, _nextG;
+        private float _nextShow = 1f;
         private readonly List<CanvasGroup> _hudLabels = new List<CanvasGroup>();
         private readonly List<RectTransform> _hudShrink = new List<RectTransform>();
         private RectTransform _homeBadge;
@@ -235,7 +236,15 @@ namespace Pofi.Screens
             foreach (var g in _hudLabels) if (g != null) g.alpha = 1f - e;
             foreach (var w in _hudShrink) if (w != null) { var k = 1f - 0.22f * e; w.localScale = new Vector3(k, k, 1f); }
             if (_curRow != null) { var k = 1f - 0.14f * e; _curRow.localScale = new Vector3(k, k, 1f); }
-            if (_nextG != null) { _nextG.alpha = 1f - e; ((RectTransform)_nextG.transform).anchoredPosition = new Vector2(0f, 46f - 18f * G * e); }
+            if (_nextG != null)
+            {
+                // "Sıradaki: …" kurdelesi alt şeritte; rehber paneli, seviye kutlaması ya da hikâye varken görünmez (akış haritası yorumu,
+                // 25 Ekim 2026: kulübeden sonra seviye + Harika + Ev Görevleri bilgisi üst üste biniyordu — önce biri, sonra diğeri)
+                var busy = _coach != null || LevelUpCelebration.Showing || StoryPlayer.Playing || _cine || Guide.Active(App.State, App.Level);
+                _nextShow = Mathf.MoveTowards(_nextShow, busy ? 0f : 1f, Time.deltaTime * 4f);
+                _nextG.alpha = (1f - e) * _nextShow;
+                ((RectTransform)_nextG.transform).anchoredPosition = new Vector2(0f, 46f - 18f * G * e);
+            }
         }
 
         private void HudDestroy()
@@ -396,8 +405,8 @@ namespace Pofi.Screens
         {
             if (_coach != null || !Onboarding.Pending(App.State, id)) return;
             if (!FirstDay.AllowsTip(FirstDayNow, id)) return;   // ilk gün: yalnız ilk gün ipuçları (Ö5)
-            var i = System.Array.IndexOf(TipSeq, id);
-            var step = i >= 0 ? (i + 1) + "/" + TipSeq.Length : null;
+            // tek sayaç (akış haritası yorumu, 25 Ekim 2026: "1/7'den 5/7'ye atlıyor, sonra 1/18"): yürü 1, etrafa bak 2, rehber 3'ten
+            var step = id == Onboarding.Walk ? Guide.Label(0) : id == Onboarding.Look ? Guide.Label(1) : null;
             _coach = Coach.Show(Root, id, T(key ?? Onboarding.Get(id).CaptionKey, arg ?? App.State.PetName), g, from, to, props != null ? 6 : 3, step, prop, null, null, props);
             // D3 ışık halkası: yeni düğme ilk kez gösterilirken (Görev, Harita) ekran kısılır, düğme aydınlık kalır
             if (id == Onboarding.Tasks || id == Onboarding.Overview) Spotlight.Show((RectTransform)_coach.transform, from, 120f);
@@ -429,9 +438,12 @@ namespace Pofi.Screens
         {
             if (_xpTipT > 0f) { _xpTipT -= Time.deltaTime; if (_xpTipT <= 0f) TipDone(Onboarding.Xp); }
             var guide = Guide.Current(App.State, App.Level);
-            if (_coach != null && _coach.Id.StartsWith("guide_") && (guide == null || _coach.Id != "guide_" + guide.Id)) { _coach.Done(); _coach = null; _tipGap = 1f; }   // adım bitti
+            var gBasics = !Onboarding.Pending(App.State, Onboarding.Walk) && !Onboarding.Pending(App.State, Onboarding.Look);
+            var stage = gBasics && guide != null && !_overview ? GuideStageFor(guide) : null;
+            // adım ya da adımın alt aşaması değişti (Okti'ye dokun → elmaya dokun → eylem tuşu …): el hemen yeni hedefe geçer
+            if (_coach != null && _coach.Id.StartsWith("guide_") && (stage == null || _coach.Id != "guide_" + stage.Key)) { _coach.Done(); _coach = null; _tipGap = 2.5f; }
             if (_coach != null || _tray != null) return;
-            if (StoryPlayer.Playing || _cine || _giftBusy) { _tipGap = 0f; return; }   // hikâye konuşması / hediye kartı sürerken yeni ipucu açılmaz (üst üste binmesin)
+            if (StoryPlayer.Playing || _cine || _giftBusy || LevelUpCelebration.Showing) { _tipGap = 0f; return; }   // hikâye, hediye kartı ya da seviye kutlaması sürerken yeni ipucu açılmaz (üst üste binmesin)
             _tipGap += Time.deltaTime;
             if (_tipGap < 2.5f) return;                                     // ipuçları arasında kısa nefes
             var st = App.State;
@@ -454,7 +466,7 @@ namespace Pofi.Screens
             // hedef uzakta ve çocuk durdu: ilk kez el Harita'yı gösterir (GB18-8, haritada sarı im)
             if (MapFarTip(basicsDone)) return;
             // rehberli zincir: sıradaki adım, işaret eli hedefini gösterir; ilk gün pano/taş ipuçlarının yerine geçer
-            if (basicsDone && guide != null && !_overview) { if (guide.Id != "gift") GuideTip(guide); return; }   // hediye adımını kart anlatır
+            if (basicsDone && guide != null && !_overview) { if (stage != null) GuideTip(stage); return; }   // hediye adımını kart anlatır
             // Gerçek ödüller yeni açıldı (Sv4, GB17-13): oturumda bir kez el dükkânı gösterir; dükkân sekmesi tanıtımla açılır
             if (basicsDone && guide == null && !_overview && !_rewardsToldThisSession && App.Levels.IsUnlocked(ShopScreen.RewardsUnlock, App.Level)
                 && !App.State.SeenTips.Contains(ShopScreen.RewardsIntroFlag))
@@ -474,8 +486,8 @@ namespace Pofi.Screens
                 case Onboarding.Walk:      // sol yarı: joystick
                     Tip(next, TipGesture.Slide, () => new Vector2(Screen.width * 0.25f, Screen.height * 0.3f), () => new Vector2(Screen.width * 0.25f, Screen.height * 0.55f));
                     break;
-                case Onboarding.Look:      // sağ yarı: kamerayı döndür
-                    Tip(next, TipGesture.Slide, () => new Vector2(Screen.width * 0.78f, Screen.height * 0.45f), () => new Vector2(Screen.width * 0.58f, Screen.height * 0.45f));
+                case Onboarding.Look:      // sağ yarı: kamerayı döndür (sağ alta yakın; eylem tuşunun solunda ve üstünde)
+                    Tip(next, TipGesture.Slide, () => new Vector2(Screen.width * 0.8f, Screen.height * 0.36f), () => new Vector2(Screen.width * 0.58f, Screen.height * 0.36f));
                     break;
                 case Onboarding.Jump:
                     if (_actionKey == "hud.jump") Tip(next, TipGesture.Tap, () => UiScreen(_action));
@@ -495,17 +507,109 @@ namespace Pofi.Screens
             }
         }
 
-        /// <summary>Rehber adımı paneli (alt şerit): "3/12", kısa cümle ve ödül; el hedefe 3 kez dokunur, sonra kısa ara.</summary>
-        private void GuideTip(GuideStep g)
+        /// <summary>
+        /// Rehber adımının o anki aşaması (akış haritası yorumları, 25 Ekim 2026: "el sırayla Okti'yi, sonra elmayı, sonra eylem
+        /// tuşunu göstersin"): adım aynı kalsa da el durumuna göre hedef değiştirir. Key değişince el hemen yeni hedefe geçer.
+        /// </summary>
+        private sealed class GuideStage
         {
-            var step = (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count;
-            // "Okti'ye dokun" (G2), "Okti'nin üstüne dokun" (giydir)
-            var arg = g.Id == "feed" || g.Id == "wash" ? PetDat : g.Id == "wear" ? PetGen : App.State.PetName;
-            if (g.Id == "mavi") { _coach = Coach.Show(Root, "guide_" + g.Id, T(g.TextKey), TipGesture.Tap, MaviSky, null, 1, step, null, T(g.TextKey)); _tipGap = -4f; return; }
-            var say = T(g.TextKey, arg);
-            _coach = Coach.Show(Root, "guide_" + g.Id, say + "  " + T("guide.reward", g.Xp), TipGesture.Tap, GuideTarget(g), null, 3, step, null, say);
-            _tipGap = -4f;   // panel kapanınca birkaç saniye nefes
+            public string Key, Say;
+            public TipGesture Gesture = TipGesture.Tap;
+            public System.Func<Vector2> From, To;
+            public Sprite Carry;
+            public int Loops = 8;
+            public bool Reward = true;
         }
+
+        private GuideStage GuideStageFor(GuideStep g)
+        {
+            if (g.Id == "gift") return null;                                  // hediye adımını kart anlatır
+            var arg = g.Id == "feed" || g.Id == "wash" ? PetDat : g.Id == "wear" ? PetGen : App.State.PetName;
+            // hedefin yanındaysa: el sağ alttaki eylem tuşunu gösterir (Gir, Kes, Topla, Yap, Taşı koy, ateş)
+            if (ActionServes(g))
+                return new GuideStage { Key = g.Id + ":act", Say = T("guide.press", T(_actionKey)), From = () => UiScreen(_action), Loops = 99 };
+            switch (g.Id)
+            {
+                case "feed": case "wash": case "wear":
+                {
+                    if (CareMenuOpen)   // Okti'ye dokunuldu: menü açık, el ilgili baloncuğu gösterir (menü bu adımda kendiliğinden kapanmaz)
+                    {
+                        var bi = g.Id == "feed" ? 0 : g.Id == "wash" ? 1 : 2;
+                        var rt = (RectTransform)_careBubbles[bi].B.transform;
+                        return new GuideStage { Key = g.Id + ":pick", Say = T(bi == 0 ? "guide.pick_feed" : bi == 1 ? "guide.pick_wash" : "guide.pick_wear"), From = () => UiScreen(rt), Loops = 99 };
+                    }
+                    return new GuideStage { Key = g.Id + ":pet", Say = T(g.TextKey, arg), From = PetScreen, Loops = 99 };
+                }
+                case "mavi":   // Kıskaç "adayı biraz dolaş" dedi: el sol yarıda yürümeyi gösterir; Mavi birazdan kadrajın içinden uçarak gelir
+                    return new GuideStage { Key = "mavi:walk", Say = T(g.TextKey), Gesture = TipGesture.Slide, Loops = 3, Reward = false,
+                        From = () => new Vector2(Screen.width * 0.25f, Screen.height * 0.3f), To = () => new Vector2(Screen.width * 0.25f, Screen.height * 0.55f) };
+                case "clear": case "stone":
+                {
+                    // el taşı sayaçtan alıp sisin zeminine taşır, gider gelir (elma → Okti gibi); sis kadrajda değilse kenardaki rozet
+                    var c = g.Id == "clear" ? new Vector2(_sitePos.x, _sitePos.z) : SpotPos(App.Data.SunBook.Next(App.State.SunStones));
+                    if (c.HasValue && OnScreen(GroundScreen(c.Value, 0.2f)))
+                    {
+                        var at = c.Value;
+                        return new GuideStage { Key = g.Id + ":drag", Say = T(g.TextKey, arg), Gesture = TipGesture.Drag, Loops = 99,
+                            From = () => UiScreen((RectTransform)_stoneText.transform.parent), To = () => GroundScreen(at, 0.2f), Carry = Ui.Icon("ui_sunstone") };
+                    }
+                    return new GuideStage { Key = g.Id + ":edge", Say = T(g.TextKey, arg), From = StoneTipScreen };
+                }
+                default:
+                    return new GuideStage { Key = g.Id, Say = T(g.TextKey, arg), From = GuideTarget(g) };
+            }
+        }
+
+        /// <summary>Rehber adımı paneli (alt şerit): "5/20", kısa cümle ve ödül; el aşamanın hedefini gösterir.</summary>
+        private void GuideTip(GuideStage st)
+        {
+            var g = Guide.Current(App.State, App.Level);
+            var cap = st.Reward && g != null ? st.Say + "  " + T("guide.reward", g.Xp) : st.Say;
+            _coach = Coach.Show(Root, "guide_" + st.Key, cap, st.Gesture, st.From, st.To, st.Loops, Guide.Label(App.State), null, st.Say, st.Carry);
+            _tipGap = -1.5f;   // el döngüsü bitince kısa nefes, sonra yeniden
+        }
+
+        /// <summary>Okti'ye dokununca açılan Besle/Yıka/Giydir menüsü açık mı?</summary>
+        private bool CareMenuOpen => _careBubbles.Count > 2 && _careBubbles[0].B != null && _careBubbles[0].B.gameObject.activeSelf;
+
+        /// <summary>Rehberin bakım adımı sürerken menü kendiliğinden kapanmaz (ilk kullanım).</summary>
+        private bool GuideHoldsCare
+        {
+            get
+            {
+                var g = Guide.Current(App.State, App.Level);
+                return g != null && (g.Id == "feed" || g.Id == "wash" || g.Id == "wear");
+            }
+        }
+
+        /// <summary>Şu anki eylem tuşu bu rehber adımının işini mi yapıyor (çocuk hedefin yanında)?</summary>
+        private bool ActionServes(GuideStep g)
+        {
+            if (_action == null || !_action.gameObject.activeInHierarchy || string.IsNullOrEmpty(_actionKey)) return false;
+            switch (g.Id)
+            {
+                case "home": case "tidy": case "play": return _actionKey == "hud.enter" && _actionRegion == "region_home";
+                case "shop": return _actionKey == "hud.enter" && _actionRegion == "region_shop";
+                case "board": return _actionKey == "hud.enter" && _actionRegion == "region_task_board";
+                case "coconut": return _gTarget >= 0 && _gNodes[_gTarget].Kind == GatherKind.Coconut && _actionKey == "hud.collect";
+                case "gather": return _gTarget >= 0 && _gNodes[_gTarget].Kind != GatherKind.Coconut && _actionKey != "hud.jump";
+                case "hut": return _actionKey == "hud.build";
+                case "clear": case "stone": return _actionKey == "hud.place";
+                case "fire": return _actionKey == "hud.stoke";
+                default: return false;
+            }
+        }
+
+        /// <summary>Adadaki noktanın ekran konumu (zeminden <paramref name="up"/> m yukarıda).</summary>
+        private Vector2 GroundScreen(Vector2 xz, float up)
+        {
+            var w = _world.World(xz.x, xz.y) + Vector3.up * up;
+            var sp = App.Stage.Camera.WorldToScreenPoint(w);
+            return sp.z <= 0f ? new Vector2(-9999f, -9999f) : (Vector2)sp;
+        }
+
+        private static bool OnScreen(Vector2 sp) =>
+            sp.x > Screen.width * 0.06f && sp.x < Screen.width * 0.94f && sp.y > Screen.height * 0.12f && sp.y < Screen.height * 0.88f;
 
         /// <summary>Mavi'nin geleceği gökyüzü (ekranın sağ üstü): el oraya bir kez dokunur.</summary>
         private Vector2 MaviSky() => _mavi != null ? (Vector2)App.Stage.Camera.WorldToScreenPoint(_mavi.transform.position + Vector3.up)
@@ -516,9 +620,9 @@ namespace Pofi.Screens
             switch (g.Id)
             {
                 case "feed": case "wash": return PetScreen;   // Okti'ye dokun → Besle / Yıka baloncukları (G2)
-                case "home": case "tidy": case "play": return () => RegionScreen("region_home");
+                case "home": case "tidy": case "play": return () => DoorScreen("region_home");   // kapı (bölge ortasının üstü panoya denk geliyordu)
                 case "wear": return PetScreen;
-                case "board": return () => RegionScreen("region_task_board");
+                case "board": return () => DoorScreen("region_task_board");
                 case "stone": case "clear": return StoneTipScreen;   // sis kadrajda değilse kenardaki taş rozeti (GB18-5)
                 case "gift": return MaviSky;
                 case "kiskac": case "deliver": return KiskacScreen;
@@ -526,9 +630,18 @@ namespace Pofi.Screens
                 case "gather": return NearestGatherScreen;
                 case "hut": return () => App.Stage.Camera.WorldToScreenPoint(_world.World(_sitePos.x, _sitePos.z) + Vector3.up * 1.5f);
                 case "fire": return FireGuideScreen;
-                case "shop": return () => RegionScreen("region_shop");
+                case "shop": return () => DoorScreen("region_shop");
                 default: return PetScreen;
             }
+        }
+
+        /// <summary>Bölgenin kapısının ekran noktası (kapının biraz üstü); kapı yoksa bölge.</summary>
+        private Vector2 DoorScreen(string regionId)
+        {
+            var d = DoorOf(regionId);
+            if (!d.HasValue) return RegionScreen(regionId);
+            var sp = GroundScreen(d.Value, 1.4f);
+            return sp.x < -9000f ? RegionScreen(regionId) : sp;
         }
 
         private Vector2 KiskacScreen() =>
@@ -593,7 +706,7 @@ namespace Pofi.Screens
             return new Vector2(x, z);
         }
 
-        /// <summary>Rehberli adımda çocuk 8 sn hareketsiz kalınca oklar açılır; yürürken kalır, hedefe varınca ya da adım değişince söner.</summary>
+        /// <summary>Rehberli adımda oklar hemen açılır (rehber dışı imde 8 sn hareketsizlikte); yürürken kalır, hedefe varınca ya da adım değişince söner.</summary>
         private void UpdatePathGuide(float dt)
         {
             if (_world.Walker == null) return;
@@ -612,7 +725,7 @@ namespace Pofi.Screens
             if (target == null) _path.Hide();
             else if (arrived) { _path.Hide(); _pinGo = false; }               // vardı
             else if (_path.Active) _path.Show(target.Value);                   // hedef kayabilir (en yakın kütük)
-            else if (_idleFor > 8f || _pinGo) { _path.Show(target.Value); if (guide != null) _pinGo = false; }   // ime dokununca hemen
+            else if (guide != null || _idleFor > 8f || _pinGo) { _path.Show(target.Value); if (guide != null) _pinGo = false; }   // rehber adımında hemen (akış haritası yorumu, 25 Ekim 2026: "bekleme, oklar hemen görünsün")
             _path.Tick(pos, App.Stage.Camera, dt);
             UpdateMaviGuide(_path.Active && target != null, target ?? Vector2.zero, arrived);   // N2: Mavi önden uçar
         }
@@ -627,9 +740,12 @@ namespace Pofi.Screens
 
         // ------------------------------------------------------------------ bağlamsal eylem
 
+        private string _actionRegion;   // eylem tuşu Gir/Oyna ise hangi bölge (rehber eli için)
+
         private void UpdateAction()
         {
             var p = _world.Walker.Position;
+            _actionRegion = null;
             string key = "hud.jump", icon = "act_jump";
             System.Action act = () => _world.Walker.Jump();
             if (GatherAction(out var gk, out var gicon, out var gact)) { key = gk; icon = gicon; act = gact; }
@@ -677,6 +793,7 @@ namespace Pofi.Screens
                 if (best != null)
                 {
                     var v = best;
+                    _actionRegion = v.Region.Id;
                     key = IsPlayPlace(v.Region) ? "hud.play" : "hud.enter";
                     icon = key == "hud.play" ? "act_play" : "act_enter";
                     act = () => EnterRegion(v);
@@ -804,18 +921,17 @@ namespace Pofi.Screens
                 LongPressInfo.Add(b.gameObject, it.Name);
                 if (first == null) { first = (RectTransform)b.transform; firstId = it.Id; }
             }
-            ShowDragTip(tip, first, false, firstId);
+            ShowDragTip(tip, first, GuideHoldsCare, firstId);   // rehberde menüden gelindi: el elmayı/sabunu Okti'ye taşır
         }
 
         private void ShowDragTip(string tip, RectTransform from, bool force, string itemId)
         {
             if (from == null || (!force && !Onboarding.Pending(App.State, tip))) return;
             if (_coach != null) { _coach.Done(); _coach = null; }           // "Besle'ye dokun" adımı → sürükleme adımı
-            var i = System.Array.IndexOf(TipSeq, tip);
             // el eşyayı (elma, sabun) tepsiden alıp Okti'nin üstüne götürür, bırakır; yapılana kadar gidip gelir (kullanıcı, 24 Ekim 2026)
             var icon = itemId != null ? Ui.Icon(itemId) : null;
             _coach = Coach.Show(Root, tip, T(Onboarding.Get(tip).CaptionKey, PetGen), TipGesture.Drag, () => UiScreen(from), PetScreen, 99,
-                i >= 0 ? (i + 1) + "/" + TipSeq.Length : null, null, null, icon);
+                Guide.Active(App.State, App.Level) ? Guide.Label(App.State) : null, null, null, icon);
         }
 
         /// <summary>Bırakılan nokta petin üstünde mi (ekranda petin çevresi ya da çarpışma kutusu)?</summary>

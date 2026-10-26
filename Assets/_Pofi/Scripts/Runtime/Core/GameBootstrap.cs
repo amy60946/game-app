@@ -423,7 +423,7 @@ namespace Pofi.Core
         // ------------------------------------------------------------ hoş geldin coin'i (kullanıcı GB17-4, 24 Ekim 2026)
         // İlk beslemede bir kez 20 coin (ortak claim_welcome_coins): rehberin "dükkândan ilk aksesuarını al" adımı takılmasın.
         // Sunucu bir kez verir; işlev henüz yoksa ya da ağ yoksa sonraki beslemede yeniden denenir.
-        public const string WelcomeFlag = "welcome_coins";
+        public const string WelcomeFlag = Guide.WelcomeFlag;
         private bool _welcomeBusy;
 
         private async void ClaimWelcome()

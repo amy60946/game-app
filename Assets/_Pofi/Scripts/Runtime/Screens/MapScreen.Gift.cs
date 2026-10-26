@@ -3,6 +3,7 @@ using Pofi.Logic.Island;
 using Pofi.UI;
 using Pofi.World;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Pofi.Screens
 {
@@ -77,18 +78,77 @@ namespace Pofi.Screens
             var st = App.State.SunStones;
             if (SunStoneBook.GiveGift(st)) App.Save();
             if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
-            var cam = App.Stage.Camera;
-            Vector2 from = _mavi != null ? (Vector2)cam.WorldToScreenPoint(_mavi.transform.position + Vector3.up * 0.9f) : PetScreen();
             if (_mavi != null) _mavi.React();
             var glow = GainFx.Glow(_world.transform, GainFx.StoneColor, 0.8f, false);
             glow.position = (_mavi != null ? _mavi.transform.position : _world.Walker.transform.position) + Vector3.up * 1.0f;
             Audio.Sfx.Play(Audio.SfxKind.Chime);
-            yield return new WaitForSeconds(0.5f);
-            RewardFlight.Fly(App.Overlay.transform, "sunstone", "ui_sunstone", 1, from, 120f, Audio.SfxKind.Success, true);   // aksiyon çıktısı: taş sayaca uçar
-            for (var t = 0f; t < 0.6f; t += Time.deltaTime) { if (glow != null) glow.localScale *= 0.96f; yield return null; }
+            yield return new WaitForSeconds(0.4f);
             if (glow != null) Destroy(glow.gameObject);
-            yield return new WaitForSeconds(1.0f);
+            // kazanma anı (akış haritası yorumu, 25 Ekim 2026: "yalnız sayı 0'dan 1 oluyor; taşın ne olduğunu gösteren bir animasyon,
+            // bitince görsel sayaçtaki taşa süzülsün"): ekran kısılır, dönen altın ışınların önünde taş büyüyerek belirir, adı ve
+            // işi yazar; sonra küçülerek sayaca uçar
+            yield return StoneReveal();
+            yield return new WaitForSeconds(0.9f);
             GiftCard();
+        }
+
+        /// <summary>Güneş Taşı kazanma gösterisi (≈2,6 sn): ışınlar + taş + kurdele, sonra taş sayaca uçar (RewardFlight).</summary>
+        private System.Collections.IEnumerator StoneReveal()
+        {
+            var root = Ui.Fill(App.Overlay.transform, "StoneReveal");
+            var veil = root.gameObject.AddComponent<Image>(); veil.color = new Color(0.02f, 0.06f, 0.14f, 0f); veil.raycastTarget = true;
+            var rays = Ui.Rect(root, "Rays", new Vector2(0.5f, 0.55f), new Vector2(900f, 900f));
+            var ri = rays.gameObject.AddComponent<RawImage>(); ri.texture = LevelUpCelebration.RaysTex(); ri.raycastTarget = false; ri.color = new Color(1f, 0.8f, 0.3f, 0f);
+            var halo = Ui.Rect(root, "Halo", new Vector2(0.5f, 0.55f), new Vector2(420f, 420f));
+            var hi = halo.gameObject.AddComponent<Image>(); hi.sprite = Ui.Rounded; hi.type = Image.Type.Sliced; hi.pixelsPerUnitMultiplier = 0.25f;
+            hi.color = new Color(1f, 0.9f, 0.55f, 0f); hi.raycastTarget = false;
+            var stone = Ui.Rect(root, "Stone", new Vector2(0.5f, 0.55f), new Vector2(300f, 300f));
+            var si = stone.gameObject.AddComponent<Image>(); si.sprite = Ui.Icon("ui_sunstone"); si.preserveAspect = true; si.raycastTarget = false;
+            stone.localScale = Vector3.zero;
+            Audio.Sfx.Play(Audio.SfxKind.Success);
+            Audio.Haptics.Medium();
+            Text title = null, sub = null;
+            for (var t = 0f; t < 2.0f; t += Time.unscaledDeltaTime)
+            {
+                veil.color = new Color(0.02f, 0.06f, 0.14f, Mathf.Min(0.45f, t * 1.6f));
+                ri.color = new Color(1f, 0.8f, 0.3f, Mathf.Clamp01(t / 0.4f) * 0.42f);
+                rays.localRotation = Quaternion.Euler(0f, 0f, -t * 22f);
+                // 0 → 1,3 (0,3 sn) → 1, sonra hafif nefes ve dönme
+                var s = t < 0.3f ? Mathf.SmoothStep(0f, 1.3f, t / 0.3f) : t < 0.48f ? Mathf.Lerp(1.3f, 1f, (t - 0.3f) / 0.18f) : 1f + Mathf.Sin((t - 0.48f) * 4f) * 0.04f;
+                stone.localScale = Vector3.one * s;
+                stone.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 2.4f) * 6f);
+                var hp = Mathf.Repeat(t / 0.9f, 1f);
+                halo.localScale = Vector3.one * Mathf.Lerp(0.6f, 1.5f, hp);
+                hi.color = new Color(1f, 0.9f, 0.55f, (1f - hp) * 0.45f);
+                if (title == null && t > 0.45f)
+                {
+                    title = Candy.Ribbon(root, T("gift.reveal"), new Vector2(0.5f, 0.55f), new Vector2(0f, -215f), 120f, 54);
+                    title.transform.parent.gameObject.AddComponent<PopIn>();
+                    var sp = RectTransformUtility.WorldToScreenPoint(null, stone.position);
+                    StarSparkles.Around(root, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.14f, 0.2f), 12, 77, 1.6f);
+                    Audio.Sfx.Play(Audio.SfxKind.Chime);
+                }
+                if (sub == null && t > 0.8f)
+                {
+                    sub = Candy.Caption(root, T("gift.reveal_sub"), 40, new Vector2(0.5f, 0.55f), new Vector2(1300f, 64f), new Vector2(0f, -310f));
+                    Audio.Voice.Say(T("gift.reveal") + " " + T("gift.reveal_sub"));
+                }
+                yield return null;
+            }
+            // taş sayaca süzülür: büyük görsel küçülürken aynı yerden uçan taş çıkar
+            var from = RectTransformUtility.WorldToScreenPoint(null, stone.position);
+            RewardFlight.Fly(App.Overlay.transform, "sunstone", "ui_sunstone", 1, from, 150f, Audio.SfxKind.Success, true);
+            for (var t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.35f)
+            {
+                stone.localScale = Vector3.one * Mathf.Lerp(1f, 0f, t);
+                var a = 1f - t;
+                veil.color = new Color(0.02f, 0.06f, 0.14f, 0.45f * a);
+                ri.color = new Color(1f, 0.8f, 0.3f, 0.42f * a);
+                if (title != null) title.transform.parent.localScale = Vector3.one * a;
+                if (sub != null) sub.color = new Color(sub.color.r, sub.color.g, sub.color.b, a);
+                yield return null;
+            }
+            Destroy(root.gameObject);
         }
 
         /// <summary>Bilgi kartı (E dili; ödül tanıtımıyla aynı düzen): hediye · sisi dağıtır · sonrakiler gerçek görevden.</summary>

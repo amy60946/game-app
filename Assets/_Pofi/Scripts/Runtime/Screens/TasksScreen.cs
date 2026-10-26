@@ -56,6 +56,7 @@ namespace Pofi.Screens
             }
             NavBar(AppPage.Tasks);
             if (Onboarding.Pending(App.State, Onboarding.Board)) { Onboarding.Done(App.State, Onboarding.Board); App.Save(); }
+            if (Guide.Is(App.State, App.Level, "board")) App.RecordActivity(Guide.BoardCounter);   // rehberin pano adımı (+ Kıskaç'ın sahnesi)
             App.RecordActivity("board_opened");
             Activity.EnsureQuests(App.State, App.Data, App.Levels, App.LocalNow);
             App.Synced += OnSynced;

@@ -55,7 +55,8 @@ namespace Pofi.Logic.App
             if (step == FirstDayStep.Done) return true;
             switch (tipId)
             {
-                case Onboarding.Walk: case Onboarding.Feed: case Onboarding.Wash: case Onboarding.Enter: case Onboarding.Play:
+                // Look (kamera) da ilk gün gösterilir (akış haritası yorumu, 25 Ekim 2026: 1/7'den 5/7'ye atlıyordu)
+                case Onboarding.Walk: case Onboarding.Look: case Onboarding.Feed: case Onboarding.Wash: case Onboarding.Enter: case Onboarding.Play:
                 case Onboarding.Story: case Onboarding.Board: case Onboarding.Mark: case Onboarding.Stone: case Onboarding.Shop:
                 case Onboarding.TasksHome: case Onboarding.TasksDone: case Onboarding.TasksGame:   // Görevler penceresi tanıtımı (ilk gün en çok orada gerekir)
                 case Onboarding.MapFar: case Onboarding.MapPin:   // haritada hedef imi (GB18-8): yeni başlayan en çok ilk gün kaybolur

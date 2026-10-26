@@ -51,7 +51,7 @@ namespace Pofi.Screens
             foreach (var n in _gNodes)
             {
                 var spot = GatherSpot.Create(_world.transform, n, new Vector3(n.X, _terrain.Height(n.X, n.Z) - 0.05f, n.Z));
-                spot.gameObject.SetActive(Gathering.Available(st, n.Index, now));
+                spot.gameObject.SetActive(Gathering.Available(st, n.Index, now) && Shown(n));
                 _gSpots[n.Index] = spot;
             }
             _sitePos = Gathering.HutSite(_terrain);
@@ -79,6 +79,12 @@ namespace Pofi.Screens
             BuildReqCard();
             CalmBubbles();
         }
+
+        /// <summary>
+        /// Kulübe malzemeleri (kütük, çalı, taş) kulübe yerindeki sis kalkana kadar adada görünmez (akış haritası yorumu, 25 Ekim 2026:
+        /// "önceki görevlerde dikkat dağıtmasın"); hindistan cevizi her zaman görünür. Sis kalkınca ada yeniden kurulur, hepsi belirir.
+        /// </summary>
+        private bool Shown(GatherNode n) => n.Kind == GatherKind.Coconut || !SiteFogged;
 
         /// <summary>Çocuk toplamayı öğrendiyse (≈3 nesne) alet baloncukları sakinleşir; yalnız hedefteki canlı kalır.</summary>
         private void CalmBubbles()
@@ -232,7 +238,7 @@ namespace Pofi.Screens
                 _respawnT = 2f;
                 var now = App.UtcNow;
                 foreach (var n in _gNodes)
-                    if (!_gSpots[n.Index].gameObject.activeSelf && Gathering.Available(st, n.Index, now)) _gSpots[n.Index].PopIn();
+                    if (!_gSpots[n.Index].gameObject.activeSelf && Gathering.Available(st, n.Index, now) && Shown(n)) _gSpots[n.Index].PopIn();
                 if (_tracker != null) _tracker.gameObject.SetActive(!st.HutBuilt && !_overview && (_req == null || !_req.gameObject.activeSelf));
             }
             var p = _world.Walker.Position;

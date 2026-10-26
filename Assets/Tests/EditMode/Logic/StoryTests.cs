@@ -43,7 +43,7 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual("ch1_open", StoryDirector.Next(Book, st, 1, None, NoEvent).Id);
             StoryDirector.MarkSeen(st, Book.Scene("ch1_open"));
             Assert.IsNull(StoryDirector.Next(Book, st, 1, None, NoEvent), "pano açılmadan sıradaki yok");
-            Assert.AreEqual("ch1_board", StoryDirector.Next(Book, st, 1, None, e => e == "board_opened").Id);
+            Assert.AreEqual("ch1_board", StoryDirector.Next(Book, st, 1, None, e => e == Pofi.Logic.App.Guide.BoardCounter).Id);
         }
 
         [Test]
@@ -51,7 +51,7 @@ namespace Pofi.Tests.Logic
         {
             var st = new StoryState { Initialized = true, IntroSeen = true };
             foreach (var s in Book.Scenes.Where(x => x.Chapter <= 1 && x.Trigger != StoryDirector.Spot)) st.Seen.Add(s.Id);
-            Assert.IsNull(StoryDirector.Next(Book, st, 1, None, e => e == "board_opened"));
+            Assert.IsNull(StoryDirector.Next(Book, st, 1, None, e => e == Pofi.Logic.App.Guide.BoardCounter));
             var spots = new HashSet<string> { "spot_fog_cove" };
             Assert.AreEqual("ch1_close", StoryDirector.Next(Book, st, 1, spots, NoEvent).Id);
         }

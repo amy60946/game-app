@@ -11,7 +11,7 @@ namespace Pofi.UI
     /// </summary>
     public sealed class Coach : MonoBehaviour
     {
-        private RectTransform _root, _finger, _ring, _prop, _carry;
+        private RectTransform _root, _finger, _ring, _prop, _carry, _banner;
         private float _propS;
         private readonly System.Collections.Generic.List<(RectTransform Rt, Vector2 Off)> _props = new System.Collections.Generic.List<(RectTransform, Vector2)>();
         private Image _fingerImg, _ringImg;
@@ -39,6 +39,7 @@ namespace Pofi.UI
             // eylem tuşunun arası; kısa cümle
             var banner = Candy.Banner(rt, Candy.Blue, "ui_hand", new Vector2(0.5f, 0f), new Vector2(0f, 150f), 760f, 36, false);
             banner.SetText(caption);
+            c._banner = banner.Rect;
             banner.Rect.gameObject.AddComponent<PopIn>();
             c._said = voice ?? caption;
             // sesli okuma: köşede hoparlör (sıra rozeti köşedeyse onun altında, sağ kenarda), ipucu bir kez okunur
@@ -189,6 +190,14 @@ namespace Pofi.UI
         }
 
         public void Done() { if (this != null) Destroy(gameObject); }
+
+        /// <summary>Yalnız el (altyazı balonu yok): hedef zaten alt şeritteyse (ör. "Harika!" düğmesi) balon üstüne binmesin.</summary>
+        public Coach HandOnly()
+        {
+            if (_banner != null) _banner.gameObject.SetActive(false);
+            Audio.Voice.StopIf(_said);
+            return this;
+        }
 
         private void OnDestroy() => Audio.Voice.StopIf(_said);
     }

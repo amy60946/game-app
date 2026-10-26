@@ -58,7 +58,8 @@ namespace Pofi.Screens
             if (!CampfireRules.Stoke(st.Campfire, st.Gather, day, App.UtcNow)) return;
             _world.Walker.Face(f.Value.x, f.Value.y);
             _world.Walker.Swing();
-            if (Campfire.Instance != null) Campfire.Instance.Stoke(CampfireRules.Heat(st.Campfire, App.UtcNow));
+            if (Campfire.Instance != null)   // odunlar Okti'nin elinden ateşe uçar, alev taşar, kıvılcım + duman (zengin harlama)
+                Campfire.Instance.StokeFx(_world.Walker.transform.position + Vector3.up * 1.0f, CampfireRules.Heat(st.Campfire, App.UtcNow), Ui.Icon("mat_wood"), App.Stage.Camera);
             Audio.Sfx.Play(Audio.SfxKind.Whoosh);
             Audio.Haptics.Medium();
             var at = _world.World(f.Value.x, f.Value.y) + Vector3.up * 1.2f;

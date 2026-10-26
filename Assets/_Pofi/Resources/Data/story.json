@@ -176,7 +176,7 @@
    "chapter": 1,
    "trigger": "event",
    "arg": "coconut_delivered",
-   "summary": "Kıskaç çok sevindi. Gökyüzünde biri görünüyor!",
+   "summary": "Kıskaç çok sevindi; Okti adayı biraz dolaşmaya çıkar.",
    "art": "load_shop",
    "lines": [
     {
@@ -193,9 +193,9 @@
     },
     {
      "who": "kiskac",
-     "text": "Bak, gökyüzünde biri var... Postacı Mavi mi o?",
-     "a": "Bak, gökyüzünde biri var!",
-     "mood": "surprised"
+     "text": "Hadi şimdi adayı biraz dolaş, bakalım kimlerle karşılaşacaksın!",
+     "a": "Hadi, adayı biraz dolaş!",
+     "mood": "happy"
     }
    ]
   },
@@ -203,7 +203,7 @@
    "id": "ch1_board",
    "chapter": 1,
    "trigger": "event",
-   "arg": "board_opened",
+   "arg": "board_guided",
    "summary": "Ev Görevleri panosu: yaptığın her görev bir Güneş Taşı getirir.",
    "lines": [
     {

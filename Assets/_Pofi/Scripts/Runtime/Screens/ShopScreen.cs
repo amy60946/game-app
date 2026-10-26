@@ -66,7 +66,8 @@ namespace Pofi.Screens
             App.Synced += OnSynced;
             Fill();
             if (_tab == RealTab) { _ = RefreshRewards(); if (!App.State.SeenTips.Contains(RewardsIntroFlag)) RewardsIntro(); }
-            if (Guide.Is(App.State, App.Level, "shop")) GuideFirstWear();
+            _guideVisit = Guide.Is(App.State, App.Level, "shop");
+            if (_guideVisit) GuideFirstWear();
             else if (Onboarding.Pending(App.State, Onboarding.Shop))
                 _coach = Coach.Show(Root, Onboarding.Shop, T("tip.shop"), TipGesture.Tap, () => new Vector2(Screen.width * 0.42f, Screen.height * 0.26f));   // ızgaranın ilk ürünü
         }
@@ -129,10 +130,20 @@ namespace Pofi.Screens
             Fill();
             var say = T("guide.shop_pick", item.Name);
             _coach = Coach.Show(Root, "guide_shop", say, TipGesture.Tap, () => _buyBtn != null ? RectTransformUtility.WorldToScreenPoint(null, _buyBtn.position) : new Vector2(Screen.width * 0.7f, Screen.height * 0.2f),
-                null, 99, (Guide.DoneCount(App.State) + 1) + "/" + Guide.Steps.Count, null, say);
+                null, 99, Guide.Label(App.State), null, say);
         }
 
         private Coach _coach;
+        private float _guideT;
+        private bool _guideVisit;   // bu ziyaret rehberin dükkân adımıyla başladı
+
+        private void Update()
+        {
+            if ((_guideT -= Time.deltaTime) > 0f) return;
+            _guideT = 0.5f;
+            // aksesuar alındı: sıradaki iş adada (Okti'ye dokun → Giydir ya da Kıskaç) — el çarpıyı gösterir
+            if (_guideVisit && !Guide.Is(App.State, App.Level, "shop")) GuideToClose(ref _coach, id => id == "shop");
+        }
 
         private void ShopTipDone()
         {

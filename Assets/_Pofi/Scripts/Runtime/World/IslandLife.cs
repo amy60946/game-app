@@ -281,6 +281,91 @@ namespace Pofi.World
         /// <summary>Kayıttan gelen coşku (adaya girerken).</summary>
         public void SetHeat(float heat) => _heat = Mathf.Clamp01(heat);
 
+        /// <summary>
+        /// Zengin harlama (akış haritası yorumu, 25 Ekim 2026: "ateşin büyüme animasyonu daha profesyonel ve zengin"): Okti'den iki
+        /// odun yay çizerek ateşe düşer; her düşüşte alev "huf" diye taşar, kıvılcımlar dönerek yükselir, yerde sıcak halka yayılır,
+        /// ince duman süzülür; sonunda ateş coşkuyla büyük yanmaya devam eder. <paramref name="from"/>: Okti'nin elleri (dünya).
+        /// </summary>
+        public void StokeFx(Vector3 from, float heat, Sprite wood, Camera cam)
+        {
+            StartCoroutine(StokeRoutine(from, heat, wood, cam));
+        }
+
+        private System.Collections.IEnumerator StokeRoutine(Vector3 from, float heat, Sprite wood, Camera cam)
+        {
+            var to = transform.position + Vector3.up * 0.35f;
+            for (var i = 0; i < 2; i++)
+            {
+                var log = WoodQuad(wood);
+                for (var t = 0f; t < 1f; t += Time.deltaTime / 0.5f)
+                {
+                    var e = t * t * (3f - 2f * t);
+                    log.position = Vector3.Lerp(from, to, e) + Vector3.up * Mathf.Sin(e * Mathf.PI) * 1.3f;
+                    if (cam != null) log.rotation = Quaternion.LookRotation(log.position - cam.transform.position) * Quaternion.Euler(0f, 0f, t * 540f + i * 90f);
+                    yield return null;
+                }
+                Destroy(log.gameObject);
+                // düşüş: alev taşar, kıvılcım + halka + duman
+                _boost = 1.25f; _heat = Mathf.Clamp01(Mathf.Max(_heat, heat * (i + 1) / 2f));
+                Ripple.Spawn(transform.position + Vector3.up * 0.06f, 1.1f + i * 0.4f, 2, new Color(1f, 0.6f, 0.25f));
+                for (var k = 0; k < 9; k++) StartCoroutine(Ember(k + i * 9));
+                for (var k = 0; k < 3; k++) StartCoroutine(Smoke(k));
+                Audio.Sfx.Play(Audio.SfxKind.Whoosh);
+                yield return new WaitForSeconds(0.18f);
+            }
+            _heat = Mathf.Clamp01(heat);
+        }
+
+        private Transform WoodQuad(Sprite wood)
+        {
+            var q = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            Destroy(q.GetComponent<Collider>());
+            q.name = "stoke_wood";
+            q.transform.localScale = Vector3.one * 0.7f;
+            var r = q.GetComponent<MeshRenderer>();
+            r.sharedMaterial = InkHeart.SpriteMat(wood != null ? wood.texture : null);
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            return q.transform;
+        }
+
+        /// <summary>Kıvılcım: ateşin içinden dönerek yükselir, savrulur, söner (ParticleSystem yok).</summary>
+        private System.Collections.IEnumerator Ember(int seed)
+        {
+            var rnd = new System.Random(seed * 7919 + (int)(Time.time * 10f));
+            var g = GainFx.Glow(transform, new Color(1f, 0.55f + 0.3f * (float)rnd.NextDouble(), 0.15f), 1.2f, false);
+            var a = (float)rnd.NextDouble() * Mathf.PI * 2f;
+            var v = new Vector3(Mathf.Cos(a) * 0.6f, 2.2f + 1.6f * (float)rnd.NextDouble(), Mathf.Sin(a) * 0.6f);
+            var p = new Vector3(Mathf.Cos(a) * 0.15f, 0.4f, Mathf.Sin(a) * 0.15f);
+            var life = 0.9f + 0.7f * (float)rnd.NextDouble();
+            var size = 0.12f + 0.1f * (float)rnd.NextDouble();
+            for (var t = 0f; t < life; t += Time.deltaTime)
+            {
+                p += v * Time.deltaTime;
+                v.y -= 0.8f * Time.deltaTime;
+                v.x += Mathf.Sin(t * 9f + seed) * 1.4f * Time.deltaTime;
+                g.localPosition = p;
+                g.localScale = Vector3.one * size * (1f - t / life) * (0.8f + 0.4f * Mathf.Sin(t * 40f));
+                yield return null;
+            }
+            Destroy(g.gameObject);
+        }
+
+        /// <summary>İnce duman topağı: yavaşça yükselir, büyür, söner.</summary>
+        private System.Collections.IEnumerator Smoke(int k)
+        {
+            yield return new WaitForSeconds(0.15f * k);
+            var g = GainFx.Glow(transform, new Color(0.55f, 0.52f, 0.5f), 0.35f, false);
+            var p = new Vector3((k - 1) * 0.15f, 1.0f, 0f);
+            for (var t = 0f; t < 1.6f; t += Time.deltaTime)
+            {
+                p += new Vector3(0.12f, 0.9f, 0.05f) * Time.deltaTime;
+                g.localPosition = p;
+                g.localScale = Vector3.one * Mathf.Lerp(0.3f, 1.1f, t / 1.6f) * (1f - t / 1.6f);
+                yield return null;
+            }
+            Destroy(g.gameObject);
+        }
+
         private void OnDestroy() { if (Instance == this) Instance = null; }
 
         private void Update()
@@ -288,8 +373,17 @@ namespace Pofi.World
             if (_light == null) return;
             var t = Time.time;
             _boost = Mathf.MoveTowards(_boost, 0f, Time.deltaTime / 2.5f);
-            var grow = 1f + 0.35f * _heat + 0.9f * Mathf.Sin(Mathf.Clamp01(_boost) * Mathf.PI * 0.5f);   // harlayınca alev boyu
-            foreach (var (f, s0) in _flames) if (f != null) f.localScale = Vector3.Lerp(f.localScale, s0 * grow, Time.deltaTime * 6f);
+            // harlayınca alev boyu: önce taşar (1,25 üstü hızlı söner), sonra coşkuyla yanar; alevler hafifçe dalgalanır
+            var over = Mathf.Max(0f, _boost - 1f) * 2.4f;
+            var grow = 1f + 0.45f * _heat + 0.9f * Mathf.Sin(Mathf.Clamp01(_boost) * Mathf.PI * 0.5f) + over;
+            var i = 0;
+            foreach (var (f, s0) in _flames)
+            {
+                if (f == null) continue;
+                var wob = 1f + 0.06f * Mathf.Sin(t * (7f + i) + i * 1.7f) * (0.4f + _heat);
+                f.localScale = Vector3.Lerp(f.localScale, new Vector3(s0.x * (0.9f + 0.1f * grow), s0.y * grow * wob, s0.z * (0.9f + 0.1f * grow)), Time.deltaTime * 8f);
+                i++;
+            }
             _light.intensity = _base * (1f + 0.5f * _heat + 1.2f * _boost) * (0.82f + 0.12f * Mathf.Sin(t * 13f) + 0.08f * Mathf.Sin(t * 29f + 1.3f) + 0.06f * Mathf.PerlinNoise(t * 5f, 0.3f));
         }
 

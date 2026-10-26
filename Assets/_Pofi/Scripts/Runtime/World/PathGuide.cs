@@ -11,8 +11,10 @@ namespace Pofi.World
     /// </summary>
     public sealed class PathGuide : MonoBehaviour
     {
-        private const int MaxArrows = 9;
-        private const float Step = 1.7f, StartAt = 1.6f, StopShort = 2.4f;
+        // Akış haritası yorumu (25 Ekim 2026, kullanıcı: "oklar görünmüyor; daha geniş ve daha kalın olsun"): ok 1,7 kat büyük,
+        // kollar kalın + koyu turuncu kenar (açık zeminde de seçilir), aralık 2,1 m
+        private const int MaxArrows = 10;
+        private const float Step = 2.1f, StartAt = 1.8f, StopShort = 2.4f, ArrowSize = 1.65f;
         private readonly List<Transform> _arrows = new List<Transform>();
         private readonly List<Material> _mats = new List<Material>();
         private Transform _marker;
@@ -62,7 +64,7 @@ namespace Pofi.World
             var dir = d / len;
             var yaw = Mathf.Atan2(dir.x, dir.y) * Mathf.Rad2Deg;
             var n = Mathf.Clamp(Mathf.FloorToInt((len - StartAt - StopShort) / Step) + 1, 0, MaxArrows);
-            var gold = new Color(1f, 0.86f, 0.35f);
+            var gold = Color.white;   // renk dokuda (altın + kenar)
             for (var i = 0; i < _arrows.Count; i++)
             {
                 var a = _arrows[i];
@@ -72,13 +74,13 @@ namespace Pofi.World
                 var p = from + dir * (StartAt + i * Step);
                 var h = _world.Terrain.Height(p.x, p.y);
                 if (h < -0.05f) { a.gameObject.SetActive(false); continue; }   // denizde ok yok
-                a.localPosition = new Vector3(p.x, h + 0.07f, p.y);
+                a.localPosition = new Vector3(p.x, h + 0.09f, p.y);
                 a.localRotation = Quaternion.Euler(90f, yaw, 0f);
-                a.localScale = Vector3.one * 0.95f;
+                a.localScale = Vector3.one * ArrowSize;
                 // ışık dalgası: arkadan öne akar (1,4 sn)
                 var ph = Mathf.Repeat(_t / 1.4f - i * 0.11f, 1f);
                 var wave = Mathf.Pow(Mathf.Max(0f, Mathf.Cos(ph * Mathf.PI * 2f)), 3f);
-                var c = gold; c.a = (0.3f + 0.7f * wave) * _fade;
+                var c = gold; c.a = (0.55f + 0.45f * wave) * _fade;
                 _mats[i].color = c;
             }
             // hedef oku: billboard, zıplar (0,6 sn)
@@ -87,7 +89,7 @@ namespace Pofi.World
             var bounce = Mathf.Abs(Mathf.Sin(_t * Mathf.PI / 0.6f));
             _marker.localPosition = new Vector3(_target.x, ty + 3.1f + bounce * 0.45f, _target.y);
             if (cam != null) _marker.rotation = Quaternion.LookRotation(_marker.position - cam.transform.position, Vector3.up);
-            _marker.localScale = Vector3.one * (1.25f + 0.08f * bounce);
+            _marker.localScale = Vector3.one * (1.6f + 0.1f * bounce);
             var mc = gold; mc.a = _fade; _markerMat.color = mc;
         }
 
@@ -105,25 +107,27 @@ namespace Pofi.World
             return q.transform;
         }
 
-        /// <summary>Zemindeki ok: yumuşak kenarlı, içi açık altın, ucu ileri (+y).</summary>
+        /// <summary>Zemindeki ok: kalın köşeli V (chevron), içi açık altın, koyu turuncu kenar, ucu ileri (+y).</summary>
         private static Texture2D ArrowTex()
         {
             if (_arrowTex != null) return _arrowTex;
-            const int n = 96;
+            const int n = 128;
             _arrowTex = new Texture2D(n, n, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, name = "guide_arrow" };
             var px = new Color32[n * n];
+            var fill = new Color(1f, 0.84f, 0.3f); var core = new Color(1f, 0.97f, 0.75f); var edge = new Color(0.78f, 0.36f, 0.04f);
             for (var y = 0; y < n; y++)
                 for (var x = 0; x < n; x++)
                 {
                     var u = (x + 0.5f) / n * 2f - 1f; var v = (y + 0.5f) / n * 2f - 1f;
-                    // köşeli V (chevron): iki kol, uç yukarıda
-                    var arm = Mathf.Abs(v - (0.55f - Mathf.Abs(u) * 1.05f));
-                    var inside = Mathf.Abs(u) < 0.82f && v > -0.75f && v < 0.75f;
-                    var a = inside ? Mathf.Clamp01((0.24f - arm) * 9f) : 0f;
-                    var glow = inside ? Mathf.Clamp01((0.42f - arm) * 2.2f) * 0.35f : 0f;
-                    var alpha = Mathf.Max(a, glow);
-                    var core = Mathf.Clamp01((0.12f - arm) * 12f);
-                    px[y * n + x] = new Color(1f, 1f, Mathf.Lerp(0.82f, 1f, core), alpha);
+                    var arm = Mathf.Abs(v - (0.5f - Mathf.Abs(u) * 1.0f));   // iki kol, uç yukarıda
+                    var inside = Mathf.Abs(u) < 0.9f && v > -0.85f && v < 0.85f;
+                    if (!inside) { px[y * n + x] = new Color(1f, 1f, 1f, 0f); continue; }
+                    var body = Mathf.Clamp01((0.3f - arm) * 14f);           // kalın kol
+                    var rim = Mathf.Clamp01((0.38f - arm) * 14f);           // koyu kenar
+                    var glow = Mathf.Clamp01((0.55f - arm) * 2.5f) * 0.3f;
+                    var c = Color.Lerp(edge, Color.Lerp(fill, core, Mathf.Clamp01((0.14f - arm) * 10f)), body);
+                    c.a = Mathf.Max(rim, glow);
+                    px[y * n + x] = c;
                 }
             _arrowTex.SetPixels32(px); _arrowTex.Apply();
             return _arrowTex;
