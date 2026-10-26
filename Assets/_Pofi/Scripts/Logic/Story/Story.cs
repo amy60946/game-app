@@ -228,6 +228,15 @@ namespace Pofi.Logic.Story
         /// <summary>K (≤5) için kendiliğinden ilerleme süresi (saniye); diğerleri dokunuşla ilerler.</summary>
         public static float AutoAdvance(AgeBand band) => band == AgeBand.K ? 4f : 0f;
 
+        /// <summary>Cümleler arası en kısa süre (kullanıcı, 26 Ekim 2026: "en az 3 saniye, konuşma gibi akıcı, çocuk takip edebilsin").</summary>
+        public const float MinLineGap = 3f;
+
+        /// <summary>
+        /// Sohbet kendiliğinden ilerler: cümle yazılıp sesi bittikten sonra okuma süresi kadar bekler (en az 3 sn, K'de 4 sn;
+        /// uzun cümlede saniyede ~14 harf + 1,2 sn). Dokunuş daha erken geçirir ama cümlenin başından 3 sn dolmadan değil.
+        /// </summary>
+        public static float LineHold(AgeBand band, int chars) => Math.Max(band == AgeBand.K ? 4f : MinLineGap, 1.2f + chars / 14f);
+
         /// <summary>Defter → Hikâye: izlenmiş sahneler, sırayla.</summary>
         public static List<StoryScene> Replayable(StoryBook book, StoryState st) => book.Scenes.Where(s => st.Seen.Contains(s.Id)).ToList();
     }

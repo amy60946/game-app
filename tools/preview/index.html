@@ -104,7 +104,7 @@ body { margin: 0; background: var(--sky); color: var(--ink); font-family: -apple
         fetch('Build/PofiAdasi.data.part' + i + '.wasm').then(function (r) { return r.arrayBuffer(); }).then(function (b) {
           bufs[i] = b; got++;
           fill.style.width = Math.round(got / info.parts * 50) + '%';
-          if (got === info.parts) { config.dataUrl = URL.createObjectURL(new Blob(bufs)); done(); }
+          if (got === info.parts) { config.dataUrl = URL.createObjectURL(new Blob(bufs)); bufs = null; done(); }   // parçalar bırakılır (iPhone belleği)
         }).catch(function () { fail('Oyun dosyaları indirilemedi.'); });
       }
     });

@@ -17,7 +17,11 @@ cp "$B/PofiAdasi.loader.js" "$OUT/Build/"
 cp "$B/PofiAdasi.framework.js.unityweb" "$OUT/Build/PofiAdasi.framework.wasm"
 # Veri dosyası 14 MB'lık parçalara bölünür (önizleme sayfası tek dosyada 15 MB sınırı); sayfa parts.json'a göre birleştirir
 # 26 Ekim 2026: veri 140 MB'ı aştı (10 parça) → iki haneli bölüp sayfanın beklediği sade numaraya (part0 … part12) çevir
-split -b 14000000 -d -a 2 "$B/PofiAdasi.data.unityweb" "$OUT/Build/PofiAdasi.data.part"
+# 26 Ekim 2026: veri gzip'ten açılarak yayınlanır (dokular zaten sıkışık, gzip yalnız %13 kazandırıyordu). Gzip'li veriyi Unity
+# tarayıcıda açarken sıkışık + açık iki kopya bellekte duruyordu; iPhone'da sayfa çöküyordu. Yükleyici işaretsiz veriyi olduğu gibi kullanır.
+gzip -dc < "$B/PofiAdasi.data.unityweb" > "$TMP/data.raw"
+split -b 14000000 -d -a 2 "$TMP/data.raw" "$OUT/Build/PofiAdasi.data.part"
+rm -f "$TMP/data.raw"
 n=0; for f in "$OUT"/Build/PofiAdasi.data.part[0-9][0-9]; do mv "$f" "$OUT/Build/PofiAdasi.data.part$n.wasm"; n=$((n+1)); done
 echo "{\"parts\": $n}" > "$OUT/Build/parts.json"
 cp "$B/PofiAdasi.wasm.unityweb" "$OUT/Build/PofiAdasi.code.wasm"

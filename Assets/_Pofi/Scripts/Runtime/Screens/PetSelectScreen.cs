@@ -13,7 +13,7 @@ namespace Pofi.Screens
     /// Pet seçme / tanışma ekranı. Arkada kumsal (<see cref="World.Stage.SetBeach"/>: tepecikli kum, ıslak kum şeridi, köpük izi,
     /// denizde parıltı), önde canlı 3B pet (parmakla çevrilir). Görünüş oyun içi pencere dilinde (24 Ekim 2026): başlık mavi
     /// kurdelede, bilgi krem kartta (adı kartın kurdelesinde), tek yeşil ana düğme. Tek pet (Okti) varken ok, küçük resim yok.
-    /// Ad sorulmaz (kullanıcı: "Ad hep Okti kalsın"): "Tanışalım!" ile ad Okti olur, hoş geldin hediyesi verilir, ada açılır.
+    /// Ad sorulmaz (kullanıcı: "Ad hep Okti kalsın"): "Başlayalım!" ile ad Okti olur (26 Ekim 2026: Okti'ye dokununca dans eder, kartta kendi tanıtım cümlesi), hoş geldin hediyesi verilir, ada açılır.
     /// Birden çok pet olursa karusel (oklar, kaydırma, küçük resimler) geri gelir. İlk açılışta önce giriş filmi (F) oynar.
     /// </summary>
     public sealed class PetSelectScreen : ScreenBase
@@ -36,6 +36,8 @@ namespace Pofi.Screens
             App.Stage.SetBeach(true);   // kumsal sahnesi (Meshy görseli + kodla zenginleştirildi, karaktersiz)
             PetCamera(0.36f, 0.16f, 0.82f);   // yatay: pet sol-ortada kumda, bilgi kartı sağda
             if (!single) App.Stage.Swiped = dir => { if (dir < 0) _picker.Next(); else _picker.Prev(); Show(); };
+            // Okti'ye dokun → dans eder (kullanıcı, 26 Ekim 2026)
+            App.Stage.Tapped = pos => { if (!_going && _confirm == null && App.Stage.PetHit(pos)) App.Stage.Dance(); };
 
             // başlık: oyundaki pencere başlıkları gibi mavi kurdele; altında kısa ipucu. Petin çevresinde parıldayan yıldızlar
             Candy.Ribbon(Root, T(single ? "pet.meet_title" : "pet.pick_title"), new Vector2(0.5f, 1f), new Vector2(0f, -84f), 130f, 54);
@@ -102,8 +104,11 @@ namespace Pofi.Screens
             // ad kurdelesi yazıya göre uzar: pet değişince yeniden kurulur
             if (_nameRibbon != null) Destroy(_nameRibbon.gameObject);
             _nameRibbon = (RectTransform)ModalTitle(_card, def.Name).transform.parent;
-            _species.text = def.Species;
-            _feature.text = def.Feature;
+            // tek arkadaş: tanıtım cümlesi kendi ağzından (kullanıcı, 26 Ekim 2026); tür satırı yok
+            var single = _picker.Count <= 1;
+            _species.text = single ? "" : def.Species;
+            _feature.text = single ? T("pet.meet_intro") : def.Feature;
+            _feature.rectTransform.anchoredPosition = new Vector2(0f, single ? 20f : 0f);
             for (var i = 0; i < _dots.Length; i++)
             {
                 var on = i == _picker.Index;
@@ -149,6 +154,7 @@ namespace Pofi.Screens
             PetChange.Choose(App.State, petId, App.Data, App.Starter);
             App.Save();
             App.Stage.Swiped = null;
+            App.Stage.Tapped = null;
             App.Stage.AllowDrag = false;
             App.Stage.Hop();
             StartCoroutine(GoAfter(0.5f));
@@ -162,6 +168,7 @@ namespace Pofi.Screens
 
         private void OnDestroy()
         {
+            if (App != null && App.Stage != null) App.Stage.Tapped = null;
             UI.FilmPlayer.Stop();
         }
     }

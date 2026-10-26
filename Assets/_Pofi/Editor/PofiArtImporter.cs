@@ -13,7 +13,7 @@ namespace Pofi.EditorTools
     public sealed class PofiArtImporter : AssetPostprocessor
     {
         // Ayar değişince artırılır: CI'daki önbellekli Library varlıkları yeni ayarlarla yeniden içe aktarır.
-        public override uint GetVersion() => 15;   // 15: uzay kıyafetleri 1024   // 14: koşu oyunu Env/rs_* dokuları 1024, Ay arazisi/krater 2048   // 13: eşyalar okunabilir (gövde giysisi vücuda deri olarak bağlanır)   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
+        public override uint GetVersion() => 16;   // 16: normal haritaları en çok 512   // 15: uzay kıyafetleri 1024   // 14: koşu oyunu Env/rs_* dokuları 1024, Ay arazisi/krater 2048   // 13: eşyalar okunabilir (gövde giysisi vücuda deri olarak bağlanır)   // 12: evre petleri okunabilir (eşya yerleşimi gerçek ağı ölçer)   // 11: evre klasörleri (Okti) kırpılmaz   // 9: idle 2–98, 10: Resources/UI (v3 arayüz parçaları)
 
         private static readonly string[] Loops = { "idle", "walk", "run", "sleep", "swim" };
 
@@ -194,6 +194,9 @@ namespace Pofi.EditorTools
             var space = System.Text.RegularExpressions.Regex.IsMatch(assetPath.Replace('\\', '/'),
                 "/Resources/Items/(outfit_(astro|pilot|star)|hat_(astro_helmet|pilot_goggles|star_antenna)|back_(astro_pack|pilot_jetpack|star_cape))/");
             t.maxTextureSize = hero || runnerGround ? 2048 : (IsPet && !normal) || building || tree || resident || runnerPath || space ? 1024 : 512;
+            // normal haritaları en çok 512 (26 Ekim 2026: veri 172 MB, önizleme iPhone'da belleğe sığmadı; 1024'lük 40 normal = 53 MB,
+            // telefonda kabartma farkı görünmüyor)
+            if (normal) t.maxTextureSize = Mathf.Min(t.maxTextureSize, 512);
             t.mipmapEnabled = true;
             t.textureCompression = TextureImporterCompression.Compressed;
             t.crunchedCompression = false;

@@ -36,6 +36,15 @@ namespace Pofi.EditorTools
                 Debug.Log($"[Pofi] iOS: {PlayerSettings.GetApplicationIdentifier(UnityEditor.Build.NamedBuildTarget.iOS)} {PlayerSettings.bundleVersion} ({PlayerSettings.iOS.buildNumber})");
             }
 
+            if (target == BuildTarget.WebGL)
+            {
+                // 26 Ekim 2026 (derleme 147, önizleme iPhone'da çöktü): WebGL varsayılanı DXT; iPhone tarayıcısı DXT okuyamaz, Unity her
+                // dokuyu açılışta sıkıştırmasız RGBA'ya çevirir (~200 MB doku → 1 GB üstü bellek). ASTC iPhone'da sıkışık kalır;
+                // masaüstü tarayıcıda (bulut ekran görüntüleri) Unity yine açar, yalnız yavaşlar.
+                EditorUserBuildSettings.webGLBuildSubtarget = WebGLTextureSubtarget.ASTC;
+                Debug.Log("[Pofi] WebGL doku biçimi: " + EditorUserBuildSettings.webGLBuildSubtarget);
+            }
+
             if (target == BuildTarget.Android)
             {
                 // M0: imzasız/debug APK yeterli (kullanıcı şimdilik yalnızca iPhone kullanıyor).

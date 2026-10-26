@@ -24,6 +24,8 @@ namespace Pofi.World
 
         /// <summary>Hızlı yatay kaydırma (karusel için): −1 sola, +1 sağa.</summary>
         public Action<int> Swiped;
+        /// <summary>Kısa dokunuş (sürükleme/kaydırma değil): ekran konumu. Tanışma ekranında Okti'ye dokununca dans eder.</summary>
+        public Action<Vector2> Tapped;
 
         private Transform _holder;
         private float _yaw, _yawVelocity, _hop, _breath, _baseScale = 1f, _appear = 1f;
@@ -375,6 +377,27 @@ namespace Pofi.World
             if (!UI.Theme.ReduceMotion) _hop = 1f;
         }
 
+        /// <summary>Dans: evrenin dosyasında ne varsa (ergen/yetişkin hip-hop, YMCA; çocukta dönerek zıplama dansı), yoksa sevinç.</summary>
+        public void Dance()
+        {
+            Audio.Sfx.Play(Audio.SfxKind.Pop);
+            var dances = new[] { "dance", "dance2", "spin" };
+            var start = UnityEngine.Random.Range(0, dances.Length);
+            for (var i = 0; i < dances.Length; i++) if (RealAssets.Play(Pet, dances[(start + i) % dances.Length])) return;
+            if (RealAssets.Play(Pet, "happy")) return;
+            if (!UI.Theme.ReduceMotion) _hop = 1f;
+        }
+
+        /// <summary>Ekran noktası pete mi denk geliyor (ayaktan başın biraz üstüne, gövde genişliğinde)?</summary>
+        public bool PetHit(Vector2 screen)
+        {
+            if (Pet == null || Camera == null) return false;
+            var feet = (Vector2)Camera.WorldToScreenPoint(_holder.position);
+            var head = PetHeadScreenPoint();
+            var h = Mathf.Max(40f, head.y - feet.y);
+            return screen.y > feet.y - h * 0.1f && screen.y < head.y + h * 0.15f && Mathf.Abs(screen.x - feet.x) < h * 0.55f;
+        }
+
         /// <summary>Petin kafa üstünün ekran konumu (konuşma balonu için).</summary>
         public Vector2 PetHeadScreenPoint()
         {
@@ -440,6 +463,8 @@ namespace Pofi.World
                     _yawVelocity = 0f;
                     Swiped(total < 0 ? -1 : 1);
                 }
+                else if (quick && ((Vector2)Input.mousePosition - (Vector2)_pressPos).magnitude < Screen.height * 0.03f && Tapped != null)
+                    Tapped(Input.mousePosition);
             }
         }
 

@@ -30,7 +30,8 @@ namespace Pofi.UI
         private System.Action _done;
         private int _i = -1;
         private string _full = "";
-        private float _shown, _auto, _wait;
+        private float _shown, _auto, _wait, _lineT;
+        private bool _queued, _spoke;   // erken dokunuş: cümlenin 3. saniyesinde geçer (sohbet hızı, 26 Ekim 2026)
         private bool _typing;
         private Theme _th;
         private RectTransform _root, _barTop, _barBottom, _box, _bubble, _portrait, _name;
@@ -139,6 +140,7 @@ namespace Pofi.UI
         {
             if (_typing) { _typing = false; _shown = _full.Length; _text.text = _full; _wait = 0f; return; }
             if (_go != null && _go.gameObject.activeSelf) return;   // son satır: tek düğme
+            if (_lineT < StoryDirector.MinLineGap) { _queued = true; return; }   // cümleler arası en az 3 sn
             Next();
         }
 
@@ -148,7 +150,7 @@ namespace Pofi.UI
             if (_i >= _scene.Lines.Count) { Finish(); return; }
             var l = _scene.Lines[_i];
             _full = StoryDirector.Text(l, _band).Replace("{pet}", _petName);
-            _shown = 0f; _typing = true; _text.text = ""; _wait = 0f;
+            _shown = 0f; _typing = true; _text.text = ""; _wait = 0f; _lineT = 0f; _queued = false; _spoke = false;
             _voice.SetText(_full);
             Audio.Voice.Say(_full, true);   // önceden kaydedilmiş ses (anlatıcı / Okti / adalı); kaydı yoksa önceki satırın sesi de susar
             var narrator = l.Who == "narrator";
@@ -190,9 +192,12 @@ namespace Pofi.UI
             var k = 1f - Mathf.Pow(1f - _rise, 3f);
             var okti = _lastWho == "okti";
             _portrait.anchoredPosition = new Vector2((okti ? -1f : 1f) * (PortraitSize * 0.5f + 24f), -18f - (1f - k) * PortraitSize);   // tamamı ekranda
+            _lineT += dt;
+            // yeni cümle yumuşak belirir (sert geçiş yok)
+            var tc = _text.color; tc.a = Mathf.Clamp01(_lineT / 0.25f); _text.color = tc;
             if (_typing)
             {
-                _shown += dt * 40f;   // saniyede 40 harf
+                _shown += dt * 32f;   // saniyede 32 harf (konuşma hızına yakın)
                 var n = Mathf.Min(_full.Length, (int)_shown);
                 _text.text = _full.Substring(0, n);
                 if (n >= _full.Length) _typing = false;
@@ -201,8 +206,11 @@ namespace Pofi.UI
             {
                 _wait += dt;
                 if (_go != null && _i == _scene.Lines.Count - 1 && !_go.gameObject.activeSelf && _wait > 0.3f) { _go.gameObject.SetActive(true); Bump.Play(_go.transform, 0.3f); }
-                var auto = StoryDirector.AutoAdvance(_band);
-                if (auto > 0f && _wait > auto && !Audio.Voice.IsSpeaking(_full)) Next();   // okuma bitmeden geçmez
+                if (Audio.Voice.IsSpeaking(_full)) { _wait = 0f; _spoke = true; }   // okuma bitmeden geçmez; bekleme sesten sonra sayılır
+                // sesli okunduysa cümle zaten okundu: kısa nefes; sessizse okuma süresi (yazılma süresi düşülür)
+                var need = _spoke ? 1.2f : Mathf.Max(1.2f, StoryDirector.LineHold(_band, _full.Length) - _full.Length / 32f);
+                var lastLine = _go != null && _i == _scene.Lines.Count - 1;
+                if (!lastLine && _lineT >= StoryDirector.MinLineGap && (_queued || _wait > need)) Next();
             }
         }
 

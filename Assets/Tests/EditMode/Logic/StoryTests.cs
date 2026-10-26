@@ -82,6 +82,10 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual("Uzun cümle", StoryDirector.Text(new StoryLine { Text = "Uzun cümle" }, AgeBand.C));
             Assert.Greater(StoryDirector.AutoAdvance(AgeBand.K), 0f);
             Assert.AreEqual(0f, StoryDirector.AutoAdvance(AgeBand.B));
+            // sohbet hızı (26 Ekim 2026): cümle başına en az 3 sn (K 4 sn), uzun cümlede okuma süresi
+            Assert.AreEqual(3f, StoryDirector.LineHold(AgeBand.B, 10));
+            Assert.AreEqual(4f, StoryDirector.LineHold(AgeBand.K, 10));
+            Assert.Greater(StoryDirector.LineHold(AgeBand.C, 90), 6f);
             Assert.AreEqual(4, Book.ChapterFor(6));
             Assert.AreEqual(9, Book.ChapterFor(15));
         }
