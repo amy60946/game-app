@@ -76,6 +76,23 @@ SPOKEN_EXTRA = {"welcome.coins": "20", "rewards.pick": "", "rewards.first_sent":
                 "gather.coconut_got": ""}
 
 
+def _first_wear_names(tr):
+    """Giydirme rehberinin adını söylediği eşya: sahip olunan en ucuz komik olmayan giyilebilir (WardrobeScreen), rehber Sv1–2'de."""
+    items = json.load(open(os.path.join(DATA, "items.json"), encoding="utf-8"))
+    items = items["items"] if isinstance(items, dict) else items
+    return [i["name"] for i in items if i.get("slot") and i.get("level", 1) <= 2 and not i.get("premium")
+            and (not i.get("fancy") or i.get("level", 1) <= 1)]
+
+
+# {0} pet adı olmayan rehber metinleri (26 Ekim 2026): oyundaki çağrıyla aynı değerler
+VARIANTS = {
+    # MapScreen.Hud GuideStageFor: T("guide.press", eylem tuşu yazısı, sondaki ! atılır); ActionServes'in tuşları
+    "guide.press": lambda tr: [tr[k].rstrip("!") for k in ("hud.enter", "hud.play", "hud.collect", "hud.chop", "hud.mine",
+                                                           "hud.build", "hud.place", "hud.stoke")],
+    "guide.wear_item": _first_wear_names,   # WardrobeScreen: T("guide.wear_item", item.Name)
+}
+
+
 def catalog():
     story = json.load(open(os.path.join(DATA, "story.json"), encoding="utf-8"))
     tr = json.load(open(os.path.join(DATA, "tr.json"), encoding="utf-8"))["strings"]
@@ -99,6 +116,10 @@ def catalog():
         add(r["text"].replace("{pet}", PET), role_of(r["who"]), f"request:{r['id']}", r["who"])
     for k, v in tr.items():
         if k in TIP_SKIP:
+            continue
+        if k in VARIANTS:   # {0} pet adı değil: oyunun koyabileceği her değerle ayrı kayıt
+            for arg in VARIANTS[k](tr):
+                add(v.replace("{0}", arg), "anlatici", f"tr:{k}:{arg}", "narrator")
             continue
         if k.startswith(("tip.", "guide.", "gather.tip_")) or k == "gather.ready":
             add(fill_pet(v), "anlatici", "tr:" + k, "narrator")

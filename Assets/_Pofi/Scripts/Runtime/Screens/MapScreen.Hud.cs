@@ -526,7 +526,7 @@ namespace Pofi.Screens
             var arg = g.Id == "feed" || g.Id == "wash" ? PetDat : g.Id == "wear" ? PetGen : App.State.PetName;
             // hedefin yanındaysa: el sağ alttaki eylem tuşunu gösterir (Gir, Kes, Topla, Yap, Taşı koy, ateş)
             if (ActionServes(g))
-                return new GuideStage { Key = g.Id + ":act", Say = T("guide.press", T(_actionKey)), From = () => UiScreen(_action), Loops = 99 };
+                return new GuideStage { Key = g.Id + ":act", Say = T("guide.press", T(_actionKey).TrimEnd('!')), From = () => UiScreen(_action), Loops = 99 };
             switch (g.Id)
             {
                 case "feed": case "wash": case "wear":
