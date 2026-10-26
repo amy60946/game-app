@@ -550,8 +550,11 @@ namespace Pofi.World
             foreach (var p in Terrain.Props())
             {
                 var cell = culler != null ? culler.Cell(parent, p.X, p.Z) : parent;
-                var t = p.Scaled ? RealAssets.EnvScaled(p.Asset, cell, p.Size, p.Yaw) : RealAssets.EnvFootprint(p.Asset, cell, p.Size, p.Yaw);
+                // yengeç v2 (26 Ekim 2026): gerçek boyda Okti'nin yanında ayrıntısı görünmüyordu → iki kat; her yengecin yanına bir eş
+                var size = p.Asset == "p_crab" ? p.Size * CrabScale : p.Size;
+                var t = p.Scaled ? RealAssets.EnvScaled(p.Asset, cell, size, p.Yaw) : RealAssets.EnvFootprint(p.Asset, cell, size, p.Yaw);
                 if (t == null) continue;
+                if (p.Asset == "p_crab") AddCrabMate(cell, p);
                 t.localPosition = new Vector3(p.X, float.IsNaN(p.Y) ? Terrain.Height(p.X, p.Z) : p.Y, p.Z) - cell.localPosition;
                 if (clear != null && (p.Asset.StartsWith("t_") || p.Asset == "palm" || (p.Asset.StartsWith("r_boulder") && p.Size > 1.6f))) clear.Add(t);
                 SeasonLook.Mark(t, p.Asset.StartsWith("t_round") || p.Asset == "t_birch" || p.Asset == "t_bush");
@@ -561,6 +564,26 @@ namespace Pofi.World
                 if (p.Asset == "p_crab") { var cf = t.gameObject.AddComponent<CrabFlee>(); cf.Init(this); Crabs.Add((new Vector2(p.X, p.Z), cf)); }
                 else if (p.Asset == "p_campfire") Campfire.Light(t, p.Size);
                 else if (p.Asset == "p_starfish" || p.Asset == "p_snow_lump") { foreach (var r in t.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; }
+            }
+        }
+
+        private const float CrabScale = 2f;
+
+        /// <summary>Yengecin 1,6–2,2 m yanına (kumda, suyun dışında) ikinci, biraz küçük bir yengeç.</summary>
+        private void AddCrabMate(Transform cell, PropSpot p)
+        {
+            var rng = new System.Random((int)(p.X * 100f) ^ (int)(p.Z * 37f));
+            for (var k = 0; k < 6; k++)
+            {
+                var a = (float)(rng.NextDouble() * Mathf.PI * 2f); var r = 1.6f + (float)rng.NextDouble() * 0.6f;
+                var x = p.X + Mathf.Cos(a) * r; var z = p.Z + Mathf.Sin(a) * r;
+                var h = Terrain.Height(x, z);
+                if (h < 0.08f || h > 2.5f || !Terrain.Walkable(x, z)) continue;
+                var t = RealAssets.EnvScaled("p_crab", cell, p.Size * CrabScale * 0.8f, p.Yaw + 70f + k * 40f);
+                if (t == null) return;
+                t.localPosition = new Vector3(x, h + 0.06f, z) - cell.localPosition;
+                var cf = t.gameObject.AddComponent<CrabFlee>(); cf.Init(this); Crabs.Add((new Vector2(x, z), cf));
+                return;
             }
         }
 

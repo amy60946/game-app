@@ -75,9 +75,9 @@ namespace Pofi.World
                     // anne, baba ve yavru yengeç (yan yan yürür)
                     for (var i = 0; i < 3; i++)
                     {
-                        var g = Group("crab" + i, new Vector3((i - 1) * 0.7f, 0f, 0f));
+                        var g = Group("crab" + i, new Vector3((i - 1) * 1.1f, 0f, 0f));
                         var s = i == 2 ? 0.6f : 1f;
-                        var model = RealAssets.EnvScaled("p_crab", g, 1f * s, 90f);
+                        var model = RealAssets.EnvScaled("p_crab", g, 2f * s, 90f);   // yengeç v2 adadaki gibi iki kat
                         if (model == null) Crab(g, s); else CrabLegs.Attach(model);
                     }
                     break;
