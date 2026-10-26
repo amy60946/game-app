@@ -493,10 +493,10 @@
    "role": "adali",
    "src": "story:ch1_board:3:text",
    "who": "kiskac",
-   "tts": "Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
-   "sec": 5.04,
-   "seed": 7,
-   "cer": 0.056
+   "tts": "Hadi, Yaptıma bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
+   "sec": 4.1,
+   "seed": 102,
+   "cer": 0.042
   },
   {
    "key": "58dfcf8d3c038cae",
@@ -504,9 +504,9 @@
    "role": "adali",
    "src": "story:ch1_board:3:a",
    "who": "kiskac",
-   "tts": "Yaptım'a bas, taş senin!",
-   "sec": 2.0,
-   "seed": 101,
+   "tts": "Yaptıma bas, taş senin!",
+   "sec": 2.49,
+   "seed": 7,
    "cer": 0.095
   },
   {
@@ -681,9 +681,9 @@
    "src": "story:ch2_open:4:text",
    "who": "mavi",
    "tts": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!",
-   "sec": 12.65,
-   "seed": 100,
-   "cer": 0.026
+   "sec": 5.5,
+   "seed": 104,
+   "cer": 0.013
   },
   {
    "key": "c6b667c7985a4e6c",
@@ -693,8 +693,8 @@
    "who": "mavi",
    "tts": "Panoya sana bir görev bıraktım!",
    "sec": 1.77,
-   "seed": 106,
-   "cer": 0.0
+   "seed": 100,
+   "cer": 0.067
   },
   {
    "key": "8ec655319b977d84",
@@ -715,8 +715,8 @@
    "who": "okti",
    "tts": "Panoya gidiyorum!",
    "sec": 2.54,
-   "seed": 103,
-   "cer": 0.0
+   "seed": 7,
+   "cer": 0.062
   },
   {
    "key": "31fe7b02ee1e8a6b",
@@ -2353,9 +2353,9 @@
    "src": "tr:guide.hut",
    "who": "narrator",
    "tts": "Kulübenin oraya ilerle ve yapımına başla.",
-   "sec": 2.31,
-   "seed": 7,
-   "cer": 0.025
+   "sec": 3.32,
+   "seed": 103,
+   "cer": 0.0
   },
   {
    "key": "19cc35099b517b5b",
@@ -2441,9 +2441,9 @@
    "src": "tr:guide.press:Kır",
    "who": "narrator",
    "tts": "Sağ alttaki Kır tuşuna bas!",
-   "sec": 2.04,
-   "seed": 102,
-   "cer": 0.077
+   "sec": 2.0,
+   "seed": 105,
+   "cer": 0.038
   },
   {
    "key": "284ce09e92499452",
@@ -2475,8 +2475,8 @@
    "who": "narrator",
    "tts": "Sağ alttaki Odun at tuşuna bas!",
    "sec": 1.92,
-   "seed": 104,
-   "cer": 0.0
+   "seed": 7,
+   "cer": 0.033
   },
   {
    "key": "682121c3b028a540",
@@ -2519,8 +2519,8 @@
    "who": "narrator",
    "tts": "Çarpıya bas, adaya dön!",
    "sec": 3.92,
-   "seed": 104,
-   "cer": 0.0
+   "seed": 7,
+   "cer": 0.143
   },
   {
    "key": "1a633b38f631ceaf",
@@ -2528,8 +2528,8 @@
    "role": "anlatici",
    "src": "tr:guide.levelup_ok",
    "who": "narrator",
-   "tts": "Harika'ya bas!",
-   "sec": 1.02,
+   "tts": "Harikaya bas!",
+   "sec": 2.44,
    "seed": 7,
    "cer": 0.167
   },
@@ -2573,9 +2573,9 @@
    "src": "tr:guide.wear_item:Çizgili tişört",
    "who": "narrator",
    "tts": "Çizgili tişört: dokun, tak!",
-   "sec": 2.24,
-   "seed": 101,
-   "cer": 0.042
+   "sec": 2.36,
+   "seed": 106,
+   "cer": 0.0
   },
   {
    "key": "59836e3dca47bb2e",
@@ -2585,8 +2585,8 @@
    "who": "narrator",
    "tts": "Çiçekli gömlek: dokun, tak!",
    "sec": 2.4,
-   "seed": 103,
-   "cer": 0.0
+   "seed": 7,
+   "cer": 0.042
   },
   {
    "key": "f0161034a85b9119",
@@ -2595,9 +2595,9 @@
    "src": "tr:guide.wear_item:Denizci önlüğü",
    "who": "narrator",
    "tts": "Denizci önlüğü: dokun, tak!",
-   "sec": 2.12,
-   "seed": 7,
-   "cer": 0.042
+   "sec": 2.28,
+   "seed": 104,
+   "cer": 0.0
   },
   {
    "key": "47e1232d15517713",
@@ -2616,10 +2616,10 @@
    "role": "anlatici",
    "src": "tr:guide.wear_item:Arma (sırt yaması)",
    "who": "narrator",
-   "tts": "Arma (sırt yaması): dokun, tak!",
-   "sec": 2.48,
-   "seed": 7,
-   "cer": 0.077
+   "tts": "Arma, sırt yaması: dokun, tak!",
+   "sec": 3.16,
+   "seed": 100,
+   "cer": 0.0
   },
   {
    "key": "76f359df57cf1ad1",
@@ -2649,10 +2649,7 @@
    "role": "anlatici",
    "src": "tr:tip.mark",
    "who": "narrator",
-   "tts": "Görevi yapınca Yaptım'a bas!",
-   "sec": 1.76,
-   "seed": 7,
-   "cer": 0.077
+   "tts": "Görevi yapınca Yaptıma bas!"
   },
   {
    "key": "970acf480b821ac6",
@@ -2693,10 +2690,7 @@
    "role": "anlatici",
    "src": "tr:tip.tasks_done",
    "who": "narrator",
-   "tts": "Yaptın mı? Yaptım'a bas, Mavi ailene götürsün.",
-   "sec": 5.48,
-   "seed": 7,
-   "cer": 0.048
+   "tts": "Yaptın mı? Yaptıma bas, Mavi ailene götürsün."
   },
   {
    "key": "4bd33d627fcc39b5",
@@ -3023,8 +3017,8 @@
    "role": "anlatici",
    "src": "tr:welcome_task.tip",
    "who": "narrator",
-   "tts": "Mavi'nin görevini yaptın! Yaptım'a bas.",
-   "sec": 2.28,
+   "tts": "Mavi'nin görevini yaptın! Yaptıma bas.",
+   "sec": 2.32,
    "seed": 7,
    "cer": 0.057
   },
