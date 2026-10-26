@@ -7,7 +7,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 OUT="${1:?çıktı klasörü}"
 git -C "$ROOT" fetch -q origin +webgl-preview:refs/remotes/origin/webgl-preview   # dal her derlemede yeniden yazılır
-TMP="$(mktemp -d)"
+TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT   # geçici arşiv her çalışmada ~150 MB: disk dolmasın
 git -C "$ROOT" archive origin/webgl-preview | tar -x -C "$TMP"
 rm -rf "$OUT" && mkdir -p "$OUT/Build"
 B="$TMP/PofiAdasi/Build"

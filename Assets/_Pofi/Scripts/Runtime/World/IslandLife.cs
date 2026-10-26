@@ -146,11 +146,16 @@ namespace Pofi.World
         private MapWorld _world;
         private Vector3 _home;
         private Vector2 _dir;
-        private float _hidden, _scuttle;
+        private float _hidden, _scuttle, _wanderT = 3f;
+        private Vector3 _wanderTo;
+        private bool _wandering;
         private enum State { Idle, Flee, Gone }
         private State _state;
 
-        public void Init(MapWorld world) { _world = world; _home = transform.localPosition; }
+        public void Init(MapWorld world) { _world = world; _home = transform.localPosition; CrabLegs.Attach(transform); }
+
+        /// <summary>Kaçarken bacaklar (CrabLegs) hızlanır, gözler yatar, kıskaçlar havaya kalkar.</summary>
+        public bool Fleeing => _state == State.Flee;
 
         /// <summary>Dokununca (O4): dokunulan yerden uzağa, denize doğru kaçar.</summary>
         public void Scare(Vector2 from)
@@ -166,6 +171,7 @@ namespace Pofi.World
             _dir = (away.normalized - grad.normalized).normalized;
             if (_dir.sqrMagnitude < 0.01f) _dir = away.normalized;
             _state = State.Flee;
+            GetComponent<CrabLegs>()?.Snap();
             Audio.Sfx.Play(Audio.SfxKind.Pop);
         }
 
@@ -180,9 +186,26 @@ namespace Pofi.World
             switch (_state)
             {
                 case State.Idle:
-                    // ara sıra yerinde kıpırdar
+                    // ara sıra yerinde kıpırdar; 4–9 sn'de bir evinin çevresinde birkaç adım yan yürür (bacaklar CrabLegs ile adım atar)
                     _scuttle += Time.deltaTime;
                     transform.localRotation = Quaternion.Euler(0f, transform.localEulerAngles.y + Mathf.Sin(_scuttle * 3f) * 0.3f, 0f);
+                    if (!_wandering && (_wanderT -= Time.deltaTime) <= 0f)
+                    {
+                        var sideDir = transform.localRotation * Vector3.right;
+                        _wanderTo = _home + sideDir * (Random.value < 0.5f ? -1f : 1f) * Random.Range(0.25f, 0.6f);
+                        _wanderTo.y = _home.y;
+                        _wandering = true;
+                    }
+                    if (_wandering)
+                    {
+                        var lp0 = transform.localPosition;
+                        var to = new Vector3(_wanderTo.x, lp0.y, _wanderTo.z);
+                        var nxt = Vector3.MoveTowards(lp0, to, 0.7f * Time.deltaTime);
+                        var py0 = parent != null ? parent.localPosition : Vector3.zero;
+                        nxt.y = _world.Terrain.Height(nxt.x + py0.x, nxt.z + py0.z) + 0.04f - py0.y;
+                        transform.localPosition = nxt;
+                        if ((new Vector2(nxt.x - to.x, nxt.z - to.z)).sqrMagnitude < 0.0004f) { _wandering = false; _wanderT = Random.Range(4f, 9f); }
+                    }
                     if (dist < 3.5f)
                     {
                         // denize doğru: araziyi alçalan yöne, petten uzağa
@@ -217,10 +240,114 @@ namespace Pofi.World
                     if (_hidden > 25f && dist > 12f)
                     {
                         transform.localPosition = _home;
+                        _wandering = false; _wanderT = Random.Range(3f, 7f);
                         foreach (var r in GetComponentsInChildren<Renderer>()) r.enabled = true;
                         _state = State.Idle;
                     }
                     break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Yengeç v2'nin canlı parçaları (26 Ekim 2026, kullanıcı: "hareket eden yengeçler daha gerçekçi"; art/code3d/crab_v2.py):
+    /// modelde ayrı nesne olan 8 bacak (leg_a0..3, leg_b0..3), 2 kıskaç (claw_a/b), oynar parmaklar (finger_a/b, burada kıskaca bağlanır)
+    /// ve göz sapları (eye_a/b) eklem yerlerinden döndürülür. Yürürken dörtlü adım (çapraz bacak grupları sırayla kalkar), dururken
+    /// ara sıra bacak tıklatma, kıskaç sallama/açıp kapama, göz seğirmesi; kaçarken gözler yatar, kıskaçlar havaya kalkar.
+    /// Eksenler kök yengeçe göre bir kez hesaplanır (Blender → FBX → Unity eksen çevirisinden bağımsız).
+    /// </summary>
+    public sealed class CrabLegs : MonoBehaviour
+    {
+        private struct Limb { public Transform T; public Quaternion Rest; public Vector3 Up, Lift; public float Phase; public int Kind; }
+        private Limb[] _limbs;
+        private Vector3 _last;
+        private float _speed, _gait, _t, _show, _snap;
+        private CrabFlee _flee;
+
+        public static void Attach(Transform root)
+        {
+            if (root == null || root.GetComponent<CrabLegs>() != null) return;
+            root.gameObject.AddComponent<CrabLegs>();
+        }
+
+        /// <summary>Dokunulunca / ürkünce kıskaçlar şak diye açılıp kapanır.</summary>
+        public void Snap() => _snap = 1f;
+
+        private void Start()
+        {
+            _flee = GetComponent<CrabFlee>();
+            Transform body = null;
+            var all = GetComponentsInChildren<Transform>(true);
+            foreach (var t in all) if (t.name == "body") body = t;
+            if (body == null) { enabled = false; return; }   // eski tek parça model: oynatacak parça yok
+            foreach (var t in all)
+                if (t.name.StartsWith("finger_"))
+                    foreach (var c in all) if (c.name == "claw_" + t.name.Substring(7)) { t.SetParent(c, true); break; }
+            var list = new List<Limb>();
+            foreach (var t in all)
+            {
+                var n = t.name;
+                var kind = n.StartsWith("leg_") ? 0 : n.StartsWith("claw_") ? 1 : n.StartsWith("finger_") ? 2 : n.StartsWith("eye_") ? 3 : -1;
+                if (kind < 0) continue;
+                var p = t.parent;
+                var up = p.InverseTransformDirection(transform.up).normalized;
+                var origin = kind == 2 ? Vector3.zero : p.InverseTransformPoint(body.position);   // parmak: kıskacın orijininden menteşeye
+                var outward = Vector3.ProjectOnPlane(t.localPosition - origin, up);
+                if (outward.sqrMagnitude < 1e-8f) outward = Vector3.Cross(up, Vector3.right);
+                outward.Normalize();
+                var lift = Vector3.Cross(up, outward).normalized;
+                // pozitif açı uzvu kaldırsın (yönü eksen çevirisinden bağımsız sına)
+                if (Vector3.Dot(Quaternion.AngleAxis(10f, lift) * outward, up) < 0f) lift = -lift;
+                var side = n.Length > 0 && n[n.Length - (kind == 0 ? 2 : 1)] == 'a' ? 0 : 1;
+                var idx = kind == 0 ? n[n.Length - 1] - '0' : 0;
+                var phase = kind == 0 ? ((idx + side) % 2) * Mathf.PI : side * 1.7f;
+                list.Add(new Limb { T = t, Rest = t.localRotation, Up = up, Lift = lift, Phase = phase + (kind == 0 ? idx * 0.15f : 0f), Kind = kind });
+            }
+            _limbs = list.ToArray();
+            _last = transform.position;
+            _t = Random.value * 10f;
+        }
+
+        private void Update()
+        {
+            if (_limbs == null) return;
+            var dt = Time.deltaTime;
+            if (dt <= 0f) return;
+            _t += dt;
+            var pos = transform.position;
+            var v = (pos - _last).magnitude / dt / Mathf.Max(0.01f, transform.lossyScale.y);   // yengeç boyuna göre (yavru da aynı adımla)
+            _last = pos;
+            _speed = Mathf.Lerp(_speed, Mathf.Min(v, 30f), 1f - Mathf.Exp(-8f * dt));
+            var moving = _speed > 0.4f;
+            var flee = (_flee != null && _flee.Fleeing) || _speed > 6f;
+            _gait += dt * (moving ? Mathf.Clamp(6f + _speed * 0.9f, 6f, 22f) : 0f);
+            _show = Mathf.Max(0f, _show - dt);
+            if (!moving && _show <= 0f && Random.value < dt * 0.12f) _show = 1.6f;   // ara sıra kıskaçlarını kaldırıp sallar
+            _snap = Mathf.Max(0f, _snap - dt * 3f);
+            foreach (var l in _limbs)
+            {
+                float lift = 0f, swing = 0f;
+                switch (l.Kind)
+                {
+                    case 0:   // bacak
+                        if (moving) { var g = _gait + l.Phase; lift = Mathf.Max(0f, Mathf.Sin(g)) * 26f; swing = Mathf.Cos(g) * 14f; }
+                        else lift = Mathf.Pow(Mathf.Max(0f, Mathf.Sin(_t * 2.1f + l.Phase * 3.1f)), 12f) * 9f;   // tık tık
+                        break;
+                    case 1:   // kıskaç
+                        lift = flee ? 24f : _show > 0f ? Mathf.Sin(Mathf.Clamp01(_show / 1.6f) * Mathf.PI) * 30f + Mathf.Sin(_t * 9f + l.Phase) * 5f
+                                                       : (Mathf.Sin(_t * 0.8f + l.Phase) * 0.5f + 0.5f) * 8f;
+                        swing = Mathf.Sin(_t * 0.6f + l.Phase) * 5f;
+                        break;
+                    case 2:   // oynar parmak: açıp kapar
+                        var open = Mathf.Sin(_t * 1.6f + l.Phase) > 0.55f || _show > 0f ? 20f : 3f;
+                        lift = Mathf.Max(open, _snap * 28f);
+                        break;
+                    case 3:   // göz sapı: seğirir, kaçarken yatar
+                        lift = flee ? -38f : Mathf.Sin(_t * 2.7f + l.Phase) * 3f + (Mathf.Sin(_t * 0.37f + l.Phase) > 0.97f ? -20f : 0f);
+                        swing = Mathf.Sin(_t * 1.3f + l.Phase) * 6f;
+                        break;
+                }
+                l.T.localRotation = Quaternion.AngleAxis(lift, l.Lift) * Quaternion.AngleAxis(swing, l.Up) * l.Rest;
             }
         }
     }

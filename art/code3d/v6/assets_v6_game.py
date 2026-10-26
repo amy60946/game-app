@@ -18,7 +18,7 @@ ASSETS = {
     't_bush': ('bush', 700, 512), 't_blossom': ('blossom', 2600, 1024),
     'r_boulder': ('boulder', 900, 512), 'r_boulder_b': ('boulderB', 900, 512), 'r_pebble': ('pebW', 300, 256),
     'p_campfire': ('campfire', 2600, 512), 'p_log_v6': ('log', 900, 512), 'p_stump_v6': ('stump', 800, 512),
-    'p_driftwood': ('driftwood', 1400, 512), 'p_starfish': ('starfish', 300, 256), 'p_crab': ('crab', 700, 256),
+    'p_driftwood': ('driftwood', 1400, 512), 'p_starfish': ('starfish', 300, 256),   # p_crab: art/code3d/crab_v2.py (26 Ekim 2026, parçalı ve oynar)
     'p_pool': ('pool', 7000, 1024), 'b_temple': ('temple', 110000, 2048),   # tapınak: kendi yolu (temple_game.py), bütçe üst sınır
     'p_trail_pole': ('pole', 120, 128), 'p_snow_lump': ('snowlump', 200, 256),
     'b_cave_v6': ('cave', 7000, 1024), 'b_ski_v6': ('skiset', 3000, 512), 'b_summit_v6': ('summit', 2600, 512),

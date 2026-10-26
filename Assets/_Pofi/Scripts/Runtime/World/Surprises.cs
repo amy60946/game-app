@@ -78,7 +78,7 @@ namespace Pofi.World
                         var g = Group("crab" + i, new Vector3((i - 1) * 0.7f, 0f, 0f));
                         var s = i == 2 ? 0.6f : 1f;
                         var model = RealAssets.EnvScaled("p_crab", g, 1f * s, 90f);
-                        if (model == null) Crab(g, s);
+                        if (model == null) Crab(g, s); else CrabLegs.Attach(model);
                     }
                     break;
                 }
