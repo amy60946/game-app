@@ -13,7 +13,8 @@ Her kayıt Whisper ile denetlenir; hatalıysa başka tohumla yeniden üretilir (
 sonraki kuyruk kesilir; ses düzeyi −18 LUFS'ye eşitlenir.
 
 Kullanım: <venv>/bin/python -I art/voice/build_voice.py <çalışma_klasörü> [--list] [--missing] [--only anahtar,...] [--part i/n] [--retry]
-  (--retry: oyunda henüz olmayan ve tam doğru çıkmamış satırlar 4 başka tohumla yeniden denenir, daha temizi kalır)
+  (--retry: oyunda henüz olmayan ve tam doğru çıkmamış satırlar 4 başka tohumla yeniden denenir, daha temizi kalır;
+   --only ile verilen satırlar oyunda olsa da denenir)
   (--missing: sesi eksik satırlar; düz python3 ile de çalışır, ses ortamı gerekmez)
   (--part: n paralel iş; hepsi bitince bir kez --part olmadan çalıştırılır: dosyalar ve index.txt yazılır)
 Çalışma klasörü önbellektir: metni ve sesi değişmeyen satır yeniden üretilmez. Satır listesi ve sonuçlar art/voice/manifest.json.
@@ -290,7 +291,7 @@ def main():
         c = cache.get(l["key"])
         master = os.path.join(work, f"m_{l['key']}.mp3")
         fresh = c and c.get("sig") == sig and os.path.exists(master)
-        if retry and fresh and l["key"] not in shipped and c["cer"] > 0 and (only is None or l["key"] in only):
+        if retry and fresh and c["cer"] > 0 and (l["key"] in only if only is not None else l["key"] not in shipped):
             # --retry: oyunda henüz olmayan, tam doğru çıkmamış satır başka tohumlarla; yalnız daha temizi eskinin yerine geçer
             x = make(l, RETRY_SEEDS, floor=c["cer"])
             if x is None:
