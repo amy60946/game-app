@@ -73,8 +73,8 @@ Shader "Pofi/Fog"
             float fbm(float2 p)
             {
                 float a = 0.55, s = 0;
-                for (int k = 0; k < 3; k++) { s += vnoise(p) * a; p = p * 2.03 + float2(17.1, 9.2); a *= 0.5; }
-                return s / 0.9625;
+                for (int k = 0; k < 4; k++) { s += vnoise(p) * a; p = p * 2.03 + float2(17.1, 9.2); a *= 0.5; }
+                return s / 1.03125;   // 4 kat: ince tutam ayrıntısı (26 Ekim 2026)
             }
 
             half4 frag(Varyings i) : SV_Target
@@ -89,8 +89,10 @@ Shader "Pofi/Fog"
                     float h = i.uv.y;
                     float vert = smoothstep(0.0, 0.22, h) * (1.0 - smoothstep(0.35, 1.0, h));
                     float side = 1.0 - pow(abs(i.uv.x * 2.0 - 1.0), 2.2);
-                    alpha = vert * side * smoothstep(0.28, 0.78, n);
-                    lit = saturate(h * 0.8 + n * 0.4);
+                    // ince ayrıntı: hızlı küçük kıvrımlar perdenin kenarını yırtık, içini dolu yapar
+                    float fine = vnoise(q * 3.7 + float2(t * 0.21, -t * 0.17));
+                    alpha = vert * side * smoothstep(0.2, 0.68, n + (fine - 0.5) * 0.22);
+                    lit = saturate(h * 0.8 + n * 0.4 + (fine - 0.5) * 0.15);
                 }
                 else
                 {
@@ -98,8 +100,9 @@ Shader "Pofi/Fog"
                     float2 p = i.positionWS.xz * 0.16 + _Wind.xy * t * 0.18;
                     n = fbm(p) * 0.7 + fbm(p * 2.7 - _Wind.yx * t * 0.3) * 0.3;
                     float r = length(i.uv);
-                    alpha = (1.0 - smoothstep(0.45, 1.0, r)) * lerp(0.35, 1.0, smoothstep(0.25, 0.75, n));
-                    lit = saturate(0.45 + n * 0.5);
+                    float fine = vnoise(i.positionWS.xz * 1.3 - _Wind.xy * t * 0.5);
+                    alpha = (1.0 - smoothstep(0.5, 1.0, r)) * lerp(0.55, 1.0, smoothstep(0.22, 0.72, n)) * lerp(0.85, 1.05, fine);
+                    lit = saturate(0.42 + n * 0.5 + (fine - 0.5) * 0.2);
                 }
                 float3 col = lerp(_Shade.rgb, _Lit.rgb, lit) * i.color.rgb;
                 float sun = saturate(_MainLightPosition.y) * 0.08;

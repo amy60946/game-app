@@ -6,8 +6,9 @@ namespace Pofi.World
     /// <summary>
     /// Güneş Taşı bölgesinin yer sisi (kullanıcı GB18-5/6, 24 Ekim 2026: "sisler buluttan çok sise benzesin"; "koydaki sisin nerede
     /// olduğunu göremiyorum"). Eski sis yere konmuş opak bulut topaklarıydı. Bu sis tek ağ, tek çizim (Pofi/Fog):
-    /// araziye yapışık üç kat örtü (yerden 0,3 / 0,9 / 1,7 m, kenarda söner), bölgeyi saran 14 kameraya dönük tül perde ve
-    /// ortada uzaktan seçilen ince, yüksek bir sis sütunu (16 m'ye kadar; ada yürüyüşünde ağaçların üstünden görünür).
+    /// araziye yapışık dört kat örtü (yerden 0,25 / 0,7 / 1,3 / 2,1 m, kenarda söner), bölgeyi saran 20 kameraya dönük tül perde,
+    /// içeride alçak sis öbekleri ve ortada uzaktan seçilen ince, yüksek bir sis sütunu (16 m'ye kadar; ağaçların üstünden görünür).
+    /// 26 Ekim 2026 (kullanıcı: "sis detayını biraz daha yoğun yap"): katlar ve perdeler daha opak, içi boş kalmasın diye alçak öbekler.
     /// Taş yerleşince <see cref="SetLift"/> ile yükselip incelir ve söner (MapScreen.FogLift).
     /// </summary>
     public sealed class FogBank : MonoBehaviour
@@ -33,7 +34,8 @@ namespace Pofi.World
             // örtü: kutup ızgarası, her köşe yerel araziye (deniz 0) yapışık
             const int Rings = 7, Segs = 28;
             var blanket = radius * 1.35f;
-            var layers = new[] { (0.3f, 0.62f, new Color(0.93f, 0.95f, 1f)), (0.9f, 0.46f, new Color(0.97f, 0.98f, 1f)), (1.7f, 0.28f, Color.white) };
+            var layers = new[] { (0.25f, 0.78f, new Color(0.92f, 0.94f, 1f)), (0.7f, 0.62f, new Color(0.95f, 0.97f, 1f)),
+                                 (1.3f, 0.46f, new Color(0.98f, 0.99f, 1f)), (2.1f, 0.3f, Color.white) };
             foreach (var (lift, alpha, tint) in layers)
             {
                 var b = verts.Count;
@@ -82,19 +84,27 @@ namespace Pofi.World
                 tris.Add(b); tris.Add(b + 2); tris.Add(b + 1);
                 tris.Add(b); tris.Add(b + 3); tris.Add(b + 2);
             }
-            const int VeilN = 14;
+            const int VeilN = 20;
             for (var i = 0; i < VeilN; i++)
             {
                 var a = (i + (float)rnd.NextDouble() * 0.6f) / VeilN * Mathf.PI * 2f;
-                var d = radius * (0.35f + (float)rnd.NextDouble() * 0.6f);
+                var d = radius * (0.35f + (float)rnd.NextDouble() * 0.65f);
                 Veil(center.x + Mathf.Cos(a) * d, center.z + Mathf.Sin(a) * d,
-                    radius * (0.55f + (float)rnd.NextDouble() * 0.4f), 3.2f + (float)rnd.NextDouble() * 2.8f, 0.5f, new Color(0.96f, 0.97f, 1f));
+                    radius * (0.55f + (float)rnd.NextDouble() * 0.45f), 3.6f + (float)rnd.NextDouble() * 3.4f, 0.64f, new Color(0.95f, 0.97f, 1f));
             }
-            for (var i = 0; i < 3; i++)
+            // içeride alçak, kalın öbekler: perdelerin arası boş görünmesin, sis "dolu" dursun
+            for (var i = 0; i < 10; i++)
             {
-                var a = i * 2.1f + (float)rnd.NextDouble();
+                var a = (float)rnd.NextDouble() * Mathf.PI * 2f;
+                var d = radius * (float)rnd.NextDouble() * 0.6f;
+                Veil(center.x + Mathf.Cos(a) * d, center.z + Mathf.Sin(a) * d,
+                    radius * (0.3f + (float)rnd.NextDouble() * 0.25f), 1.6f + (float)rnd.NextDouble() * 1.2f, 0.7f, new Color(0.93f, 0.95f, 1f));
+            }
+            for (var i = 0; i < 4; i++)
+            {
+                var a = i * 1.6f + (float)rnd.NextDouble();
                 Veil(center.x + Mathf.Cos(a) * radius * 0.2f, center.z + Mathf.Sin(a) * radius * 0.2f,
-                    radius * (0.7f + i * 0.15f), 13f + i * 3f, 0.4f, Color.white);   // uzaktan seçilsin (kullanıcı GB18-5)
+                    radius * (0.7f + i * 0.12f), 13f + i * 2.5f, 0.5f, Color.white);   // uzaktan seçilsin (kullanıcı GB18-5)
             }
 
             var mesh = new Mesh { name = "FogBank" };
