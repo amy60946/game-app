@@ -56,6 +56,9 @@ namespace Pofi.Core
         public static string PendingCode { get; private set; }
         public static event Action Arrived;
         private static bool _init;
+        private static DateTime _at;
+        // giriş kodu 15 dakika geçerli (ortak codes_15min): oturum açıkken gelen bağlantı sonraki çıkışta eski kodu yazmasın
+        private static readonly TimeSpan Life = TimeSpan.FromMinutes(15);
 
         public static void Init()
         {
@@ -71,10 +74,16 @@ namespace Pofi.Core
             var code = ChildCode.FromScan(url);
             if (code == null) return;
             PendingCode = code;
+            _at = DateTime.UtcNow;
             Arrived?.Invoke();
         }
 
-        /// <summary>Bekleyen kodu bir kez verir.</summary>
-        public static string Take() { var c = PendingCode; PendingCode = null; return c; }
+        /// <summary>Bekleyen kodu bir kez verir (15 dakikadan eskiyse vermez).</summary>
+        public static string Take()
+        {
+            var c = PendingCode;
+            PendingCode = null;
+            return c != null && DateTime.UtcNow - _at <= Life ? c : null;
+        }
     }
 }
