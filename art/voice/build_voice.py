@@ -12,7 +12,8 @@ Eşleşme: oyunda ekrana yazılan metin → anahtar (Logic/Audio/VoiceKey: etike
 Her kayıt Whisper ile denetlenir; hatalıysa başka tohumla yeniden üretilir (en çok 6 deneme), en iyisi kalır; uzun duraktan
 sonraki kuyruk kesilir; ses düzeyi −18 LUFS'ye eşitlenir.
 
-Kullanım: <venv>/bin/python -I art/voice/build_voice.py <çalışma_klasörü> [--list] [--missing] [--only anahtar,...] [--part i/n]
+Kullanım: <venv>/bin/python -I art/voice/build_voice.py <çalışma_klasörü> [--list] [--missing] [--only anahtar,...] [--part i/n] [--retry]
+  (--retry: oyunda henüz olmayan ve tam doğru çıkmamış satırlar 4 başka tohumla yeniden denenir, daha temizi kalır)
   (--missing: sesi eksik satırlar; düz python3 ile de çalışır, ses ortamı gerekmez)
   (--part: n paralel iş; hepsi bitince bir kez --part olmadan çalıştırılır: dosyalar ve index.txt yazılır)
 Çalışma klasörü önbellektir: metni ve sesi değişmeyen satır yeniden üretilmez. Satır listesi ve sonuçlar art/voice/manifest.json.
@@ -33,6 +34,7 @@ RATE = 22050
 LIMIT = 0.03           # kabul edilen harf hata oranı …
 EDITS = 2              # … ya da en çok 2 harf farkı (Whisper adları biraz farklı yazar: "Kıskaç" → "kızkaç")
 SEEDS = (7, 100, 101, 102)
+RETRY_SEEDS = (103, 104, 105, 106)   # --retry: tam doğru çıkmayan yeni satıra ikinci tur
 OKTI_PITCH = 1.22
 TEMPO = {"mavi": 0.92}   # kullanıcı (23 Ekim): Mavi biraz yavaş konuşsun, daha kolay anlaşılsın (perde aynı)
 
@@ -166,20 +168,20 @@ def good(x):
     return edits <= max(EDITS, LIMIT * len(a)) + 0.01
 
 
-def make(line):
-    """En iyi kaydı m_<anahtar>.mp3 olarak bırakır."""
+def make(line, seeds=SEEDS, floor=None):
+    """En iyi kaydı m_<anahtar>.mp3 olarak bırakır. floor: eldeki kaydın hata oranı (--retry); yalnız ondan iyisi yerine geçer."""
     master = os.path.join(G.OUT, f"m_{line['key']}.mp3")
     best = None
-    for seed in SEEDS:
+    for seed in seeds:
         try:
             x = G.check(take(line, seed))
         except Exception as e:   # model bu tohumda çöktü (ör. hizalama): deneme başarısız sayılır
             print("  deneme hatası", seed, type(e).__name__, str(e)[:80], flush=True)
             continue
-        if best is None or x["cer"] < best["cer"]:
+        if (best is None or x["cer"] < best["cer"]) and (floor is None or x["cer"] < floor):
             best = x
             os.replace(os.path.join(G.OUT, x["file"]), master)
-        if good(best):
+        if best is not None and (best["cer"] == 0 if floor is not None else good(best)):
             break
     if best is None:
         return None
@@ -271,6 +273,9 @@ def main():
         if f.startswith("cache") and f.endswith(".json"):
             cache.update(json.load(open(os.path.join(work, f))))
     os.makedirs(DST, exist_ok=True)
+    retry = "--retry" in sys.argv
+    idx = os.path.join(DST, "index.txt")
+    shipped = {r.split("\t")[0] for r in open(idx, encoding="utf-8") if r.strip()} if os.path.exists(idx) else set()
     t0 = time.time()
     for i, l in enumerate(lines):
         if part and i % part[1] != part[0]:
@@ -278,15 +283,24 @@ def main():
         sig = f"{VERSION}|{l['role']}|{l['tts']}"
         c = cache.get(l["key"])
         master = os.path.join(work, f"m_{l['key']}.mp3")
-        if (only is None or l["key"] in only) and not (c and c.get("sig") == sig and os.path.exists(master) and (only is None)):
-            x = make(l)
+        fresh = c and c.get("sig") == sig and os.path.exists(master)
+        if retry and fresh and l["key"] not in shipped and c["cer"] > 0 and (only is None or l["key"] in only):
+            # --retry: oyunda henüz olmayan, tam doğru çıkmamış satır başka tohumlarla; yalnız daha temizi eskinin yerine geçer
+            x = make(l, RETRY_SEEDS, floor=c["cer"])
             if x is None:
-                print(f"[{i + 1}/{len(lines)}] ATLANDI (model hatası) | {l['text']}", flush=True)
+                print(f"[{i + 1}/{len(lines)}] aynı kaldı (hata %{100 * c['cer']:4.1f}) | {l['text']}", flush=True)
                 continue
-            c = cache[l["key"]] = {"sig": sig, "seed": x.get("seed"), "cer": x["cer"], "asr": x.get("asr", "")}
-            mine = {k: v for k, v in cache.items() if not part or k in {q["key"] for j, q in enumerate(lines) if j % part[1] == part[0]}}
-            json.dump(mine, open(cache_p, "w"), ensure_ascii=False, indent=1)
-            print(f"[{i + 1}/{len(lines)}] {l['role']:8s} hata %{100 * x['cer']:4.1f} | {l['text']}  ←  {x.get('asr', '')}", flush=True)
+        elif (only is None or l["key"] in only) and not (fresh and only is None):
+            x = make(l)
+        else:
+            continue
+        if x is None:
+            print(f"[{i + 1}/{len(lines)}] ATLANDI (model hatası) | {l['text']}", flush=True)
+            continue
+        c = cache[l["key"]] = {"sig": sig, "seed": x.get("seed"), "cer": x["cer"], "asr": x.get("asr", "")}
+        mine = {k: v for k, v in cache.items() if not part or k in {q["key"] for j, q in enumerate(lines) if j % part[1] == part[0]}}
+        json.dump(mine, open(cache_p, "w"), ensure_ascii=False, indent=1)
+        print(f"[{i + 1}/{len(lines)}] {l['role']:8s} hata %{100 * x['cer']:4.1f} | {l['text']}  ←  {x.get('asr', '')}", flush=True)
     if part:
         print(f"parça {part[0]}/{part[1]} bitti", flush=True)
         return
