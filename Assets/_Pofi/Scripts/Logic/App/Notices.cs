@@ -36,8 +36,26 @@ namespace Pofi.Logic.App
                     : new Notice { Key = "notice.reward_waits", Args = new object[] { Rewards.RewardText.Label(r.Request) } });
 
             var approved = evs.Where(e => e.Kind == TaskEventKind.Approved).ToList();
-            if (approved.Count == 1) list.Add(new Notice { Key = "notice.approved_one", Args = new object[] { approved[0].Task.Title }, Happy = true });
+            if (approved.Count == 1)
+            {
+                // ebeveynin onayla yazdığı söz ("Harika toplamışsın") aynen gösterilir (ortak 20261027130000)
+                var note = approved[0].Task.ParentNote?.Trim();
+                list.Add(string.IsNullOrEmpty(note)
+                    ? new Notice { Key = "notice.approved_one", Args = new object[] { approved[0].Task.Title }, Happy = true }
+                    : new Notice { Key = "notice.approved_one_note", Args = new object[] { approved[0].Task.Title, note }, Happy = true });
+            }
             else if (approved.Count > 1) list.Add(new Notice { Key = "notice.approved_many", Args = new object[] { approved.Count }, Happy = true });
+
+            // ebeveyn "Tekrar dene" dedi: suçlamasız, notu varsa aynen
+            var retry = evs.Where(e => e.Kind == TaskEventKind.Retry).ToList();
+            if (retry.Count == 1)
+            {
+                var note = retry[0].Task.ParentNote?.Trim();
+                list.Add(string.IsNullOrEmpty(note)
+                    ? new Notice { Key = "notice.retry_one", Args = new object[] { retry[0].Task.Title } }
+                    : new Notice { Key = "notice.retry_one_note", Args = new object[] { retry[0].Task.Title, note } });
+            }
+            else if (retry.Count > 1) list.Add(new Notice { Key = "notice.retry_many", Args = new object[] { retry.Count } });
 
             // Yeni görevler: tek, sakin bir haber (gelecek günlerin tekrarları sayılmaz)
             var fresh = evs.Where(e => e.Kind == TaskEventKind.NewTask).Select(e => e.Task.TaskId).Distinct().Count();

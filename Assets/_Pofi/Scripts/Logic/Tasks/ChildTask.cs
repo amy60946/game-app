@@ -21,7 +21,8 @@ namespace Pofi.Logic.Tasks
         public Recurrence Recurrence;
         public long DueLocalTicks;     // bu saatten sonra "kaçırıldı" (varsayılan: günün sonu)
         public ChildTaskStatus Status;
-        public string ParentNote;      // ret/onay notu
+        public string ParentNote;      // ret/onay/tekrar deneme notu
+        public bool Retry;             // ebeveyn "Tekrar dene" dedi (sunucu 'retry'; ortak 20261027130000): görev Atandı gibi açık, kartta not
         public string Skill;           // sunucudaki beceri metni (ParentApp etiketi; SkillCatalog eşler)
         public string Difficulty;      // "easy" | "medium" | "hard" (XP ve Güneş Taşı buna göre)
         public string Reminder;        // ebeveynin hatırlatma saati "HH:MM" (null: yok) — Y5

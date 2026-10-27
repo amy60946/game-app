@@ -65,6 +65,14 @@ namespace Pofi.Logic.App
             return keys.Count;
         }
 
+        /// <summary>Çocuğun yaptım dediği görevlere "Tekrar dene" der (ayıklama ve test). Sayısı.</summary>
+        public static int RetryAll(MockBackend backend, string note = null)
+        {
+            var keys = backend.AllTasks.Where(t => t.Status == ChildTaskStatus.ChildDone).Select(t => t.Key).ToList();
+            foreach (var k in keys) backend.ParentRetry(k, note);
+            return keys.Count;
+        }
+
         public static int Pending(MockBackend backend) => backend.AllTasks.Count(t => t.Status == ChildTaskStatus.ChildDone);
     }
 }

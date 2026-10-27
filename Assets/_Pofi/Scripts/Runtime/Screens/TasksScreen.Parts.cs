@@ -84,6 +84,20 @@ namespace Pofi.Screens
                 Steps(path, 0f, step);
                 blockH += 8f + ChipH;
             }
+            // ebeveynin notu: "Tekrar dene" (görev yeniden açık) ya da onayla gelen söz (ParentApp İnceleme; ortak 20261027130000)
+            var note = NoteLine(task, missed);
+            if (note != null)
+            {
+                var nl = Ui.Label(main, note, F(24), task.Retry ? Theme.Hex("#B4472A") : Theme.Hex("#3E7A2A"), new Vector2(0.5f, 1f), new Vector2(0f, 40f),
+                    FontStyle.Bold, TextAnchor.UpperLeft);
+                nl.lineSpacing = 0.92f;
+                var nh = Mathf.Min(PrefH(nl, mainW, note), PrefH(nl, mainW, "Ag") * 3.05f);   // en çok üç satır
+                if (PrefH(nl, mainW, note) > nh + 1f) Fit(nl, F(24));
+                var nrt = nl.rectTransform;
+                nrt.anchorMin = new Vector2(0f, 1f); nrt.anchorMax = new Vector2(1f, 1f); nrt.pivot = new Vector2(0.5f, 1f);
+                nrt.sizeDelta = new Vector2(0f, nh); nrt.anchoredPosition = new Vector2(0f, -(blockH + 8f));
+                blockH += 8f + nh;
+            }
             main.sizeDelta = new Vector2(main.sizeDelta.x, blockH);
             main.anchoredPosition = new Vector2(main.anchoredPosition.x, 2f);
             var h = Mathf.Max(CardMinH, blockH + 40f);
@@ -137,6 +151,16 @@ namespace Pofi.Screens
                         break;
                 }
             }
+        }
+
+        /// <summary>Kartın not satırı: ebeveyn "Tekrar dene" dediyse (not varsa aynen), onaylı görevde ebeveynin sözü; yoksa null.</summary>
+        private string NoteLine(ChildTask task, bool missed)
+        {
+            var note = task.ParentNote?.Trim();
+            if (task.Retry && task.Status == ChildTaskStatus.Assigned && !missed)
+                return string.IsNullOrEmpty(note) ? T("task.retry") : T("task.retry_note", note);
+            if (task.Status == ChildTaskStatus.Approved && !string.IsNullOrEmpty(note)) return T("task.approved_note", note);
+            return null;
         }
 
         /// <summary>Kart çipi (beceri / zorluk). Zorlukta <paramref name="dots"/> kadar dolu nokta (●●○ yazı tipinde yok: çizilir).</summary>

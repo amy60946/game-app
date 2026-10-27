@@ -565,15 +565,32 @@ namespace Pofi.Core
                 if (Notices.Count > 0)
                     foreach (var n in Notices.Drain(CalmMoment))
                     {
-                        // yeni ev görevi: adadaysa haberi postacı Mavi getirir (kullanıcı, 24 Ekim 2026)
-                        if (n.Key.StartsWith("notice.new_task") && Page == AppPage.Map)
+                        // yeni ev görevi, ebeveynin "Tekrar dene"si, hediye: adadaysa haberi postacı Mavi getirir (kullanıcı, 24 Ekim 2026)
+                        var mavi = MaviKey(n.Key);
+                        if (mavi != null && Page == AppPage.Map)
                         {
                             var map = FindAnyObjectByType<Screens.MapScreen>();
-                            if (map != null && map.MaviNews(Loc.Get(n.Key == "notice.new_task_one" ? "mavi.news_one" : "mavi.news_many", n.Args))) continue;
+                            if (map != null && map.MaviNews(Loc.Get(mavi, n.Args))) continue;
                         }
                         Toast.Post(Overlay.transform, Theme, Loc.Get(n.Key, n.Args));
                         if (n.Happy) Audio.Sfx.Play(Audio.SfxKind.Success);
                     }
+            }
+        }
+
+        /// <summary>Adada postacı Mavi'nin söylediği haber (yoksa null: haber kısa bilgi olarak çıkar).</summary>
+        private static string MaviKey(string notice)
+        {
+            switch (notice)
+            {
+                case "notice.new_task_one": return "mavi.news_one";
+                case "notice.new_task_many": return "mavi.news_many";
+                case "notice.retry_one": return "mavi.retry_one";
+                case "notice.retry_one_note": return "mavi.retry_one_note";
+                case "notice.retry_many": return "mavi.retry_many";
+                case "notice.gift_one": return "mavi.gift_one";
+                case "notice.gift_many": return "mavi.gift_many";
+                default: return null;
             }
         }
 

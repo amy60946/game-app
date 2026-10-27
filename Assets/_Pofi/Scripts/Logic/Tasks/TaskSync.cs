@@ -12,7 +12,7 @@ namespace Pofi.Logic.Tasks
         public long ClientUtcTicks;
     }
 
-    public enum TaskEventKind { NewTask, Approved, Rejected, Removed }
+    public enum TaskEventKind { NewTask, Approved, Rejected, Removed, Retry }
 
     /// <summary>Senkron sonrası olaylar: oyun içi rozet + pet'ten sesli bildirim + onay sahnesi (FR-TASK-4/5).</summary>
     public sealed class TaskEvent
@@ -43,6 +43,7 @@ namespace Pofi.Logic.Tasks
             t.Status = to;
             if (to == ChildTaskStatus.ChildDone) t.DoneLocalTicks = local.Ticks;
             else if (to == ChildTaskStatus.Assigned) t.DoneLocalTicks = 0;
+            if (to != ChildTaskStatus.Assigned) t.Retry = false;   // yeniden "Yaptım"/"Yapamam": ebeveynin tekrar isteği karşılandı
             Outbox.RemoveAll(o => o.Key == key); // aynı görev için yalnızca son niyet gönderilir
             Outbox.Add(new OutboxChange { Key = key, To = to, ClientUtcTicks = nowUtc.Ticks });
             return ChangeResult.Ok;
@@ -75,8 +76,11 @@ namespace Pofi.Logic.Tasks
                 else if (pending != null)
                 {
                     s.Status = pending.To;
+                    s.Retry = local != null && local.Retry && pending.To == ChildTaskStatus.Assigned;   // çocuğun son niyeti geçerli
                 }
-                if (local == null && !s.IsFinal) events.Add(new TaskEvent { Kind = TaskEventKind.NewTask, Task = s });
+                if (s.Retry && pending == null && (local == null || !local.Retry))
+                    events.Add(new TaskEvent { Kind = TaskEventKind.Retry, Task = s });   // ebeveyn "Tekrar dene" dedi
+                else if (local == null && !s.IsFinal) events.Add(new TaskEvent { Kind = TaskEventKind.NewTask, Task = s });
                 merged.Add(s);
             }
             foreach (var gone in old.Values.Where(o => incoming.All(s => s.Key != o.Key)))

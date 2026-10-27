@@ -215,6 +215,13 @@ namespace Pofi.Core
                         DemoParent.ApproveAll(app.Backend);
                         await app.SyncNow();
                         break;
+                    case "retry":   // retry [not…]: yaptım denen görevlere ebeveyn "Tekrar dene" der (ortak 20261027130000)
+                        foreach (var t in app.State.Tasks.Tasks)
+                            if (t.Status == Logic.Tasks.ChildTaskStatus.Assigned) app.State.Tasks.Mark(t.Key, Logic.Tasks.ChildTaskStatus.ChildDone, app.LocalNow, app.UtcNow);
+                        await app.SyncNow();
+                        DemoParent.RetryAll(app.Backend, string.IsNullOrWhiteSpace(arg) ? null : arg);
+                        await app.SyncNow();
+                        break;
                 }
                 Debug.Log($"[PofiDebug] ok {cmd} | screen={AppFlow.Decide(app.Session, app.State)} page={app.Page} level={app.Level} coins={app.State?.Wallet.Available}");
             }

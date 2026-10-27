@@ -109,7 +109,7 @@ namespace Pofi.Logic.Services.Supabase
                 case "approved": return ChildTaskStatus.Approved;
                 case "declined": return ChildTaskStatus.DeclinedByChild;
                 case "rejected": return ChildTaskStatus.RejectedByParent;
-                default: return ChildTaskStatus.Assigned;
+                default: return ChildTaskStatus.Assigned;   // "assigned", "retry" (bayrak ayrı: ChildTask.Retry) ve bilinmeyenler
             }
         }
 
@@ -150,6 +150,7 @@ namespace Pofi.Logic.Services.Supabase
                     Recurrence = ParseRecurrence((bool?)o["recurring"] ?? false, (string)o["repeat_kind"]),
                     DueLocalTicks = d.AddDays(1).AddTicks(-1).Ticks,
                     Status = ParseStatus((string)o["status"]),
+                    Retry = (string)o["status"] == "retry",   // ebeveyn "Tekrar dene": görev yeniden açık (child_set_status 'retry'yi nihai saymaz)
                     ParentNote = (string)o["parent_note"],
                     Skill = (string)o["skill"],
                     Difficulty = (string)o["difficulty"],

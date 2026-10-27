@@ -83,6 +83,48 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
+        public void Ebeveyn_tekrar_dene_gorevi_yeniden_acar_ve_bir_kez_haber_verir()
+        {
+            // ortak 20261027130000: ebeveyn "Tekrar dene" → sunucu 'retry' (oyunda Atandı + Retry), not çocuğa görünür
+            var board = new TaskBoard { Tasks = { T("a", ChildTaskStatus.ChildDone) } };
+            var srv = T("a"); srv.Retry = true; srv.ParentNote = "Yatağı da topla";
+            var ev = board.Merge(new[] { srv });
+            Assert.AreEqual(1, ev.Count(e => e.Kind == TaskEventKind.Retry), "tekrar dene haberi");
+            Assert.AreEqual(0, ev.Count(e => e.Kind == TaskEventKind.NewTask), "yeni görev sayılmaz");
+            var t = board.Find("a|2026-10-13");
+            Assert.IsTrue(t.Retry);
+            Assert.AreEqual(ChangeResult.Ok, TaskRules.CanChange(t, ChildTaskStatus.ChildDone, Morning), "Yaptım yeniden açık");
+
+            var again = T("a"); again.Retry = true;
+            Assert.AreEqual(0, board.Merge(new[] { again }).Count(e => e.Kind == TaskEventKind.Retry), "aynı istek ikinci kez haber olmaz");
+
+            // çocuk yeniden "Yaptım" dedi: bayrak kalkar; sunucu henüz eski haldeyken kuyruktaki niyet geçerli
+            Assert.AreEqual(ChangeResult.Ok, board.Mark("a|2026-10-13", ChildTaskStatus.ChildDone, Morning, Utc));
+            Assert.IsFalse(board.Find("a|2026-10-13").Retry);
+            var stale = T("a"); stale.Retry = true;
+            var ev2 = board.Merge(new[] { stale });
+            Assert.AreEqual(ChildTaskStatus.ChildDone, board.Find("a|2026-10-13").Status);
+            Assert.IsFalse(board.Find("a|2026-10-13").Retry);
+            Assert.AreEqual(0, ev2.Count(e => e.Kind == TaskEventKind.Retry));
+        }
+
+        [Test]
+        public void Tekrar_dene_ve_onay_notu_haberlerde()
+        {
+            var a = T("Odanı topla", ChildTaskStatus.Approved); a.ParentNote = "Harika toplamışsın";
+            var r = T("Dişler"); r.Retry = true; r.ParentNote = "Arkadakiler de";
+            var list = Pofi.Logic.App.NoticeDigest.Build(new[]
+            {
+                new TaskEvent { Kind = TaskEventKind.Approved, Task = a },
+                new TaskEvent { Kind = TaskEventKind.Retry, Task = r },
+            }, null);
+            Assert.IsTrue(list.Any(n => n.Key == "notice.approved_one_note" && (string)n.Args[1] == "Harika toplamışsın"));
+            Assert.IsTrue(list.Any(n => n.Key == "notice.retry_one_note" && (string)n.Args[0] == "Dişler"));
+            var plain = T("Dişler"); plain.Retry = true;
+            Assert.AreEqual("notice.retry_one", Pofi.Logic.App.NoticeDigest.Build(new[] { new TaskEvent { Kind = TaskEventKind.Retry, Task = plain } }, null)[0].Key);
+        }
+
+        [Test]
         public void Kart_zorlugu_ve_gunes_tasi_sozlesmeyle_ayni()
         {
             // ekonomi.md 5A: kolay 1 / orta 2 / zor 3 taş; kartta aynı sayıda nokta; deneme sunucusu da aynı kuralı kullanır

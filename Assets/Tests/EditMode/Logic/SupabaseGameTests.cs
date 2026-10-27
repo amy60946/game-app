@@ -56,6 +56,22 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
+        public async Task Tekrar_dene_durumu_Atandi_ve_bayrak_olarak_okunur()
+        {
+            // ortak 20261027130000: ebeveyn "Tekrar dene" → status 'retry'; oyunda Yaptım yeniden açık, not görünür
+            var http = new FakeHttp
+            {
+                Handler = (fn, args) => R(200, @"[{""task_id"":""t1"",""date"":""2026-10-27"",""title"":""Odanı topla"",""coins"":10,""status"":""retry"",""parent_note"":""Yatağı da""},
+                                                {""task_id"":""t2"",""date"":""2026-10-27"",""title"":""Dişler"",""coins"":5,""status"":""assigned"",""parent_note"":null}]"),
+            };
+            var list = await Svc(http).FetchAsync("2026-10-27", "2026-10-27");
+            Assert.AreEqual(ChildTaskStatus.Assigned, list[0].Status);
+            Assert.IsTrue(list[0].Retry);
+            Assert.AreEqual("Yatağı da", list[0].ParentNote);
+            Assert.IsFalse(list[1].Retry);
+        }
+
+        [Test]
         public async Task Durum_gonderimi_ve_hata_eslemesi()
         {
             var http = new FakeHttp { Handler = (fn, a) => (string)a["p_status"] == "pending" ? R(200, "\"pending\"") : R(400, "{\"message\":\"Ebeveyn karar verdi\"}") };

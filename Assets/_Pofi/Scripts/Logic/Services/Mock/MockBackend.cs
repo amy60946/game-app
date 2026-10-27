@@ -76,6 +76,16 @@ namespace Pofi.Logic.Services.Mock
             t.ParentNote = note;
         }
 
+        /// <summary>Ebeveyn "Tekrar dene" (sunucu review_completion 'retry'): görev çocuğa geri döner, onaylıysa coin ve taş geri alınır.</summary>
+        public void ParentRetry(string key, string note = null)
+        {
+            var t = _tasks.First(x => x.Key == key);
+            if (t.Status == ChildTaskStatus.Approved) { Coins -= t.RewardCoins; SunStones -= StonesFor(t.Difficulty); }
+            t.Status = ChildTaskStatus.Assigned;
+            t.Retry = true;
+            t.ParentNote = note;
+        }
+
         // ---------- hoş geldin coin'i (sunucu claim_welcome_coins ile aynı: çocuk başına bir kez) ----------
 
         public const int WelcomeCoins = 20;
@@ -246,6 +256,7 @@ namespace Pofi.Logic.Services.Mock
             if (t.IsFinal) return Task.FromResult(ServiceError.Rejected);
             if (to == ChildTaskStatus.Approved || to == ChildTaskStatus.RejectedByParent) return Task.FromResult(ServiceError.Rejected);
             t.Status = to;
+            if (to != ChildTaskStatus.Assigned) t.Retry = false;
             return Task.FromResult(ServiceError.None);
         }
 
@@ -411,7 +422,7 @@ namespace Pofi.Logic.Services.Mock
         private static ChildTask Clone(ChildTask t) => new ChildTask
         {
             TaskId = t.TaskId, Date = t.Date, Title = t.Title, Description = t.Description, RewardCoins = t.RewardCoins,
-            Recurrence = t.Recurrence, DueLocalTicks = t.DueLocalTicks, Status = t.Status, ParentNote = t.ParentNote,
+            Recurrence = t.Recurrence, DueLocalTicks = t.DueLocalTicks, Status = t.Status, ParentNote = t.ParentNote, Retry = t.Retry,
             Skill = t.Skill, Difficulty = t.Difficulty, Reminder = t.Reminder,
         };
     }
