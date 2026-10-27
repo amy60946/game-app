@@ -3029,6 +3029,28 @@
    "cer": 0.057
   },
   {
+   "key": "c5d5ef365e37f1fc",
+   "text": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği görevleri. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
+   "role": "anlatici",
+   "src": "tr:info.child",
+   "who": "narrator",
+   "tts": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği görevleri. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
+   "sec": 24.24,
+   "seed": 100,
+   "cer": 0.012
+  },
+  {
+   "key": "ba234335a9da5d96",
+   "text": "Coin'ler adanın parasıdır. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+   "role": "anlatici",
+   "src": "tr:coin.info",
+   "who": "narrator",
+   "tts": "Coin'ler adanın parasıdır. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+   "sec": 11.72,
+   "seed": 7,
+   "cer": 0.015
+  },
+  {
    "key": "8d4c5d1cb1a05d97",
    "text": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
    "role": "anlatici",
