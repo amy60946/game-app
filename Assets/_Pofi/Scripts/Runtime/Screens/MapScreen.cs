@@ -95,7 +95,7 @@ namespace Pofi.Screens
                 var side = new Vector2(-d.y, d.x) * 2.6f;
                 var mx = hx + side.x; var mz = hz + side.y;
                 _mailbox = Mailbox.Create(_world.transform, new Vector3(mx, _terrain.Height(mx, mz), mz), Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg);
-                _mailbox.Unread = App.MailUnread > 0;
+                _mailbox.Unread = App.MailUnread > 0 || App.PendingGifts.Count > 0;   // ebeveyn mesajı ya da hediye paketi
             }
 
             BuildResidents();   // K: Kıskaç, Mavi, Pus (3B)
@@ -1201,8 +1201,9 @@ namespace Pofi.Screens
         private async void RefreshMailFlag()
         {
             await App.RefreshMail();
+            await App.RefreshGifts();
             if (this == null || _mailbox == null) return;
-            _mailbox.Unread = App.MailUnread > 0;
+            _mailbox.Unread = App.MailUnread > 0 || App.PendingGifts.Count > 0;   // ebeveyn mesajı ya da hediye paketi
             if (App.MailUnread > 0 && !_mailToldThisSession && _toast != null) { _mailToldThisSession = true; _toast.Say(T("mail.new", App.MailUnread)); }
         }
 

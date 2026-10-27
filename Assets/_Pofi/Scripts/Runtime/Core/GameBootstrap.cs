@@ -78,6 +78,59 @@ namespace Pofi.Core
         }
 
         public void MailRead() => MailUnread = 0;
+
+        public Logic.Mail.IGiftService Gifts => (Logic.Mail.IGiftService)_remote ?? Backend;
+
+        /// <summary>Posta kutusunda açılmayı bekleyen ebeveyn hediyeleri (adadaki kutunun bayrağı da kalkar). <see cref="RefreshGifts"/> günceller.</summary>
+        public System.Collections.Generic.List<Logic.Mail.ParentGift> PendingGifts { get; private set; } = new System.Collections.Generic.List<Logic.Mail.ParentGift>();
+
+        /// <summary>
+        /// Ebeveyn hediyeleri (ortak 20261027140000): sunucudaki açık hediyeler okunur; açılmış ama kapatılamamışlar yeniden kapatılır,
+        /// yeni gelenlerin haberi bir kez verilir (adada Mavi getirir). Sunucuda işlev yoksa ya da ağ yoksa sessizce geçer.
+        /// </summary>
+        public async System.Threading.Tasks.Task RefreshGifts()
+        {
+            var svc = Gifts;
+            if (svc == null || State == null) return;
+            System.Collections.Generic.List<Logic.Mail.ParentGift> list;
+            try { list = await svc.PendingGiftsAsync(); }
+            catch (Exception e) { Debug.LogException(e); return; }
+            if (list == null || State == null) return;
+            foreach (var g in Logic.Mail.GiftBook.NeedsClaim(State.Gifts, list))
+            {
+                try { await svc.ClaimGiftAsync(g.Id); } catch (Exception e) { Debug.LogException(e); }
+            }
+            PendingGifts = Logic.Mail.GiftBook.Unopened(State.Gifts, list, id => Data.Item(id) != null);
+            var fresh = Logic.Mail.GiftBook.Tell(State.Gifts, PendingGifts);
+            if (fresh.Count == 0) return;
+            Save();
+            Notices.Add(new[]
+            {
+                fresh.Count == 1
+                    ? new Logic.App.Notice { Key = "notice.gift_one", Args = new object[] { FromLabel(fresh[0].FromName) }, Happy = true }
+                    : new Logic.App.Notice { Key = "notice.gift_many", Args = new object[] { fresh.Count }, Happy = true },
+            });
+        }
+
+        /// <summary>Hediyeyi aç: eşya envantere (seviye kilidi yok), kayıt, sonra sunucuda kapat (gitmezse sonraki eşitlemede).</summary>
+        public bool OpenGift(Logic.Mail.ParentGift g)
+        {
+            if (State == null || !Logic.Mail.GiftBook.Open(State, Data, g)) return false;
+            PendingGifts.RemoveAll(x => x.Id == g.Id);
+            RecordActivity("gift_opened");
+            Save();
+            var svc = Gifts;
+            if (svc != null) _ = ClaimQuietly(svc, g.Id);
+            return true;
+        }
+
+        private static async System.Threading.Tasks.Task ClaimQuietly(Logic.Mail.IGiftService svc, string id)
+        {
+            try { await svc.ClaimGiftAsync(id); } catch (Exception e) { Debug.LogException(e); }
+        }
+
+        /// <summary>Hediyeyi gönderenin adı (boşsa "Ailen").</summary>
+        public string FromLabel(string name) => string.IsNullOrWhiteSpace(name) ? Loc.Get("mailgift.from_family") : name.Trim();
         public SyncCoordinator Sync { get; private set; }
         public AppPage Page { get; private set; } = AppPage.Map;   // ana merkez ada (14 Ekim 2026)
 
@@ -311,6 +364,7 @@ namespace Pofi.Core
             if (Session != null && Backend != null) Store.Set(ServerKey(Session.ChildId), Backend.Export());
             Save();
             _ = RefreshMail();   // posta kutusu bayrağı (H2)
+            _ = RefreshGifts();  // ebeveyn hediyeleri (ParentApp, 27 Ekim 2026)
             if (report.CoinsEarned > 0) CoinBurst.Play(Overlay.transform, Theme, Loc.Get("tasks.earned", report.CoinsEarned), report.CoinsEarned);
             if (report.SunStonesEarned > 0)
             {

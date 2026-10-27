@@ -40,9 +40,11 @@ namespace Pofi.Screens
         private async void Load()
         {
             var list = await App.RefreshMail();
+            await App.RefreshGifts();
             if (this == null) return;
-            if (list == null) { _status.text = T("mail.offline"); return; }
-            Render(list);
+            if (list == null && App.PendingGifts.Count == 0) { _status.text = T("mail.offline"); return; }
+            Render(list ?? new List<MailMessage>());
+            if (list == null) return;
             if (MailBox.UnreadCount(list) > 0)
             {
                 try { await App.Mail.MarkReadAsync(); } catch (System.Exception) { return; }   // çevrimdışı: sonra yeniden denenir
@@ -53,12 +55,66 @@ namespace Pofi.Screens
         private void Render(List<MailMessage> list)
         {
             Ui.Clear(_list);
-            _status.gameObject.SetActive(list.Count == 0);
+            var gifts = App.PendingGifts.ToList();
+            _status.gameObject.SetActive(list.Count == 0 && gifts.Count == 0);
             if (list.Count == 0) _status.text = T("mail.empty");
+            foreach (var g in gifts) GiftCard(g);   // ebeveynin hediye paketleri en üstte (ParentApp, 27 Ekim 2026)
             foreach (var m in list.Skip(System.Math.Max(0, list.Count - 60))) Bubble(m);
             Canvas.ForceUpdateCanvases();
             var sr = _list.GetComponentInParent<ScrollRect>();
             if (sr != null) sr.verticalNormalizedPosition = 0f;   // en yeni altta
+        }
+
+        /// <summary>
+        /// Ebeveynin Güneş Taşı ile gönderdiği hediye paketi: kimden, ne, not; "Aç" → eşya envantere (seviye kilidi yok),
+        /// kart "artık senin" olur ve dolaba / ev süslemeye götürür.
+        /// </summary>
+        private void GiftCard(Logic.Mail.ParentGift g)
+        {
+            var item = App.Data.Item(g.ItemId);
+            if (item == null) return;
+            const float width = 1040f;
+            var note = string.IsNullOrWhiteSpace(g.Note) ? null : "“" + g.Note.Trim() + "”";
+            var h = note == null ? 250f : 300f;
+            var row = Ui.Row(_list, "Gift " + g.Id, h);
+            var box = Ui.Rect(row, "Box", new Vector2(0.5f, 0.5f), new Vector2(width, h - 14f));
+            Ui.Panel(box, Theme.Hex("#FFF1C9"), 40f).raycastTarget = false;
+            var seal = Ui.Rect(box, "Item", new Vector2(0f, 0.5f), new Vector2(190f, 190f), new Vector2(125f, 0f));
+            GoldKit.RimDisc(seal, Theme.Hex("#FFFDF5"), Theme.Hex("#F0C96A"), 6f);
+            Ui.IconImage(seal, item.Id, new Vector2(0.5f, 0.5f), 150f);
+            Ui.IconImage(seal, "ui_gift", new Vector2(1f, 1f), 74f, new Vector2(-14f, -14f));
+            var textW = width - 250f - 300f;
+            Ui.Label(box, T("mailgift.from", App.FromLabel(g.FromName)), Th.Font(36), Theme.Hex("#8A4F0E"), new Vector2(0f, 1f), new Vector2(textW, 56f),
+                FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(250f + textW * 0.5f, -50f));
+            Ui.Label(box, item.Name, Th.Font(44), Theme.Hex("#3A2508"), new Vector2(0f, 1f), new Vector2(textW, 64f),
+                FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(250f + textW * 0.5f, -110f));
+            if (note != null)
+            {
+                var nl = Ui.Label(box, note, Th.Font(32), Theme.Hex("#6B4A1E"), new Vector2(0f, 1f), new Vector2(textW, 90f),
+                    FontStyle.Italic, TextAnchor.UpperLeft, new Vector2(250f + textW * 0.5f, -190f));
+                nl.resizeTextForBestFit = true; nl.resizeTextMinSize = 22; nl.resizeTextMaxSize = Th.Font(32);
+            }
+            Candy.Pill(box, Candy.Green, T("mailgift.open"), new Vector2(1f, 0.5f), new Vector2(240f, 110f), new Vector2(-150f, 0f), () =>
+            {
+                if (!App.OpenGift(g)) return;
+                Audio.Sfx.Play(Audio.SfxKind.Success);
+                Confetti.Burst(App.Overlay.transform, 60, 2.2f);
+                Opened(row, item, h);
+            }, null, 44).gameObject.AddComponent<Pulse>();
+        }
+
+        /// <summary>Açılan paketin yeri: "artık senin" + giydir / evde süsle.</summary>
+        private void Opened(RectTransform row, Logic.Data.ItemDef item, float h)
+        {
+            Ui.Clear(row);
+            var box = Ui.Rect(row, "Box", new Vector2(0.5f, 0.5f), new Vector2(1040f, h - 14f));
+            Ui.Panel(box, Theme.Hex("#EAF7DF"), 40f).raycastTarget = false;
+            Ui.IconImage(box, item.Id, new Vector2(0f, 0.5f), 150f, new Vector2(125f, 0f));
+            Ui.Label(box, T("mailgift.opened", item.Name), Th.Font(40), Theme.Hex("#2F6A1E"), new Vector2(0f, 0.5f), new Vector2(520f, 120f),
+                FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(250f + 260f, 0f));
+            var wear = item.IsWearable;
+            Candy.Pill(box, Candy.Green, T(wear ? "mailgift.wear" : "mailgift.place"), new Vector2(1f, 0.5f), new Vector2(260f, 104f), new Vector2(-160f, 0f),
+                () => App.Open(wear ? AppPage.Wardrobe : AppPage.Decorate), null, 38);
         }
 
         private void Bubble(MailMessage m)

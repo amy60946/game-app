@@ -49,7 +49,8 @@ namespace Pofi.Screens
 
             var row = new List<(string key, string icon, string ex, System.Action act)>
                 { ("home.daily", "ui_star", "#C26A08", () => QuestPanel()), ("album.button", "ui_album", "#7A4A12", () => App.Open(AppPage.Album)) };
-            if (App.Levels.IsUnlocked("home_decor", App.Level)) row.Add(("decor.button", "home_lamp", "#7A4A12", () => App.Open(AppPage.Decorate)));
+            // hediye gelen ev eşyası seviyesi gelmeden de yerleştirilir (kullanıcı kararı 27 Ekim 2026: hediye hemen kullanılsın)
+            if (App.Levels.IsUnlocked("home_decor", App.Level) || Logic.Mail.GiftBook.HasPlaceable(App.State.Gifts, App.Data)) row.Add(("decor.button", "home_lamp", "#7A4A12", () => App.Open(AppPage.Decorate)));
             row.Add(("settings.title", "ui_settings", "#4E5868", () => ParentGate(() => App.Open(AppPage.Settings), msg => _bubble.Say(msg))));
             for (var i = 0; i < row.Count; i++)
             {

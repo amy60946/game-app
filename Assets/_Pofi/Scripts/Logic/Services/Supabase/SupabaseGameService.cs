@@ -15,7 +15,7 @@ namespace Pofi.Logic.Services.Supabase
     /// fonksiyonlarını çağırır (child_me, child_tasks, child_set_status, spend_coins, game_save_get/put).
     /// Ağ yoksa <see cref="OperationCanceledException"/> (SyncCoordinator bunu "çevrimdışı" sayar) ya da ServiceError.Network.
     /// </summary>
-    public sealed class SupabaseGameService : IWalletService, IWelcomeService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService
+    public sealed class SupabaseGameService : IWalletService, IWelcomeService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService, Mail.IGiftService
     {
         public const string LocalSaveKey = "pofi.save.local";
 
@@ -316,6 +316,22 @@ namespace Pofi.Logic.Services.Supabase
         {
             var r = await Rpc("child_messages", new { p_limit = Math.Max(1, Math.Min(200, limit)) }, ct);
             return Ok(r) ? Mail.MailBox.Parse(r.Body) : null;   // null: ağ yok / fonksiyon yok
+        }
+
+        // ------------------------------------------------------------ ebeveyn hediyesi (ortak 20261027140000_parent_tasks_gifts)
+
+        public async Task<List<Mail.ParentGift>> PendingGiftsAsync(CancellationToken ct = default)
+        {
+            var r = await Rpc("child_gifts_pending", null, ct);
+            return Ok(r) ? Mail.GiftBook.Parse(r.Body) : null;   // null: ağ yok / işlev henüz yok (404)
+        }
+
+        public async Task<bool?> ClaimGiftAsync(string id, CancellationToken ct = default)
+        {
+            if (string.IsNullOrEmpty(id)) return false;
+            var r = await Rpc("claim_child_gift", new { p_id = id }, ct);
+            if (!Ok(r)) return null;
+            return (r.Body ?? "").Trim() == "true";
         }
 
         public async Task<int> MarkReadAsync(CancellationToken ct = default)

@@ -215,6 +215,10 @@ namespace Pofi.Core
                         DemoParent.ApproveAll(app.Backend);
                         await app.SyncNow();
                         break;
+                    case "gift":   // gift [eşya]: ebeveyn hediyesi gönderir (sahte arka uç), kutu ve haber yenilenir
+                        app.Backend.ParentGift(string.IsNullOrWhiteSpace(arg) ? "hat_cap" : arg, "Annem", "Seni çok seviyorum!");
+                        await app.RefreshGifts();
+                        break;
                     case "retry":   // retry [not…]: yaptım denen görevlere ebeveyn "Tekrar dene" der (ortak 20261027130000)
                         foreach (var t in app.State.Tasks.Tasks)
                             if (t.Status == Logic.Tasks.ChildTaskStatus.Assigned) app.State.Tasks.Mark(t.Key, Logic.Tasks.ChildTaskStatus.ChildDone, app.LocalNow, app.UtcNow);

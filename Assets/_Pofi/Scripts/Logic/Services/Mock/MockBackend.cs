@@ -13,7 +13,7 @@ namespace Pofi.Logic.Services.Mock
     /// fiyat sunucuda (oyun verisinden) okunur, harcama idempotenttir, coin yalnızca ebeveyn onayıyla artar.
     /// Geliştirmede "ebeveyn" işlemleri (görev ata, onayla, reddet) bu sınıftan çağrılır.
     /// </summary>
-    public sealed class MockBackend : IWalletService, IWelcomeService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService
+    public sealed class MockBackend : IWalletService, IWelcomeService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService, Mail.IGiftService
     {
         private readonly GameData _data;
         private readonly Dictionary<string, int> _processedTx = new Dictionary<string, int>(); // txId → tutar
@@ -301,6 +301,34 @@ namespace Pofi.Logic.Services.Mock
         }
 
         public Task<string> MediaUrlAsync(string mediaPath, CancellationToken ct = default) => Task.FromResult<string>(null);
+
+        // ---------- IGiftService (ebeveyn hediyesi; sunucu child_gifts_pending / claim_child_gift kopyası) ----------
+
+        private readonly List<(Mail.ParentGift gift, bool claimed)> _gifts = new List<(Mail.ParentGift, bool)>();
+        private int _giftSeq;
+
+        /// <summary>Ebeveyn Güneş Taşı ile hediye gönderdi (deneme ve test).</summary>
+        public Mail.ParentGift ParentGift(string itemId, string fromName = "Annem", string note = null)
+        {
+            var g = new Mail.ParentGift { Id = "g" + (++_giftSeq), ItemId = itemId, FromName = fromName, Note = note, CreatedAt = DateTime.UtcNow };
+            _gifts.Add((g, false));
+            return g;
+        }
+
+        public Task<List<Mail.ParentGift>> PendingGiftsAsync(CancellationToken ct = default)
+        {
+            if (Offline) return Task.FromResult<List<Mail.ParentGift>>(null);
+            return Task.FromResult(_gifts.Where(x => !x.claimed).Select(x => x.gift).ToList());
+        }
+
+        public Task<bool?> ClaimGiftAsync(string id, CancellationToken ct = default)
+        {
+            if (Offline) return Task.FromResult<bool?>(null);
+            var i = _gifts.FindIndex(x => x.gift.Id == id);
+            if (i < 0 || _gifts[i].claimed) return Task.FromResult<bool?>(false);
+            _gifts[i] = (_gifts[i].gift, true);
+            return Task.FromResult<bool?>(true);
+        }
 
         // ---------- IGoalService (Y2 teklif kaydı, Y6 haftalık hedef; sunucu kuralının kopyası) ----------
 
