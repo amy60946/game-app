@@ -216,7 +216,7 @@ namespace Pofi.Core
                         await app.SyncNow();
                         break;
                     case "gift":   // gift [eşya]: ebeveyn hediyesi gönderir (sahte arka uç), kutu ve haber yenilenir
-                        app.Backend.ParentGift(string.IsNullOrWhiteSpace(arg) ? "hat_cap" : arg, "Annem", "Seni çok seviyorum!");
+                        app.Backend.ParentGift(string.IsNullOrWhiteSpace(arg) ? "hat_cap" : arg, "Annem", "Seni çok seviyorum!", "okti_anne_2");
                         await app.RefreshGifts();
                         break;
                     case "retry":   // retry [not…]: yaptım denen görevlere ebeveyn "Tekrar dene" der (ortak 20261027130000)

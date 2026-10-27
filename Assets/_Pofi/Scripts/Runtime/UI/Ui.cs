@@ -126,6 +126,21 @@ namespace Pofi.UI
             return rt;
         }
 
+        /// <summary>
+        /// Ebeveynin Okti yüzü (yuvarlak, beyaz kenarlı; Resources/UI/Avatars, ortak durumlar.md §6a). Sunucu değeri
+        /// (from_avatar) ParentAvatar.Resolve ile kimliğe çevrilir; tanınmayan değerde varsayılan Okti. Görsel yoksa null.
+        /// </summary>
+        public static RectTransform ParentAvatar(Transform parent, string value, Vector2 anchor, float size, Vector2 offset = default)
+        {
+            var id = Pofi.Logic.Mail.ParentAvatar.Resolve(value);
+            var sp = Art("UI/Avatars/" + id) ?? Art("UI/Avatars/" + Pofi.Logic.Mail.ParentAvatar.Default);
+            if (sp == null) return null;
+            var rt = Rect(parent, "Avatar " + id, anchor, new Vector2(size, size), offset);
+            var img = rt.gameObject.AddComponent<Image>();
+            img.sprite = sp; img.preserveAspect = true; img.raycastTarget = false;
+            return rt;
+        }
+
         public static Canvas CreateCanvas(string name, int order)
         {
             var go = new GameObject(name);

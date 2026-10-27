@@ -367,6 +367,8 @@ VARIANTS = {
                         bg=('#F1F7FF', '#D9E8FA')),
     'okti_baba_2': dict(name='Kaptan', body=(0.45, 1.05, 0.95), top=(0.95, 0.15, 1.15),
                         brows=True, items=[('set_captain_hat', 'head', {'up': 0.075})], bg=('#F2FAFB', '#D7EEF2'), aim=1.47),
+    # varsayılan yüz (oyun: avatar seçilmemiş, eski/tanınmayan değer ya da photo:); süssüz yetişkin Okti, taslak sayfasında yok
+    'okti': dict(name='Okti', body=(0.5, 1.0, 1.0), top=(0.5, 1.0, 1.0), bg=('#F3F8FF', '#DCEBFB'), sheet=False),
     'okti_baba_3': dict(name='Kasketli', body=(0.52, 1.08, 0.9), top=(0.47, 1.1, 1.0),
                         brows=True, items=[('hat_cap', 'head', {'up': 0.035})], bg=('#FFF8EE', '#F6E6CF'), aim=1.45),
 }
@@ -468,7 +470,8 @@ def main(argv):
         composite(raw, os.path.join(out, k + '.png'), cfg['bg'], size)
         done.append(os.path.join(out, k + '.png'))
         print('TASLAK', k, cfg['name'])
-    allp = [os.path.join(out, k + '.png') for k in VARIANTS if os.path.exists(os.path.join(out, k + '.png'))]
+    allp = [os.path.join(out, k + '.png') for k, v in VARIANTS.items()
+            if v.get('sheet', True) and os.path.exists(os.path.join(out, k + '.png'))]
     sheet(allp, os.path.join(out, 'sheet.png'))
 
 

@@ -266,12 +266,13 @@ namespace Pofi.Logic.Services.Mock
         private int _msgSeq;
 
         /// <summary>Deneme: "ebeveyn" mesaj gönderir (yazı, çıkartma ya da fotoğraf/ses yolu).</summary>
-        public Mail.MailMessage ParentMessage(string kind, string body, string fromName = "Annem", string mediaPath = null, int durationMs = 0, DateTime? at = null)
+        public Mail.MailMessage ParentMessage(string kind, string body, string fromName = "Annem", string mediaPath = null, int durationMs = 0, DateTime? at = null,
+            string avatar = null)
         {
             var m = new Mail.MailMessage
             {
                 Id = "m" + (++_msgSeq), Sender = "parent", Kind = kind, Body = body, MediaPath = mediaPath, DurationMs = durationMs,
-                CreatedAt = at ?? DateTime.UtcNow, FromName = fromName,
+                CreatedAt = at ?? DateTime.UtcNow, FromName = fromName, FromAvatar = avatar,
             };
             Messages.Add(m);
             return m;
@@ -308,9 +309,9 @@ namespace Pofi.Logic.Services.Mock
         private int _giftSeq;
 
         /// <summary>Ebeveyn Güneş Taşı ile hediye gönderdi (deneme ve test).</summary>
-        public Mail.ParentGift ParentGift(string itemId, string fromName = "Annem", string note = null)
+        public Mail.ParentGift ParentGift(string itemId, string fromName = "Annem", string note = null, string avatar = null)
         {
-            var g = new Mail.ParentGift { Id = "g" + (++_giftSeq), ItemId = itemId, FromName = fromName, Note = note, CreatedAt = DateTime.UtcNow };
+            var g = new Mail.ParentGift { Id = "g" + (++_giftSeq), ItemId = itemId, FromName = fromName, Note = note, CreatedAt = DateTime.UtcNow, FromAvatar = avatar };
             _gifts.Add((g, false));
             return g;
         }

@@ -23,6 +23,7 @@ namespace Pofi.Logic.Mail
         public DateTime CreatedAt;
         public DateTime? ReadAt;
         public string FromName;      // ebeveynin takma adı (ör. Annem)
+        public string FromAvatar;    // gönderenin profiles.avatar değeri (from_avatar; eski sunucuda null) → ParentAvatar.Resolve
 
         public bool FromParent => Sender == "parent";
         public bool Unread => FromParent && ReadAt == null;
@@ -89,6 +90,7 @@ namespace Pofi.Logic.Mail
                     Id = (string)o["id"], Sender = (string)o["sender"], Kind = (string)o["kind"] ?? Text, Body = (string)o["body"],
                     MediaPath = (string)o["media_path"], DurationMs = (int?)o["duration_ms"] ?? 0,
                     CreatedAt = (DateTime?)o["created_at"] ?? DateTime.MinValue, ReadAt = (DateTime?)o["read_at"], FromName = (string)o["from_name"],
+                    FromAvatar = (string)o["from_avatar"],
                 });
             }
             return list.OrderBy(m => m.CreatedAt).ToList();

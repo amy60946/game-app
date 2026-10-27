@@ -18,6 +18,7 @@ namespace Pofi.Logic.Mail
         public string FromName;
         public string Note;
         public DateTime CreatedAt;
+        public string FromAvatar;    // gönderenin avatarı (from_avatar, ortak 20261027220000; eski sunucuda null) → ParentAvatar.Resolve
     }
 
     public interface IGiftService
@@ -40,7 +41,7 @@ namespace Pofi.Logic.Mail
 
     public static class GiftBook
     {
-        /// <summary>child_gifts_pending yanıtı: [{id, item_id, from_name, note, created_at}]. Bozuk satır atlanır.</summary>
+        /// <summary>child_gifts_pending yanıtı: [{id, item_id, from_name, note, created_at, from_avatar?}]. Bozuk satır atlanır.</summary>
         public static List<ParentGift> Parse(string json)
         {
             var list = new List<ParentGift>();
@@ -56,6 +57,7 @@ namespace Pofi.Logic.Mail
                 list.Add(new ParentGift
                 {
                     Id = id, ItemId = item, FromName = ((string)o["from_name"] ?? "").Trim(), Note = ((string)o["note"])?.Trim(),
+                    FromAvatar = (string)o["from_avatar"],
                     CreatedAt = o["created_at"]?.Type == JTokenType.Date ? ((DateTime)o["created_at"]).ToUniversalTime()
                         : DateTime.TryParse((string)o["created_at"], System.Globalization.CultureInfo.InvariantCulture,
                             System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out var at) ? at : DateTime.MinValue,

@@ -42,8 +42,8 @@ namespace Pofi.Logic.App
         public static void EnsureMail(MockBackend backend, DateTime utcNow)
         {
             if (backend.Messages.Count > 0) return;
-            backend.ParentMessage(Mail.MailBox.Text, "Günaydın! Bugün adada neler yapacaksın? Seni seviyorum.", "Annem", at: utcNow.AddMinutes(-40));
-            backend.ParentMessage(Mail.MailBox.Sticker, "star", "Babam", at: utcNow.AddMinutes(-5));
+            backend.ParentMessage(Mail.MailBox.Text, "Günaydın! Bugün adada neler yapacaksın? Seni seviyorum.", "Annem", at: utcNow.AddMinutes(-40), avatar: "okti_anne_1");
+            backend.ParentMessage(Mail.MailBox.Sticker, "star", "Babam", at: utcNow.AddMinutes(-5), avatar: "okti_baba_2");
         }
 
         public static string Day(DateTime local) => local.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture);

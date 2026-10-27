@@ -84,8 +84,12 @@ namespace Pofi.Screens
             Ui.IconImage(seal, item.Id, new Vector2(0.5f, 0.5f), 150f);
             Ui.IconImage(seal, "ui_gift", new Vector2(1f, 1f), 74f, new Vector2(-14f, -14f));
             var textW = width - 250f - 300f;
-            Ui.Label(box, T("mailgift.from", App.FromLabel(g.FromName)), Th.Font(36), Theme.Hex("#8A4F0E"), new Vector2(0f, 1f), new Vector2(textW, 56f),
-                FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(250f + textW * 0.5f, -50f));
+            // gönderenin Okti yüzü "kimden" satırının başında (ortak durumlar.md §6a; alan yoksa varsayılan Okti)
+            const float face = 76f;
+            var fromW = textW - face - 12f;
+            Ui.ParentAvatar(box, g.FromAvatar, new Vector2(0f, 1f), face, new Vector2(250f + face * 0.5f, -50f));
+            Ui.Label(box, T("mailgift.from", App.FromLabel(g.FromName)), Th.Font(36), Theme.Hex("#8A4F0E"), new Vector2(0f, 1f), new Vector2(fromW, 56f),
+                FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(250f + face + 12f + fromW * 0.5f, -50f));
             Ui.Label(box, item.Name, Th.Font(44), Theme.Hex("#3A2508"), new Vector2(0f, 1f), new Vector2(textW, 64f),
                 FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(250f + textW * 0.5f, -110f));
             if (note != null)
@@ -136,7 +140,10 @@ namespace Pofi.Screens
             var row = Ui.Row(_list, "Msg " + m.Id, h);
             var box = Ui.Rect(row, "Bubble", new Vector2(mine ? 1f : 0f, 0.5f), new Vector2(width, h - 10f));
             box.pivot = new Vector2(mine ? 1f : 0f, 0.5f);
-            box.anchoredPosition = new Vector2(mine ? -10f : 10f, 0f);
+            // ebeveynin mesajında solda gönderenin Okti yüzü (sohbet uygulaması gibi); balon onun yanından başlar
+            const float face = 116f;
+            if (!mine) Ui.ParentAvatar(row, m.FromAvatar, new Vector2(0f, 1f), face, new Vector2(10f + face * 0.5f, -6f - face * 0.5f));
+            box.anchoredPosition = new Vector2(mine ? -10f : 10f + face + 14f, 0f);
             Ui.Panel(box, mine ? Theme.Hex("#DDEBFF") : Theme.Hex("#FFF6E0"), 36f).raycastTarget = false;
             var who = mine ? App.State.PetName + " · " + T("mail.me") : (string.IsNullOrEmpty(m.FromName) ? T("mail.family") : m.FromName);
             Ui.Label(box, who + "   " + m.CreatedAt.ToLocalTime().ToString("HH:mm"), Th.Font(30), Theme.Hex(mine ? "#2B5EA8" : "#9A6B30"),
