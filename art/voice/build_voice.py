@@ -131,7 +131,9 @@ def catalog():
         elif k in SPOKEN_EXTRA:   # GB17: hoş geldin coin'i, gerçek ödüller tanıtımı, ceviz haberi (oyunda Voice.Say ile)
             add(v.replace("{0}", SPOKEN_EXTRA[k]) if "{0}" in v else v, "anlatici", "tr:" + k, "narrator")
     # 26 Ekim 2026: tanışma kartında Okti kendini tanıtır (Okti sesi), panodaki Mavi'nin hoş geldin görevi ipucu (anlatıcı)
-    for k, role, who in (("pet.meet_intro", "okti", "okti"), ("welcome_task.tip", "anlatici", "narrator")):
+    # 27 Ekim 2026: hukuk metinleri — ebeveyn kapısı › Bilgi'de çocuğa kısa not, dükkânda "Coin nedir?" (hukuk/50 §8, §10)
+    for k, role, who in (("pet.meet_intro", "okti", "okti"), ("welcome_task.tip", "anlatici", "narrator"),
+                         ("info.child", "anlatici", "narrator"), ("coin.info", "anlatici", "narrator")):
         if k in tr: add(fill_pet(tr[k]), role, "tr:" + k, who)
     for a, b, c in [("rewards.intro_1", "rewards.intro_2", "rewards.intro_3"), ("gift.l1", "gift.l2", "gift.l3")]:   # tanıtım kartı üç satırı tek seferde okur
         add(" ".join(tr[x] for x in (a, b, c)), "anlatici", "tr:" + a.rsplit("_", 1)[0].rsplit(".", 1)[0] + ".intro" if a.startswith("rewards") else "tr:gift.card", "narrator")

@@ -47,6 +47,9 @@ namespace Pofi.Screens
 
             Candy.Caption(Root, T("shop.title"), 64, new Vector2(0.5f, 1f), new Vector2(600f, 90f), new Vector2(0f, -66f));
             _coins = Candy.Badge(Root, "ui_coin", "", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(CoinRight, -24f), 84f, 250f);
+            // "Coin nedir?" (hukuk/50 §8: coin para değildir, satın alınamaz; çocuğa kısa, sesli)
+            var info = Candy.Round(Root, Candy.White, null, 72f, new Vector2(1f, 1f), new Vector2(CoinRight - 250f - 56f, -66f), CoinInfo);
+            Candy.Caption(info.transform, "i", 48, new Vector2(0.5f, 0.52f), new Vector2(72f, 72f));
 
             _tabButtons = new Button[Tabs.Length];
             if (_tab == RealTab && !RewardsOpen) _tab = ItemCategory.Food;
@@ -450,6 +453,20 @@ namespace Pofi.Screens
         {
             if (App != null) App.Synced -= OnSynced;
             if (App != null && App.Stage != null) App.Stage.SetBackdrop(null);
+        }
+
+        /// <summary>Coin ve Güneş Taşı nedir (hukuk/50 §8, kosullar-gameapp): kısa, sesli; dışarı dokununca kapanır.</summary>
+        private void CoinInfo()
+        {
+            RectTransform box;
+            var text = T("coin.info");
+            var root = Modal(560f, out box, true, null);
+            ModalTitle(box, T("coin.info_title"));
+            ModalClose(box, () => { Audio.Voice.StopIf(text); Destroy(root.gameObject); });
+            var l = Ui.Label(box, text, Th.Font(38), Th.Text, new Vector2(0.5f, 0.5f), new Vector2(820f, 380f), FontStyle.Bold, TextAnchor.MiddleLeft, new Vector2(0f, -20f));
+            l.resizeTextForBestFit = true; l.resizeTextMinSize = 24; l.resizeTextMaxSize = Th.Font(38);
+            VoiceButton.Attach(l.rectTransform);
+            Audio.Voice.Say(text, true);
         }
     }
 }

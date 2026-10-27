@@ -67,7 +67,7 @@ namespace Pofi.EditorTools
             PlayerSettings.iOS.requiresFullScreen = true;
             // QR ile bağlanma (26 Ekim 2026, ortak akislar §2.0): telefonun kamerasıyla okutulan pofiadasi://baglan?kod=… oyunu açar
             PlayerSettings.iOS.iOSUrlSchemes = new[] { "pofiadasi" };
-            PlayerSettings.iOS.cameraUsageDescription = "Ailenin telefonundaki QR kodunu okuyup oyuna bağlanmak için. Görüntü kaydedilmez.";
+            PlayerSettings.iOS.cameraUsageDescription = "ParentApp'te gösterilen QR kodu okumak için kamerayı kullanırız. Görüntü kaydedilmez, gönderilmez.";
             PlayerSettings.statusBarHidden = true;
             PlayerSettings.iOS.appleEnableAutomaticSigning = true;
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.iOS, ScriptingImplementation.IL2CPP);
