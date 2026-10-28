@@ -20,7 +20,8 @@ from mathutils import Quaternion, Vector as V
 ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
 RES = os.path.join(ROOT, 'Assets', '_Pofi', 'Resources')
 RULES = json.load(open(os.path.join(ROOT, 'art', 'meshy', 'scripts', 'okti_fit_rules.json')))
-STAGE = 'yetiskin'
+STAGE = 'yetiskin'   # evre (çocuk portreleri 'yavru'); main her taslakta ayarlar
+K = 1.0              # baş ölçeği: yetişkin Okti'de göz → baş tepesi 0,181 m = 1; süsler ve kamera bununla büyür
 
 
 def srgb(h):
@@ -97,7 +98,7 @@ def tex_material(name, path, hue=0.5, sat=1.0, val=1.0, rough=0.45, mix=None, ke
     return m
 
 
-def flat_material(name, hexc, rough=0.4, metal=0.0, sss=0.0):
+def flat_material(name, hexc, rough=0.4, metal=0.0, sss=0.0, emit=0.0):
     m = bpy.data.materials.new(name); m.use_nodes = True
     p = m.node_tree.nodes['Principled BSDF']
     p.inputs['Base Color'].default_value = srgb(hexc)
@@ -105,6 +106,8 @@ def flat_material(name, hexc, rough=0.4, metal=0.0, sss=0.0):
     p.inputs['Metallic'].default_value = metal
     if sss:
         p.inputs['Subsurface Weight'].default_value = sss
+    if emit:   # göz ışıltısı: ışıktan bağımsız beyaz
+        p.inputs['Emission Color'].default_value = srgb(hexc); p.inputs['Emission Strength'].default_value = emit
     return m
 
 
@@ -235,13 +238,14 @@ def facing(nor, roll=0.0):
 
 def lashes(eye_pts, mat, n=3, length=0.034, up=0.016):
     """Kirpik: her gözün üst-dış kenarından yukarı ve dışa kıvrılan ince koniler."""
+    length *= K; up *= K
     for e in eye_pts:
         side = 1 if e.x > 0 else -1
         for i in range(n):
             a = math.radians(70 - i * 24)               # dış kenara doğru yatıklaşır
-            base = V((e.x + side * (0.006 + i * 0.006), e.y - 0.004, e.z + up - i * 0.003))
+            base = V((e.x + side * (0.006 + i * 0.006) * K, e.y - 0.004 * K, e.z + up - i * 0.003 * K))
             d = V((side * math.cos(a) * 0.55, -0.25, math.sin(a))).normalized()
-            bpy.ops.mesh.primitive_cone_add(vertices=10, radius1=0.0045, radius2=0.0009, depth=length,
+            bpy.ops.mesh.primitive_cone_add(vertices=10, radius1=0.0045 * K, radius2=0.0009 * K, depth=length,
                                             location=base + d * (length / 2))
             o = bpy.context.active_object
             o.rotation_mode = 'QUATERNION'; o.rotation_quaternion = V((0, 0, 1)).rotation_difference(d)
@@ -251,34 +255,59 @@ def lashes(eye_pts, mat, n=3, length=0.034, up=0.016):
 def brows(eye_pts, mat, lift=0.05, tilt=6):
     for e in eye_pts:
         side = 1 if e.x > 0 else -1
-        loc, nor = surface(e.x + side * 0.004, e.z + lift)
+        loc, nor = surface(e.x + side * 0.004 * K, e.z + lift * K)
         if loc is None:
             continue
         rot = facing(nor); rot.y += math.radians(tilt * side)   # iç uç biraz yukarıda: sıcak, kızgın değil
-        blob('brow', loc + nor * 0.005, (0.034, 0.011, 0.012), mat, rot)
+        blob('brow', loc + nor * 0.005 * K, (0.034 * K, 0.011 * K, 0.012 * K), mat, rot)
 
 
 def blush(eye_pts, mat):
     for e in eye_pts:
         side = 1 if e.x > 0 else -1
-        loc, nor = surface(e.x + side * 0.05, e.z - 0.055)
+        loc, nor = surface(e.x + side * 0.05 * K, e.z - 0.055 * K)
         if loc is not None:
-            blob('blush', loc + nor * 0.001, (0.026, 0.004, 0.017), mat, facing(nor))
+            blob('blush', loc + nor * 0.001 * K, (0.026 * K, 0.004 * K, 0.017 * K), mat, facing(nor))
 
 
-def snout_top(eye_y, x=0.0):
+def big_eyes(eye_pts, mat, shine, r=0.021):
+    """Çocuk portresi: göz noktasının üstüne iri, parlak göz + beyaz ışıltı (iki nokta: büyük üst-dış, küçük alt-iç)."""
+    r *= K
+    for e in eye_pts:
+        side = 1 if e.x > 0 else -1
+        loc, nor = surface(e.x, e.z)
+        if loc is None:
+            continue
+        nor = nor.normalized()
+        blob('eye', loc + nor * r * 0.12, (r, r * 0.42, r * 1.12), mat, facing(nor), seg=32)
+        q = V((0, -1, 0)).rotation_difference(nor)
+        blob('shine', loc + nor * r * 0.42 + q @ V((-side * r * 0.36, 0, r * 0.42)), (r * 0.34, r * 0.12, r * 0.34), shine, facing(nor), seg=16)
+        blob('shine2', loc + nor * r * 0.40 + q @ V((side * r * 0.30, 0, -r * 0.40)), (r * 0.15, r * 0.08, r * 0.15), shine, facing(nor), seg=12)
+
+
+def freckles(eye_pts, mat):
+    """Çil: iki yanakta üçer küçük nokta."""
+    for e in eye_pts:
+        side = 1 if e.x > 0 else -1
+        for dx, dz in ((0.040, -0.050), (0.058, -0.044), (0.050, -0.064)):
+            loc, nor = surface(e.x + side * dx * K, e.z + dz * K)
+            if loc is not None:
+                blob('freckle', loc + nor * 0.001 * K, (0.0055 * K, 0.002 * K, 0.0055 * K), mat, facing(nor), seg=12)
+
+
+def snout_top(eye_y, eye_z, x=0.0):
     """Ağzın (kırmızı burun) üst kenarı: önden ışınla yüzeyin göz yüzeyinden 3 cm öne çıktığı en yüksek nokta."""
-    z = 1.47
-    while z > 1.25:
+    z = eye_z
+    while z > eye_z - 0.22 * K:
         loc, _ = surface(x, z)
-        if loc is not None and loc.y < eye_y - 0.03:
+        if loc is not None and loc.y < eye_y - 0.03 * K:
             return z, loc
-        z -= 0.003
+        z -= 0.003 * K
     return None, None
 
 
-def mustache(mat, eye_y):
-    z, loc = snout_top(eye_y)
+def mustache(mat, eye_y, eye_z):
+    z, loc = snout_top(eye_y, eye_z)
     if z is None:
         return
     for side in (-1, 1):
@@ -296,7 +325,7 @@ def hibiscus(where, petal_mat, heart_mat, size=0.115, roll=0.4):
     loc, nor = where
     if loc is None:
         return
-    nor = nor.normalized(); c = loc + nor * 0.01
+    nor = nor.normalized(); c = loc + nor * 0.01 * K
     q = V((0, -1, 0)).rotation_difference(nor)
     for i in range(5):
         a = roll + i * 2 * math.pi / 5
@@ -341,7 +370,7 @@ def bow(where, mat, knot_mat, size=0.20, roll=0.30):
     loc, nor = where
     if loc is None:
         return
-    c = loc + nor.normalized() * 0.035 + V((0, -0.015, 0))
+    c = loc + nor.normalized() * 0.035 * K + V((0, -0.015 * K, 0))
     tilt = Quaternion((0, 1, 0), roll) @ Quaternion((1, 0, 0), 0.25)
     for side in (-1, 1):
         w = wing_mesh('bow_wing', side, size * 0.62, size * 0.36, mat)
@@ -373,6 +402,39 @@ VARIANTS = {
                         brows=True, items=[('hat_cap', 'head', {'up': 0.035})], bg=('#FFF8EE', '#F6E6CF'), aim=1.45),
 }
 
+# Çocuk profilleri (ParentApp çocuk avatarı; kullanıcı 28 Ekim 2026: "6 kız 6 erkek, çocuk gibi"): çocuk evresi Okti (yavru),
+# iri parlak göz; kızlarda kirpik + yanak pembesi, erkeklerde bazen çil. Tişört tonu (ton kayması; sarı tişört 0,5).
+KID = dict(stage='yavru', group='cocuk', eyes=True, zoom=1.14)
+KIDS = {
+    'okti_kiz_1': dict(name='Kurdeleli', top=(0.29, 0.9, 1.05), lashes=True, blush='#FF9FB4',
+                       bow=('#FF7FA8', '#FF5C8E'), bg=('#FFF3F6', '#FFDDE7')),
+    'okti_kiz_2': dict(name='Çiçek tokalı', body=(0.53, 1.0, 1.02), top=(0.12, 0.7, 1.08), lashes=True, blush='#FFA6BA',
+                       flowers=('#FFB13B', '#FFF0A8'), bg=('#FFF9EC', '#FCEBC9')),
+    'okti_kiz_3': dict(name='Taçlı', top=(0.80, 0.85, 1.0), lashes=True, blush='#FF9FB4',
+                       items=[('hat_crown_tilt', 'head', {'up': 0.045, 'size': 0.82})], bg=('#FBF4FF', '#ECDDFB')),
+    'okti_kiz_4': dict(name='Kalp gözlüklü', body=(0.47, 1.05, 1.02), top=(0.41, 1.05, 0.98), lashes=True, blush='#FF9FB4',
+                       items=[('glasses_heart', 'eyes', {})], bg=('#FFF5EE', '#FFE0D2')),
+    'okti_kiz_5': dict(name='Bereli', top=(0.85, 0.9, 1.05), lashes=True, blush='#FFA6BA',
+                       items=[('hat_beanie', 'head', {'up': 0.055, 'tone': (0.04, 0.7, 1.35)})], bg=('#F1FBFA', '#D8F1EE')),
+    'okti_kiz_6': dict(name='Kulaklıklı', body=(0.55, 0.95, 1.04), top=(0.5, 1.0, 1.0), lashes=True, blush='#FF9FB4',
+                       items=[('headphones', 'head', {})], bg=('#FFFBEA', '#FBF0C4')),
+    'okti_erkek_1': dict(name='Kasketli', top=(0.45, 1.05, 1.0), freckles=True,
+                         items=[('hat_cap', 'head', {'tone': (0.10, 1.0, 0.95)})], bg=('#F0F7FF', '#D6E7FB')),
+    'okti_erkek_2': dict(name='Pervaneli', body=(0.48, 1.05, 1.0), top=(0.75, 0.9, 1.0),
+                         items=[('hat_propeller', 'head', {})], bg=('#F3FBEF', '#DCF1D3')),
+    'okti_erkek_3': dict(name='Pilot', top=(0.5, 1.0, 1.0), freckles=True,
+                         items=[('hat_pilot_goggles', 'head', {})], bg=('#FBF8EE', '#EFE7CF')),
+    'okti_erkek_4': dict(name='Güneş gözlüklü', body=(0.52, 1.05, 0.98), top=(0.37, 1.1, 1.0),
+                         items=[('glasses_sun', 'eyes', {})], bg=('#FFF6EE', '#FCE2CF')),
+    'okti_erkek_5': dict(name='Antenli', body=(0.53, 1.08, 0.94), top=(0.99, 0.75, 0.62), freckles=True,
+                         items=[('hat_star_antenna', 'head', {'up': -0.07, 'size': 0.9})], bg=('#F3F3FF', '#DEDDF8'),
+                         aim=1.49, zoom=1.2),
+    'okti_erkek_6': dict(name='Köpek balığı şapkalı', body=(0.47, 1.0, 1.0), top=(0.95, 0.15, 1.15),
+                         items=[('hat_shark', 'head', {'up': 0.03})], bg=('#EEF9FC', '#D3EDF4')),
+}
+for _k, _v in KIDS.items():
+    VARIANTS[_k] = dict(KID, **_v)
+
 
 def light(name, loc, energy, color, size, target):
     ld = bpy.data.lights.new(name, 'AREA'); ld.energy = energy; ld.color = srgb(color)[:3]; ld.size = size
@@ -391,16 +453,23 @@ def camera(target, yaw=-14.0, dist=2.45, lens=95):
     cd = bpy.data.cameras.new('cam'); cd.lens = lens
     o = bpy.data.objects.new('cam', cd); bpy.context.scene.collection.objects.link(o)
     a = math.radians(yaw)
-    o.location = V((math.sin(a) * dist, -math.cos(a) * dist, target.z + 0.06))
+    o.location = V((math.sin(a) * dist, -math.cos(a) * dist, target.z + 0.06 * K))
     o.rotation_euler = (target - o.location).to_track_quat('-Z', 'Y').to_euler()
     bpy.context.scene.camera = o
 
 
 def build(key, cfg):
+    global K
     pet, arm, wear = load_okti(cfg)
     eye_pts, H = eyes(pet)
-    eye_pts = [p for p in eye_pts]
+    mn, mx = bounds(pet)
+    ez = sum(p.z for p in eye_pts) / len(eye_pts)
+    K = (mx.z - ez) / 0.181
     dark = flat_material('dark', LASH, rough=0.35)
+    if cfg.get('eyes'):
+        big_eyes(eye_pts, flat_material('eye', '#151832', rough=0.12), flat_material('shine', '#FFFFFF', rough=0.3, emit=2.0))
+    if cfg.get('freckles'):
+        freckles(eye_pts, flat_material('freckle', '#E58A5C', rough=0.6))
     if cfg.get('lashes'):
         lashes(eye_pts, dark)
     if cfg.get('brows'):
@@ -408,16 +477,20 @@ def build(key, cfg):
     if cfg.get('blush'):
         blush(eye_pts, flat_material('blush', cfg['blush'], rough=0.6))
     if cfg.get('mustache'):
-        mustache(flat_material('stache', cfg['mustache'], rough=0.65), sum(p.y for p in eye_pts) / len(eye_pts))
+        mustache(flat_material('stache', cfg['mustache'], rough=0.65), sum(p.y for p in eye_pts) / len(eye_pts), ez)
     if cfg.get('flower'):
-        hibiscus(surface(-0.17, 1.58), flat_material('petal', cfg['flower'][0], rough=0.45, sss=0.2),
-                 flat_material('heart', cfg['flower'][1], rough=0.4))
+        hibiscus(surface(-0.17 * K, ez + 0.11 * K), flat_material('petal', cfg['flower'][0], rough=0.45, sss=0.2),
+                 flat_material('heart', cfg['flower'][1], rough=0.4), size=0.115 * K)
+    if cfg.get('flowers'):   # iki yanda küçük çiçek toka
+        pm = flat_material('petal', cfg['flowers'][0], rough=0.45, sss=0.2); hm = flat_material('heart', cfg['flowers'][1], rough=0.4)
+        for side in (-1, 1):
+            hibiscus(surface(side * 0.16 * K, ez + 0.095 * K), pm, hm, size=0.085 * K, roll=0.4 + side * 0.3)
     if cfg.get('bow'):
-        bow(surface(-0.15, 1.6), flat_material('bow', cfg['bow'][0], rough=0.4),
-            flat_material('knot', cfg['bow'][1], rough=0.4))
+        bow(surface(-0.15 * K, ez + 0.13 * K), flat_material('bow', cfg['bow'][0], rough=0.4),
+            flat_material('knot', cfg['bow'][1], rough=0.4), size=0.20 * K)
     for item_id, slot, tw in cfg.get('items', []):
         place_item(pet, arm, item_id, slot, tw)
-    return pet, eye_pts
+    return pet, eye_pts, ez
 
 
 def composite(raw, out, bg, size):
@@ -453,17 +526,21 @@ def main(argv):
     args = [a for a in argv if not a.startswith('--')]
     opt = {argv[i][2:]: argv[i + 1] for i in range(len(argv) - 1) if argv[i].startswith('--')}
     args = [a for a in args if a not in opt.values()]
-    out = opt.get('out', os.path.join(ROOT, 'art', 'parent_avatars', 'drafts'))
+    group = opt.get('group', 'ebeveyn')   # ebeveyn | cocuk
+    out = opt.get('out', os.path.join(ROOT, 'art', 'parent_avatars' if group == 'ebeveyn' else 'child_avatars', 'drafts'))
     samples = int(opt.get('samples', 96)); size = int(opt.get('size', 1024))
     os.makedirs(out, exist_ok=True); raw_dir = os.path.join(out, 'seffaf'); os.makedirs(raw_dir, exist_ok=True)
-    keys = args or list(VARIANTS)
+    keys = args or [k for k, v in VARIANTS.items() if v.get('group', 'ebeveyn') == group]
     done = []
+    global STAGE
     for k in keys:
         cfg = VARIANTS[k]
+        STAGE = cfg.get('stage', 'yetiskin')
         reset(samples, int(size * 1.0))
-        build(k, cfg)
-        t = V((0.0, 0.0, cfg.get('aim', 1.43)))
-        studio(t); camera(t, yaw=cfg.get('yaw', -14.0))
+        _, _, ez = build(k, cfg)
+        # kadraj göze göre (yetişkinde göz 1,47 m); çocuk Okti'nin başı büyük → K ile uzaklaşır
+        t = V((0.0, 0.0, ez + (cfg.get('aim', 1.43) - 1.47) * K))
+        studio(t); camera(t, yaw=cfg.get('yaw', -14.0), dist=2.45 * K * cfg.get('zoom', 1.0))
         raw = os.path.join(raw_dir, k + '.png')
         bpy.context.scene.render.filepath = raw
         bpy.ops.render.render(write_still=True)
@@ -471,7 +548,7 @@ def main(argv):
         done.append(os.path.join(out, k + '.png'))
         print('TASLAK', k, cfg['name'])
     allp = [os.path.join(out, k + '.png') for k, v in VARIANTS.items()
-            if v.get('sheet', True) and os.path.exists(os.path.join(out, k + '.png'))]
+            if v.get('sheet', True) and v.get('group', 'ebeveyn') == group and os.path.exists(os.path.join(out, k + '.png'))]
     sheet(allp, os.path.join(out, 'sheet.png'))
 
 
