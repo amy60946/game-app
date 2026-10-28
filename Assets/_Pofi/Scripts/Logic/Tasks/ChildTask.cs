@@ -28,6 +28,11 @@ namespace Pofi.Logic.Tasks
         public string Reminder;        // ebeveynin hatırlatma saati "HH:MM" (null: yok) — Y5
         public long DoneLocalTicks;    // çocuğun "Yaptım" dediği yerel an (yalnız cihazda; Y5 "kendiliğinden yaptı")
         public bool Boosted;           // 2× XP teklifini kabul etti (Y2; yalnız cihazda)
+        // rutin (uzmanın/ebeveynin rutin paketi; ortak 20261028210000_child_tasks_routine): aynı RoutineId'li adımlar tek kartta
+        public string RoutineId;
+        public string RoutineTitle;
+        public string RoutineIcon;
+        public int RoutinePosition = -1;   // -1: sıra yok
 
         public string Key => TaskId + "|" + Date;
 

@@ -221,7 +221,12 @@ namespace Pofi.Screens
             var first = tasks[0];
             var top = first.Status == ChildTaskStatus.ChildDone && !first.IsMissed(local) ? 52 : 14;
             _list.GetComponent<VerticalLayoutGroup>().padding = new RectOffset((int)ListPadX, (int)ListPadX, top, 24);
-            foreach (var task in tasks) Card(task, local);
+            // aynı rutinin adımları tek rutin kartında (ortak akislar.md 5.4 adım 8); rutinsiz görevler olduğu gibi
+            foreach (var e in Routines.Layout(tasks, local))
+            {
+                if (e.Routine != null) RoutineCard(e.Routine, local);
+                else Card(e.Task, local);
+            }
         }
 
         // ---- Güneş Taşı (Ö1): Ev Görevleri başlığının sağında sıradaki onarım noktası + "Adaya götür" ----
@@ -405,6 +410,8 @@ namespace Pofi.Screens
 
         private void Mark(ChildTask task, ChildTaskStatus to)
         {
+            // rutinin son adımı mı: işaretlemeden önce sorulur (kutlama; ek coin yok)
+            var finishes = to == ChildTaskStatus.ChildDone && Routines.FinishesWith(TodayTasks(), task, App.LocalNow);
             var r = App.State.Tasks.Mark(task.Key, to, App.LocalNow, App.UtcNow);
             if (r != ChangeResult.Ok) { Fill(); return; }
             if (to == ChildTaskStatus.ChildDone)
@@ -415,6 +422,13 @@ namespace Pofi.Screens
             }
             App.Save();
             Fill();
+            if (finishes)
+            {
+                Audio.Sfx.Play(Audio.SfxKind.Success);
+                Confetti.Burst(App.Overlay.transform, 50, 2f);
+                var title = string.IsNullOrWhiteSpace(task.RoutineTitle) ? T("routine.default") : task.RoutineTitle.Trim();
+                Toast.Post(App.Overlay.transform, Th, T("routine.done_toast", title));
+            }
             if (to == ChildTaskStatus.ChildDone) AdvanceIfOn(Onboarding.TasksDone, Onboarding.Mark);
             _ = App.SyncNow();
             if (to == ChildTaskStatus.DeclinedByChild && TaskBoosts.ShouldOffer(App.State.Boosts, App.State.Tasks.Find(task.Key), App.LocalNow))

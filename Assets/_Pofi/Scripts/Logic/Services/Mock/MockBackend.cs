@@ -453,6 +453,7 @@ namespace Pofi.Logic.Services.Mock
             TaskId = t.TaskId, Date = t.Date, Title = t.Title, Description = t.Description, RewardCoins = t.RewardCoins,
             Recurrence = t.Recurrence, DueLocalTicks = t.DueLocalTicks, Status = t.Status, ParentNote = t.ParentNote, Retry = t.Retry,
             Skill = t.Skill, Difficulty = t.Difficulty, Reminder = t.Reminder,
+            RoutineId = t.RoutineId, RoutineTitle = t.RoutineTitle, RoutineIcon = t.RoutineIcon, RoutinePosition = t.RoutinePosition,
         };
     }
 }

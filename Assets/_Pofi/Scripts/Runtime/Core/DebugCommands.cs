@@ -226,6 +226,18 @@ namespace Pofi.Core
                         DemoParent.RetryAll(app.Backend, string.IsNullOrWhiteSpace(arg) ? null : arg);
                         await app.SyncNow();
                         break;
+                    case "routine":   // routine: bugüne 3 adımlı "Güne hazır sabah" rutini ekler (sahte arka uç; ortak 20261028210000)
+                    {
+                        var day = DemoParent.Day(app.LocalNow);
+                        var steps = new[] { "Dişlerini fırçala", "Yatağını topla", "Kahvaltını yap" };
+                        for (var i = 0; i < steps.Length; i++)
+                        {
+                            var t = app.Backend.ParentAssign("rt_dbg_" + i, day, steps[i], 5);
+                            t.RoutineId = "rt_dbg"; t.RoutineTitle = "Güne hazır sabah"; t.RoutineIcon = "sunny-outline"; t.RoutinePosition = i;
+                        }
+                        await app.SyncNow();
+                        break;
+                    }
                 }
                 Debug.Log($"[PofiDebug] ok {cmd} | screen={AppFlow.Decide(app.Session, app.State)} page={app.Page} level={app.Level} coins={app.State?.Wallet.Available}");
             }

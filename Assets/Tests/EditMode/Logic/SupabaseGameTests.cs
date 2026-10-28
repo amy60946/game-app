@@ -72,6 +72,25 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
+        public async Task Rutin_alanlari_okunur_yoksa_bos()
+        {
+            // ortak 20261028210000_child_tasks_routine: rutin adımı; eski sunucu alanı göndermez → rutinsiz
+            var http = new FakeHttp
+            {
+                Handler = (fn, args) => R(200, @"[{""task_id"":""t1"",""date"":""2026-10-28"",""title"":""Dişlerini fırçala"",""coins"":5,""status"":""assigned"",
+                                                   ""routine_id"":""r1"",""routine_title"":""Güne hazır sabah"",""routine_icon"":""sun"",""routine_position"":2},
+                                                {""task_id"":""t2"",""date"":""2026-10-28"",""title"":""Kitap"",""coins"":5,""status"":""assigned""}]"),
+            };
+            var list = await Svc(http).FetchAsync("2026-10-28", "2026-10-28");
+            Assert.AreEqual("r1", list[0].RoutineId);
+            Assert.AreEqual("Güne hazır sabah", list[0].RoutineTitle);
+            Assert.AreEqual("sun", list[0].RoutineIcon);
+            Assert.AreEqual(2, list[0].RoutinePosition);
+            Assert.IsNull(list[1].RoutineId);
+            Assert.AreEqual(-1, list[1].RoutinePosition);
+        }
+
+        [Test]
         public async Task Durum_gonderimi_ve_hata_eslemesi()
         {
             var http = new FakeHttp { Handler = (fn, a) => (string)a["p_status"] == "pending" ? R(200, "\"pending\"") : R(400, "{\"message\":\"Ebeveyn karar verdi\"}") };

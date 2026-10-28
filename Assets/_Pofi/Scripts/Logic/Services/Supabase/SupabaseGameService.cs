@@ -155,6 +155,10 @@ namespace Pofi.Logic.Services.Supabase
                     Skill = (string)o["skill"],
                     Difficulty = (string)o["difficulty"],
                     Reminder = (string)o["reminder"],   // sunucu önerisi uygulanmadıysa alan yok: null
+                    RoutineId = (string)o["routine_id"],   // rutin alanları (ortak 20261028210000); yoksa null: görev tek kart
+                    RoutineTitle = (string)o["routine_title"],
+                    RoutineIcon = (string)o["routine_icon"],
+                    RoutinePosition = (int?)o["routine_position"] ?? -1,
                 });
             }
             return list;
