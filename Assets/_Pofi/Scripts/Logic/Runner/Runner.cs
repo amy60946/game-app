@@ -51,10 +51,12 @@ namespace Pofi.Logic.Runner
         {
             switch (band)
             {
-                case AgeBand.K: return new RunnerConfig { StartSpeed = 7f, MaxSpeed = 9f, Goal = 420f, Hearts = 0, MinGap = 24f, Reaction = 1.6f, DoubleChance = 0f, FullWidthChance = 0.2f };
-                case AgeBand.A: return new RunnerConfig { StartSpeed = 8f, MaxSpeed = 11f, Goal = 560f, Hearts = 5, MinGap = 21f, Reaction = 1.35f, DoubleChance = 0.2f, FullWidthChance = 0.28f };
-                case AgeBand.B: return new RunnerConfig { StartSpeed = 9f, MaxSpeed = 13f, Goal = 720f, Hearts = 3, MinGap = 18f, Reaction = 1.15f, DoubleChance = 0.35f, FullWidthChance = 0.32f };
-                default: return new RunnerConfig { StartSpeed = 10f, MaxSpeed = 15f, Goal = 860f, Hearts = 3, MinGap = 16f, Reaction = 1.0f, DoubleChance = 0.45f, FullWidthChance = 0.35f };
+                // GB20-12c (kullanıcı, 2 Kasım 2026: "mesafeye bağlı kademeli zorluk, çok zor olmasın"): tavan hız başlangıcın 1,3–1,5 katı
+                // (Unity'nin örnek koşu oyununda 2 kat; çocuk için sert), tepki süresi korunur (aralık = hız × süre)
+                case AgeBand.K: return new RunnerConfig { StartSpeed = 6f, MaxSpeed = 8f, Goal = 420f, Hearts = 0, MinGap = 24f, Reaction = 1.6f, DoubleChance = 0f, FullWidthChance = 0.2f };
+                case AgeBand.A: return new RunnerConfig { StartSpeed = 7f, MaxSpeed = 10f, Goal = 560f, Hearts = 5, MinGap = 21f, Reaction = 1.35f, DoubleChance = 0.2f, FullWidthChance = 0.28f };
+                case AgeBand.B: return new RunnerConfig { StartSpeed = 8f, MaxSpeed = 12f, Goal = 720f, Hearts = 3, MinGap = 18f, Reaction = 1.15f, DoubleChance = 0.35f, FullWidthChance = 0.32f };
+                default: return new RunnerConfig { StartSpeed = 9f, MaxSpeed = 14f, Goal = 860f, Hearts = 3, MinGap = 16f, Reaction = 1.0f, DoubleChance = 0.45f, FullWidthChance = 0.35f };
             }
         }
 
@@ -71,6 +73,7 @@ namespace Pofi.Logic.Runner
         public const int Lanes = 3;
         public const float StartClear = 30f, EndClear = 25f;
         public const float GemStep = 2.6f;
+        public const float BreatherEvery = 200f, BreatherLength = 40f;   // GB20-12c nefes bölümü
 
         public RunnerConfig Config { get; }
         public List<Obstacle> Obstacles { get; } = new List<Obstacle>();
@@ -86,12 +89,28 @@ namespace Pofi.Logic.Runner
             var z = StartClear;
             var free = 1;   // önceki sıranın açık şeridi (toplanacak dizisi oradan akar)
             var rows = new List<(float z, bool full)>();
+            var breather = BreatherEvery;
             while (z < cfg.Goal - EndClear)
             {
-                var r = rng.NextDouble();
-                if (r < cfg.FullWidthChance)
+                // GB20-12c kademeli zorluk (benchmark: Unity örnek koşusunda ilk parçalar engelsiz; WarioWare yeni kuralı tek başına
+                // tanıtır): ilk %15 yalnız tek taş; zıpla (alçak) %15'ten, kay (yüksek) %30'dan, iki şerit birden %45'ten sonra gelir
+                // ve olasılıkları yavaşça tavana çıkar. Her ~200 m'de 40 m'lik nefes (yalnız yıldız).
+                var progress = z / Math.Max(1f, cfg.Goal);
+                if (z >= breather && z + BreatherLength < cfg.Goal - EndClear)
                 {
-                    var kind = rng.NextDouble() < 0.5 ? Hazard.Low : Hazard.High;
+                    // yıldızlar üç şeride yay gibi dağılır: hangi şeritte koşarsa koşsun çocuk birkaçını toplar
+                    for (var g = 0; g * GemStep * 1.6f < BreatherLength - 8f; g++)
+                        Pickups.Add(new Pickup { Z = z + 4f + g * GemStep * 1.6f, Lane = new[] { 1, 0, 1, 2 }[g % 4], Height = 0.35f });
+                    z += BreatherLength;
+                    breather += BreatherEvery;
+                    continue;
+                }
+                var fullChance = progress < 0.15f ? 0f : cfg.FullWidthChance * Math.Min(1f, 0.35f + (progress - 0.15f) / 0.35f);
+                var twoChance = progress < 0.45f ? 0f : cfg.DoubleChance * Math.Min(1f, 0.4f + (progress - 0.45f) / 0.3f);
+                var r = rng.NextDouble();
+                if (r < fullChance)
+                {
+                    var kind = progress < 0.3f || rng.NextDouble() < 0.5 ? Hazard.Low : Hazard.High;
                     Obstacles.Add(new Obstacle { Z = z, Lane = -1, Kind = kind });
                     rows.Add((z, true));
                     // Low'un üstünden yay çizen toplanacaklar (zıplayana ödül)
@@ -99,7 +118,7 @@ namespace Pofi.Logic.Runner
                 }
                 else
                 {
-                    var two = rng.NextDouble() < cfg.DoubleChance;
+                    var two = rng.NextDouble() < twoChance;
                     // açık şerit en çok bir kayar: yeni açık şerit eskisine komşu ya da aynı
                     var open = Math.Max(0, Math.Min(Lanes - 1, free + rng.Next(-1, 2)));
                     var single = Other(open, rng);
@@ -112,7 +131,7 @@ namespace Pofi.Logic.Runner
                     rows.Add((z, false));
                     free = open;
                 }
-                var gap = Math.Max(cfg.MinGap, cfg.SpeedAt(z) * cfg.Reaction) + (float)rng.NextDouble() * 6f;
+                var gap = Math.Max(cfg.MinGap, cfg.SpeedAt(z) * cfg.Reaction) * (1.25f - 0.25f * progress) + (float)rng.NextDouble() * 6f;   // başta daha seyrek
                 // toplanacak dizisi: bu sıradan sonraki aralığın ortasında, açık şeritte
                 var next = z + gap;
                 if (rng.NextDouble() < 0.6) Trail(z + 4f, Math.Min(next - 4f, cfg.Goal - EndClear), free);

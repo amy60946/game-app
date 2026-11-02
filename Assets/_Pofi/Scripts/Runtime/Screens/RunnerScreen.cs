@@ -100,21 +100,27 @@ namespace Pofi.Screens
             Ui.Clear(Root);
             var root = Modal(880f, out var box, closeOutside: false);
             ModalTitle(box, Title);
-            Ui.Label(box, T("mg.runner.howto", App.State.PetName), Th.Font(33), Th.SubtleText, new Vector2(0.5f, 0.72f), new Vector2(860f, 230f));
+            // GB20-12a (kullanıcı, 2 Kasım 2026: "çok uzun yazı → çok kısa, sesli hikâye"; benchmark WarioWare tek fiil, Subway Surfers
+            // yazısız kovalamaca): tek kısa cümle, sesli; kaydırma hareketleri ilk iki koşudaki yavaş öğreticide gösterilir
+            var how = T("mg.runner.howto", App.State.PetName);
+            var howLab = Ui.Label(box, how, Th.Font(40), Th.Text, new Vector2(0.5f, 0.8f), new Vector2(820f, 110f), FontStyle.Bold);
+            VoiceButton.Attach((RectTransform)howLab.transform, new Vector2(30f, 0f)).SetText(how);
+            Audio.Voice.Say(how);
             // uzay kıyafeti seçimi (kullanıcı onayı, 26 Ekim 2026): üç takımdan biri koşuda ücretsiz giyilir (envantere girmez);
             // dükkânda da satılır. Seçim hatırlanır.
-            Ui.Label(box, T("runner.pick_suit"), Th.Font(34), Th.Text, new Vector2(0.5f, 0.52f), new Vector2(760f, 60f), FontStyle.Bold);
+            Ui.Label(box, T("runner.pick_suit"), Th.Font(30), Th.SubtleText, new Vector2(0.5f, 0.64f), new Vector2(760f, 50f), FontStyle.Bold);
             for (var i = 0; i < Suits.Length; i++)
             {
                 var k = i;
                 var on = Suits[i][0] == SuitChoice;
-                var b = Candy.Round(box, on ? new Color(1f, 0.9f, 0.55f) : Candy.White, Suits[i][0], on ? 190f : 160f, new Vector2(0.5f, 0.36f),
+                var b = Candy.Round(box, on ? new Color(1f, 0.9f, 0.55f) : Candy.White, Suits[i][0], on ? 170f : 145f, new Vector2(0.5f, 0.45f),
                     new Vector2((i - 1) * 230f, 0f), () => { SuitChoice = Suits[k][0]; Audio.Sfx.Play(Audio.SfxKind.Tap); WearSuit(); Destroy(root.gameObject); Intro(); });
                 Candy.Caption(b.transform, App.Data.Item(Suits[i][0])?.Name ?? "", 20, new Vector2(0.5f, 0f), new Vector2(210f, 34f), new Vector2(0f, -24f));
             }
-            Ui.Button(box, Th, T("mg.start"), new Vector2(0.5f, 0.15f), new Vector2(560f, 130f), () => { Destroy(root.gameObject); Play(); },
-                true, default, 52, true, GoldKit.RibbonGreenBot);
-            Ui.Button(box, Th, T("mg.exit"), new Vector2(0.5f, 0.03f), new Vector2(400f, 80f), () => App.Open(AppPage.Map), false, default, 34);
+            // GB20-12b: düğmeler üst üste binmesin — Başla (yeşil, büyük) sağda, Çık solda, ikisi de kutunun içinde aynı hizada
+            Ui.Button(box, Th, T("mg.start"), new Vector2(0.62f, 0.13f), new Vector2(430f, 112f), () => { Destroy(root.gameObject); Play(); },
+                true, default, 48, true, GoldKit.RibbonGreenBot);
+            Ui.Button(box, Th, T("mg.exit"), new Vector2(0.24f, 0.13f), new Vector2(280f, 88f), () => App.Open(AppPage.Map), false, default, 34);
         }
 
         /// <summary>Uzay takımları: takım, kask/başlık, sırt parçası (art/code3d/space_wear; dükkânda da satılır).</summary>
@@ -321,15 +327,74 @@ namespace Pofi.Screens
             var fx = _run.CardFound ? 0.56f : 0.5f;
             var fw = _run.CardFound ? 660f : 780f;
             Ui.Label(card, T(_run.CardFound ? "runner.fact_card" : "runner.fact_title"), Th.Font(34), GoldKit.CreamInk, new Vector2(fx, 0.8f), new Vector2(fw, 50f), FontStyle.Bold);
-            Ui.Label(card, T("runner." + theme + ".fact" + factN), Th.Font(36), GoldKit.CreamInk, new Vector2(fx, 0.4f), new Vector2(fw, 150f));
-            Ui.Button(box, Th, T("mg.again"), new Vector2(0.5f, 0.2f), new Vector2(560f, 130f), () =>
+            var factText = T("runner." + theme + ".fact" + factN);
+            var factLab = Ui.Label(card, factText, Th.Font(36), GoldKit.CreamInk, new Vector2(fx, 0.4f), new Vector2(fw, 150f));
+            _factToSay = factText;
+            VoiceButton.Attach(card, new Vector2(-10f, -6f)).SetText(factText);
+            Ui.Button(box, Th, T("mg.again"), new Vector2(0.62f, 0.12f), new Vector2(430f, 112f), () =>
             {
                 Destroy(root.gameObject);
                 App.RecordActivity("runner_retry");
                 Reset(Environment.TickCount);
                 Play();
-            }, true, default, 52, true, GoldKit.RibbonGreenBot);
-            Ui.Button(box, Th, T("mg.exit"), new Vector2(0.5f, 0.06f), new Vector2(460f, 96f), () => App.Open(AppPage.Map), false, default, 40);
+            }, true, default, 48, true, GoldKit.RibbonGreenBot);
+            Ui.Button(box, Th, T("mg.exit"), new Vector2(0.24f, 0.12f), new Vector2(280f, 88f), () => App.Open(AppPage.Map), false, default, 34);
+            StartCoroutine(CardReveal(card, _run.CardFound));
+        }
+
+        private string _factToSay;
+
+        /// <summary>
+        /// GB20-12d gösterişli kart açılışı (kullanıcı: "kart koleksiyonu güzel, sonda daha gösterişli"; benchmark Pokémon TCG Pocket ışık
+        /// sızması, Hearthstone kart çevirme — şans/nadirlik yok, kart hep belli): kart ters gelir, yaylanarak iner, çevrilirken beyaz
+        /// parlama + dönen ışınlar + yıldız kıvılcımları, başlık büyüyüp oturur, bilgi sesli okunur. Herhangi bir yere dokunmak beklemez.
+        /// </summary>
+        private System.Collections.IEnumerator CardReveal(RectTransform card, bool found)
+        {
+            var parent = card.parent;
+            var rays = Ui.Rect(parent, "CardRays", card.anchorMin, new Vector2(1100f, 1100f), card.anchoredPosition);
+            rays.SetSiblingIndex(card.GetSiblingIndex());
+            var ri = rays.gameObject.AddComponent<RawImage>(); ri.texture = LevelUpCelebration.RaysTex(); ri.raycastTarget = false; ri.color = new Color(1f, 0.85f, 0.4f, 0f);
+            var back = Ui.Fill(card, "Back");
+            var bi = back.gameObject.AddComponent<Image>(); bi.sprite = GoldKit.Capsule(Theme.Hex("#4A7CF0"), Theme.Hex("#2A4FB8")); bi.type = Image.Type.Sliced; bi.raycastTarget = false;
+            bi.pixelsPerUnitMultiplier = 96f / 120f;
+            Ui.IconImage(back, found ? _kit.CardIcon : "ui_star", new Vector2(0.5f, 0.5f), 150f);
+            var flash = Ui.Fill(card, "Flash");
+            var fi = flash.gameObject.AddComponent<Image>(); fi.color = new Color(1f, 1f, 1f, 0f); fi.raycastTarget = false;
+            card.localScale = new Vector3(1f, 1f, 1f) * 0.6f;
+            // 1) yaylanarak iner (0,35 sn)
+            for (var t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.35f)
+            {
+                var k = 1f - (1f - t) * (1f - t);
+                card.localScale = Vector3.one * Mathf.Lerp(0.6f, 1f, k) * (1f + Mathf.Sin(t * Mathf.PI) * 0.06f);
+                yield return null;
+            }
+            yield return new WaitForSecondsRealtime(0.35f);
+            // 2) çevrilme: genişlik 1 → 0, yüz değişir, 0 → 1,08 → 1
+            Audio.Sfx.Play(Audio.SfxKind.Chime);
+            for (var t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.14f) { card.localScale = new Vector3(1f - t, 1f, 1f); yield return null; }
+            back.gameObject.SetActive(false);
+            fi.color = new Color(1f, 1f, 1f, 0.85f);
+            var sp = RectTransformUtility.WorldToScreenPoint(null, card.position);
+            StarSparkles.Around(App.Overlay.transform, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.22f, 0.16f), 14, 31, 1.6f);
+            Audio.Haptics.Medium();
+            for (var t = 0f; t < 1f; t += Time.unscaledDeltaTime / 0.22f)
+            {
+                card.localScale = new Vector3(Mathf.Lerp(0f, 1.08f, t), Mathf.Lerp(1f, 1.08f, t), 1f);
+                yield return null;
+            }
+            // 3) parlama söner, ışınlar döner, kart yerine oturur; bilgi okunur
+            if (!string.IsNullOrEmpty(_factToSay)) Audio.Voice.Say(_factToSay);
+            for (var t = 0f; t < 2.6f; t += Time.unscaledDeltaTime)
+            {
+                if (card == null) yield break;
+                fi.color = new Color(1f, 1f, 1f, Mathf.Max(0f, 0.85f - t * 2.8f));
+                card.localScale = Vector3.one * (t < 0.25f ? Mathf.Lerp(1.08f, 1f, t / 0.25f) : 1f);
+                ri.color = new Color(1f, 0.85f, 0.4f, Mathf.Clamp01(t / 0.3f) * 0.38f * Mathf.Clamp01((2.6f - t) / 0.8f));
+                rays.localRotation = Quaternion.Euler(0f, 0f, -t * 25f);
+                yield return null;
+            }
+            if (rays != null) Destroy(rays.gameObject);
         }
 
         // ------------------------------------------------------------ dokunma

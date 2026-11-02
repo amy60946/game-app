@@ -165,6 +165,10 @@ def catalog():
         for k in keys:
             if k in tr and "{" not in fill_pet(tr[k]):
                 add(fill_pet(tr[k]), role, "tr:" + k, who)
+    # GB20-12a/12d: Gezegen Koşusu kısa sesli giriş + kart açılışında okunan bilgiler (uzay ve Mısır dünyaları)
+    for k, v in tr.items():
+        if k == "mg.runner.howto" or k.startswith(("runner.space.fact", "runner.egypt.fact")):
+            add(fill_pet(v), "anlatici", "tr:" + k, "narrator")
     if "gift.reveal" in tr and "gift.reveal_sub" in tr:   # ScreenBase.StoneReveal iki satırı birlikte okur
         add(tr["gift.reveal"] + " " + tr["gift.reveal_sub"], "anlatici", "tr:gift.reveal", "narrator")
     for a, b, c in [("rewards.intro_1", "rewards.intro_2", "rewards.intro_3"), ("gift.l1", "gift.l2", "gift.l3")]:   # tanıtım kartı üç satırı tek seferde okur

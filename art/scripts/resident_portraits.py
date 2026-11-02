@@ -28,8 +28,9 @@ LOOK = {
     'pus': dict(model='res_pus', yaw=-20, cam_h=0.60, aim_h=0.50, fit='whole'),
     # kodla 3B adalılar (art/code3d/residents_v1.py, 24 Ekim 2026)
     'tosbi': dict(model='res_tosbi', yaw=-22, cam_h=0.86, aim_h=0.78, keep=0.56, shift=0.02),
-    'pitir': dict(model='res_pitir', yaw=-18, cam_h=0.70, aim_h=0.62, face=(0.34, 0.42), shift=0.0),
-    'hisir': dict(model='res_hisir', yaw=-18, cam_h=0.70, aim_h=0.62, face=(0.22, 0.44), shift=0.0),
+    # GB20-13 (kullanıcı: "Pıtır'ın portresi kesilmiş resim gibi"): 3/4 açı, tepe yaprakları kadrajda (kesim yüz + taç)
+    'pitir': dict(model='res_pitir', yaw=-32, cam_h=0.74, aim_h=0.6, face=(0.27, 0.6), shift=0.04),
+    'hisir': dict(model='res_hisir', yaw=-30, cam_h=0.74, aim_h=0.6, face=(0.24, 0.6), shift=0.04),
 }
 
 SIZE = 512
