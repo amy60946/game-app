@@ -79,6 +79,19 @@ SPOKEN_EXTRA = {"welcome.coins": "20", "rewards.pick": "", "rewards.first_sent":
                 "gather.coconut_got": ""}
 
 
+# GB20: sabit (değişen bilgisi olmayan) konuşma ve yönlendirme cümleleri — kim söylüyorsa onun sesiyle
+GB20_OKTI = ("care.ok.feed", "care.ok.wash", "care.ok.play", "care.ok.tidy", "care.full", "care.no_item", "care.sad.fullness",
+             "care.sad.cleanliness", "care.sad.happiness", "care.sad.home", "care.sleeping", "pet.welcome", "wardrobe.looks_good",
+             "runner.out_bubble", "runner.oops")
+GB20_MAVI = ("mavi.news_one",)
+GB20_NARR = ("care.full_quest", "notice.new_task_one", "notice.try_again_many", "wardrobe.removed", "wardrobe.empty", "runner.first", "runner.card",
+             "mg.lane.crash", "mg.hike.summit", "mg.help_pet.warm", "mg.help_pet.hot", "mg.help_pet.found", "mg.help_pet.cold",
+             "mg.fishing.wait", "mg.fishing.late", "map.site_fog", "map.pin_go", "map.hint_walk", "map.hint_overview", "gift.reveal",
+             "gather.built_already", "gather.built", "garden.watered", "garden.planted", "garden.no_seed", "fire.done_today",
+             "event.lighthouse.howto", "event.lighthouse.again", "decor.pick_first", "decor.occupied", "decor.hint", "bag.empty",
+             "voice.on", "tasks.xp_goal", "tasks.self_started", "chest.ready", "stones.all_done", "cards.tower_hint", "xp.rest")
+
+
 def _first_wear_names(tr):
     """Giydirme rehberinin adını söylediği eşya: sahip olunan en ucuz komik olmayan giyilebilir (WardrobeScreen), rehber Sv1–2'de."""
     items = json.load(open(os.path.join(DATA, "items.json"), encoding="utf-8"))
@@ -135,6 +148,25 @@ def catalog():
     for k, role, who in (("pet.meet_intro", "okti", "okti"), ("welcome_task.tip", "anlatici", "narrator"),
                          ("info.child", "anlatici", "narrator"), ("coin.info", "anlatici", "narrator")):
         if k in tr: add(fill_pet(tr[k]), role, "tr:" + k, who)
+    # GB20 (2 Kasım 2026, kullanıcı: "her sohbetin seslendirildiğinden emin ol, arada seslendirilmeyen sohbetler oluyor"): Mavi'nin haberleri,
+    # adalı teşekkürleri, Okti'nin bakım sözleri, balon ve bildirim yönlendirmeleri. Değişen bilgili cümlede (görev/ebeveyn adı, sayı)
+    # ekranda tam metin durur, ses "<anahtar>.say" genel eşini okur (oyunda Localization.SpokenFor → Voice.Alias).
+    for k, v in tr.items():
+        if not k.endswith(".say"):
+            continue
+        base = k[:-4]
+        if base.startswith("mavi."):
+            add(v, "adali", "tr:" + k, "mavi")
+        elif base.startswith("resident."):
+            add(v, "adali", "tr:" + k, "resident")
+        else:
+            add(v, "anlatici", "tr:" + k, "narrator")
+    for keys, role, who in ((GB20_OKTI, "okti", "okti"), (GB20_MAVI, "adali", "mavi"), (GB20_NARR, "anlatici", "narrator")):
+        for k in keys:
+            if k in tr and "{" not in fill_pet(tr[k]):
+                add(fill_pet(tr[k]), role, "tr:" + k, who)
+    if "gift.reveal" in tr and "gift.reveal_sub" in tr:   # ScreenBase.StoneReveal iki satırı birlikte okur
+        add(tr["gift.reveal"] + " " + tr["gift.reveal_sub"], "anlatici", "tr:gift.reveal", "narrator")
     for a, b, c in [("rewards.intro_1", "rewards.intro_2", "rewards.intro_3"), ("gift.l1", "gift.l2", "gift.l3")]:   # tanıtım kartı üç satırı tek seferde okur
         add(" ".join(tr[x] for x in (a, b, c)), "anlatici", "tr:" + a.rsplit("_", 1)[0].rsplit(".", 1)[0] + ".intro" if a.startswith("rewards") else "tr:gift.card", "narrator")
     return out

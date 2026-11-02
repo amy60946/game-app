@@ -38,6 +38,7 @@ namespace Pofi.UI
                 if (_queue.Count == 0) return;
                 _text.text = _queue.Dequeue();
                 _t = 0f;
+                Pofi.Audio.Voice.Say(_text.text);   // kaydı olan bildirim sesli (GB20: haberler de okunur; değişen ad genel eşiyle)
             }
             _t += Time.unscaledDeltaTime;
             var inOut = Mathf.Min(Mathf.Clamp01(_t / 0.25f), Mathf.Clamp01((Show - _t) / 0.25f));

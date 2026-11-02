@@ -30,14 +30,25 @@ namespace Pofi.Audio
         public static int Count { get { EnsureIndex(); return _index.Count; } }
         public static bool Speaking => _src != null && _src.isPlaying;
 
-        public static bool Has(string text)
+        /// <summary>Değişen bilgili metnin okunacak genel eşi (GameBootstrap verir: <c>Localization.SpokenFor</c>).</summary>
+        public static System.Func<string, string> Alias;
+
+        /// <summary>Metnin kayıt anahtarı: önce kendisi, kaydı yoksa genel eşi (ör. görev adlı Mavi haberi → genel cümle). Kayıt yoksa null.</summary>
+        private static string KeyFor(string text)
         {
-            if (string.IsNullOrEmpty(text)) return false;
+            if (string.IsNullOrEmpty(text)) return null;
             EnsureIndex();
-            return _index.Contains(VoiceKey.Of(text));
+            var k = VoiceKey.Of(text);
+            if (_index.Contains(k)) return k;
+            var alt = Alias?.Invoke(text);
+            if (string.IsNullOrEmpty(alt)) return null;
+            k = VoiceKey.Of(alt);
+            return _index.Contains(k) ? k : null;
         }
 
-        public static bool IsSpeaking(string text) => Speaking && CurrentKey != null && CurrentKey == VoiceKey.Of(text);
+        public static bool Has(string text) => KeyFor(text) != null;
+
+        public static bool IsSpeaking(string text) => Speaking && CurrentKey != null && CurrentKey == KeyFor(text);
 
         /// <summary>
         /// Metnin kaydı varsa okur (açıksa). <paramref name="interrupt"/>: kayıt yoksa da öncekini sustur (hikâye ve film satırları:
@@ -46,8 +57,9 @@ namespace Pofi.Audio
         public static bool Say(string text, bool interrupt = false)
         {
             if (!Enabled) return false;
-            if (!Has(text)) { if (interrupt) Stop(); return false; }
-            return Play(VoiceKey.Of(text));
+            var k = KeyFor(text);
+            if (k == null) { if (interrupt) Stop(); return false; }
+            return Play(k);
         }
 
         public static void Stop()
@@ -61,7 +73,7 @@ namespace Pofi.Audio
         /// <summary>Yalnız bu metin okunuyorsa sustur (kapanan balon sıradakinin sesini kesmesin).</summary>
         public static void StopIf(string text)
         {
-            if (CurrentKey != null && CurrentKey == VoiceKey.Of(text)) Stop();
+            if (CurrentKey != null && CurrentKey == KeyFor(text)) Stop();
         }
 
         /// <summary>Aç/kapa. Açılınca <paramref name="replay"/> metni baştan okunur.</summary>

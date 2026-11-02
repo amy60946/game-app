@@ -8,7 +8,9 @@ namespace Pofi.Logic.App
     /// <summary>Bakım düğmesine basınca petin söylediği cümle (konuşma balonu + ileride ses).</summary>
     public static class CareFeedback
     {
-        public static string Message(Localization loc, CareAction action, CareResult result, string petName)
+        /// <param name="questWaiting">Bu eylemi sayan bugünkü görev bitmedi mi: tok/olmayan durumda "hata" değil "bekle" diye anlatılır
+        /// (GB20, kullanıcı 2 Kasım 2026: "çocuk oyunda hata olduğunu düşünmesin veya sinirlenmesin").</param>
+        public static string Message(Localization loc, CareAction action, CareResult result, string petName, bool questWaiting = false)
         {
             switch (result)
             {
@@ -21,7 +23,7 @@ namespace Pofi.Logic.App
                         default: return loc.Get("care.ok.tidy");
                     }
                 case CareResult.Sleeping: return loc.Get("care.sleeping", petName);
-                case CareResult.AlreadyFull: return loc.Get("care.full");
+                case CareResult.AlreadyFull: return loc.Get(questWaiting ? "care.full_quest" : "care.full", petName);
                 case CareResult.NoItem:
                 case CareResult.WrongItem: return loc.Get("care.no_item");
                 default: return "";

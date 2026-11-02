@@ -134,6 +134,18 @@ namespace Pofi.Logic.Meta
 
         public static int Progress(DailyQuestDef q, Counters c) => Math.Min(q.Target, c.TodayCount(q.Counter));
 
+        /// <summary>Bugünün görevlerinden bu sayaçla ilerleyen, bitmemiş biri var mı (GB20: "tok olduğu için besleyemiyorum" anı görevi bekletir)?</summary>
+        public static bool Waiting(DailyQuestState st, GameData data, Counters c, string counter)
+        {
+            if (st == null || data == null || c == null || string.IsNullOrEmpty(counter)) return false;
+            foreach (var id in st.Ids)
+            {
+                var q = data.DailyQuests.FirstOrDefault(x => x.Id == id);
+                if (q != null && q.Counter == counter && !st.Claimed.Contains(id) && Progress(q, c) < q.Target) return true;
+            }
+            return false;
+        }
+
         /// <summary>Görev başına seviye payı (S2): 3 görevin toplamı o seviyenin gereken XP'sinin ~%12'si.</summary>
         public const double ShareOfLevel = 0.04;
 

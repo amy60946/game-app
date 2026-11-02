@@ -228,8 +228,20 @@ namespace Pofi.Logic.Story
         /// <summary>K (≤5) için kendiliğinden ilerleme süresi (saniye); diğerleri dokunuşla ilerler.</summary>
         public static float AutoAdvance(AgeBand band) => band == AgeBand.K ? 4f : 0f;
 
-        /// <summary>Cümleler arası en kısa süre (kullanıcı, 26 Ekim 2026: "en az 3 saniye, konuşma gibi akıcı, çocuk takip edebilsin").</summary>
+        /// <summary>Sesi olmayan cümlede en kısa süre (kullanıcı, 26 Ekim 2026: "en az 3 saniye, konuşma gibi akıcı, çocuk takip edebilsin").</summary>
         public const float MinLineGap = 3f;
+
+        /// <summary>
+        /// Sesli cümle: ses bitince bu kadar nefes, sonra sıradaki cümle (kullanıcı, 2 Kasım 2026: "sohbetler arası çok boşluk kalıyor").
+        /// Gerçek konuşmada sıra değişimi ~0,2–0,5 sn; konuşan değişince biraz daha uzun.
+        /// </summary>
+        public const float VoicedBreath = 0.45f, VoicedBreathTurn = 0.7f;
+
+        /// <summary>Sesli cümle ekranda en az bu kadar kalır (çok kısa "Merhaba!" bile göz ucuyla okunabilsin).</summary>
+        public const float VoicedMinLine = 1.4f;
+
+        /// <summary>Sesli cümleden sonra sıradakine geçiş beklemesi: aynı konuşan sürdürüyorsa kısa nefes, konuşan değişiyorsa biraz uzun.</summary>
+        public static float AfterVoice(bool speakerChanges) => speakerChanges ? VoicedBreathTurn : VoicedBreath;
 
         /// <summary>
         /// Sohbet kendiliğinden ilerler: cümle yazılıp sesi bittikten sonra okuma süresi kadar bekler (en az 3 sn, K'de 4 sn;

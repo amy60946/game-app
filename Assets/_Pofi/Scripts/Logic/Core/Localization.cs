@@ -17,7 +17,23 @@ namespace Pofi.Logic.Core
         public string Get(string key, params object[] args)
         {
             if (!_s.TryGetValue(key, out var v)) return "[" + key + "]";
-            return args == null || args.Length == 0 ? v : string.Format(v, args);
+            var r = args == null || args.Length == 0 ? v : string.Format(v, args);
+            if (_s.TryGetValue(key + ".say", out var say)) Remember(r, args == null || args.Length == 0 ? say : string.Format(say, args));
+            return r;
         }
+
+        // ------------------------------------------------------------------ sesli okuma eşleri (GB20, 2 Kasım 2026)
+        // Görev adı, ebeveyn adı gibi değişen bilgi taşıyan cümle önceden kaydedilemez: ekranda tam metin durur, ses "<anahtar>.say"daki
+        // genel cümleyi okur ("Ailenden bir not getirdim! Bir görevini bir daha dener misin?"). Get bu eşi hatırlar; Voice sorar.
+        private readonly Dictionary<string, string> _spoken = new Dictionary<string, string>();
+
+        private void Remember(string shown, string said)
+        {
+            if (_spoken.Count > 256) _spoken.Clear();
+            _spoken[shown] = said;
+        }
+
+        /// <summary>Ekrandaki metnin okunacak genel eşi (yoksa null).</summary>
+        public string SpokenFor(string shown) => shown != null && _spoken.TryGetValue(shown, out var s) ? s : null;
     }
 }

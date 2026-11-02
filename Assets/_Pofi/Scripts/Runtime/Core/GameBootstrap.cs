@@ -302,6 +302,7 @@ namespace Pofi.Core
             Audio.Sfx.Volume = State.Settings.SfxVolume;
             Audio.Voice.Enabled = State.Settings.VoiceOn;   // sesli okuma: herkeste açık, kayıttaki tercih
             Audio.Voice.Persist = on => { if (State == null) return; State.Settings.VoiceOn = on; Save(); };
+            Audio.Voice.Alias = t => Loc?.SpokenFor(t);   // değişen bilgili cümle (görev/ebeveyn adı) genel eşiyle okunur (GB20)
             Stage.SetSky(Theme.Sky);
             State.Stats.Tick(UtcNow, Decay);
             FirstDay.Start(State, UtcNow);   // ilk gün akışı (Ö5); pet'i olan eski oyuncuda kapanır

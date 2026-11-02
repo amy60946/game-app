@@ -456,6 +456,7 @@ namespace Pofi.Screens
                 return;
             }
             var hi = "res.hi_" + r.Who;   // res.hi_kiskac, _mavi, _pus, _tosbi, _pitir, _hisir
+            if (r.Who == "mavi" && App.MailUnread > 0) hi = "res.hi_mavi_mail";   // GB20: okunmamış mektup varsa kutuyu gösterir
             _toast.Say(T(hi, App.State.PetName));
         }
 
@@ -485,7 +486,9 @@ namespace Pofi.Screens
             b.onClick.AddListener(() => { Audio.Sfx.Play(Audio.SfxKind.Tap); if (_news != null) Destroy(_news.gameObject); QuestPanel(); });
             _news.gameObject.AddComponent<PressBounce>();
             _news.gameObject.AddComponent<PopIn>();
-            _newsT = 7f;
+            VoiceButton.Attach(inner, new Vector2(-24f, -24f)).SetText(text);
+            if (Audio.Voice.Say(text)) _newsT = 8.5f;   // Mavi'nin haberi sesli (GB20: değişen görev adı genel eşiyle okunur)
+            else _newsT = 7f;
             if (_mavi != null) _maviNewsT = 1.8f;   // Mavi Okti'ye uçar
             Audio.Sfx.Play(Audio.SfxKind.Chime);
             Audio.Haptics.Light();

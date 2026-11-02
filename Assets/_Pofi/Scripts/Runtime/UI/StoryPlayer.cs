@@ -140,7 +140,7 @@ namespace Pofi.UI
         {
             if (_typing) { _typing = false; _shown = _full.Length; _text.text = _full; _wait = 0f; return; }
             if (_go != null && _go.gameObject.activeSelf) return;   // son satır: tek düğme
-            if (_lineT < StoryDirector.MinLineGap) { _queued = true; return; }   // cümleler arası en az 3 sn
+            if (_lineT < (_spoke ? StoryDirector.VoicedMinLine : StoryDirector.MinLineGap)) { _queued = true; return; }   // sessiz cümlede en az 3 sn
             Next();
         }
 
@@ -207,10 +207,12 @@ namespace Pofi.UI
                 _wait += dt;
                 if (_go != null && _i == _scene.Lines.Count - 1 && !_go.gameObject.activeSelf && _wait > 0.3f) { _go.gameObject.SetActive(true); Bump.Play(_go.transform, 0.3f); }
                 if (Audio.Voice.IsSpeaking(_full)) { _wait = 0f; _spoke = true; }   // okuma bitmeden geçmez; bekleme sesten sonra sayılır
-                // sesli okunduysa cümle zaten okundu: kısa nefes; sessizse okuma süresi (yazılma süresi düşülür)
-                var need = _spoke ? 1.2f : Mathf.Max(1.2f, StoryDirector.LineHold(_band, _full.Length) - _full.Length / 32f);
+                // sesli okunduysa cümle zaten okundu: konuşma gibi kısa nefes (GB20, 2 Kasım 2026); sessizse okuma süresi (yazılma süresi düşülür)
                 var lastLine = _go != null && _i == _scene.Lines.Count - 1;
-                if (!lastLine && _lineT >= StoryDirector.MinLineGap && (_queued || _wait > need)) Next();
+                var turn = !lastLine && _i + 1 < _scene.Lines.Count && _scene.Lines[_i + 1].Who != _lastWho;
+                var need = _spoke ? StoryDirector.AfterVoice(turn) : Mathf.Max(1.2f, StoryDirector.LineHold(_band, _full.Length) - _full.Length / 32f);
+                var minLine = _spoke ? StoryDirector.VoicedMinLine : StoryDirector.MinLineGap;
+                if (!lastLine && _lineT >= minLine && (_queued || _wait > need)) Next();
             }
         }
 

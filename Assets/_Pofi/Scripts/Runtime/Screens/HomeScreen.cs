@@ -216,7 +216,7 @@ namespace Pofi.Screens
                 App.RecordActivity(a == CareAction.Feed ? "pet_fed" : "pet_washed");
             }
             _idle = 0f;
-            _bubble.Say(CareFeedback.Message(App.Loc, a, r, st.PetName));
+            _bubble.Say(CareFeedback.Message(App.Loc, a, r, st.PetName, QuestWaiting(a)));
             Refresh();
         }
 
@@ -250,7 +250,7 @@ namespace Pofi.Screens
                 App.RecordActivity(a == CareAction.Feed ? "pet_fed" : a == CareAction.Wash ? "pet_washed" : a == CareAction.Play ? "pet_played" : "home_tidied");
             }
             _idle = 0f;
-            _bubble.Say(CareFeedback.Message(App.Loc, a, r, st.PetName));
+            _bubble.Say(CareFeedback.Message(App.Loc, a, r, st.PetName, QuestWaiting(a)));
             Refresh();
         }
 
@@ -260,5 +260,8 @@ namespace Pofi.Screens
         {
             if (App != null) App.Synced -= OnSynced;
         }
+        /// <summary>Bu bakım eylemini sayan bugünkü görev bitmedi mi (GB20)?</summary>
+        private bool QuestWaiting(CareAction a) => Logic.Meta.DailyQuests.Waiting(App.State.DailyQuests, App.Data, App.State.Counters,
+            a == CareAction.Feed ? "pet_fed" : a == CareAction.Wash ? "pet_washed" : a == CareAction.Play ? "pet_played" : "home_tidied");
     }
 }

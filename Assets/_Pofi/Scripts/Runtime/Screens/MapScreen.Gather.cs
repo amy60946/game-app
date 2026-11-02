@@ -458,6 +458,7 @@ namespace Pofi.Screens
             App.Save();
             RefreshTracker();
             _toast.Say(T("gather.built"));
+            TriggerStory();   // GB20: Mavi'nin kulübe sahnesi hemen sıraya girer (seviye kutlaması bitince oynar), oklar ondan sonra
         }
 
         private Vector2 UiFromWorld(Vector3 w)

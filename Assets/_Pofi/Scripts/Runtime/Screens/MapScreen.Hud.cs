@@ -714,7 +714,9 @@ namespace Pofi.Screens
             var moving = _world.Walker.Moving || _moveFor > 0f;
             _idleFor = touching || moving ? 0f : _idleFor + dt;
             var basicsDone = !Onboarding.Pending(App.State, Onboarding.Walk) && !Onboarding.Pending(App.State, Onboarding.Look);
-            var guide = basicsDone && !_overview && !_cine ? Guide.Current(App.State, App.Level) : null;
+            // GB20: hikâye sahnesi sırada ya da oynarken, seviye kutlaması açıkken yeni adımın okları çıkmaz (önce konuşma, sonra yol)
+            var calm = !_storyBusy && !StoryPlayer.Playing && App.Overlay.transform.Find("LevelUp") == null;
+            var guide = basicsDone && calm && !_overview && !_cine ? Guide.Current(App.State, App.Level) : null;
             var target = guide != null ? GuideWorld(guide) : null;
             if (target == null && basicsDone && !_overview && !_cine) target = PinChase();   // haritadaki ime dokunuldu (taş, pano)
             var stepId = guide?.Id;
@@ -959,9 +961,13 @@ namespace Pofi.Screens
                 App.Save();
                 App.RecordActivity(a == CareAction.Feed ? "pet_fed" : "pet_washed");
             }
-            _toast.Say(CareFeedback.Message(App.Loc, a, r, st.PetName));
+            _toast.Say(CareFeedback.Message(App.Loc, a, r, st.PetName, QuestWaiting(a)));
             RefreshHud();
         }
+
+        /// <summary>Bu bakım eylemini sayan bugünkü görev bitmedi mi (GB20)?</summary>
+        private bool QuestWaiting(CareAction a) => Logic.Meta.DailyQuests.Waiting(App.State.DailyQuests, App.Data, App.State.Counters,
+            a == CareAction.Feed ? "pet_fed" : a == CareAction.Wash ? "pet_washed" : a == CareAction.Play ? "pet_played" : "home_tidied");
 
         private void CloseTray()
         {

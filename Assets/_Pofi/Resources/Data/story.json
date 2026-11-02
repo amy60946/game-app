@@ -358,6 +358,11 @@
      "who": "mavi",
      "text": "Bir yere gitmek istersen önden uçarım, izimi takip et.",
      "a": "Ben önden uçarım, beni izle!"
+    },
+    {
+     "who": "mavi",
+     "text": "Akşamları kamp ateşinin başında toplanırız. Ateş için biraz odun lazım, kütüklerden toplayalım mı?",
+     "a": "Ateş için odun toplayalım mı?"
     }
    ]
   },
