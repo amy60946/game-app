@@ -16,6 +16,9 @@ namespace Pofi.Logic.Island
         [JsonProperty("size")] public float Size = 6f;     // yapının taban genişliği (m)
         [JsonProperty("yaw")] public float Yaw;            // 0: önü güneye (kuşbakışı kameraya)
         [JsonProperty("water")] public bool Water;         // kıyıdan denize uzanır (iskele): taban düzleştirilmez
+        /// <summary>GB20-10 yürüme engeli dikdörtgeni (m): [yarı genişlik, öne uzanım, arkaya uzanım]. Yoksa taban dairesi (boy/2).
+        /// Modelin yerdeki izinden ölçülür (scratchpad foot/measure_foot.py): tezgâh gibi ince yapıların dairesi patikayı kapatıyordu.</summary>
+        [JsonProperty("foot")] public float[] Foot;
 
         public float X => Pos != null && Pos.Length > 0 ? Pos[0] : 0f;
         public float Z => Pos != null && Pos.Length > 1 ? Pos[1] : 0f;

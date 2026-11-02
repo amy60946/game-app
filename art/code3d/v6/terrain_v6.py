@@ -18,8 +18,8 @@ REGIONS = [
     ('region_home', 'Evim', 0.0, -30.0, 'house', 8.6, 0),
     ('region_shop', 'Dükkan', -22.0, -23.0, 'house', 8.0, 18),
     ('region_task_board', 'Ev Görevleri', 17.0, -24.0, 'board', 5.5, -16),
-    ('region_festival', 'Festival Alanı', 0.0, -6.0, 'tent', 9.0, 0),
-    ('region_garden', 'Bahçe', 28.0, -38.0, 'garden', 8.6, -10),
+    ('region_festival', 'Festival Alanı', -15.0, -12.0, 'tent', 9.0, -72),   # GB20-7: kayak yolunun ağzından gölün güneydoğusuna, kapı meydana
+    ('region_garden', 'Bahçe', 50.0, -17.0, 'garden', 8.6, 17),       # GB20-7: koy/iskele yolundan kampın güneyindeki düzlüğe
     ('region_pier', 'İskele', 40.0, -61.0, 'pier', 8.6, 0),
     ('region_swim_cove', 'Yüzme Koyu', 61.0, -37.0, 'pool', 8.6, -30),
     ('region_surf_beach', 'Sörf Plajı', 75.0, -12.0, 'board', 6.8, -70),
@@ -44,8 +44,10 @@ PATHS = [
     [(0, -17), (0, -25)],                                   # meydan → Evim
     [(0, -17), (-10, -19), (-18, -21)],                     # → Dükkan
     [(0, -17), (8, -19), (14, -22)],                        # → Ev Görevleri
-    [(0, -17), (0, -10)],                                   # → Festival
-    [(0, -17), (12, -28), (26, -36)],                       # → Bahçe
+    [(0, -17), (0, -10)],                                   # → kanyon (GB20: festival göl tarafına taşındı)
+    [(-5, -18), (-7, -15.8), (-8.9, -14.2)],                # → Festival (GB20-7)
+    [(46, -30), (47.4, -26.5), (48.2, -23.4)],              # koy yolu → Bahçe (GB20-7)
+    [(0, -17), (12, -28), (26, -36)],                       # → İskele yolu (bahçe GB20'de kampın güneyine taşındı)
     [(26, -36), (34, -48), (39, -58)],                      # → İskele
     [(14, -22), (32, -26), (46, -30), (56, -34)],           # → Yüzme Koyu
     [(56, -34), (60, -36)], [(56, -34), (68, -24), (74, -14)],   # → Yüzme koyu, Sörf

@@ -200,5 +200,28 @@ namespace Pofi.Tests.Logic
             var (dx, dz) = t.Door(grove);
             Assert.Greater(t.FindPath(t.PlazaX, t.PlazaZ, dx, dz).Count, 0, "bahçenin kapısına gidilir");
         }
+    
+        [Test]
+        public void GB20_dukkanin_arkasindaki_patika_yurunur_gol_yalniz_canakta()
+        {
+            var t = T;
+            // dükkân tezgâhı (yaw 18, önü güneye): arkasından geçen patikanın kuzey yarısı yürünür (eski 4 m'lik daire kapatıyordu)
+            Assert.IsTrue(t.Walkable(-21.5f, -19.5f), "dükkânın arkasındaki patika");
+            Assert.IsFalse(t.Walkable(-22f, -23f), "dükkânın kendisi");
+            // göl: merkez su, kıyının dışındaki alçak çukur kuru zemin
+            var lake = t.Baked.Layout.Lake;
+            Assert.IsTrue(t.InLake(lake.X, lake.Z));
+            Assert.IsFalse(t.InLake(-14f, -4f), "göl çanağının dışı");
+            Assert.Greater(t.LakeShore(0f), 4f);
+            Assert.Less(t.LakeShore(0f), lake.R + 5.01f);
+            // taşınan bahçe ve festival: kapıları yürünür, içlerinde süs yok
+            foreach (var id in new[] { "region_garden", "region_festival" })
+            {
+                var r = t.Regions.First(x => x.Id == id);
+                var (dx, dz) = t.Door(r);
+                Assert.IsTrue(t.Walkable(dx, dz), id + " kapısı");
+                Assert.IsFalse(t.Props().Any(p => System.Math.Sqrt((p.X - r.X) * (p.X - r.X) + (p.Z - r.Z) * (p.Z - r.Z)) < r.Size * 0.5f), id + " içinde süs");
+            }
+        }
     }
 }

@@ -213,14 +213,14 @@ namespace Pofi.World
             m.SetVector("_ShoreRect", new Vector4(o.x + lake.X - r, o.z + lake.Z - r, 2f * r, 2f * r));
             m.SetFloat("_WaveAmp", 0.025f);   // göl sakin
             _owned.Add(m);
-            // taslaktaki gibi yuvarlak su yüzeyi (r + 5,5 m): kare düzlemin köşeleri göl çanağı dışındaki alçak dereye taşıp
-            // çimenin üstünde düz kenarlı su gibi görünüyordu (geri bildirim 22 Ekim 2026)
-            const int seg = 72;
-            var rr = lake.R + 5.5f;
+            // GB20-9 (kullanıcı, 2 Kasım 2026: "göl su birikintisi gibi"): su yüzeyi gölün gerçek kıyısını izler (her 5°'de merkezden ilk kara,
+            // IslandTerrain.LakeShore) + 0,45 m kıyının altına girer; eski 14,5 m'lik daire çanağın dışındaki alçak yerlere taşıyordu
+            const int seg = IslandTerrain.ShoreSteps;
             var verts = new Vector3[seg + 1]; var tris = new int[seg * 3];
             for (var k = 0; k < seg; k++)
             {
                 var a = k * Mathf.PI * 2f / seg;
+                var rr = Terrain.LakeShore(a) + 0.45f;
                 verts[k + 1] = new Vector3(Mathf.Cos(a) * rr, 0f, Mathf.Sin(a) * rr);
                 tris[k * 3] = 0; tris[k * 3 + 1] = 1 + (k + 1) % seg; tris[k * 3 + 2] = 1 + k;
             }
@@ -234,6 +234,31 @@ namespace Pofi.World
             var mr = go.AddComponent<MeshRenderer>();
             mr.sharedMaterial = m;
             mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            BuildLakeShore(lake);
+        }
+
+        /// <summary>Göl kıyısı geçişi (GB20-9): kıyı boyunca çakıl, iri taş ve küçük çalı öbekleri (patika ve yapı önü boş kalır).</summary>
+        private void BuildLakeShore(BakedLayout.LakeDef lake)
+        {
+            var rng = new System.Random(4242);
+            float R() => (float)rng.NextDouble();
+            var deco = new GameObject("LakeShore").transform;
+            deco.SetParent(transform, false);
+            for (var k = 0; k < IslandTerrain.ShoreSteps; k++)
+            {
+                if (R() < 0.35f) continue;                                         // öbekler arası boşluk (dizi gibi durmasın)
+                var a = (k + R() * 0.6f) * Mathf.PI * 2f / IslandTerrain.ShoreSteps;
+                var roll = R();
+                var asset = roll < 0.6f ? "r_pebble" : roll < 0.85f ? "t_bush" : "r_boulder";
+                var d = Terrain.LakeShore(a) + (asset == "t_bush" ? 1.4f + R() * 1.2f : 0.15f + R() * 0.8f);
+                var x = lake.X + Mathf.Cos(a) * d; var z = lake.Z + Mathf.Sin(a) * d;
+                if (Terrain.PathDistance(x, z) < 2.4f || Terrain.BuildingAt(x, z) != null || Terrain.Slope(x, z) > 0.9f) continue;
+                var sc = asset == "r_pebble" ? 0.18f + R() * 0.22f : asset == "t_bush" ? 0.45f + R() * 0.3f : 0.28f + R() * 0.18f;
+                var t = RealAssets.EnvScaled(asset, deco, sc, R() * 360f);
+                if (t == null) continue;
+                t.localPosition = new Vector3(x, Terrain.Height(x, z) - 0.04f, z);
+                if (asset == "r_pebble") foreach (var r in t.GetComponentsInChildren<Renderer>()) r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
         }
 
         private void BuildGround()
@@ -505,6 +530,7 @@ namespace Pofi.World
             else if (RegionAssets.TryGetValue(r.Id, out var asset))
             {
                 var m = RealAssets.EnvFootprint(asset, root, r.Size, 180f + r.Yaw);   // ham önü +z → güneye dön, sonra bölge açısı
+                if (m != null && r.Id == "region_festival") FestivalInside(root, r);   // GB20-7a: kapıdan içerisi boş görünmesin
             }
             if (root.childCount == 0) Placeholder(root, r, shown);
             var poolPad = root.Find("pool_pad");
@@ -526,6 +552,59 @@ namespace Pofi.World
             col.size = new Vector3(Mathf.Max(1f, b.size.x), Mathf.Max(1f, b.size.y), Mathf.Max(1f, b.size.z));
             Regions[r.Id] = root;
             LabelHeights[r.Id] = Mathf.Max(1.5f, b.max.y - root.position.y + 0.3f);
+        }
+
+        /// <summary>
+        /// Festival çadırının içi (GB20-7a, kullanıcı 2 Kasım 2026: "kapıdan bakınca haritanın zemini ve arkası görünüyor"):
+        /// çadır duvarı tek yüzlü olduğu için içeriden arkası saydamdı. İçeride: kırmızı-krem şeritli perde yayı (arka), yuvarlak halı,
+        /// küçük sahne, perdenin üstünde sıcak ampul zinciri ve iki fener. Ölçüler 9 m'lik çadıra göre (iç duvar ≈ 2,6 m).
+        /// </summary>
+        private void FestivalInside(Transform root, RegionDef r)
+        {
+            var k = r.Size / 9f;
+            var a = r.Yaw * Mathf.Deg2Rad;
+            var inside = new GameObject("FestivalInside").transform;
+            inside.SetParent(root, false);
+            inside.localRotation = Quaternion.LookRotation(new Vector3(-Mathf.Sin(a), 0f, -Mathf.Cos(a)));   // +z = kapıya doğru
+            var mats = new Dictionary<string, Material>();
+            Material M(string hex) { if (!mats.TryGetValue(hex, out var mm)) { mm = PetModels.NewMaterial(ColorUtility.TryParseHtmlString(hex, out var c) ? c : Color.white, 0.35f); _owned.Add(mm); mats[hex] = mm; } return mm; }
+            void Prim(PrimitiveType t, string name, Vector3 pos, Vector3 scale, string hex, float yaw = 0f)
+            {
+                var g = GameObject.CreatePrimitive(t);
+                g.name = name;
+                Destroy(g.GetComponent<Collider>());
+                g.transform.SetParent(inside, false);
+                g.transform.localPosition = pos * k;
+                g.transform.localRotation = Quaternion.Euler(0f, yaw, 0f);
+                g.transform.localScale = scale * k;
+                var mr = g.GetComponent<MeshRenderer>();
+                mr.sharedMaterial = M(hex);
+                mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            }
+            Prim(PrimitiveType.Cylinder, "Rug", new Vector3(0f, 0.04f, 0f), new Vector3(4.6f, 0.04f, 4.6f), "#B5452F");
+            Prim(PrimitiveType.Cylinder, "RugIn", new Vector3(0f, 0.07f, 0f), new Vector3(3.1f, 0.04f, 3.1f), "#E9B949");
+            for (var i = 0; i < 9; i++)
+            {
+                var deg = 112f + i * 17f;                                     // kapının tersinde yay (önden bakınca tam perde)
+                var rad = deg * Mathf.Deg2Rad;
+                Prim(PrimitiveType.Cube, "Curtain" + i, new Vector3(Mathf.Sin(rad) * 2.25f, 1.6f, Mathf.Cos(rad) * 2.25f), new Vector3(0.92f, 3.2f, 0.06f),
+                    i % 2 == 0 ? "#9C2232" : "#F2E2BF", deg);
+            }
+            Prim(PrimitiveType.Cylinder, "Stage", new Vector3(0f, 0.2f, -0.95f), new Vector3(1.7f, 0.2f, 1.7f), "#7A4A2A");
+            Prim(PrimitiveType.Cylinder, "StageTop", new Vector3(0f, 0.41f, -0.95f), new Vector3(1.55f, 0.02f, 1.55f), "#F0C54A");
+            for (var i = 0; i < 11; i++)
+            {
+                var deg = 108f + i * 14.4f;
+                var rad = deg * Mathf.Deg2Rad;
+                var sag = Mathf.Sin(i / 10f * Mathf.PI) * 0.28f;              // zincir hafif sarkar
+                Prim(PrimitiveType.Sphere, "Bulb" + i, new Vector3(Mathf.Sin(rad) * 2.1f, 3.05f - sag, Mathf.Cos(rad) * 2.1f), Vector3.one * 0.13f,
+                    i % 3 == 0 ? "#FFE48A" : i % 3 == 1 ? "#FFB35C" : "#FFF3C4");
+            }
+            foreach (var side in new[] { -1f, 1f })
+            {
+                var lan = RealAssets.EnvFootprint("p_lantern", inside, 0.55f * k, 0f);
+                if (lan != null) lan.localPosition = new Vector3(side * 1.25f, 0f, -0.6f) * k;
+            }
         }
 
         private void Placeholder(Transform root, RegionDef r, bool unlocked)

@@ -12,7 +12,12 @@
       "color": "#FF8A2A",
       "shape": "house",
       "size": 8.6,
-      "yaw": 0
+      "yaw": 0,
+      "foot": [
+        3.6,
+        4.6,
+        3.0
+      ]
     },
     {
       "id": "region_shop",
@@ -25,7 +30,12 @@
       "color": "#FF5A7A",
       "shape": "house",
       "size": 8.0,
-      "yaw": 18
+      "yaw": 18,
+      "foot": [
+        3.2,
+        2.8,
+        2.4
+      ]
     },
     {
       "id": "region_task_board",
@@ -38,7 +48,12 @@
       "color": "#2F80ED",
       "shape": "board",
       "size": 5.5,
-      "yaw": -16
+      "yaw": -16,
+      "foot": [
+        2.6,
+        2.0,
+        2.2
+      ]
     },
     {
       "id": "region_coconut_grove",
@@ -109,14 +124,14 @@
       "id": "region_garden",
       "name": "Bahçe",
       "pos": [
-        28.0,
-        -38.0
+        50.0,
+        -17.0
       ],
       "target": "page:garden",
       "color": "#7BD66B",
       "shape": "garden",
       "size": 8.6,
-      "yaw": -10
+      "yaw": 17
     },
     {
       "id": "region_pier",
@@ -149,14 +164,14 @@
       "id": "region_festival",
       "name": "Festival Alanı",
       "pos": [
-        0.0,
-        -6.0
+        -15.0,
+        -12.0
       ],
       "target": "page:festival",
       "color": "#FFD23F",
       "shape": "tent",
       "size": 9.0,
-      "yaw": 0
+      "yaw": -72
     },
     {
       "id": "region_mountain",

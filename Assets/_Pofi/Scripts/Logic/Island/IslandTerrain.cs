@@ -79,6 +79,7 @@ namespace Pofi.Logic.Island
             // tapınak terası (GB18): yükseklik katmanı yürüme ızgarasından önce bilinsin (basamaklar rampa, teras kenarı dik → yürünmez)
             var temple = baked?.Layout?.Props?.FirstOrDefault(p => p != null && p.Asset == "b_temple");
             if (temple != null) _temple = (temple.X, temple.Z, temple.Y);
+            BuildShore();
             _walk = new bool[_nx * _nz];
             for (var j = 0; j < _nz; j++)
             for (var i = 0; i < _nx; i++)
@@ -90,6 +91,13 @@ namespace Pofi.Logic.Island
                 foreach (var line in baked.Layout.Paths)
                     for (var k = 1; k < line.Count; k++)
                         if (line[k - 1].Length > 1 && line[k].Length > 1) _paths.Add((line[k - 1][0], line[k - 1][1], line[k][0], line[k][1]));
+                foreach (var line in baked.Layout.ExtraPaths ?? new List<List<float[]>>())
+                    for (var k = 1; k < line.Count; k++)
+                        if (line[k - 1].Length > 1 && line[k].Length > 1)
+                        {
+                            _paths.Add((line[k - 1][0], line[k - 1][1], line[k][0], line[k][1]));
+                            _extra.Add((line[k - 1][0], line[k - 1][1], line[k][0], line[k][1]));
+                        }
             }
             // Patikalar: dallanan yol ağı (en kısa bağlantı ağacı). Meydandan başlar; her adımda ağa en yakın kapı,
             // ağdaki en yakın noktadan yol bulmayla bağlanır (var olan patikalar tercih edilir) → köy gibi dallanır.
@@ -124,7 +132,10 @@ namespace Pofi.Logic.Island
             }
 
             // Süsler yerleşir ve engel olur: ağaç, kaya, çalı, çit… içinden geçilmez
-            _props = _field != null ? BakedProps(baked.Layout) : BuildProps();
+            // GB20-9a: suyun içinde çalı/ağaç yok; GB20-7: yapının tabanı ve kapı önü boş (taşınan bahçe/festival yerindeki süsler)
+            _props = _field != null
+                ? BakedProps(baked.Layout).Where(p => !InLake(p.X, p.Z) && !Regions.Any(r => !r.Water && Dist(p.X, p.Z, r.X, r.Z) < r.Size * 0.62f + 1f)).ToList()
+                : BuildProps();
             foreach (var p in _props)
             {
                 if (p.Asset == "b_temple") { BlockTempleSolids(p.X, p.Z); continue; }   // teras yürünür; salon, köşk, duvar, taş, fener engel
@@ -143,6 +154,34 @@ namespace Pofi.Logic.Island
         }
 
         private readonly List<PropSpot> _props;
+        private readonly List<(float ax, float az, float bx, float bz)> _extra = new List<(float, float, float, float)>();
+
+        /// <summary>Sonradan eklenen patikanın ağırlığı (0..1; yarı genişlik 1,3 m, yumuşak kenar).</summary>
+        private float ExtraPath(float x, float z)
+        {
+            if (_extra.Count == 0) return 0f;
+            var best = float.MaxValue;
+            foreach (var s in _extra) best = Math.Min(best, SegDist(x, z, s.ax, s.az, s.bx, s.bz));
+            return SmoothStep(1.6f, 1.0f, best);
+        }
+
+        private static float SegDist(float x, float z, float ax, float az, float bx, float bz)
+        {
+            float dx = bx - ax, dz = bz - az, l2 = dx * dx + dz * dz;
+            var t = l2 > 1e-6f ? Math.Max(0f, Math.Min(1f, ((x - ax) * dx + (z - az) * dz) / l2)) : 0f;
+            float px = ax + t * dx - x, pz = az + t * dz - z;
+            return (float)Math.Sqrt(px * px + pz * pz);
+        }
+
+        /// <summary>Göl katmanı yalnız çanağın içinde (dışındaki alçak çukurlar kuru zemin; GB20-9).</summary>
+        private float LakeLayer(float x, float z)
+        {
+            var v = _field.Get(BakedField.Layer.Lake, x, z);
+            if (v <= 0f || _shore == null) return v;
+            var lake = Baked.Layout.Lake;
+            float dx = x - lake.X, dz = z - lake.Z;
+            return (float)Math.Sqrt(dx * dx + dz * dz) < LakeShore((float)Math.Atan2(dz, dx)) + 0.5f ? v : 0f;
+        }
         private Dictionary<string, (float x, float z)> _doors;
 
         /// <summary>
@@ -353,7 +392,47 @@ namespace Pofi.Logic.Island
         public float Bluebell(float x, float z) => _field != null ? _field.Get(BakedField.Layer.Bluebell, x, z) : 0f;
         public float OrangeFlower(float x, float z) => _field != null ? _field.Get(BakedField.Layer.Orange, x, z) : 0f;
 
-        public bool InLake(float x, float z) => _field != null && _field.Get(BakedField.Layer.Lake, x, z) > 0.4f;
+        public bool InLake(float x, float z)
+        {
+            if (_field == null || _field.Get(BakedField.Layer.Lake, x, z) <= 0.4f) return false;
+            if (_shore == null) return true;
+            // GB20-9: yalnız göl çanağının içi (kıyı çizgisi merkezden ilk kara); çanağın dışındaki alçak çukurlar göl değil
+            var lake = Baked.Layout.Lake;
+            float dx = x - lake.X, dz = z - lake.Z;
+            return (float)Math.Sqrt(dx * dx + dz * dz) < LakeShore((float)Math.Atan2(dz, dx));
+        }
+
+        // ------------------------------------------------------------------ göl kıyısı (GB20-9, kullanıcı 2 Kasım 2026: "göl su birikintisi
+        // gibi, ayrı bir gölgesi var; içinde yeşillik görünüyor"): su yüzeyi eskiden 14,5 m'lik düz daireydi, çanağın (6–12 m) dışındaki
+        // alçak yerlere taşıyordu. Kıyı: merkezden her yönde arazinin ilk kez su seviyesine çıktığı uzaklık (5° adım).
+        private float[] _shore;
+        public const int ShoreSteps = 72;
+
+        private void BuildShore()
+        {
+            var lake = Baked?.Layout?.Lake;
+            if (_field == null || lake == null || lake.R <= 0f) return;
+            _shore = new float[ShoreSteps];
+            var max = lake.R + 5f;
+            for (var k = 0; k < ShoreSteps; k++)
+            {
+                var a = k * 2f * (float)Math.PI / ShoreSteps;
+                float c = (float)Math.Cos(a), s = (float)Math.Sin(a);
+                _shore[k] = max;
+                for (var d = 0.5f; d <= max; d += 0.25f)
+                    if (Height(lake.X + c * d, lake.Z + s * d) >= lake.Level) { _shore[k] = d; break; }
+            }
+        }
+
+        /// <summary>Göl merkezinden <paramref name="angle"/> (radyan, +x'ten +z'ye) yönünde kıyı uzaklığı (m); göl yoksa 0.</summary>
+        public float LakeShore(float angle)
+        {
+            if (_shore == null) return 0f;
+            var t = angle / (2f * (float)Math.PI) * ShoreSteps;
+            t %= ShoreSteps; if (t < 0f) t += ShoreSteps;
+            var i = (int)t; var f = t - i;
+            return _shore[i % ShoreSteps] * (1f - f) + _shore[(i + 1) % ShoreSteps] * f;
+        }
 
         public float Slope(float x, float z)
         {
@@ -371,7 +450,7 @@ namespace Pofi.Logic.Island
                 if (h < 0f || InLake(x, z)) return Surface.Water;
                 if (_field.Get(BakedField.Layer.Snow, x, z) > 0.5f) return Surface.Snow;
                 if (_field.Get(BakedField.Layer.Rock, x, z) > 0.5f) return Surface.Rock;
-                if (_field.Get(BakedField.Layer.Path, x, z) > 0.5f) return Surface.Path;
+                if (Math.Max(_field.Get(BakedField.Layer.Path, x, z), ExtraPath(x, z)) > 0.5f) return Surface.Path;
                 if (_field.Get(BakedField.Layer.Sand, x, z) > 0.5f) return Surface.Sand;
                 return Surface.Grass;
             }
@@ -391,8 +470,8 @@ namespace Pofi.Logic.Island
             if (_field != null)
                 return new SurfaceMix
                 {
-                    Water = Math.Max(SmoothStep(0.05f, -0.2f, h), _field.Get(BakedField.Layer.Lake, x, z)),
-                    Sand = _field.Get(BakedField.Layer.Sand, x, z), Path = _field.Get(BakedField.Layer.Path, x, z),
+                    Water = Math.Max(SmoothStep(0.05f, -0.2f, h), LakeLayer(x, z)),
+                    Sand = _field.Get(BakedField.Layer.Sand, x, z), Path = Math.Max(_field.Get(BakedField.Layer.Path, x, z), ExtraPath(x, z)),
                     Rock = _field.Get(BakedField.Layer.Rock, x, z), Snow = _field.Get(BakedField.Layer.Snow, x, z),
                 };
             var c = Coast(x, z);
@@ -443,7 +522,19 @@ namespace Pofi.Logic.Island
         public RegionDef BuildingAt(float x, float z)
         {
             foreach (var r in Regions)
+            {
+                if (r.Foot != null && r.Foot.Length >= 3)
+                {
+                    // yapının kendi eksenlerinde: önü kapıya doğru (−sin, −cos), sağı (cos, −sin)
+                    var a = r.Yaw * (float)Math.PI / 180f;
+                    float dx = x - r.X, dz = z - r.Z;
+                    var fwd = -(dx * (float)Math.Sin(a) + dz * (float)Math.Cos(a));
+                    var side = dx * (float)Math.Cos(a) - dz * (float)Math.Sin(a);
+                    if (Math.Abs(side) < r.Foot[0] && fwd < r.Foot[1] && fwd > -r.Foot[2]) return r;
+                    continue;
+                }
                 if (Dist(x, z, r.X, r.Z) < r.Size * 0.5f) return r;
+            }
             return null;
         }
 

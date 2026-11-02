@@ -94,6 +94,9 @@ namespace Pofi.Logic.Island
 
         [JsonProperty("plaza")] public float[] Plaza = { 0f, 0f };
         [JsonProperty("paths")] public List<List<float[]>> Paths = new List<List<float[]>>();
+        /// <summary>Pişirmeden sonra eklenen patikalar (GB20-7: taşınan bahçe/festival kapıları): zemin dokusuna ayrıca boyanır
+        /// (art/scripts/paint_paths.py), yürüme ağına ve yüzey karışımına (çimen yok) çalışırken katılır.</summary>
+        [JsonProperty("extra_paths")] public List<List<float[]>> ExtraPaths = new List<List<float[]>>();
         [JsonProperty("lake")] public LakeDef Lake;
         [JsonProperty("props")] public List<BakedProp> Props = new List<BakedProp>();
         [JsonProperty("spots")] public Dictionary<string, float[]> Spots = new Dictionary<string, float[]>();
