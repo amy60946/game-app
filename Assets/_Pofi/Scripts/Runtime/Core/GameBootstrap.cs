@@ -157,6 +157,39 @@ namespace Pofi.Core
         private bool _remoteChecked;              // sunucu yedeğine bakıldı mı (bakılmadan senkron/yedekleme yok)
         private IHttp _http;
 
+        /// <summary>Birinci taraf kullanım ölçümü (canlıya alma §4; ortak akislar.md §9 GameApp olayları). Yalnız gerçek sunucuda gönderilir.</summary>
+        public readonly Logic.Analytics.Telemetry Telemetry = new Logic.Analytics.Telemetry(() => DateTime.UtcNow);
+        private bool _firstTouch;
+        private string _lastScreen;
+
+        /// <summary>track_* için platform (sunucu yalnız ios/android/web kabul eder; düzenleyicide boş).</summary>
+        private static string TelemetryPlatform =>
+            Application.platform == RuntimePlatform.IPhonePlayer ? "ios"
+            : Application.platform == RuntimePlatform.Android ? "android"
+            : Application.platform == RuntimePlatform.WebGLPlayer ? "web" : null;
+
+        /// <summary>Bekleyen oturum bildirimi ve olaylar (ağ yoksa kuyrukta kalır).</summary>
+        private async Task FlushTelemetry()
+        {
+            if (!OnServer || _remote == null || Session == null) return;
+            try { await Telemetry.FlushAsync(_remote, TelemetryPlatform, BuildLabel); }
+            catch (Exception e) { Debug.LogException(e); }
+        }
+
+        private DateTime _notifReadAt;
+
+        /// <summary>
+        /// Sunucunun çocuğa yazdığı bildirim satırları (yeni görev, onay, mesaj) en çok 5 dakikada bir okundu sayılır:
+        /// oyun aynı haberleri her eşitlemede kendisi gösterir (ortak akislar.md §7).
+        /// </summary>
+        private async Task MarkNotificationsRead()
+        {
+            if (!OnServer || _remote == null || UtcNow - _notifReadAt < TimeSpan.FromMinutes(5)) return;
+            _notifReadAt = UtcNow;
+            try { await _remote.MarkNotificationsReadAsync(); }
+            catch (Exception e) { Debug.LogException(e); }
+        }
+
         private static string SaveKey(string childId) => "pofi.save." + childId;
         private static string ServerKey(string childId) => "pofi.mockserver." + childId;
 
@@ -206,6 +239,11 @@ namespace Pofi.Core
             var restored = await Auth.RestoreAsync();
             if (restored != null) OnSignedIn(restored, route: false);
             Route();
+            // ilk ekrana kadar geçen süre (hedef iPhone 11'de < 10 sn; canlıya alma 2.2)
+            Telemetry.Track("app.open", new System.Collections.Generic.Dictionary<string, object>
+            {
+                ["first_screen_ms"] = (int)(Time.realtimeSinceStartup * 1000f), ["signed_in"] = restored != null,
+            });
 #if !UNITY_WEBGL || UNITY_EDITOR
             if (cover != null) cover.Close();
 #endif
@@ -343,8 +381,27 @@ namespace Pofi.Core
             catch (Exception e) { Debug.LogException(e); return false; }
             if (!OnServer) return false;
             Toast.Post(Overlay.transform, Theme, Loc.Get("auth.revoked"));
-            SignOut();
+            ForgetDevice();
             return true;
+        }
+
+        /// <summary>
+        /// Bağlantı kapandı (ebeveyn cihazı kaldırdı ya da aile/çocuk silindi): bu cihazdaki çocuk verisi silinir
+        /// (ortak hukuk/42 satır 30, akislar.md §2.1 ve §6). Sunucuda yedek varsa yeniden bağlanınca geri gelir (SaveRestore).
+        /// </summary>
+        private async void ForgetDevice()
+        {
+            var id = Session?.ChildId;
+            ClearSession();            // önce: otomatik kayıt silinen kaydı yeniden yazmasın
+            Telemetry.Restart();       // oturum kapandı: bekleyen olaylar gönderilemez
+            if (id != null) { Store.Delete(SaveKey(id)); Store.Delete(ServerKey(id)); }
+            Store.Delete(SupabaseGameService.LocalSaveKey);
+            PlayerPrefs.DeleteKey(LoadArtKey);
+            PlayerPrefs.DeleteKey(LoadChapterKey);
+            PlayerPrefs.Save();
+            Route();
+            try { await Auth.SignOutAsync(); }   // oturum belirteci ve çocuk kaydı (Keychain)
+            catch (Exception e) { Debug.LogException(e); }
         }
 
         /// <summary>Görevleri, harcamaları ve bakiyeyi sunucuyla eşitler. Aynı anda tek senkron.</summary>
@@ -362,6 +419,7 @@ namespace Pofi.Core
             _autosync = 0f;
             if (report == null || State == null) return report;
             if (report.Offline && await CheckRevoked()) return report;
+            if (!report.Offline) { _ = FlushTelemetry(); _ = MarkNotificationsRead(); }
             if (Session != null && Backend != null) Store.Set(ServerKey(Session.ChildId), Backend.Export());
             Save();
             _ = RefreshMail();   // posta kutusu bayrağı (H2)
@@ -384,7 +442,7 @@ namespace Pofi.Core
             // görünmez günlük pay doldu (M7): sınır değil, ulaşılmış hedef gibi sıcak bir haber
             if (report.RealTaskGoalReached) Toast.Post(Overlay.transform, Theme, Loc.Get("tasks.xp_goal"));
             if (report.SelfStarted > 0) { Toast.Post(Overlay.transform, Theme, Loc.Get("tasks.self_started")); RecordActivity("self_started", report.SelfStarted); }
-            if (report.LevelUp != null) { Data.SunBook.FilterLevelUp(report.LevelUp); LevelUpCelebration.Show(this, report.LevelUp); }
+            if (report.LevelUp != null) { Telemetry.Track("level.up", new System.Collections.Generic.Dictionary<string, object> { ["level"] = report.LevelUp.To }); Data.SunBook.FilterLevelUp(report.LevelUp); LevelUpCelebration.Show(this, report.LevelUp); }
             if (!string.IsNullOrEmpty(report.AgeBand)) ApplyAgeBand(Logic.Profile.AgeBandProfile.Parse(report.AgeBand), report.AgeBand);
             var approved = 0;
             foreach (var ev in report.TaskEvents) if (ev.Kind == Logic.Tasks.TaskEventKind.Approved) approved++;
@@ -458,6 +516,7 @@ namespace Pofi.Core
             GameHold.FilterLevelUp(r.LevelUp, Map);  // beklemedeki oyunlar da (GB17-18)
             if (r.LevelUp != null)
             {
+                Telemetry.Track("level.up", new System.Collections.Generic.Dictionary<string, object> { ["level"] = r.LevelUp.To });
                 // mini oyun / kart oyunu sonucu ekrandayken kutlama üst üste binmesin (kullanıcı GB17-7): adaya dönünce açılır
                 if (DefersLevelUp(Page)) _deferredUp = r.LevelUp;
                 else LevelUpCelebration.Show(this, r.LevelUp);
@@ -515,6 +574,7 @@ namespace Pofi.Core
         public void RecordActivity(string counter, int n = 1)
         {
             if (State == null) return;
+            Telemetry.Track("act." + counter, n > 1 ? new System.Collections.Generic.Dictionary<string, object> { ["n"] = n } : null);
             if (counter == "pet_fed") ClaimWelcome();   // ilk beslemede hoş geldin coin'i (bir kez)
             var r = Activity.Record(State, Data, Levels, counter, n, LocalNow);
             Logic.Story.Diary.Record(State.Story, State.Counters, LocalNow);   // H5: günün 2–3 anısı (puan yok)
@@ -528,6 +588,7 @@ namespace Pofi.Core
             // rehberli zincir (Sv1–3): sırası gelen adım bu eylemle bittiyse kısa kutlama + XP
             foreach (var g in Guide.OnActivity(State, Level, counter))
             {
+                Telemetry.Track("guide.step", new System.Collections.Generic.Dictionary<string, object> { ["step"] = g.Id });
                 Toast.Post(Overlay.transform, Theme, Loc.Get("guide.done", g.Xp));
                 Audio.Sfx.Play(Audio.SfxKind.Success);
                 StarSparkles.Around(Overlay.transform, new Vector2(0.5f, 0.55f), new Vector2(0.18f, 0.2f), 10, g.Id.Length * 7);   // küçük kutlama
@@ -546,7 +607,15 @@ namespace Pofi.Core
         public async void SignOut()
         {
             Save();
+            await FlushTelemetry();
+            Telemetry.Restart();
             await Auth.SignOutAsync();
+            ClearSession();
+            Route();
+        }
+
+        private void ClearSession()
+        {
             Session = null;
             State = null;
             MapSpot = null;
@@ -555,7 +624,6 @@ namespace Pofi.Core
             _remote = null;
             Theme = Theme.Default;
             Stage.SetSky(Theme.Sky);
-            Route();
         }
 
         public void Save()
@@ -569,6 +637,8 @@ namespace Pofi.Core
         public void Route()
         {
             var next = AppFlow.Decide(Session, State);
+            var screen = "screen." + (next == AppScreen.Home ? Page.ToString() : next.ToString()).ToLowerInvariant();
+            if (screen != _lastScreen) { _lastScreen = screen; Telemetry.Track(screen); }
             if (_screen != null)
             {
                 _screen.gameObject.SetActive(false);   // Destroy kare sonunda olur; eski ekran bir kare bile görünmesin
@@ -618,6 +688,11 @@ namespace Pofi.Core
 
         private void Update()
         {
+            if (!_firstTouch && (Input.touchCount > 0 || Input.GetMouseButtonDown(0)))
+            {
+                _firstTouch = true;
+                Telemetry.Track("app.first_touch", new System.Collections.Generic.Dictionary<string, object> { ["ms"] = (int)(Time.realtimeSinceStartup * 1000f) });
+            }
             _autosave += Time.unscaledDeltaTime;
             if (_autosave > 30f) Save();
             if (State != null && State.HasPet)
@@ -661,7 +736,9 @@ namespace Pofi.Core
 
         private void OnApplicationPause(bool paused)
         {
-            if (paused) { Save(); return; }
+            if (paused) { Save(); Telemetry.Pause(); _ = FlushTelemetry(); return; }
+            Telemetry.Resume();                 // uzun aradan sonra yeni oturum (sonraki gönderimde bildirilir)
+            if (State != null && State.HasPet) _ = SyncNow();   // öne gelince yeni görev/mesaj hemen gelsin
             Audio.Haptics.InitAudioSession();   // iOS: Unity öne gelince oturumu "ambient"e çeviriyor; playback'e geri al
             Audio.Music.Resume();
         }

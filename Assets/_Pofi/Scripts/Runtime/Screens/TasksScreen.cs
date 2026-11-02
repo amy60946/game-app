@@ -415,6 +415,8 @@ namespace Pofi.Screens
             var finishes = to == ChildTaskStatus.ChildDone && Routines.FinishesWith(TodayTasks(), task, App.LocalNow);
             var r = App.State.Tasks.Mark(task.Key, to, App.LocalNow, App.UtcNow);
             if (r != ChangeResult.Ok) { Fill(); return; }
+            App.Telemetry.Track(to == ChildTaskStatus.ChildDone ? "task.done" : "task.cant",
+                new Dictionary<string, object> { ["routine"] = !string.IsNullOrEmpty(task.RoutineId) });
             if (to == ChildTaskStatus.ChildDone)
             {
                 // "Yaptım" hem ilk gün ipucunu hem penceredeki "Yaptım" tanıtımını tamamlar

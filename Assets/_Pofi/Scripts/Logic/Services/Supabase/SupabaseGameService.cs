@@ -15,7 +15,7 @@ namespace Pofi.Logic.Services.Supabase
     /// fonksiyonlarını çağırır (child_me, child_tasks, child_set_status, spend_coins, game_save_get/put).
     /// Ağ yoksa <see cref="OperationCanceledException"/> (SyncCoordinator bunu "çevrimdışı" sayar) ya da ServiceError.Network.
     /// </summary>
-    public sealed class SupabaseGameService : IWalletService, IWelcomeService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService, Mail.IGiftService
+    public sealed class SupabaseGameService : IWalletService, IWelcomeService, ITaskService, ISaveService, Rewards.IRewardService, IGoalService, Mail.IMailService, Mail.IGiftService, Analytics.ITelemetrySink
     {
         public const string LocalSaveKey = "pofi.save.local";
 
@@ -313,6 +313,36 @@ namespace Pofi.Logic.Services.Supabase
 
         public async Task<Rewards.RewardReply> CancelAsync(string requestId, CancellationToken ct = default)
             => ParseReply(await Rpc("cancel_reward_request", new { p_request_id = requestId }, ct));
+
+        /// <summary>Çocuğun bildirim satırları (app='child') okundu sayılır: oyun aynı haberleri eşitlemeyle gösterir, satırlar birikmesin.</summary>
+        public async Task<int> MarkNotificationsReadAsync(CancellationToken ct = default)
+        {
+            var r = await Rpc("mark_notifications_read", new { }, ct);
+            return Ok(r) && int.TryParse(r.Body?.Trim(), out var n) ? n : -1;
+        }
+
+        // ------------------------------------------------------------ kullanım ölçümü (ortak akislar.md §9; birinci taraf, içerik yok)
+
+        private static Analytics.TelemetrySend SendResult(HttpReply r) =>
+            Ok(r) ? Analytics.TelemetrySend.Sent
+            : r.Status == 0 || r.Status == 401 || r.Status == 408 || r.Status == 429 || r.Status >= 500 ? Analytics.TelemetrySend.Retry
+            : Analytics.TelemetrySend.Drop;   // istek reddedildi (ör. geçersiz ad): yeniden denenmez
+
+        public async Task<Analytics.TelemetrySend> SessionAsync(string platform, string version, CancellationToken ct = default)
+            => SendResult(await Rpc("track_session", new { p_app = Analytics.Telemetry.App, p_platform = platform, p_version = version }, ct));
+
+        public async Task<Analytics.TelemetrySend> SendAsync(IReadOnlyList<Analytics.TelemetryEvent> events, string platform, string version, CancellationToken ct = default)
+        {
+            if (events == null || events.Count == 0) return Analytics.TelemetrySend.Sent;
+            var list = events.Select(e => new Dictionary<string, object>
+            {
+                ["event"] = e.Event,
+                ["props"] = (object)e.Props ?? new Dictionary<string, object>(),
+                ["session_id"] = e.SessionId,
+                ["at"] = e.At,
+            }).ToList();
+            return SendResult(await Rpc("track_events", new { p_app = Analytics.Telemetry.App, p_events = list, p_platform = platform, p_version = version }, ct));
+        }
 
         // ------------------------------------------------------------ posta kutusu (H2; ortak migrations/20261022120000_messages)
 
