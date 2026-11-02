@@ -190,6 +190,27 @@ namespace Pofi.Core
             catch (Exception e) { Debug.LogException(e); }
         }
 
+        /// <summary>İpuçlarını kapat (çocuk "Geç" → "Kapat" ya da Defter): açık ipuçları susar; rehber ilerlemesi eylemle sürer.</summary>
+        public void TurnHintsOff()
+        {
+            if (State == null) return;
+            Hints.TurnOff(State);
+            Save();
+            Coach.SilenceAll();
+            Telemetry.Track("tips.off");
+            Toast.Post(Overlay.transform, Theme, Loc.Get("coach.skip_done"));
+        }
+
+        /// <summary>İpuçlarını yeniden aç; temel tanıtım ipuçları baştan gösterilir.</summary>
+        public void TurnHintsOn()
+        {
+            if (State == null) return;
+            Hints.Replay(State);
+            Save();
+            Telemetry.Track("tips.on");
+            Toast.Post(Overlay.transform, Theme, Loc.Get("howto.replayed"));
+        }
+
         private static string SaveKey(string childId) => "pofi.save." + childId;
         private static string ServerKey(string childId) => "pofi.mockserver." + childId;
 
@@ -216,6 +237,10 @@ namespace Pofi.Core
             _http = new UnityHttp();
             var server = Server.IsConfigured ? new SupabaseAuthService(Server.Url, Server.PublishableKey, _http, Store) : null;
             Router = new RoutedAuthService(new MockAuthService(Store), server, Store, Server.DemoCodes);
+            // K6 A: ipuçları herkes için "Geç" ile kapanır, Defter › Nasıl oynanır'dan açılır (Logic.App.Hints)
+            Coach.Quiet = () => State != null && !Hints.On(State);
+            Coach.Text = k => Loc.Get(k);
+            Coach.HintsOffRequested = TurnHintsOff;
             var build = Resources.Load<TextAsset>("build_number");
             BuildLabel = GameVersion.Display(build != null ? build.text.Trim() : null);
 

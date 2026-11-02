@@ -27,6 +27,19 @@ namespace Pofi.UI
         private static readonly System.Collections.Generic.HashSet<string> Spoken = new System.Collections.Generic.HashSet<string>();
         public string Id { get; private set; }
 
+        // ---- K6 A (kullanıcı kararı, 2 Kasım 2026): herkes için "Geç" + Defter › Nasıl oynanır (Logic.App.Hints) ----
+        /// <summary>İpuçları kapalı mı (GameBootstrap bağlar): kapalıyken ipucu kurulur ama görünmez ve konuşmaz; akış aynen sürer.</summary>
+        public static Func<bool> Quiet = () => false;
+        /// <summary>Çocuk "Geç" → "Kapat" dedi (GameBootstrap ayarı kapatır, açık ipuçlarını susturur, kısa bilgi verir). Boşsa "Geç" yok.</summary>
+        public static Action HintsOffRequested;
+        /// <summary>Metin tablosu (tr.json): coach.skip, coach.skip_ask, coach.skip_yes, coach.skip_no (düğme yazıları seslendirilmez).</summary>
+        public static Func<string, string> Text = k => k;
+        private CanvasGroup _cg, _skipCg, _askCg;
+        private CandyBanner _bannerBox;
+        private RectTransform _skip, _ask;
+        private string _caption;
+        private bool _silent, _asking;
+
         /// <param name="voice">Sesli okunacak cümle (varsayılan: altyazının kendisi; rehberde ödül eki okunmaz).</param>
         /// <param name="carry">Sürüklemede elin taşıdığı eşya (ör. elma): kaynaktan alınır, hedefe bırakılınca küçülüp kaybolur.</param>
         /// <param name="props">Dokunmada hedefin çevresinde sırayla beliren eşyalar (ör. Okti'ye dokun → Besle, Yıka, Giydir baloncukları).</param>
@@ -37,6 +50,8 @@ namespace Pofi.UI
             var c = rt.gameObject.AddComponent<Coach>();
             var cg = rt.gameObject.AddComponent<CanvasGroup>(); cg.blocksRaycasts = false; cg.interactable = false;
             c._root = root; c.Id = id; c._gesture = gesture; c._from = from; c._to = to; c._loops = loops;
+            c._cg = cg;
+            var quiet = Quiet != null && Quiet();
 
             // altyazı: mavi şeker panel, solda işaret eden el rozeti; oyun yazı tarzı (beyaz, koyu kontur), genişlik yazıya göre
             // alt şerit (kullanıcı, 19 Ekim 2026: üstte Güneş Taşı ve coin'i kapatıyordu): ekranın alt ortası, Besle/Yıka ile
@@ -44,17 +59,19 @@ namespace Pofi.UI
             var banner = Candy.Banner(rt, Candy.Blue, "ui_hand", new Vector2(0.5f, 0f), new Vector2(0f, 150f), 760f, 36, false);
             banner.SetText(caption);
             c._banner = banner.Rect;
+            c._bannerBox = banner;
+            c._caption = caption;
             banner.Rect.gameObject.AddComponent<PopIn>();
             c._said = voice ?? caption;
             // sesli okuma: köşede hoparlör (sıra rozeti köşedeyse onun altında, sağ kenarda), ipucu bir kez okunur
-            VoiceButton.Attach(banner.Rect, string.IsNullOrEmpty(step) ? (Vector2?)null : new Vector2(46f, -50f)).SetText(c._said);
-            var spoke = Spoken.Add(id + "|" + c._said) && Audio.Voice.Say(c._said);   // aynı ipucu oturumda bir kez kendiliğinden okunur (tekrar: hoparlör)
+            if (!quiet) VoiceButton.Attach(banner.Rect, string.IsNullOrEmpty(step) ? (Vector2?)null : new Vector2(46f, -50f)).SetText(c._said);
+            var spoke = !quiet && Spoken.Add(id + "|" + c._said) && Audio.Voice.Say(c._said);   // aynı ipucu oturumda bir kez kendiliğinden okunur (tekrar: hoparlör)
             Hover.On(banner.Rect, 5f, 0.02f);                                   // öğretici baloncuklar canlı (S5)
             // GB20-17 (kullanıcı, 2 Kasım 2026: "ekranda çok yazı var; el + ses kullan"; benchmark Khan Academy Kids, Lingokids, Toca):
             // kaydı olan ipucu okunurken yazı görünür, okuma bitince küçük hapa (el + adım) döner; hapa dokununca yazı açılır ve yeniden
             // okunur. Sesli okuma kapalıysa ya da kayıt yoksa yazı kalır (okuyamayan da okuyabilen de yönlenir).
             c._bannerCg = banner.Rect.gameObject.AddComponent<CanvasGroup>();
-            c._collapsible = Audio.Voice.Enabled && Audio.Voice.Has(c._said);
+            c._collapsible = !quiet && Audio.Voice.Enabled && Audio.Voice.Has(c._said);
             var words = c._said.Split(' ').Length;
             c._readFor = spoke ? 1.2f : Mathf.Clamp(words * 0.42f, 2.2f, 4.5f);
             if (c._collapsible)
@@ -142,8 +159,88 @@ namespace Pofi.UI
                 var fo = c._finger.gameObject.AddComponent<Outline>(); fo.effectColor = new Color(1f, 0.55f, 0.1f); fo.effectDistance = new Vector2(4f, -4f);
                 c._finger.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(4f, -8f);
             }
-            Audio.Sfx.Play(Audio.SfxKind.Tap);
+            if (quiet) c.Silence();
+            else
+            {
+                if (HintsOffRequested != null) c.AddSkip();
+                Audio.Sfx.Play(Audio.SfxKind.Tap);
+            }
             return c;
+        }
+
+        /// <summary>Görünmez ve sessiz olur (ipuçları kapandı); el döngüsü ve bitiş zamanı aynen sürer (bekleyen akışlar takılmaz).</summary>
+        public void Silence()
+        {
+            _silent = true;
+            _asking = false;
+            _collapsible = false;
+            if (_cg != null) _cg.alpha = 0f;
+            if (_pill != null) _pill.gameObject.SetActive(false);
+            if (_skip != null) Destroy(_skip.gameObject);
+            if (_ask != null) Destroy(_ask.gameObject);
+            _skip = _ask = null;
+            Audio.Voice.StopIf(_said);
+        }
+
+        /// <summary>Ekrandaki bütün ipuçlarını susturur.</summary>
+        public static void SilenceAll()
+        {
+            foreach (var c in FindObjectsByType<Coach>(FindObjectsSortMode.None)) if (c != null) c.Silence();
+        }
+
+        /// <summary>Balonun sol üst köşesinde küçük "Geç" (dokunulur kalır: ipucu katmanı dokunmayı kapatır).</summary>
+        private void AddSkip()
+        {
+            if (_banner == null) return;
+            var b = Candy.Pill(_banner, Candy.Orange, Text("coach.skip"), new Vector2(0f, 1f), new Vector2(120f, 50f), new Vector2(58f, 8f), AskSkip, null, 24);
+            _skip = (RectTransform)b.transform;
+            _skipCg = _skip.gameObject.AddComponent<CanvasGroup>();
+            _skipCg.ignoreParentGroups = true;
+        }
+
+        /// <summary>"Geç": yanlışlıkla kapanmasın diye kısa soru (Kapat / Vazgeç); yazı balonu bu arada küçülmez.</summary>
+        private void AskSkip()
+        {
+            if (_asking || _silent || _banner == null) return;
+            _asking = true;
+            Audio.Voice.StopIf(_said);
+            Audio.Sfx.Play(Audio.SfxKind.Tap);
+            _bannerBox?.SetText(Text("coach.skip_ask"));
+            if (_skip != null) _skip.gameObject.SetActive(false);
+            _ask = Ui.Rect(_banner, "SkipAsk", new Vector2(0.5f, 0f), new Vector2(420f, 70f), new Vector2(0f, -46f));
+            _askCg = _ask.gameObject.AddComponent<CanvasGroup>();
+            _askCg.ignoreParentGroups = true;
+            Candy.Pill(_ask, Candy.Green, Text("coach.skip_yes"), new Vector2(0.27f, 0.5f), new Vector2(190f, 64f), Vector2.zero, ConfirmSkip, null, 26);
+            Candy.Pill(_ask, Candy.White, Text("coach.skip_no"), new Vector2(0.73f, 0.5f), new Vector2(190f, 64f), Vector2.zero, CancelSkip, null, 26);
+        }
+
+        private void CancelSkip()
+        {
+            if (!_asking) return;
+            _asking = false;
+            _bannerBox?.SetText(_caption);
+            if (_ask != null) Destroy(_ask.gameObject);
+            _ask = null;
+            if (_skip != null) _skip.gameObject.SetActive(true);
+            _life = 0f;
+        }
+
+        private void ConfirmSkip()
+        {
+            if (!_asking) return;
+            _asking = false;
+            HintsOffRequested?.Invoke();
+            Silence();
+        }
+
+        /// <summary>Dokunulur parçalar (Geç, Kapat/Vazgeç) üst grupların görünürlüğünü izler (hikâye sahnesi arayüzü gizlerken ortada kalmasın).</summary>
+        private void FollowParents(CanvasGroup g)
+        {
+            if (g == null) return;
+            var a = 1f;
+            foreach (var p in g.transform.parent.GetComponentsInParent<CanvasGroup>()) { a *= p.alpha; if (p.ignoreParentGroups) break; }
+            g.alpha = a;
+            g.blocksRaycasts = g.interactable = a > 0.5f;
         }
 
         private Vector2 ToCanvas(Vector2 screen)
@@ -155,7 +252,10 @@ namespace Pofi.UI
         private void Update()
         {
             _life += Time.unscaledDeltaTime;
+            if (_asking) { _life = 0f; if (_bannerCg != null) _bannerCg.alpha = 1f; }   // soru açıkken yazı küçülmez
             UpdateCollapse();
+            if (_skip != null) FollowParents(_skipCg);
+            if (_ask != null) FollowParents(_askCg);
             if (_loops <= 0)
             {
                 _finger.gameObject.SetActive(false); _ring.gameObject.SetActive(false); _ring2.gameObject.SetActive(false); _glow.gameObject.SetActive(false);

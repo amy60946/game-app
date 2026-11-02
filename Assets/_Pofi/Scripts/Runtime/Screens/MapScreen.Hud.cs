@@ -734,7 +734,8 @@ namespace Pofi.Screens
             var basicsDone = !Onboarding.Pending(App.State, Onboarding.Walk) && !Onboarding.Pending(App.State, Onboarding.Look);
             // GB20: hikâye sahnesi sırada ya da oynarken, seviye kutlaması açıkken yeni adımın okları çıkmaz (önce konuşma, sonra yol)
             var calm = !_storyBusy && !StoryPlayer.Playing && App.Overlay.transform.Find("LevelUp") == null;
-            var guide = basicsDone && calm && !_overview && !_cine ? Guide.Current(App.State, App.Level) : null;
+            var hints = Hints.On(App.State);   // K6 A: ipuçları kapalıysa rehber okları ve kendiliğinden yol gösterme yok (çocuğun istediği "Git" ve im kalır)
+            var guide = hints && basicsDone && calm && !_overview && !_cine ? Guide.Current(App.State, App.Level) : null;
             var target = guide != null ? GuideWorld(guide) : null;
             if (target == null && basicsDone && !_overview && !_cine) target = PinChase();   // haritadaki ime dokunuldu (taş, pano)
             var questGo = false;
@@ -746,7 +747,7 @@ namespace Pofi.Screens
             if (target == null) _path.Hide();
             else if (arrived) { _path.Hide(); _pinGo = false; if (questGo) _questGoT = 0f; }   // vardı
             else if (_path.Active) _path.Show(target.Value);                   // hedef kayabilir (en yakın kütük)
-            else if (guide != null || _idleFor > 8f || _pinGo || questGo) { _path.Show(target.Value); if (guide != null) _pinGo = false; }   // rehber adımında hemen (akış haritası yorumu, 25 Ekim 2026: "bekleme, oklar hemen görünsün")
+            else if (guide != null || (hints && _idleFor > 8f) || _pinGo || questGo) { _path.Show(target.Value); if (guide != null) _pinGo = false; }   // rehber adımında hemen (akış haritası yorumu, 25 Ekim 2026: "bekleme, oklar hemen görünsün")
             _path.Tick(pos, App.Stage.Camera, dt);
             UpdateMaviGuide(_path.Active && target != null, target ?? Vector2.zero, arrived);   // N2: Mavi önden uçar
         }

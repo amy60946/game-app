@@ -31,6 +31,7 @@ namespace Pofi.Logic.State
         public bool ReduceMotion;
         public bool NotificationsAllowed;
         public bool StoryOn = true;      // hikâye sahneleri (kapalıyken yalnız tek satırlık özet balonu)
+        public bool HintsOn = true;      // K6 A: ipucu yazısı, rehber eli, yol okları, öğretici ses (Geç ile kapanır; Defter › Nasıl oynanır'dan açılır)
     }
 
     /// <summary>

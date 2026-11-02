@@ -14,20 +14,22 @@ namespace Pofi.Screens
     /// </summary>
     public sealed class AlbumScreen : ScreenBase
     {
-        private const int TabCollection = 0, TabBadges = 1, TabDiary = 2, TabStory = 3;
+        private const int TabCollection = 0, TabBadges = 1, TabDiary = 2, TabStory = 3, TabHowTo = 4;
         private static int _tab;
 
         /// <summary>Defter rozetler sekmesiyle açılsın (adadaki pet kartına dokununca, XP takibi M4).</summary>
         public static void ShowBadges() => _tab = TabBadges;
+        /// <summary>Defter "Nasıl oynanır" sekmesiyle açılsın (K6 A).</summary>
+        public static void ShowHowTo() => _tab = TabHowTo;
         private RectTransform _list;
-        private readonly Button[] _tabs = new Button[4];
+        private readonly Button[] _tabs = new Button[5];
         private static readonly string[] Cats = { "bug", "shell", "resident", "fish" };
 
         protected override void Build()
         {
             App.Stage.SetPetVisible(false);
             Header(T("album.title"));
-            var names = new[] { "album.tab.collection", "album.tab.badges", "album.tab.diary", "album.tab.story" };
+            var names = new[] { "album.tab.collection", "album.tab.badges", "album.tab.diary", "album.tab.story", "album.tab.howto" };
             for (var i = 0; i < _tabs.Length; i++)
             {
                 var k = i;
@@ -54,6 +56,7 @@ namespace Pofi.Screens
             if (_tab == TabBadges) Badges();
             else if (_tab == TabDiary) DiaryPage();
             else if (_tab == TabStory) StoryPage();
+            else if (_tab == TabHowTo) HowToPage();
             else Collection();
         }
 
@@ -165,6 +168,35 @@ namespace Pofi.Screens
             var t = Ui.Label(box, string.Join("\n\n", lines), Th.Font(38), Th.Text, new Vector2(0.5f, 0.56f), new Vector2(1000f, 560f), FontStyle.Normal, TextAnchor.MiddleLeft);
             t.horizontalOverflow = HorizontalWrapMode.Wrap;
             Ui.Button(box, Th, T("common.ok"), new Vector2(0.5f, 0.1f), new Vector2(300f, 100f), () => Destroy(root.gameObject), true, default, 40, false);
+        }
+
+        // ------------------------------------------------------------------ K6 A: nasıl oynanır + ipuçlarını aç/kapat
+        private void HowToPage()
+        {
+            var on = Hints.On(App.State);
+            var top = Ui.Row(_list, "Hints", 150f);
+            Ui.Panel(top, Th.Panel, Th.Radius);
+            var info = Ui.Label(top, T(on ? "howto.hints_on" : "howto.hints_off"), Th.Font(36), Th.Text, new Vector2(0.38f, 0.5f), new Vector2(860f, 130f), FontStyle.Bold, TextAnchor.MiddleLeft);
+            info.horizontalOverflow = HorizontalWrapMode.Wrap;
+            Ui.Button(top, Th, T(on ? "howto.turn_off" : "howto.turn_on"), new Vector2(0.85f, 0.5f), new Vector2(330f, 90f), () =>
+            {
+                if (Hints.On(App.State)) App.TurnHintsOff(); else App.TurnHintsOn();
+                Fill();
+            }, !on, default, 32, false);
+            foreach (var c in Hints.Cards)
+            {
+                var r = Ui.Row(_list, "HowTo " + c.Id, 170f);
+                Ui.Panel(r, new Color(1f, 0.97f, 0.88f, 0.96f), Th.Radius);
+                var icon = Ui.Icon(c.Icon);
+                if (icon != null)
+                {
+                    var pic = Ui.Rect(r, "Pic", new Vector2(0.07f, 0.5f), new Vector2(120f, 120f)).gameObject.AddComponent<Image>();
+                    pic.sprite = icon; pic.preserveAspect = true; pic.raycastTarget = false;
+                }
+                Ui.Label(r, T("howto." + c.Id + ".title"), Th.Font(40), Theme.Hex("#8A5A22"), new Vector2(0.55f, 0.74f), new Vector2(1080f, 60f), FontStyle.Bold, TextAnchor.MiddleLeft);
+                var t = Ui.Label(r, T("howto." + c.Id + ".text"), Th.Font(34), Theme.Hex("#4A2C0A"), new Vector2(0.55f, 0.32f), new Vector2(1080f, 96f), FontStyle.Normal, TextAnchor.MiddleLeft);
+                t.horizontalOverflow = HorizontalWrapMode.Wrap;
+            }
         }
 
         private void Note(string text)
