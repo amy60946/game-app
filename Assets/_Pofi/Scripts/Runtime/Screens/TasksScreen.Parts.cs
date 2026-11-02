@@ -316,7 +316,7 @@ namespace Pofi.Screens
                 var b = rt.gameObject.AddComponent<Button>(); b.targetGraphic = hit; b.transition = Selectable.Transition.None;
                 b.onClick.AddListener(() => { Audio.Sfx.Play(Audio.SfxKind.Tap); go(); });
                 rt.gameObject.AddComponent<PressBounce>();
-                var tag = Candy.Pill(rt, Candy.Green, T("quest.go"), new Vector2(0f, 0f), new Vector2(76f, 34f), new Vector2(18f + 28.5f, 14f), go, null, 22);
+                var tag = Candy.Pill(rt, Candy.Green, T("quest.go"), new Vector2(0f, 0f), new Vector2(92f, 40f), new Vector2(18f + 28.5f, 16f), go, null, 26);
                 Hover.On(tag, 4f);
             }
             return h;

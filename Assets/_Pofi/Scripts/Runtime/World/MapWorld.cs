@@ -581,13 +581,14 @@ namespace Pofi.World
                 mr.sharedMaterial = M(hex);
                 mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             }
-            Prim(PrimitiveType.Cylinder, "Rug", new Vector3(0f, 0.04f, 0f), new Vector3(4.6f, 0.04f, 4.6f), "#B5452F");
+            Prim(PrimitiveType.Cylinder, "Rug", new Vector3(0f, 0.04f, 0f), new Vector3(4.4f, 0.04f, 4.4f), "#B5452F");
             Prim(PrimitiveType.Cylinder, "RugIn", new Vector3(0f, 0.07f, 0f), new Vector3(3.1f, 0.04f, 3.1f), "#E9B949");
             for (var i = 0; i < 9; i++)
             {
                 var deg = 112f + i * 17f;                                     // kapının tersinde yay (önden bakınca tam perde)
                 var rad = deg * Mathf.Deg2Rad;
-                Prim(PrimitiveType.Cube, "Curtain" + i, new Vector3(Mathf.Sin(rad) * 2.25f, 1.6f, Mathf.Cos(rad) * 2.25f), new Vector3(0.92f, 3.2f, 0.06f),
+                // duvar ≈ 2,5 m boyunda, üstünde çatı konisi daralır: perde 2,3 m (çatıdan taşmasın; GB20 ekran görüntüsü)
+                Prim(PrimitiveType.Cube, "Curtain" + i, new Vector3(Mathf.Sin(rad) * 2.15f, 1.15f, Mathf.Cos(rad) * 2.15f), new Vector3(0.88f, 2.3f, 0.06f),
                     i % 2 == 0 ? "#9C2232" : "#F2E2BF", deg);
             }
             Prim(PrimitiveType.Cylinder, "Stage", new Vector3(0f, 0.2f, -0.95f), new Vector3(1.7f, 0.2f, 1.7f), "#7A4A2A");
@@ -597,7 +598,7 @@ namespace Pofi.World
                 var deg = 108f + i * 14.4f;
                 var rad = deg * Mathf.Deg2Rad;
                 var sag = Mathf.Sin(i / 10f * Mathf.PI) * 0.28f;              // zincir hafif sarkar
-                Prim(PrimitiveType.Sphere, "Bulb" + i, new Vector3(Mathf.Sin(rad) * 2.1f, 3.05f - sag, Mathf.Cos(rad) * 2.1f), Vector3.one * 0.13f,
+                Prim(PrimitiveType.Sphere, "Bulb" + i, new Vector3(Mathf.Sin(rad) * 1.95f, 2.15f - sag, Mathf.Cos(rad) * 1.95f), Vector3.one * 0.12f,
                     i % 3 == 0 ? "#FFE48A" : i % 3 == 1 ? "#FFB35C" : "#FFF3C4");
             }
             foreach (var side in new[] { -1f, 1f })
