@@ -12,7 +12,7 @@ Eşleşme: oyunda ekrana yazılan metin → anahtar (Logic/Audio/VoiceKey: etike
 Her kayıt Whisper ile denetlenir; hatalıysa başka tohumla yeniden üretilir (en çok 6 deneme), en iyisi kalır; uzun duraktan
 sonraki kuyruk kesilir; ses düzeyi −18 LUFS'ye eşitlenir.
 
-Kullanım: <venv>/bin/python -I art/voice/build_voice.py <çalışma_klasörü> [--list] [--missing] [--only anahtar,...] [--part i/n] [--retry]
+Kullanım: <venv>/bin/python -I art/voice/build_voice.py <çalışma_klasörü> [--list] [--missing] [--only anahtar,...] [--part i/n] [--retry] [--write-only]
   (--retry: oyunda henüz olmayan ve tam doğru çıkmamış satırlar 4 başka tohumla yeniden denenir, daha temizi kalır;
    --only ile verilen satırlar oyunda olsa da denenir)
   (--missing: sesi eksik satırlar; düz python3 ile de çalışır, ses ortamı gerekmez)
@@ -140,7 +140,7 @@ def catalog():
         if k.startswith(("tip.", "guide.", "gather.tip_")) or k == "gather.ready":
             add(fill_pet(v), "anlatici", "tr:" + k, "narrator")
         elif k.startswith("res.hi_"):
-            add(fill_pet(v), "adali", "tr:" + k, k[len("res.hi_"):])
+            add(fill_pet(v), "adali", "tr:" + k, k[len("res.hi_"):].split("_")[0])   # res.hi_mavi_mail → mavi (Mavi'nin yavaş temposu)
         elif k in SPOKEN_EXTRA:   # GB17: hoş geldin coin'i, gerçek ödüller tanıtımı, ceviz haberi (oyunda Voice.Say ile)
             add(v.replace("{0}", SPOKEN_EXTRA[k]) if "{0}" in v else v, "anlatici", "tr:" + k, "narrator")
     # 26 Ekim 2026: tanışma kartında Okti kendini tanıtır (Okti sesi), panodaki Mavi'nin hoş geldin görevi ipucu (anlatıcı)
@@ -341,6 +341,8 @@ def main():
             if x is None:
                 print(f"[{i + 1}/{len(lines)}] aynı kaldı (hata %{100 * c['cer']:4.1f}) | {l['text']}", flush=True)
                 continue
+        elif "--write-only" in sys.argv:
+            continue   # GB20: yalnız eldeki ustalardan oyun dosyalarını yaz (Marketing teslimi import_voices.py ile gelir), üretim yok
         elif (only is None or l["key"] in only) and not (fresh and only is None):
             x = make(l)
         else:
