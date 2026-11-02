@@ -220,7 +220,8 @@ namespace Pofi.Screens
             // ilk kart onay bekliyorsa üstünde uçan Mavi'ye yer
             var first = tasks[0];
             var top = first.Status == ChildTaskStatus.ChildDone && !first.IsMissed(local) ? 52 : 14;
-            _list.GetComponent<VerticalLayoutGroup>().padding = new RectOffset((int)ListPadX, (int)ListPadX, top, 24);
+            // GB20-6: altta ipucu balonu/hapı için pay (son kartın Yaptım/Yapamam düğmeleri balonun altında kalmasın; kaydırınca üstüne çıkar)
+            _list.GetComponent<VerticalLayoutGroup>().padding = new RectOffset((int)ListPadX, (int)ListPadX, top, 210);
             // aynı rutinin adımları tek rutin kartında (ortak akislar.md 5.4 adım 8); rutinsiz görevler olduğu gibi
             foreach (var e in Routines.Layout(tasks, local))
             {

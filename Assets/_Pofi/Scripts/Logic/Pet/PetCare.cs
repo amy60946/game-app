@@ -4,7 +4,7 @@ using Pofi.Logic.Shop;
 
 namespace Pofi.Logic.Pet
 {
-    public enum CareResult { Ok, NoItem, WrongItem, Sleeping, AlreadyFull }
+    public enum CareResult { Ok, NoItem, WrongItem, Sleeping, AlreadyFull, AlreadyClean }
 
     /// <summary>
     /// Bakım eylemleri (FR-PET-4): besle, yıkan, oyna, ev düzenle; gece pet uyur (FR-ISL-2).
@@ -41,6 +41,9 @@ namespace Pofi.Logic.Pet
         {
             if (soap == null || soap.Category != ItemCategory.Cleaning) return CareResult.WrongItem;
             if (IsNight(local)) return CareResult.Sleeping;
+            // GB20-5d: tertemizken sabun harcanmaz, Okti "tertemizim" der (beslemedeki tokluk kuralıyla aynı; benchmark Pokémon-Amie,
+            // Tamagotchi: pet doluyken kendisi reddeder)
+            if (stats[StatKind.Cleanliness] >= FullThreshold) return CareResult.AlreadyClean;
             if (!inv.TryConsume(soap.Id)) return CareResult.NoItem;
             Apply(stats, soap);
             return CareResult.Ok;

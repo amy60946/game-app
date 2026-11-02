@@ -151,5 +151,20 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual(1, c.Total("fish_species"));
             Assert.AreEqual((1, 8), CollectionBook.Completion(d.Collection, owned, "fish"));
         }
+    
+        [Test]
+        public void Every_daily_quest_has_a_go_target_or_is_on_hold()
+        {
+            var d = TestData.Load();
+            var map = new Pofi.Logic.Island.IslandMap(TestData.ReadText("regions.json"), new LevelTable(d.Levels));
+            Assert.AreEqual((QuestGo.Kind.Pet, "food"), QuestGo.For("pet_fed", map.Regions));
+            Assert.AreEqual((QuestGo.Kind.Region, "region_home"), QuestGo.For("pet_played", map.Regions));
+            Assert.AreEqual(QuestGo.Kind.Region, QuestGo.For("coconuts_caught", map.Regions).Kind);
+            Assert.AreEqual(QuestGo.Kind.Region, QuestGo.For("runner_finished", map.Regions).Kind);
+            Assert.AreEqual(QuestGo.Kind.None, QuestGo.For("unknown_counter", map.Regions).Kind);
+            // açık oyunların görevleri (bekleyen oyunlar hariç) bir yere götürür
+            foreach (var q in d.DailyQuests.Where(q => q.Counter != "pets_helped" && q.Counter != "card_games_played"))
+                Assert.AreNotEqual(QuestGo.Kind.None, QuestGo.For(q.Counter, map.Regions).Kind, q.Id);
+        }
     }
 }

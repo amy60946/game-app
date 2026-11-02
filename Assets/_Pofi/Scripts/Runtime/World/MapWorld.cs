@@ -547,6 +547,7 @@ namespace Pofi.World
             var culler = Terrain.Baked != null ? gameObject.AddComponent<PropCuller>() : null;
             var clear = Terrain.Baked != null ? gameObject.AddComponent<CameraClear>() : null;
             clear?.Init(this);
+            if (clear != null) foreach (var kv in Regions) clear.Add(kv.Value, 0.3f);   // GB20-4: kamera önündeki yapı yarı saydam solar
             foreach (var p in Terrain.Props())
             {
                 var cell = culler != null ? culler.Cell(parent, p.X, p.Z) : parent;

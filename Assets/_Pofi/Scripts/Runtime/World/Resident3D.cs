@@ -284,7 +284,7 @@ namespace Pofi.World
                     right.y = 0f; right = right.sqrMagnitude > 0.01f ? right.normalized : Vector3.right;
                     var back = _cam != null ? transform.parent.InverseTransformDirection(-_cam.transform.forward) : Vector3.back;
                     back.y = 0f; back = back.sqrMagnitude > 0.01f ? back.normalized : Vector3.back;
-                    var g = pp + right * 0.95f + back * 0.25f + Vector3.up * (_petTop + 0.35f);
+                    var g = pp + right * 1.0f - back * 0.15f + Vector3.up * (_petTop + 0.35f);   // GB20-4: Okti'nin yanında, kameraya yaklaşmaz (kocaman görünüyordu)
                     transform.localPosition = Vector3.Lerp(cur, g, 1f - Mathf.Exp(-4f * dt));
                     // Okti'nin baktığı yöne bakar (birlikte gidiyorlar)
                     var f = transform.parent.InverseTransformDirection(_pet.forward);

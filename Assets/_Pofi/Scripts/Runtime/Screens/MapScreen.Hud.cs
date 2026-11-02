@@ -33,6 +33,7 @@ namespace Pofi.Screens
         private Coach _coach;
         private float _islandTime;
         private RectTransform _levelBadge, _tasksBtn, _mapBtn;
+        private Image _mapIcon;
         private Text _questCount;
         private RectTransform _feedBtn, _washBtn;
         private int _lastCoins = -1, _lastStones = -1;
@@ -95,8 +96,9 @@ namespace Pofi.Screens
             // G (23 Ekim 2026): Ayarlar ve müzik avatar menüsünde; Ev Görevleri adadaki panodan ve Görev penceresinin sekmesinden açılır.
             MusicButton.SetVisible(false);
             var map = Shrinkable(hud, new Vector2(1f, 1f), new Vector2(-(22f + 50f) * G, -(8f + 50f) * G), 100f * G);
-            var (mapBtn, _, mapLab) = GoldKit.Icon3D(map, "ui_map", 100f * G, new Vector2(0.5f, 0.5f), Vector2.zero, Theme.Hex("#7A4A12"), ToggleMode, T("map.overview"), GoldKit.Tone.Red, 0.9f);
+            var (mapBtn, mapIcon, mapLab) = GoldKit.Icon3D(map, "ui_map", 100f * G, new Vector2(0.5f, 0.5f), Vector2.zero, Theme.Hex("#7A4A12"), ToggleMode, T("map.overview"), GoldKit.Tone.Red, 0.9f);
             _modeText = mapLab;
+            _mapIcon = mapIcon;
             _mapBtn = (RectTransform)mapBtn.transform;
             Label(mapLab);
             LongPressInfo.Add(mapBtn.gameObject, T("info.map"));
@@ -136,14 +138,17 @@ namespace Pofi.Screens
             BuildHutChip(hud);
             BuildNeed(hud);   // İ1 + İ4
 
-            // sol alt: yüzen joystick (parmak değince belirir)
+            // sol alt: joystick (GB20-16, kullanıcı 2 Kasım 2026; benchmark Brawl Stars/CoD Mobile karma joystick): dinlenirken köşede
+            // yarı saydam görünür (çocuk nereden yürüneceğini bilir); ekranın herhangi bir yerinde sürükleyince parmağın altına gelir
             _stickBase = Ui.Rect(hud, "Stick", Vector2.zero, new Vector2(250f, 250f));
             var sb = _stickBase.gameObject.AddComponent<Image>(); sb.sprite = Ui.Rounded; sb.type = Image.Type.Sliced; sb.pixelsPerUnitMultiplier = 0.48f; sb.color = new Color(1f, 1f, 1f, 0.25f); sb.raycastTarget = false;   // tam daire
             var so = _stickBase.gameObject.AddComponent<Outline>(); so.effectColor = new Color(1f, 1f, 1f, 0.7f); so.effectDistance = new Vector2(4f, -4f);
             _stickKnob = Ui.Rect(_stickBase, "Knob", new Vector2(0.5f, 0.5f), new Vector2(120f, 120f));
             var kb = _stickKnob.gameObject.AddComponent<Image>(); kb.sprite = Ui.Rounded; kb.type = Image.Type.Sliced; kb.color = new Color(1f, 1f, 1f, 0.9f); kb.raycastTarget = false;
             _stickKnob.gameObject.AddComponent<Shadow>().effectDistance = new Vector2(0f, -6f);
-            _stickBase.gameObject.SetActive(false);
+            _stickGroup = _stickBase.gameObject.AddComponent<CanvasGroup>();
+            _stickGroup.alpha = StickRestAlpha; _stickGroup.blocksRaycasts = false; _stickGroup.interactable = false;
+            _stickBase.anchoredPosition = StickRest;
 
             App.XpGained += OnXp;
             App.Synced += OnSyncedFx;
@@ -378,6 +383,8 @@ namespace Pofi.Screens
 
             var walking = !_overview && _world.Walker != null;
             UpdateSmartHide(Time.deltaTime);
+            UpdateStick(Time.deltaTime);
+            UpdateQuestWhere(Time.deltaTime);
             UpdatePathGuide(Time.deltaTime);
             UpdateNeed(Time.deltaTime);
             UpdateHomeBtn(Time.deltaTime);
@@ -430,6 +437,17 @@ namespace Pofi.Screens
         }
 
         private static Vector2 UiScreen(RectTransform rt) => RectTransformUtility.WorldToScreenPoint(null, rt.position);
+        private Vector2 StickScreen() => (Vector2)RectTransformUtility.WorldToScreenPoint(null, _stickBase.position);
+        /// <summary>Okti'nin 6 m önündeki yerin ekran noktası (dokun-yürü ipucu).</summary>
+        private Vector2 AheadScreen()
+        {
+            var w = _world.Walker;
+            var f = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
+            var at = w.transform.position + f * 6f;
+            var loc = _world.Local(at);
+            at.y = _world.World(loc.x, loc.y).y;
+            return App.Stage.Camera.WorldToScreenPoint(at);
+        }
         private Vector2 PetScreen() => App.Stage.Camera.WorldToScreenPoint(_world.Walker.transform.position + Vector3.up * 1.0f);
 
         private static bool _rewardsToldThisSession;
@@ -483,11 +501,11 @@ namespace Pofi.Screens
             var next = TipSeq.FirstOrDefault(id => Onboarding.Pending(st, id) && FirstDay.AllowsTip(day, id));
             switch (next)
             {
-                case Onboarding.Walk:      // sol yarı: joystick
-                    Tip(next, TipGesture.Slide, () => new Vector2(Screen.width * 0.25f, Screen.height * 0.3f), () => new Vector2(Screen.width * 0.25f, Screen.height * 0.55f));
+                case Onboarding.Walk:      // GB20-16: el köşedeki joystickten yukarı kayar ("Parmağını kaydır: Okti yürüsün!")
+                    Tip(next, TipGesture.Slide, StickScreen, () => StickScreen() + new Vector2(0f, Screen.height * 0.2f));
                     break;
-                case Onboarding.Look:      // sağ yarı: kamerayı döndür (sağ alta yakın; eylem tuşunun solunda ve üstünde)
-                    Tip(next, TipGesture.Slide, () => new Vector2(Screen.width * 0.8f, Screen.height * 0.36f), () => new Vector2(Screen.width * 0.58f, Screen.height * 0.36f));
+                case Onboarding.Look:      // GB20-16: eskiden "sağda kaydır: etrafa bak"; kamera artık kendiliğinden döner → dokun-yürü öğretilir
+                    Tip(next, TipGesture.Tap, AheadScreen);
                     break;
                 case Onboarding.Jump:
                     if (_actionKey == "hud.jump") Tip(next, TipGesture.Tap, () => UiScreen(_action));
@@ -539,9 +557,9 @@ namespace Pofi.Screens
                     }
                     return new GuideStage { Key = g.Id + ":pet", Say = T(g.TextKey, arg), From = PetScreen, Loops = 99 };
                 }
-                case "mavi":   // Kıskaç "adayı biraz dolaş" dedi: el sol yarıda yürümeyi gösterir; Mavi birazdan kadrajın içinden uçarak gelir
+                case "mavi":   // Kıskaç "adayı biraz dolaş" dedi: el joystickten yürümeyi gösterir; Mavi birazdan kadrajın içinden uçarak gelir
                     return new GuideStage { Key = "mavi:walk", Say = T(g.TextKey), Gesture = TipGesture.Slide, Loops = 3, Reward = false,
-                        From = () => new Vector2(Screen.width * 0.25f, Screen.height * 0.3f), To = () => new Vector2(Screen.width * 0.25f, Screen.height * 0.55f) };
+                        From = StickScreen, To = () => StickScreen() + new Vector2(0f, Screen.height * 0.2f) };
                 case "clear": case "stone":
                 {
                     // el taşı sayaçtan alıp sisin zeminine taşır, gider gelir (elma → Okti gibi); sis kadrajda değilse kenardaki rozet
@@ -719,16 +737,63 @@ namespace Pofi.Screens
             var guide = basicsDone && calm && !_overview && !_cine ? Guide.Current(App.State, App.Level) : null;
             var target = guide != null ? GuideWorld(guide) : null;
             if (target == null && basicsDone && !_overview && !_cine) target = PinChase();   // haritadaki ime dokunuldu (taş, pano)
+            var questGo = false;
+            if (target == null && !_overview && !_cine && _questGoT > 0f) { _questGoT -= dt; target = _questGoAt; questGo = true; }   // GB20-5 görev "Git"i
             var stepId = guide?.Id;
             if (stepId != _pathStep) { _pathStep = stepId; _path.Hide(); }
             var pos = _world.Walker.Position;
             var arrived = target != null && Vector2.Distance(pos, target.Value) < 4f;
             if (target == null) _path.Hide();
-            else if (arrived) { _path.Hide(); _pinGo = false; }               // vardı
+            else if (arrived) { _path.Hide(); _pinGo = false; if (questGo) _questGoT = 0f; }   // vardı
             else if (_path.Active) _path.Show(target.Value);                   // hedef kayabilir (en yakın kütük)
-            else if (guide != null || _idleFor > 8f || _pinGo) { _path.Show(target.Value); if (guide != null) _pinGo = false; }   // rehber adımında hemen (akış haritası yorumu, 25 Ekim 2026: "bekleme, oklar hemen görünsün")
+            else if (guide != null || _idleFor > 8f || _pinGo || questGo) { _path.Show(target.Value); if (guide != null) _pinGo = false; }   // rehber adımında hemen (akış haritası yorumu, 25 Ekim 2026: "bekleme, oklar hemen görünsün")
             _path.Tick(pos, App.Stage.Camera, dt);
             UpdateMaviGuide(_path.Active && target != null, target ?? Vector2.zero, arrived);   // N2: Mavi önden uçar
+        }
+
+        // ------------------------------------------------------------------ GB20-5 görev "Git"i + 5a "görevlerin burada"
+        private Vector2 _questGoAt;
+        private float _questGoT, _questWhereT;
+
+        /// <summary>Görev penceresinde dokunulan oyun görevi: bakım görevinde el Okti'yi ve eşyayı gösterir; bölge görevinde
+        /// yerde oklar hemen yolu çizer, Mavi önden uçar (en çok 90 sn ya da varınca biter).</summary>
+        private void StartQuestGo()
+        {
+            var counter = App.QuestGo;
+            App.QuestGo = null;
+            if (string.IsNullOrEmpty(counter) || _world.Walker == null) return;
+            var (kind, arg) = Logic.Meta.QuestGo.For(counter, App.Map.Regions);
+            if (kind == Logic.Meta.QuestGo.Kind.Pet)
+            {
+                if (_coach != null) { _coach.Done(); _coach = null; }
+                var food = arg == "food";
+                _coach = Coach.Show(Root, "quest_go", T(food ? "guide.feed" : "guide.wash", PetDat), TipGesture.Tap, PetScreen, null, 4,
+                    null, null, null, null, new[] { Ui.Icon(food ? "food_apple" : "clean_soap") });
+            }
+            else if (kind == Logic.Meta.QuestGo.Kind.Region)
+            {
+                var r = App.Map.Find(arg);
+                if (r == null) return;
+                var (dx, dz) = _terrain.Door(r);
+                _questGoAt = new Vector2(dx, dz);
+                _questGoT = 90f;
+                Audio.Sfx.Play(Audio.SfxKind.Chime);
+            }
+        }
+
+        /// <summary>İlk biten oyun görevinden sonra (adada, sakin anda) el bir kez Görev düğmesini gösterir: "Görevlerin burada".
+        /// Rehber eli varsa 6 sn için öne geçer, sonra rehber kaldığı yerden sürer.</summary>
+        private void UpdateQuestWhere(float dt)
+        {
+            if (_coach != null && _coach.Id == "quest_where" && (_questWhereT += dt) > 6.5f) { _coach.Done(); _coach = null; _tipGap = 1.5f; return; }
+            if (!App.QuestWherePending || _overview || _cine || StoryPlayer.Playing || LevelUpCelebration.Showing || _tray != null) return;
+            if (_coach != null && !_coach.Id.StartsWith("guide_")) return;
+            App.QuestWherePending = false;
+            App.State.SeenTips.Add(Core.GameBootstrap.QuestWhereFlag); App.Save();
+            if (_coach != null) { _coach.Done(); _coach = null; }
+            _questWhereT = 0f;
+            _coach = Coach.Show(Root, "quest_where", T("quest.where"), TipGesture.Tap, () => UiScreen(_tasksBtn), null, 3);
+            Bump.Play(_tasksBtn, 0.3f);
         }
 
         /// <summary>Kulübe için eksik malzemenin en yakın noktası (ekran); yoksa pet.</summary>
@@ -992,15 +1057,20 @@ namespace Pofi.Screens
 
         // ------------------------------------------------------------------ joystick
 
+        private CanvasGroup _stickGroup;
+        private bool _stickHeld;
+        private static readonly Vector2 StickRest = new Vector2(215f, 225f);   // sol alt köşe (taban 250 px, kenar payı ≈ 90)
+        private const float StickRestAlpha = 0.4f, StickHeldAlpha = 0.85f;
+
         private void HandleStick(Vector2 screen)
         {
             var radius = Screen.height * 0.11f;
             var delta = screen - _press;
-            if (!_moved && delta.magnitude > Screen.height * 0.025f)
+            if (!_moved && delta.magnitude > Screen.height * 0.02f)
             {
                 _moved = true;
+                _stickHeld = true;
                 CloseTray();
-                _stickBase.gameObject.SetActive(true);
                 var k = Root.rect.width / Mathf.Max(1f, Screen.width);
                 _stickBase.anchoredPosition = new Vector2(_press.x * k, _press.y * k);
             }
@@ -1008,15 +1078,27 @@ namespace Pofi.Screens
             TipDone(Onboarding.Walk);
             var dir = Vector2.ClampMagnitude(delta / radius, 1f);
             _stickKnob.anchoredPosition = dir * 70f;
-            var w = Quaternion.Euler(0f, _camYaw, 0f) * new Vector3(dir.x, 0f, dir.y);
+            // yön dokunuş başındaki kamera yönüne göre (kamera arkaya dönerken Okti'nin yolu kaymaz, dönme döngüsü olmaz)
+            var w = Quaternion.Euler(0f, _stickYaw, 0f) * new Vector3(dir.x, 0f, dir.y);
             _world.Walker.Steer(new Vector2(w.x, w.z));
         }
 
         private void EndStick()
         {
             if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
-            _stickBase.gameObject.SetActive(false);
+            _stickHeld = false;
             _stickKnob.anchoredPosition = Vector2.zero;
+        }
+
+        /// <summary>Bırakılan joystick köşedeki yerine süzülür ve soluklaşır; kuşbakışında ve hikâyede gizlenir.</summary>
+        private void UpdateStick(float dt)
+        {
+            if (_stickBase == null) return;
+            var show = !_overview && !_cine && _world.Walker != null;
+            if (_stickBase.gameObject.activeSelf != show) _stickBase.gameObject.SetActive(show);
+            if (!show) return;
+            if (!_stickHeld) _stickBase.anchoredPosition = Vector2.Lerp(_stickBase.anchoredPosition, StickRest, 1f - Mathf.Exp(-10f * dt));
+            _stickGroup.alpha = Mathf.MoveTowards(_stickGroup.alpha, _stickHeld ? StickHeldAlpha : StickRestAlpha, dt * 4f);
         }
     }
 }

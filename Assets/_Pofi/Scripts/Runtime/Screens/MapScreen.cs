@@ -28,8 +28,9 @@ namespace Pofi.Screens
         private float _runBlend;                    // 0 yürüme/durma … 1 koşma (kamera uzaklığı, görüş açısı)
         private Vector3 _camVel, _lookVel;
         private Vector3 _camPos, _camLook;
-        // dokunma: her parmak ayrı izlenir (sol yarı joystick, sağ yarı kamera; aynı anda iki başparmak)
-        private enum Role { Stick, Look, Pan }
+        // dokunma: her parmak ayrı izlenir. GB20-16 (kullanıcı, 2 Kasım 2026): ekranın her yeri joystick (ilk parmak),
+        // ikinci parmak yalnız dokunur; sağ yarıdaki elle kamera döndürme kalktı, kamera kendiliğinden döner (TargetCamera)
+        private enum Role { Stick, Tap, Pan }
         private sealed class Finger { public Vector2 Press, Last; public bool Moved; public Role Role; }
         private readonly Dictionary<int, Finger> _fingers = new Dictionary<int, Finger>();
         private int _stickFinger = int.MinValue;
@@ -38,8 +39,12 @@ namespace Pofi.Screens
         private Vector2 _press;                    // joystick merkezi (ekran pikseli)
         private bool _moved;                       // joystick sürüklendi mi
         private float _lastTouch = -10f;           // dokunma sonrası taklit fare olaylarını yok saymak için
-        private float _userPitch = 24f;            // sağ başparmakla ayarlanan bakış yüksekliği (derece); 24 Ekim 2026 kamera B: 20 → 24
-        private float _lookHold;                   // elle döndürdükten sonra otomatik takibin beklediği süre
+        private float _userPitch = 24f;            // açık arazide bakış yüksekliği (derece); 24 Ekim 2026 kamera B: 20 → 24 (GB20: elle ayar kalktı)
+        private float _lookHold;                   // sahne/ışınlanma sonrası otomatik takibin beklediği süre
+        private float _stickYaw;                   // joystick yönü dokunuş başındaki kamera yönüne kilitli (dönen kamera yönü bozmasın)
+        private float _offAxisT;                   // Okti kameradan 40°'den fazla yana ne kadar süredir yürüyor
+        private bool _camTurning;                  // kamera Okti'nin arkasına dönüyor
+        private float _village;                    // 0 açık arazi … 1 yapı yanı (bakış açısı yükselir, ev kadrajı kaplamaz)
         private SpeechBubble _toast;
         private RectTransform _labelLayer;
         private Text _modeText;
@@ -119,6 +124,7 @@ namespace Pofi.Screens
             CatchUpMavi();   // GB17: Mavi'nin sahnesi artık olayla; rehberi kapalı eski oyuncuda sayılır
             StartCoroutine(StoryCheck());
             _built = true;   // Ö4: sırası gelen hikâye sahnesi
+            StartQuestGo();  // GB20-5: görev penceresinde dokunulan oyun görevi
         }
 
         private void ToggleMode()
@@ -132,10 +138,25 @@ namespace Pofi.Screens
             }
             else TipDone(null);
             if (_modeText != null) { _modeText.text = T(_overview ? "map.walk" : "map.overview"); GoldKit.FitRibbon(_modeText); }
+            // GB20-8 (kullanıcı, 2 Kasım 2026: "haritadan nasıl çıkılacağı belli değil"): harita açıkken aynı düğme ayakkabı + "Yürü";
+            // yürürken harita simgesi (benchmark: durum simgeyle gösterilir, yazı tek başına değil — UK GDS aç/kapa düğmesi kılavuzu)
+            if (_mapIcon != null)
+            {
+                GoldKit.SetIcon(_mapIcon, _overview ? "act_walk" : "ui_map");
+                var ex = _mapIcon.GetComponent<Extrude>();
+                if (ex != null) { ex.Color = Theme.Hex(_overview ? "#9A2E25" : "#7A4A12"); _mapIcon.SetVerticesDirty(); }
+                Bump.Play(_mapIcon.transform, 0.25f);
+            }
             RefreshTracker();
             if (_world.Walker != null) _world.Walker.Steer(Vector2.zero);
             if (_overview) _pan = _terrain.Baked != null ? new Vector2(0f, -18f) : new Vector2(0f, _terrain.Def.Cz - 6f);   // kuşbakışı: adanın ortası
-            _toast.Say(T(_overview ? "map.hint_overview" : "map.hint_walk"));
+            // ilk açılışlarda el ayakkabıyı gösterir, ses "Ayakkabıya dokun: yürümeye dön!" der (GB20-17: yazı değil el + ses);
+            // haritadan bir kez yürüyerek dönen çocuğa bir daha gösterilmez. Rehberin harita imi eli (MapPin) önceliklidir.
+            const string exitSeen = "map_exit";
+            if (_overview && !App.State.SeenTips.Contains(exitSeen) && _coach == null
+                && (!Onboarding.Pending(App.State, Onboarding.MapPin) || PinTarget(out _) == null))
+                _coach = Coach.Show(Root, exitSeen, T("map.exit_tip"), Logic.App.TipGesture.Tap, () => UiScreen(_mapBtn), null, 4);
+            if (!_overview && !App.State.SeenTips.Contains(exitSeen)) { App.State.SeenTips.Add(exitSeen); App.Save(); }
         }
 
         // onaylı v6 haritasındaki alt yer adları (bölge değil, yalnız kuşbakışında; koyu yeşil hap): spots anahtarı ya da sabit nokta
@@ -312,42 +333,49 @@ namespace Pofi.Screens
             var hgt = PetModels.RealHeight * scale;
             var running = w.Moving || w.Steering;
             _lookHold = Mathf.Max(0f, _lookHold - Time.deltaTime);
+            var dt = Time.deltaTime;
             if (running && _lookHold <= 0f)
             {
-                // otomatik takip yalnız ileri giderken ve yavaş: yana itince kamera dönmez (dönme döngüsü/baş dönmesi yok);
-                // geri gelirken (≥ 120°) hiç dönmez — pet kameraya doğru yürür, mobil oyunlardaki gibi
+                // GB20-16 otomatik kamera (benchmark: Mario 3D World "paralel kamera", Animal Crossing, A Short Hike; araştırma
+                // scratchpad benchmark/r1): kamera yönü sabit kalır, çocuk dünyayı aynı yönden görür. Okti 40°'den fazla yana
+                // 1,1 sn yürürse kamera saniyede en çok 40° ile arkasına döner; kameraya doğru (>110°) yürürken hiç dönmez;
+                // hafif sapmada (<40°) çok yavaş izler. Joystick yönü dokunuş başında kilitlendiği için dönme döngüsü olmaz.
                 var diff = Mathf.DeltaAngle(_camYaw, w.Heading);
-                var forward = Mathf.Clamp01(Mathf.Cos(diff * Mathf.Deg2Rad));
-                if (Mathf.Abs(diff) > 12f && Mathf.Abs(diff) < 120f)
-                    _camYaw += diff * (1f - Mathf.Exp(-0.9f * forward * Time.deltaTime));
+                var ad = Mathf.Abs(diff);
+                if (ad > 40f && ad < 110f) _offAxisT += dt; else if (!_camTurning) _offAxisT = 0f;
+                if (_offAxisT > 1.1f) _camTurning = true;
+                if (_camTurning)
+                {
+                    _camYaw = Mathf.MoveTowardsAngle(_camYaw, w.Heading, Mathf.Lerp(10f, 40f, Mathf.Clamp01(ad / 30f)) * dt);   // sonda yavaşlar
+                    if (ad < 5f || ad >= 110f) { _camTurning = false; _offAxisT = 0f; }
+                }
+                else if (ad > 6f && ad <= 40f) _camYaw = Mathf.MoveTowardsAngle(_camYaw, w.Heading, Mathf.Min(9f, ad * 0.35f) * dt);
             }
+            else { _offAxisT = 0f; _camTurning = false; }
             _runBlend = Mathf.MoveTowards(_runBlend, running ? 1f : 0f, Time.deltaTime * 1.5f);
             var fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
             var dist = Mathf.Lerp(4.3f, 4.6f, _runBlend) * Mathf.Max(0.85f, scale) * CamDistMul;   // pet kadrajda büyük (çocuğun odağı); durunca da geniş görüş
             var pivot = p + Vector3.up * (hgt * 0.9f);
             look = p + Vector3.up * (hgt * 0.55f) + fwd * Mathf.Lerp(1.3f, 1.5f, _runBlend);   // pet baştan ayağa ekranın alt-ortasında (yakın kamerada ayaklar kesilmesin), önü görünür
-            // çarpışma (yay-kol + bıyık): arkada bina/tepe varsa kamera önce yana döner (±30°…±90°) ve açık görüş arar;
-            // yoksa biraz yükselir (30°, 45°); hâlâ kapalıysa yaklaşır ama petin içine girmez. Dönüş ve yükselme yumuşak.
+            // GB20-4 (kullanıcı: "evin yanında ev kamerayı dolduruyor, Mavi kocaman"): yapı yanında bakış 24° → 33° yükselir
+            // (köy kamerası); araya giren yapı/ağaç CameraClear ile solar, kamera öne çekilmez. Yalnız arazi (tepe) kapatırsa
+            // önce açı yükselir (32°, 40°, 50°), sonra en çok %30 yaklaşır. Adalılar, posta kutusu, parıltı engel sayılmaz
+            // (Mavi'nin dokunma kapsülü petin yanında süzülürken kamerayı 2,8 m'ye çekiyordu).
             if (CamMinPitch > 0f) _userPitch = Mathf.Max(_userPitch, CamMinPitch);
-            float targetPitch = _userPitch, yawOff = 0f;
+            _village = Mathf.MoveTowards(_village, NearBuilding(w.Position), dt * 0.8f);
+            var basePitch = Mathf.Lerp(_userPitch, Mathf.Max(_userPitch, 33f), Mathf.SmoothStep(0f, 1f, _village));
+            float targetPitch = basePitch;
             var found = false;
             foreach (var p0 in BoomPitches)
             {
-                var pitch = Mathf.Max(p0, _userPitch);
-                foreach (var off in WhiskerYaws)
-                {
-                    if (p0 > 30f && off != 0f) continue;                      // yüksek açıda yan arama yok
-                    var f = Quaternion.Euler(0f, _camYaw + off, 0f) * Vector3.forward;
-                    if (CameraBlocked(pivot, Boom(pitch, f), dist, out _)) continue;
-                    targetPitch = pitch; yawOff = off; found = true; break;
-                }
-                if (found) break;
+                var pitch = Mathf.Max(p0, basePitch);
+                if (CameraBlocked(pivot, Boom(pitch, fwd), dist, out _)) continue;
+                targetPitch = pitch; found = true; break;
             }
-            if (found && yawOff != 0f && _lookHold <= 0f) _camYaw += yawOff * (1f - Mathf.Exp(-2.5f * Time.deltaTime));
-            _camPitch = Mathf.Lerp(_camPitch, found ? targetPitch : Mathf.Max(32f, _userPitch), 1f - Mathf.Exp(-3f * Time.deltaTime));
+            _camPitch = Mathf.Lerp(_camPitch, found ? targetPitch : 50f, 1f - Mathf.Exp(-3f * dt));
             fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
             var dir = Boom(_camPitch, fwd);
-            if (CameraBlocked(pivot, dir, dist, out var hitDist)) dist = Mathf.Max(2.8f, hitDist - 0.3f);   // dönerken geçici
+            if (CameraBlocked(pivot, dir, dist, out var hitDist)) dist = Mathf.Max(dist * 0.7f, hitDist - 0.3f);
             pos = pivot + dir * dist;
             var floor = _world.transform.TransformPoint(new Vector3(0f, _terrain.Height(pos.x - MapWorld.Origin.x, pos.z - MapWorld.Origin.z), 0f)).y + 0.8f;
             if (pos.y < floor) pos.y = floor;
@@ -361,9 +389,22 @@ namespace Pofi.Screens
         /// </summary>
         public static float CamDistMul = 1.35f, CamMinPitch, CamFovAdd = 4f, CamLookUp = 0.4f;
 
-        private static readonly float[] BoomPitches = { 20f, 30f, 45f };
-        private static readonly float[] WhiskerYaws = { 0f, 30f, -30f, 60f, -60f, 90f, -90f };
-        private float _camPitch = 20f;
+        private static readonly float[] BoomPitches = { 24f, 32f, 40f, 50f };
+        private float _camPitch = 24f;
+
+        /// <summary>Okti bir yapının yanında mı (1: kenarına 3 m, 0: 12 m ve öte)?</summary>
+        private float NearBuilding(Vector2 at)
+        {
+            var best = 0f;
+            foreach (var r in _terrain.Regions)
+            {
+                if (r.Id == "region_swim_cove") continue;   // koy havuzu yapı değil
+                var d = Vector2.Distance(at, new Vector2(r.X, r.Z)) - r.Size * 0.5f;
+                var f = 1f - Mathf.Clamp01((d - 3f) / 9f);
+                if (f > best) best = f;
+            }
+            return best;
+        }
 
         private static Vector3 Boom(float pitchDeg, Vector3 fwd)
         {
@@ -371,7 +412,8 @@ namespace Pofi.Screens
             return -fwd * Mathf.Cos(e) + Vector3.up * Mathf.Sin(e);
         }
 
-        /// <summary>Pivot → kamera yönünde görüşü kapatan engel var mı (pet ve parıltılar sayılmaz).</summary>
+        /// <summary>Pivot → kamera yönünde görüşü kapatan arazi var mı? Yalnız zemin sayılır: yapılar ve ağaçlar CameraClear ile
+        /// solar; pet, adalılar, posta kutusu, parıltı, toplama noktaları sayılmaz.</summary>
         private static bool CameraBlocked(Vector3 pivot, Vector3 dir, float dist, out float hitDist)
         {
             hitDist = dist;
@@ -379,7 +421,7 @@ namespace Pofi.Screens
             var blocked = false;
             foreach (var h in hits)
             {
-                if (h.collider.gameObject.name == "pet" || h.collider is SphereCollider) continue;
+                if (h.collider.gameObject.name != "ground") continue;
                 if (h.distance <= 0f) continue;                                   // pivot zaten içindeyse (kapı önü) sayma
                 if (h.distance < hitDist) hitDist = h.distance;
                 blocked = true;
@@ -495,9 +537,9 @@ namespace Pofi.Screens
         {
             if (overUi) return;
             var role = _overview ? Role.Pan
-                : _world.Walker != null && pos.x < Screen.width * 0.5f && _stickFinger == int.MinValue ? Role.Stick : Role.Look;
+                : _world.Walker != null && _stickFinger == int.MinValue ? Role.Stick : Role.Tap;
             _fingers[id] = new Finger { Press = pos, Last = pos, Role = role };
-            if (role == Role.Stick) { _stickFinger = id; _press = pos; _moved = false; }
+            if (role == Role.Stick) { _stickFinger = id; _press = pos; _moved = false; _stickYaw = _camYaw; }
         }
 
         private void FingerMove(int id, Vector2 pos)
@@ -509,15 +551,6 @@ namespace Pofi.Screens
             {
                 case Role.Stick:
                     HandleStick(pos);
-                    break;
-                case Role.Look:
-                    if (!f.Moved) break;
-                    // ekran genişliği kadar kaydırma ≈ 150° dönüş; dikeyde 10°–48° arası (yaygın mobil oyun hassasiyeti)
-                    var k = 150f / Mathf.Max(1f, Screen.width);
-                    _camYaw += d.x * k;
-                    _userPitch = Mathf.Clamp(_userPitch - d.y * k * 0.6f, 10f, 48f);
-                    _lookHold = 2.5f;
-                    if (Mathf.Abs(d.x) + Mathf.Abs(d.y) > 0.5f) TipDone(Onboarding.Look);
                     break;
                 case Role.Pan:
                     if (!f.Moved) break;
@@ -608,7 +641,8 @@ namespace Pofi.Screens
                 var p = _world.Local(hit.point);
                 if (!_overview && _terrain.Height(p.x, p.y) < -0.05f) { TapWater(ray); return; }   // denizin dibi: suya dokunuldu
                 if (!_overview) PokeNear(ray, hit.distance, p);
-                TipDone(Onboarding.Walk);
+                // dokun-yürü: yürüme ipucu ekrandaysa onu, değilse "bir yere dokun" ipucunu (Look) tamamlar
+                TipDone(Onboarding.Pending(App.State, Onboarding.Walk) && _coach != null && _coach.Id == Onboarding.Walk ? Onboarding.Walk : Onboarding.Look);
                 GoTo(p.x, p.y, null);
             }
         }

@@ -54,7 +54,7 @@ namespace Pofi.World
     /// </summary>
     public sealed class CameraClear : MonoBehaviour
     {
-        private sealed class Entry { public Renderer[] R; public Vector2 C; public float Rad, Y0, Y1, Fade = 1f, Target = 1f; }
+        private sealed class Entry { public Renderer[] R; public Vector2 C; public float Rad, Y0, Y1, Fade = 1f, Target = 1f, Min; }
         private const float Cell = 8f;
         private readonly Dictionary<long, List<Entry>> _grid = new Dictionary<long, List<Entry>>();
         private readonly List<Entry> _active = new List<Entry>();
@@ -64,13 +64,15 @@ namespace Pofi.World
 
         public void Init(MapWorld world) { _world = world; _mpb = new MaterialPropertyBlock(); }
 
-        public void Add(Transform t)
+        /// <summary>Kamera önüne girince solacak nesne. <paramref name="min"/>: en az görünürlük (ağaç 0 = tam kaybolur;
+        /// yapı 0,3 = yarı saydam kalır, GB20-4: kamera eve girmek yerine ev solar, Diablo/Roblox Invisicam yöntemi).</summary>
+        public void Add(Transform t, float min = 0f)
         {
             var rs = t.GetComponentsInChildren<Renderer>(true);
             if (rs.Length == 0) return;
             var b = rs[0].bounds;
             for (var i = 1; i < rs.Length; i++) b.Encapsulate(rs[i].bounds);
-            var e = new Entry { R = rs, C = new Vector2(b.center.x, b.center.z), Rad = Mathf.Max(b.extents.x, b.extents.z) * 0.8f, Y0 = b.min.y, Y1 = b.max.y };
+            var e = new Entry { R = rs, C = new Vector2(b.center.x, b.center.z), Rad = Mathf.Max(b.extents.x, b.extents.z) * 0.8f, Y0 = b.min.y, Y1 = b.max.y, Min = min };
             var key = Key(Mathf.FloorToInt(e.C.x / Cell), Mathf.FloorToInt(e.C.y / Cell));
             if (!_grid.TryGetValue(key, out var l)) _grid[key] = l = new List<Entry>();
             l.Add(e);
@@ -96,9 +98,9 @@ namespace Pofi.World
                 if (!_grid.TryGetValue(Key(i, j), out var l)) continue;
                 foreach (var e in l)
                 {
-                    if (!e.R[0].gameObject.activeInHierarchy) continue;
+                    if (e.R[0] == null || !e.R[0].gameObject.activeInHierarchy) continue;   // yeniden kurulan bölgenin eski parçası
                     if (!Blocks(e, a, b)) continue;
-                    e.Target = 0f;   // tam kaybolur: 0,15 bırakınca büyük yaprak kartları gökyüzünde noktalı karo gibi kalıyordu
+                    e.Target = e.Min;   // tam kaybolur: 0,15 bırakınca büyük yaprak kartları gökyüzünde noktalı karo gibi kalıyordu
                     if (!_active.Contains(e)) _active.Add(e);
                 }
             }

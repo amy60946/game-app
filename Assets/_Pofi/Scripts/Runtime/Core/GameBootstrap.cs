@@ -506,6 +506,12 @@ namespace Pofi.Core
         /// <summary>
         /// Oyuncu eylemi kaydı: sayaç → rozet ve günlük görev. Kazanılan rozet/görev XP'si verilir ve bildirim gösterilir.
         /// </summary>
+        /// <summary>GB20-5: görev penceresinde dokunulan oyun görevinin sayacı; ada açılınca çocuk oraya yönlendirilir.</summary>
+        public string QuestGo;
+        /// <summary>GB20-5a: ilk biten oyun görevinden sonra adada el bir kez Görev düğmesini gösterir.</summary>
+        public bool QuestWherePending;
+        public const string QuestWhereFlag = "quest_where";
+
         public void RecordActivity(string counter, int n = 1)
         {
             if (State == null) return;
@@ -515,6 +521,7 @@ namespace Pofi.Core
             foreach (var b in r.NewBadges) Toast.Post(Overlay.transform, Theme, Loc.Get("badge.earned", b.Name));
             if (r.NewBadges.Count > 0) BadgeEarned?.Invoke(r.NewBadges.Count);
             for (var i = 0; i < r.QuestsDone.Count; i++) Toast.Post(Overlay.transform, Theme, r.QuestsDone[i].Text + "  " + Loc.Get("xp.gain", r.QuestXpEach[i]));
+            if (r.QuestsDone.Count > 0 && !State.SeenTips.Contains(QuestWhereFlag)) QuestWherePending = true;   // GB20-5a: ilk biten görevde el Görev'i gösterir
             if (r.ChestReady) { Toast.Post(Overlay.transform, Theme, Loc.Get("chest.ready")); ChestReady?.Invoke(); }
             if (r.BadgeXp > 0) GrantXp(r.BadgeXp, XpSource.Achievement);
             if (r.QuestXp > 0) GrantXp(r.QuestXp, XpSource.DailyQuest);

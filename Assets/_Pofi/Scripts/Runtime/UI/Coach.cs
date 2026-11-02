@@ -11,10 +11,14 @@ namespace Pofi.UI
     /// </summary>
     public sealed class Coach : MonoBehaviour
     {
-        private RectTransform _root, _finger, _ring, _prop, _carry, _banner;
+        private RectTransform _root, _finger, _ring, _ring2, _glow, _prop, _carry, _banner, _pill;
+        private CanvasGroup _bannerCg, _pillCg;
+        private bool _collapsible, _collapsed, _handOnly;
+        private float _readFor;   // sesli okuma yoksa (önceden okunduysa) yazının en az kalma süresi
         private float _propS;
         private readonly System.Collections.Generic.List<(RectTransform Rt, Vector2 Off)> _props = new System.Collections.Generic.List<(RectTransform, Vector2)>();
-        private Image _fingerImg, _ringImg;
+        private Image _fingerImg, _ringImg, _ring2Img, _glowImg;
+        private static readonly Color HintYellow = new Color(1f, 0.82f, 0.25f);
         private Func<Vector2> _from, _to;
         private Logic.App.TipGesture _gesture;
         private int _loops;
@@ -44,8 +48,30 @@ namespace Pofi.UI
             c._said = voice ?? caption;
             // sesli okuma: köşede hoparlör (sıra rozeti köşedeyse onun altında, sağ kenarda), ipucu bir kez okunur
             VoiceButton.Attach(banner.Rect, string.IsNullOrEmpty(step) ? (Vector2?)null : new Vector2(46f, -50f)).SetText(c._said);
-            if (Spoken.Add(id + "|" + c._said)) Audio.Voice.Say(c._said);   // aynı ipucu oturumda bir kez kendiliğinden okunur (tekrar: hoparlör)
+            var spoke = Spoken.Add(id + "|" + c._said) && Audio.Voice.Say(c._said);   // aynı ipucu oturumda bir kez kendiliğinden okunur (tekrar: hoparlör)
             Hover.On(banner.Rect, 5f, 0.02f);                                   // öğretici baloncuklar canlı (S5)
+            // GB20-17 (kullanıcı, 2 Kasım 2026: "ekranda çok yazı var; el + ses kullan"; benchmark Khan Academy Kids, Lingokids, Toca):
+            // kaydı olan ipucu okunurken yazı görünür, okuma bitince küçük hapa (el + adım) döner; hapa dokununca yazı açılır ve yeniden
+            // okunur. Sesli okuma kapalıysa ya da kayıt yoksa yazı kalır (okuyamayan da okuyabilen de yönlenir).
+            c._bannerCg = banner.Rect.gameObject.AddComponent<CanvasGroup>();
+            c._collapsible = Audio.Voice.Enabled && Audio.Voice.Has(c._said);
+            var words = c._said.Split(' ').Length;
+            c._readFor = spoke ? 1.2f : Mathf.Clamp(words * 0.42f, 2.2f, 4.5f);
+            if (c._collapsible)
+            {
+                var pill = Candy.Round(rt, Candy.Blue, "ui_hand", 104f, new Vector2(0.5f, 0f), new Vector2(0f, 150f), c.Expand);
+                c._pill = (RectTransform)pill.transform;
+                c._pillCg = pill.gameObject.AddComponent<CanvasGroup>();
+                c._pillCg.ignoreParentGroups = true;   // ipucu katmanı dokunmayı kapatır; hap dokunulur kalır (görünürlüğü üst grupları izler)
+                if (!string.IsNullOrEmpty(step))
+                {
+                    var pb = Ui.Rect(c._pill, "Step", new Vector2(1f, 1f), new Vector2(84f, 48f), new Vector2(18f, 8f));
+                    Candy.Shell(pb, Candy.Orange).raycastTarget = false;
+                    Candy.Caption(pb, step, 26, new Vector2(0.5f, 0.5f), new Vector2(84f, 48f), new Vector2(0f, 2f));
+                }
+                c._pill.localScale = Vector3.zero;
+                c._pill.gameObject.SetActive(false);
+            }
             if (!string.IsNullOrEmpty(step))
             {
                 // sıra göstergesi ("3/7"): çocuk kaçıncı adımda olduğunu görür
@@ -87,10 +113,18 @@ namespace Pofi.UI
                 var cs = c._carry.gameObject.AddComponent<Shadow>(); cs.effectColor = new Color(0f, 0f, 0f, 0.3f); cs.effectDistance = new Vector2(0f, -8f);
                 c._carry.localScale = Vector3.zero;
             }
-            // dokunma halkası
+            // GB20-17 belirgin el (araştırma: hareketin başlaması dikkati çeker, Abrams & Christ 2003; animasyonlu el durağan simgeden
+            // iyi, Nacher 2014): hedefin altında nabız gibi atan sarı ışık + her basışta dışa yayılan iki sarı halka
+            c._glow = Ui.Rect(rt, "Glow", Vector2.zero, new Vector2(200f, 200f));
+            c._glowImg = c._glow.gameObject.AddComponent<Image>(); c._glowImg.sprite = Ui.Rounded; c._glowImg.type = Image.Type.Sliced;
+            c._glowImg.pixelsPerUnitMultiplier = 0.45f; c._glowImg.color = new Color(HintYellow.r, HintYellow.g, HintYellow.b, 0.3f); c._glowImg.raycastTarget = false;
             c._ring = Ui.Rect(rt, "Ring", Vector2.zero, new Vector2(150f, 150f));
             c._ringImg = c._ring.gameObject.AddComponent<Image>(); c._ringImg.sprite = Ui.Rounded; c._ringImg.type = Image.Type.Sliced;
-            c._ringImg.pixelsPerUnitMultiplier = 0.8f; c._ringImg.color = new Color(1f, 1f, 1f, 0.35f);
+            c._ringImg.pixelsPerUnitMultiplier = 0.8f; c._ringImg.color = new Color(1f, 1f, 1f, 0.35f); c._ringImg.raycastTarget = false;
+            var ro = c._ring.gameObject.AddComponent<Outline>(); ro.effectColor = new Color(0.55f, 0.32f, 0.05f, 0.5f); ro.effectDistance = new Vector2(3f, -3f);
+            c._ring2 = Ui.Rect(rt, "Ring2", Vector2.zero, new Vector2(150f, 150f));
+            c._ring2Img = c._ring2.gameObject.AddComponent<Image>(); c._ring2Img.sprite = Ui.Rounded; c._ring2Img.type = Image.Type.Sliced;
+            c._ring2Img.pixelsPerUnitMultiplier = 0.8f; c._ring2Img.color = Color.clear; c._ring2Img.raycastTarget = false;
             // işaret eden el (Resources/Icons/ui_hand.png, art/scripts/ui_hand.py); pivot = parmak ucu. Yoksa beyaz parmak ucu.
             var hand = Ui.Icon("ui_hand");
             c._finger = Ui.Rect(rt, "Finger", Vector2.zero, hand != null ? new Vector2(190f, 190f) : new Vector2(84f, 84f));
@@ -99,6 +133,7 @@ namespace Pofi.UI
             {
                 c._finger.pivot = new Vector2(0.21f, 0.93f);   // v3 eldiven (art/meshy/install_ui_v3.py ölçer)
                 c._fingerImg.sprite = hand; c._fingerImg.preserveAspect = true; c._fingerImg.raycastTarget = false;
+                GoldKit.Frame3D(c._fingerImg, 1.4f);            // GB20-17: göstergelerdeki beyaz kenar + yumuşak gölge, her zeminde seçilir
             }
             else
             {
@@ -120,9 +155,10 @@ namespace Pofi.UI
         private void Update()
         {
             _life += Time.unscaledDeltaTime;
+            UpdateCollapse();
             if (_loops <= 0)
             {
-                _finger.gameObject.SetActive(false); _ring.gameObject.SetActive(false);
+                _finger.gameObject.SetActive(false); _ring.gameObject.SetActive(false); _ring2.gameObject.SetActive(false); _glow.gameObject.SetActive(false);
                 if (_carry != null) _carry.gameObject.SetActive(false);
                 foreach (var (b, _) in _props) b.gameObject.SetActive(false);
                 if (_life > 14f) Destroy(gameObject);
@@ -164,9 +200,19 @@ namespace Pofi.UI
             // el basarken parmak ucu hedefe iner, kalkarken biraz geri çekilir
             _finger.anchoredPosition = p + new Vector2(10f, -14f) * (1f - press);
             _ring.anchoredPosition = p;
-            _finger.localScale = Vector3.one * Mathf.Lerp(1.08f, 0.94f, press);
+            // belirişte zıplama (0,9 → 1,12 → 1), sonra basış ritmi
+            var pop = _life < 0.45f ? Mathf.Lerp(0.9f, 1f, _life / 0.45f) + Mathf.Sin(_life / 0.45f * Mathf.PI) * 0.12f : 1f;
+            _finger.localScale = Vector3.one * Mathf.Lerp(1.1f, 0.94f, press) * pop;
             _ring.localScale = Vector3.one * Mathf.Lerp(0.6f, 1.25f, press);
-            _ringImg.color = new Color(1f, 1f, 1f, 0.45f * press);
+            _ringImg.color = new Color(1f, 1f, 1f, 0.5f * press);
+            // basışta dışa yayılan sarı halka (1,0 → 1,8, 0,8 sn'de söner); sürüklemede yalnız başta ve sonda
+            var ph = (_t * 2f) % 1f;
+            _ring2.anchoredPosition = _gesture == Logic.App.TipGesture.Tap ? p : (_t < 0.5f ? a : p);
+            _ring2.localScale = Vector3.one * Mathf.Lerp(0.8f, 1.8f, ph);
+            _ring2Img.color = new Color(HintYellow.r, HintYellow.g, HintYellow.b, 0.7f * (1f - ph) * (1f - ph));
+            _glow.anchoredPosition = p;
+            _glow.localScale = Vector3.one * (1f + Mathf.Sin(_life * 5f) * 0.12f);
+            _glowImg.color = new Color(HintYellow.r, HintYellow.g, HintYellow.b, 0.22f + 0.1f * Mathf.Sin(_life * 5f));
             if (_props.Count > 0)
             {
                 // basıştan sonra baloncuklar sırayla açılır, döngü sonunda kapanır
@@ -194,9 +240,45 @@ namespace Pofi.UI
         /// <summary>Yalnız el (altyazı balonu yok): hedef zaten alt şeritteyse (ör. "Harika!" düğmesi) balon üstüne binmesin.</summary>
         public Coach HandOnly()
         {
+            _handOnly = true;
             if (_banner != null) _banner.gameObject.SetActive(false);
+            if (_pill != null) _pill.gameObject.SetActive(false);
             Audio.Voice.StopIf(_said);
             return this;
+        }
+
+        /// <summary>Okuma bitince yazı söner, yerinde küçük hap (el + adım) kalır; hapa dokununca yazı açılır ve yeniden okunur.</summary>
+        private void UpdateCollapse()
+        {
+            if (!_collapsible || _handOnly || _banner == null) return;
+            var dt = Time.unscaledDeltaTime;
+            if (!_collapsed && _life > _readFor && !Audio.Voice.IsSpeaking(_said)) { _collapsed = true; _pill.gameObject.SetActive(true); }
+            _bannerCg.alpha = Mathf.MoveTowards(_bannerCg.alpha, _collapsed ? 0f : 1f, dt * 4f);
+            _banner.gameObject.SetActive(_bannerCg.alpha > 0.001f);
+            if (_pill.gameObject.activeSelf)
+            {
+                var want = _collapsed ? 1f : 0f;
+                var sc = Mathf.MoveTowards(_pill.localScale.x, want, dt * 5f);
+                _pill.localScale = Vector3.one * sc;
+                if (!_collapsed && sc <= 0.001f) _pill.gameObject.SetActive(false);
+                // üst grupları izle (hikâye sahnesi adanın arayüzünü gizlerken hap ortada kalmasın)
+                var a = 1f;
+                foreach (var g in GetComponentsInParent<CanvasGroup>()) { if (g == _pillCg) continue; a *= g.alpha; if (g.ignoreParentGroups) break; }
+                _pillCg.alpha = a;
+                _pillCg.blocksRaycasts = _pillCg.interactable = a > 0.5f && _collapsed;
+            }
+        }
+
+        /// <summary>Hapa dokunuldu: yazı yeniden açılır ve okunur.</summary>
+        private void Expand()
+        {
+            if (!_collapsed) return;
+            _collapsed = false;
+            _banner.gameObject.SetActive(true);
+            _life = 0f;
+            _readFor = Audio.Voice.Say(_said, true) ? 1.2f : 3f;
+            _loops = Mathf.Max(_loops, 2);
+            Audio.Sfx.Play(Audio.SfxKind.Tap);
         }
 
         private void OnDestroy() => Audio.Voice.StopIf(_said);

@@ -1,4 +1,5 @@
 using System;
+using Pofi.Logic.App;
 using Pofi.Logic.Data;
 using Pofi.Logic.Tasks;
 using Pofi.UI;
@@ -306,6 +307,18 @@ namespace Pofi.Screens
             Ui.SetBar(bar, (float)prog / Mathf.Max(1, q.Target));
             var p = Ui.Label(rt, done ? T("home.daily_done") : prog + "/" + q.Target, F(22), done ? InkGreen : InkBlueSoft, new Vector2(1f, 0f), new Vector2(rightW + 6f, 34f), FontStyle.Bold, TextAnchor.MiddleRight, new Vector2(-16f, 9f));
             p.rectTransform.pivot = new Vector2(1f, 0f);
+            // GB20-5 "Git": bitmemiş görevin satırına dokununca pencere kapanır, adada oklar/el görevin yapıldığı yere götürür
+            if (!done && Logic.Meta.QuestGo.For(q.Counter, App.Map.Regions).Kind != Logic.Meta.QuestGo.Kind.None)
+            {
+                var counter = q.Counter;
+                System.Action go = () => { App.QuestGo = counter; App.Open(AppPage.Map); };
+                var hit = rt.gameObject.AddComponent<Image>(); hit.color = new Color(1f, 1f, 1f, 0f);
+                var b = rt.gameObject.AddComponent<Button>(); b.targetGraphic = hit; b.transition = Selectable.Transition.None;
+                b.onClick.AddListener(() => { Audio.Sfx.Play(Audio.SfxKind.Tap); go(); });
+                rt.gameObject.AddComponent<PressBounce>();
+                var tag = Candy.Pill(rt, Candy.Green, T("quest.go"), new Vector2(0f, 0f), new Vector2(76f, 34f), new Vector2(18f + 28.5f, 14f), go, null, 22);
+                Hover.On(tag, 4f);
+            }
             return h;
         }
 

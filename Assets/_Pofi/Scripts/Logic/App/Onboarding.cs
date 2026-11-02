@@ -43,7 +43,7 @@ namespace Pofi.Logic.App
         public static readonly IReadOnlyList<TipDef> All = new List<TipDef>
         {
             new TipDef { Id = Walk, Gesture = TipGesture.Slide, Where = "island", Trigger = "adaya ilk giriş", DoneWhen = "pet yürüdü (joystick ya da dokunma)" },
-            new TipDef { Id = Look, Gesture = TipGesture.Slide, Where = "island", Trigger = "yürüme öğrenildi (sağ yarıda kamera)", DoneWhen = "sağ yarıda kaydırıldı" },
+            new TipDef { Id = Look, Gesture = TipGesture.Tap, Where = "island", Trigger = "yürüme öğrenildi (GB20: dokun-yürü; eskiden sağ yarıda kamera)", DoneWhen = "yere dokunuldu" },
             new TipDef { Id = Jump, Gesture = TipGesture.Tap, Where = "island", Trigger = "yürüme öğrenildi, eylem tuşu 'Zıpla'", DoneWhen = "Zıpla'ya basıldı" },
             new TipDef { Id = Enter, Gesture = TipGesture.Tap, Where = "island", Trigger = "ilk kez bir kapının önünde", DoneWhen = "Gir'e basıldı" },
             new TipDef { Id = Play, Gesture = TipGesture.Tap, Where = "island", Trigger = "ilk kez 'Oyna!' yerinin önünde", DoneWhen = "Oyna'ya basıldı" },
