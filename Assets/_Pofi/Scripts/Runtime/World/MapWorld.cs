@@ -38,6 +38,8 @@ namespace Pofi.World
         /// <summary>Güneş Taşı bölgelerinin yer sisi (H1 sis kalkış sahnesi dağıtır).</summary>
         public readonly Dictionary<string, Transform> Fog = new Dictionary<string, Transform>();
         public IslandTerrain Terrain { get; private set; }
+        /// <summary>Oyun Kulübesi'nin Yıldız Kapısı (K4 A; bölge açık değilse null).</summary>
+        public StarGate Gate { get; private set; }
         public PetWalker Walker { get; private set; }
         /// <summary>Patika ve kumda solan ayak izleri (PetWalker adım temasında ekler).</summary>
         public Footprints Prints { get; private set; }
@@ -531,6 +533,12 @@ namespace Pofi.World
             {
                 var m = RealAssets.EnvFootprint(asset, root, r.Size, 180f + r.Yaw);   // ham önü +z → güneye dön, sonra bölge açısı
                 if (m != null && r.Id == "region_festival") FestivalInside(root, r);   // GB20-7a: kapıdan içerisi boş görünmesin
+                if (m != null && r.Id == "region_game_hut" && v.Unlocked)            // K4 A: kulübenin önünde Yıldız Kapısı + çatıda teleskop
+                {
+                    var (dx, dz) = Terrain.Door(r);
+                    var top = RealAssets.WorldBounds(root).max.y - root.position.y;
+                    Gate = StarGate.Build(this, root, dx, dz, r.X, r.Z, top);
+                }
             }
             if (root.childCount == 0) Placeholder(root, r, shown);
             var poolPad = root.Find("pool_pad");

@@ -580,6 +580,7 @@
     "notice.new_task_one": "Ev Görevleri panosunda yeni bir görev var",
     "notice.new_task_many": "Ev Görevleri panosunda {0} yeni görev var",
     "notice.new_task_many.say": "Ev Görevleri panosunda yeni görevler var.",
+    "mavi.stargate": "Bu Yıldız Kapısı! İçinden geçince Ay'da koşarsın. Hazır mısın?",
     "mavi.news_one": "Ailenden yeni bir görev var! Yapınca Güneş Taşı kazanırsın.",
     "mavi.news_many": "Ailenden {0} yeni görev var! Yapınca Güneş Taşı kazanırsın.",
     "mavi.news_many.say": "Ailenden yeni görevler var! Yapınca Güneş Taşı kazanırsın.",

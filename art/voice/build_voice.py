@@ -84,7 +84,7 @@ GB20_OKTI = ("care.clean", "care.ok.feed", "care.ok.wash", "care.ok.play", "care
              "care.sad.cleanliness", "care.sad.happiness", "care.sad.home", "care.sleeping", "pet.welcome", "wardrobe.looks_good",
              "runner.out_bubble", "runner.oops",
              "care.resting", "care.petted")   # K2 B (3 Kasım 2026): top oyunu arası, okşama
-GB20_MAVI = ("mavi.news_one",)
+GB20_MAVI = ("mavi.news_one", "mavi.stargate")   # K4 A: Yıldız Kapısı ilk yaklaşma
 GB20_NARR = ("care.full_quest", "care.clean_quest", "map.exit_tip", "quest.where", "notice.new_task_one", "notice.try_again_many", "wardrobe.removed", "wardrobe.empty", "runner.first", "runner.card",
              "mg.lane.crash", "mg.hike.summit", "mg.help_pet.warm", "mg.help_pet.hot", "mg.help_pet.found", "mg.help_pet.cold",
              "mg.fishing.wait", "mg.fishing.late", "map.site_fog", "map.pin_go", "map.hint_walk", "map.hint_overview", "gift.reveal",

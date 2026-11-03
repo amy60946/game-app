@@ -495,6 +495,7 @@ namespace Pofi.Screens
             UpdateStoneBeacon(cam, scale, Time.deltaTime);
             UpdateBoardBalloon(cam, scale, petPos);
             UpdateMaviNews(Time.deltaTime);
+            if (_world.Gate != null && _world.Gate.Approached == null) _world.Gate.Approached = OnGateNear;
         }
 
         // ------------------------------------------------------------------ dokunma
@@ -1265,7 +1266,34 @@ namespace Pofi.Screens
             App.State.VisitedRegions.Add(v.Region.Id);
             App.State.LastRegion = v.Region.Id;
             App.Save();
+            // K4 A: Oyun Kulübesi'nde kapı yüzeyi dalgalanır, kısa yıldız tüneli (ilk 1,5 sn, sonra 0,8 sn), sonra koşu
+            if (v.Region.Id == "region_game_hut" && _world.Gate != null)
+            {
+                if (_tunnel) return;
+                _tunnel = true;
+                var first = !App.State.SeenTips.Contains(GateFlag);
+                if (first) { App.State.SeenTips.Add(GateFlag); App.Save(); }
+                _world.Gate.Ripple();
+                var region = v.Region;
+                StarTunnel.Play(App.Overlay.transform, first ? 1.5f : 0.8f, () =>
+                {
+                    if (this == null || App == null) return;
+                    _tunnel = false;
+                    App.Enter(region, msg => { if (this != null) _toast.Say(msg); });
+                });
+                return;
+            }
             App.Enter(v.Region, msg => _toast.Say(msg));
+        }
+
+        private bool _tunnel;
+        private const string GateFlag = "stargate_entered", GateToldFlag = "stargate_told";
+
+        /// <summary>Okti Yıldız Kapısı'na ilk kez yaklaştı: Mavi tek cümle söyler (bir kez).</summary>
+        private void OnGateNear()
+        {
+            if (App.State.SeenTips.Contains(GateToldFlag)) return;
+            if (MaviNews(T("mavi.stargate"))) { App.State.SeenTips.Add(GateToldFlag); App.Save(); }
         }
 
         private void Collect(GameObject go, string id)
