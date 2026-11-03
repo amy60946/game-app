@@ -13,7 +13,7 @@ namespace Pofi.World
     {
         public enum Kind { Xp, Stone }
 
-        public static readonly Color XpColor = new Color(0.35f, 0.72f, 1f), StoneColor = new Color(1f, 0.78f, 0.22f);
+        public static readonly Color XpColor = new Color(0.35f, 0.72f, 1f), StoneColor = new Color(1f, 0.62f, 0.2f);   // kehribar (simge K2, 3 Kasım 2026; eski sarı 1, 0.78, 0.22)
         private static Mesh _star, _gem, _quad;
         private static Material _xpMat, _stoneMat;
         private static readonly Dictionary<int, Material> Glows = new Dictionary<int, Material>();
