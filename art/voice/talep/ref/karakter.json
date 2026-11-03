@@ -1,0 +1,38 @@
+{
+ "anlatici": {
+  "ref": "anlatici.wav",
+  "f0": 149.5,
+  "ad": "Anlatıcı (B)",
+  "satirlar": [
+   "8aad7d5de8b4bc62",
+   "55dc11309809b6ef",
+   "59c64824a41a2148",
+   "3d355eb8eafc46c8"
+  ],
+  "sure_sn": 14.3
+ },
+ "okti": {
+  "ref": "okti.wav",
+  "f0": 190.2,
+  "ad": "Okti (C)",
+  "satirlar": [
+   "45346f6dbb649004",
+   "575ce0e1ebce08a3",
+   "1e84605228bee57f",
+   "04197bdca9ee64f9"
+  ],
+  "sure_sn": 13.2
+ },
+ "adali": {
+  "ref": "adali.wav",
+  "f0": 243.1,
+  "ad": "Adalılar (H)",
+  "satirlar": [
+   "897ff18add3ba246",
+   "bf6e9ed34a3e61a2",
+   "85e5c68228cde2cb",
+   "ef66e398b144551f"
+  ],
+  "sure_sn": 14.2
+ }
+}

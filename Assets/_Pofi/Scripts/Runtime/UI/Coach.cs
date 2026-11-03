@@ -206,6 +206,7 @@ namespace Pofi.UI
             Audio.Voice.StopIf(_said);
             Audio.Sfx.Play(Audio.SfxKind.Tap);
             _bannerBox?.SetText(Text("coach.skip_ask"));
+            Audio.Voice.Say(Text("coach.skip_ask"));   // kaydı varsa okunur (yoksa sessiz)
             if (_skip != null) _skip.gameObject.SetActive(false);
             _ask = Ui.Rect(_banner, "SkipAsk", new Vector2(0.5f, 0f), new Vector2(420f, 70f), new Vector2(0f, -46f));
             _askCg = _ask.gameObject.AddComponent<CanvasGroup>();

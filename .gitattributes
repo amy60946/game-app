@@ -23,6 +23,8 @@
 Assets/_Pofi/Resources/Audio/*.ogg -filter -diff -merge binary
 # Sesli okuma adalı ses rengi örneği (127 KB, build_voice.py okur): LFS yok
 art/voice/ref/*.mp3 -filter -diff -merge binary
+# Marketing ses talebinin karakter ton referansları (3 × ~0,6 MB, Marketing penceresi okur): LFS yok
+art/voice/talep/ref/*.wav -filter -diff -merge binary
 *.ttf   filter=lfs diff=lfs merge=lfs -text
 *.otf   filter=lfs diff=lfs merge=lfs -text
 *.exr   filter=lfs diff=lfs merge=lfs -text

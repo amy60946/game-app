@@ -1,0 +1,4402 @@
+[
+ {
+  "key": "8aad7d5de8b4bc62",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:0:text",
+  "text": "Bir zamanlar mavi denizin ortasında Işık Adası vardı.",
+  "tts": "Bir zamanlar mavi denizin ortasında Işık Adası vardı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "55dc11309809b6ef",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:0:a",
+  "text": "Bir zamanlar Işık Adası vardı.",
+  "tts": "Bir zamanlar Işık Adası vardı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "59c64824a41a2148",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:1:text",
+  "text": "Sakinleri birbirine yardım eder, fener her gece yolları aydınlatırdı.",
+  "tts": "Sakinleri birbirine yardım eder, fener her gece yolları aydınlatırdı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "3d355eb8eafc46c8",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:1:a",
+  "text": "Fener her gece yolları aydınlatırdı.",
+  "tts": "Fener her gece yolları aydınlatırdı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "78aa1adbc33ba4b2",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:2:text",
+  "text": "Bir gece büyük bir fırtına çıktı. Fener söndü.",
+  "tts": "Bir gece büyük bir fırtına çıktı. Fener söndü.",
+  "kaydi_var": true
+ },
+ {
+  "key": "726bdfe67283eaf1",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:2:a",
+  "text": "Bir gece fırtına çıktı. Fener söndü.",
+  "tts": "Bir gece fırtına çıktı. Fener söndü.",
+  "kaydi_var": true
+ },
+ {
+  "key": "3cc85c4cff34d302",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:3:text",
+  "text": "Adaya sis çöktü, sakinler dağıldı.",
+  "tts": "Adaya sis çöktü, sakinler dağıldı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "3e6e2863b4e03b97",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:3:a",
+  "text": "Adaya sis çöktü.",
+  "tts": "Adaya sis çöktü.",
+  "kaydi_var": true
+ },
+ {
+  "key": "de6b101089151789",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:4:text",
+  "text": "Ama bir sabah kumsala küçük bir misafir geldi...",
+  "tts": "Ama bir sabah kumsala küçük bir misafir geldi...",
+  "kaydi_var": true
+ },
+ {
+  "key": "2cdebab5f1a7c254",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:4:a",
+  "text": "Bir sabah küçük bir misafir geldi...",
+  "tts": "Bir sabah küçük bir misafir geldi...",
+  "kaydi_var": true
+ },
+ {
+  "key": "b009fc13f7ef7357",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:5:text",
+  "text": "Evde yaptığın her iyilik bir Güneş Taşı olur. Haydi, adayı birlikte uyandıralım!",
+  "tts": "Evde yaptığın her iyilik bir Güneş Taşı olur. Haydi, adayı birlikte uyandıralım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "7283e966beb1527b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "film",
+  "src": "story:intro:5:a",
+  "text": "Her iyilik bir Güneş Taşı olur. Haydi!",
+  "tts": "Her iyilik bir Güneş Taşı olur. Haydi!",
+  "kaydi_var": true
+ },
+ {
+  "key": "897ff18add3ba246",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_open:0:text",
+  "text": "Hey küçük! Sen de fırtınayla mı geldin?",
+  "tts": "Hey küçük! Sen de fırtınayla mı geldin?",
+  "kaydi_var": true
+ },
+ {
+  "key": "cc33b723a2e7ed0b",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_open:0:a",
+  "text": "Hey küçük! Merhaba!",
+  "tts": "Hey küçük! Merhaba!",
+  "kaydi_var": true
+ },
+ {
+  "key": "bf6e9ed34a3e61a2",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_open:1:text",
+  "text": "Ben Kıskaç. Dükkânım bu kabuğun içinde, hah!",
+  "tts": "Ben Kıskaç. Dükkânım bu kabuğun içinde, hah!",
+  "kaydi_var": true
+ },
+ {
+  "key": "11e4347926a71f08",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_open:1:a",
+  "text": "Ben Kıskaç, dükkâncıyım.",
+  "tts": "Ben Kıskaç, dükkâncıyım.",
+  "kaydi_var": true
+ },
+ {
+  "key": "85e5c68228cde2cb",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_open:1:c",
+  "text": "Ben Kıskaç. Kabuğum hem evim hem dükkânım, kira yok!",
+  "tts": "Ben Kıskaç. Kabuğum hem evim hem dükkânım, kira yok!",
+  "kaydi_var": true
+ },
+ {
+  "key": "45346f6dbb649004",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_open:2:text",
+  "text": "Merhaba Kıskaç! Ada neden bu kadar sisli?",
+  "tts": "Merhaba Kıskaç! Ada neden bu kadar sisli?",
+  "kaydi_var": true
+ },
+ {
+  "key": "a81e02efd40e993e",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_open:2:a",
+  "text": "Ada neden sisli?",
+  "tts": "Ada neden sisli?",
+  "kaydi_var": true
+ },
+ {
+  "key": "ef66e398b144551f",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_open:3:text",
+  "text": "Uzun hikâye. Önce karnını doyuralım, sonra anlatırım.",
+  "tts": "Uzun hikâye. Önce karnını doyuralım, sonra anlatırım.",
+  "kaydi_var": true
+ },
+ {
+  "key": "02770ae069c48983",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_open:3:a",
+  "text": "Önce bir elma ye!",
+  "tts": "Önce bir elma ye!",
+  "kaydi_var": true
+ },
+ {
+  "key": "23ad9c3121df33d7",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_coconut:0:text",
+  "text": "Hoş geldin! Karnın doydu, üstün başın tertemiz.",
+  "tts": "Hoş geldin! Karnın doydu, üstün başın tertemiz.",
+  "kaydi_var": true
+ },
+ {
+  "key": "33e2aebcc17b6022",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_coconut:0:a",
+  "text": "Hoş geldin!",
+  "tts": "Hoş geldin!",
+  "kaydi_var": true
+ },
+ {
+  "key": "ae4747debe4afef8",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_coconut:1:text",
+  "text": "Ama bak, fırtına tezgâhımı bomboş bıraktı.",
+  "tts": "Ama bak, fırtına tezgâhımı bomboş bıraktı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "a548eab3be2547b4",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_coconut:1:a",
+  "text": "Tezgâhım bomboş kaldı.",
+  "tts": "Tezgâhım bomboş kaldı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "10e8eec4e7e63877",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_coconut:1:c",
+  "text": "Fırtına tezgâhımı süpürdü. Vitrin: boş. Moral: daha boş.",
+  "tts": "Fırtına tezgâhımı süpürdü. Vitrin: boş. Moral: daha boş.",
+  "kaydi_var": true
+ },
+ {
+  "key": "fb72ddc8f687ba7a",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_coconut:2:text",
+  "text": "Bana 2 hindistan cevizi getirir misin?",
+  "tts": "Bana 2 hindistan cevizi getirir misin?",
+  "kaydi_var": true
+ },
+ {
+  "key": "99a87dd07217e8d0",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_coconut:2:a",
+  "text": "2 hindistan cevizi getirir misin?",
+  "tts": "2 hindistan cevizi getirir misin?",
+  "kaydi_var": true
+ },
+ {
+  "key": "b4aee0a9cb2bbe7f",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_coconut:3:text",
+  "text": "Tabii! Nerede bulurum?",
+  "tts": "Tabii! Nerede bulurum?",
+  "kaydi_var": true
+ },
+ {
+  "key": "7353554725dcb8b1",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_coconut:3:a",
+  "text": "Nerede bulurum?",
+  "tts": "Nerede bulurum?",
+  "kaydi_var": true
+ },
+ {
+  "key": "0ca4c0c0e4c3879f",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_coconut:4:text",
+  "text": "Kumsalda yerde arayabilir ya da bahçede toplayabilirsin!",
+  "tts": "Kumsalda yerde arayabilir ya da bahçede toplayabilirsin!",
+  "kaydi_var": true
+ },
+ {
+  "key": "bca5509d2d3f6f02",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_coconut:4:a",
+  "text": "Kumsalda ya da bahçede bak!",
+  "tts": "Kumsalda ya da bahçede bak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "b5e05e98ebd8f7a9",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_thanks:0:text",
+  "text": "Harika! Tezgâhım yine şenlendi.",
+  "tts": "Harika! Tezgâhım yine şenlendi.",
+  "kaydi_var": true
+ },
+ {
+  "key": "46da488715ecd402",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_thanks:0:a",
+  "text": "Harika, teşekkürler!",
+  "tts": "Harika, teşekkürler!",
+  "kaydi_var": true
+ },
+ {
+  "key": "575ce0e1ebce08a3",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_thanks:1:text",
+  "text": "Sana yardım etmek çok güzeldi!",
+  "tts": "Sana yardım etmek çok güzeldi!",
+  "kaydi_var": true
+ },
+ {
+  "key": "41755806d2f4c910",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_thanks:1:a",
+  "text": "Çok güzeldi!",
+  "tts": "Çok güzeldi!",
+  "kaydi_var": true
+ },
+ {
+  "key": "3aacfe7c508ca87f",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_thanks:2:text",
+  "text": "Hadi şimdi adayı biraz dolaş, bakalım kimlerle karşılaşacaksın!",
+  "tts": "Hadi şimdi adayı biraz dolaş, bakalım kimlerle karşılaşacaksın!",
+  "kaydi_var": true
+ },
+ {
+  "key": "44ce6d9d664a98ce",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_thanks:2:a",
+  "text": "Hadi, adayı biraz dolaş!",
+  "tts": "Hadi, adayı biraz dolaş!",
+  "kaydi_var": true
+ },
+ {
+  "key": "4214ec568063e929",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:0:text",
+  "text": "Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.",
+  "tts": "Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.",
+  "kaydi_var": true
+ },
+ {
+  "key": "afb1b8b7229e055e",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:0:a",
+  "text": "Evdeki büyüklerin buraya görev bırakır.",
+  "tts": "Evdeki büyüklerin buraya görev bırakır.",
+  "kaydi_var": true
+ },
+ {
+  "key": "72fcc3ff8aa6bbf3",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:1:text",
+  "text": "Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!",
+  "tts": "Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "a44c382dccc586d1",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:1:a",
+  "text": "Görevi yapınca Güneş Taşı gelir!",
+  "tts": "Görevi yapınca Güneş Taşı gelir!",
+  "kaydi_var": true
+ },
+ {
+  "key": "1e84605228bee57f",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_board:2:text",
+  "text": "Mavi de bana bir görev bırakmış!",
+  "tts": "Mavi de bana bir görev bırakmış!",
+  "kaydi_var": true
+ },
+ {
+  "key": "7deecc6a2a733882",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_board:2:a",
+  "text": "Mavi'nin görevi burada!",
+  "tts": "Mavi'nin görevi burada!",
+  "kaydi_var": true
+ },
+ {
+  "key": "fdf32fb1a7effde2",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:3:text",
+  "text": "Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
+  "tts": "Hadi, Yaptıma bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
+  "kaydi_var": true
+ },
+ {
+  "key": "58dfcf8d3c038cae",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:3:a",
+  "text": "Yaptım'a bas, taş senin!",
+  "tts": "Yaptıma bas, taş senin!",
+  "kaydi_var": true
+ },
+ {
+  "key": "89322a00f0a4b63b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch1_close:0:text",
+  "text": "Taştan bir ışık halkası yayıldı, sis geri çekildi.",
+  "tts": "Taştan bir ışık halkası yayıldı, sis geri çekildi.",
+  "kaydi_var": true
+ },
+ {
+  "key": "1ae19a171149155d",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch1_close:0:a",
+  "text": "Işık yayıldı, sis kalktı!",
+  "tts": "Işık yayıldı, sis kalktı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "04197bdca9ee64f9",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_close:1:text",
+  "text": "Bak! Su ne kadar turkuazmış!",
+  "tts": "Bak! Su ne kadar turkuazmış!",
+  "kaydi_var": true
+ },
+ {
+  "key": "a5e980f32506f038",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_close:1:a",
+  "text": "Su turkuaz!",
+  "tts": "Su turkuaz!",
+  "kaydi_var": true
+ },
+ {
+  "key": "417a191463078df2",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch1_close:3:text",
+  "text": "Tepedeki küçük bulut biraz küçüldü ve ilk kez gülümsedi.",
+  "tts": "Tepedeki küçük bulut biraz küçüldü ve ilk kez gülümsedi.",
+  "kaydi_var": true
+ },
+ {
+  "key": "4ff69746b59f56ab",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch1_close:3:a",
+  "text": "Tepedeki bulut gülümsedi.",
+  "tts": "Tepedeki bulut gülümsedi.",
+  "kaydi_var": true
+ },
+ {
+  "key": "36f11e51049fc0d7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch2_open:0:text",
+  "text": "Gökyüzünden bir zarf süzüldü, ardından bir martı düşer gibi kondu.",
+  "tts": "Gökyüzünden bir zarf süzüldü, ardından bir martı düşer gibi kondu.",
+  "kaydi_var": true
+ },
+ {
+  "key": "3c5599d14a0a5b23",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch2_open:0:a",
+  "text": "Gökyüzünden bir zarf düştü!",
+  "tts": "Gökyüzünden bir zarf düştü!",
+  "kaydi_var": true
+ },
+ {
+  "key": "4a6511f16d5d8df1",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_open:1:text",
+  "text": "Ben adanın postacısı Mavi'yim! Ama kulübem uçtu!",
+  "tts": "Ben adanın postacısı Mavi'yim! Ama kulübem uçtu!",
+  "kaydi_var": true
+ },
+ {
+  "key": "d891c4d4459471ea",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_open:1:a",
+  "text": "Ben Mavi, postacıyım!",
+  "tts": "Ben Mavi, postacıyım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "44b561a267b6bcf6",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_open:1:c",
+  "text": "Ben Mavi. Postacıyım ama adresim fırtınayla uçtu.",
+  "tts": "Ben Mavi. Postacıyım ama adresim fırtınayla uçtu.",
+  "kaydi_var": true
+ },
+ {
+  "key": "1efadd37821beb91",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_open:2:text",
+  "text": "Mektupları nerede saklayacağım şimdi?",
+  "tts": "Mektupları nerede saklayacağım şimdi?",
+  "kaydi_var": true
+ },
+ {
+  "key": "53d552d4cd2aef90",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_open:2:a",
+  "text": "Mektuplar nerede kalacak?",
+  "tts": "Mektuplar nerede kalacak?",
+  "kaydi_var": true
+ },
+ {
+  "key": "5eab34e9fa002b2c",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch2_open:3:text",
+  "text": "Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.",
+  "tts": "Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.",
+  "kaydi_var": true
+ },
+ {
+  "key": "381de71d99f97652",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch2_open:3:a",
+  "text": "Sana kulübe yaparım!",
+  "tts": "Sana kulübe yaparım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "75dda12e5285d87e",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_open:4:text",
+  "text": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!",
+  "tts": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "c6b667c7985a4e6c",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_open:4:a",
+  "text": "Panoya sana bir görev bıraktım!",
+  "tts": "Panoya sana bir görev bıraktım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "8ec655319b977d84",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch2_open:5:text",
+  "text": "Hemen panoya gidiyorum!",
+  "tts": "Hemen panoya gidiyorum!",
+  "kaydi_var": true
+ },
+ {
+  "key": "693a90667b306925",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch2_open:5:a",
+  "text": "Panoya gidiyorum!",
+  "tts": "Panoya gidiyorum!",
+  "kaydi_var": true
+ },
+ {
+  "key": "31fe7b02ee1e8a6b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch2_fog:0:text",
+  "text": "Taştan bir ışık yayıldı, sis yavaşça çekildi.",
+  "tts": "Taştan bir ışık yayıldı, sis yavaşça çekildi.",
+  "kaydi_var": true
+ },
+ {
+  "key": "b99d574d368b6440",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_fog:1:text",
+  "text": "İşte kulübemin yeri! Odun, dal ve taş toplayalım mı?",
+  "tts": "İşte kulübemin yeri! Odun, dal ve taş toplayalım mı?",
+  "kaydi_var": true
+ },
+ {
+  "key": "19b535f16bf4e6be",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_fog:1:a",
+  "text": "Kulübemin yeri açıldı!",
+  "tts": "Kulübemin yeri açıldı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "21ef0c0667fcee05",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch2_fog:2:text",
+  "text": "Hemen başlıyorum!",
+  "tts": "Hemen başlıyorum!",
+  "kaydi_var": true
+ },
+ {
+  "key": "859b86b35ff6e91b",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_close:0:text",
+  "text": "Kulübem bitti! Bak, posta zili bile çalıyor!",
+  "tts": "Kulübem bitti! Bak, posta zili bile çalıyor!",
+  "kaydi_var": true
+ },
+ {
+  "key": "78f1ecc65a7094ef",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_close:0:a",
+  "text": "Kulübem bitti!",
+  "tts": "Kulübem bitti!",
+  "kaydi_var": true
+ },
+ {
+  "key": "331b6790724d63b2",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_close:1:text",
+  "text": "Evinin önüne bir mektup kutusu koydum. Sana yazacağım!",
+  "tts": "Evinin önüne bir mektup kutusu koydum. Sana yazacağım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "e91a5666218d9ed7",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_close:1:a",
+  "text": "Sana mektup yazacağım!",
+  "tts": "Sana mektup yazacağım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "433bc960333ef7d5",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_close:2:text",
+  "text": "Bir yere gitmek istersen önden uçarım, izimi takip et.",
+  "tts": "Bir yere gitmek istersen önden uçarım, izimi takip et.",
+  "kaydi_var": true
+ },
+ {
+  "key": "8610f0059f45b19d",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_close:2:a",
+  "text": "Ben önden uçarım, beni izle!",
+  "tts": "Ben önden uçarım, beni izle!",
+  "kaydi_var": true
+ },
+ {
+  "key": "0acf178e6c9bfff9",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_close:3:text",
+  "text": "Akşamları kamp ateşinin başında toplanırız. Ateş için biraz odun lazım, kütüklerden toplayalım mı?",
+  "tts": "Akşamları kamp ateşinin başında toplanırız. Ateş için biraz odun lazım, kütüklerden toplayalım mı?",
+  "kaydi_var": false
+ },
+ {
+  "key": "c34ff635145e46dc",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_close:3:a",
+  "text": "Ateş için odun toplayalım mı?",
+  "tts": "Ateş için odun toplayalım mı?",
+  "kaydi_var": false
+ },
+ {
+  "key": "edc7686b691ac879",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch3_open:0:text",
+  "text": "Tepeden bir kartopu yuvarlanıp önünde durdu.",
+  "tts": "Tepeden bir kartopu yuvarlanıp önünde durdu.",
+  "kaydi_var": true
+ },
+ {
+  "key": "a85f252b160546d0",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch3_open:0:a",
+  "text": "Bir kartopu geldi!",
+  "tts": "Bir kartopu geldi!",
+  "kaydi_var": true
+ },
+ {
+  "key": "3a5068c2859246ed",
+  "role": "adali",
+  "who": "pitir",
+  "kalip": "hikaye_adali",
+  "src": "story:ch3_open:1:text",
+  "text": "Pus üşüyünce kar yağdırır!",
+  "tts": "Pus üşüyünce kar yağdırır!",
+  "kaydi_var": true
+ },
+ {
+  "key": "ba8866d752ec5a2a",
+  "role": "adali",
+  "who": "pitir",
+  "kalip": "hikaye_adali",
+  "src": "story:ch3_open:1:a",
+  "text": "Pus üşüyünce kar yağar!",
+  "tts": "Pus üşüyünce kar yağar!",
+  "kaydi_var": true
+ },
+ {
+  "key": "21178e50bad5c59c",
+  "role": "adali",
+  "who": "hisir",
+  "kalip": "hikaye_adali",
+  "src": "story:ch3_open:2:text",
+  "text": "...kar yağdırır.",
+  "tts": "...kar yağdırır.",
+  "kaydi_var": true
+ },
+ {
+  "key": "b07c21e8a8f5c21f",
+  "role": "adali",
+  "who": "hisir",
+  "kalip": "hikaye_adali",
+  "src": "story:ch3_open:2:a",
+  "text": "...kar yağar.",
+  "tts": "...kar yağar.",
+  "kaydi_var": true
+ },
+ {
+  "key": "5e27ed3a9482d935",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch3_open:3:text",
+  "text": "O zaman kayak zamanı!",
+  "tts": "O zaman kayak zamanı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "169cd86a6ccc69fb",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch3_open:3:a",
+  "text": "Kayak zamanı!",
+  "tts": "Kayak zamanı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "a666797eb4cc1b5c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch3_close:0:text",
+  "text": "Okti'nin çevresinde bir ışık sarmalı döndü.",
+  "tts": "Okti'nin çevresinde bir ışık sarmalı döndü.",
+  "kaydi_var": true
+ },
+ {
+  "key": "aa7337729e1c9eb6",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch3_close:0:a",
+  "text": "Işık sarmalı döndü!",
+  "tts": "Işık sarmalı döndü!",
+  "kaydi_var": true
+ },
+ {
+  "key": "03ba698761b5720d",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch3_close:1:text",
+  "text": "Bakın, kollarım uzadı!",
+  "tts": "Bakın, kollarım uzadı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "6c9924bebab426a7",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch3_close:1:a",
+  "text": "Büyüdüm!",
+  "tts": "Büyüdüm!",
+  "kaydi_var": true
+ },
+ {
+  "key": "1c5988950e9c61f9",
+  "role": "adali",
+  "who": "pitir",
+  "kalip": "hikaye_adali",
+  "src": "story:ch3_close:2:text",
+  "text": "Bizden bile uzun olacak!",
+  "tts": "Bizden bile uzun olacak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "ab922894c58beae3",
+  "role": "adali",
+  "who": "pitir",
+  "kalip": "hikaye_adali",
+  "src": "story:ch3_close:2:a",
+  "text": "Çok büyümüş!",
+  "tts": "Çok büyümüş!",
+  "kaydi_var": true
+ },
+ {
+  "key": "3164053c0657c073",
+  "role": "adali",
+  "who": "hisir",
+  "kalip": "hikaye_adali",
+  "src": "story:ch3_close:3:text",
+  "text": "...bizden bile uzun.",
+  "tts": "...bizden bile uzun.",
+  "kaydi_var": true
+ },
+ {
+  "key": "a2fadf4a8f21b7be",
+  "role": "adali",
+  "who": "hisir",
+  "kalip": "hikaye_adali",
+  "src": "story:ch3_close:3:a",
+  "text": "...çok büyümüş.",
+  "tts": "...çok büyümüş.",
+  "kaydi_var": true
+ },
+ {
+  "key": "69f3580183d629bc",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch4_open:0:text",
+  "text": "Denizden yaşlı bir kaplumbağa yavaşça yaklaştı.",
+  "tts": "Denizden yaşlı bir kaplumbağa yavaşça yaklaştı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "6dd8a59df6984e49",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch4_open:0:a",
+  "text": "Yaşlı bir kaplumbağa geldi.",
+  "tts": "Yaşlı bir kaplumbağa geldi.",
+  "kaydi_var": true
+ },
+ {
+  "key": "87a9741a44ca1492",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_open:1:text",
+  "text": "Merhaba evlat. Ben Tosbi. Bu köprüyü çok eskiden bilirim.",
+  "tts": "Merhaba evlat. Ben Tosbi. Bu köprüyü çok eskiden bilirim.",
+  "kaydi_var": true
+ },
+ {
+  "key": "17050930140e2503",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_open:1:a",
+  "text": "Ben Tosbi Dede.",
+  "tts": "Ben Tosbi Dede.",
+  "kaydi_var": true
+ },
+ {
+  "key": "bd893c1376c2fed6",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_open:2:text",
+  "text": "Köprü onarılırsa sana bir sır göstereceğim.",
+  "tts": "Köprü onarılırsa sana bir sır göstereceğim.",
+  "kaydi_var": true
+ },
+ {
+  "key": "c6ef1131d076fcf0",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_open:2:a",
+  "text": "Köprü onarılırsa sır var!",
+  "tts": "Köprü onarılırsa sır var!",
+  "kaydi_var": true
+ },
+ {
+  "key": "e22e8a3ae4a73a0a",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch4_open:3:text",
+  "text": "Güneş Taşları köprüyü onarır mı?",
+  "tts": "Güneş Taşları köprüyü onarır mı?",
+  "kaydi_var": true
+ },
+ {
+  "key": "e9591e9036556da2",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch4_open:3:a",
+  "text": "Taşlar köprüyü onarır mı?",
+  "tts": "Taşlar köprüyü onarır mı?",
+  "kaydi_var": true
+ },
+ {
+  "key": "b9123ee75e68d4a7",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_open:4:text",
+  "text": "Dört taş, dört tahta. Acele yok, ben beklerim.",
+  "tts": "Dört taş, dört tahta. Acele yok, ben beklerim.",
+  "kaydi_var": true
+ },
+ {
+  "key": "6387129f78fd7bee",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_open:4:a",
+  "text": "Dört taş yeter. Ben beklerim.",
+  "tts": "Dört taş yeter. Ben beklerim.",
+  "kaydi_var": true
+ },
+ {
+  "key": "d4b153d5984db801",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch4_close:0:text",
+  "text": "Son tahta da yerine oturdu.",
+  "tts": "Son tahta da yerine oturdu.",
+  "kaydi_var": true
+ },
+ {
+  "key": "fd9b69c7f55267a3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch4_close:0:a",
+  "text": "Köprü onarıldı!",
+  "tts": "Köprü onarıldı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "4dece97301502d0a",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_close:1:text",
+  "text": "İşte söz verdiğim sır: Bekçi Nur'un günlüğünden bir sayfa.",
+  "tts": "İşte söz verdiğim sır: Bekçi Nur'un günlüğünden bir sayfa.",
+  "kaydi_var": true
+ },
+ {
+  "key": "87cf730f2d9ed6d3",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_close:1:a",
+  "text": "İşte bir günlük sayfası.",
+  "tts": "İşte bir günlük sayfası.",
+  "kaydi_var": true
+ },
+ {
+  "key": "d0ae759a77f43dc2",
+  "role": "adali",
+  "who": "nur",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_close:2:text",
+  "text": "\"Bu ada bir zamanlar ışıkla dolardı...\"",
+  "tts": "\"Bu ada bir zamanlar ışıkla dolardı...\"",
+  "kaydi_var": true
+ },
+ {
+  "key": "d8d92227164de03d",
+  "role": "adali",
+  "who": "nur",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_close:2:a",
+  "text": "\"Bu ada ışıkla dolardı...\"",
+  "tts": "\"Bu ada ışıkla dolardı...\"",
+  "kaydi_var": true
+ },
+ {
+  "key": "5337c91d74326cfa",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_close:3:text",
+  "text": "Diğer sayfalar adaya dağıldı. Belki sen bulursun.",
+  "tts": "Diğer sayfalar adaya dağıldı. Belki sen bulursun.",
+  "kaydi_var": true
+ },
+ {
+  "key": "d262b6a6334196bd",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch4_close:3:a",
+  "text": "Diğerlerini sen bul!",
+  "tts": "Diğerlerini sen bul!",
+  "kaydi_var": true
+ },
+ {
+  "key": "e5a70e7645f2071c",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch5_open:0:text",
+  "text": "Nur her gece bir sayfa yazardı.",
+  "tts": "Nur her gece bir sayfa yazardı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "355bec57074f0093",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch5_open:0:a",
+  "text": "Nur her gece yazardı.",
+  "tts": "Nur her gece yazardı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "3f59a2ced7ce2973",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch5_open:1:text",
+  "text": "Fırtına sayfaları adaya dağıttı. Parıltıların yanına bak.",
+  "tts": "Fırtına sayfaları adaya dağıttı. Parıltıların yanına bak.",
+  "kaydi_var": true
+ },
+ {
+  "key": "1d15ab0b9e9e50e1",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch5_open:1:a",
+  "text": "Parıltıların yanına bak!",
+  "tts": "Parıltıların yanına bak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "3d8a222c7e1ffd9b",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch5_open:2:text",
+  "text": "Hepsini bulup Defter'e koyacağım!",
+  "tts": "Hepsini bulup Defter'e koyacağım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "14465e13b024947b",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch5_open:2:a",
+  "text": "Hepsini bulacağım!",
+  "tts": "Hepsini bulacağım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "c25ca1ae9b225acb",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch5_close:0:text",
+  "text": "Okti artık yetişkin bir ahtapot. Evi de büyüdü.",
+  "tts": "Okti artık yetişkin bir ahtapot. Evi de büyüdü.",
+  "kaydi_var": true
+ },
+ {
+  "key": "8bba0dd88defd9ae",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch5_close:0:a",
+  "text": "Okti yetişkin oldu!",
+  "tts": "Okti yetişkin oldu!",
+  "kaydi_var": true
+ },
+ {
+  "key": "28b9c2bd22cb8cfe",
+  "role": "adali",
+  "who": "nur",
+  "kalip": "hikaye_adali",
+  "src": "story:ch5_close:1:text",
+  "text": "\"Fenerin büyük camı mağaraya yuvarlandı.\"",
+  "tts": "\"Fenerin büyük camı mağaraya yuvarlandı.\"",
+  "kaydi_var": true
+ },
+ {
+  "key": "557a7c8936e9d0d0",
+  "role": "adali",
+  "who": "nur",
+  "kalip": "hikaye_adali",
+  "src": "story:ch5_close:1:a",
+  "text": "\"Cam mağarada.\"",
+  "tts": "\"Cam mağarada.\"",
+  "kaydi_var": true
+ },
+ {
+  "key": "fb551cf43078c699",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch5_close:2:text",
+  "text": "Mağara! Ama yolu sisle kapalı...",
+  "tts": "Mağara! Ama yolu sisle kapalı...",
+  "kaydi_var": true
+ },
+ {
+  "key": "b436b80c9d99c584",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch5_close:2:a",
+  "text": "Mağara sisli...",
+  "tts": "Mağara sisli...",
+  "kaydi_var": true
+ },
+ {
+  "key": "8b65632350026fa7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch6_open:0:text",
+  "text": "Mağaranın ağzını kalın bir sis kapatmış.",
+  "tts": "Mağaranın ağzını kalın bir sis kapatmış.",
+  "kaydi_var": true
+ },
+ {
+  "key": "2662194df042e798",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch6_open:0:a",
+  "text": "Mağara sisli.",
+  "tts": "Mağara sisli.",
+  "kaydi_var": true
+ },
+ {
+  "key": "1c7256a912cc6677",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch6_open:1:text",
+  "text": "Sanki biri burada uyuyor...",
+  "tts": "Sanki biri burada uyuyor...",
+  "kaydi_var": true
+ },
+ {
+  "key": "f2a605296184f4a4",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch6_open:1:a",
+  "text": "Biri uyuyor...",
+  "tts": "Biri uyuyor...",
+  "kaydi_var": true
+ },
+ {
+  "key": "0f1261b640c0676b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch6_open:2:text",
+  "text": "Yoldaki altı ışık direği taş bekliyor.",
+  "tts": "Yoldaki altı ışık direği taş bekliyor.",
+  "kaydi_var": true
+ },
+ {
+  "key": "7cacdcbee04b639a",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch6_open:2:a",
+  "text": "Altı direk taş bekliyor.",
+  "tts": "Altı direk taş bekliyor.",
+  "kaydi_var": true
+ },
+ {
+  "key": "1ec902add8d2d4b8",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch6_close:0:text",
+  "text": "Direkler sırayla yandı. Mağaranın dibinde bir şey parladı.",
+  "tts": "Direkler sırayla yandı. Mağaranın dibinde bir şey parladı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "7b562cb260f19e21",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch6_close:0:a",
+  "text": "Direkler yandı!",
+  "tts": "Direkler yandı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "82977c4d51452e57",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch6_close:1:text",
+  "text": "Fenerin camı! Buldum!",
+  "tts": "Fenerin camı! Buldum!",
+  "kaydi_var": true
+ },
+ {
+  "key": "ae7c5111c5abe8be",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch6_close:1:a",
+  "text": "Cam burada!",
+  "tts": "Cam burada!",
+  "kaydi_var": true
+ },
+ {
+  "key": "f52ed7e003511b60",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch6_close:2:text",
+  "text": "Herkes benden kaçtı...",
+  "tts": "Herkes benden kaçtı...",
+  "kaydi_var": true
+ },
+ {
+  "key": "3fd965fcf5d321e2",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch6_close:2:a",
+  "text": "Herkes kaçtı...",
+  "tts": "Herkes kaçtı...",
+  "kaydi_var": true
+ },
+ {
+  "key": "150f3323075b456d",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch6_close:3:text",
+  "text": "Ben kaçmam. Gel, birlikte ısınalım.",
+  "tts": "Ben kaçmam. Gel, birlikte ısınalım.",
+  "kaydi_var": true
+ },
+ {
+  "key": "65d82fb0e9178760",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch6_close:3:a",
+  "text": "Ben kaçmam. Gel!",
+  "tts": "Ben kaçmam. Gel!",
+  "kaydi_var": true
+ },
+ {
+  "key": "5c75500a6cd558f1",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch7_open:0:text",
+  "text": "Mektuplarım uzak kıyılara ulaştı!",
+  "tts": "Mektuplarım uzak kıyılara ulaştı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "613414978b6ac7e2",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch7_open:0:a",
+  "text": "Mektuplar ulaştı!",
+  "tts": "Mektuplar ulaştı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "1509f069d323ca2f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch7_open:1:text",
+  "text": "Ufuktan küçük tekneler görünüyor.",
+  "tts": "Ufuktan küçük tekneler görünüyor.",
+  "kaydi_var": true
+ },
+ {
+  "key": "5717887df922d95d",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch7_open:1:a",
+  "text": "Tekneler geliyor!",
+  "tts": "Tekneler geliyor!",
+  "kaydi_var": true
+ },
+ {
+  "key": "f3a53735fdc4ddce",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch7_open:2:text",
+  "text": "Festival zamanı! Fenerleri hazırlayın!",
+  "tts": "Festival zamanı! Fenerleri hazırlayın!",
+  "kaydi_var": true
+ },
+ {
+  "key": "ef10c54c6eca2cdc",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch7_open:2:a",
+  "text": "Festival zamanı!",
+  "tts": "Festival zamanı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "6dfc988be6c81123",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch7_close:0:text",
+  "text": "Fenerler birer birer yandı.",
+  "tts": "Fenerler birer birer yandı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "030cafabd17d217a",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch7_close:0:a",
+  "text": "Fenerler yandı!",
+  "tts": "Fenerler yandı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "22c8d7b0b1ba65ec",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch7_close:1:text",
+  "text": "Ben de gelebilir miyim?",
+  "tts": "Ben de gelebilir miyim?",
+  "kaydi_var": true
+ },
+ {
+  "key": "88854437241d18e6",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch7_close:2:text",
+  "text": "Elbette! Bak, ışıkta renk renk oldun!",
+  "tts": "Elbette! Bak, ışıkta renk renk oldun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "d9b5c787ac624478",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch7_close:2:a",
+  "text": "Elbette! Renk renk oldun!",
+  "tts": "Elbette! Renk renk oldun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "f5b236ea7c07d278",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch7_close:3:text",
+  "text": "Gökyüzünde bir gökkuşağı belirdi.",
+  "tts": "Gökyüzünde bir gökkuşağı belirdi.",
+  "kaydi_var": true
+ },
+ {
+  "key": "96db06935ad093a1",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch7_close:3:a",
+  "text": "Gökkuşağı çıktı!",
+  "tts": "Gökkuşağı çıktı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "3d7e46200e7dfe6b",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch8_open:0:text",
+  "text": "Fırtına zirvede doğdu. Ben de oradan koptum.",
+  "tts": "Fırtına zirvede doğdu. Ben de oradan koptum.",
+  "kaydi_var": true
+ },
+ {
+  "key": "72321645bc084cd7",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch8_open:0:a",
+  "text": "Ben zirvede doğdum.",
+  "tts": "Ben zirvede doğdum.",
+  "kaydi_var": true
+ },
+ {
+  "key": "bd3f6932cbca4f5c",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch8_open:1:text",
+  "text": "Fenerin aynası hâlâ orada.",
+  "tts": "Fenerin aynası hâlâ orada.",
+  "kaydi_var": true
+ },
+ {
+  "key": "474ce65f121a433d",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch8_open:1:a",
+  "text": "Ayna zirvede.",
+  "tts": "Ayna zirvede.",
+  "kaydi_var": true
+ },
+ {
+  "key": "b5368c9daacc0b04",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch8_open:2:text",
+  "text": "O zaman tırmanalım!",
+  "tts": "O zaman tırmanalım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "0e17b49dc26b911e",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch8_open:2:a",
+  "text": "Tırmanalım!",
+  "tts": "Tırmanalım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "01cd8de16d90677a",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch8_close:0:text",
+  "text": "Zirveden bütün ada göründü.",
+  "tts": "Zirveden bütün ada göründü.",
+  "kaydi_var": true
+ },
+ {
+  "key": "e767cb2a60382d02",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch8_close:0:a",
+  "text": "Bütün ada göründü!",
+  "tts": "Bütün ada göründü!",
+  "kaydi_var": true
+ },
+ {
+  "key": "6e8cc9f39055add3",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch8_close:1:text",
+  "text": "Ayna burada! Bir de... ufukta bir ışık var.",
+  "tts": "Ayna burada! Bir de... ufukta bir ışık var.",
+  "kaydi_var": true
+ },
+ {
+  "key": "bc3b44de61416172",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch8_close:1:a",
+  "text": "Ayna burada! Ufukta ışık var.",
+  "tts": "Ayna burada! Ufukta ışık var.",
+  "kaydi_var": true
+ },
+ {
+  "key": "9318b99bf5ca82d9",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch8_close:2:text",
+  "text": "Biri adaya yolunu arıyor.",
+  "tts": "Biri adaya yolunu arıyor.",
+  "kaydi_var": true
+ },
+ {
+  "key": "36dcb9ad576151fb",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch8_close:2:a",
+  "text": "Biri yol arıyor.",
+  "tts": "Biri yol arıyor.",
+  "kaydi_var": true
+ },
+ {
+  "key": "be5211d069f86ab0",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch9_open:0:text",
+  "text": "Kıskaç, Mavi, Tosbi Dede, palmiyeler ve Pus fenerin kapısında.",
+  "tts": "Kıskaç, Mavi, Tosbi Dede, palmiyeler ve Pus fenerin kapısında.",
+  "kaydi_var": true
+ },
+ {
+  "key": "660f3e26f5726e57",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch9_open:0:a",
+  "text": "Herkes fenerde!",
+  "tts": "Herkes fenerde!",
+  "kaydi_var": true
+ },
+ {
+  "key": "941d141f6788dbf0",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch9_open:1:text",
+  "text": "Camı ve aynayı yerine taktım. Şimdi son taşlar!",
+  "tts": "Camı ve aynayı yerine taktım. Şimdi son taşlar!",
+  "kaydi_var": true
+ },
+ {
+  "key": "17d1c50bb3395a7b",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch9_open:1:a",
+  "text": "Son taşlar kaldı!",
+  "tts": "Son taşlar kaldı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "8f6a2665167dc0ed",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch9_open:2:text",
+  "text": "Nur görseydi çok sevinirdi.",
+  "tts": "Nur görseydi çok sevinirdi.",
+  "kaydi_var": true
+ },
+ {
+  "key": "b0d7e0f127819103",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "hikaye_adali",
+  "src": "story:ch9_open:2:a",
+  "text": "Nur sevinirdi.",
+  "tts": "Nur sevinirdi.",
+  "kaydi_var": true
+ },
+ {
+  "key": "6c4a4e53a5a07f5d",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch9_close:0:text",
+  "text": "Fener yandı. Işık bütün adayı süpürdü, kalan sis kalktı.",
+  "tts": "Fener yandı. Işık bütün adayı süpürdü, kalan sis kalktı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "1cda32f7b6488133",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch9_close:0:a",
+  "text": "Fener yandı!",
+  "tts": "Fener yandı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "192989ab55774ed9",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch9_close:1:text",
+  "text": "Artık sis değilim... yağmur bulutuyum! Bahçeyi sularım.",
+  "tts": "Artık sis değilim... yağmur bulutuyum! Bahçeyi sularım.",
+  "kaydi_var": true
+ },
+ {
+  "key": "5c046400b5941514",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "hikaye_adali",
+  "src": "story:ch9_close:1:a",
+  "text": "Ben yağmur bulutuyum!",
+  "tts": "Ben yağmur bulutuyum!",
+  "kaydi_var": true
+ },
+ {
+  "key": "b0e68b4e8117f74c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch9_close:2:text",
+  "text": "Ufuktaki tekne ışığı izleyip kıyıya yanaştı.",
+  "tts": "Ufuktaki tekne ışığı izleyip kıyıya yanaştı.",
+  "kaydi_var": true
+ },
+ {
+  "key": "a60ea843049f1512",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch9_close:2:a",
+  "text": "Bir tekne geldi.",
+  "tts": "Bir tekne geldi.",
+  "kaydi_var": true
+ },
+ {
+  "key": "f05216db88ada874",
+  "role": "adali",
+  "who": "nur",
+  "kalip": "hikaye_adali",
+  "src": "story:ch9_close:3:text",
+  "text": "Fenerimi kim yaktı? Teşekkür ederim, Okti.",
+  "tts": "Fenerimi kim yaktı? Teşekkür ederim, Okti.",
+  "kaydi_var": true
+ },
+ {
+  "key": "512e186c9e61203a",
+  "role": "adali",
+  "who": "nur",
+  "kalip": "hikaye_adali",
+  "src": "story:ch9_close:3:a",
+  "text": "Teşekkür ederim, Okti!",
+  "tts": "Teşekkür ederim, Okti!",
+  "kaydi_var": true
+ },
+ {
+  "key": "80d698810d5f7a3c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch9_close:4:text",
+  "text": "Işık Adası yeniden ışıkla doldu.",
+  "tts": "Işık Adası yeniden ışıkla doldu.",
+  "kaydi_var": true
+ },
+ {
+  "key": "eb0d89ab3beeca8a",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "hikaye_anlatici",
+  "src": "story:ch9_close:4:a",
+  "text": "Ada yeniden ışıkla doldu!",
+  "tts": "Ada yeniden ışıkla doldu!",
+  "kaydi_var": true
+ },
+ {
+  "key": "9db75e244531594c",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "adali_selam",
+  "src": "request:req_kiskac_stone",
+  "text": "Vitrinim için 3 taş bulur musun?",
+  "tts": "Vitrinim için 3 taş bulur musun?",
+  "kaydi_var": true
+ },
+ {
+  "key": "9905c2d26bee0297",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "adali_selam",
+  "src": "request:req_mavi_branch",
+  "text": "Posta çantamı onarmak için 2 dal lazım.",
+  "tts": "Posta çantamı onarmak için 2 dal lazım.",
+  "kaydi_var": true
+ },
+ {
+  "key": "cb0d9b5a755e788f",
+  "role": "adali",
+  "who": "pitir",
+  "kalip": "adali_selam",
+  "src": "request:req_pitir_wood",
+  "text": "Yanımıza bir oturak yapar mısın? 4 odun yeter.",
+  "tts": "Yanımıza bir oturak yapar mısın? 4 odun yeter.",
+  "kaydi_var": true
+ },
+ {
+  "key": "baed8c409a68650a",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "adali_selam",
+  "src": "request:req_tosbi_fish",
+  "text": "Bana 2 balık getirirsen sana bir şey anlatacağım.",
+  "tts": "Bana 2 balık getirirsen sana bir şey anlatacağım.",
+  "kaydi_var": true
+ },
+ {
+  "key": "342041033c38978e",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "adali_selam",
+  "src": "request:req_kiskac_coconut",
+  "text": "Tezgâhıma 2 hindistan cevizi koyalım mı?",
+  "tts": "Tezgâhıma 2 hindistan cevizi koyalım mı?",
+  "kaydi_var": true
+ },
+ {
+  "key": "b3ef9d6fb897e531",
+  "role": "adali",
+  "who": "hisir",
+  "kalip": "adali_selam",
+  "src": "request:req_hisir_carrot",
+  "text": "...bir havuç alabilir miyiz?",
+  "tts": "...bir havuç alabilir miyiz?",
+  "kaydi_var": true
+ },
+ {
+  "key": "705b7ac91d197822",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.walk",
+  "text": "Parmağını kaydır: Okti yürüsün!",
+  "tts": "Parmağını kaydır: Okti yürüsün!",
+  "kaydi_var": false
+ },
+ {
+  "key": "eb450c5e12b192d5",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.look",
+  "text": "Bir yere dokun: Okti oraya yürüsün!",
+  "tts": "Bir yere dokun: Okti oraya yürüsün!",
+  "kaydi_var": false
+ },
+ {
+  "key": "8bc1266c6462a624",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.jump",
+  "text": "Sağ alttaki tuş: zıpla!",
+  "tts": "Sağ alttaki tuş: zıpla!",
+  "kaydi_var": true
+ },
+ {
+  "key": "24382daabf71dae3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.enter",
+  "text": "Sağ alttaki kapıya bas, içeri gir!",
+  "tts": "Sağ alttaki kapıya bas, içeri gir!",
+  "kaydi_var": true
+ },
+ {
+  "key": "e22a64590b11f64a",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.play",
+  "text": "Oyun var! Oyna'ya bas.",
+  "tts": "Oyun var! Oyna'ya bas.",
+  "kaydi_var": true
+ },
+ {
+  "key": "02149f0896a7bc66",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.feed",
+  "text": "Yiyeceği Okti'nin üstüne sürükle!",
+  "tts": "Yiyeceği Okti'nin üstüne sürükle!",
+  "kaydi_var": true
+ },
+ {
+  "key": "54f798c96e2782e3",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "adali_selam",
+  "src": "tr:res.hi_kiskac",
+  "text": "Merhaba Okti! Dükkânım hep açık.",
+  "tts": "Merhaba Okti! Dükkânım hep açık.",
+  "kaydi_var": true
+ },
+ {
+  "key": "12d4209d5dfba8f4",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "adali_selam",
+  "src": "tr:res.hi_mavi",
+  "text": "Ben postacı Mavi! Ailen sana mektup yazınca, evinin önündeki kutuya ben getiririm.",
+  "tts": "Ben postacı Mavi! Ailen sana mektup yazınca, evinin önündeki kutuya ben getiririm.",
+  "kaydi_var": false
+ },
+ {
+  "key": "af1e2f5da1cfdea7",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "adali_selam",
+  "src": "tr:res.hi_mavi_mail",
+  "text": "Sana mektup getirdim! Evinin önündeki posta kutusuna bak.",
+  "tts": "Sana mektup getirdim! Evinin önündeki posta kutusuna bak.",
+  "kaydi_var": false
+ },
+ {
+  "key": "40c323cd16b976c4",
+  "role": "adali",
+  "who": "pus",
+  "kalip": "adali_selam",
+  "src": "tr:res.hi_pus",
+  "text": "Ben Pus. Artık fırtına değil, dostum!",
+  "tts": "Ben Pus. Artık fırtına değil, dostum!",
+  "kaydi_var": true
+ },
+ {
+  "key": "f2403054ebc3577b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.plant",
+  "text": "Tohumu tarlaların üstünden geçir!",
+  "tts": "Tohumu tarlaların üstünden geçir!",
+  "kaydi_var": true
+ },
+ {
+  "key": "03893fce448ecef7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.harvest",
+  "text": "Orağı ürünlerin üstünden geçir!",
+  "tts": "Orağı ürünlerin üstünden geçir!",
+  "kaydi_var": true
+ },
+ {
+  "key": "97afde5670a92b87",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.feed_open",
+  "text": "Okti'ye dokun, sonra elmaya!",
+  "tts": "Okti'ye dokun, sonra elmaya!",
+  "kaydi_var": true
+ },
+ {
+  "key": "83c1cdac2647b7d8",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.pet_menu",
+  "text": "Okti'ye dokun: besle, yıka, giydir!",
+  "tts": "Okti'ye dokun: besle, yıka, giydir!",
+  "kaydi_var": true
+ },
+ {
+  "key": "6845d52fda361844",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.wash",
+  "text": "Sabunu Okti'nin üstüne sürükle!",
+  "tts": "Sabunu Okti'nin üstüne sürükle!",
+  "kaydi_var": true
+ },
+ {
+  "key": "cbffecd0e3bea7e3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.tasks",
+  "text": "Görev yap, yıldız kazan!",
+  "tts": "Görev yap, yıldız kazan!",
+  "kaydi_var": true
+ },
+ {
+  "key": "38d37cbecd6663dd",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.xp",
+  "text": "Yıldız topla, seviye atla! Rozetlerin için kartına dokun.",
+  "tts": "Yıldız topla, seviye atla! Rozetlerin için kartına dokun.",
+  "kaydi_var": true
+ },
+ {
+  "key": "5769bdbd50616088",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.wardrobe",
+  "text": "Okti'nin üstünü değiştir: ona dokun!",
+  "tts": "Okti'nin üstünü değiştir: ona dokun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "7554903fc00be311",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.sparkle",
+  "text": "Parıltıya git, topla!",
+  "tts": "Parıltıya git, topla!",
+  "kaydi_var": true
+ },
+ {
+  "key": "1e4450f84c035893",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.overview",
+  "text": "Haritada adanın tamamını gör!",
+  "tts": "Haritada adanın tamamını gör!",
+  "kaydi_var": true
+ },
+ {
+  "key": "9792488b7a80106e",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.shop",
+  "text": "Ürüne dokun, Al'a bas.",
+  "tts": "Ürüne dokun, Al'a bas.",
+  "kaydi_var": true
+ },
+ {
+  "key": "c583cadde22634ac",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.wardrobe_spots",
+  "text": "Noktaya dokun, giydir!",
+  "tts": "Noktaya dokun, giydir!",
+  "kaydi_var": true
+ },
+ {
+  "key": "f66c3550451f9bc6",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.home",
+  "text": "Topla'ya bas, ev toplansın!",
+  "tts": "Topla'ya bas, ev toplansın!",
+  "kaydi_var": true
+ },
+ {
+  "key": "6e6f2e4eb5114c20",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.story",
+  "text": "Fırtınadan sonra ada sisle kaplandı. Gel, birlikte canlandıralım!",
+  "tts": "Fırtınadan sonra ada sisle kaplandı. Gel, birlikte canlandıralım!",
+  "kaydi_var": true
+ },
+ {
+  "key": "404b379f29660f61",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.board",
+  "text": "Ev Görevleri panosuna git!",
+  "tts": "Ev Görevleri panosuna git!",
+  "kaydi_var": true
+ },
+ {
+  "key": "c1e92621bc4aa7b7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.feed",
+  "text": "Okti'ye dokun, elmayı seç: karnı doysun!",
+  "tts": "Okti'ye dokun, elmayı seç: karnı doysun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "add097760df22d24",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wash",
+  "text": "Okti'ye dokun, sabunu seç: tertemiz olsun!",
+  "tts": "Okti'ye dokun, sabunu seç: tertemiz olsun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "462a9ecdeef7023d",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.home",
+  "text": "Evim'e yürü ve içeri gir.",
+  "tts": "Evim'e yürü ve içeri gir.",
+  "kaydi_var": true
+ },
+ {
+  "key": "985796ff433f654f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.tidy",
+  "text": "Topla'ya dokun: ev toplansın!",
+  "tts": "Topla'ya dokun: ev toplansın!",
+  "kaydi_var": true
+ },
+ {
+  "key": "bf34ad2751ded534",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear",
+  "text": "Okti'nin üstüne dokun, aksesuarını tak.",
+  "tts": "Okti'nin üstüne dokun, aksesuarını tak.",
+  "kaydi_var": true
+ },
+ {
+  "key": "5a5dff4822093ac7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.board",
+  "text": "Ev Görevleri panosuna git: yeni taşlar burada!",
+  "tts": "Ev Görevleri panosuna git: yeni taşlar burada!",
+  "kaydi_var": true
+ },
+ {
+  "key": "384353bbc381e0a8",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.gather",
+  "text": "Kulübe için odun, dal ve taş topla.",
+  "tts": "Kulübe için odun, dal ve taş topla.",
+  "kaydi_var": true
+ },
+ {
+  "key": "943286e24c75987c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.hut",
+  "text": "Kulübenin oraya ilerle ve yapımına başla.",
+  "tts": "Kulübenin oraya ilerle ve yapımına başla.",
+  "kaydi_var": true
+ },
+ {
+  "key": "19cc35099b517b5b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.coconut",
+  "text": "2 hindistan cevizi bul: kumsalda ara ya da bahçede oyna.",
+  "tts": "2 hindistan cevizi bul: kumsalda ara ya da bahçede oyna.",
+  "kaydi_var": true
+ },
+ {
+  "key": "9c50bb1715dc8ca3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.shop",
+  "text": "Dükkâna git: ilk aksesuarını al!",
+  "tts": "Dükkâna git: ilk aksesuarını al!",
+  "kaydi_var": true
+ },
+ {
+  "key": "21bd65f3eb97c215",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.stone",
+  "text": "Görevle kazandığın taşı koydaki sise götür!",
+  "tts": "Görevle kazandığın taşı koydaki sise götür!",
+  "kaydi_var": true
+ },
+ {
+  "key": "3e42622012a522ba",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.press:Gir",
+  "text": "Sağ alttaki Gir tuşuna bas!",
+  "tts": "Sağ alttaki Gir tuşuna bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "0d499b48cbad5f33",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.press:Oyna",
+  "text": "Sağ alttaki Oyna tuşuna bas!",
+  "tts": "Sağ alttaki Oyna tuşuna bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "ae63c206a5650a60",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.press:Topla",
+  "text": "Sağ alttaki Topla tuşuna bas!",
+  "tts": "Sağ alttaki Topla tuşuna bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "a0843d1d78fae21b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.press:Kes",
+  "text": "Sağ alttaki Kes tuşuna bas!",
+  "tts": "Sağ alttaki Kes tuşuna bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "be59921560b2327c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.press:Kır",
+  "text": "Sağ alttaki Kır tuşuna bas!",
+  "tts": "Sağ alttaki Kır tuşuna bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "284ce09e92499452",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.press:İnşa et",
+  "text": "Sağ alttaki İnşa et tuşuna bas!",
+  "tts": "Sağ alttaki İnşa et tuşuna bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "a01b266d7665770b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.press:Taşı koy",
+  "text": "Sağ alttaki Taşı koy tuşuna bas!",
+  "tts": "Sağ alttaki Taşı koy tuşuna bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "f1145c044c0ceea7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.press:Odun at",
+  "text": "Sağ alttaki Odun at tuşuna bas!",
+  "tts": "Sağ alttaki Odun at tuşuna bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "682121c3b028a540",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.pick_feed",
+  "text": "Elmaya dokun!",
+  "tts": "Elmaya dokun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "b1c1fc106c40acd6",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.pick_play",
+  "text": "Topa dokun: birlikte oynayın!",
+  "tts": "Topa dokun: birlikte oynayın!",
+  "kaydi_var": false
+ },
+ {
+  "key": "3b3e42fa4fc91e5b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.play_pet",
+  "text": "Okti'ye dokun, birlikte top oynayın!",
+  "tts": "Okti'ye dokun, birlikte top oynayın!",
+  "kaydi_var": false
+ },
+ {
+  "key": "c25956b78f1ca27f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.pick_wash",
+  "text": "Sabuna dokun!",
+  "tts": "Sabuna dokun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "0a630faafde2e345",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.pick_wear",
+  "text": "Giydir'e dokun!",
+  "tts": "Giydir'e dokun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "f7857440d382b0e7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.close",
+  "text": "Çarpıya bas, adaya dön!",
+  "tts": "Çarpıya bas, adaya dön!",
+  "kaydi_var": true
+ },
+ {
+  "key": "1a633b38f631ceaf",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.levelup_ok",
+  "text": "Harika'ya bas!",
+  "tts": "Harika'ya bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "e020978d88ffbf72",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear_slot",
+  "text": "Aksesuarının yerine dokun!",
+  "tts": "Aksesuarının yerine dokun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "8f5a80b322181eda",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear_item:Yuvarlak gözlük",
+  "text": "Yuvarlak gözlük: dokun, tak!",
+  "tts": "Yuvarlak gözlük: dokun, tak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "dfb24fed975ed4f5",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear_item:Güneş gözlüğü",
+  "text": "Güneş gözlüğü: dokun, tak!",
+  "tts": "Güneş gözlüğü: dokun, tak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "05bde2e72d8146df",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear_item:Çizgili tişört",
+  "text": "Çizgili tişört: dokun, tak!",
+  "tts": "Çizgili tişört: dokun, tak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "59836e3dca47bb2e",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear_item:Çiçekli gömlek",
+  "text": "Çiçekli gömlek: dokun, tak!",
+  "tts": "Çiçekli gömlek: dokun, tak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "f0161034a85b9119",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear_item:Denizci önlüğü",
+  "text": "Denizci önlüğü: dokun, tak!",
+  "tts": "Denizci önlüğü: dokun, tak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "47e1232d15517713",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear_item:Örgü atkı",
+  "text": "Örgü atkı: dokun, tak!",
+  "tts": "Örgü atkı: dokun, tak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "a71d6dafd2d65bb3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear_item:Arma (sırt yaması)",
+  "text": "Arma (sırt yaması): dokun, tak!",
+  "tts": "Arma, sırt yaması: dokun, tak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "76f359df57cf1ad1",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear_item:Bayrakçık",
+  "text": "Bayrakçık: dokun, tak!",
+  "tts": "Bayrakçık: dokun, tak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "fd1d46ca86e25f39",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.wear_item:Kova şapka",
+  "text": "Kova şapka: dokun, tak!",
+  "tts": "Kova şapka: dokun, tak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "32660ae98d9ff104",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.done.say",
+  "text": "Rehber görevi tamam!",
+  "tts": "Rehber görevi tamam!",
+  "kaydi_var": false
+ },
+ {
+  "key": "e6660ad2dc4dfa59",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.mark",
+  "text": "Görevi yapınca Yaptım'a bas!",
+  "tts": "Görevi yapınca Yaptıma bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "970acf480b821ac6",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.stone",
+  "text": "Güneş Taşını yerleştir, sis kalksın!",
+  "tts": "Güneş Taşını yerleştir, sis kalksın!",
+  "kaydi_var": true
+ },
+ {
+  "key": "9095eb9334346648",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.stone_spot",
+  "text": "Sisli yere git, taşı koy!",
+  "tts": "Sisli yere git, taşı koy!",
+  "kaydi_var": true
+ },
+ {
+  "key": "a402e79cabb0ac68",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.tasks_home",
+  "text": "Ailenden gelen görevler burada. Yapınca Güneş Taşı kazanırsın!",
+  "tts": "Ailenden gelen görevler burada. Yapınca Güneş Taşı kazanırsın!",
+  "kaydi_var": true
+ },
+ {
+  "key": "40b82e9dfbd24345",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.tasks_done",
+  "text": "Yaptın mı? Yaptım'a bas, Mavi ailene götürsün.",
+  "tts": "Yaptın mı? Yaptıma bas, Mavi ailene götürsün.",
+  "kaydi_var": true
+ },
+ {
+  "key": "4bd33d627fcc39b5",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.tasks_game",
+  "text": "Oyun görevleri yıldız verir. Hepsini bitir, sandığı aç!",
+  "tts": "Oyun görevleri yıldız verir. Hepsini bitir, sandığı aç!",
+  "kaydi_var": true
+ },
+ {
+  "key": "b65baf7ff2c9c9dd",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:gather.tip_axe",
+  "text": "Baltayla kütüğü kes! Sağ alttaki tuşa bas.",
+  "tts": "Baltayla kütüğü kes! Sağ alttaki tuşa bas.",
+  "kaydi_var": true
+ },
+ {
+  "key": "1737784373ccc38c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:gather.tip_hand",
+  "text": "Çalıdan dal topla!",
+  "tts": "Çalıdan dal topla!",
+  "kaydi_var": true
+ },
+ {
+  "key": "359fa97bca847a94",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:gather.tip_pickaxe",
+  "text": "Kazmayla taşı kır!",
+  "tts": "Kazmayla taşı kır!",
+  "kaydi_var": true
+ },
+ {
+  "key": "530e750890342c0c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:gather.tip_site",
+  "text": "Kulübe yeri! Odun, dal ve taş topla.",
+  "tts": "Kulübe yeri! Odun, dal ve taş topla.",
+  "kaydi_var": true
+ },
+ {
+  "key": "c7038c441d42f2c6",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:gather.tip_build",
+  "text": "Malzemeler tamam! Yap'a bas.",
+  "tts": "Malzemeler tamam! Yap'a bas.",
+  "kaydi_var": true
+ },
+ {
+  "key": "e3ca72e419c1755a",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:gather.ready",
+  "text": "Malzemeler tamam! Kulübe yerine git.",
+  "tts": "Malzemeler tamam! Kulübe yerine git.",
+  "kaydi_var": true
+ },
+ {
+  "key": "53353ce41fe8ad46",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.play",
+  "text": "Oyna'ya dokun: Okti mutlu olsun!",
+  "tts": "Oyna'ya dokun: Okti mutlu olsun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "ee0eff24158bcc01",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.quests",
+  "text": "Bir görevin bitti! Yıldıza dokun, ödülünü al.",
+  "tts": "Bir görevin bitti! Yıldıza dokun, ödülünü al.",
+  "kaydi_var": false
+ },
+ {
+  "key": "65706546816c49e2",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.quests_claim",
+  "text": "Bu görevi bitirdin! Al'a dokun, ödülün senin.",
+  "tts": "Bu görevi bitirdin! Al'a dokun, ödülün senin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "9539ce0707d58e71",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.shop_pick",
+  "text": "Bu aksesuar sana yeter! Seçili, Al'a bas.",
+  "tts": "Bu aksesuar sana yeter! Seçili, Al'a bas.",
+  "kaydi_var": true
+ },
+ {
+  "key": "9856eb4453e0e995",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.kiskac",
+  "text": "Kıskaç seni bekliyor: yanına git!",
+  "tts": "Kıskaç seni bekliyor: yanına git!",
+  "kaydi_var": true
+ },
+ {
+  "key": "e3a06c0eda726064",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.deliver",
+  "text": "Hindistan cevizlerini Kıskaç'a götür!",
+  "tts": "Hindistan cevizlerini Kıskaç'a götür!",
+  "kaydi_var": true
+ },
+ {
+  "key": "a1beb4eeba77c751",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.mavi",
+  "text": "Adayı biraz dolaş, keşfet!",
+  "tts": "Adayı biraz dolaş, keşfet!",
+  "kaydi_var": true
+ },
+ {
+  "key": "2d1f470072bbf3cd",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:welcome.coins",
+  "text": "Kıskaç'tan hoş geldin hediyesi: 20 boncuk! İlk aksesuarını alabilirsin.",
+  "tts": "Kıskaç'tan hoş geldin hediyesi: 20 boncuk! İlk aksesuarını alabilirsin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "d0d374892a320aeb",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:gather.coconut_got",
+  "text": "Bir hindistan cevizi buldun!",
+  "tts": "Bir hindistan cevizi buldun!",
+  "kaydi_var": true
+ },
+ {
+  "key": "1a1ea375f8122f0c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:gather.coconut_ready",
+  "text": "2 hindistan cevizin oldu! Kıskaç'a götür.",
+  "tts": "2 hindistan cevizin oldu! Kıskaç'a götür.",
+  "kaydi_var": true
+ },
+ {
+  "key": "009649398cc7a21d",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:gather.tip_coconut",
+  "text": "Hindistan cevizi! Topla'ya bas.",
+  "tts": "Hindistan cevizi! Topla'ya bas.",
+  "kaydi_var": true
+ },
+ {
+  "key": "79972de144eb410f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:rewards.pick",
+  "text": "Bir ödüle dokun, sonra İste'ye bas!",
+  "tts": "Bir ödüle dokun, sonra İste'ye bas!",
+  "kaydi_var": true
+ },
+ {
+  "key": "bc46eaf845ecadc7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:rewards.first_sent",
+  "text": "İlk isteğin ailene gitti! Onaylayınca sana haber gelir.",
+  "tts": "İlk isteğin ailene gitti! Onaylayınca sana haber gelir.",
+  "kaydi_var": true
+ },
+ {
+  "key": "313d92e501a0422f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:rewards.new_map",
+  "text": "Yeni: Gerçek ödüller! Dükkâna git.",
+  "tts": "Yeni: Gerçek ödüller! Dükkâna git.",
+  "kaydi_var": true
+ },
+ {
+  "key": "29ea2b984e312fa0",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.fire",
+  "text": "Kamp ateşine git, 2 odun at!",
+  "tts": "Kamp ateşine git, 2 odun at!",
+  "kaydi_var": true
+ },
+ {
+  "key": "7c8eb6d20a94bc82",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:gather.tip_biglog",
+  "text": "Kocaman kütük! Baltayla birkaç kez vur, çok odun verir.",
+  "tts": "Kocaman kütük! Baltayla birkaç kez vur, çok odun verir.",
+  "kaydi_var": true
+ },
+ {
+  "key": "3fe00c763f29306f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.map_far",
+  "text": "Nereye gideceğini bulamadın mı? Haritaya bak!",
+  "tts": "Nereye gideceğini bulamadın mı? Haritaya bak!",
+  "kaydi_var": true
+ },
+ {
+  "key": "a8110c0f5a27aa33",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.map_pin",
+  "text": "Sarı im, gideceğin yeri gösterir. İme dokun, oklar yolu göstersin!",
+  "tts": "Sarı im, gideceğin yeri gösterir. İme dokun, oklar yolu göstersin!",
+  "kaydi_var": true
+ },
+ {
+  "key": "d025870943186928",
+  "role": "adali",
+  "who": "tosbi",
+  "kalip": "adali_selam",
+  "src": "tr:res.hi_tosbi",
+  "text": "Merhaba evlat. Acele etme, deniz hep bekler.",
+  "tts": "Merhaba evlat. Acele etme, deniz hep bekler.",
+  "kaydi_var": true
+ },
+ {
+  "key": "f51a4cf15e01efd6",
+  "role": "adali",
+  "who": "pitir",
+  "kalip": "adali_selam",
+  "src": "tr:res.hi_pitir",
+  "text": "Merhaba Okti! Bugün cevizlerimiz çok tatlı!",
+  "tts": "Merhaba Okti! Bugün cevizlerimiz çok tatlı!",
+  "kaydi_var": true
+ },
+ {
+  "key": "9a657605eb7a798d",
+  "role": "adali",
+  "who": "hisir",
+  "kalip": "adali_selam",
+  "src": "tr:res.hi_hisir",
+  "text": "Çok tatlı... Merhaba.",
+  "tts": "Çok tatlı... Merhaba.",
+  "kaydi_var": true
+ },
+ {
+  "key": "5fa2b5914c88bf64",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.gift",
+  "text": "Mavi panoya sana bir görev bıraktı: panoya git!",
+  "tts": "Mavi panoya sana bir görev bıraktı: panoya git!",
+  "kaydi_var": true
+ },
+ {
+  "key": "33b4de6a39fafe56",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.clear",
+  "text": "Hediye Güneş Taşı'nı kullanarak sisi dağıt, kulübe açığa çıksın!",
+  "tts": "Hediye Güneş Taşı'nı kullanarak sisi dağıt, kulübe açığa çıksın!",
+  "kaydi_var": true
+ },
+ {
+  "key": "78719aeee332a8e4",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:pet.meet_intro",
+  "text": "Ben meraklı ve şakacı bir ahtapotum. Seninle adayı keşfetmek istiyorum.",
+  "tts": "Ben meraklı ve şakacı bir ahtapotum. Seninle adayı keşfetmek istiyorum.",
+  "kaydi_var": true
+ },
+ {
+  "key": "475b309b96a69b31",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:welcome_task.tip",
+  "text": "Mavi'nin görevini yaptın! Yaptım'a bas.",
+  "tts": "Mavi'nin görevini yaptın! Yaptıma bas.",
+  "kaydi_var": true
+ },
+ {
+  "key": "c5d5ef365e37f1fc",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:info.child",
+  "text": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği görevleri. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
+  "tts": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği görevleri. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
+  "kaydi_var": true
+ },
+ {
+  "key": "c25bc1bbc62023f3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:coin.info",
+  "text": "Boncuklar adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+  "tts": "Boncuklar adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "3a1c2b938a577e99",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:shop.locked.say",
+  "text": "Bu, daha sonraki bir seviyede açılır.",
+  "tts": "Bu, daha sonraki bir seviyede açılır.",
+  "kaydi_var": false
+ },
+ {
+  "key": "219ebf3e07ac395b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:map.sparkle_new.say",
+  "text": "Yeni bir şey buldun! Deftere eklendi.",
+  "tts": "Yeni bir şey buldun! Deftere eklendi.",
+  "kaydi_var": false
+ },
+ {
+  "key": "22f31ac3004295b5",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:map.sparkle_again.say",
+  "text": "Bunu yine buldun!",
+  "tts": "Bunu yine buldun!",
+  "kaydi_var": false
+ },
+ {
+  "key": "c39f739e6e8e005d",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:garden.harvested.say",
+  "text": "Hasat ettin!",
+  "tts": "Hasat ettin!",
+  "kaydi_var": false
+ },
+ {
+  "key": "d3a9e1a6938f6cae",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:map.locked.say",
+  "text": "Burası daha sonraki bir seviyede açılır.",
+  "tts": "Burası daha sonraki bir seviyede açılır.",
+  "kaydi_var": false
+ },
+ {
+  "key": "ced62f7dae5e9fcb",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:map.soon.say",
+  "text": "Burası yakında açılacak!",
+  "tts": "Burası yakında açılacak!",
+  "kaydi_var": false
+ },
+ {
+  "key": "627b64b471f96068",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:bag.seed_tip.say",
+  "text": "Tohumlar bahçede ekilir.",
+  "tts": "Tohumlar bahçede ekilir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "bfd662d174e70c01",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:bag.mat_tip.say",
+  "text": "Malzemeler kulübe ve istekler için.",
+  "tts": "Malzemeler kulübe ve istekler için.",
+  "kaydi_var": false
+ },
+ {
+  "key": "eee419e79d821ec7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:stones.placed_more.say",
+  "text": "Taş yerleşti! Biraz daha taş lazım.",
+  "tts": "Taş yerleşti! Biraz daha taş lazım.",
+  "kaydi_var": false
+ },
+ {
+  "key": "f51824699625d286",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:stones.not_next.say",
+  "text": "Önce sıradaki yeri onarmalıyız.",
+  "tts": "Önce sıradaki yeri onarmalıyız.",
+  "kaydi_var": false
+ },
+ {
+  "key": "5120fa4aebae1055",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:stones.earned.say",
+  "text": "Güneş Taşı kazandın!",
+  "tts": "Güneş Taşı kazandın!",
+  "kaydi_var": false
+ },
+ {
+  "key": "2bfc8414e07691dd",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:map.locked_stones.say",
+  "text": "Burayı açmak için Güneş Taşı gerekiyor.",
+  "tts": "Burayı açmak için Güneş Taşı gerekiyor.",
+  "kaydi_var": false
+ },
+ {
+  "key": "bd5c3e4d200f10e8",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:quest.ready.say",
+  "text": "Görevin tamam! Ödülün Görev'de seni bekliyor.",
+  "tts": "Görevin tamam! Ödülün Görev'de seni bekliyor.",
+  "kaydi_var": false
+ },
+ {
+  "key": "4d4058d8b3d088a3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:map.overview_walk.say",
+  "text": "Oraya yürüyerek gidebilirsin.",
+  "tts": "Oraya yürüyerek gidebilirsin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "6b4c7ee8a31aa917",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:levelup.home.say",
+  "text": "Hediyen Evim'e gitti.",
+  "tts": "Hediyen Evim'e gitti.",
+  "kaydi_var": false
+ },
+ {
+  "key": "0927928ca4aee4e9",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:levelup.home_n.say",
+  "text": "Hediyelerin Evim'e gitti.",
+  "tts": "Hediyelerin Evim'e gitti.",
+  "kaydi_var": false
+ },
+ {
+  "key": "d6072e97d75a1dfe",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:routine.done_toast.say",
+  "text": "Rutin tamam!",
+  "tts": "Rutin tamam!",
+  "kaydi_var": false
+ },
+ {
+  "key": "5b7ea7c0be3c9906",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:rewards.one_at_a_time.say",
+  "text": "Bekleyen bir isteğin var. Ailen bakınca yenisini isteyebilirsin.",
+  "tts": "Bekleyen bir isteğin var. Ailen bakınca yenisini isteyebilirsin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "379b29907f60c6a7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:rewards.left.say",
+  "text": "Biraz daha Güneş Taşı lazım.",
+  "tts": "Biraz daha Güneş Taşı lazım.",
+  "kaydi_var": false
+ },
+ {
+  "key": "208046dd2eb2b0b1",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.reward_given.say",
+  "text": "Ödülün hazır!",
+  "tts": "Ödülün hazır!",
+  "kaydi_var": false
+ },
+ {
+  "key": "1ec9448e262dfcc9",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.reward_waits.say",
+  "text": "Bu istek şimdilik olmadı. Başka zaman yine isteyebilirsin.",
+  "tts": "Bu istek şimdilik olmadı. Başka zaman yine isteyebilirsin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "5204b4d4a18832c3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.stones_deducted.say",
+  "text": "Ailen Güneş Taşı düştü.",
+  "tts": "Ailen Güneş Taşı düştü.",
+  "kaydi_var": false
+ },
+ {
+  "key": "4296f23867da3ecc",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.approved_one.say",
+  "text": "Aferin! Görevin onaylandı.",
+  "tts": "Aferin! Görevin onaylandı.",
+  "kaydi_var": false
+ },
+ {
+  "key": "c8b3197ada5fe44d",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.retry_one.say",
+  "text": "Ailen bir görevini bir daha denemeni istiyor.",
+  "tts": "Ailen bir görevini bir daha denemeni istiyor.",
+  "kaydi_var": false
+ },
+ {
+  "key": "82210c47f473e456",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.retry_many.say",
+  "text": "Ailen bazı görevleri bir daha denemeni istiyor.",
+  "tts": "Ailen bazı görevleri bir daha denemeni istiyor.",
+  "kaydi_var": false
+ },
+ {
+  "key": "26617ea974e9d6fa",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.gift_one.say",
+  "text": "Sana bir hediye geldi! Posta kutuna bak.",
+  "tts": "Sana bir hediye geldi! Posta kutuna bak.",
+  "kaydi_var": false
+ },
+ {
+  "key": "f283d97e410052f3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.gift_many.say",
+  "text": "Hediyeler geldi! Posta kutuna bak.",
+  "tts": "Hediyeler geldi! Posta kutuna bak.",
+  "kaydi_var": false
+ },
+ {
+  "key": "54e1595d0f763d6b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.approved_many.say",
+  "text": "Aferin! Görevlerin onaylandı.",
+  "tts": "Aferin! Görevlerin onaylandı.",
+  "kaydi_var": false
+ },
+ {
+  "key": "b5b90d2c5c74fee4",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.new_task_many.say",
+  "text": "Ev Görevleri panosunda yeni görevler var.",
+  "tts": "Ev Görevleri panosunda yeni görevler var.",
+  "kaydi_var": false
+ },
+ {
+  "key": "e289574e7a279994",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.news_many.say",
+  "text": "Ailenden yeni görevler var! Yapınca Güneş Taşı kazanırsın.",
+  "tts": "Ailenden yeni görevler var! Yapınca Güneş Taşı kazanırsın.",
+  "kaydi_var": false
+ },
+ {
+  "key": "36a20a1a88c98d67",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.retry_one.say",
+  "text": "Ailenden bir not getirdim! Bir görevini bir daha dener misin?",
+  "tts": "Ailenden bir not getirdim! Bir görevini bir daha dener misin?",
+  "kaydi_var": false
+ },
+ {
+  "key": "9e868f0ab64ea503",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.retry_many.say",
+  "text": "Ailenden not getirdim! Bazı görevleri bir daha dener misin?",
+  "tts": "Ailenden not getirdim! Bazı görevleri bir daha dener misin?",
+  "kaydi_var": false
+ },
+ {
+  "key": "c7009212ef88d21d",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.gift_one.say",
+  "text": "Sana bir paket getirdim! Posta kutusunda seni bekliyor.",
+  "tts": "Sana bir paket getirdim! Posta kutusunda seni bekliyor.",
+  "kaydi_var": false
+ },
+ {
+  "key": "1b6577b69c0e8cad",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.gift_many.say",
+  "text": "Sana paketler getirdim! Posta kutusunda seni bekliyor.",
+  "tts": "Sana paketler getirdim! Posta kutusunda seni bekliyor.",
+  "kaydi_var": false
+ },
+ {
+  "key": "c39c6f89879418a7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.try_again_one.say",
+  "text": "Bu sefer olmadı, sorun değil.",
+  "tts": "Bu sefer olmadı, sorun değil.",
+  "kaydi_var": false
+ },
+ {
+  "key": "92e9b666b3a57895",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:gather.need.say",
+  "text": "Kulübe için biraz daha malzeme lazım.",
+  "tts": "Kulübe için biraz daha malzeme lazım.",
+  "kaydi_var": false
+ },
+ {
+  "key": "4f1160f017f65852",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:wardrobe.locked.say",
+  "text": "Bu eşya daha sonraki bir seviyede açılır.",
+  "tts": "Bu eşya daha sonraki bir seviyede açılır.",
+  "kaydi_var": false
+ },
+ {
+  "key": "6059dbe1abfdaadd",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:chest.got.say",
+  "text": "Sandıktan bir hediye çıktı!",
+  "tts": "Sandıktan bir hediye çıktı!",
+  "kaydi_var": false
+ },
+ {
+  "key": "640acc24ea68d9a5",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:chest.got_n.say",
+  "text": "Sandıktan hediyeler çıktı!",
+  "tts": "Sandıktan hediyeler çıktı!",
+  "kaydi_var": false
+ },
+ {
+  "key": "8779ff52c1dd5f85",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:goal.done_toast.say",
+  "text": "Haftalık hedef tamam! Güneş Taşı ve yıldızlar kazandın!",
+  "tts": "Haftalık hedef tamam! Güneş Taşı ve yıldızlar kazandın!",
+  "kaydi_var": false
+ },
+ {
+  "key": "76093ad953b12336",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:badge.earned.say",
+  "text": "Yeni rozet kazandın! Kartına dokun, gör.",
+  "tts": "Yeni rozet kazandın! Kartına dokun, gör.",
+  "kaydi_var": false
+ },
+ {
+  "key": "32ec9f82300c4ac8",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:lore.found.say",
+  "text": "Fener bekçisinin günlüğünden yeni bir sayfa buldun! Defter'de.",
+  "tts": "Fener bekçisinin günlüğünden yeni bir sayfa buldun! Defter'de.",
+  "kaydi_var": false
+ },
+ {
+  "key": "5a710bae6573b999",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:mail.new.say",
+  "text": "Posta kutunda yeni mektup var!",
+  "tts": "Posta kutunda yeni mektup var!",
+  "kaydi_var": false
+ },
+ {
+  "key": "47dab07cac33ef6a",
+  "role": "adali",
+  "who": "resident",
+  "kalip": "adali_selam",
+  "src": "tr:resident.thanks.say",
+  "text": "Teşekkürler, çok iyi geldi!",
+  "tts": "Teşekkürler, çok iyi geldi!",
+  "kaydi_var": false
+ },
+ {
+  "key": "9ca486015a2b90f2",
+  "role": "adali",
+  "who": "resident",
+  "kalip": "adali_selam",
+  "src": "tr:resident.thanks_item.say",
+  "text": "Teşekkürler! Sana bir hediyem var.",
+  "tts": "Teşekkürler! Sana bir hediyem var.",
+  "kaydi_var": false
+ },
+ {
+  "key": "dba8b0add57d60dd",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:welcome.coins.say",
+  "text": "Kıskaç'tan hoş geldin hediyesi! İlk aksesuarını alabilirsin.",
+  "tts": "Kıskaç'tan hoş geldin hediyesi! İlk aksesuarını alabilirsin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "9a624a77a668a721",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:rewards.locked.say",
+  "text": "Gerçek ödüller birkaç seviye sonra açılır!",
+  "tts": "Gerçek ödüller birkaç seviye sonra açılır!",
+  "kaydi_var": false
+ },
+ {
+  "key": "d33c855685d33a6b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:fire.need_wood.say",
+  "text": "Ateş için odun getir!",
+  "tts": "Ateş için odun getir!",
+  "kaydi_var": false
+ },
+ {
+  "key": "9f997bc2d968a951",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:fire.stoked.say",
+  "text": "Ateş harlandı!",
+  "tts": "Ateş harlandı!",
+  "kaydi_var": false
+ },
+ {
+  "key": "870b98222d7a0e42",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:gather.big_hit.say",
+  "text": "Bir daha vur!",
+  "tts": "Bir daha vur!",
+  "kaydi_var": false
+ },
+ {
+  "key": "8ed77d6df36d7a7f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:map.fog_here.say",
+  "text": "Sis orada. Oklar yolu gösteriyor!",
+  "tts": "Sis orada. Oklar yolu gösteriyor!",
+  "kaydi_var": false
+ },
+ {
+  "key": "7dce231c67d71446",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.clean",
+  "text": "Tertemizim, teşekkürler!",
+  "tts": "Tertemizim, teşekkürler!",
+  "kaydi_var": false
+ },
+ {
+  "key": "f6d32fe112c5ca3e",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.ok.feed",
+  "text": "Mmm, çok lezzetli!",
+  "tts": "Mmm, çok lezzetli!",
+  "kaydi_var": false
+ },
+ {
+  "key": "6a6acc6b281eba61",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.ok.wash",
+  "text": "Mis gibi oldum!",
+  "tts": "Mis gibi oldum!",
+  "kaydi_var": false
+ },
+ {
+  "key": "2522d6bd6199093c",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.ok.play",
+  "text": "Yaşasın, oyun!",
+  "tts": "Yaşasın, oyun!",
+  "kaydi_var": false
+ },
+ {
+  "key": "d6d207c0389f4a68",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.ok.tidy",
+  "text": "Evimiz pırıl pırıl oldu!",
+  "tts": "Evimiz pırıl pırıl oldu!",
+  "kaydi_var": false
+ },
+ {
+  "key": "503b3c4ba4b51e36",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.full",
+  "text": "Karnım tok, teşekkürler!",
+  "tts": "Karnım tok, teşekkürler!",
+  "kaydi_var": false
+ },
+ {
+  "key": "140538ed2cad61df",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.no_item",
+  "text": "Dolapta kalmamış. Dükkana bakalım mı?",
+  "tts": "Dolapta kalmamış. Dükkana bakalım mı?",
+  "kaydi_var": false
+ },
+ {
+  "key": "2c335ee87264fd10",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.sad.fullness",
+  "text": "Karnım biraz acıktı...",
+  "tts": "Karnım biraz acıktı...",
+  "kaydi_var": false
+ },
+ {
+  "key": "b31125884ca340c3",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.sad.cleanliness",
+  "text": "Biraz yıkansam iyi olur.",
+  "tts": "Biraz yıkansam iyi olur.",
+  "kaydi_var": false
+ },
+ {
+  "key": "f8889c1ad8c01d5f",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.sad.happiness",
+  "text": "Benimle oynar mısın?",
+  "tts": "Benimle oynar mısın?",
+  "kaydi_var": false
+ },
+ {
+  "key": "c55dd239eb4e7b52",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.sad.home",
+  "text": "Evimizi biraz düzenleyelim mi?",
+  "tts": "Evimizi biraz düzenleyelim mi?",
+  "kaydi_var": false
+ },
+ {
+  "key": "6f4f0bdbbb306421",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.sleeping",
+  "text": "Şşş... Okti uyuyor. Sabah görüşürüz!",
+  "tts": "Şşş... Okti uyuyor. Sabah görüşürüz!",
+  "kaydi_var": false
+ },
+ {
+  "key": "9b684fde3db6161c",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:pet.welcome",
+  "text": "Merhaba, ben Okti! Hadi adayı keşfedelim.",
+  "tts": "Merhaba, ben Okti! Hadi adayı keşfedelim.",
+  "kaydi_var": false
+ },
+ {
+  "key": "d70ad867fa2ce083",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:wardrobe.looks_good",
+  "text": "Çok yakıştı!",
+  "tts": "Çok yakıştı!",
+  "kaydi_var": false
+ },
+ {
+  "key": "135539ec9a1d9270",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:runner.out_bubble",
+  "text": "Biraz soluklanayım...",
+  "tts": "Biraz soluklanayım...",
+  "kaydi_var": false
+ },
+ {
+  "key": "0bf5c1f4a1b37465",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:runner.oops",
+  "text": "Ay! Dikkat!",
+  "tts": "Ay! Dikkat!",
+  "kaydi_var": false
+ },
+ {
+  "key": "5e465532576ffa7f",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.resting",
+  "text": "Okti biraz soluklanıyor. Birazdan yine oynarız!",
+  "tts": "Okti biraz soluklanıyor. Birazdan yine oynarız!",
+  "kaydi_var": false
+ },
+ {
+  "key": "f8a30038bdcbafd8",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "okti_bakim",
+  "src": "tr:care.petted",
+  "text": "Ayy, ne güzel sevdin!",
+  "tts": "Ayy, ne güzel sevdin!",
+  "kaydi_var": false
+ },
+ {
+  "key": "f5a8ba579920e9c6",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.news_one",
+  "text": "Ailenden yeni bir görev var! Yapınca Güneş Taşı kazanırsın.",
+  "tts": "Ailenden yeni bir görev var! Yapınca Güneş Taşı kazanırsın.",
+  "kaydi_var": false
+ },
+ {
+  "key": "f31f54d52f6d2a6c",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.stargate",
+  "text": "Bu Yıldız Kapısı! İçinden geçince Ay'da koşarsın. Hazır mısın?",
+  "tts": "Bu Yıldız Kapısı! İçinden geçince Ay'da koşarsın. Hazır mısın?",
+  "kaydi_var": false
+ },
+ {
+  "key": "424a097946aee840",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:care.full_quest",
+  "text": "Okti şu an tok. Acıkınca yine besle, görevin seni bekliyor!",
+  "tts": "Okti şu an tok. Acıkınca yine besle, görevin seni bekliyor!",
+  "kaydi_var": false
+ },
+ {
+  "key": "bf02fabcfabfe673",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:care.clean_quest",
+  "text": "Okti şu an tertemiz. Biraz oynayınca yine yıka, görevin seni bekliyor!",
+  "tts": "Okti şu an tertemiz. Biraz oynayınca yine yıka, görevin seni bekliyor!",
+  "kaydi_var": false
+ },
+ {
+  "key": "e2e0d46008012fe4",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:map.exit_tip",
+  "text": "Ayakkabıya dokun: yürümeye dön!",
+  "tts": "Ayakkabıya dokun: yürümeye dön!",
+  "kaydi_var": false
+ },
+ {
+  "key": "c9fe20d1ef84fd99",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:quest.where",
+  "text": "Görevini bitirdin! Görevlerin hep burada.",
+  "tts": "Görevini bitirdin! Görevlerin hep burada.",
+  "kaydi_var": false
+ },
+ {
+  "key": "bffe19655ffb5d2e",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:notice.new_task_one",
+  "text": "Ev Görevleri panosunda yeni bir görev var",
+  "tts": "Ev Görevleri panosunda yeni bir görev var",
+  "kaydi_var": false
+ },
+ {
+  "key": "b52658dc11fb2c41",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:notice.try_again_many",
+  "text": "Bazı görevler bu sefer olmadı, sorun değil",
+  "tts": "Bazı görevler bu sefer olmadı, sorun değil",
+  "kaydi_var": false
+ },
+ {
+  "key": "81cfc7563f07e4fc",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:wardrobe.removed",
+  "text": "Çıkardık.",
+  "tts": "Çıkardık.",
+  "kaydi_var": false
+ },
+ {
+  "key": "e5bf42e2783fb6ad",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:wardrobe.empty",
+  "text": "Bu bölümde eşyan yok. Dükkâna bakalım mı?",
+  "tts": "Bu bölümde eşyan yok. Dükkâna bakalım mı?",
+  "kaydi_var": false
+ },
+ {
+  "key": "18730b10e807c146",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.first",
+  "text": "Kuyrukluyıldızın peşinden, Dünya'ya doğru!",
+  "tts": "Kuyrukluyıldızın peşinden, Dünya'ya doğru!",
+  "kaydi_var": false
+ },
+ {
+  "key": "64c5455b8d7e1ffe",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.card",
+  "text": "Gezegen kartı buldun!",
+  "tts": "Gezegen kartı buldun!",
+  "kaydi_var": false
+ },
+ {
+  "key": "c2c927fd1dadd622",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:mg.lane.crash",
+  "text": "Ups! Çarptın.",
+  "tts": "Ups! Çarptın.",
+  "kaydi_var": false
+ },
+ {
+  "key": "da25e07092f78761",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:mg.hike.summit",
+  "text": "Zirvedesin!",
+  "tts": "Zirvedesin!",
+  "kaydi_var": false
+ },
+ {
+  "key": "f1e759af244eec72",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:mg.help_pet.warm",
+  "text": "Ilık...",
+  "tts": "Ilık...",
+  "kaydi_var": false
+ },
+ {
+  "key": "adcc449cfb29a07f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:mg.help_pet.hot",
+  "text": "Çok sıcak!",
+  "tts": "Çok sıcak!",
+  "kaydi_var": false
+ },
+ {
+  "key": "9e6aef1d4b2da8d7",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:mg.help_pet.found",
+  "text": "Buldun! Teşekkürler!",
+  "tts": "Buldun! Teşekkürler!",
+  "kaydi_var": false
+ },
+ {
+  "key": "ce1ce2727f991a7c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:mg.help_pet.cold",
+  "text": "Soğuk.",
+  "tts": "Soğuk.",
+  "kaydi_var": false
+ },
+ {
+  "key": "b475541b1a4dee24",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:mg.fishing.wait",
+  "text": "Bekle...",
+  "tts": "Bekle...",
+  "kaydi_var": false
+ },
+ {
+  "key": "b98727d10bdf425e",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:mg.fishing.late",
+  "text": "Geç kaldın, balık kaçtı.",
+  "tts": "Geç kaldın, balık kaçtı.",
+  "kaydi_var": false
+ },
+ {
+  "key": "052dc531e1986336",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:map.site_fog",
+  "text": "Önce kulübe yerindeki sisi dağıt!",
+  "tts": "Önce kulübe yerindeki sisi dağıt!",
+  "kaydi_var": false
+ },
+ {
+  "key": "ef97bfe0c4b6b825",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:map.pin_go",
+  "text": "Oklar yolu gösteriyor. Takip et!",
+  "tts": "Oklar yolu gösteriyor. Takip et!",
+  "kaydi_var": false
+ },
+ {
+  "key": "2d6b85d4b46c99cc",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:map.hint_walk",
+  "text": "Bir yere dokun, oraya yürüyelim!",
+  "tts": "Bir yere dokun, oraya yürüyelim!",
+  "kaydi_var": false
+ },
+ {
+  "key": "7954f4d2e75ae8f0",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:map.hint_overview",
+  "text": "Adanın tamamı burada! Gitmek için Yürü'ye bas.",
+  "tts": "Adanın tamamı burada! Gitmek için Yürü'ye bas.",
+  "kaydi_var": false
+ },
+ {
+  "key": "9b17a04cb04876bf",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:gift.reveal",
+  "text": "Güneş Taşı!",
+  "tts": "Güneş Taşı!",
+  "kaydi_var": false
+ },
+ {
+  "key": "e1a32797acc13e37",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:gather.built_already",
+  "text": "Kulüben burada!",
+  "tts": "Kulüben burada!",
+  "kaydi_var": false
+ },
+ {
+  "key": "9accb8f6f733dff0",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:gather.built",
+  "text": "Kulüben hazır! Harika iş!",
+  "tts": "Kulüben hazır! Harika iş!",
+  "kaydi_var": false
+ },
+ {
+  "key": "f0a9bfe5b26fdddb",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:garden.watered",
+  "text": "Sulandı! Büyümesini bekle.",
+  "tts": "Sulandı! Büyümesini bekle.",
+  "kaydi_var": false
+ },
+ {
+  "key": "63e7b5bb91feaa37",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:garden.planted",
+  "text": "Ekildi! Şimdi sula.",
+  "tts": "Ekildi! Şimdi sula.",
+  "kaydi_var": false
+ },
+ {
+  "key": "f6a6f4503d59e349",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:garden.no_seed",
+  "text": "Tohumun yok. Dükkandan alabilirsin.",
+  "tts": "Tohumun yok. Dükkandan alabilirsin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "4a7646be8e32d08e",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:fire.done_today",
+  "text": "Ateş bugün harıl harıl yanıyor! Yarın yine gel.",
+  "tts": "Ateş bugün harıl harıl yanıyor! Yarın yine gel.",
+  "kaydi_var": false
+ },
+ {
+  "key": "cdbd063b22e24165",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:event.lighthouse.howto",
+  "text": "Adanın en yüksek yeri! Merdivenlere dokunarak tepeye çık.",
+  "tts": "Adanın en yüksek yeri! Merdivenlere dokunarak tepeye çık.",
+  "kaydi_var": false
+ },
+ {
+  "key": "1d4927cff9985193",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:event.lighthouse.again",
+  "text": "Fenerin ışığı bütün adayı aydınlatıyor.",
+  "tts": "Fenerin ışığı bütün adayı aydınlatıyor.",
+  "kaydi_var": false
+ },
+ {
+  "key": "87f182272c5438fc",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:decor.pick_first",
+  "text": "Önce alttan bir eşya seç.",
+  "tts": "Önce alttan bir eşya seç.",
+  "kaydi_var": false
+ },
+ {
+  "key": "176f802556d2669f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:decor.occupied",
+  "text": "Orası dolu.",
+  "tts": "Orası dolu.",
+  "kaydi_var": false
+ },
+ {
+  "key": "8163db2aa253497a",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:decor.hint",
+  "text": "Alttan bir eşya seç, sonra boş bir kareye dokun.",
+  "tts": "Alttan bir eşya seç, sonra boş bir kareye dokun.",
+  "kaydi_var": false
+ },
+ {
+  "key": "2ab944c5eac09fdd",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:bag.empty",
+  "text": "Çantan boş. Kütük, çalı ve taş topla!",
+  "tts": "Çantan boş. Kütük, çalı ve taş topla!",
+  "kaydi_var": false
+ },
+ {
+  "key": "0f67ca4ede9a0391",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:voice.on",
+  "text": "Sesli okuma açık",
+  "tts": "Sesli okuma açık",
+  "kaydi_var": false
+ },
+ {
+  "key": "fb91e9d52d28fbca",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:tasks.xp_goal",
+  "text": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin boncuk ve Güneş Taşı kazandırmaya devam ediyor!",
+  "tts": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin boncuk ve Güneş Taşı kazandırmaya devam ediyor!",
+  "kaydi_var": false
+ },
+ {
+  "key": "ce7070c40dac3958",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:tasks.self_started",
+  "text": "Hatırlatmadan yaptın! Kendi kendine, ekstra yıldız!",
+  "tts": "Hatırlatmadan yaptın! Kendi kendine, ekstra yıldız!",
+  "kaydi_var": false
+ },
+ {
+  "key": "3305781fa4b7f9af",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:chest.ready",
+  "text": "Günlük sandık hazır! Görev'e dokun, aç.",
+  "tts": "Günlük sandık hazır! Görev'e dokun, aç.",
+  "kaydi_var": false
+ },
+ {
+  "key": "6e0f07cb10c38430",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:stones.all_done",
+  "text": "Bütün ada onarıldı!",
+  "tts": "Bütün ada onarıldı!",
+  "kaydi_var": false
+ },
+ {
+  "key": "42a2cb578343a579",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:cards.tower_hint",
+  "text": "Parlayan bir bloğa dokun ve çek. Dikkat, kule devrilmesin!",
+  "tts": "Parlayan bir bloğa dokun ve çek. Dikkat, kule devrilmesin!",
+  "kaydi_var": false
+ },
+ {
+  "key": "8aec26f9c3acb4a3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:xp.rest",
+  "text": "Okti biraz yoruldu. Yarın devam edelim!",
+  "tts": "Okti biraz yoruldu. Yarın devam edelim!",
+  "kaydi_var": false
+ },
+ {
+  "key": "913ee6cee59e0353",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "oyun_yonerge",
+  "src": "tr:mg.runner.howto",
+  "text": "Kuyrukluyıldızın peşinden koş, kristalleri topla!",
+  "tts": "Kuyrukluyıldızın peşinden koş, kristalleri topla!",
+  "kaydi_var": false
+ },
+ {
+  "key": "26b65b399dbd4b1c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact1",
+  "text": "Jüpiter Güneş Sistemi'nin en büyük gezegeni; içine 1.300'den fazla Dünya sığar!",
+  "tts": "Jüpiter Güneş Sistemi'nin en büyük gezegeni; içine 1.300'den fazla Dünya sığar!",
+  "kaydi_var": false
+ },
+ {
+  "key": "562f412f7e97fa03",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact2",
+  "text": "Satürn'ün halkaları buz ve kaya parçalarından oluşur.",
+  "tts": "Satürn'ün halkaları buz ve kaya parçalarından oluşur.",
+  "kaydi_var": false
+ },
+ {
+  "key": "18b4077348341643",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact3",
+  "text": "Mars'a Kızıl Gezegen denir; toprağındaki demir pası ona kırmızı rengini verir.",
+  "tts": "Mars'a Kızıl Gezegen denir; toprağındaki demir pası ona kırmızı rengini verir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "633bb63e54235da2",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact4",
+  "text": "Venüs, Güneş'e daha yakın olan Merkür'den bile sıcaktır. Güneş Sistemi'nin en sıcak gezegeni odur.",
+  "tts": "Venüs, Güneş'e daha yakın olan Merkür'den bile sıcaktır. Güneş Sistemi'nin en sıcak gezegeni odur.",
+  "kaydi_var": false
+ },
+ {
+  "key": "fcfc1b6266fb7335",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact5",
+  "text": "Ay'da rüzgâr olmadığı için astronotların ayak izleri çok uzun yıllar silinmeden kalabilir.",
+  "tts": "Ay'da rüzgâr olmadığı için astronotların ayak izleri çok uzun yıllar silinmeden kalabilir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "70a2897d2125917b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact6",
+  "text": "Güneş'ten çıkan ışık Dünya'ya yaklaşık 8 dakikada ulaşır.",
+  "tts": "Güneş'ten çıkan ışık Dünya'ya yaklaşık 8 dakikada ulaşır.",
+  "kaydi_var": false
+ },
+ {
+  "key": "349bbd3cc4e4801b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact7",
+  "text": "Güneş Sistemi'nin en hızlı rüzgârları Neptün'de eser.",
+  "tts": "Güneş Sistemi'nin en hızlı rüzgârları Neptün'de eser.",
+  "kaydi_var": false
+ },
+ {
+  "key": "fbc4f064aeeda589",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact8",
+  "text": "Merkür, Güneş'e en yakın ve en küçük gezegendir.",
+  "tts": "Merkür, Güneş'e en yakın ve en küçük gezegendir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "a147a3581b047e33",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact9",
+  "text": "Ay'da yerçekimi Dünya'dakinin altıda biri kadardır; orada çok daha yükseğe zıplarsın!",
+  "tts": "Ay'da yerçekimi Dünya'dakinin altıda biri kadardır; orada çok daha yükseğe zıplarsın!",
+  "kaydi_var": false
+ },
+ {
+  "key": "6218a58a682670e3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact10",
+  "text": "Uranüs yan yatmış hâlde döner, sanki uzayda yuvarlanıyormuş gibi.",
+  "tts": "Uranüs yan yatmış hâlde döner, sanki uzayda yuvarlanıyormuş gibi.",
+  "kaydi_var": false
+ },
+ {
+  "key": "16828f3868c6d025",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact11",
+  "text": "Dünya, üzerinde su ve canlı olduğunu bildiğimiz tek gezegendir.",
+  "tts": "Dünya, üzerinde su ve canlı olduğunu bildiğimiz tek gezegendir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "4ea334698ab46aea",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.space.fact12",
+  "text": "Mars'taki Olympus Dağı, Everest'ten yaklaşık 2,5 kat daha yüksek bir yanardağdır.",
+  "tts": "Mars'taki Olympus Dağı, Everest'ten yaklaşık 2,5 kat daha yüksek bir yanardağdır.",
+  "kaydi_var": false
+ },
+ {
+  "key": "7b34fdc01a38cb54",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact1",
+  "text": "Giza'daki Büyük Piramit 4.500 yıldan daha yaşlı!",
+  "tts": "Giza'daki Büyük Piramit 4.500 yıldan daha yaşlı!",
+  "kaydi_var": false
+ },
+ {
+  "key": "b02746cee7c0c391",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact2",
+  "text": "Büyük Piramit yaklaşık 2 milyon 300 bin taş bloktan yapıldı.",
+  "tts": "Büyük Piramit yaklaşık 2 milyon 300 bin taş bloktan yapıldı.",
+  "kaydi_var": false
+ },
+ {
+  "key": "71b9cd8b46664880",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact3",
+  "text": "Eski Mısırlılar papirüs bitkisinden kâğıt yaptı.",
+  "tts": "Eski Mısırlılar papirüs bitkisinden kâğıt yaptı.",
+  "kaydi_var": false
+ },
+ {
+  "key": "d86508ce75999b97",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact4",
+  "text": "Hiyeroglif yazısında 700'den fazla resimli işaret var.",
+  "tts": "Hiyeroglif yazısında 700'den fazla resimli işaret var.",
+  "kaydi_var": false
+ },
+ {
+  "key": "3b89fae4ca6df2c6",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact5",
+  "text": "Skarabe böceği eski Mısır'da güneşin ve yeni bir günün simgesiydi.",
+  "tts": "Skarabe böceği eski Mısır'da güneşin ve yeni bir günün simgesiydi.",
+  "kaydi_var": false
+ },
+ {
+  "key": "742ebc27940185e0",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact6",
+  "text": "Nil Nehri her yıl taşar, tarlalara bereketli çamur getirirdi.",
+  "tts": "Nil Nehri her yıl taşar, tarlalara bereketli çamur getirirdi.",
+  "kaydi_var": false
+ },
+ {
+  "key": "b1d80672f00a38fa",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact7",
+  "text": "Büyük Sfenks'in gövdesi aslan, başı insan biçimindedir.",
+  "tts": "Büyük Sfenks'in gövdesi aslan, başı insan biçimindedir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "3f04e0b283c621af",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact8",
+  "text": "Eski Mısırlı çocuklar topla, topaçla ve tahta oyuncaklarla oynardı.",
+  "tts": "Eski Mısırlı çocuklar topla, topaçla ve tahta oyuncaklarla oynardı.",
+  "kaydi_var": false
+ },
+ {
+  "key": "77441accef0a99e0",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact9",
+  "text": "Firavunlar eski Mısır'ın krallarıydı. Tutankamon tahta çıktığında yalnızca 9 yaşındaydı!",
+  "tts": "Firavunlar eski Mısır'ın krallarıydı. Tutankamon tahta çıktığında yalnızca 9 yaşındaydı!",
+  "kaydi_var": false
+ },
+ {
+  "key": "cde14b46d1ce1c70",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact10",
+  "text": "Büyük Piramit'in dört yüzü neredeyse tam olarak kuzeye, güneye, doğuya ve batıya bakar.",
+  "tts": "Büyük Piramit'in dört yüzü neredeyse tam olarak kuzeye, güneye, doğuya ve batıya bakar.",
+  "kaydi_var": false
+ },
+ {
+  "key": "1baa83a0b1dee5c9",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact11",
+  "text": "Rosetta Taşı sayesinde hiyeroglifler yeniden okunabildi.",
+  "tts": "Rosetta Taşı sayesinde hiyeroglifler yeniden okunabildi.",
+  "kaydi_var": false
+ },
+ {
+  "key": "431d30f44c937bb0",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "kosu_bilgi",
+  "src": "tr:runner.egypt.fact12",
+  "text": "Eski Mısırlılar yılı 365 güne bölen bir takvim kullandı.",
+  "tts": "Eski Mısırlılar yılı 365 güne bölen bir takvim kullandı.",
+  "kaydi_var": false
+ },
+ {
+  "key": "53933d075cb4c564",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.action",
+  "text": "Eylem tuşu. Sağ alttaki tuş yerine göre değişir: Gir, Topla, Oyna, Taşı koy.",
+  "tts": "Eylem tuşu. Sağ alttaki tuş yerine göre değişir: Gir, Topla, Oyna, Taşı koy.",
+  "kaydi_var": false
+ },
+ {
+  "key": "42b2f7c03c1e4d6a",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.care",
+  "text": "Besle, yıka, oyna. Okti'ye dokun: Besle, Yıka, Giydir, Oyna çıkar. Parmağını Okti'nin üstünde gezdir: onu seversin.",
+  "tts": "Besle, yıka, oyna. Okti'ye dokun: Besle, Yıka, Giydir, Oyna çıkar. Parmağını Okti'nin üstünde gezdir: onu seversin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "a79d5a45149c0d5b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.home_tasks",
+  "text": "Ev Görevleri. Ailenin verdiği görevi yapınca Yaptım'a bas. Ailen onaylayınca boncuk ve Güneş Taşı kazanırsın.",
+  "tts": "Ev Görevleri. Ailenin verdiği görevi yapınca Yaptıma bas. Ailen onaylayınca boncuk ve Güneş Taşı kazanırsın.",
+  "kaydi_var": false
+ },
+ {
+  "key": "b9926d574f55c32b",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.mail",
+  "text": "Posta kutusu. Ailenden gelen mektupları ve hediyeleri postacı Mavi getirir.",
+  "tts": "Posta kutusu. Ailenden gelen mektupları ve hediyeleri postacı Mavi getirir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "beff92a5f38eef14",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.map",
+  "text": "Harita. Harita'yı aç, sarı ime dokun: oklar seni oraya götürür.",
+  "tts": "Harita. Harita'yı aç, sarı ime dokun: oklar seni oraya götürür.",
+  "kaydi_var": false
+ },
+ {
+  "key": "de0815726faa17e5",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.quests",
+  "text": "Görevler. Sağ üstteki Görev'de oyun görevlerin var. Biten görevde Al'a dokun. Bitmemiş göreve dokunursan Okti yolu gösterir.",
+  "tts": "Görevler. Sağ üstteki Görev'de oyun görevlerin var. Biten görevde Al'a dokun. Bitmemiş göreve dokunursan Okti yolu gösterir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "17abbdf076199579",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.shop",
+  "text": "Dükkân. Boncuklarınla Okti'ye kıyafet, evine eşya alabilirsin.",
+  "tts": "Dükkân. Boncuklarınla Okti'ye kıyafet, evine eşya alabilirsin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "8106abcfe29054b3",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.stones",
+  "text": "Güneş Taşı. Taşı sisli bir yere götür ve Taşı koy'a bas: sis kalkar, yeni yerler açılır.",
+  "tts": "Güneş Taşı. Taşı sisli bir yere götür ve Taşı koy'a bas: sis kalkar, yeni yerler açılır.",
+  "kaydi_var": false
+ },
+ {
+  "key": "421cbafedd3cd3a1",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.walk",
+  "text": "Yürü. Parmağını ekranda kaydır, Okti o yöne yürür. Bir yere dokunursan oraya gider.",
+  "tts": "Yürü. Parmağını ekranda kaydır, Okti o yöne yürür. Bir yere dokunursan oraya gider.",
+  "kaydi_var": false
+ },
+ {
+  "key": "50e0beaac3972457",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:coach.skip_ask",
+  "text": "İpuçları kapansın mı? Defter'deki Nasıl oynanır'dan yeniden açabilirsin.",
+  "tts": "İpuçları kapansın mı? Defter'deki Nasıl oynanır'dan yeniden açabilirsin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "3587f97a8548f83d",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:coach.skip_done",
+  "text": "İpuçları kapandı. Defter › Nasıl oynanır'dan yeniden açabilirsin.",
+  "tts": "İpuçları kapandı. Defter › Nasıl oynanır'dan yeniden açabilirsin.",
+  "kaydi_var": false
+ },
+ {
+  "key": "597738c3d3e64b6e",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.replayed",
+  "text": "İpuçları açıldı. Adada yine yol göstereceğim!",
+  "tts": "İpuçları açıldı. Adada yine yol göstereceğim!",
+  "kaydi_var": false
+ },
+ {
+  "key": "c217ebaa6e8d077c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.hints_on",
+  "text": "İpuçları açık: el, yazı ve oklar yol gösteriyor.",
+  "tts": "İpuçları açık: el, yazı ve oklar yol gösteriyor.",
+  "kaydi_var": false
+ },
+ {
+  "key": "728d8216f29a0aa4",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.hints_off",
+  "text": "İpuçları kapalı. Açarsan el ve oklar yeniden yol gösterir.",
+  "tts": "İpuçları kapalı. Açarsan el ve oklar yeniden yol gösterir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "1d73feb42dde7acf",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:gift.reveal",
+  "text": "Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin görevinin ödülü.",
+  "tts": "Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin görevinin ödülü.",
+  "kaydi_var": false
+ },
+ {
+  "key": "8d4c5d1cb1a05d97",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:rewards.intro",
+  "text": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
+  "tts": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
+  "kaydi_var": true
+ },
+ {
+  "key": "11eee713d3d2d797",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:gift.card",
+  "text": "Hoş geldin görevini yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
+  "tts": "Hoş geldin görevini yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
+  "kaydi_var": true
+ }
+]

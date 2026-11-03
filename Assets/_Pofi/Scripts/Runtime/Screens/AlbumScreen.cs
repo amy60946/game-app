@@ -196,6 +196,8 @@ namespace Pofi.Screens
                 Ui.Label(r, T("howto." + c.Id + ".title"), Th.Font(40), Theme.Hex("#8A5A22"), new Vector2(0.55f, 0.74f), new Vector2(1080f, 60f), FontStyle.Bold, TextAnchor.MiddleLeft);
                 var t = Ui.Label(r, T("howto." + c.Id + ".text"), Th.Font(34), Theme.Hex("#4A2C0A"), new Vector2(0.55f, 0.32f), new Vector2(1080f, 96f), FontStyle.Normal, TextAnchor.MiddleLeft);
                 t.horizontalOverflow = HorizontalWrapMode.Wrap;
+                // kartın sesli okunuşu (yalnız kaydı varsa hoparlör görünür; başlık + metin tek kayıt)
+                VoiceButton.Attach(r).SetText(T("howto." + c.Id + ".title") + ". " + T("howto." + c.Id + ".text"));
             }
         }
 

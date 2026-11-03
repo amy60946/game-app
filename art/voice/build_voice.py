@@ -170,6 +170,13 @@ def catalog():
     for k, v in tr.items():
         if k == "mg.runner.howto" or k.startswith(("runner.space.fact", "runner.egypt.fact")):
             add(fill_pet(v), "anlatici", "tr:" + k, "narrator")
+    # K6 A (2 Kasım 2026): Defter › Nasıl oynanır kartları (başlık + metin tek kayıt, AlbumScreen) ve ipuçlarını kapatma cümleleri
+    for k in sorted(tr):
+        if k.startswith("howto.") and k.endswith(".text"):
+            t = k[:-len(".text")] + ".title"
+            if t in tr: add(tr[t] + ". " + tr[k], "anlatici", "tr:" + k[:-len(".text")], "narrator")
+    for k in ("coach.skip_ask", "coach.skip_done", "howto.replayed", "howto.hints_on", "howto.hints_off"):
+        if k in tr: add(tr[k], "anlatici", "tr:" + k, "narrator")
     if "gift.reveal" in tr and "gift.reveal_sub" in tr:   # ScreenBase.StoneReveal iki satırı birlikte okur
         add(tr["gift.reveal"] + " " + tr["gift.reveal_sub"], "anlatici", "tr:gift.reveal", "narrator")
     for a, b, c in [("rewards.intro_1", "rewards.intro_2", "rewards.intro_3"), ("gift.l1", "gift.l2", "gift.l3")]:   # tanıtım kartı üç satırı tek seferde okur
