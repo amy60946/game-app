@@ -4,6 +4,9 @@
 # Kullanım:
 #   python3 asc_sign.py create <p8> <bundle_id> <çıkış_klasörü>   → key.pem, cert.der, profile.mobileprovision, info.json
 #   python3 asc_sign.py cleanup <p8> <info.json>
+#   python3 asc_sign.py devclean <p8>   → CI'nın önceki işlerde API ile açtırdığı ("Created via API") geliştirme sertifikalarını
+#     iptal eder (özel anahtarları o işlerin makineleriyle silindi; Xcode aynı makine adına yenisini açamıyordu, iOS 34).
+#     Dağıtım sertifikalarına ve yüklenmiş derlemelere dokunmaz; elle açılmış geliştirme sertifikaları (başka ad) kalır.
 # Ortam: ASC_KEY_ID, ASC_ISSUER_ID. Gizli bilgiler loga yazılmaz.
 import base64, json, os, sys, time, urllib.error, urllib.request
 import jwt
@@ -77,5 +80,17 @@ def cleanup(p8, info_path):
     if info.get('cert_id'): call(tok, 'DELETE', '/certificates/' + info['cert_id'], ok_missing=True)
     print('Geçici sertifika ve profil kaldırıldı.')
 
+def devclean(p8):
+    tok = token(p8)
+    certs = call(tok, 'GET', '/certificates?filter[certificateType]=DEVELOPMENT,IOS_DEVELOPMENT&limit=200')['data']
+    n = 0
+    for c in certs:
+        a = c.get('attributes', {})
+        label = ' '.join(str(a.get(k) or '') for k in ('name', 'displayName'))
+        if 'Created via API' in label:
+            call(tok, 'DELETE', '/certificates/' + c['id'], ok_missing=True); n += 1
+    print('Eski CI geliştirme sertifikası iptal edildi: %d (toplam geliştirme sertifikası %d)' % (n, len(certs)))
+
 if __name__ == '__main__':
-    {'create': lambda: create(*sys.argv[2:5]), 'cleanup': lambda: cleanup(*sys.argv[2:4])}[sys.argv[1]]()
+    {'create': lambda: create(*sys.argv[2:5]), 'cleanup': lambda: cleanup(*sys.argv[2:4]),
+     'devclean': lambda: devclean(sys.argv[2])}[sys.argv[1]]()

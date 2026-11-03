@@ -42,6 +42,9 @@ for c in AppleWWDRCAG3 AppleWWDRCAG6; do
 done
 python3 -m pip install -q --disable-pip-version-check "pyjwt[crypto]" 2>/dev/null || python3 -m pip install -q --break-system-packages "pyjwt[crypto]"
 python3 "$here/asc_device.py" "$key"
+# iOS 34 (Intel): "Apple Development certificate for this machine … private key is not installed" — önceki CI işlerinin
+# geliştirme sertifikaları iptal edilir, Xcode bu makinede anahtarıyla yenisini açar (dağıtım imzası aşağıda ayrı)
+python3 "$here/asc_sign.py" devclean "$key" || echo "::warning::Eski geliştirme sertifikaları temizlenemedi"
 archive="$RUNNER_TEMP/Pofi.xcarchive"
 cd "$proj"
 xcodebuild -version
