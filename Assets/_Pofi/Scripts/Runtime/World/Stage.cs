@@ -388,6 +388,24 @@ namespace Pofi.World
             if (!UI.Theme.ReduceMotion) _hop = 1f;
         }
 
+        /// <summary>Top oyunu (K2 B): petin ayak noktası ve boyu; vuruşta sevinç.</summary>
+        public Transform PetAnchor => _holder;
+        public float PetHeight => 1.75f * _baseScale;
+        public void Bat()
+        {
+            if (RealAssets.Play(Pet, "happy")) return;
+            if (!UI.Theme.ReduceMotion) _hop = 1f;
+        }
+
+        /// <summary>
+        /// Okşama (K2 B): <see cref="StrokePet"/> açıksa basış pette başlarsa pet dönmez; parmak 1 sn pet üstünde gezinince
+        /// <see cref="Petted"/> çağrılır (sürdükçe her saniye).
+        /// </summary>
+        public bool StrokePet;
+        public Action Petted;
+        private bool _stroke;
+        private float _strokeT;
+
         /// <summary>Ekran noktası pete mi denk geliyor (ayaktan başın biraz üstüne, gövde genişliğinde)?</summary>
         public bool PetHit(Vector2 screen)
         {
@@ -444,8 +462,17 @@ namespace Pofi.World
                 _pressPos = _lastPos = Input.mousePosition;
                 _pressTime = Time.unscaledTime;
                 _yawVelocity = 0f;
+                _stroke = StrokePet && Petted != null && PetHit(Input.mousePosition);
+                _strokeT = 0f;
             }
-            if (_dragging && Input.GetMouseButton(0))
+            if (_dragging && _stroke && Input.GetMouseButton(0))
+            {
+                var moved = ((Vector2)Input.mousePosition - (Vector2)_lastPos).magnitude > 0.5f;
+                if (moved && PetHit(Input.mousePosition)) _strokeT += dt;
+                if (_strokeT >= 1f) { _strokeT = 0f; Petted?.Invoke(); }
+                _lastPos = Input.mousePosition;
+            }
+            else if (_dragging && Input.GetMouseButton(0))
             {
                 var dx = Input.mousePosition.x - _lastPos.x;
                 var deg = -dx / Mathf.Max(1f, Screen.width) * 360f;

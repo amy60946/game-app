@@ -545,21 +545,23 @@ namespace Pofi.Screens
 
         private GuideStage GuideStageFor(GuideStep g)
         {
-            var arg = g.Id == "feed" || g.Id == "wash" ? PetDat : g.Id == "wear" ? PetGen : App.State.PetName;
+            var arg = g.Id == "feed" || g.Id == "wash" || g.Id == "play" ? PetDat : g.Id == "wear" ? PetGen : App.State.PetName;
             // hedefin yanındaysa: el sağ alttaki eylem tuşunu gösterir (Gir, Kes, Topla, Yap, Taşı koy, ateş)
             if (ActionServes(g))
                 return new GuideStage { Key = g.Id + ":act", Say = T("guide.press", T(_actionKey).TrimEnd('!')), From = () => UiScreen(_action), Loops = 99 };
             switch (g.Id)
             {
-                case "feed": case "wash": case "wear":
+                case "feed": case "wash": case "wear": case "play":
                 {
-                    if (CareMenuOpen)   // Okti'ye dokunuldu: menü açık, el ilgili baloncuğu gösterir (menü bu adımda kendiliğinden kapanmaz)
+                    if (_ball != null) return new GuideStage { Key = g.Id + ":ball", Say = T("care.ok.play"), From = PetScreen, Loops = 1, Reward = false };
+                    if (CareMenuOpen && _careBubbles.Count > 3)   // Okti'ye dokunuldu: menü açık, el ilgili baloncuğu gösterir (menü bu adımda kendiliğinden kapanmaz)
                     {
-                        var bi = g.Id == "feed" ? 0 : g.Id == "wash" ? 1 : 2;
+                        var bi = g.Id == "feed" ? 0 : g.Id == "wash" ? 1 : g.Id == "wear" ? 2 : 3;
                         var rt = (RectTransform)_careBubbles[bi].B.transform;
-                        return new GuideStage { Key = g.Id + ":pick", Say = T(bi == 0 ? "guide.pick_feed" : bi == 1 ? "guide.pick_wash" : "guide.pick_wear"), From = () => UiScreen(rt), Loops = 99 };
+                        return new GuideStage { Key = g.Id + ":pick", Say = T(bi == 0 ? "guide.pick_feed" : bi == 1 ? "guide.pick_wash" : bi == 2 ? "guide.pick_wear" : "guide.pick_play"), From = () => UiScreen(rt), Loops = 99 };
                     }
-                    return new GuideStage { Key = g.Id + ":pet", Say = T(g.TextKey, arg), From = PetScreen, Loops = 99 };
+                    // K2 B: oyun adada da oynanır (Okti'ye dokun → Oyna); evdeyken evin kalbi (HomeScreen.GuideCoach)
+                    return new GuideStage { Key = g.Id + ":pet", Say = T(g.Id == "play" ? "guide.play_pet" : g.TextKey, arg), From = PetScreen, Loops = 99 };
                 }
                 case "mavi":   // Kıskaç "adayı biraz dolaş" dedi: el joystickten yürümeyi gösterir; Mavi birazdan kadrajın içinden uçarak gelir
                     return new GuideStage { Key = "mavi:walk", Say = T(g.TextKey), Gesture = TipGesture.Slide, Loops = 3, Reward = false,
@@ -599,7 +601,7 @@ namespace Pofi.Screens
             get
             {
                 var g = Guide.Current(App.State, App.Level);
-                return g != null && (g.Id == "feed" || g.Id == "wash" || g.Id == "wear");
+                return g != null && (g.Id == "feed" || g.Id == "wash" || g.Id == "wear" || g.Id == "play");
             }
         }
 
@@ -609,7 +611,7 @@ namespace Pofi.Screens
             if (_action == null || !_action.gameObject.activeInHierarchy || string.IsNullOrEmpty(_actionKey)) return false;
             switch (g.Id)
             {
-                case "home": case "tidy": case "play": return _actionKey == "hud.enter" && _actionRegion == "region_home";
+                case "home": case "tidy": return _actionKey == "hud.enter" && _actionRegion == "region_home";
                 case "shop": return _actionKey == "hud.enter" && _actionRegion == "region_shop";
                 case "board": case "gift": return _actionKey == "hud.enter" && _actionRegion == "region_task_board";
                 case "coconut": return _gTarget >= 0 && _gNodes[_gTarget].Kind == GatherKind.Coconut && _actionKey == "hud.collect";
@@ -641,7 +643,8 @@ namespace Pofi.Screens
             switch (g.Id)
             {
                 case "feed": case "wash": return PetScreen;   // Okti'ye dokun → Besle / Yıka baloncukları (G2)
-                case "home": case "tidy": case "play": return () => DoorScreen("region_home");   // kapı (bölge ortasının üstü panoya denk geliyordu)
+                case "home": case "tidy": return () => DoorScreen("region_home");   // kapı (bölge ortasının üstü panoya denk geliyordu)
+                case "play": return PetScreen;   // K2 B: Okti'ye dokun → Oyna
                 case "wear": return PetScreen;
                 case "board": return () => DoorScreen("region_task_board");
                 case "stone": case "clear": return StoneTipScreen;   // sis kadrajda değilse kenardaki taş rozeti (GB18-5)
@@ -698,7 +701,7 @@ namespace Pofi.Screens
         {
             switch (g.Id)
             {
-                case "home": case "tidy": case "play": return DoorOf("region_home");
+                case "home": case "tidy": return DoorOf("region_home");
                 case "board": case "gift": return DoorOf("region_task_board");
                 case "stone": return SpotDoor(App.Data.SunBook.Next(App.State.SunStones)) ?? DoorOf("region_task_board");
                 case "clear": return new Vector2(_sitePos.x, _sitePos.z);   // GB19: kulübe yerindeki sis

@@ -878,6 +878,26 @@ namespace Pofi.World
             Audio.Haptics.Light();
         }
 
+        /// <summary>Top oyununda vuruş (K2 B): kollar havada sevinç + küçük sıçrama; yürüyüşü durdurmaz.</summary>
+        public void Bat()
+        {
+            _hold = 0f;
+            if (!PlayFor("happy", 0.6f)) { _jump = 0f; Jump(); }
+        }
+
+        /// <summary>Top oyunu ve okşama için petin ayak noktası ve boyu (dünya birimi).</summary>
+        public Transform Anchor => transform;
+        public float Height => 1.9f * _baseScale.y;
+
+        /// <summary>Okşama (K2 B): mürekkep kalbi + sevinç; yürüyüşü durdurmaz.</summary>
+        public void Petted()
+        {
+            if (_hold <= 0f && _jump <= 0f) { _wiggle = 0.6f; PlayFor("happy", 0.8f); }
+            InkHeart.Spawn(transform, 1.9f * _baseScale.y);
+            Audio.Sfx.Play(Audio.SfxKind.Sparkle);
+            Audio.Haptics.Light();
+        }
+
         private bool PlayFor(string clip, float seconds)
         {
             if (!RealAssets.Play(_pet, clip, false)) return false;

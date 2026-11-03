@@ -642,6 +642,28 @@ namespace Pofi.Core
             return true;
         }
 
+        /// <summary>Okti ile oyun ritmi (K2 B): iki sayılan top oyunu arası 20 sn, getiri 12 → 8 → 5; yalnız oturumda.</summary>
+        public readonly PlayRhythm PlayRhythm = new PlayRhythm();
+
+        /// <summary>Top oyunu bitti (adada ya da evde): mutluluk + "oyna" sayacı (görev "3 kez oyna" gerçek oyunu sayar).</summary>
+        public CareResult FinishBallGame()
+        {
+            if (State == null) return CareResult.Resting;
+            var r = PetCare.Play(State.Stats, LocalNow, PlayRhythm.Take(UtcNow));
+            if (r == CareResult.Ok) { Save(); RecordActivity("pet_played"); }
+            return r;
+        }
+
+        /// <summary>Okşama (K2 B): küçük mutluluk (en sık 6 sn'de bir); kalpler ve ses her seferinde (çağıran gösterir).</summary>
+        public void PetStroke()
+        {
+            if (State == null) return;
+            var g = PlayRhythm.Pet(UtcNow);
+            if (g <= 0f) return;
+            PetCare.Pet(State.Stats, g);
+            RecordActivity("pet_petted");
+        }
+
         /// <summary>Alt menüden sayfa aç (yalnızca pet hazırsa).</summary>
         public void Open(AppPage page)
         {
@@ -696,6 +718,7 @@ namespace Pofi.Core
             Stage.SetBackdrop(null);
             Stage.SetBeach(false);             // kumsal görseli yalnız giriş ve tanışma ekranında (ekran kendisi açar)
             Stage.Swiped = null;
+            Stage.StrokePet = false; Stage.Petted = null;   // okşama yalnız evde (K2 B; ada kendi girişini kullanır)
             MusicButton.Place(MusicButton.DefaultX);   // pencere çarpısı yanına kaymışsa geri al
             Audio.Voice.Stop();                         // ekran değişince önceki ekranın cümlesi susar
             MusicButton.SetVisible(true);              // adada gizlenir (avatar menüsünde)

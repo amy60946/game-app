@@ -7,6 +7,7 @@ using Pofi.Logic.Meta;
 using Pofi.Logic.Pet;
 using Pofi.Logic.Progression;
 using Pofi.UI;
+using Pofi.World;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -72,7 +73,8 @@ namespace Pofi.Screens
             {
                 var a = actions[i];
                 System.Action act = a == CareAction.Feed ? () => OpenTray(ItemCategory.Food, CareAction.Feed)
-                    : a == CareAction.Wash ? () => OpenTray(ItemCategory.Cleaning, CareAction.Wash) : (System.Action)(() => Care(a));
+                    : a == CareAction.Wash ? () => OpenTray(ItemCategory.Cleaning, CareAction.Wash)
+                    : a == CareAction.Play ? PlayBall : (System.Action)(() => Care(a));
                 var (b, _, _) = GoldKit.Icon3D(Root, icons[i], 104f * GoldKit.K, new Vector2(1f, 0f), new Vector2(i % 2 == 0 ? -470f : -250f, i < 2 ? 450f : 230f),
                     Theme.Hex(extrude[i]), act, T(labels[i]), GoldKit.Tone.Green, i * 0.35f);
                 if (a == CareAction.Tidy) _tidyBtn = (RectTransform)b.transform;
@@ -81,6 +83,18 @@ namespace Pofi.Screens
                 if (a == CareAction.Wash) _washCount = GoldKit.Gem(b.transform);
             }
             NavBar(AppPage.Home);
+            // K2 B: evde de parmak Okti'nin üstünde gezinince sevme
+            App.Stage.StrokePet = true;
+            App.Stage.Petted = () =>
+            {
+                if (this == null) return;
+                InkHeart.Spawn(App.Stage.PetAnchor, App.Stage.PetHeight);
+                App.Stage.Bat();
+                Audio.Sfx.Play(Audio.SfxKind.Sparkle);
+                App.PetStroke();
+                if (_strokeSaid < Time.unscaledTime) { _bubble.Say(T("care.petted"), 2.5f); _strokeSaid = Time.unscaledTime + 12f; }
+                Refresh();
+            };
             // Altın Atölye coin hapı pencere rozetinden geniş (simgesi soldan taşar): müzik düğmesi onun soluna (tasarım turu 24 Ekim 2026: üst üste biniyordu)
             MusicButton.Place(MusicButton.BesideClose - 56f);
             App.Synced += OnSynced;
@@ -97,6 +111,27 @@ namespace Pofi.Screens
         /// dokunur. Adım bitince panel kapanır. Gösterildiyse true.
         /// </summary>
         private RectTransform _questBtn;
+        private BeachBall _ball;
+        private float _strokeSaid;
+
+        /// <summary>Evin kalbi (K2 B): adadaki "Oyna" ile aynı top oyunu; bitince sayılır.</summary>
+        private void PlayBall()
+        {
+            if (_ball != null || App.Stage.Pet == null) return;
+            if (!App.PlayRhythm.Ready(App.UtcNow)) { _bubble.Say(CareFeedback.Message(App.Loc, CareAction.Play, CareResult.Resting, App.State.PetName)); return; }
+            if (_coach != null && _coach.Id == "guide_play") { _coach.Done(); _coach = null; }
+            _ball = BeachBall.Spawn(App.Stage.PetAnchor, App.Stage.PetHeight, App.Stage.Bat, () =>
+            {
+                if (this == null || App == null) return;
+                _ball = null;
+                var r = App.FinishBallGame();
+                if (r == CareResult.Ok)
+                    GoldProfile.FlyCare(App.Overlay.transform, 2, GaugeIcons[2], RectTransformUtility.WorldToScreenPoint(null, _careBtns[2].position));
+                _idle = 0f;
+                _bubble.Say(CareFeedback.Message(App.Loc, CareAction.Play, r, App.State.PetName, QuestWaiting(CareAction.Play)));
+                Refresh();
+            });
+        }
 
         private bool GuideCoach()
         {

@@ -4,7 +4,7 @@ using Pofi.Logic.Shop;
 
 namespace Pofi.Logic.Pet
 {
-    public enum CareResult { Ok, NoItem, WrongItem, Sleeping, AlreadyFull, AlreadyClean }
+    public enum CareResult { Ok, NoItem, WrongItem, Sleeping, AlreadyFull, AlreadyClean, Resting }
 
     /// <summary>
     /// Bakım eylemleri (FR-PET-4): besle, yıkan, oyna, ev düzenle; gece pet uyur (FR-ISL-2).
@@ -49,11 +49,21 @@ namespace Pofi.Logic.Pet
             return CareResult.Ok;
         }
 
-        public static CareResult Play(PetStats stats, DateTime local)
+        public static CareResult Play(PetStats stats, DateTime local) => Play(stats, local, PlayHappiness);
+
+        /// <summary>Top oyunu bitti (K2 B): getiri <see cref="PlayRhythm"/>'den; 0 ise oyun sayılmaz (Okti soluklanıyor).</summary>
+        public static CareResult Play(PetStats stats, DateTime local, float gain)
         {
             if (IsNight(local)) return CareResult.Sleeping;
-            stats.Add(StatKind.Happiness, PlayHappiness);
+            if (gain <= 0f) return CareResult.Resting;
+            stats.Add(StatKind.Happiness, gain);
             return CareResult.Ok;
+        }
+
+        /// <summary>Okşama (K2 B): küçük mutluluk; göstergeyi doldurmaz, sayaç saymaz.</summary>
+        public static void Pet(PetStats stats, float gain)
+        {
+            if (gain > 0f) stats.Add(StatKind.Happiness, gain);
         }
 
         public static CareResult Tidy(PetStats stats)

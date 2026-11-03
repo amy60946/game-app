@@ -23,6 +23,7 @@ namespace Pofi.Logic.App
                         default: return loc.Get("care.ok.tidy");
                     }
                 case CareResult.Sleeping: return loc.Get("care.sleeping", petName);
+                case CareResult.Resting: return loc.Get("care.resting", petName);
                 case CareResult.AlreadyFull: return loc.Get(questWaiting ? "care.full_quest" : "care.full", petName);
                 case CareResult.AlreadyClean: return loc.Get(questWaiting ? "care.clean_quest" : "care.clean", petName);
                 case CareResult.NoItem:

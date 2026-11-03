@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Pofi.Logic.App;
 using Pofi.Logic.Island;
+using Pofi.Logic.Pet;
 using Pofi.UI;
 using Pofi.World;
 using UnityEngine;
@@ -30,8 +31,8 @@ namespace Pofi.Screens
         private Vector3 _camPos, _camLook;
         // dokunma: her parmak ayrı izlenir. GB20-16 (kullanıcı, 2 Kasım 2026): ekranın her yeri joystick (ilk parmak),
         // ikinci parmak yalnız dokunur; sağ yarıdaki elle kamera döndürme kalktı, kamera kendiliğinden döner (TargetCamera)
-        private enum Role { Stick, Tap, Pan }
-        private sealed class Finger { public Vector2 Press, Last; public bool Moved; public Role Role; }
+        private enum Role { Stick, Tap, Pan, Pet }
+        private sealed class Finger { public Vector2 Press, Last; public bool Moved, Petted; public Role Role; public float Stroke; }
         private readonly Dictionary<int, Finger> _fingers = new Dictionary<int, Finger>();
         private int _stickFinger = int.MinValue;
         private readonly HashSet<int> _alive = new HashSet<int>();
@@ -538,6 +539,8 @@ namespace Pofi.Screens
             if (overUi) return;
             var role = _overview ? Role.Pan
                 : _world.Walker != null && _stickFinger == int.MinValue ? Role.Stick : Role.Tap;
+            // K2 B: basış Okti'nin üstünde başlarsa önce okşama (parmak Okti'den uzaklaşınca joystick olur)
+            if (role == Role.Stick && !_cine && OnPetBody(pos)) role = Role.Pet;
             _fingers[id] = new Finger { Press = pos, Last = pos, Role = role };
             if (role == Role.Stick) { _stickFinger = id; _press = pos; _moved = false; _stickYaw = _camYaw; }
         }
@@ -551,6 +554,19 @@ namespace Pofi.Screens
             {
                 case Role.Stick:
                     HandleStick(pos);
+                    break;
+                case Role.Pet:
+                    if (OnPetBody(pos))
+                    {
+                        if (d.magnitude > 0.5f) f.Stroke += Time.deltaTime;
+                        if (f.Stroke >= 1f) { f.Stroke = 0f; f.Petted = true; Stroked(); }
+                    }
+                    else if ((pos - f.Press).magnitude > Screen.height * 0.04f && _stickFinger == int.MinValue)
+                    {
+                        // Okti'den kaydı: bu parmak joystick olur (yürü)
+                        f.Role = Role.Stick; _stickFinger = id; _press = f.Press; _moved = false; _stickYaw = _camYaw;
+                        HandleStick(pos);
+                    }
                     break;
                 case Role.Pan:
                     if (!f.Moved) break;
@@ -566,7 +582,7 @@ namespace Pofi.Screens
         {
             if (!_fingers.TryGetValue(id, out var f)) return;
             _fingers.Remove(id);
-            var tapped = !f.Moved && !canceled;
+            var tapped = !f.Moved && !canceled && !f.Petted;
             if (f.Role == Role.Stick)
             {
                 _stickFinger = int.MinValue;
@@ -1047,15 +1063,17 @@ namespace Pofi.Screens
         {
             if (_careBubbles.Count == 0)
             {
-                Add("food_apple", T("hud.feed"), "#7A1E14", new Vector2(-170f, 40f), () => { HideCare(); OnFeed(); });   // besleme ipucu beslenince biter (sürükleme eli gösterilsin)
-                Add("clean_soap", T("hud.wash"), "#A04C6A", new Vector2(0f, 120f), () => { HideCare(); OnWash(); });
-                Add("hoodie_soft", T("hud.dress"), "#27467E", new Vector2(170f, 40f), () =>
+                // K2 B (3 Kasım 2026): dördüncü baloncuk "Oyna" (plaj topu); dördü başın çevresinde yay çizer
+                Add("food_apple", T("hud.feed"), "#7A1E14", new Vector2(-250f, 20f), () => { HideCare(); OnFeed(); });   // besleme ipucu beslenince biter (sürükleme eli gösterilsin)
+                Add("clean_soap", T("hud.wash"), "#A04C6A", new Vector2(-88f, 125f), () => { HideCare(); OnWash(); });
+                Add("hoodie_soft", T("hud.dress"), "#27467E", new Vector2(88f, 125f), () =>
                 {
                     HideCare();
                     TipDone(Onboarding.Wardrobe);
                     App.Stage.SetPetVisible(true);
                     App.Open(AppPage.Wardrobe);
                 });
+                Add("ui_heart", T("hud.play_ball"), "#9E1B3C", new Vector2(250f, 20f), () => { HideCare(); OnPlayBall(); });
             }
             _careFor = 4f;
             TipDone(Onboarding.Wardrobe);   // "Okti'ye dokun" öğrenildi
@@ -1071,6 +1089,53 @@ namespace Pofi.Screens
                 _careBubbles.Add((b, off));
             }
         }
+
+        // ------------------------------------------------------------------ K2 B: top oyunu + okşama (3 Kasım 2026)
+        private BeachBall _ball;
+
+        /// <summary>Okti menüsündeki "Oyna": plaj topu (~6 sn, kaçırma yok); bitince sayılır (20 sn içinde ikincisi soluklanma der).</summary>
+        private void OnPlayBall()
+        {
+            if (_ball != null || _world.Walker == null) return;
+            if (!App.PlayRhythm.Ready(App.UtcNow))
+            {
+                _toast.Say(CareFeedback.Message(App.Loc, CareAction.Play, CareResult.Resting, App.State.PetName));
+                return;
+            }
+            var w = _world.Walker;
+            _ball = BeachBall.Spawn(w.Anchor, w.Height, w.Bat, () =>
+            {
+                if (this == null || App == null) return;   // ekran kapandıysa (WebGL boş başvuruyu yakalamaz)
+                _ball = null;
+                var r = App.FinishBallGame();
+                if (r == CareResult.Ok) GoldProfile.FlyCare(App.Overlay.transform, 2, HudIcons[2], PetScreen());
+                _toast.Say(CareFeedback.Message(App.Loc, CareAction.Play, r, App.State.PetName, QuestWaiting(CareAction.Play)));
+                RefreshHud();
+            });
+        }
+
+        /// <summary>Parmak Okti'nin üstünde 1 sn gezindi: sevme (kalp + sevinç; küçük mutluluk en sık 6 sn'de bir).</summary>
+        private void Stroked()
+        {
+            if (_world.Walker == null) return;
+            _world.Walker.Petted();
+            App.PetStroke();
+            if (Onboarding.Pending(App.State, PetStrokeTip)) { Onboarding.Done(App.State, PetStrokeTip); App.Save(); }
+            if (_strokeSaid < Time.unscaledTime) { _toast.Say(T("care.petted")); _strokeSaid = Time.unscaledTime + 12f; }
+            RefreshHud();
+        }
+
+        private float _strokeSaid;
+
+        /// <summary>Ekran noktası Okti'nin gövdesinde mi (yalnız çarpışma kutusu; joystick basışları çevrede kalmasın)?</summary>
+        private bool OnPetBody(Vector2 screen)
+        {
+            if (_world.Walker == null) return false;
+            foreach (var h in Physics.RaycastAll(App.Stage.Camera.ScreenPointToRay(screen), 200f)) if (h.collider.gameObject.name == "pet") return true;
+            return false;
+        }
+        /// <summary>İlk okşama işareti (Nasıl oynanır'da anlatılır; ayrı ipucu çıkmaz).</summary>
+        private const string PetStrokeTip = "pet_stroke";
 
         private void HideCare()
         {
