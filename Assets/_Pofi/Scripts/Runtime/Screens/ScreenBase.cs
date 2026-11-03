@@ -115,6 +115,7 @@ namespace Pofi.Screens
             var say = T("guide.close");
             var rt = CloseRect;
             coach = Coach.Show(Root, "guide_close", say, TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, rt.position), null, 99, Guide.Label(App.State), null, say);
+            Spotlight.For(coach, () => RectTransformUtility.WorldToScreenPoint(null, rt.position), 110f);   // GB21-8
             return true;
         }
 

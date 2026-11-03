@@ -533,11 +533,11 @@ namespace Pofi.World
             {
                 var m = RealAssets.EnvFootprint(asset, root, r.Size, 180f + r.Yaw);   // ham önü +z → güneye dön, sonra bölge açısı
                 if (m != null && r.Id == "region_festival") FestivalInside(root, r);   // GB20-7a: kapıdan içerisi boş görünmesin
-                if (m != null && r.Id == "region_game_hut" && v.Unlocked)            // K4 A: kulübenin önünde Yıldız Kapısı + çatıda teleskop
+                if (m != null && r.Id == "region_game_hut")   // K4 A: kulübenin önünde Yıldız Kapısı + çatıda teleskop (kilitliyken sönük, GB21-7)
                 {
                     var (dx, dz) = Terrain.Door(r);
                     var top = RealAssets.WorldBounds(root).max.y - root.position.y;
-                    Gate = StarGate.Build(this, root, dx, dz, r.X, r.Z, top);
+                    Gate = StarGate.Build(this, root, dx, dz, r.X, r.Z, top, v.Unlocked);
                 }
             }
             if (root.childCount == 0) Placeholder(root, r, shown);
@@ -791,6 +791,8 @@ namespace Pofi.World
         public const float WalkSpeed = 2.6f, RunSpeed = 5.2f;
         public System.Action Arrived;
         public bool Moving => _route.Count > 0;
+        /// <summary>Yürüyüş hızı oranı (0–1; joystick sapması, dokun-yürüde yarım): kamera önden bakışı (GB21-2).</summary>
+        public float SpeedRatio => _route.Count > 0 ? 0.5f : Mathf.Clamp01(_direct.magnitude);
         public bool Steering => _steering;
         /// <summary>Petin baktığı yön (derece; 0 = +z).</summary>
         public float Heading => _yaw;

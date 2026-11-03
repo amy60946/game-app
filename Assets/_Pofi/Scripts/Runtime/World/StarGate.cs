@@ -25,13 +25,14 @@ namespace Pofi.World
         private readonly System.Collections.Generic.List<Material> _mats = new System.Collections.Generic.List<Material>();
         private Material Mat(Color c, float smooth) { var m = PetModels.NewMaterial(c, smooth); _mats.Add(m); return m; }
         private float _lit, _ripple = -1f, _t;
-        private bool _told;
+        private bool _told, _open = true;
 
         /// <summary>Okti kapıya ilk kez yaklaştı (bu oturumda bir kez; MapScreen Mavi'ye tek cümle söyletir).</summary>
         public System.Action Approached;
 
         /// <summary>Kapıyı bölgenin kapı noktasına kurar (bölge kökünün çocuğu; yapı modeli kurulduktan sonra).</summary>
-        public static StarGate Build(MapWorld world, Transform root, float doorX, float doorZ, float centerX, float centerZ, float roofY)
+        /// <param name="open">Kulübe açık mı (Sv3): kilitliyken kapı görünür ama yanmaz, Mavi konuşmaz (GB21-7).</param>
+        public static StarGate Build(MapWorld world, Transform root, float doorX, float doorZ, float centerX, float centerZ, float roofY, bool open = true)
         {
             var dir = new Vector2(doorX - centerX, doorZ - centerZ);
             if (dir.sqrMagnitude < 0.01f) dir = Vector2.up;
@@ -42,7 +43,7 @@ namespace Pofi.World
             go.transform.localPosition = new Vector3(gx - centerX, world.Terrain.Height(gx, gz) - root.localPosition.y, gz - centerZ);
             go.transform.localRotation = Quaternion.LookRotation(new Vector3(dir.x, 0f, dir.y));   // +z dışarı (Okti'ye doğru)
             var g = go.AddComponent<StarGate>();
-            g._world = world;
+            g._world = world; g._open = open;
             g.BuildArch();
             g.BuildTelescope(root, roofY, dir);
             return g;
@@ -143,7 +144,8 @@ namespace Pofi.World
         {
             _t += Time.deltaTime;
             var w = _world != null ? _world.Walker : null;
-            var near = w != null && Vector3.Distance(w.transform.position, transform.position) < NearDist;
+            var near = _open && w != null && Vector3.Distance(w.transform.position, transform.position) < NearDist;
+            if (!_open) return;   // kilitli: renkleri bölgenin gri tonu belirler, ışık yok
             if (near && !_told) { _told = true; Approached?.Invoke(); }
             _lit = Mathf.MoveTowards(_lit, near ? 1f : 0f, Time.deltaTime / 1.4f);
             for (var i = 0; i < Stones; i++)

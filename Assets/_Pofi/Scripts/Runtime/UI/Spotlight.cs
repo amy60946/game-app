@@ -47,6 +47,49 @@ namespace Pofi.UI
             return s;
         }
 
+        // ---- GB21-8 (kullanıcı, 3 Kasım 2026: "karartmayı diğer görevlere de uygula, oyunu öğretme görevleriyle kısıtlı kalsın") ----
+        /// <summary>İlk 3 kritik eylemin karartması (K5 B): çocuk dokunurken de, hedef ekran dışındayken de kalır.</summary>
+        public bool Sticky;
+        private bool _hidden;
+        /// <summary>Okti yürürken / sahne oynarken karartma kalkar (ada ekranı bağlar; yoksa hep false).</summary>
+        public static Func<bool> Suppress = () => false;
+
+        /// <summary>Öğretici ipucunun hedefine karartma (rehber adımları ve tanıtım ipuçları). İpucu kalkınca birlikte kalkar.</summary>
+        public static Spotlight For(Coach coach, Func<Vector2> target, float radius = 140f, bool sticky = false)
+        {
+            if (coach == null || target == null) return null;
+            var s = Show((RectTransform)coach.transform, target, radius);
+            s.Sticky = sticky;
+            return s;
+        }
+
+        /// <summary>İki hedefli (sürükleme: kaynak + bırakılacak yer) öğretici karartma.</summary>
+        public static Spotlight ForDrag(Coach coach, Func<Vector2> from, Func<Vector2> to, float radius = 140f, bool sticky = false)
+        {
+            if (coach == null || from == null || to == null) return null;
+            var s = ShowMany((RectTransform)coach.transform, new[] { from, to }, radius);
+            s.Sticky = sticky;
+            return s;
+        }
+
+        /// <summary>Çocuk ekrana dokunurken (ipucu eli beklerken) gizle; Sticky olan kalır.</summary>
+        public void SetHidden(bool hidden) => _hidden = hidden && !Sticky;
+
+        private bool TargetOnScreen()
+        {
+            if (_target == null) return false;
+            var p = _target();
+            return p.x > -40f && p.y > -40f && p.x < UnityEngine.Screen.width + 40f && p.y < UnityEngine.Screen.height + 40f;
+        }
+
+        private float WantAlpha()
+        {
+            if (Sticky) return 1f;
+            bool busy;
+            try { busy = Suppress != null && Suppress(); } catch { busy = false; }
+            return _hidden || busy || !TargetOnScreen() ? 0f : 1f;
+        }
+
         // ---- K5 B (kullanıcı, 3 Kasım 2026): ilk 3 kritik eylemde %50 karartma; birden çok aydınlık hedef (ör. elma → Okti) ----
         private Func<Vector2>[] _targets;
         private Texture2D _dyn;
@@ -102,7 +145,8 @@ namespace Pofi.UI
         private void Update()
         {
             _t += Time.unscaledDeltaTime;
-            _group.alpha = Mathf.MoveTowards(_group.alpha, 1f, Time.unscaledDeltaTime / 0.3f);
+            _group.alpha = Mathf.MoveTowards(_group.alpha, WantAlpha(), Time.unscaledDeltaTime / 0.3f);
+            if (_group.alpha <= 0f) return;
             Paint();
             Place();
             var p = Mathf.Repeat(_t / 1.2f, 1f);

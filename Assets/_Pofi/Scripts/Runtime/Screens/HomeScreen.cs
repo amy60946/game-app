@@ -101,7 +101,10 @@ namespace Pofi.Screens
 
             Refresh();
             if (Onboarding.Pending(App.State, Onboarding.Home))
+            {
                 _coach = Coach.Show(Root, Onboarding.Home, T("tip.home"), TipGesture.Tap, () => RectTransformUtility.WorldToScreenPoint(null, _tidyBtn.position));
+                Spotlight.For(_coach, () => RectTransformUtility.WorldToScreenPoint(null, _tidyBtn.position), 130f);   // GB21-8
+            }
             else if (!GuideCoach()) _bubble.Say(T("pet.welcome", App.State.PetName), 4f);
             ApplyNight(true);
         }
@@ -149,6 +152,7 @@ namespace Pofi.Screens
             _coach = Coach.Show(Root, "guide_" + g.Id, T(g.TextKey, App.State.PetName) + "  " + T("guide.reward", g.Xp), TipGesture.Tap,
                 () => RectTransformUtility.WorldToScreenPoint(null, btn.position), null, 3, Guide.Label(App.State),
                 null, T(g.TextKey, App.State.PetName));
+            Spotlight.For(_coach, () => RectTransformUtility.WorldToScreenPoint(null, btn.position), 130f);   // GB21-8
             return true;
         }
 
@@ -230,8 +234,11 @@ namespace Pofi.Screens
             }
             var tip = action == CareAction.Feed ? Onboarding.Feed : Onboarding.Wash;
             if (_coach == null && Onboarding.Pending(App.State, tip))   // el eşyayı Okti'ye taşır, yapılana kadar gidip gelir
+            {
                 _coach = Coach.Show(Root, tip, T("tip." + tip, Logic.Core.TurkishSuffix.Genitive(App.State.PetName)), TipGesture.Drag,
                     () => RectTransformUtility.WorldToScreenPoint(null, first.position), PetScreen, 99, null, null, null, Ui.Icon(firstId));
+                Spotlight.ForDrag(_coach, () => RectTransformUtility.WorldToScreenPoint(null, first.position), PetScreen, 140f);   // GB21-8
+            }
         }
 
         private Vector2 PetScreen() => App.Stage.Camera.WorldToScreenPoint(App.Stage.Pet != null ? App.Stage.Pet.position + Vector3.up * 1.0f : Vector3.zero);

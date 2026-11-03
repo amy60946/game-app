@@ -375,6 +375,8 @@ namespace Pofi.UI
         private int _font;
 
         public RectTransform Rect => _rt;
+        /// <summary>Tek satır (GB21-3, ipucu şeridi): yazı sarmaz, sığmazsa yazı küçülür (en çok %30).</summary>
+        public bool SingleLine;
 
         internal void Init(RectTransform rt, Color c, string icon, float maxWidth, int font)
         {
@@ -401,6 +403,19 @@ namespace Pofi.UI
             _text.horizontalOverflow = HorizontalWrapMode.Overflow;
             var pref = _text.preferredWidth;
             var inner = _maxWidth - _pad * 2f - _iconW * 0.75f;
+            if (SingleLine)
+            {
+                _text.fontSize = _font;
+                pref = _text.preferredWidth;
+                if (pref > inner) { _text.fontSize = Mathf.Max(Mathf.RoundToInt(_font * 0.7f), Mathf.FloorToInt(_font * inner / pref)); pref = Mathf.Min(inner, _text.preferredWidth); }
+                var w1 = Mathf.Min(_maxWidth, Mathf.Max(h1 * 2.2f, pref + _pad * 2f + _iconW * 0.75f));
+                _rt.sizeDelta = new Vector2(w1, h1);
+                var t1 = _text.rectTransform;
+                t1.sizeDelta = new Vector2(w1 - _pad * 2f - _iconW * 0.75f, h1 - _font * 0.4f);
+                t1.anchoredPosition = new Vector2(_iconW * 0.375f, 2f);
+                if (_iconRt != null) _iconRt.anchoredPosition = new Vector2(_iconW * 0.3f, 2f);
+                return;
+            }
             var lines = pref > inner ? 2 : 1;
             var w = Mathf.Min(_maxWidth, Mathf.Max(h1 * 2.2f, (lines == 1 ? pref : inner) + _pad * 2f + _iconW * 0.75f));
             var h = lines == 1 ? h1 : _font * 3.5f;

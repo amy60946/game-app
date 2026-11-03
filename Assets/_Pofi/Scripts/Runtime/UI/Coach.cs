@@ -26,6 +26,8 @@ namespace Pofi.UI
         private string _said;
         private static readonly System.Collections.Generic.HashSet<string> Spoken = new System.Collections.Generic.HashSet<string>();
         public string Id { get; private set; }
+        /// <summary>İpucu şeridinin alt kenardan yüksekliği (merkez; GB21-3: eskiden 150).</summary>
+        public const float BannerY = 58f;
 
         // ---- K6 A (kullanıcı kararı, 2 Kasım 2026): herkes için "Geç" + Defter › Nasıl oynanır (Logic.App.Hints) ----
         /// <summary>İpuçları kapalı mı (GameBootstrap bağlar): kapalıyken ipucu kurulur ama görünmez ve konuşmaz; akış aynen sürer.</summary>
@@ -56,7 +58,11 @@ namespace Pofi.UI
             // altyazı: mavi şeker panel, solda işaret eden el rozeti; oyun yazı tarzı (beyaz, koyu kontur), genişlik yazıya göre
             // alt şerit (kullanıcı, 19 Ekim 2026: üstte Güneş Taşı ve coin'i kapatıyordu): ekranın alt ortası, Besle/Yıka ile
             // eylem tuşunun arası; kısa cümle
-            var banner = Candy.Banner(rt, Candy.Blue, "ui_hand", new Vector2(0.5f, 0f), new Vector2(0f, 150f), 760f, 36, false);
+            // GB21-3 (kullanıcı, 3 Kasım 2026: "alttaki bilgilendirme yazısı daha alt kenara yakın ve tek satır olsun; telefonda ekranı
+            // fazla kaplıyor"): alt kenarda tek satır, joystick yeri ile eylem tuşunun arasına sığacak genişlikte; sığmazsa yazı küçülür
+            var bw = Mathf.Clamp(root.rect.width - 1040f, 820f, 1500f);
+            var banner = Candy.Banner(rt, Candy.Blue, "ui_hand", new Vector2(0.5f, 0f), new Vector2(0f, BannerY), bw, 32, false);
+            banner.SingleLine = true;
             banner.SetText(caption);
             c._banner = banner.Rect;
             c._bannerBox = banner;
@@ -76,7 +82,7 @@ namespace Pofi.UI
             c._readFor = spoke ? 1.2f : Mathf.Clamp(words * 0.42f, 2.2f, 4.5f);
             if (c._collapsible)
             {
-                var pill = Candy.Round(rt, Candy.Blue, "ui_hand", 104f, new Vector2(0.5f, 0f), new Vector2(0f, 150f), c.Expand);
+                var pill = Candy.Round(rt, Candy.Blue, "ui_hand", 96f, new Vector2(0.5f, 0f), new Vector2(0f, BannerY), c.Expand);
                 c._pill = (RectTransform)pill.transform;
                 c._pillCg = pill.gameObject.AddComponent<CanvasGroup>();
                 c._pillCg.ignoreParentGroups = true;   // ipucu katmanı dokunmayı kapatır; hap dokunulur kalır (görünürlüğü üst grupları izler)
@@ -208,7 +214,7 @@ namespace Pofi.UI
             _bannerBox?.SetText(Text("coach.skip_ask"));
             Audio.Voice.Say(Text("coach.skip_ask"));   // kaydı varsa okunur (yoksa sessiz)
             if (_skip != null) _skip.gameObject.SetActive(false);
-            _ask = Ui.Rect(_banner, "SkipAsk", new Vector2(0.5f, 0f), new Vector2(420f, 70f), new Vector2(0f, -46f));
+            _ask = Ui.Rect(_banner, "SkipAsk", new Vector2(0.5f, 1f), new Vector2(420f, 70f), new Vector2(0f, 50f));   // şerit alt kenarda: soru düğmeleri üstte
             _askCg = _ask.gameObject.AddComponent<CanvasGroup>();
             _askCg.ignoreParentGroups = true;
             Candy.Pill(_ask, Candy.Green, Text("coach.skip_yes"), new Vector2(0.27f, 0.5f), new Vector2(190f, 64f), Vector2.zero, ConfirmSkip, null, 26);
@@ -244,6 +250,22 @@ namespace Pofi.UI
             g.blocksRaycasts = g.interactable = a > 0.5f;
         }
 
+        /// <summary>El resminin parmak ucundan gövdesine yön (ui_hand: uç sol üstte, gövde sağ altta).</summary>
+        private static readonly Vector2 HandBody = new Vector2(0.62f, -0.78f);
+        /// <summary>Parmak ucunun hedef merkezinden uzaklığı (tuval birimi; düğme yarıçapı kadar).</summary>
+        private const float TipOffset = 62f;
+
+        /// <summary>El gövdesinin yönü: hedeften ekranın ortasına (hedef ortadaysa sağ alt), kenara taşmasın.</summary>
+        private Vector2 HandDir(Vector2 target)
+        {
+            var c = _root.rect.size * 0.5f;
+            var d = c - target;
+            if (d.magnitude < 120f) return HandBody.normalized;
+            // tam yataya/dikeye yapışmasın: köşegene yakın açı daha doğal duruyor
+            d.Normalize();
+            return Vector2.Lerp(d, HandBody.normalized, 0.25f).normalized;
+        }
+
         private Vector2 ToCanvas(Vector2 screen)
         {
             var k = _root.rect.width / Mathf.Max(1f, Screen.width);
@@ -256,21 +278,25 @@ namespace Pofi.UI
         public const float IdleShow = 7f;
         private static float _lastInput = -99f;
         private int _attempt = 1;
+        private Spotlight _spot;
         private bool _away;
 
         private void UpdateIdle()
         {
             if (Input.touchCount > 0 || Input.GetMouseButton(0)) _lastInput = Time.unscaledTime;
             var idle = Time.unscaledTime - _lastInput >= IdleShow;
+            if (_spot == null) _spot = GetComponentInChildren<Spotlight>(true);
             if (!_away && !idle && _life > 2.5f && _loops > 0 && !_asking)
             {
                 _away = true;
+                if (_spot != null) _spot.SetHidden(true);   // GB21-8: çocuk deniyor, karartma da kalkar
                 _finger.gameObject.SetActive(false); _ring.gameObject.SetActive(false); _ring2.gameObject.SetActive(false); _glow.gameObject.SetActive(false);
                 if (_carry != null) _carry.gameObject.SetActive(false);
             }
             else if (_away && idle)
             {
                 _away = false; _attempt++; _t = 0f;
+                if (_spot != null) _spot.SetHidden(false);
                 _finger.gameObject.SetActive(true); _ring.gameObject.SetActive(true); _ring2.gameObject.SetActive(true); _glow.gameObject.SetActive(true);
                 if (_carry != null) _carry.gameObject.SetActive(true);
                 if (_silent) return;
@@ -336,9 +362,23 @@ namespace Pofi.UI
                     press = 1f;
                     break;
             }
-            // el basarken parmak ucu hedefe iner, kalkarken biraz geri çekilir
-            _finger.anchoredPosition = p + new Vector2(10f, -14f) * (1f - press);
-            _ring.anchoredPosition = p;
+            // GB21-1 (kullanıcı: "el Gir tuşunun üzerinde, kapı görünmüyor; el yönlendirilen şeyin üzerinde olmasın"): dokunmada parmak
+            // ucu hedefin kenarına değer, el gövdesi ekranın ortasına doğru durur (hedef ve yazısı açık kalır); halka/ışık hedefin ortasında.
+            // Sürükleme ve kaydırmada el eşyayı taşıdığı için yolu izler.
+            var aim = p;
+            if (_gesture == Logic.App.TipGesture.Tap)
+            {
+                var dir = HandDir(a);
+                p = a + dir * TipOffset;
+                _finger.localRotation = Quaternion.Euler(0f, 0f, Vector2.SignedAngle(HandBody, dir));
+                _finger.anchoredPosition = p + dir * 18f * (1f - press);
+            }
+            else
+            {
+                _finger.localRotation = Quaternion.identity;
+                _finger.anchoredPosition = p + new Vector2(10f, -14f) * (1f - press);
+            }
+            _ring.anchoredPosition = aim;
             // belirişte zıplama (0,9 → 1,12 → 1), sonra basış ritmi
             var pop = _life < 0.45f ? Mathf.Lerp(0.9f, 1f, _life / 0.45f) + Mathf.Sin(_life / 0.45f * Mathf.PI) * 0.12f : 1f;
             _finger.localScale = Vector3.one * Mathf.Lerp(1.1f, 0.94f, press) * pop;
@@ -346,10 +386,10 @@ namespace Pofi.UI
             _ringImg.color = new Color(1f, 1f, 1f, 0.5f * press);
             // basışta dışa yayılan sarı halka (1,0 → 1,8, 0,8 sn'de söner); sürüklemede yalnız başta ve sonda
             var ph = (_t * 2f) % 1f;
-            _ring2.anchoredPosition = _gesture == Logic.App.TipGesture.Tap ? p : (_t < 0.5f ? a : p);
+            _ring2.anchoredPosition = _gesture == Logic.App.TipGesture.Tap ? aim : (_t < 0.5f ? a : p);
             _ring2.localScale = Vector3.one * Mathf.Lerp(0.8f, 1.8f, ph);
             _ring2Img.color = new Color(HintYellow.r, HintYellow.g, HintYellow.b, 0.7f * (1f - ph) * (1f - ph));
-            _glow.anchoredPosition = p;
+            _glow.anchoredPosition = aim;
             _glow.localScale = Vector3.one * (1f + Mathf.Sin(_life * 5f) * 0.12f);
             _glowImg.color = new Color(HintYellow.r, HintYellow.g, HintYellow.b, 0.22f + 0.1f * Mathf.Sin(_life * 5f));
             if (_props.Count > 0)

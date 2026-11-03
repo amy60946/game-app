@@ -43,8 +43,6 @@ namespace Pofi.Screens
         private float _userPitch = 24f;            // açık arazide bakış yüksekliği (derece); 24 Ekim 2026 kamera B: 20 → 24 (GB20: elle ayar kalktı)
         private float _lookHold;                   // sahne/ışınlanma sonrası otomatik takibin beklediği süre
         private float _stickYaw;                   // joystick yönü dokunuş başındaki kamera yönüne kilitli (dönen kamera yönü bozmasın)
-        private float _offAxisT;                   // Okti kameradan 40°'den fazla yana ne kadar süredir yürüyor
-        private bool _camTurning;                  // kamera Okti'nin arkasına dönüyor
         private float _village;                    // 0 açık arazi … 1 yapı yanı (bakış açısı yükselir, ev kadrajı kaplamaz)
         private SpeechBubble _toast;
         private RectTransform _labelLayer;
@@ -309,6 +307,10 @@ namespace Pofi.Screens
 
         // ------------------------------------------------------------------ kamera
 
+        private readonly Logic.Island.FollowCam _follow = new Logic.Island.FollowCam();
+        private float _backBlend, _stickStart;
+        private Vector3 _aheadDir;
+
         private void TargetCamera(out Vector3 pos, out Vector3 look, out float fov)
         {
             if (_cine)
@@ -335,29 +337,22 @@ namespace Pofi.Screens
             var running = w.Moving || w.Steering;
             _lookHold = Mathf.Max(0f, _lookHold - Time.deltaTime);
             var dt = Time.deltaTime;
-            if (running && _lookHold <= 0f)
-            {
-                // GB20-16 otomatik kamera (benchmark: Mario 3D World "paralel kamera", Animal Crossing, A Short Hike; araştırma
-                // scratchpad benchmark/r1): kamera yönü sabit kalır, çocuk dünyayı aynı yönden görür. Okti 40°'den fazla yana
-                // 1,1 sn yürürse kamera saniyede en çok 40° ile arkasına döner; kameraya doğru (>110°) yürürken hiç dönmez;
-                // hafif sapmada (<40°) çok yavaş izler. Joystick yönü dokunuş başında kilitlendiği için dönme döngüsü olmaz.
-                var diff = Mathf.DeltaAngle(_camYaw, w.Heading);
-                var ad = Mathf.Abs(diff);
-                if (ad > 40f && ad < 110f) _offAxisT += dt; else if (!_camTurning) _offAxisT = 0f;
-                if (_offAxisT > 1.1f) _camTurning = true;
-                if (_camTurning)
-                {
-                    _camYaw = Mathf.MoveTowardsAngle(_camYaw, w.Heading, Mathf.Lerp(10f, 40f, Mathf.Clamp01(ad / 30f)) * dt);   // sonda yavaşlar
-                    if (ad < 5f || ad >= 110f) { _camTurning = false; _offAxisT = 0f; }
-                }
-                else if (ad > 6f && ad <= 40f) _camYaw = Mathf.MoveTowardsAngle(_camYaw, w.Heading, Mathf.Min(9f, ad * 0.35f) * dt);
-            }
-            else { _offAxisT = 0f; _camTurning = false; }
+            // GB21-2 "hep arkadan" (Logic/Island/FollowCam; eski GB20 paralel kamerası kameraya doğru yürürken dönmüyordu, çocuk
+            // gittiği yeri göremiyordu): yürürken kamera Okti'nin arkasına döner; kameraya doğru yürürken önce görüş açılır.
+            var byStick = _stickFinger != int.MinValue && w.Steering;
+            if (_lookHold <= 0f) _camYaw = _follow.Step(_camYaw, w.Heading, running, byStick, byStick ? Time.unscaledTime - _stickStart : 99f, dt);
+            _backBlend = Mathf.MoveTowards(_backBlend, running && _follow.Back ? 1f : 0f, dt / 0.3f);
             _runBlend = Mathf.MoveTowards(_runBlend, running ? 1f : 0f, Time.deltaTime * 1.5f);
             var fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
-            var dist = Mathf.Lerp(4.3f, 4.6f, _runBlend) * Mathf.Max(0.85f, scale) * CamDistMul;   // pet kadrajda büyük (çocuğun odağı); durunca da geniş görüş
+            var dist = Mathf.Lerp(4.3f, 4.6f, _runBlend) * Mathf.Max(0.85f, scale) * CamDistMul * (1f + 0.15f * _backBlend);   // kameraya doğru yürürken %15 geri
             var pivot = p + Vector3.up * (hgt * 0.9f);
-            look = p + Vector3.up * (hgt * 0.55f) + fwd * Mathf.Lerp(1.3f, 1.5f, _runBlend);   // pet baştan ayağa ekranın alt-ortasında (yakın kamerada ayaklar kesilmesin), önü görünür
+            // önden bakış YÜRÜME yönünde (GB21-2; eskiden kamera yönündeydi, kameraya doğru yürürken bakış noktası Okti'nin arkasında
+            // kalıyordu): yürürken 1,5 m, koşarken 2,5 m; dururken kameranın önü
+            var head = Quaternion.Euler(0f, w.Heading, 0f) * Vector3.forward;
+            var aheadDir = Vector3.Slerp(fwd, head, running ? 1f : 0f);
+            _aheadDir = Vector3.Slerp(_aheadDir.sqrMagnitude < 0.01f ? fwd : _aheadDir, aheadDir, 1f - Mathf.Exp(-4f * dt));
+            var ahead = running ? Mathf.Lerp(1.5f, 2.5f, Mathf.Clamp01(w.SpeedRatio)) : 1.3f;
+            look = p + Vector3.up * (hgt * 0.55f) + _aheadDir * ahead;   // pet ekranın alt-ortasında, gidilen yer görünür
             // GB20-4 (kullanıcı: "evin yanında ev kamerayı dolduruyor, Mavi kocaman"): yapı yanında bakış 24° → 33° yükselir
             // (köy kamerası); araya giren yapı/ağaç CameraClear ile solar, kamera öne çekilmez. Yalnız arazi (tepe) kapatırsa
             // önce açı yükselir (32°, 40°, 50°), sonra en çok %30 yaklaşır. Adalılar, posta kutusu, parıltı engel sayılmaz
@@ -365,6 +360,7 @@ namespace Pofi.Screens
             if (CamMinPitch > 0f) _userPitch = Mathf.Max(_userPitch, CamMinPitch);
             _village = Mathf.MoveTowards(_village, NearBuilding(w.Position), dt * 0.8f);
             var basePitch = Mathf.Lerp(_userPitch, Mathf.Max(_userPitch, 33f), Mathf.SmoothStep(0f, 1f, _village));
+            basePitch = Mathf.Lerp(basePitch, Mathf.Max(basePitch, 40f), Mathf.SmoothStep(0f, 1f, _backBlend));   // kameraya doğru: yukarıdan bak
             float targetPitch = basePitch;
             var found = false;
             foreach (var p0 in BoomPitches)
@@ -496,6 +492,7 @@ namespace Pofi.Screens
             UpdateBoardBalloon(cam, scale, petPos);
             UpdateMaviNews(Time.deltaTime);
             if (_world.Gate != null && _world.Gate.Approached == null) _world.Gate.Approached = OnGateNear;
+            if (!_spotHooked) { _spotHooked = true; var me = this; Spotlight.Suppress = () => me != null && me._world != null && me._world.Walker != null && (me._world.Walker.Moving || me._world.Walker.Steering || me._cine || StoryPlayer.Playing); }
         }
 
         // ------------------------------------------------------------------ dokunma
@@ -543,7 +540,7 @@ namespace Pofi.Screens
             // K2 B: basış Okti'nin üstünde başlarsa önce okşama (parmak Okti'den uzaklaşınca joystick olur)
             if (role == Role.Stick && !_cine && OnPetBody(pos)) role = Role.Pet;
             _fingers[id] = new Finger { Press = pos, Last = pos, Role = role };
-            if (role == Role.Stick) { _stickFinger = id; _press = pos; _moved = false; _stickYaw = _camYaw; }
+            if (role == Role.Stick) { _stickFinger = id; _press = pos; _moved = false; _stickYaw = _camYaw; _stickStart = Time.unscaledTime; }
         }
 
         private void FingerMove(int id, Vector2 pos)
@@ -562,10 +559,10 @@ namespace Pofi.Screens
                         if (d.magnitude > 0.5f) f.Stroke += Time.deltaTime;
                         if (f.Stroke >= 1f) { f.Stroke = 0f; f.Petted = true; Stroked(); }
                     }
-                    else if ((pos - f.Press).magnitude > Screen.height * 0.04f && _stickFinger == int.MinValue)
+                    else if ((pos - f.Press).magnitude > Screen.height * 0.06f && _stickFinger == int.MinValue)
                     {
                         // Okti'den kaydı: bu parmak joystick olur (yürü)
-                        f.Role = Role.Stick; _stickFinger = id; _press = f.Press; _moved = false; _stickYaw = _camYaw;
+                        f.Role = Role.Stick; _stickFinger = id; _press = f.Press; _moved = false; _stickYaw = _camYaw; _stickStart = Time.unscaledTime;
                         HandleStick(pos);
                     }
                     break;
@@ -606,6 +603,13 @@ namespace Pofi.Screens
             // Harita (kuşbakışı) yalnız bakmak için (kullanıcı, 24 Ekim 2026: "dokunduğum yere karakter kendiliğinden gidiyor,
             // bunu kaldır; bir yere gitmek için yürüyecek"): dokunulan yerin adı söylenir, Okti yürümez.
             if (_overview) { TapOverview(ray); return; }
+            // GB21-6: Okti'nin görünen alanına dokunuş her zaman Okti'ye (çarpışma kutusu ıskalasa da menü açılır, Okti yürümez)
+            if (OnPetBody(screen))
+            {
+                _world.Walker.React(Logic.Story.OktiReactions.Next(App.State.Story));
+                ShowDressBubble();
+                return;
+            }
             // pet ve parıltı öncelikli: bina dokunma kutuları geniş, pet kapı önündeyken ışını önce onlar yakalıyordu
             var hits = Physics.RaycastAll(ray, 400f);
             if (hits.Length == 0) { if (!_overview) TapWater(ray); return; }
@@ -1130,12 +1134,50 @@ namespace Pofi.Screens
 
         private float _strokeSaid;
 
-        /// <summary>Ekran noktası Okti'nin gövdesinde mi (yalnız çarpışma kutusu; joystick basışları çevrede kalmasın)?</summary>
+        /// <summary>
+        /// Ekran noktası Okti'nin üstünde mi? GB21-6 (kullanıcı: "Okti'ye basınca joystick aktif oluyor"): çarpışma kutusu gövdeden
+        /// küçüktü (baş ve kollar dışarıda); artık görünen modelin ekrandaki dikdörtgeni (%8 pay) ya da çarpışma kutusu.
+        /// </summary>
         private bool OnPetBody(Vector2 screen)
         {
             if (_world.Walker == null) return false;
+            var r = PetScreenRect();
+            if (r.width > 1f && r.Contains(screen)) return true;
             foreach (var h in Physics.RaycastAll(App.Stage.Camera.ScreenPointToRay(screen), 200f)) if (h.collider.gameObject.name == "pet") return true;
             return false;
+        }
+
+        private Renderer[] _petRends;
+        private Transform _petRendsOf;
+
+        /// <summary>Okti'nin görünen modelinin ekran dikdörtgeni (top, kalp gibi geçici efektler hariç); yoksa boş.</summary>
+        private Rect PetScreenRect()
+        {
+            var w = _world.Walker;
+            if (w == null) return Rect.zero;
+            if (_petRends == null || _petRendsOf != w.transform || System.Array.Exists(_petRends, x => x == null))
+            {
+                _petRendsOf = w.transform;
+                _petRends = System.Array.FindAll(w.GetComponentsInChildren<Renderer>(), x => x is SkinnedMeshRenderer || (x is MeshRenderer && x.GetComponent<FaceCamera>() == null && !x.name.StartsWith("beach")));
+            }
+            var has = false; var b = new Bounds();
+            foreach (var x in _petRends)
+            {
+                if (x == null || !x.enabled || !x.gameObject.activeInHierarchy) continue;
+                if (!has) { b = x.bounds; has = true; } else b.Encapsulate(x.bounds);
+            }
+            if (!has) return Rect.zero;
+            var cam = App.Stage.Camera;
+            float x0 = float.MaxValue, y0 = float.MaxValue, x1 = float.MinValue, y1 = float.MinValue;
+            for (var i = 0; i < 8; i++)
+            {
+                var c = b.center + Vector3.Scale(b.extents, new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1));
+                var p = cam.WorldToScreenPoint(c);
+                if (p.z <= 0f) return Rect.zero;
+                x0 = Mathf.Min(x0, p.x); y0 = Mathf.Min(y0, p.y); x1 = Mathf.Max(x1, p.x); y1 = Mathf.Max(y1, p.y);
+            }
+            var padX = (x1 - x0) * 0.08f; var padY = (y1 - y0) * 0.08f;
+            return Rect.MinMaxRect(x0 - padX, y0 - padY, x1 + padX, y1 + padY);
         }
         /// <summary>İlk okşama işareti (Nasıl oynanır'da anlatılır; ayrı ipucu çıkmaz).</summary>
         private const string PetStrokeTip = "pet_stroke";
@@ -1288,7 +1330,7 @@ namespace Pofi.Screens
             App.Enter(v.Region, msg => _toast.Say(msg));
         }
 
-        private bool _tunnel;
+        private bool _tunnel, _spotHooked;
         private const string GateFlag = "stargate_entered", GateToldFlag = "stargate_told";
 
         /// <summary>Okti Yıldız Kapısı'na ilk kez yaklaştı: Mavi tek cümle söyler (bir kez).</summary>
@@ -1414,6 +1456,7 @@ namespace Pofi.Screens
 
         private void OnDestroy()
         {
+            Spotlight.Suppress = () => false;
             HudDestroy();
             if (_world != null) Destroy(_world.gameObject);
             if (App != null && App.Stage != null) App.Stage.AllowDrag = true;

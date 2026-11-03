@@ -72,7 +72,10 @@ namespace Pofi.Screens
             _guideVisit = Guide.Is(App.State, App.Level, "shop");
             if (_guideVisit) GuideFirstWear();
             else if (Onboarding.Pending(App.State, Onboarding.Shop))
+            {
                 _coach = Coach.Show(Root, Onboarding.Shop, T("tip.shop"), TipGesture.Tap, () => new Vector2(Screen.width * 0.42f, Screen.height * 0.26f));   // ızgaranın ilk ürünü
+                Spotlight.For(_coach, () => new Vector2(Screen.width * 0.42f, Screen.height * 0.26f), 150f);   // GB21-8
+            }
         }
 
         private RectTransform _buyBtn;
@@ -134,6 +137,7 @@ namespace Pofi.Screens
             var say = T("guide.shop_pick", item.Name);
             _coach = Coach.Show(Root, "guide_shop", say, TipGesture.Tap, () => _buyBtn != null ? RectTransformUtility.WorldToScreenPoint(null, _buyBtn.position) : new Vector2(Screen.width * 0.7f, Screen.height * 0.2f),
                 null, 99, Guide.Label(App.State), null, say);
+            Spotlight.For(_coach, () => _buyBtn != null ? RectTransformUtility.WorldToScreenPoint(null, _buyBtn.position) : new Vector2(Screen.width * 0.7f, Screen.height * 0.2f), 140f);   // GB21-8
         }
 
         private Coach _coach;

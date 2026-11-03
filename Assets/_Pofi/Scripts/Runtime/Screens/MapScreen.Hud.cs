@@ -419,11 +419,11 @@ namespace Pofi.Screens
             // tek sayaç (akış haritası yorumu, 25 Ekim 2026: "1/7'den 5/7'ye atlıyor, sonra 1/18"): yürü 1, etrafa bak 2, rehber 3'ten
             var step = id == Onboarding.Walk ? Guide.Label(0) : id == Onboarding.Look ? Guide.Label(1) : null;
             _coach = Coach.Show(Root, id, T(key ?? Onboarding.Get(id).CaptionKey, arg ?? App.State.PetName), g, from, to, props != null ? 6 : 3, step, prop, null, null, props);
-            // D3 ışık halkası: yeni düğme ilk kez gösterilirken (Görev, Harita) ekran kısılır, düğme aydınlık kalır
-            if (id == Onboarding.Tasks || id == Onboarding.Overview) Spotlight.Show((RectTransform)_coach.transform, from, 120f);
-            // K5 B: ilk 3 kritik eylem karartmalı — ilk yürüme (joystick yeri) ve Okti'ye ilk dokunma (rehbersiz yol)
-            else if (id == Onboarding.Walk) Spotlight.Show((RectTransform)_coach.transform, from, 150f);
-            else if ((id == Onboarding.Wardrobe || id == Onboarding.Feed) && !App.State.SeenTips.Contains(SpotPetFlag)) Spotlight.Show((RectTransform)_coach.transform, from, 170f);
+            // Karartma (D3 → K5 B → GB21-8): her tanıtım ipucunda hedefin çevresi aydınlık; ilk yürüme ve Okti'ye ilk dokunma sabit (K5 B),
+            // diğerleri çocuk dokunurken/yürürken kalkar, hedef ekran dışındaysa görünmez
+            var pet = id == Onboarding.Wardrobe || id == Onboarding.Feed;
+            var sticky = id == Onboarding.Walk || (pet && !App.State.SeenTips.Contains(SpotPetFlag));
+            Spotlight.For(_coach, from, id == Onboarding.Walk ? 150f : pet ? 170f : 130f, sticky);
         }
 
         /// <summary>K5 B: Okti'ye ilk dokunuş karartmalı gösterildi ve yapıldı (bir daha karartma yok).</summary>
@@ -596,8 +596,11 @@ namespace Pofi.Screens
             var cap = st.Reward && g != null ? st.Say + "  " + T("guide.reward", g.Xp) : st.Say;
             _coach = Coach.Show(Root, "guide_" + st.Key, cap, st.Gesture, st.From, st.To, st.Loops, Guide.Label(App.State), null, st.Say, st.Carry);
             _tipGap = -1.5f;   // el döngüsü bitince kısa nefes, sonra yeniden
-            // K5 B: Okti'ye ilk dokunma karartmalı (rehberin ilk "Okti'ye dokun" aşaması); dokununca kalkar, bir daha yok
-            if (st.Key.EndsWith(":pet") && !App.State.SeenTips.Contains(SpotPetFlag)) Spotlight.Show((RectTransform)_coach.transform, st.From, 170f);
+            // Karartma (K5 B + GB21-8): rehberin her adımında hedef aydınlık (Okti'ye ilk dokunma sabit; diğerleri çocuk dokunurken ya da
+            // Okti yürürken kalkar, hedef ekran dışındaysa görünmez). Sürüklemede kaynak + hedef iki delik; kaydırma (yürü) adımında yok.
+            if (st.Gesture == TipGesture.Drag && st.To != null) Spotlight.ForDrag(_coach, st.From, st.To, 140f);
+            else if (st.Gesture == TipGesture.Tap && !st.Key.EndsWith(":ball"))
+                Spotlight.For(_coach, st.From, st.Key.EndsWith(":pet") ? 170f : 135f, st.Key.EndsWith(":pet") && !App.State.SeenTips.Contains(SpotPetFlag));
         }
 
         /// <summary>Okti'ye dokununca açılan Besle/Yıka/Giydir menüsü açık mı?</summary>
@@ -1016,8 +1019,8 @@ namespace Pofi.Screens
             _coach = Coach.Show(Root, tip, T(Onboarding.Get(tip).CaptionKey, PetGen), TipGesture.Drag, () => UiScreen(from), PetScreen, 99,
                 Guide.Active(App.State, App.Level) ? Guide.Label(App.State) : null, null, null, icon);
             // K5 B: ilk sürükle-besle karartmalı; eşya ve Okti aydınlık kalır, beslenince kalkar (besleme ipucu bir kez)
-            if (tip == Onboarding.Feed && Onboarding.Pending(App.State, Onboarding.Feed))
-                Spotlight.ShowMany((RectTransform)_coach.transform, new System.Func<Vector2>[] { () => from != null ? UiScreen(from) : PetScreen(), PetScreen }, 150f);
+            Spotlight.ForDrag(_coach, () => from != null ? UiScreen(from) : PetScreen(), PetScreen, 150f,
+                tip == Onboarding.Feed && Onboarding.Pending(App.State, Onboarding.Feed));   // ilk sürükle-besle sabit (K5 B)
         }
 
         /// <summary>Bırakılan nokta petin üstünde mi (ekranda petin çevresi ya da çarpışma kutusu)?</summary>

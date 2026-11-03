@@ -52,8 +52,11 @@ namespace Pofi.Screens
             if (_guideVisit) SpotsTipDone();   // yuva tanıtımının yerine rehber eli
             Fill();
             if (Onboarding.Pending(App.State, Onboarding.WardrobeSpots))
+            {
                 _coach = Coach.Show(Root, Onboarding.WardrobeSpots, T("tip.wardrobe_spots"), TipGesture.Tap,
                     () => RectTransformUtility.WorldToScreenPoint(null, _spots[0].position));
+                Spotlight.For(_coach, () => RectTransformUtility.WorldToScreenPoint(null, _spots[0].position), 120f);   // GB21-8
+            }
         }
 
         private Coach _coach;
@@ -90,6 +93,7 @@ namespace Pofi.Screens
             if (_coach != null && _coach.Id == key) return;
             if (_coach != null) _coach.Done();
             _coach = Coach.Show(Root, key, say, TipGesture.Tap, at, null, 99, Guide.Label(App.State), null, say);
+            Spotlight.For(_coach, at, 130f);   // GB21-8
         }
 
         private void SpotsTipDone()

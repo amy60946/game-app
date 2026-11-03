@@ -474,6 +474,7 @@ namespace Pofi.Screens
             var btn = _welcomeBtn;
             var say = T("welcome_task.tip");
             _guideCoach = Coach.Show(Root, "guide_welcome", say, TipGesture.Tap, () => Center(btn), null, 99, Guide.Label(App.State), null, say);
+            Spotlight.For(_guideCoach, () => Center(btn), 120f);   // GB21-8
         }
 
         // ------------------------------------------------------------------ K1 A: rehberin oyun görevi adımı
@@ -501,6 +502,7 @@ namespace Pofi.Screens
             var g = Guide.Get("quests");
             var say = T("guide.quests_claim");
             _guideCoach = Coach.Show(Root, "guide_quests", say + "  " + T("guide.reward", g.Xp), TipGesture.Tap, () => Center(btn), null, 99, Guide.Label(App.State), null, say);
+            Spotlight.For(_guideCoach, () => Center(btn), 110f);   // GB21-8
         }
 
         private CanvasGroup _homeDim;
@@ -607,6 +609,7 @@ namespace Pofi.Screens
                 _aim = Center(rt);
                 var label = _intro.Count > 1 ? (_introAt + 1) + "/" + _intro.Count : null;
                 _coach = Coach.Show(Root, s.Id, s.Caption, TipGesture.Tap, () => Aim(s), null, 2, label);
+                Spotlight.For(_coach, () => Aim(s), 150f);   // GB21-8
                 _introT = 0f;
                 return;
             }
