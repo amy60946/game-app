@@ -8,6 +8,8 @@ Oyun GitHub Actions'ta iki adımda TestFlight'a gider (`.github/workflows/ios.ym
 
 Çalıştırma: commit mesajında `[ios]` geçerse kendiliğinden (Claude başlatır). "Run workflow" düğmesi GitHub'da yalnızca iş akışı varsayılan dalda (main) olunca görünür.
 
+Mac makinesi (3 Kasım 2026): Apple yükleme işi önce Apple Silicon Mac'te (`macos-15`) çalışır; GitHub boş makine bulamayıp işi iptal ederse aynı adımlar Intel Mac'te (`macos-15-intel`, iş `testflight-intel`) kendiliğinden yeniden dener. Elle başlatırken `mac` seçeneği: `auto` (varsayılan), `arm`, `intel`.
+
 Ebeveyn uygulaması **ParentApp** ayrı bir uygulamadır (bundle `com.parentapp.ios`, depo `amy60946/parent-app`, kendi TestFlight iş akışı: `parent-app/docs/TESTFLIGHT.md`). Çocuk giriş kodunu yalnızca bu oyuna yazar; ParentApp'te çocuk girişi yoktur.
 
 ## Bir kez yapılacaklar (kullanıcı)

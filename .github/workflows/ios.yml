@@ -5,6 +5,12 @@ name: iOS (TestFlight)
 # Gerekli secret'lar: docs/TESTFLIGHT.md (Unity lisansı + App Store Connect API anahtarı + Team ID).
 on:
   workflow_dispatch:
+    inputs:
+      mac:
+        description: "Mac makinesi: auto = önce Apple Silicon (macos-15), makine bulunamazsa Intel (macos-15-intel); arm ya da intel = yalnız o"
+        type: choice
+        options: [auto, arm, intel]
+        default: auto
   push:
     branches: [claude/zen-noether-nlt3wm, main]
 
@@ -71,9 +77,36 @@ jobs:
           path: xcode.tgz
           retention-days: 3
 
+  # Apple Silicon (varsayılan). GitHub boş makine bulamazsa iş adımsız "cancelled" olur; o zaman aşağıdaki Intel işi devralır.
   testflight:
     needs: xcode-project
+    if: github.event_name != 'workflow_dispatch' || inputs.mac != 'intel'
     runs-on: macos-15
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4
+        with:
+          sparse-checkout: tools
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093   # v4
+        with:
+          name: pofi-ios-xcode
+      - name: Aç
+        run: mkdir -p xc && tar -xzf xcode.tgz -C xc && ls xc/PofiAdasi | head
+      - name: Arşivle, imzala, TestFlight'a yükle
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: bash tools/ci/ios-testflight.sh xc/PofiAdasi
+
+  # Intel yedeği (kullanıcı, 3 Kasım 2026: "GitHub boş Mac bulamıyor, Intel Mac'leri de dene"): Apple Silicon işi makine bulamayıp
+  # iptal olursa ya da elle "intel" seçilirse çalışır. Aynı betik; Xcode 26 imajda yoksa betik açık hata verir.
+  testflight-intel:
+    needs: [xcode-project, testflight]
+    if: always() && needs.xcode-project.result == 'success' && (needs.testflight.result == 'cancelled' || (github.event_name == 'workflow_dispatch' && inputs.mac == 'intel'))
+    runs-on: macos-15-intel
+    timeout-minutes: 150
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4
         with:
