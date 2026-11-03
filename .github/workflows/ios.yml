@@ -83,7 +83,12 @@ jobs:
     if: github.event_name != 'workflow_dispatch' || inputs.mac != 'intel'
     runs-on: macos-15
     timeout-minutes: 120
+    outputs:
+      started: ${{ steps.mark.outputs.started }}
     steps:
+      # makine bulunduysa işaret: başlamış ama başarısız iş Intel'de tekrarlanmaz (yalnız makine bulunamazsa devralır)
+      - id: mark
+        run: echo "started=1" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262   # v4
         with:
           sparse-checkout: tools
@@ -101,10 +106,11 @@ jobs:
         run: bash tools/ci/ios-testflight.sh xc/PofiAdasi
 
   # Intel yedeği (kullanıcı, 3 Kasım 2026: "GitHub boş Mac bulamıyor, Intel Mac'leri de dene"): Apple Silicon işi makine bulamayıp
-  # iptal olursa ya da elle "intel" seçilirse çalışır. Aynı betik; Xcode 26 imajda yoksa betik açık hata verir.
+  # hiç başlamadan biterse ya da elle "intel" seçilirse çalışır. Aynı betik; Xcode 26 imajda yoksa betik açık hata verir.
   testflight-intel:
     needs: [xcode-project, testflight]
-    if: always() && needs.xcode-project.result == 'success' && (needs.testflight.result == 'cancelled' || (github.event_name == 'workflow_dispatch' && inputs.mac == 'intel'))
+    # makine bulunamayan iş GitHub'da "cancelled" görünür ama needs.result'ta "failure" gelir (iOS 33): başlamadıysa (işaret yok) devral
+    if: always() && needs.xcode-project.result == 'success' && ((needs.testflight.result != 'success' && needs.testflight.outputs.started != '1') || (github.event_name == 'workflow_dispatch' && inputs.mac == 'intel'))
     runs-on: macos-15-intel
     timeout-minutes: 150
     steps:
