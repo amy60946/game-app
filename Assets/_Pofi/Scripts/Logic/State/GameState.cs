@@ -32,6 +32,8 @@ namespace Pofi.Logic.State
         public bool NotificationsAllowed;
         public bool StoryOn = true;      // hikâye sahneleri (kapalıyken yalnız tek satırlık özet balonu)
         public bool HintsOn = true;      // K6 A: ipucu yazısı, rehber eli, yol okları, öğretici ses (Geç ile kapanır; Defter › Nasıl oynanır'dan açılır)
+        public bool CameraLook;          // GB21-2: iki parmakla etrafa bak (varsayılan kapalı; 9 yaş ve üstüne önerilir), bırakınca kamera arkaya döner
+        public bool SlowCamera;          // GB21-2: yavaş kamera (otomatik dönüş hızları yarıya iner; baş dönmesine karşı)
     }
 
     /// <summary>

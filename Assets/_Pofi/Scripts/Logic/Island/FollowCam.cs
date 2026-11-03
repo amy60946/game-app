@@ -20,6 +20,9 @@ namespace Pofi.Logic.Island
 
         private float _waited, _vel;
 
+        /// <summary>Hız ölçeği (Ayarlar › Yavaş kamera: 0,5); hız ve ivme sınırlarını çarpar.</summary>
+        public float SpeedScale = 1f;
+
         /// <summary>Okti kameraya doğru yürüyor mu (çağıran görüşü açar: bakış yükselir, önden bakış yürüme yönünde)?</summary>
         public bool Back { get; private set; }
 
@@ -45,8 +48,9 @@ namespace Pofi.Logic.Island
                 if (_waited < (Back ? BackDelay : SideDelay)) { _vel = 0f; return camYaw; }
                 max = Back ? BackSpeed : byStick ? SideSpeed : TapWalkSpeed;
             }
-            var want = Math.Sign(diff) * Math.Min(max, ad / SmoothTime);          // yaklaştıkça yavaşlar
-            _vel = MoveTowards(_vel, want, Accel * dt);
+            var k = Math.Max(0.1f, SpeedScale);
+            var want = Math.Sign(diff) * Math.Min(max * k, ad / SmoothTime);      // yaklaştıkça yavaşlar
+            _vel = MoveTowards(_vel, want, Accel * k * dt);
             var step = _vel * dt;
             if (Math.Abs(step) >= ad && Math.Sign(step) == Math.Sign(diff)) { _vel = 0f; return heading; }
             return camYaw + step;

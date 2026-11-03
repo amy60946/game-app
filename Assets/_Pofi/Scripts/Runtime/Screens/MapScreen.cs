@@ -31,7 +31,7 @@ namespace Pofi.Screens
         private Vector3 _camPos, _camLook;
         // dokunma: her parmak ayrı izlenir. GB20-16 (kullanıcı, 2 Kasım 2026): ekranın her yeri joystick (ilk parmak),
         // ikinci parmak yalnız dokunur; sağ yarıdaki elle kamera döndürme kalktı, kamera kendiliğinden döner (TargetCamera)
-        private enum Role { Stick, Tap, Pan, Pet }
+        private enum Role { Stick, Tap, Pan, Pet, Look }
         private sealed class Finger { public Vector2 Press, Last; public bool Moved, Petted; public Role Role; public float Stroke; }
         private readonly Dictionary<int, Finger> _fingers = new Dictionary<int, Finger>();
         private int _stickFinger = int.MinValue;
@@ -340,7 +340,15 @@ namespace Pofi.Screens
             // GB21-2 "hep arkadan" (Logic/Island/FollowCam; eski GB20 paralel kamerası kameraya doğru yürürken dönmüyordu, çocuk
             // gittiği yeri göremiyordu): yürürken kamera Okti'nin arkasına döner; kameraya doğru yürürken önce görüş açılır.
             var byStick = _stickFinger != int.MinValue && w.Steering;
-            if (_lookHold <= 0f) _camYaw = _follow.Step(_camYaw, w.Heading, running, byStick, byStick ? Time.unscaledTime - _stickStart : 99f, dt);
+            _follow.SpeedScale = App.State?.Settings != null && App.State.Settings.SlowCamera ? 0.5f : 1f;
+            if (_lookHold <= 0f && _lookReturn && !running && CountRole(Role.Look) == 0)
+            {
+                // elle baktıktan sonra (Okti dururken) kamera yavaşça arkasına döner
+                _camYaw = Mathf.MoveTowardsAngle(_camYaw, w.Heading, LookReturnSpeed * _follow.SpeedScale * dt);
+                if (Mathf.Abs(Mathf.DeltaAngle(_camYaw, w.Heading)) < 2f) _lookReturn = false;
+            }
+            else if (_lookHold <= 0f && CountRole(Role.Look) == 0) { _lookReturn = false; _camYaw = _follow.Step(_camYaw, w.Heading, running, byStick, byStick ? Time.unscaledTime - _stickStart : 99f, dt); }
+            if (CountRole(Role.Look) > 0) _lookHold = LookReturnAfter;
             _backBlend = Mathf.MoveTowards(_backBlend, running && _follow.Back ? 1f : 0f, dt / 0.3f);
             _runBlend = Mathf.MoveTowards(_runBlend, running ? 1f : 0f, Time.deltaTime * 1.5f);
             var fwd = Quaternion.Euler(0f, _camYaw, 0f) * Vector3.forward;
@@ -539,6 +547,15 @@ namespace Pofi.Screens
                 : _world.Walker != null && _stickFinger == int.MinValue ? Role.Stick : Role.Tap;
             // K2 B: basış Okti'nin üstünde başlarsa önce okşama (parmak Okti'den uzaklaşınca joystick olur)
             if (role == Role.Stick && !_cine && OnPetBody(pos)) role = Role.Pet;
+            // GB21-2 (Ayarlar › İki parmakla etrafa bak): ikinci parmak kamerayı çevirir; joystick henüz yürütmediyse iki parmak birlikte bakar
+            if (role == Role.Tap && !_cine && !_overview && LookOn)
+            {
+                role = Role.Look;
+                if (_stickFinger != int.MinValue && !_moved && _fingers.TryGetValue(_stickFinger, out var sf))
+                {
+                    sf.Role = Role.Look; sf.Moved = true; _stickFinger = int.MinValue; EndStick();   // bırakınca dokunma sayılmaz
+                }
+            }
             _fingers[id] = new Finger { Press = pos, Last = pos, Role = role };
             if (role == Role.Stick) { _stickFinger = id; _press = pos; _moved = false; _stickYaw = _camYaw; _stickStart = Time.unscaledTime; }
         }
@@ -565,6 +582,12 @@ namespace Pofi.Screens
                         f.Role = Role.Stick; _stickFinger = id; _press = f.Press; _moved = false; _stickYaw = _camYaw; _stickStart = Time.unscaledTime;
                         HandleStick(pos);
                     }
+                    break;
+                case Role.Look:
+                    // iki parmak birlikteyse ikisinin ortalaması (her parmak yarı pay), tek bakış parmağıysa tam
+                    var share = CountRole(Role.Look) > 1 ? 0.5f : 1f;
+                    _camYaw += d.x / Mathf.Max(1f, Screen.width) * LookDegPerScreen * share;
+                    _lookHold = LookReturnAfter; _lookReturn = true; f.Moved = true;
                     break;
                 case Role.Pan:
                     if (!f.Moved) break;
@@ -1330,7 +1353,12 @@ namespace Pofi.Screens
             App.Enter(v.Region, msg => _toast.Say(msg));
         }
 
-        private bool _tunnel, _spotHooked;
+        private bool _tunnel, _spotHooked, _lookReturn;
+        /// <summary>İki parmakla bakma: ekran genişliği kadar kaydırma = 180°; bırakınca 2 sn sonra 90°/sn ile arkaya (alt ajan benchmark'ı).</summary>
+        private const float LookDegPerScreen = 180f, LookReturnAfter = 2f, LookReturnSpeed = 90f;
+        private bool LookOn => App.State?.Settings != null && App.State.Settings.CameraLook;
+
+        private int CountRole(Role r) { var n = 0; foreach (var kv in _fingers) if (kv.Value.Role == r) n++; return n; }
         private const string GateFlag = "stargate_entered", GateToldFlag = "stargate_told";
 
         /// <summary>Okti Yıldız Kapısı'na ilk kez yaklaştı: Mavi tek cümle söyler (bir kez).</summary>

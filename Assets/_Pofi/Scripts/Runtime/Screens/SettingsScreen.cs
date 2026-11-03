@@ -38,6 +38,10 @@ namespace Pofi.Screens
             Choice(T("settings.story"), new[] { T("settings.on"), T("settings.off") }, st.StoryOn ? 0 : 1, i => st.StoryOn = i == 0);
             // sesli okuma (herkeste açık; çocuk balon köşesindeki hoparlörden de kapatır)
             Choice(T("settings.voice"), new[] { T("settings.on"), T("settings.off") }, st.VoiceOn ? 0 : 1, i => Voice.SetEnabled(i == 0));
+            // GB21-2 kamera (benchmark: Roblox/Sky elle bakma, Xbox XAG 117 hız ayarı): iki parmakla etrafa bak (varsayılan kapalı,
+            // 9 yaş ve üstüne önerilir) ve yavaş kamera
+            Choice(T("settings.camera_look"), new[] { T("settings.on"), T("settings.off") }, st.CameraLook ? 0 : 1, i => st.CameraLook = i == 0);
+            Choice(T("settings.camera_slow"), new[] { T("settings.on"), T("settings.off") }, st.SlowCamera ? 0 : 1, i => st.SlowCamera = i == 0);
 
             Action(T("settings.change_pet"), T("settings.change_pet_hint"), () =>
             {

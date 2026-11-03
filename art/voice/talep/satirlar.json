@@ -2650,13 +2650,13 @@
   "kaydi_var": true
  },
  {
-  "key": "2d1f470072bbf3cd",
+  "key": "ea89dad54371fb86",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "haber",
   "src": "tr:welcome.coins",
-  "text": "Kıskaç'tan hoş geldin hediyesi: 20 boncuk! İlk aksesuarını alabilirsin.",
-  "tts": "Kıskaç'tan hoş geldin hediyesi: 20 boncuk! İlk aksesuarını alabilirsin.",
+  "text": "Kıskaç'tan hoş geldin hediyesi: 20 tane inci! İlk aksesuarını alabilirsin.",
+  "tts": "Kıskaç'tan hoş geldin hediyesi: 20 tane inci! İlk aksesuarını alabilirsin.",
   "kaydi_var": false
  },
  {
@@ -2840,13 +2840,13 @@
   "kaydi_var": true
  },
  {
-  "key": "c25bc1bbc62023f3",
+  "key": "520d41051196d163",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "tanitim_karti",
   "src": "tr:coin.info",
-  "text": "Boncuklar adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
-  "tts": "Boncuklar adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+  "text": "İnciler adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+  "tts": "İnciler adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
   "kaydi_var": false
  },
  {
@@ -3920,13 +3920,13 @@
   "kaydi_var": false
  },
  {
-  "key": "fb91e9d52d28fbca",
+  "key": "de2b10afd0d70845",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "haber",
   "src": "tr:tasks.xp_goal",
-  "text": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin boncuk ve Güneş Taşı kazandırmaya devam ediyor!",
-  "tts": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin boncuk ve Güneş Taşı kazandırmaya devam ediyor!",
+  "text": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin inci ve Güneş Taşı kazandırmaya devam ediyor!",
+  "tts": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin inci ve Güneş Taşı kazandırmaya devam ediyor!",
   "kaydi_var": false
  },
  {
@@ -4250,13 +4250,13 @@
   "kaydi_var": false
  },
  {
-  "key": "a79d5a45149c0d5b",
+  "key": "24a7804a3aba8a58",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "nasil_oynanir",
   "src": "tr:howto.home_tasks",
-  "text": "Ev Görevleri. Ailenin verdiği görevi yapınca Yaptım'a bas. Ailen onaylayınca boncuk ve Güneş Taşı kazanırsın.",
-  "tts": "Ev Görevleri. Ailenin verdiği görevi yapınca Yaptıma bas. Ailen onaylayınca boncuk ve Güneş Taşı kazanırsın.",
+  "text": "Ev Görevleri. Ailenin verdiği görevi yapınca Yaptım'a bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.",
+  "tts": "Ev Görevleri. Ailenin verdiği görevi yapınca Yaptıma bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.",
   "kaydi_var": false
  },
  {
@@ -4290,13 +4290,13 @@
   "kaydi_var": false
  },
  {
-  "key": "17abbdf076199579",
+  "key": "32f2c33c435ca089",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "nasil_oynanir",
   "src": "tr:howto.shop",
-  "text": "Dükkân. Boncuklarınla Okti'ye kıyafet, evine eşya alabilirsin.",
-  "tts": "Dükkân. Boncuklarınla Okti'ye kıyafet, evine eşya alabilirsin.",
+  "text": "Dükkân. İncilerinle Okti'ye kıyafet, evine eşya alabilirsin.",
+  "tts": "Dükkân. İncilerinle Okti'ye kıyafet, evine eşya alabilirsin.",
   "kaydi_var": false
  },
  {
