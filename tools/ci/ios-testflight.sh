@@ -42,16 +42,29 @@ for c in AppleWWDRCAG3 AppleWWDRCAG6; do
 done
 python3 -m pip install -q --disable-pip-version-check "pyjwt[crypto]" 2>/dev/null || python3 -m pip install -q --break-system-packages "pyjwt[crypto]"
 python3 "$here/asc_device.py" "$key"
-# iOS 34 (Intel): "Apple Development certificate for this machine … private key is not installed" — önceki CI işlerinin
-# geliştirme sertifikaları iptal edilir, Xcode bu makinede anahtarıyla yenisini açar (dağıtım imzası aşağıda ayrı)
-python3 "$here/asc_sign.py" devclean "$key" || echo "::warning::Eski geliştirme sertifikaları temizlenemedi"
+# Arşiv (otomatik geliştirme imzası). iOS 34 (Intel): "Apple Development certificate for this machine … private key is not
+# installed"; iOS 36: her seferinde iptal edince takım profili bozuldu ("data couldn't be read", "No profiles"). Sıra: önce iptal
+# etmeden dene; "anahtar yok" hatasında önceki CI geliştirme sertifikalarını iptal et; 30 sn bekleyip yeniden dene (en çok 3 deneme).
 archive="$RUNNER_TEMP/Pofi.xcarchive"
 cd "$proj"
 xcodebuild -version
-xcodebuild -project Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release \
-  -destination 'generic/platform=iOS' -archivePath "$archive" \
-  DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
-  "${auth[@]}" -quiet archive
+alog="$RUNNER_TEMP/archive.log"
+for try in 1 2 3; do
+  rm -rf "$archive"
+  set +e
+  xcodebuild -project Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release \
+    -destination 'generic/platform=iOS' -archivePath "$archive" \
+    DEVELOPMENT_TEAM="$APPLE_TEAM_ID" CODE_SIGN_STYLE=Automatic \
+    "${auth[@]}" -quiet archive 2>&1 | tee "$alog"
+  rc=${PIPESTATUS[0]}
+  set -e
+  if [ "$rc" -eq 0 ] && [ -d "$archive" ]; then break; fi
+  echo "::warning::Arşiv denemesi $try başarısız (çıkış $rc)"
+  if grep -q "private key is not installed" "$alog"; then
+    python3 "$here/asc_sign.py" devclean "$key" || echo "::warning::Eski geliştirme sertifikaları temizlenemedi"
+  fi
+  if [ "$try" -lt 3 ]; then sleep 30; fi
+done
 [ -d "$archive" ] || { echo "::error::Arşiv oluşmadı"; exit 1; }
 codesign -dvv "$(ls -d "$archive"/Products/Applications/*.app | head -1)" 2>&1 | grep -E "Authority|TeamIdentifier" || true
 
