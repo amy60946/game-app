@@ -421,7 +421,13 @@ namespace Pofi.Screens
             _coach = Coach.Show(Root, id, T(key ?? Onboarding.Get(id).CaptionKey, arg ?? App.State.PetName), g, from, to, props != null ? 6 : 3, step, prop, null, null, props);
             // D3 ışık halkası: yeni düğme ilk kez gösterilirken (Görev, Harita) ekran kısılır, düğme aydınlık kalır
             if (id == Onboarding.Tasks || id == Onboarding.Overview) Spotlight.Show((RectTransform)_coach.transform, from, 120f);
+            // K5 B: ilk 3 kritik eylem karartmalı — ilk yürüme (joystick yeri) ve Okti'ye ilk dokunma (rehbersiz yol)
+            else if (id == Onboarding.Walk) Spotlight.Show((RectTransform)_coach.transform, from, 150f);
+            else if ((id == Onboarding.Wardrobe || id == Onboarding.Feed) && !App.State.SeenTips.Contains(SpotPetFlag)) Spotlight.Show((RectTransform)_coach.transform, from, 170f);
         }
+
+        /// <summary>K5 B: Okti'ye ilk dokunuş karartmalı gösterildi ve yapıldı (bir daha karartma yok).</summary>
+        private const string SpotPetFlag = "spot_pet";
 
         /// <summary>İpucu tamamlandı (id null: yalnız ekrandakini kapat).</summary>
         private void TipDone(string id)
@@ -590,6 +596,8 @@ namespace Pofi.Screens
             var cap = st.Reward && g != null ? st.Say + "  " + T("guide.reward", g.Xp) : st.Say;
             _coach = Coach.Show(Root, "guide_" + st.Key, cap, st.Gesture, st.From, st.To, st.Loops, Guide.Label(App.State), null, st.Say, st.Carry);
             _tipGap = -1.5f;   // el döngüsü bitince kısa nefes, sonra yeniden
+            // K5 B: Okti'ye ilk dokunma karartmalı (rehberin ilk "Okti'ye dokun" aşaması); dokununca kalkar, bir daha yok
+            if (st.Key.EndsWith(":pet") && !App.State.SeenTips.Contains(SpotPetFlag)) Spotlight.Show((RectTransform)_coach.transform, st.From, 170f);
         }
 
         /// <summary>Okti'ye dokununca açılan Besle/Yıka/Giydir menüsü açık mı?</summary>
@@ -1007,6 +1015,9 @@ namespace Pofi.Screens
             var icon = itemId != null ? Ui.Icon(itemId) : null;
             _coach = Coach.Show(Root, tip, T(Onboarding.Get(tip).CaptionKey, PetGen), TipGesture.Drag, () => UiScreen(from), PetScreen, 99,
                 Guide.Active(App.State, App.Level) ? Guide.Label(App.State) : null, null, null, icon);
+            // K5 B: ilk sürükle-besle karartmalı; eşya ve Okti aydınlık kalır, beslenince kalkar (besleme ipucu bir kez)
+            if (tip == Onboarding.Feed && Onboarding.Pending(App.State, Onboarding.Feed))
+                Spotlight.ShowMany((RectTransform)_coach.transform, new System.Func<Vector2>[] { () => from != null ? UiScreen(from) : PetScreen(), PetScreen }, 150f);
         }
 
         /// <summary>Bırakılan nokta petin üstünde mi (ekranda petin çevresi ya da çarpışma kutusu)?</summary>

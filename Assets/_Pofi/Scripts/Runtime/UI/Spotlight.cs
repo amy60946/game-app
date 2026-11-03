@@ -26,7 +26,7 @@ namespace Pofi.UI
             s._group = root.gameObject.AddComponent<CanvasGroup>(); s._group.blocksRaycasts = false; s._group.interactable = false; s._group.alpha = 0f;
             // delikli karartma: büyük dokunun ortası saydam; dört kenar dolgusu ekranın geri kalanını kaplar
             s._hole = Ui.Rect(root, "Hole", new Vector2(0f, 0f), new Vector2(radius * 6f, radius * 6f));
-            var hi = s._hole.gameObject.AddComponent<RawImage>(); hi.texture = HoleTex(); hi.raycastTarget = false; hi.color = new Color(0.02f, 0.08f, 0.2f, 0.55f);
+            var hi = s._hole.gameObject.AddComponent<RawImage>(); hi.texture = HoleTex(); hi.raycastTarget = false; hi.color = new Color(0.02f, 0.08f, 0.2f, Dim);
             foreach (var side in new[] { "L", "R", "T", "B" })
             {
                 var e = Ui.Rect(s._hole, "Fill" + side, new Vector2(0.5f, 0.5f), Vector2.zero);
@@ -47,10 +47,63 @@ namespace Pofi.UI
             return s;
         }
 
+        // ---- K5 B (kullanıcı, 3 Kasım 2026): ilk 3 kritik eylemde %50 karartma; birden çok aydınlık hedef (ör. elma → Okti) ----
+        private Func<Vector2>[] _targets;
+        private Texture2D _dyn;
+        private Color32[] _px;
+        private const int DynW = 96, DynH = 54;
+        public const float Dim = 0.5f;
+
+        /// <summary>
+        /// Ekran 0,3 sn'de %50 kararır, her hedefin çevresi aydınlık kalır (sürüklemede kaynak + bırakılacak yer); halka son hedefte.
+        /// Dokunmayı engellemez; ipucuyla birlikte (aynı kökte) kalkar.
+        /// </summary>
+        public static Spotlight ShowMany(RectTransform parent, Func<Vector2>[] targets, float radius = 150f)
+        {
+            var root = Ui.Fill(parent, "Spotlight");
+            root.SetAsFirstSibling();
+            var s = root.gameObject.AddComponent<Spotlight>();
+            s._root = root; s._targets = targets; s._target = targets[targets.Length - 1]; s._radius = radius;
+            s._group = root.gameObject.AddComponent<CanvasGroup>(); s._group.blocksRaycasts = false; s._group.interactable = false; s._group.alpha = 0f;
+            s._dyn = new Texture2D(DynW, DynH, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "spot_dyn" };
+            s._px = new Color32[DynW * DynH];
+            var raw = Ui.Fill(root, "Dim").gameObject.AddComponent<RawImage>(); raw.texture = s._dyn; raw.raycastTarget = false;
+            s._hole = Ui.Rect(root, "NoHole", Vector2.zero, Vector2.zero);
+            s._ring = Ui.Rect(root, "Ring", new Vector2(0f, 0f), new Vector2(radius * 2.2f, radius * 2.2f));
+            var ri = s._ring.gameObject.AddComponent<RawImage>(); ri.texture = RingTex(); ri.raycastTarget = false; ri.color = new Color(1f, 0.9f, 0.45f, 0.9f);
+            s.Paint();
+            s.Place();
+            return s;
+        }
+
+        /// <summary>Düşük çözünürlüklü karartma dokusu: her hedefin çevresinde yumuşak delik (çift doğrusal büyütme kenarı yumuşatır).</summary>
+        private void Paint()
+        {
+            if (_dyn == null || _targets == null) return;
+            var sw = Mathf.Max(1f, UnityEngine.Screen.width); var sh = Mathf.Max(1f, UnityEngine.Screen.height);
+            var rpx = _radius * sw / Mathf.Max(1f, _root.rect.width);
+            var pts = new Vector2[_targets.Length];
+            for (var i = 0; i < pts.Length; i++) pts[i] = _targets[i] != null ? _targets[i]() : new Vector2(-9999f, -9999f);
+            var a0 = (byte)(Dim * 255f);
+            for (var y = 0; y < DynH; y++)
+                for (var x = 0; x < DynW; x++)
+                {
+                    var p = new Vector2((x + 0.5f) / DynW * sw, (y + 0.5f) / DynH * sh);
+                    var d = float.MaxValue;
+                    foreach (var q in pts) d = Mathf.Min(d, (p - q).magnitude / rpx);
+                    var a = Mathf.Clamp01((d - 1f) / 0.45f);
+                    _px[y * DynW + x] = new Color32(5, 20, 51, (byte)(a0 * a));
+                }
+            _dyn.SetPixels32(_px); _dyn.Apply(false);
+        }
+
+        private void OnDestroy() { if (_dyn != null) Destroy(_dyn); }
+
         private void Update()
         {
             _t += Time.unscaledDeltaTime;
-            _group.alpha = Mathf.MoveTowards(_group.alpha, 1f, Time.unscaledDeltaTime / 0.25f);
+            _group.alpha = Mathf.MoveTowards(_group.alpha, 1f, Time.unscaledDeltaTime / 0.3f);
+            Paint();
             Place();
             var p = Mathf.Repeat(_t / 1.2f, 1f);
             _ring.localScale = Vector3.one * Mathf.Lerp(0.85f, 1.25f, p);

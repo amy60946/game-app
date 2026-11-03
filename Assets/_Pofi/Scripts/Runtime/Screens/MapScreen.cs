@@ -1078,6 +1078,8 @@ namespace Pofi.Screens
             }
             _careFor = 4f;
             TipDone(Onboarding.Wardrobe);   // "Okti'ye dokun" öğrenildi
+            if (App.State.SeenTips.Add(SpotPetFlag)) App.Save();   // K5 B: ilk dokunuş karartması bir daha yok
+            if (_coach != null && _coach.Id.EndsWith(":pet")) { _coach.Done(); _coach = null; _tipGap = 1.5f; }   // karartma hemen kalkar
             var i = 0;
             foreach (var (b, _) in _careBubbles) { b.gameObject.SetActive(true); Bump.Play(b.transform, 0.25f + i++ * 0.05f); }
             UpdateCareBubbles();

@@ -249,13 +249,51 @@ namespace Pofi.UI
             return screen * k;
         }
 
+        // ---- K5 B (kullanıcı, 3 Kasım 2026): hafif ipucu basamakları (benchmark Andersen vd. CHI 2012, Apple "etkileşimle öğret") ----
+        // Çocuk ekrana dokunurken el çekilir (kendisi deniyor); 7 sn hareketsizlikte el geri gelir. 2. gelişte el + parıltı,
+        // 3. ve sonrakilerde cümle yeniden okunur. Altyazı/hap yerinde kalır.
+        public const float IdleShow = 7f;
+        private static float _lastInput = -99f;
+        private int _attempt = 1;
+        private bool _away;
+
+        private void UpdateIdle()
+        {
+            if (Input.touchCount > 0 || Input.GetMouseButton(0)) _lastInput = Time.unscaledTime;
+            var idle = Time.unscaledTime - _lastInput >= IdleShow;
+            if (!_away && !idle && _life > 2.5f && _loops > 0 && !_asking)
+            {
+                _away = true;
+                _finger.gameObject.SetActive(false); _ring.gameObject.SetActive(false); _ring2.gameObject.SetActive(false); _glow.gameObject.SetActive(false);
+                if (_carry != null) _carry.gameObject.SetActive(false);
+            }
+            else if (_away && idle)
+            {
+                _away = false; _attempt++; _t = 0f;
+                _finger.gameObject.SetActive(true); _ring.gameObject.SetActive(true); _ring2.gameObject.SetActive(true); _glow.gameObject.SetActive(true);
+                if (_carry != null) _carry.gameObject.SetActive(true);
+                if (_silent) return;
+                if (_attempt == 2)
+                {
+                    // parıltı: hedefin çevresinde yıldızlar + daha parlak ışık
+                    var sp = _from();
+                    StarSparkles.Around(transform, new Vector2(sp.x / Mathf.Max(1f, Screen.width), sp.y / Mathf.Max(1f, Screen.height)), new Vector2(0.06f, 0.08f), 8, Id.Length * 13, 1.6f);
+                    _glowImg.color = new Color(HintYellow.r, HintYellow.g, HintYellow.b, 0.5f);
+                }
+                else if (_collapsible && _collapsed) Expand();
+                else Audio.Voice.Say(_said, true);
+            }
+        }
+
         private void Update()
         {
             _life += Time.unscaledDeltaTime;
+            UpdateIdle();
             if (_asking) { _life = 0f; if (_bannerCg != null) _bannerCg.alpha = 1f; }   // soru açıkken yazı küçülmez
             UpdateCollapse();
             if (_skip != null) FollowParents(_skipCg);
             if (_ask != null) FollowParents(_askCg);
+            if (_away) return;   // K5 B: çocuk dokunuyor, el bekler
             if (_loops <= 0)
             {
                 _finger.gameObject.SetActive(false); _ring.gameObject.SetActive(false); _ring2.gameObject.SetActive(false); _glow.gameObject.SetActive(false);
