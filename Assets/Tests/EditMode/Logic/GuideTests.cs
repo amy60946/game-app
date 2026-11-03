@@ -37,7 +37,7 @@ namespace Pofi.Tests.Logic
         public void Sira_kullanicinin_akisi_ve_sayaclar_essiz()
         {
             CollectionAssert.AreEqual(
-                new[] { "feed", "wash", "home", "tidy", "play", "shop", "wear", "kiskac", "coconut", "deliver", "mavi", "gift", "clear", "gather", "hut", "fire", "stone" },
+                new[] { "feed", "wash", "home", "tidy", "play", "quests", "shop", "wear", "kiskac", "coconut", "deliver", "mavi", "gift", "clear", "gather", "hut", "fire", "stone" },
                 Guide.Steps.Select(x => x.Id).ToArray());
             Assert.AreEqual(Guide.Steps.Count, Guide.Steps.Select(x => x.Counter).Distinct().Count());
             Assert.That(Guide.Steps.All(x => x.Xp > 0));
@@ -55,6 +55,40 @@ namespace Pofi.Tests.Logic
         }
 
         [Test]
+        public void Oyna_sonrasi_biten_oyun_gorevinin_odulu_alinir_K1A()
+        {
+            var data = TestData.Load();
+            var s = NewPlayer();
+            s.DailyQuests.Day = 1;
+            s.DailyQuests.Ids.AddRange(new[] { "dq_wash_1", "dq_tidy_1", "dq_play_3" });
+            foreach (var c in new[] { "pet_fed", "pet_washed", "home_entered", "home_tidied", "pet_played" }) Do(s, c);
+            Assert.AreEqual("quests", Guide.Current(s, 1).Id, "Oyna'dan hemen sonra görev ödülü");
+            Assert.IsTrue(Guide.QuestsStep(s, 1));
+            Pofi.Logic.Meta.DailyQuests.ClaimOne(s.DailyQuests, data, s.Counters, "dq_wash_1");
+            var r = Do(s, Guide.QuestClaimed);
+            Assert.AreEqual("quests", r.Single().Id, "Al'a dokunmak adımı ödüllü bitirir");
+            Assert.AreEqual("shop", Guide.Current(s, 1).Id);
+        }
+
+        [Test]
+        public void Biten_gorev_yoksa_odul_adimi_atlanir_eski_oyuncu_odulsuz_gecer()
+        {
+            var s = NewPlayer();
+            s.DailyQuests.Day = 1;
+            s.DailyQuests.Ids.AddRange(new[] { "dq_feed_2", "dq_play_3", "dq_coconut_10" });
+            foreach (var c in new[] { "pet_fed", "pet_washed", "home_entered", "home_tidied", "pet_played" }) Do(s, c);
+            Assert.AreEqual("shop", Guide.Current(s, 1).Id, "hazır görev yok: adım atlanır");
+            Do(s, "pet_fed");   // dq_feed_2 bitti
+            Assert.AreEqual("quests", Guide.Current(s, 1).Id, "görev bitince adım geri gelir");
+
+            var old = NewPlayer();
+            old.SeenTips.Add(Guide.Prefix + "shop");
+            old.DailyQuests.Ids.Add("dq_wash_1");
+            foreach (var c in new[] { "pet_fed", "pet_washed", "home_entered", "home_tidied", "pet_played" }) Do(old, c);
+            Assert.IsTrue(Guide.IsDone(old, Guide.Get("quests")), "dükkân adımını geçmiş eski oyuncu geri çekilmez");
+        }
+
+        [Test]
         public void Ilk_adim_besle_ve_sirayla_ilerler()
         {
             var s = NewPlayer();
@@ -64,7 +98,7 @@ namespace Pofi.Tests.Logic
             Assert.AreEqual("feed", r.Single().Id, "yıkama önceden yapıldı: ödülsüz geçilir");
             Assert.AreEqual("home", Guide.Current(s, 1).Id);
             Assert.AreEqual(2, Guide.DoneCount(s));
-            Assert.AreEqual("5/19", Guide.Label(s), "temel ipuçları (yürü, etrafa bak) 1–2; rehber 3'ten başlar");
+            Assert.AreEqual("5/20", Guide.Label(s), "temel ipuçları (yürü, etrafa bak) 1–2; rehber 3'ten başlar");
         }
 
         [Test]

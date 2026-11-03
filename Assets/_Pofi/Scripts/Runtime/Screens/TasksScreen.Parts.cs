@@ -305,10 +305,25 @@ namespace Pofi.Screens
             grad.Top = done ? Theme.Hex("#A6EB8E") : Theme.Hex("#8CC2FF");
             grad.Bottom = done ? Theme.Hex("#3BB55B") : Theme.Hex("#2F7BE8");
             Ui.SetBar(bar, (float)prog / Mathf.Max(1, q.Target));
+            var ready = !done && prog >= q.Target;
             var p = Ui.Label(rt, done ? T("home.daily_done") : prog + "/" + q.Target, F(22), done ? InkGreen : InkBlueSoft, new Vector2(1f, 0f), new Vector2(rightW + 6f, 34f), FontStyle.Bold, TextAnchor.MiddleRight, new Vector2(-16f, 9f));
             p.rectTransform.pivot = new Vector2(1f, 0f);
+            // K1 A: biten görevin ödülü dokunarak alınır ("Al"); satır yeşil ışır
+            if (ready)
+            {
+                p.gameObject.SetActive(false);
+                grad.Top = Theme.Hex("#A6EB8E"); grad.Bottom = Theme.Hex("#3BB55B");
+                var bgImg = bg.GetComponent<Image>(); if (bgImg != null) bgImg.color = Theme.Hex("#7FD08A");
+                var id = q.Id;
+                var al = Candy.Pill(rt, Candy.Green, T("quest.claim"), new Vector2(1f, 0f), new Vector2(110f, 48f), new Vector2(-16f - 55f, 12f + 24f - 6f), () =>
+                {
+                    if (App.ClaimQuest(id)) { StarSparkles.Around(Root, new Vector2(0.8f, 0.6f), new Vector2(0.12f, 0.15f), 8, id.Length * 5); Fill(); }
+                }, null, 28);
+                Hover.On(al, 5f);
+                if (_firstClaim == null) _firstClaim = (RectTransform)al.transform;
+            }
             // GB20-5 "Git": bitmemiş görevin satırına dokununca pencere kapanır, adada oklar/el görevin yapıldığı yere götürür
-            if (!done && Logic.Meta.QuestGo.For(q.Counter, App.Map.Regions).Kind != Logic.Meta.QuestGo.Kind.None)
+            if (!done && !ready && Logic.Meta.QuestGo.For(q.Counter, App.Map.Regions).Kind != Logic.Meta.QuestGo.Kind.None)
             {
                 var counter = q.Counter;
                 System.Action go = () => { App.QuestGo = counter; App.Open(AppPage.Map); };

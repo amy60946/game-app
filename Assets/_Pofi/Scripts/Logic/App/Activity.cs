@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Pofi.Logic.Data;
 using Pofi.Logic.Meta;
 using Pofi.Logic.Progression;
@@ -12,6 +13,8 @@ namespace Pofi.Logic.App
     {
         public List<BadgeDef> NewBadges = new List<BadgeDef>();
         public List<DailyQuestDef> QuestsDone = new List<DailyQuestDef>();
+        /// <summary>Bu eylemle biten (ödülü "Al"ı bekleyen) görevler (K1 A).</summary>
+        public List<DailyQuestDef> QuestsReady = new List<DailyQuestDef>();
         public int BadgeXp, QuestXp;
         public List<int> QuestXpEach = new List<int>();   // QuestsDone ile aynı sırada, seviyeye oranlı XP
         public bool ChestReady;   // bu eylemle günün son görevi bitti: günlük sandık açılabilir (S2)
@@ -26,6 +29,9 @@ namespace Pofi.Logic.App
         public static ActivityResult Record(GameState s, GameData data, LevelTable levels, string counter, int n, DateTime local)
         {
             var level = levels.Level(s.Xp);
+            s.Counters.Roll(local);
+            EnsureQuests(s, data, levels, local);
+            var before = DailyQuests.Ready(s.DailyQuests, data, s.Counters).Select(q => q.Id).ToList();
             if (n > 0) s.Counters.Add(counter, n, local);
             s.Counters.SetMax("level", level);
             s.Counters.SetMax("best_streak", s.Streak.Count);
@@ -34,10 +40,24 @@ namespace Pofi.Logic.App
             var r = new ActivityResult();
             r.NewBadges.AddRange(Badges.Evaluate(data.Badges, s.Counters, s.Badges));
             foreach (var b in r.NewBadges) r.BadgeXp += b.Xp;
-            r.QuestsDone.AddRange(DailyQuests.Claim(s.DailyQuests, data, s.Counters));
-            var need = levels.TotalXpFor(level + 1) - levels.TotalXpFor(level);
-            foreach (var q in r.QuestsDone) { var x = DailyQuests.XpFor(q, need); r.QuestXpEach.Add(x); r.QuestXp += x; }
-            r.ChestReady = r.QuestsDone.Count > 0 && DailyChest.Ready(s.DailyQuests);
+            // K1 A: biten görev ödülünü kendiliğinden vermez; çocuk Görevler penceresinde "Al"a dokunur (ClaimQuest)
+            r.QuestsReady.AddRange(DailyQuests.Ready(s.DailyQuests, data, s.Counters).Where(q => !before.Contains(q.Id)));
+            return r;
+        }
+
+        /// <summary>
+        /// Görev ödülünü al (K1 A): hazır görev alındı olarak işaretlenir, XP'si döner (çağıran verir); günün son görevi alındıysa
+        /// günlük sandık hazır. Hazır değilse boş sonuç.
+        /// </summary>
+        public static ActivityResult ClaimQuest(GameState s, GameData data, LevelTable levels, string questId)
+        {
+            var r = new ActivityResult();
+            var q = DailyQuests.ClaimOne(s.DailyQuests, data, s.Counters, questId);
+            if (q == null) return r;
+            var level = levels.Level(s.Xp);
+            var x = DailyQuests.XpFor(q, levels.TotalXpFor(level + 1) - levels.TotalXpFor(level));
+            r.QuestsDone.Add(q); r.QuestXpEach.Add(x); r.QuestXp = x;
+            r.ChestReady = DailyChest.Ready(s.DailyQuests);
             return r;
         }
 

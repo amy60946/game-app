@@ -56,8 +56,9 @@ namespace Pofi.Screens
             {
                 var r = row[i];
                 // sol kenar dizisi (taslaktaki .x-left: 84 px, 34 px ara, mavi kurdele etiket)
-                GoldKit.Icon3D(Root, r.icon, 84f * GoldKit.K, new Vector2(0f, 1f), new Vector2((34f + 42f) * GoldKit.K, -(158f + 42f + i * 118f) * GoldKit.K),
+                var (rb, _, _) = GoldKit.Icon3D(Root, r.icon, 84f * GoldKit.K, new Vector2(0f, 1f), new Vector2((34f + 42f) * GoldKit.K, -(158f + 42f + i * 118f) * GoldKit.K),
                     Theme.Hex(r.ex), r.act, T(r.key), GoldKit.Tone.Blue, i * 0.4f);
+                if (i == 0) _questBtn = (RectTransform)rb.transform;   // K1 A: rehber "Görevler"i gösterir
             }
 
             _bubble = Bubble(new Vector2(0.5f, 0.86f));
@@ -95,6 +96,8 @@ namespace Pofi.Screens
         /// Rehberin evdeki adımları (kullanıcı GB17-2): "Topla'ya dokun" bitince aynı şekilde "Oyna'ya dokun" gelir; el ilgili düğmeye
         /// dokunur. Adım bitince panel kapanır. Gösterildiyse true.
         /// </summary>
+        private RectTransform _questBtn;
+
         private bool GuideCoach()
         {
             if (_coach != null)
@@ -106,8 +109,8 @@ namespace Pofi.Screens
             }
             if (LevelUpCelebration.Showing) return _coach != null;   // önce "Harika!" (el orada), sonra kapat
             var g = Guide.Current(App.State, App.Level);
-            var btn = g == null ? null : g.Id == "tidy" ? _careBtns[3] : g.Id == "play" ? _careBtns[2] : null;
-            if (btn == null) return GuideToClose(ref _coach, id => id == "home" || id == "tidy" || id == "play");   // sıradaki iş adada: çarpı
+            var btn = g == null ? null : g.Id == "tidy" ? _careBtns[3] : g.Id == "play" ? _careBtns[2] : g.Id == "quests" ? _questBtn : null;
+            if (btn == null) return GuideToClose(ref _coach, id => id == "home" || id == "tidy" || id == "play" || id == "quests");   // sıradaki iş adada: çarpı
             _coach = Coach.Show(Root, "guide_" + g.Id, T(g.TextKey, App.State.PetName) + "  " + T("guide.reward", g.Xp), TipGesture.Tap,
                 () => RectTransformUtility.WorldToScreenPoint(null, btn.position), null, 3, Guide.Label(App.State),
                 null, T(g.TextKey, App.State.PetName));

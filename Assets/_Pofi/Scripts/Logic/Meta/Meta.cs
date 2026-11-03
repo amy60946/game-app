@@ -156,7 +156,31 @@ namespace Pofi.Logic.Meta
         public static int XpFor(DailyQuestDef q, int levelNeed) =>
             Math.Max(q.Xp, (int)Math.Round(levelNeed * ShareOfLevel * q.Xp / 15.0));
 
-        /// <summary>Tamamlanmış ve henüz alınmamış görevlerin XP'si (alındı olarak işaretlenir).</summary>
+        /// <summary>
+        /// Bitmiş ama ödülü henüz alınmamış görevler (K1 A, kullanıcı 3 Kasım 2026): görev kendiliğinden ödül vermez, çocuk Görevler
+        /// penceresinde "Al"a dokunur (Pokémon GO araştırma ödülü gibi dokunarak alınır; seri/geri sayım yok, gün dönünce kaybolur).
+        /// </summary>
+        public static List<DailyQuestDef> Ready(DailyQuestState st, GameData data, Counters c)
+        {
+            var list = new List<DailyQuestDef>();
+            if (st == null || data == null || c == null) return list;
+            foreach (var id in st.Ids)
+            {
+                var q = data.DailyQuests.FirstOrDefault(x => x.Id == id);
+                if (q != null && !st.Claimed.Contains(id) && Progress(q, c) >= q.Target) list.Add(q);
+            }
+            return list;
+        }
+
+        /// <summary>Tek görevin ödülünü al (hazırsa alındı olarak işaretlenir); hazır değilse null.</summary>
+        public static DailyQuestDef ClaimOne(DailyQuestState st, GameData data, Counters c, string id)
+        {
+            var q = Ready(st, data, c).FirstOrDefault(x => x.Id == id);
+            if (q != null) st.Claimed.Add(q.Id);
+            return q;
+        }
+
+        /// <summary>Tamamlanmış ve henüz alınmamış görevlerin hepsi (alındı olarak işaretlenir).</summary>
         public static List<DailyQuestDef> Claim(DailyQuestState st, GameData data, Counters c)
         {
             var done = new List<DailyQuestDef>();

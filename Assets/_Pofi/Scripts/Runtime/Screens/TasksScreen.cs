@@ -350,6 +350,7 @@ namespace Pofi.Screens
         // ---- Oyun görevleri (sağ, mavi): günlük görevler + günlük sandık (S2) ----
         private void FillGame()
         {
+            _firstClaim = null;
             Ui.Clear(_quests);
             Activity.EnsureQuests(App.State, App.Data, App.Levels, App.LocalNow);
             var dq = App.State.DailyQuests;
@@ -362,6 +363,10 @@ namespace Pofi.Screens
                 var done = dq.Claimed.Contains(id);
                 if (!done) open++;
                 y += QuestRow(_quests, y, q, done, Logic.Meta.DailyQuests.Progress(q, App.State.Counters)) + 12f;
+            }
+            if (_questVisit && !Guide.QuestsStep(App.State, App.Level) && _guideCoach != null && _guideCoach.Id == "guide_quests")
+            {
+                _guideCoach.Done(); _guideCoach = null;
             }
             _gem.transform.parent.gameObject.SetActive(open > 0);
             _gem.text = open.ToString();
@@ -471,6 +476,49 @@ namespace Pofi.Screens
             _guideCoach = Coach.Show(Root, "guide_welcome", say, TipGesture.Tap, () => Center(btn), null, 99, Guide.Label(App.State), null, say);
         }
 
+        // ------------------------------------------------------------------ K1 A: rehberin oyun görevi adımı
+        private RectTransform _firstClaim;   // ilk hazır görevin "Al"ı
+        private bool _questVisit;
+        private float _questT;
+
+        /// <summary>
+        /// Rehber görev adımındaysa (K1 A) el biten görevin "Al"ını gösterir; ödül alınınca çarpıyı (sıradaki iş, dükkân, adada).
+        /// Ev Görevleri bu adımda soluk (iki şey karışmasın).
+        /// </summary>
+        private void UpdateQuestGuide()
+        {
+            if (App == null || (_questT -= Time.unscaledDeltaTime) > 0f) return;
+            _questT = 0.3f;
+            var on = Guide.QuestsStep(App.State, App.Level);
+            if (on) _questVisit = true;
+            DimHome(on);
+            if (!_questVisit || Root.Find("Modal") != null) return;
+            if (_introAt >= 0 && _introAt < _intro.Count) return;
+            if (!on) { GuideToClose(ref _guideCoach, id => id == "quests"); return; }
+            if (_firstClaim == null || (_guideCoach != null && _guideCoach.Id == "guide_quests")) return;
+            if (_guideCoach != null) _guideCoach.Done();
+            var btn = _firstClaim;
+            var g = Guide.Get("quests");
+            var say = T("guide.quests_claim");
+            _guideCoach = Coach.Show(Root, "guide_quests", say + "  " + T("guide.reward", g.Xp), TipGesture.Tap, () => Center(btn), null, 99, Guide.Label(App.State), null, say);
+        }
+
+        private CanvasGroup _homeDim;
+
+        /// <summary>Ev Görevleri bölümünü soluklaştır (K1 A: rehber oyun görevini anlatırken).</summary>
+        private void DimHome(bool dim)
+        {
+            if (_homeDim == null && !dim) return;
+            if (_homeDim == null)
+            {
+                var ev = _listArea != null ? _listArea.parent?.parent?.parent : null;   // In → Section → Home
+                if (ev == null) return;
+                _homeDim = ev.gameObject.GetComponent<CanvasGroup>() ?? ev.gameObject.AddComponent<CanvasGroup>();
+            }
+            _homeDim.alpha = Mathf.MoveTowards(_homeDim.alpha, dim ? 0.4f : 1f, 0.3f);
+            _homeDim.interactable = _homeDim.blocksRaycasts = !dim;
+        }
+
         /// <summary>Hoş geldin görevi yapıldı: taş kazanma gösterisi + bilgi kartı, sonra hediye taş (yalnız adada geçer).</summary>
         private void WelcomeDone()
         {
@@ -508,6 +556,13 @@ namespace Pofi.Screens
             _intro.Clear();
             var st = App.State;
             var day = FirstDay.Current(st, App.LocalNow, App.UtcNow);
+            if (Guide.QuestsStep(st, App.Level))   // K1 A: yalnız oyun görevleri anlatılır; Ev Görevleri tanıtımı panoya gelince
+            {
+                if (Onboarding.Pending(st, Onboarding.TasksGame)) AddStep(0, Onboarding.TasksGame, T("tip.tasks_game"), () => _oyTitle, false);
+                _introAt = _intro.Count > 0 ? 0 : -1;
+                _introT = -0.7f;
+                return;
+            }
             if (Onboarding.Pending(st, Onboarding.TasksHome)) AddStep(_intro.Count, Onboarding.TasksHome, T("tip.tasks_home"), () => _evTitle, false);
             // Hoş geldin görevi açıkken el yalnız onu gösterir (UpdateWelcomeGuide); ailenin görevine "Yaptım" ipucu karışmaz.
             var welcome = Guide.WelcomeTaskOpen(st, App.Level);
@@ -531,7 +586,7 @@ namespace Pofi.Screens
         private void UpdateIntro()
         {
             if (_introAt < 0 || _firstDone == null || !Onboarding.Pending(App.State, Onboarding.TasksDone)) return;
-            if (Guide.WelcomeTaskOpen(App.State, App.Level)) return;
+            if (Guide.WelcomeTaskOpen(App.State, App.Level) || Guide.QuestsStep(App.State, App.Level)) return;
             if (_intro.Any(s => s.Id == Onboarding.TasksDone || s.Id == Onboarding.Mark)) return;
             AddStep(Mathf.Min(_introAt + 1, _intro.Count), Onboarding.TasksDone, T("tip.tasks_done"), () => _firstDone, false);
         }
@@ -539,6 +594,7 @@ namespace Pofi.Screens
         private void Update()
         {
             UpdateWelcomeGuide();
+            UpdateQuestGuide();
             if (_introAt < 0 || _introAt >= _intro.Count || App == null) return;
             if (Root.Find("Modal") != null) return;   // ebeveyn sorusu, 2× teklifi açıkken bekle
             _introT += Time.unscaledDeltaTime;

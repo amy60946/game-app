@@ -594,7 +594,7 @@ namespace Pofi.Core
         public string QuestGo;
         /// <summary>GB20-5a: ilk biten oyun görevinden sonra adada el bir kez Görev düğmesini gösterir.</summary>
         public bool QuestWherePending;
-        public const string QuestWhereFlag = "quest_where";
+        public const string QuestWhereFlag = Guide.QuestWhereFlag;
 
         public void RecordActivity(string counter, int n = 1)
         {
@@ -605,11 +605,11 @@ namespace Pofi.Core
             Logic.Story.Diary.Record(State.Story, State.Counters, LocalNow);   // H5: günün 2–3 anısı (puan yok)
             foreach (var b in r.NewBadges) Toast.Post(Overlay.transform, Theme, Loc.Get("badge.earned", b.Name));
             if (r.NewBadges.Count > 0) BadgeEarned?.Invoke(r.NewBadges.Count);
-            for (var i = 0; i < r.QuestsDone.Count; i++) Toast.Post(Overlay.transform, Theme, r.QuestsDone[i].Text + "  " + Loc.Get("xp.gain", r.QuestXpEach[i]));
-            if (r.QuestsDone.Count > 0 && !State.SeenTips.Contains(QuestWhereFlag)) QuestWherePending = true;   // GB20-5a: ilk biten görevde el Görev'i gösterir
-            if (r.ChestReady) { Toast.Post(Overlay.transform, Theme, Loc.Get("chest.ready")); ChestReady?.Invoke(); }
+            // K1 A: biten görev ödülünü kendiliğinden vermez; haber + Görev düğmesi zıplar, çocuk Görevler'de "Al"a dokunur
+            foreach (var q in r.QuestsReady) Toast.Post(Overlay.transform, Theme, Loc.Get("quest.ready", q.Text));
+            // GB20-5a: ilk biten görevde el Görev'i gösterir (rehberin görev adımını geçmiş ya da rehbersiz oyuncu; rehber kendi gösterir)
+            if (r.QuestsReady.Count > 0 && !State.SeenTips.Contains(QuestWhereFlag) && !Guide.Active(State, Level)) QuestWherePending = true;
             if (r.BadgeXp > 0) GrantXp(r.BadgeXp, XpSource.Achievement);
-            if (r.QuestXp > 0) GrantXp(r.QuestXp, XpSource.DailyQuest);
             // rehberli zincir (Sv1–3): sırası gelen adım bu eylemle bittiyse kısa kutlama + XP
             foreach (var g in Guide.OnActivity(State, Level, counter))
             {
@@ -620,6 +620,26 @@ namespace Pofi.Core
                 GrantXp(g.Xp, XpSource.Achievement);
             }
             Save();
+        }
+
+        /// <summary>
+        /// Oyun görevinin ödülünü al (K1 A, Görevler penceresindeki "Al"): XP + haber; günün son görevi alındıysa sandık hazır.
+        /// Rehberin görev adımı bununla biter. Alındıysa true.
+        /// </summary>
+        public bool ClaimQuest(string questId)
+        {
+            if (State == null) return false;
+            var r = Activity.ClaimQuest(State, Data, Levels, questId);
+            if (r.QuestsDone.Count == 0) return false;
+            Telemetry.Track("quest.claim", new System.Collections.Generic.Dictionary<string, object> { ["quest"] = questId });
+            Toast.Post(Overlay.transform, Theme, r.QuestsDone[0].Text + "  " + Loc.Get("xp.gain", r.QuestXp));
+            Audio.Sfx.Play(Audio.SfxKind.Success);
+            State.SeenTips.Add(QuestWhereFlag);   // görevlerin yerini artık biliyor
+            QuestWherePending = false;
+            GrantXp(r.QuestXp, XpSource.DailyQuest);
+            if (r.ChestReady) { Toast.Post(Overlay.transform, Theme, Loc.Get("chest.ready")); ChestReady?.Invoke(); }
+            RecordActivity(Guide.QuestClaimed);
+            return true;
         }
 
         /// <summary>Alt menüden sayfa aç (yalnızca pet hazırsa).</summary>

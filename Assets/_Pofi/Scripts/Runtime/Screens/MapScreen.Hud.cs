@@ -362,8 +362,12 @@ namespace Pofi.Screens
                 if (home > 0) _questCount.transform.parent.gameObject.SetActive(false);
                 else SetCount(_questCount, OpenQuests());
                 _boardCount = home;
+                // K1 A: ödülü alınmayı bekleyen görev varken Görev düğmesi ara ara zıplar
+                if (Logic.Meta.DailyQuests.Ready(st.DailyQuests, App.Data, st.Counters).Count > 0 && (_readyBump -= 1f) <= 0f) { Bump.Play(_tasksBtn, 0.25f); _readyBump = 4f; }
             }
         }
+
+        private float _readyBump;
 
         private static void SetCount(Text t, int n)
         {
@@ -648,6 +652,7 @@ namespace Pofi.Screens
                 case "hut": return () => App.Stage.Camera.WorldToScreenPoint(_world.World(_sitePos.x, _sitePos.z) + Vector3.up * 1.5f);
                 case "fire": return FireGuideScreen;
                 case "shop": return () => DoorScreen("region_shop");
+                case "quests": return () => UiScreen(_tasksBtn);   // K1 A: biten görevin ödülü Görev penceresinde
                 default: return PetScreen;
             }
         }

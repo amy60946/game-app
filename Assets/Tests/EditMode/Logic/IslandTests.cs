@@ -122,19 +122,37 @@ namespace Pofi.Tests.Logic
             foreach (var id in s.DailyQuests.Ids)
                 Assert.IsTrue(levels.IsUnlocked(data.DailyQuests.First(q => q.Id == id).Unlock, 1), id);
 
-            var gotQuest = false;
+            var ready = new System.Collections.Generic.List<string>();
             var gotBadge = false;
             foreach (var counter in new[] { "pet_fed", "pet_washed", "pet_played", "home_tidied", "coconuts_caught", "pets_helped" })
                 for (var i = 0; i < 30; i++)
                 {
                     var r = Activity.Record(s, data, levels, counter, 1, local);
-                    gotQuest |= r.QuestsDone.Count > 0 && r.QuestXp > 0;
+                    Assert.AreEqual(0, r.QuestXp, "K1 A: görev ödülü kendiliğinden gelmez");
+                    ready.AddRange(r.QuestsReady.Select(q => q.Id));
                     gotBadge |= r.NewBadges.Count > 0;
                 }
-            Assert.IsTrue(gotQuest, "en az bir günlük görev tamamlanmalı");
+            Assert.IsTrue(ready.Count > 0, "en az bir günlük görev tamamlanmalı");
+            Assert.AreEqual(ready.Count, ready.Distinct().Count(), "biten görev bir kez haber verilir");
             Assert.IsTrue(gotBadge, "en az bir rozet kazanılmalı");
-            var again = Activity.Record(s, data, levels, "pet_fed", 1, local);
-            Assert.AreEqual(0, again.QuestXp);   // aynı görev iki kez ödül vermez
+            var claim = Activity.ClaimQuest(s, data, levels, ready[0]);
+            Assert.AreEqual(1, claim.QuestsDone.Count);
+            Assert.Greater(claim.QuestXp, 0);
+            Assert.AreEqual(0, Activity.ClaimQuest(s, data, levels, ready[0]).QuestXp, "aynı görev iki kez ödül vermez");
+            foreach (var id in ready.Skip(1)) Activity.ClaimQuest(s, data, levels, id);
+            Assert.IsTrue(Pofi.Logic.Meta.DailyChest.Ready(s.DailyQuests) == (ready.Count == s.DailyQuests.Ids.Count));
+        }
+
+        [Test]
+        public void Bitmemis_gorevin_odulu_alinmaz()
+        {
+            var data = TestData.Load();
+            var levels = new LevelTable(data.Levels);
+            var local = new DateTime(2026, 10, 14, 10, 0, 0);
+            var s = GameState.NewFor("child_a", DateTime.UtcNow);
+            Activity.EnsureQuests(s, data, levels, local);
+            foreach (var id in s.DailyQuests.Ids) Assert.AreEqual(0, Activity.ClaimQuest(s, data, levels, id).QuestXp, id);
+            Assert.AreEqual(0, s.DailyQuests.Claimed.Count);
         }
     }
 }

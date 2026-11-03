@@ -24,7 +24,7 @@ namespace Pofi.Logic.App
     /// <summary>
     /// Rehberli görev zinciri (ilk sürüm 19 Ekim 2026; sıra kullanıcı GB17/GB19, 24 Ekim 2026): oyun çocuğu baştan sona adım adım
     /// gezdirir, her adım tek şey öğretir ve küçük XP verir. Rota adada tek yönde akar (batı → doğu; geri dönüş yok): besle → yıka →
-    /// Evim → topla → oyna → dükkândan ilk aksesuar (hoş geldin coin'iyle) → tak → Kıskaç'a git → 2 hindistan cevizi → Kıskaç'a
+    /// Evim → topla → oyna → oyun görevinin ödülünü al (K1 A) → dükkândan ilk aksesuar (hoş geldin coin'iyle) → tak → Kıskaç'a git → 2 hindistan cevizi → Kıskaç'a
     /// teslim → Mavi gelir → Mavi'nin hediye Güneş Taşı + bilgi kartı (GB19) → kulübe yerindeki sisi taşla aç (meydanın doğusu) →
     /// kulübe malzemesi (yerin çevresinde) → kulübe → Ev Görevleri panosu (yanında; yeni taşlar buradan) → kamp ateşini harla
     /// (GB18, doğudaki kamp) → koydaki sis (gerçek görevle kazanılan taşla). Hazır olmayan adım (ör. coin ya da taş yok) atlanır ve hazır olunca geri gelir.
@@ -54,12 +54,18 @@ namespace Pofi.Logic.App
         public static int FirstWearPrice = 15;
 
         private static SunStoneBook _book;
+        private static Data.GameData _data;
+        /// <summary>Oyun görevinin ödülü "Al" ile alındı (GameBootstrap.ClaimQuest sayacı).</summary>
+        public const string QuestClaimed = "quest_claimed";
+        /// <summary>GB20-5a "görevlerin burada" eli gösterildi (eski oyuncu; GameBootstrap.QuestWhereFlag ile aynı).</summary>
+        public const string QuestWhereFlag = "quest_where";
 
         /// <summary>Katalogla kurulum (oyun açılışında ve testlerde).</summary>
         public static void Configure(Data.GameData data)
         {
             if (data == null) return;
             _book = data.SunBook;
+            _data = data;
             IsWearable = id => data.Item(id)?.IsWearable == true;
             var first = FirstWear(data, int.MaxValue);
             FirstWearPrice = first != null ? first.Price : 15;
@@ -82,6 +88,12 @@ namespace Pofi.Logic.App
             new GuideStep { Id = "home", Counter = "home_entered", Xp = 10 },
             new GuideStep { Id = "tidy", Counter = "home_tidied", Xp = 15 },
             new GuideStep { Id = "play", Counter = "pet_played", Xp = 10 },
+            // K1 A (kullanıcı, 3 Kasım 2026): günlük oyun görevleri "Oyna"dan hemen sonra tanıtılır. Besle/Yıka/Topla görevlerinden en az
+            // biri o anda bitmiş olur: el Görevler düğmesini, pencerede biten görevin "Al"ını gösterir (Ev Görevleri soluk). Bitmiş görev
+            // yoksa (ör. gün döndü) adım atlanır, biri bitince geri gelir. Dükkân adımına geçmiş eski oyuncuda ödülsüz geçilir.
+            new GuideStep { Id = "quests", Counter = QuestClaimed, Xp = 10,
+                Ready = s => _data != null && Meta.DailyQuests.Ready(s.DailyQuests, _data, s.Counters).Count > 0,
+                AlreadyDone = s => s.SeenTips.Contains(Prefix + "shop") || s.SeenTips.Contains(DidPrefix + "kiskac_met") || s.SeenTips.Contains(QuestWhereFlag) },
             // Hoş geldin coin'i henüz gelmediyse (ilk beslemede istenir) dükkân adımı yine sırada bekler: Kıskaç ancak dükkân ve giydirme
             // bitince gelir (akış haritası yorumu, 25 Ekim 2026: "her aksiyon sırasıyla"). Coin gelmiş ama yetmiyorsa ya da oyuncu Kıskaç'la
             // zaten tanışmışsa (eski kayıt) adım atlanır.
@@ -185,5 +197,8 @@ namespace Pofi.Logic.App
 
         /// <summary>Panoda Mavi'nin hoş geldin görevi kartı görünsün mü (rehber hediye adımında)?</summary>
         public static bool WelcomeTaskOpen(GameState s, int level) => Is(s, level, "gift");
+
+        /// <summary>Rehber oyun görevi adımında mı (K1 A: Görevler penceresinde Ev Görevleri soluk, el "Al"da)?</summary>
+        public static bool QuestsStep(GameState s, int level) => Is(s, level, "quests");
     }
 }
