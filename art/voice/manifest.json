@@ -10,8 +10,8 @@
    "src": "story:intro:0:text",
    "who": "narrator",
    "tts": "Bir zamanlar mavi denizin ortasında Işık Adası vardı.",
-   "sec": 2.93,
-   "seed": 100,
+   "sec": 3.93,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -21,8 +21,8 @@
    "src": "story:intro:0:a",
    "who": "narrator",
    "tts": "Bir zamanlar Işık Adası vardı.",
-   "sec": 3.36,
-   "seed": 102,
+   "sec": 2.25,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -32,8 +32,8 @@
    "src": "story:intro:1:text",
    "who": "narrator",
    "tts": "Sakinleri birbirine yardım eder, fener her gece yolları aydınlatırdı.",
-   "sec": 3.81,
-   "seed": 7,
+   "sec": 4.79,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -43,8 +43,8 @@
    "src": "story:intro:1:a",
    "who": "narrator",
    "tts": "Fener her gece yolları aydınlatırdı.",
-   "sec": 2.45,
-   "seed": 7,
+   "sec": 2.57,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -54,8 +54,8 @@
    "src": "story:intro:2:text",
    "who": "narrator",
    "tts": "Bir gece büyük bir fırtına çıktı. Fener söndü.",
-   "sec": 3.76,
-   "seed": 101,
+   "sec": 3.24,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -65,8 +65,8 @@
    "src": "story:intro:2:a",
    "who": "narrator",
    "tts": "Bir gece fırtına çıktı. Fener söndü.",
-   "sec": 3.15,
-   "seed": 7,
+   "sec": 2.87,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -76,9 +76,9 @@
    "src": "story:intro:3:text",
    "who": "narrator",
    "tts": "Adaya sis çöktü, sakinler dağıldı.",
-   "sec": 2.47,
-   "seed": 7,
-   "cer": 0.062
+   "sec": 3.42,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "3e6e2863b4e03b97",
@@ -87,9 +87,9 @@
    "src": "story:intro:3:a",
    "who": "narrator",
    "tts": "Adaya sis çöktü.",
-   "sec": 2.48,
-   "seed": 100,
-   "cer": 0.2
+   "sec": 1.69,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "de6b101089151789",
@@ -98,8 +98,8 @@
    "src": "story:intro:4:text",
    "who": "narrator",
    "tts": "Ama bir sabah kumsala küçük bir misafir geldi...",
-   "sec": 3.2,
-   "seed": 7,
+   "sec": 3.48,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -109,8 +109,8 @@
    "src": "story:intro:4:a",
    "who": "narrator",
    "tts": "Bir sabah küçük bir misafir geldi...",
-   "sec": 2.4,
-   "seed": 7,
+   "sec": 2.47,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -120,8 +120,8 @@
    "src": "story:intro:5:text",
    "who": "narrator",
    "tts": "Evde yaptığın her iyilik bir Güneş Taşı olur. Haydi, adayı birlikte uyandıralım!",
-   "sec": 5.16,
-   "seed": 7,
+   "sec": 5.85,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -131,8 +131,8 @@
    "src": "story:intro:5:a",
    "who": "narrator",
    "tts": "Her iyilik bir Güneş Taşı olur. Haydi!",
-   "sec": 2.64,
-   "seed": 7,
+   "sec": 2.97,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -142,9 +142,9 @@
    "src": "story:ch1_open:0:text",
    "who": "kiskac",
    "tts": "Hey küçük! Sen de fırtınayla mı geldin?",
-   "sec": 2.04,
-   "seed": 101,
-   "cer": 0.027
+   "sec": 2.97,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "cc33b723a2e7ed0b",
@@ -153,8 +153,8 @@
    "src": "story:ch1_open:0:a",
    "who": "kiskac",
    "tts": "Hey küçük! Merhaba!",
-   "sec": 2.64,
-   "seed": 100,
+   "sec": 2.06,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -164,9 +164,9 @@
    "src": "story:ch1_open:1:text",
    "who": "kiskac",
    "tts": "Ben Kıskaç. Dükkânım bu kabuğun içinde, hah!",
-   "sec": 2.76,
-   "seed": 102,
-   "cer": 0.049
+   "sec": 3.36,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "11e4347926a71f08",
@@ -175,9 +175,9 @@
    "src": "story:ch1_open:1:a",
    "who": "kiskac",
    "tts": "Ben Kıskaç, dükkâncıyım.",
-   "sec": 1.7,
-   "seed": 7,
-   "cer": 0.091
+   "sec": 2.09,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "85e5c68228cde2cb",
@@ -186,9 +186,9 @@
    "src": "story:ch1_open:1:c",
    "who": "kiskac",
    "tts": "Ben Kıskaç. Kabuğum hem evim hem dükkânım, kira yok!",
-   "sec": 3.56,
-   "seed": 7,
-   "cer": 0.061
+   "sec": 4.52,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "45346f6dbb649004",
@@ -197,9 +197,9 @@
    "src": "story:ch1_open:2:text",
    "who": "okti",
    "tts": "Merhaba Kıskaç! Ada neden bu kadar sisli?",
-   "sec": 2.41,
-   "seed": 100,
-   "cer": 0.051
+   "sec": 3.46,
+   "seed": "marketing",
+   "cer": 0.0256
   },
   {
    "key": "a81e02efd40e993e",
@@ -208,9 +208,9 @@
    "src": "story:ch1_open:2:a",
    "who": "okti",
    "tts": "Ada neden sisli?",
-   "sec": 1.95,
-   "seed": 7,
-   "cer": 0.133
+   "sec": 1.91,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "ef66e398b144551f",
@@ -219,9 +219,9 @@
    "src": "story:ch1_open:3:text",
    "who": "kiskac",
    "tts": "Uzun hikâye. Önce karnını doyuralım, sonra anlatırım.",
-   "sec": 4.08,
-   "seed": 7,
-   "cer": 0.02
+   "sec": 4.0,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "02770ae069c48983",
@@ -230,8 +230,8 @@
    "src": "story:ch1_open:3:a",
    "who": "kiskac",
    "tts": "Önce bir elma ye!",
-   "sec": 3.2,
-   "seed": 100,
+   "sec": 1.63,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -241,8 +241,8 @@
    "src": "story:ch1_coconut:0:text",
    "who": "kiskac",
    "tts": "Hoş geldin! Karnın doydu, üstün başın tertemiz.",
-   "sec": 3.18,
-   "seed": 101,
+   "sec": 3.93,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -252,8 +252,8 @@
    "src": "story:ch1_coconut:0:a",
    "who": "kiskac",
    "tts": "Hoş geldin!",
-   "sec": 2.68,
-   "seed": 7,
+   "sec": 1.27,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -263,9 +263,9 @@
    "src": "story:ch1_coconut:1:text",
    "who": "kiskac",
    "tts": "Ama bak, fırtına tezgâhımı bomboş bıraktı.",
-   "sec": 3.72,
-   "seed": 100,
-   "cer": 0.025
+   "sec": 3.53,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "a548eab3be2547b4",
@@ -274,9 +274,9 @@
    "src": "story:ch1_coconut:1:a",
    "who": "kiskac",
    "tts": "Tezgâhım bomboş kaldı.",
-   "sec": 1.57,
-   "seed": 7,
-   "cer": 0.095
+   "sec": 2.2,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "10e8eec4e7e63877",
@@ -285,9 +285,9 @@
    "src": "story:ch1_coconut:1:c",
    "who": "kiskac",
    "tts": "Fırtına tezgâhımı süpürdü. Vitrin: boş. Moral: daha boş.",
-   "sec": 5.32,
-   "seed": 100,
-   "cer": 0.118
+   "sec": 5.13,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "fb72ddc8f687ba7a",
@@ -295,10 +295,10 @@
    "role": "adali",
    "src": "story:ch1_coconut:2:text",
    "who": "kiskac",
-   "tts": "Bana iki hindistan cevizi getirir misin?",
-   "sec": 3.92,
-   "seed": 102,
-   "cer": 0.077
+   "tts": "Bana 2 hindistan cevizi getirir misin?",
+   "sec": 2.78,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "99a87dd07217e8d0",
@@ -306,9 +306,9 @@
    "role": "adali",
    "src": "story:ch1_coconut:2:a",
    "who": "kiskac",
-   "tts": "iki hindistan cevizi getirir misin?",
-   "sec": 3.28,
-   "seed": 102,
+   "tts": "2 hindistan cevizi getirir misin?",
+   "sec": 2.5,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -318,9 +318,9 @@
    "src": "story:ch1_coconut:3:text",
    "who": "okti",
    "tts": "Tabii! Nerede bulurum?",
-   "sec": 4.33,
-   "seed": 7,
-   "cer": 0.05
+   "sec": 1.88,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "7353554725dcb8b1",
@@ -329,8 +329,8 @@
    "src": "story:ch1_coconut:3:a",
    "who": "okti",
    "tts": "Nerede bulurum?",
-   "sec": 0.94,
-   "seed": 7,
+   "sec": 1.17,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -340,9 +340,9 @@
    "src": "story:ch1_coconut:4:text",
    "who": "kiskac",
    "tts": "Kumsalda yerde arayabilir ya da bahçede toplayabilirsin!",
-   "sec": 3.12,
-   "seed": 102,
-   "cer": 0.018
+   "sec": 3.53,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "bca5509d2d3f6f02",
@@ -351,9 +351,9 @@
    "src": "story:ch1_coconut:4:a",
    "who": "kiskac",
    "tts": "Kumsalda ya da bahçede bak!",
-   "sec": 2.92,
-   "seed": 7,
-   "cer": 0.038
+   "sec": 1.95,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "b5e05e98ebd8f7a9",
@@ -362,9 +362,9 @@
    "src": "story:ch1_thanks:0:text",
    "who": "kiskac",
    "tts": "Harika! Tezgâhım yine şenlendi.",
-   "sec": 2.4,
-   "seed": 100,
-   "cer": 0.069
+   "sec": 2.93,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "46da488715ecd402",
@@ -373,9 +373,9 @@
    "src": "story:ch1_thanks:0:a",
    "who": "kiskac",
    "tts": "Harika, teşekkürler!",
-   "sec": 1.6,
-   "seed": 7,
-   "cer": 0.056
+   "sec": 1.74,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "575ce0e1ebce08a3",
@@ -384,8 +384,8 @@
    "src": "story:ch1_thanks:1:text",
    "who": "okti",
    "tts": "Sana yardım etmek çok güzeldi!",
-   "sec": 2.82,
-   "seed": 7,
+   "sec": 2.26,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -395,8 +395,8 @@
    "src": "story:ch1_thanks:1:a",
    "who": "okti",
    "tts": "Çok güzeldi!",
-   "sec": 2.34,
-   "seed": 7,
+   "sec": 1.27,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -406,8 +406,8 @@
    "src": "story:ch1_thanks:2:text",
    "who": "kiskac",
    "tts": "Hadi şimdi adayı biraz dolaş, bakalım kimlerle karşılaşacaksın!",
-   "sec": 3.27,
-   "seed": 101,
+   "sec": 4.21,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -417,8 +417,8 @@
    "src": "story:ch1_thanks:2:a",
    "who": "kiskac",
    "tts": "Hadi, adayı biraz dolaş!",
-   "sec": 4.64,
-   "seed": 100,
+   "sec": 2.47,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -428,9 +428,9 @@
    "src": "story:ch1_board:0:text",
    "who": "kiskac",
    "tts": "Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.",
-   "sec": 4.36,
-   "seed": 7,
-   "cer": 0.053
+   "sec": 4.14,
+   "seed": "marketing",
+   "cer": 0.0175
   },
   {
    "key": "afb1b8b7229e055e",
@@ -439,9 +439,9 @@
    "src": "story:ch1_board:0:a",
    "who": "kiskac",
    "tts": "Evdeki büyüklerin buraya görev bırakır.",
-   "sec": 2.24,
-   "seed": 7,
-   "cer": 0.026
+   "sec": 2.74,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "72fcc3ff8aa6bbf3",
@@ -450,9 +450,9 @@
    "src": "story:ch1_board:1:text",
    "who": "kiskac",
    "tts": "Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!",
-   "sec": 3.24,
-   "seed": 7,
-   "cer": 0.022
+   "sec": 3.5,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "a44c382dccc586d1",
@@ -461,9 +461,9 @@
    "src": "story:ch1_board:1:a",
    "who": "kiskac",
    "tts": "Görevi yapınca Güneş Taşı gelir!",
-   "sec": 3.36,
-   "seed": 100,
-   "cer": 0.032
+   "sec": 2.22,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "1e84605228bee57f",
@@ -472,8 +472,8 @@
    "src": "story:ch1_board:2:text",
    "who": "okti",
    "tts": "Mavi de bana bir görev bırakmış!",
-   "sec": 2.13,
-   "seed": 7,
+   "sec": 2.45,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -483,8 +483,8 @@
    "src": "story:ch1_board:2:a",
    "who": "okti",
    "tts": "Mavi'nin görevi burada!",
-   "sec": 4.31,
-   "seed": 7,
+   "sec": 1.7,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -494,9 +494,9 @@
    "src": "story:ch1_board:3:text",
    "who": "kiskac",
    "tts": "Hadi, Yaptıma bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
-   "sec": 4.1,
-   "seed": 102,
-   "cer": 0.042
+   "sec": 5.69,
+   "seed": "marketing",
+   "cer": 0.0141
   },
   {
    "key": "58dfcf8d3c038cae",
@@ -505,9 +505,9 @@
    "src": "story:ch1_board:3:a",
    "who": "kiskac",
    "tts": "Yaptıma bas, taş senin!",
-   "sec": 2.49,
-   "seed": 7,
-   "cer": 0.095
+   "sec": 2.09,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "89322a00f0a4b63b",
@@ -516,9 +516,9 @@
    "src": "story:ch1_close:0:text",
    "who": "narrator",
    "tts": "Taştan bir ışık halkası yayıldı, sis geri çekildi.",
-   "sec": 4.08,
-   "seed": 101,
-   "cer": 0.021
+   "sec": 3.88,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "1ae19a171149155d",
@@ -527,9 +527,9 @@
    "src": "story:ch1_close:0:a",
    "who": "narrator",
    "tts": "Işık yayıldı, sis kalktı!",
-   "sec": 3.68,
-   "seed": 7,
-   "cer": 0.087
+   "sec": 2.26,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "04197bdca9ee64f9",
@@ -538,9 +538,9 @@
    "src": "story:ch1_close:1:text",
    "who": "okti",
    "tts": "Bak! Su ne kadar turkuazmış!",
-   "sec": 4.04,
-   "seed": 7,
-   "cer": 0.077
+   "sec": 2.9,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "a5e980f32506f038",
@@ -549,9 +549,9 @@
    "src": "story:ch1_close:1:a",
    "who": "okti",
    "tts": "Su turkuaz!",
-   "sec": 2.46,
-   "seed": 7,
-   "cer": 0.0
+   "sec": 1.29,
+   "seed": "marketing",
+   "cer": 0.2
   },
   {
    "key": "417a191463078df2",
@@ -560,8 +560,8 @@
    "src": "story:ch1_close:3:text",
    "who": "narrator",
    "tts": "Tepedeki küçük bulut biraz küçüldü ve ilk kez gülümsedi.",
-   "sec": 2.86,
-   "seed": 7,
+   "sec": 3.87,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -571,8 +571,8 @@
    "src": "story:ch1_close:3:a",
    "who": "narrator",
    "tts": "Tepedeki bulut gülümsedi.",
-   "sec": 3.52,
-   "seed": 7,
+   "sec": 2.03,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -582,8 +582,8 @@
    "src": "story:ch2_open:0:text",
    "who": "narrator",
    "tts": "Gökyüzünden bir zarf süzüldü, ardından bir martı düşer gibi kondu.",
-   "sec": 4.15,
-   "seed": 100,
+   "sec": 4.62,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -593,8 +593,8 @@
    "src": "story:ch2_open:0:a",
    "who": "narrator",
    "tts": "Gökyüzünden bir zarf düştü!",
-   "sec": 3.96,
-   "seed": 7,
+   "sec": 2.05,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -604,9 +604,9 @@
    "src": "story:ch2_open:1:text",
    "who": "mavi",
    "tts": "Ben adanın postacısı Mavi'yim! Ama kulübem uçtu!",
-   "sec": 3.0,
-   "seed": 101,
-   "cer": 0.022
+   "sec": 3.96,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "d891c4d4459471ea",
@@ -615,8 +615,8 @@
    "src": "story:ch2_open:1:a",
    "who": "mavi",
    "tts": "Ben Mavi, postacıyım!",
-   "sec": 1.77,
-   "seed": 100,
+   "sec": 1.99,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -626,9 +626,9 @@
    "src": "story:ch2_open:1:c",
    "who": "mavi",
    "tts": "Ben Mavi. Postacıyım ama adresim fırtınayla uçtu.",
-   "sec": 3.99,
-   "seed": 102,
-   "cer": 0.064
+   "sec": 4.35,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "1efadd37821beb91",
@@ -637,9 +637,9 @@
    "src": "story:ch2_open:2:text",
    "who": "mavi",
    "tts": "Mektupları nerede saklayacağım şimdi?",
-   "sec": 2.17,
-   "seed": 102,
-   "cer": 0.056
+   "sec": 3.03,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "53d552d4cd2aef90",
@@ -648,8 +648,8 @@
    "src": "story:ch2_open:2:a",
    "who": "mavi",
    "tts": "Mektuplar nerede kalacak?",
-   "sec": 2.25,
-   "seed": 100,
+   "sec": 2.06,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -659,8 +659,8 @@
    "src": "story:ch2_open:3:text",
    "who": "okti",
    "tts": "Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.",
-   "sec": 4.78,
-   "seed": 7,
+   "sec": 4.49,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -670,8 +670,8 @@
    "src": "story:ch2_open:3:a",
    "who": "okti",
    "tts": "Sana kulübe yaparım!",
-   "sec": 2.9,
-   "seed": 100,
+   "sec": 1.47,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -681,9 +681,9 @@
    "src": "story:ch2_open:4:text",
    "who": "mavi",
    "tts": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!",
-   "sec": 5.5,
-   "seed": 104,
-   "cer": 0.013
+   "sec": 5.44,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "c6b667c7985a4e6c",
@@ -692,9 +692,9 @@
    "src": "story:ch2_open:4:a",
    "who": "mavi",
    "tts": "Panoya sana bir görev bıraktım!",
-   "sec": 1.77,
-   "seed": 100,
-   "cer": 0.067
+   "sec": 2.46,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "8ec655319b977d84",
@@ -703,8 +703,8 @@
    "src": "story:ch2_open:5:text",
    "who": "okti",
    "tts": "Hemen panoya gidiyorum!",
-   "sec": 1.59,
-   "seed": 7,
+   "sec": 1.63,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -714,9 +714,9 @@
    "src": "story:ch2_open:5:a",
    "who": "okti",
    "tts": "Panoya gidiyorum!",
-   "sec": 2.54,
-   "seed": 7,
-   "cer": 0.062
+   "sec": 1.39,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "31fe7b02ee1e8a6b",
@@ -725,9 +725,9 @@
    "src": "story:ch2_fog:0:text",
    "who": "narrator",
    "tts": "Taştan bir ışık yayıldı, sis yavaşça çekildi.",
-   "sec": 3.36,
-   "seed": 7,
-   "cer": 0.023
+   "sec": 3.53,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "b99d574d368b6440",
@@ -736,9 +736,9 @@
    "src": "story:ch2_fog:1:text",
    "who": "mavi",
    "tts": "İşte kulübemin yeri! Odun, dal ve taş toplayalım mı?",
-   "sec": 4.46,
-   "seed": 102,
-   "cer": 0.061
+   "sec": 4.55,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "19b535f16bf4e6be",
@@ -747,9 +747,9 @@
    "src": "story:ch2_fog:1:a",
    "who": "mavi",
    "tts": "Kulübemin yeri açıldı!",
-   "sec": 2.86,
-   "seed": 102,
-   "cer": 0.048
+   "sec": 2.02,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "21ef0c0667fcee05",
@@ -758,8 +758,8 @@
    "src": "story:ch2_fog:2:text",
    "who": "okti",
    "tts": "Hemen başlıyorum!",
-   "sec": 3.13,
-   "seed": 7,
+   "sec": 1.22,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -769,8 +769,8 @@
    "src": "story:ch2_close:0:text",
    "who": "mavi",
    "tts": "Kulübem bitti! Bak, posta zili bile çalıyor!",
-   "sec": 2.7,
-   "seed": 7,
+   "sec": 3.47,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -780,9 +780,9 @@
    "src": "story:ch2_close:0:a",
    "who": "mavi",
    "tts": "Kulübem bitti!",
-   "sec": 1.77,
-   "seed": 101,
-   "cer": 0.154
+   "sec": 1.46,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "331b6790724d63b2",
@@ -791,8 +791,8 @@
    "src": "story:ch2_close:1:text",
    "who": "mavi",
    "tts": "Evinin önüne bir mektup kutusu koydum. Sana yazacağım!",
-   "sec": 3.02,
-   "seed": 100,
+   "sec": 3.86,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -802,8 +802,8 @@
    "src": "story:ch2_close:1:a",
    "who": "mavi",
    "tts": "Sana mektup yazacağım!",
-   "sec": 1.47,
-   "seed": 7,
+   "sec": 1.7,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -813,8 +813,8 @@
    "src": "story:ch2_close:2:text",
    "who": "mavi",
    "tts": "Bir yere gitmek istersen önden uçarım, izimi takip et.",
-   "sec": 3.47,
-   "seed": 100,
+   "sec": 4.19,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -824,9 +824,31 @@
    "src": "story:ch2_close:2:a",
    "who": "mavi",
    "tts": "Ben önden uçarım, beni izle!",
-   "sec": 2.25,
-   "seed": 100,
-   "cer": 0.038
+   "sec": 2.54,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "0acf178e6c9bfff9",
+   "text": "Akşamları kamp ateşinin başında toplanırız. Ateş için biraz odun lazım, kütüklerden toplayalım mı?",
+   "role": "adali",
+   "src": "story:ch2_close:3:text",
+   "who": "mavi",
+   "tts": "Akşamları kamp ateşinin başında toplanırız. Ateş için biraz odun lazım, kütüklerden toplayalım mı?",
+   "sec": 7.37,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "c34ff635145e46dc",
+   "text": "Ateş için odun toplayalım mı?",
+   "role": "adali",
+   "src": "story:ch2_close:3:a",
+   "who": "mavi",
+   "tts": "Ateş için odun toplayalım mı?",
+   "sec": 2.48,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "edc7686b691ac879",
@@ -835,9 +857,9 @@
    "src": "story:ch3_open:0:text",
    "who": "narrator",
    "tts": "Tepeden bir kartopu yuvarlanıp önünde durdu.",
-   "sec": 3.6,
-   "seed": 7,
-   "cer": 0.023
+   "sec": 3.14,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "a85f252b160546d0",
@@ -846,9 +868,9 @@
    "src": "story:ch3_open:0:a",
    "who": "narrator",
    "tts": "Bir kartopu geldi!",
-   "sec": 2.64,
-   "seed": 7,
-   "cer": 0.059
+   "sec": 1.66,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "3a5068c2859246ed",
@@ -857,9 +879,9 @@
    "src": "story:ch3_open:1:text",
    "who": "pitir",
    "tts": "Pus üşüyünce kar yağdırır!",
-   "sec": 2.64,
-   "seed": 7,
-   "cer": 0.08
+   "sec": 2.17,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "ba8866d752ec5a2a",
@@ -868,9 +890,9 @@
    "src": "story:ch3_open:1:a",
    "who": "pitir",
    "tts": "Pus üşüyünce kar yağar!",
-   "sec": 3.44,
-   "seed": 100,
-   "cer": 0.318
+   "sec": 1.97,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "21178e50bad5c59c",
@@ -879,9 +901,9 @@
    "src": "story:ch3_open:2:text",
    "who": "hisir",
    "tts": "...kar yağdırır.",
-   "sec": 3.16,
-   "seed": 7,
-   "cer": 0.0
+   "sec": 1.72,
+   "seed": "marketing",
+   "cer": 0.25
   },
   {
    "key": "b07c21e8a8f5c21f",
@@ -890,9 +912,9 @@
    "src": "story:ch3_open:2:a",
    "who": "hisir",
    "tts": "...kar yağar.",
-   "sec": 3.2,
-   "seed": 7,
-   "cer": 0.444
+   "sec": 1.48,
+   "seed": "marketing",
+   "cer": 0.5556
   },
   {
    "key": "5e27ed3a9482d935",
@@ -901,8 +923,8 @@
    "src": "story:ch3_open:3:text",
    "who": "okti",
    "tts": "O zaman kayak zamanı!",
-   "sec": 3.31,
-   "seed": 7,
+   "sec": 1.77,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -912,8 +934,8 @@
    "src": "story:ch3_open:3:a",
    "who": "okti",
    "tts": "Kayak zamanı!",
-   "sec": 2.7,
-   "seed": 7,
+   "sec": 1.51,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -923,8 +945,8 @@
    "src": "story:ch3_close:0:text",
    "who": "narrator",
    "tts": "Okti'nin çevresinde bir ışık sarmalı döndü.",
-   "sec": 2.79,
-   "seed": 7,
+   "sec": 2.91,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -934,9 +956,9 @@
    "src": "story:ch3_close:0:a",
    "who": "narrator",
    "tts": "Işık sarmalı döndü!",
-   "sec": 2.92,
-   "seed": 7,
-   "cer": 0.056
+   "sec": 1.7,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "03ba698761b5720d",
@@ -945,9 +967,9 @@
    "src": "story:ch3_close:1:text",
    "who": "okti",
    "tts": "Bakın, kollarım uzadı!",
-   "sec": 2.67,
-   "seed": 7,
-   "cer": 0.2
+   "sec": 2.17,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "6c9924bebab426a7",
@@ -956,9 +978,9 @@
    "src": "story:ch3_close:1:a",
    "who": "okti",
    "tts": "Büyüdüm!",
-   "sec": 0.69,
-   "seed": 100,
-   "cer": 0.571
+   "sec": 0.85,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "1c5988950e9c61f9",
@@ -967,9 +989,9 @@
    "src": "story:ch3_close:2:text",
    "who": "pitir",
    "tts": "Bizden bile uzun olacak!",
-   "sec": 4.08,
-   "seed": 7,
-   "cer": 0.087
+   "sec": 1.88,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "ab922894c58beae3",
@@ -978,9 +1000,9 @@
    "src": "story:ch3_close:2:a",
    "who": "pitir",
    "tts": "Çok büyümüş!",
-   "sec": 2.68,
-   "seed": 7,
-   "cer": 0.455
+   "sec": 1.24,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "3164053c0657c073",
@@ -989,8 +1011,8 @@
    "src": "story:ch3_close:3:text",
    "who": "hisir",
    "tts": "...bizden bile uzun.",
-   "sec": 2.02,
-   "seed": 7,
+   "sec": 2.01,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1000,9 +1022,9 @@
    "src": "story:ch3_close:3:a",
    "who": "hisir",
    "tts": "...çok büyümüş.",
-   "sec": 4.36,
-   "seed": 7,
-   "cer": 0.182
+   "sec": 1.52,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "69f3580183d629bc",
@@ -1011,8 +1033,8 @@
    "src": "story:ch4_open:0:text",
    "who": "narrator",
    "tts": "Denizden yaşlı bir kaplumbağa yavaşça yaklaştı.",
-   "sec": 3.8,
-   "seed": 7,
+   "sec": 3.38,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1022,8 +1044,8 @@
    "src": "story:ch4_open:0:a",
    "who": "narrator",
    "tts": "Yaşlı bir kaplumbağa geldi.",
-   "sec": 3.16,
-   "seed": 7,
+   "sec": 2.36,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1033,9 +1055,9 @@
    "src": "story:ch4_open:1:text",
    "who": "tosbi",
    "tts": "Merhaba evlat. Ben Tosbi. Bu köprüyü çok eskiden bilirim.",
-   "sec": 4.92,
-   "seed": 7,
-   "cer": 0.019
+   "sec": 4.45,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "17050930140e2503",
@@ -1044,9 +1066,9 @@
    "src": "story:ch4_open:1:a",
    "who": "tosbi",
    "tts": "Ben Tosbi Dede.",
-   "sec": 4.48,
-   "seed": 102,
-   "cer": 0.143
+   "sec": 1.56,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "bd893c1376c2fed6",
@@ -1055,9 +1077,9 @@
    "src": "story:ch4_open:2:text",
    "who": "tosbi",
    "tts": "Köprü onarılırsa sana bir sır göstereceğim.",
-   "sec": 2.64,
-   "seed": 7,
-   "cer": 0.048
+   "sec": 2.97,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "c6ef1131d076fcf0",
@@ -1066,9 +1088,9 @@
    "src": "story:ch4_open:2:a",
    "who": "tosbi",
    "tts": "Köprü onarılırsa sır var!",
-   "sec": 2.16,
-   "seed": 101,
-   "cer": 0.083
+   "sec": 2.47,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "e22e8a3ae4a73a0a",
@@ -1077,8 +1099,8 @@
    "src": "story:ch4_open:3:text",
    "who": "okti",
    "tts": "Güneş Taşları köprüyü onarır mı?",
-   "sec": 3.66,
-   "seed": 7,
+   "sec": 2.57,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1088,9 +1110,9 @@
    "src": "story:ch4_open:3:a",
    "who": "okti",
    "tts": "Taşlar köprüyü onarır mı?",
-   "sec": 3.22,
-   "seed": 7,
-   "cer": 0.083
+   "sec": 2.18,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "b9123ee75e68d4a7",
@@ -1099,8 +1121,8 @@
    "src": "story:ch4_open:4:text",
    "who": "tosbi",
    "tts": "Dört taş, dört tahta. Acele yok, ben beklerim.",
-   "sec": 4.36,
-   "seed": 7,
+   "sec": 3.8,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1110,8 +1132,8 @@
    "src": "story:ch4_open:4:a",
    "who": "tosbi",
    "tts": "Dört taş yeter. Ben beklerim.",
-   "sec": 3.6,
-   "seed": 7,
+   "sec": 2.42,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1121,9 +1143,9 @@
    "src": "story:ch4_close:0:text",
    "who": "narrator",
    "tts": "Son tahta da yerine oturdu.",
-   "sec": 4.12,
-   "seed": 7,
-   "cer": 0.038
+   "sec": 2.09,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "fd9b69c7f55267a3",
@@ -1132,8 +1154,8 @@
    "src": "story:ch4_close:0:a",
    "who": "narrator",
    "tts": "Köprü onarıldı!",
-   "sec": 9.28,
-   "seed": 101,
+   "sec": 1.4,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1143,8 +1165,8 @@
    "src": "story:ch4_close:1:text",
    "who": "tosbi",
    "tts": "İşte söz verdiğim sır: Bekçi Nur'un günlüğünden bir sayfa.",
-   "sec": 5.72,
-   "seed": 7,
+   "sec": 3.73,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1154,8 +1176,8 @@
    "src": "story:ch4_close:1:a",
    "who": "tosbi",
    "tts": "İşte bir günlük sayfası.",
-   "sec": 3.08,
-   "seed": 7,
+   "sec": 1.93,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1165,8 +1187,8 @@
    "src": "story:ch4_close:2:text",
    "who": "nur",
    "tts": "\"Bu ada bir zamanlar ışıkla dolardı...\"",
-   "sec": 2.55,
-   "seed": 7,
+   "sec": 2.44,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1176,9 +1198,9 @@
    "src": "story:ch4_close:2:a",
    "who": "nur",
    "tts": "\"Bu ada ışıkla dolardı...\"",
-   "sec": 4.44,
-   "seed": 7,
-   "cer": 0.095
+   "sec": 1.82,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "5337c91d74326cfa",
@@ -1187,8 +1209,8 @@
    "src": "story:ch4_close:3:text",
    "who": "tosbi",
    "tts": "Diğer sayfalar adaya dağıldı. Belki sen bulursun.",
-   "sec": 3.44,
-   "seed": 7,
+   "sec": 3.56,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1198,8 +1220,8 @@
    "src": "story:ch4_close:3:a",
    "who": "tosbi",
    "tts": "Diğerlerini sen bul!",
-   "sec": 2.0,
-   "seed": 7,
+   "sec": 1.5,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1209,9 +1231,9 @@
    "src": "story:ch5_open:0:text",
    "who": "tosbi",
    "tts": "Nur her gece bir sayfa yazardı.",
-   "sec": 4.12,
-   "seed": 7,
-   "cer": 0.033
+   "sec": 2.3,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "355bec57074f0093",
@@ -1220,8 +1242,8 @@
    "src": "story:ch5_open:0:a",
    "who": "tosbi",
    "tts": "Nur her gece yazardı.",
-   "sec": 2.13,
-   "seed": 7,
+   "sec": 1.79,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1231,9 +1253,9 @@
    "src": "story:ch5_open:1:text",
    "who": "tosbi",
    "tts": "Fırtına sayfaları adaya dağıttı. Parıltıların yanına bak.",
-   "sec": 4.56,
-   "seed": 101,
-   "cer": 0.073
+   "sec": 4.07,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "1d15ab0b9e9e50e1",
@@ -1243,8 +1265,8 @@
    "who": "tosbi",
    "tts": "Parıltıların yanına bak!",
    "sec": 1.84,
-   "seed": 7,
-   "cer": 0.087
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "3d8a222c7e1ffd9b",
@@ -1253,9 +1275,9 @@
    "src": "story:ch5_open:2:text",
    "who": "okti",
    "tts": "Hepsini bulup Defter'e koyacağım!",
-   "sec": 2.78,
-   "seed": 7,
-   "cer": 0.032
+   "sec": 2.15,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "14465e13b024947b",
@@ -1264,8 +1286,8 @@
    "src": "story:ch5_open:2:a",
    "who": "okti",
    "tts": "Hepsini bulacağım!",
-   "sec": 1.14,
-   "seed": 7,
+   "sec": 1.38,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1275,9 +1297,9 @@
    "src": "story:ch5_close:0:text",
    "who": "narrator",
    "tts": "Okti artık yetişkin bir ahtapot. Evi de büyüdü.",
-   "sec": 4.0,
-   "seed": 7,
-   "cer": 0.044
+   "sec": 3.58,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "8bba0dd88defd9ae",
@@ -1286,9 +1308,9 @@
    "src": "story:ch5_close:0:a",
    "who": "narrator",
    "tts": "Okti yetişkin oldu!",
-   "sec": 3.0,
-   "seed": 7,
-   "cer": 0.111
+   "sec": 1.67,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "28b9c2bd22cb8cfe",
@@ -1297,9 +1319,9 @@
    "src": "story:ch5_close:1:text",
    "who": "nur",
    "tts": "\"Fenerin büyük camı mağaraya yuvarlandı.\"",
-   "sec": 5.0,
-   "seed": 100,
-   "cer": 0.132
+   "sec": 2.6,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "557a7c8936e9d0d0",
@@ -1308,9 +1330,9 @@
    "src": "story:ch5_close:1:a",
    "who": "nur",
    "tts": "\"Cam mağarada.\"",
-   "sec": 4.8,
-   "seed": 100,
-   "cer": 0.25
+   "sec": 1.21,
+   "seed": "marketing",
+   "cer": 0.0833
   },
   {
    "key": "fb551cf43078c699",
@@ -1319,8 +1341,8 @@
    "src": "story:ch5_close:2:text",
    "who": "okti",
    "tts": "Mağara! Ama yolu sisle kapalı...",
-   "sec": 2.86,
-   "seed": 7,
+   "sec": 2.46,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1330,9 +1352,9 @@
    "src": "story:ch5_close:2:a",
    "who": "okti",
    "tts": "Mağara sisli...",
-   "sec": 1.33,
-   "seed": 7,
-   "cer": 0.083
+   "sec": 1.25,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "8b65632350026fa7",
@@ -1341,8 +1363,8 @@
    "src": "story:ch6_open:0:text",
    "who": "narrator",
    "tts": "Mağaranın ağzını kalın bir sis kapatmış.",
-   "sec": 12.28,
-   "seed": 100,
+   "sec": 3.0,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1352,9 +1374,9 @@
    "src": "story:ch6_open:0:a",
    "who": "narrator",
    "tts": "Mağara sisli.",
-   "sec": 3.04,
-   "seed": 7,
-   "cer": 0.25
+   "sec": 1.31,
+   "seed": "marketing",
+   "cer": 0.0833
   },
   {
    "key": "1c7256a912cc6677",
@@ -1363,8 +1385,8 @@
    "src": "story:ch6_open:1:text",
    "who": "okti",
    "tts": "Sanki biri burada uyuyor...",
-   "sec": 2.23,
-   "seed": 7,
+   "sec": 1.53,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1374,8 +1396,8 @@
    "src": "story:ch6_open:1:a",
    "who": "okti",
    "tts": "Biri uyuyor...",
-   "sec": 1.13,
-   "seed": 100,
+   "sec": 0.99,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1385,9 +1407,9 @@
    "src": "story:ch6_open:2:text",
    "who": "narrator",
    "tts": "Yoldaki altı ışık direği taş bekliyor.",
-   "sec": 2.36,
-   "seed": 7,
-   "cer": 0.108
+   "sec": 2.98,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "7cacdcbee04b639a",
@@ -1396,8 +1418,8 @@
    "src": "story:ch6_open:2:a",
    "who": "narrator",
    "tts": "Altı direk taş bekliyor.",
-   "sec": 4.64,
-   "seed": 7,
+   "sec": 1.96,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1407,8 +1429,8 @@
    "src": "story:ch6_close:0:text",
    "who": "narrator",
    "tts": "Direkler sırayla yandı. Mağaranın dibinde bir şey parladı.",
-   "sec": 5.16,
-   "seed": 7,
+   "sec": 3.89,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1418,8 +1440,8 @@
    "src": "story:ch6_close:0:a",
    "who": "narrator",
    "tts": "Direkler yandı!",
-   "sec": 1.14,
-   "seed": 100,
+   "sec": 1.42,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1429,8 +1451,8 @@
    "src": "story:ch6_close:1:text",
    "who": "okti",
    "tts": "Fenerin camı! Buldum!",
-   "sec": 1.65,
-   "seed": 7,
+   "sec": 2.13,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1440,8 +1462,8 @@
    "src": "story:ch6_close:1:a",
    "who": "okti",
    "tts": "Cam burada!",
-   "sec": 0.89,
-   "seed": 7,
+   "sec": 1.07,
+   "seed": "marketing",
    "cer": 0.1
   },
   {
@@ -1451,8 +1473,8 @@
    "src": "story:ch6_close:2:text",
    "who": "pus",
    "tts": "Herkes benden kaçtı...",
-   "sec": 2.88,
-   "seed": 7,
+   "sec": 1.62,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1462,9 +1484,9 @@
    "src": "story:ch6_close:2:a",
    "who": "pus",
    "tts": "Herkes kaçtı...",
-   "sec": 1.92,
-   "seed": 7,
-   "cer": 0.083
+   "sec": 1.33,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "150f3323075b456d",
@@ -1473,9 +1495,9 @@
    "src": "story:ch6_close:3:text",
    "who": "okti",
    "tts": "Ben kaçmam. Gel, birlikte ısınalım.",
-   "sec": 2.08,
-   "seed": 7,
-   "cer": 0.031
+   "sec": 2.98,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "65d82fb0e9178760",
@@ -1484,9 +1506,9 @@
    "src": "story:ch6_close:3:a",
    "who": "okti",
    "tts": "Ben kaçmam. Gel!",
-   "sec": 1.81,
-   "seed": 100,
-   "cer": 0.071
+   "sec": 1.85,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "5c75500a6cd558f1",
@@ -1495,8 +1517,8 @@
    "src": "story:ch7_open:0:text",
    "who": "mavi",
    "tts": "Mektuplarım uzak kıyılara ulaştı!",
-   "sec": 4.08,
-   "seed": 100,
+   "sec": 2.94,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1506,9 +1528,9 @@
    "src": "story:ch7_open:0:a",
    "who": "mavi",
    "tts": "Mektuplar ulaştı!",
-   "sec": 5.26,
-   "seed": 7,
-   "cer": 0.062
+   "sec": 1.75,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "1509f069d323ca2f",
@@ -1517,8 +1539,8 @@
    "src": "story:ch7_open:1:text",
    "who": "narrator",
    "tts": "Ufuktan küçük tekneler görünüyor.",
-   "sec": 3.56,
-   "seed": 102,
+   "sec": 2.56,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1528,8 +1550,8 @@
    "src": "story:ch7_open:1:a",
    "who": "narrator",
    "tts": "Tekneler geliyor!",
-   "sec": 2.52,
-   "seed": 7,
+   "sec": 1.54,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1539,9 +1561,9 @@
    "src": "story:ch7_open:2:text",
    "who": "kiskac",
    "tts": "Festival zamanı! Fenerleri hazırlayın!",
-   "sec": 2.27,
-   "seed": 102,
-   "cer": 0.028
+   "sec": 2.96,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "ef10c54c6eca2cdc",
@@ -1550,9 +1572,9 @@
    "src": "story:ch7_open:2:a",
    "who": "kiskac",
    "tts": "Festival zamanı!",
-   "sec": 2.92,
-   "seed": 102,
-   "cer": 0.067
+   "sec": 1.53,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "6dfc988be6c81123",
@@ -1561,8 +1583,8 @@
    "src": "story:ch7_close:0:text",
    "who": "narrator",
    "tts": "Fenerler birer birer yandı.",
-   "sec": 2.93,
-   "seed": 7,
+   "sec": 2.21,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1572,9 +1594,9 @@
    "src": "story:ch7_close:0:a",
    "who": "narrator",
    "tts": "Fenerler yandı!",
-   "sec": 1.25,
-   "seed": 102,
-   "cer": 0.071
+   "sec": 1.42,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "22c8d7b0b1ba65ec",
@@ -1583,8 +1605,8 @@
    "src": "story:ch7_close:1:text",
    "who": "pus",
    "tts": "Ben de gelebilir miyim?",
-   "sec": 5.0,
-   "seed": 7,
+   "sec": 1.42,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1594,9 +1616,9 @@
    "src": "story:ch7_close:2:text",
    "who": "okti",
    "tts": "Elbette! Bak, ışıkta renk renk oldun!",
-   "sec": 3.26,
-   "seed": 7,
-   "cer": 0.029
+   "sec": 3.21,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "d9b5c787ac624478",
@@ -1605,9 +1627,9 @@
    "src": "story:ch7_close:2:a",
    "who": "okti",
    "tts": "Elbette! Renk renk oldun!",
-   "sec": 2.9,
-   "seed": 7,
-   "cer": 0.043
+   "sec": 2.48,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "f5b236ea7c07d278",
@@ -1616,8 +1638,8 @@
    "src": "story:ch7_close:3:text",
    "who": "narrator",
    "tts": "Gökyüzünde bir gökkuşağı belirdi.",
-   "sec": 2.89,
-   "seed": 7,
+   "sec": 2.52,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1627,8 +1649,8 @@
    "src": "story:ch7_close:3:a",
    "who": "narrator",
    "tts": "Gökkuşağı çıktı!",
-   "sec": 2.08,
-   "seed": 7,
+   "sec": 1.78,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1638,9 +1660,9 @@
    "src": "story:ch8_open:0:text",
    "who": "pus",
    "tts": "Fırtına zirvede doğdu. Ben de oradan koptum.",
-   "sec": 3.88,
-   "seed": 100,
-   "cer": 0.024
+   "sec": 3.26,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "72321645bc084cd7",
@@ -1649,8 +1671,8 @@
    "src": "story:ch8_open:0:a",
    "who": "pus",
    "tts": "Ben zirvede doğdum.",
-   "sec": 1.6,
-   "seed": 101,
+   "sec": 1.47,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1660,9 +1682,9 @@
    "src": "story:ch8_open:1:text",
    "who": "pus",
    "tts": "Fenerin aynası hâlâ orada.",
-   "sec": 3.04,
-   "seed": 100,
-   "cer": 0.08
+   "sec": 2.45,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "474ce65f121a433d",
@@ -1671,9 +1693,9 @@
    "src": "story:ch8_open:1:a",
    "who": "pus",
    "tts": "Ayna zirvede.",
-   "sec": 3.8,
-   "seed": 102,
-   "cer": 0.25
+   "sec": 1.33,
+   "seed": "marketing",
+   "cer": 0.0833
   },
   {
    "key": "b5368c9daacc0b04",
@@ -1682,9 +1704,9 @@
    "src": "story:ch8_open:2:text",
    "who": "okti",
    "tts": "O zaman tırmanalım!",
-   "sec": 3.42,
-   "seed": 7,
-   "cer": 0.056
+   "sec": 1.34,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "0e17b49dc26b911e",
@@ -1693,8 +1715,8 @@
    "src": "story:ch8_open:2:a",
    "who": "okti",
    "tts": "Tırmanalım!",
-   "sec": 2.89,
-   "seed": 7,
+   "sec": 1.01,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1704,8 +1726,8 @@
    "src": "story:ch8_close:0:text",
    "who": "narrator",
    "tts": "Zirveden bütün ada göründü.",
-   "sec": 4.56,
-   "seed": 7,
+   "sec": 2.07,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1715,9 +1737,9 @@
    "src": "story:ch8_close:0:a",
    "who": "narrator",
    "tts": "Bütün ada göründü!",
-   "sec": 3.32,
-   "seed": 7,
-   "cer": 0.059
+   "sec": 1.56,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "6e8cc9f39055add3",
@@ -1726,9 +1748,9 @@
    "src": "story:ch8_close:1:text",
    "who": "okti",
    "tts": "Ayna burada! Bir de... ufukta bir ışık var.",
-   "sec": 4.03,
-   "seed": 7,
-   "cer": 0.053
+   "sec": 3.39,
+   "seed": "marketing",
+   "cer": 0.027
   },
   {
    "key": "bc3b44de61416172",
@@ -1737,9 +1759,9 @@
    "src": "story:ch8_close:1:a",
    "who": "okti",
    "tts": "Ayna burada! Ufukta ışık var.",
-   "sec": 3.27,
-   "seed": 7,
-   "cer": 0.037
+   "sec": 2.62,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "9318b99bf5ca82d9",
@@ -1748,8 +1770,8 @@
    "src": "story:ch8_close:2:text",
    "who": "pus",
    "tts": "Biri adaya yolunu arıyor.",
-   "sec": 4.52,
-   "seed": 7,
+   "sec": 2.02,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1759,8 +1781,8 @@
    "src": "story:ch8_close:2:a",
    "who": "pus",
    "tts": "Biri yol arıyor.",
-   "sec": 1.26,
-   "seed": 100,
+   "sec": 1.34,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1770,9 +1792,9 @@
    "src": "story:ch9_open:0:text",
    "who": "narrator",
    "tts": "Kıskaç, Mavi, Tosbi Dede, palmiyeler ve Pus fenerin kapısında.",
-   "sec": 4.55,
-   "seed": 101,
-   "cer": 0.052
+   "sec": 5.32,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "660f3e26f5726e57",
@@ -1781,9 +1803,9 @@
    "src": "story:ch9_open:0:a",
    "who": "narrator",
    "tts": "Herkes fenerde!",
-   "sec": 2.88,
-   "seed": 7,
-   "cer": 0.357
+   "sec": 1.61,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "941d141f6788dbf0",
@@ -1792,9 +1814,9 @@
    "src": "story:ch9_open:1:text",
    "who": "okti",
    "tts": "Camı ve aynayı yerine taktım. Şimdi son taşlar!",
-   "sec": 4.1,
-   "seed": 102,
-   "cer": 0.378
+   "sec": 3.9,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "17d1c50bb3395a7b",
@@ -1803,8 +1825,8 @@
    "src": "story:ch9_open:1:a",
    "who": "okti",
    "tts": "Son taşlar kaldı!",
-   "sec": 3.62,
-   "seed": 7,
+   "sec": 1.77,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1814,9 +1836,9 @@
    "src": "story:ch9_open:2:text",
    "who": "tosbi",
    "tts": "Nur görseydi çok sevinirdi.",
-   "sec": 1.7,
-   "seed": 100,
-   "cer": 0.077
+   "sec": 2.28,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "b0d7e0f127819103",
@@ -1825,9 +1847,9 @@
    "src": "story:ch9_open:2:a",
    "who": "tosbi",
    "tts": "Nur sevinirdi.",
-   "sec": 1.32,
-   "seed": 102,
-   "cer": 0.154
+   "sec": 1.34,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "6c4a4e53a5a07f5d",
@@ -1836,8 +1858,8 @@
    "src": "story:ch9_close:0:text",
    "who": "narrator",
    "tts": "Fener yandı. Işık bütün adayı süpürdü, kalan sis kalktı.",
-   "sec": 5.44,
-   "seed": 7,
+   "sec": 4.52,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1847,9 +1869,9 @@
    "src": "story:ch9_close:0:a",
    "who": "narrator",
    "tts": "Fener yandı!",
-   "sec": 4.28,
-   "seed": 102,
-   "cer": 0.818
+   "sec": 1.4,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "192989ab55774ed9",
@@ -1858,9 +1880,9 @@
    "src": "story:ch9_close:1:text",
    "who": "pus",
    "tts": "Artık sis değilim... yağmur bulutuyum! Bahçeyi sularım.",
-   "sec": 2.89,
-   "seed": 100,
-   "cer": 0.06
+   "sec": 3.97,
+   "seed": "marketing",
+   "cer": 0.02
   },
   {
    "key": "5c046400b5941514",
@@ -1869,8 +1891,8 @@
    "src": "story:ch9_close:1:a",
    "who": "pus",
    "tts": "Ben yağmur bulutuyum!",
-   "sec": 3.15,
-   "seed": 7,
+   "sec": 1.67,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1880,8 +1902,8 @@
    "src": "story:ch9_close:2:text",
    "who": "narrator",
    "tts": "Ufuktaki tekne ışığı izleyip kıyıya yanaştı.",
-   "sec": 2.88,
-   "seed": 100,
+   "sec": 3.27,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1891,8 +1913,8 @@
    "src": "story:ch9_close:2:a",
    "who": "narrator",
    "tts": "Bir tekne geldi.",
-   "sec": 1.07,
-   "seed": 7,
+   "sec": 1.54,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1902,9 +1924,9 @@
    "src": "story:ch9_close:3:text",
    "who": "nur",
    "tts": "Fenerimi kim yaktı? Teşekkür ederim, Okti.",
-   "sec": 2.2,
-   "seed": 7,
-   "cer": 0.077
+   "sec": 3.38,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "512e186c9e61203a",
@@ -1913,8 +1935,8 @@
    "src": "story:ch9_close:3:a",
    "who": "nur",
    "tts": "Teşekkür ederim, Okti!",
-   "sec": 1.45,
-   "seed": 101,
+   "sec": 1.93,
+   "seed": "marketing",
    "cer": 0.1
   },
   {
@@ -1924,8 +1946,8 @@
    "src": "story:ch9_close:4:text",
    "who": "narrator",
    "tts": "Işık Adası yeniden ışıkla doldu.",
-   "sec": 2.29,
-   "seed": 7,
+   "sec": 2.27,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1935,8 +1957,8 @@
    "src": "story:ch9_close:4:a",
    "who": "narrator",
    "tts": "Ada yeniden ışıkla doldu!",
-   "sec": 3.4,
-   "seed": 7,
+   "sec": 2.11,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1945,10 +1967,10 @@
    "role": "adali",
    "src": "request:req_kiskac_stone",
    "who": "kiskac",
-   "tts": "Vitrinim için üç taş bulur musun?",
-   "sec": 2.96,
-   "seed": 7,
-   "cer": 0.125
+   "tts": "Vitrinim için 3 taş bulur musun?",
+   "sec": 2.62,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "9905c2d26bee0297",
@@ -1956,10 +1978,10 @@
    "role": "adali",
    "src": "request:req_mavi_branch",
    "who": "mavi",
-   "tts": "Posta çantamı onarmak için iki dal lazım.",
-   "sec": 2.52,
-   "seed": 7,
-   "cer": 0.05
+   "tts": "Posta çantamı onarmak için 2 dal lazım.",
+   "sec": 3.33,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "cb0d9b5a755e788f",
@@ -1967,9 +1989,9 @@
    "role": "adali",
    "src": "request:req_pitir_wood",
    "who": "pitir",
-   "tts": "Yanımıza bir oturak yapar mısın? dört odun yeter.",
-   "sec": 4.08,
-   "seed": 100,
+   "tts": "Yanımıza bir oturak yapar mısın? 4 odun yeter.",
+   "sec": 3.66,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1978,9 +2000,9 @@
    "role": "adali",
    "src": "request:req_tosbi_fish",
    "who": "tosbi",
-   "tts": "Bana iki balık getirirsen sana bir şey anlatacağım.",
-   "sec": 3.72,
-   "seed": 7,
+   "tts": "Bana 2 balık getirirsen sana bir şey anlatacağım.",
+   "sec": 3.14,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -1989,10 +2011,10 @@
    "role": "adali",
    "src": "request:req_kiskac_coconut",
    "who": "kiskac",
-   "tts": "Tezgâhıma iki hindistan cevizi koyalım mı?",
-   "sec": 2.35,
-   "seed": 101,
-   "cer": 0.024
+   "tts": "Tezgâhıma 2 hindistan cevizi koyalım mı?",
+   "sec": 3.07,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "b3ef9d6fb897e531",
@@ -2001,31 +2023,31 @@
    "src": "request:req_hisir_carrot",
    "who": "hisir",
    "tts": "...bir havuç alabilir miyiz?",
-   "sec": 1.37,
-   "seed": 7,
+   "sec": 1.74,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
-   "key": "41eddac1de9e54dd",
-   "text": "Solda kaydır: Okti yürüsün!",
+   "key": "705b7ac91d197822",
+   "text": "Parmağını kaydır: Okti yürüsün!",
    "role": "anlatici",
    "src": "tr:tip.walk",
    "who": "narrator",
-   "tts": "Solda kaydır: Okti yürüsün!",
-   "sec": 1.85,
-   "seed": 102,
-   "cer": 0.16
+   "tts": "Parmağını kaydır: Okti yürüsün!",
+   "sec": 2.46,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
-   "key": "e7a13a31fa34f049",
-   "text": "Sağda kaydır: etrafa bak!",
+   "key": "eb450c5e12b192d5",
+   "text": "Bir yere dokun: Okti oraya yürüsün!",
    "role": "anlatici",
    "src": "tr:tip.look",
    "who": "narrator",
-   "tts": "Sağda kaydır: etrafa bak!",
-   "sec": 3.04,
-   "seed": 7,
-   "cer": 0.043
+   "tts": "Bir yere dokun: Okti oraya yürüsün!",
+   "sec": 2.51,
+   "seed": "marketing",
+   "cer": 0.0303
   },
   {
    "key": "8bc1266c6462a624",
@@ -2034,8 +2056,8 @@
    "src": "tr:tip.jump",
    "who": "narrator",
    "tts": "Sağ alttaki tuş: zıpla!",
-   "sec": 2.52,
-   "seed": 102,
+   "sec": 2.17,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2046,7 +2068,7 @@
    "who": "narrator",
    "tts": "Sağ alttaki kapıya bas, içeri gir!",
    "sec": 2.56,
-   "seed": 7,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2056,8 +2078,8 @@
    "src": "tr:tip.play",
    "who": "narrator",
    "tts": "Oyun var! Oyna'ya bas.",
-   "sec": 1.6,
-   "seed": 7,
+   "sec": 2.31,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2067,9 +2089,9 @@
    "src": "tr:tip.feed",
    "who": "narrator",
    "tts": "Yiyeceği Okti'nin üstüne sürükle!",
-   "sec": 2.4,
-   "seed": 102,
-   "cer": 0.065
+   "sec": 2.3,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "54f798c96e2782e3",
@@ -2078,20 +2100,31 @@
    "src": "tr:res.hi_kiskac",
    "who": "kiskac",
    "tts": "Merhaba Okti! Dükkânım hep açık.",
-   "sec": 3.4,
-   "seed": 102,
-   "cer": 0.1
+   "sec": 3.09,
+   "seed": "marketing",
+   "cer": 0.0667
   },
   {
-   "key": "c6949d848aabec6b",
-   "text": "Mektup var mı diye posta kutusuna bak!",
+   "key": "12d4209d5dfba8f4",
+   "text": "Ben postacı Mavi! Ailen sana mektup yazınca, evinin önündeki kutuya ben getiririm.",
    "role": "adali",
    "src": "tr:res.hi_mavi",
    "who": "mavi",
-   "tts": "Mektup var mı diye posta kutusuna bak!",
-   "sec": 2.81,
-   "seed": 102,
-   "cer": 0.027
+   "tts": "Ben postacı Mavi! Ailen sana mektup yazınca, evinin önündeki kutuya ben getiririm.",
+   "sec": 6.63,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "af1e2f5da1cfdea7",
+   "text": "Sana mektup getirdim! Evinin önündeki posta kutusuna bak.",
+   "role": "adali",
+   "src": "tr:res.hi_mavi_mail",
+   "who": "mavi",
+   "tts": "Sana mektup getirdim! Evinin önündeki posta kutusuna bak.",
+   "sec": 4.52,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "40c323cd16b976c4",
@@ -2100,8 +2133,8 @@
    "src": "tr:res.hi_pus",
    "who": "pus",
    "tts": "Ben Pus. Artık fırtına değil, dostum!",
-   "sec": 2.68,
-   "seed": 102,
+   "sec": 3.01,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2111,8 +2144,8 @@
    "src": "tr:tip.plant",
    "who": "narrator",
    "tts": "Tohumu tarlaların üstünden geçir!",
-   "sec": 2.52,
-   "seed": 7,
+   "sec": 2.48,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2122,8 +2155,8 @@
    "src": "tr:tip.harvest",
    "who": "narrator",
    "tts": "Orağı ürünlerin üstünden geçir!",
-   "sec": 2.55,
-   "seed": 7,
+   "sec": 2.43,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2133,8 +2166,8 @@
    "src": "tr:tip.feed_open",
    "who": "narrator",
    "tts": "Okti'ye dokun, sonra elmaya!",
-   "sec": 3.04,
-   "seed": 102,
+   "sec": 2.46,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2144,8 +2177,8 @@
    "src": "tr:tip.pet_menu",
    "who": "narrator",
    "tts": "Okti'ye dokun: besle, yıka, giydir!",
-   "sec": 2.67,
-   "seed": 7,
+   "sec": 3.09,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2155,9 +2188,9 @@
    "src": "tr:tip.wash",
    "who": "narrator",
    "tts": "Sabunu Okti'nin üstüne sürükle!",
-   "sec": 3.24,
-   "seed": 7,
-   "cer": 0.034
+   "sec": 2.24,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "cbffecd0e3bea7e3",
@@ -2166,8 +2199,8 @@
    "src": "tr:tip.tasks",
    "who": "narrator",
    "tts": "Görev yap, yıldız kazan!",
-   "sec": 1.66,
-   "seed": 7,
+   "sec": 1.96,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2177,8 +2210,8 @@
    "src": "tr:tip.xp",
    "who": "narrator",
    "tts": "Yıldız topla, seviye atla! Rozetlerin için kartına dokun.",
-   "sec": 3.77,
-   "seed": 100,
+   "sec": 4.51,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2188,8 +2221,8 @@
    "src": "tr:tip.wardrobe",
    "who": "narrator",
    "tts": "Okti'nin üstünü değiştir: ona dokun!",
-   "sec": 3.2,
-   "seed": 7,
+   "sec": 2.76,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2199,9 +2232,9 @@
    "src": "tr:tip.sparkle",
    "who": "narrator",
    "tts": "Parıltıya git, topla!",
-   "sec": 1.45,
-   "seed": 100,
-   "cer": 0.053
+   "sec": 2.01,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "1e4450f84c035893",
@@ -2210,9 +2243,9 @@
    "src": "tr:tip.overview",
    "who": "narrator",
    "tts": "Haritada adanın tamamını gör!",
-   "sec": 4.52,
-   "seed": 7,
-   "cer": 0.071
+   "sec": 2.29,
+   "seed": "marketing",
+   "cer": 0.0357
   },
   {
    "key": "9792488b7a80106e",
@@ -2221,8 +2254,8 @@
    "src": "tr:tip.shop",
    "who": "narrator",
    "tts": "Ürüne dokun, Al'a bas.",
-   "sec": 1.76,
-   "seed": 7,
+   "sec": 1.96,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2232,8 +2265,8 @@
    "src": "tr:tip.wardrobe_spots",
    "who": "narrator",
    "tts": "Noktaya dokun, giydir!",
-   "sec": 2.08,
-   "seed": 7,
+   "sec": 1.7,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2243,8 +2276,8 @@
    "src": "tr:tip.home",
    "who": "narrator",
    "tts": "Topla'ya bas, ev toplansın!",
-   "sec": 3.12,
-   "seed": 7,
+   "sec": 2.25,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2254,9 +2287,9 @@
    "src": "tr:tip.story",
    "who": "narrator",
    "tts": "Fırtınadan sonra ada sisle kaplandı. Gel, birlikte canlandıralım!",
-   "sec": 4.39,
-   "seed": 7,
-   "cer": 0.032
+   "sec": 4.93,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "404b379f29660f61",
@@ -2265,8 +2298,8 @@
    "src": "tr:tip.board",
    "who": "narrator",
    "tts": "Ev Görevleri panosuna git!",
-   "sec": 1.72,
-   "seed": 7,
+   "sec": 2.23,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2276,9 +2309,9 @@
    "src": "tr:guide.feed",
    "who": "narrator",
    "tts": "Okti'ye dokun, elmayı seç: karnı doysun!",
-   "sec": 2.53,
-   "seed": 100,
-   "cer": 0.056
+   "sec": 3.37,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "add097760df22d24",
@@ -2287,9 +2320,9 @@
    "src": "tr:guide.wash",
    "who": "narrator",
    "tts": "Okti'ye dokun, sabunu seç: tertemiz olsun!",
-   "sec": 3.92,
-   "seed": 102,
-   "cer": 0.053
+   "sec": 3.47,
+   "seed": "marketing",
+   "cer": 0.0526
   },
   {
    "key": "462a9ecdeef7023d",
@@ -2298,8 +2331,8 @@
    "src": "tr:guide.home",
    "who": "narrator",
    "tts": "Evim'e yürü ve içeri gir.",
-   "sec": 1.48,
-   "seed": 7,
+   "sec": 1.82,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2309,8 +2342,8 @@
    "src": "tr:guide.tidy",
    "who": "narrator",
    "tts": "Topla'ya dokun: ev toplansın!",
-   "sec": 3.08,
-   "seed": 7,
+   "sec": 2.42,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2320,8 +2353,8 @@
    "src": "tr:guide.wear",
    "who": "narrator",
    "tts": "Okti'nin üstüne dokun, aksesuarını tak.",
-   "sec": 5.68,
-   "seed": 7,
+   "sec": 3.03,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2331,9 +2364,9 @@
    "src": "tr:guide.board",
    "who": "narrator",
    "tts": "Ev Görevleri panosuna git: yeni taşlar burada!",
-   "sec": 4.48,
-   "seed": 7,
-   "cer": 0.023
+   "sec": 3.6,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "384353bbc381e0a8",
@@ -2342,9 +2375,9 @@
    "src": "tr:guide.gather",
    "who": "narrator",
    "tts": "Kulübe için odun, dal ve taş topla.",
-   "sec": 3.84,
-   "seed": 7,
-   "cer": 0.03
+   "sec": 3.06,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "943286e24c75987c",
@@ -2353,8 +2386,8 @@
    "src": "tr:guide.hut",
    "who": "narrator",
    "tts": "Kulübenin oraya ilerle ve yapımına başla.",
-   "sec": 3.32,
-   "seed": 103,
+   "sec": 2.79,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2363,10 +2396,10 @@
    "role": "anlatici",
    "src": "tr:guide.coconut",
    "who": "narrator",
-   "tts": "iki hindistan cevizi bul: kumsalda ara ya da bahçede oyna.",
-   "sec": 4.68,
-   "seed": 100,
-   "cer": 0.036
+   "tts": "2 hindistan cevizi bul: kumsalda ara ya da bahçede oyna.",
+   "sec": 4.43,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "9c50bb1715dc8ca3",
@@ -2375,9 +2408,9 @@
    "src": "tr:guide.shop",
    "who": "narrator",
    "tts": "Dükkâna git: ilk aksesuarını al!",
-   "sec": 2.14,
-   "seed": 7,
-   "cer": 0.033
+   "sec": 2.96,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "21bd65f3eb97c215",
@@ -2386,8 +2419,8 @@
    "src": "tr:guide.stone",
    "who": "narrator",
    "tts": "Görevle kazandığın taşı koydaki sise götür!",
-   "sec": 4.78,
-   "seed": 7,
+   "sec": 3.01,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2397,8 +2430,8 @@
    "src": "tr:guide.press:Gir",
    "who": "narrator",
    "tts": "Sağ alttaki Gir tuşuna bas!",
-   "sec": 1.72,
-   "seed": 7,
+   "sec": 2.09,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2408,8 +2441,8 @@
    "src": "tr:guide.press:Oyna",
    "who": "narrator",
    "tts": "Sağ alttaki Oyna tuşuna bas!",
-   "sec": 2.12,
-   "seed": 7,
+   "sec": 2.13,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2419,8 +2452,8 @@
    "src": "tr:guide.press:Topla",
    "who": "narrator",
    "tts": "Sağ alttaki Topla tuşuna bas!",
-   "sec": 2.04,
-   "seed": 7,
+   "sec": 2.34,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2430,8 +2463,8 @@
    "src": "tr:guide.press:Kes",
    "who": "narrator",
    "tts": "Sağ alttaki Kes tuşuna bas!",
-   "sec": 1.96,
-   "seed": 7,
+   "sec": 2.14,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2441,9 +2474,9 @@
    "src": "tr:guide.press:Kır",
    "who": "narrator",
    "tts": "Sağ alttaki Kır tuşuna bas!",
-   "sec": 2.0,
-   "seed": 105,
-   "cer": 0.038
+   "sec": 2.12,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "284ce09e92499452",
@@ -2452,8 +2485,8 @@
    "src": "tr:guide.press:İnşa et",
    "who": "narrator",
    "tts": "Sağ alttaki İnşa et tuşuna bas!",
-   "sec": 3.2,
-   "seed": 100,
+   "sec": 2.47,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2463,8 +2496,8 @@
    "src": "tr:guide.press:Taşı koy",
    "who": "narrator",
    "tts": "Sağ alttaki Taşı koy tuşuna bas!",
-   "sec": 1.88,
-   "seed": 101,
+   "sec": 2.53,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2474,9 +2507,9 @@
    "src": "tr:guide.press:Odun at",
    "who": "narrator",
    "tts": "Sağ alttaki Odun at tuşuna bas!",
-   "sec": 1.92,
-   "seed": 7,
-   "cer": 0.033
+   "sec": 2.31,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "682121c3b028a540",
@@ -2485,8 +2518,30 @@
    "src": "tr:guide.pick_feed",
    "who": "narrator",
    "tts": "Elmaya dokun!",
-   "sec": 0.98,
-   "seed": 7,
+   "sec": 1.26,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "b1c1fc106c40acd6",
+   "text": "Topa dokun: birlikte oynayın!",
+   "role": "anlatici",
+   "src": "tr:guide.pick_play",
+   "who": "narrator",
+   "tts": "Topa dokun: birlikte oynayın!",
+   "sec": 2.27,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "3b3e42fa4fc91e5b",
+   "text": "Okti'ye dokun, birlikte top oynayın!",
+   "role": "anlatici",
+   "src": "tr:guide.play_pet",
+   "who": "narrator",
+   "tts": "Okti'ye dokun, birlikte top oynayın!",
+   "sec": 2.69,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2496,8 +2551,8 @@
    "src": "tr:guide.pick_wash",
    "who": "narrator",
    "tts": "Sabuna dokun!",
-   "sec": 2.8,
-   "seed": 7,
+   "sec": 1.33,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2507,8 +2562,8 @@
    "src": "tr:guide.pick_wear",
    "who": "narrator",
    "tts": "Giydir'e dokun!",
-   "sec": 0.91,
-   "seed": 101,
+   "sec": 1.28,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2518,9 +2573,9 @@
    "src": "tr:guide.close",
    "who": "narrator",
    "tts": "Çarpıya bas, adaya dön!",
-   "sec": 3.92,
-   "seed": 7,
-   "cer": 0.143
+   "sec": 2.03,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "1a633b38f631ceaf",
@@ -2529,9 +2584,9 @@
    "src": "tr:guide.levelup_ok",
    "who": "narrator",
    "tts": "Harika'ya bas!",
-   "sec": 1.0,
-   "seed": 100,
-   "cer": 0.0
+   "sec": 1.23,
+   "seed": "marketing",
+   "cer": 0.0833
   },
   {
    "key": "e020978d88ffbf72",
@@ -2540,8 +2595,8 @@
    "src": "tr:guide.wear_slot",
    "who": "narrator",
    "tts": "Aksesuarının yerine dokun!",
-   "sec": 3.84,
-   "seed": 7,
+   "sec": 2.07,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2551,8 +2606,8 @@
    "src": "tr:guide.wear_item:Yuvarlak gözlük",
    "who": "narrator",
    "tts": "Yuvarlak gözlük: dokun, tak!",
-   "sec": 2.36,
-   "seed": 7,
+   "sec": 2.45,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2562,8 +2617,8 @@
    "src": "tr:guide.wear_item:Güneş gözlüğü",
    "who": "narrator",
    "tts": "Güneş gözlüğü: dokun, tak!",
-   "sec": 2.36,
-   "seed": 7,
+   "sec": 2.56,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2573,8 +2628,8 @@
    "src": "tr:guide.wear_item:Çizgili tişört",
    "who": "narrator",
    "tts": "Çizgili tişört: dokun, tak!",
-   "sec": 2.36,
-   "seed": 106,
+   "sec": 2.47,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2584,9 +2639,9 @@
    "src": "tr:guide.wear_item:Çiçekli gömlek",
    "who": "narrator",
    "tts": "Çiçekli gömlek: dokun, tak!",
-   "sec": 2.4,
-   "seed": 7,
-   "cer": 0.042
+   "sec": 2.49,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "f0161034a85b9119",
@@ -2595,8 +2650,8 @@
    "src": "tr:guide.wear_item:Denizci önlüğü",
    "who": "narrator",
    "tts": "Denizci önlüğü: dokun, tak!",
-   "sec": 2.28,
-   "seed": 104,
+   "sec": 2.58,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2606,8 +2661,8 @@
    "src": "tr:guide.wear_item:Örgü atkı",
    "who": "narrator",
    "tts": "Örgü atkı: dokun, tak!",
-   "sec": 2.36,
-   "seed": 7,
+   "sec": 2.17,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2617,8 +2672,8 @@
    "src": "tr:guide.wear_item:Arma (sırt yaması)",
    "who": "narrator",
    "tts": "Arma, sırt yaması: dokun, tak!",
-   "sec": 3.16,
-   "seed": 100,
+   "sec": 2.81,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2628,8 +2683,8 @@
    "src": "tr:guide.wear_item:Bayrakçık",
    "who": "narrator",
    "tts": "Bayrakçık: dokun, tak!",
-   "sec": 2.64,
-   "seed": 7,
+   "sec": 2.06,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2639,9 +2694,20 @@
    "src": "tr:guide.wear_item:Kova şapka",
    "who": "narrator",
    "tts": "Kova şapka: dokun, tak!",
-   "sec": 4.2,
-   "seed": 7,
-   "cer": 0.05
+   "sec": 2.26,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "32660ae98d9ff104",
+   "text": "Rehber görevi tamam!",
+   "role": "anlatici",
+   "src": "tr:guide.done.say",
+   "who": "narrator",
+   "tts": "Rehber görevi tamam!",
+   "sec": 1.63,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "e6660ad2dc4dfa59",
@@ -2650,9 +2716,9 @@
    "src": "tr:tip.mark",
    "who": "narrator",
    "tts": "Görevi yapınca Yaptıma bas!",
-   "sec": 1.64,
-   "seed": 102,
-   "cer": 0.115
+   "sec": 2.02,
+   "seed": "marketing",
+   "cer": 0.0769
   },
   {
    "key": "970acf480b821ac6",
@@ -2661,9 +2727,9 @@
    "src": "tr:tip.stone",
    "who": "narrator",
    "tts": "Güneş Taşını yerleştir, sis kalksın!",
-   "sec": 4.76,
-   "seed": 7,
-   "cer": 0.029
+   "sec": 2.97,
+   "seed": "marketing",
+   "cer": 0.0294
   },
   {
    "key": "9095eb9334346648",
@@ -2672,9 +2738,9 @@
    "src": "tr:tip.stone_spot",
    "who": "narrator",
    "tts": "Sisli yere git, taşı koy!",
-   "sec": 3.2,
-   "seed": 7,
-   "cer": 0.13
+   "sec": 2.22,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "a402e79cabb0ac68",
@@ -2683,8 +2749,8 @@
    "src": "tr:tip.tasks_home",
    "who": "narrator",
    "tts": "Ailenden gelen görevler burada. Yapınca Güneş Taşı kazanırsın!",
-   "sec": 3.69,
-   "seed": 7,
+   "sec": 4.31,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2694,9 +2760,9 @@
    "src": "tr:tip.tasks_done",
    "who": "narrator",
    "tts": "Yaptın mı? Yaptıma bas, Mavi ailene götürsün.",
-   "sec": 4.68,
-   "seed": 101,
-   "cer": 0.048
+   "sec": 4.06,
+   "seed": "marketing",
+   "cer": 0.0476
   },
   {
    "key": "4bd33d627fcc39b5",
@@ -2705,8 +2771,8 @@
    "src": "tr:tip.tasks_game",
    "who": "narrator",
    "tts": "Oyun görevleri yıldız verir. Hepsini bitir, sandığı aç!",
-   "sec": 5.04,
-   "seed": 7,
+   "sec": 4.5,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2716,9 +2782,9 @@
    "src": "tr:gather.tip_axe",
    "who": "narrator",
    "tts": "Baltayla kütüğü kes! Sağ alttaki tuşa bas.",
-   "sec": 2.8,
-   "seed": 7,
-   "cer": 0.025
+   "sec": 3.53,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "1737784373ccc38c",
@@ -2727,9 +2793,9 @@
    "src": "tr:gather.tip_hand",
    "who": "narrator",
    "tts": "Çalıdan dal topla!",
-   "sec": 2.76,
-   "seed": 7,
-   "cer": 0.118
+   "sec": 1.94,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "359fa97bca847a94",
@@ -2738,9 +2804,9 @@
    "src": "tr:gather.tip_pickaxe",
    "who": "narrator",
    "tts": "Kazmayla taşı kır!",
-   "sec": 1.48,
-   "seed": 101,
-   "cer": 0.059
+   "sec": 1.73,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "530e750890342c0c",
@@ -2749,9 +2815,9 @@
    "src": "tr:gather.tip_site",
    "who": "narrator",
    "tts": "Kulübe yeri! Odun, dal ve taş topla.",
-   "sec": 3.44,
-   "seed": 7,
-   "cer": 0.03
+   "sec": 3.58,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "c7038c441d42f2c6",
@@ -2760,9 +2826,9 @@
    "src": "tr:gather.tip_build",
    "who": "narrator",
    "tts": "Malzemeler tamam! Yap'a bas.",
-   "sec": 2.0,
-   "seed": 7,
-   "cer": 0.08
+   "sec": 2.41,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "e3ca72e419c1755a",
@@ -2771,9 +2837,9 @@
    "src": "tr:gather.ready",
    "who": "narrator",
    "tts": "Malzemeler tamam! Kulübe yerine git.",
-   "sec": 2.45,
-   "seed": 7,
-   "cer": 0.059
+   "sec": 2.85,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "53353ce41fe8ad46",
@@ -2782,9 +2848,31 @@
    "src": "tr:guide.play",
    "who": "narrator",
    "tts": "Oyna'ya dokun: Okti mutlu olsun!",
-   "sec": 1.97,
-   "seed": 7,
-   "cer": 0.034
+   "sec": 2.5,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "ee0eff24158bcc01",
+   "text": "Bir görevin bitti! Yıldıza dokun, ödülünü al.",
+   "role": "anlatici",
+   "src": "tr:guide.quests",
+   "who": "narrator",
+   "tts": "Bir görevin bitti! Yıldıza dokun, ödülünü al.",
+   "sec": 3.54,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "65706546816c49e2",
+   "text": "Bu görevi bitirdin! Al'a dokun, ödülün senin.",
+   "role": "anlatici",
+   "src": "tr:guide.quests_claim",
+   "who": "narrator",
+   "tts": "Bu görevi bitirdin! Al'a dokun, ödülün senin.",
+   "sec": 3.4,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "9539ce0707d58e71",
@@ -2793,9 +2881,9 @@
    "src": "tr:guide.shop_pick",
    "who": "narrator",
    "tts": "Bu aksesuar sana yeter! Seçili, Al'a bas.",
-   "sec": 2.76,
-   "seed": 101,
-   "cer": 0.027
+   "sec": 4.02,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "9856eb4453e0e995",
@@ -2804,9 +2892,9 @@
    "src": "tr:guide.kiskac",
    "who": "narrator",
    "tts": "Kıskaç seni bekliyor: yanına git!",
-   "sec": 2.6,
-   "seed": 7,
-   "cer": 0.065
+   "sec": 2.62,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "e3a06c0eda726064",
@@ -2815,8 +2903,8 @@
    "src": "tr:guide.deliver",
    "who": "narrator",
    "tts": "Hindistan cevizlerini Kıskaç'a götür!",
-   "sec": 4.33,
-   "seed": 7,
+   "sec": 2.76,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2826,20 +2914,20 @@
    "src": "tr:guide.mavi",
    "who": "narrator",
    "tts": "Adayı biraz dolaş, keşfet!",
-   "sec": 2.72,
-   "seed": 7,
+   "sec": 2.4,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
-   "key": "efc20cc54f3c4c1a",
-   "text": "Kıskaç'tan hoş geldin hediyesi: 20 coin! İlk aksesuarını alabilirsin.",
+   "key": "ea89dad54371fb86",
+   "text": "Kıskaç'tan hoş geldin hediyesi: 20 tane inci! İlk aksesuarını alabilirsin.",
    "role": "anlatici",
    "src": "tr:welcome.coins",
    "who": "narrator",
-   "tts": "Kıskaç'tan hoş geldin hediyesi: yirmi coin! İlk aksesuarını alabilirsin.",
-   "sec": 4.03,
-   "seed": 102,
-   "cer": 0.015
+   "tts": "Kıskaç'tan hoş geldin hediyesi: 20 tane inci! İlk aksesuarını alabilirsin.",
+   "sec": 6.13,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "d0d374892a320aeb",
@@ -2848,9 +2936,9 @@
    "src": "tr:gather.coconut_got",
    "who": "narrator",
    "tts": "Bir hindistan cevizi buldun!",
-   "sec": 3.2,
-   "seed": 7,
-   "cer": 0.037
+   "sec": 2.06,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "1a1ea375f8122f0c",
@@ -2858,10 +2946,10 @@
    "role": "anlatici",
    "src": "tr:gather.coconut_ready",
    "who": "narrator",
-   "tts": "iki hindistan cevizin oldu! Kıskaç'a götür.",
-   "sec": 2.44,
-   "seed": 100,
-   "cer": 0.025
+   "tts": "2 hindistan cevizin oldu! Kıskaç'a götür.",
+   "sec": 3.45,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "009649398cc7a21d",
@@ -2870,8 +2958,8 @@
    "src": "tr:gather.tip_coconut",
    "who": "narrator",
    "tts": "Hindistan cevizi! Topla'ya bas.",
-   "sec": 2.08,
-   "seed": 7,
+   "sec": 2.76,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2881,9 +2969,9 @@
    "src": "tr:rewards.pick",
    "who": "narrator",
    "tts": "Bir ödüle dokun, sonra İste'ye bas!",
-   "sec": 2.48,
-   "seed": 100,
-   "cer": 0.031
+   "sec": 2.67,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "bc46eaf845ecadc7",
@@ -2892,9 +2980,9 @@
    "src": "tr:rewards.first_sent",
    "who": "narrator",
    "tts": "İlk isteğin ailene gitti! Onaylayınca sana haber gelir.",
-   "sec": 9.68,
-   "seed": 7,
-   "cer": 0.019
+   "sec": 4.37,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "313d92e501a0422f",
@@ -2903,9 +2991,9 @@
    "src": "tr:rewards.new_map",
    "who": "narrator",
    "tts": "Yeni: Gerçek ödüller! Dükkâna git.",
-   "sec": 3.48,
-   "seed": 7,
-   "cer": 0.032
+   "sec": 3.18,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "29ea2b984e312fa0",
@@ -2913,9 +3001,9 @@
    "role": "anlatici",
    "src": "tr:guide.fire",
    "who": "narrator",
-   "tts": "Kamp ateşine git, iki odun at!",
-   "sec": 4.64,
-   "seed": 7,
+   "tts": "Kamp ateşine git, 2 odun at!",
+   "sec": 2.68,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2925,9 +3013,9 @@
    "src": "tr:gather.tip_biglog",
    "who": "narrator",
    "tts": "Kocaman kütük! Baltayla birkaç kez vur, çok odun verir.",
-   "sec": 4.4,
-   "seed": 100,
-   "cer": 0.038
+   "sec": 4.27,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "3fe00c763f29306f",
@@ -2936,8 +3024,8 @@
    "src": "tr:tip.map_far",
    "who": "narrator",
    "tts": "Nereye gideceğini bulamadın mı? Haritaya bak!",
-   "sec": 2.68,
-   "seed": 7,
+   "sec": 3.28,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2947,9 +3035,9 @@
    "src": "tr:tip.map_pin",
    "who": "narrator",
    "tts": "Sarı im, gideceğin yeri gösterir. İme dokun, oklar yolu göstersin!",
-   "sec": 3.84,
-   "seed": 101,
-   "cer": 0.016
+   "sec": 5.07,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "d025870943186928",
@@ -2958,8 +3046,8 @@
    "src": "tr:res.hi_tosbi",
    "who": "tosbi",
    "tts": "Merhaba evlat. Acele etme, deniz hep bekler.",
-   "sec": 3.21,
-   "seed": 100,
+   "sec": 3.76,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2969,9 +3057,9 @@
    "src": "tr:res.hi_pitir",
    "who": "pitir",
    "tts": "Merhaba Okti! Bugün cevizlerimiz çok tatlı!",
-   "sec": 3.64,
-   "seed": 7,
-   "cer": 0.098
+   "sec": 3.57,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "9a657605eb7a798d",
@@ -2980,8 +3068,8 @@
    "src": "tr:res.hi_hisir",
    "who": "hisir",
    "tts": "Çok tatlı... Merhaba.",
-   "sec": 1.68,
-   "seed": 100,
+   "sec": 1.8,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -2991,8 +3079,8 @@
    "src": "tr:guide.gift",
    "who": "narrator",
    "tts": "Mavi panoya sana bir görev bıraktı: panoya git!",
-   "sec": 4.48,
-   "seed": 7,
+   "sec": 3.66,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -3002,9 +3090,9 @@
    "src": "tr:guide.clear",
    "who": "narrator",
    "tts": "Hediye Güneş Taşı'nı kullanarak sisi dağıt, kulübe açığa çıksın!",
-   "sec": 4.2,
-   "seed": 7,
-   "cer": 0.016
+   "sec": 4.31,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "78719aeee332a8e4",
@@ -3013,8 +3101,8 @@
    "src": "tr:pet.meet_intro",
    "who": "okti",
    "tts": "Ben meraklı ve şakacı bir ahtapotum. Seninle adayı keşfetmek istiyorum.",
-   "sec": 4.83,
-   "seed": 7,
+   "sec": 4.65,
+   "seed": "marketing",
    "cer": 0.0
   },
   {
@@ -3024,9 +3112,9 @@
    "src": "tr:welcome_task.tip",
    "who": "narrator",
    "tts": "Mavi'nin görevini yaptın! Yaptıma bas.",
-   "sec": 2.32,
-   "seed": 7,
-   "cer": 0.057
+   "sec": 3.08,
+   "seed": "marketing",
+   "cer": 0.0571
   },
   {
    "key": "c5d5ef365e37f1fc",
@@ -3035,20 +3123,1703 @@
    "src": "tr:info.child",
    "who": "narrator",
    "tts": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği görevleri. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
-   "sec": 24.24,
-   "seed": 100,
-   "cer": 0.012
+   "sec": 30.37,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
-   "key": "ba234335a9da5d96",
-   "text": "Coin'ler adanın parasıdır. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+   "key": "520d41051196d163",
+   "text": "İnciler adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
    "role": "anlatici",
    "src": "tr:coin.info",
    "who": "narrator",
-   "tts": "Coin'ler adanın parasıdır. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
-   "sec": 11.72,
-   "seed": 7,
-   "cer": 0.015
+   "tts": "İnciler adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+   "sec": 13.82,
+   "seed": "marketing",
+   "cer": 0.0051
+  },
+  {
+   "key": "3a1c2b938a577e99",
+   "text": "Bu, daha sonraki bir seviyede açılır.",
+   "role": "anlatici",
+   "src": "tr:shop.locked.say",
+   "who": "narrator",
+   "tts": "Bu, daha sonraki bir seviyede açılır.",
+   "sec": 2.76,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "219ebf3e07ac395b",
+   "text": "Yeni bir şey buldun! Deftere eklendi.",
+   "role": "anlatici",
+   "src": "tr:map.sparkle_new.say",
+   "who": "narrator",
+   "tts": "Yeni bir şey buldun! Deftere eklendi.",
+   "sec": 2.96,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "22f31ac3004295b5",
+   "text": "Bunu yine buldun!",
+   "role": "anlatici",
+   "src": "tr:map.sparkle_again.say",
+   "who": "narrator",
+   "tts": "Bunu yine buldun!",
+   "sec": 1.43,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "c39f739e6e8e005d",
+   "text": "Hasat ettin!",
+   "role": "anlatici",
+   "src": "tr:garden.harvested.say",
+   "who": "narrator",
+   "tts": "Hasat ettin!",
+   "sec": 1.24,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "d3a9e1a6938f6cae",
+   "text": "Burası daha sonraki bir seviyede açılır.",
+   "role": "anlatici",
+   "src": "tr:map.locked.say",
+   "who": "narrator",
+   "tts": "Burası daha sonraki bir seviyede açılır.",
+   "sec": 2.98,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "ced62f7dae5e9fcb",
+   "text": "Burası yakında açılacak!",
+   "role": "anlatici",
+   "src": "tr:map.soon.say",
+   "who": "narrator",
+   "tts": "Burası yakında açılacak!",
+   "sec": 1.96,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "627b64b471f96068",
+   "text": "Tohumlar bahçede ekilir.",
+   "role": "anlatici",
+   "src": "tr:bag.seed_tip.say",
+   "who": "narrator",
+   "tts": "Tohumlar bahçede ekilir.",
+   "sec": 2.03,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "bfd662d174e70c01",
+   "text": "Malzemeler kulübe ve istekler için.",
+   "role": "anlatici",
+   "src": "tr:bag.mat_tip.say",
+   "who": "narrator",
+   "tts": "Malzemeler kulübe ve istekler için.",
+   "sec": 2.47,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "eee419e79d821ec7",
+   "text": "Taş yerleşti! Biraz daha taş lazım.",
+   "role": "anlatici",
+   "src": "tr:stones.placed_more.say",
+   "who": "narrator",
+   "tts": "Taş yerleşti! Biraz daha taş lazım.",
+   "sec": 3.29,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "f51824699625d286",
+   "text": "Önce sıradaki yeri onarmalıyız.",
+   "role": "anlatici",
+   "src": "tr:stones.not_next.say",
+   "who": "narrator",
+   "tts": "Önce sıradaki yeri onarmalıyız.",
+   "sec": 2.34,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "5120fa4aebae1055",
+   "text": "Güneş Taşı kazandın!",
+   "role": "anlatici",
+   "src": "tr:stones.earned.say",
+   "who": "narrator",
+   "tts": "Güneş Taşı kazandın!",
+   "sec": 1.74,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "2bfc8414e07691dd",
+   "text": "Burayı açmak için Güneş Taşı gerekiyor.",
+   "role": "anlatici",
+   "src": "tr:map.locked_stones.say",
+   "who": "narrator",
+   "tts": "Burayı açmak için Güneş Taşı gerekiyor.",
+   "sec": 2.82,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "bd5c3e4d200f10e8",
+   "text": "Görevin tamam! Ödülün Görev'de seni bekliyor.",
+   "role": "anlatici",
+   "src": "tr:quest.ready.say",
+   "who": "narrator",
+   "tts": "Görevin tamam! Ödülün Görev'de seni bekliyor.",
+   "sec": 3.34,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "4d4058d8b3d088a3",
+   "text": "Oraya yürüyerek gidebilirsin.",
+   "role": "anlatici",
+   "src": "tr:map.overview_walk.say",
+   "who": "narrator",
+   "tts": "Oraya yürüyerek gidebilirsin.",
+   "sec": 1.96,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "6b4c7ee8a31aa917",
+   "text": "Hediyen Evim'e gitti.",
+   "role": "anlatici",
+   "src": "tr:levelup.home.say",
+   "who": "narrator",
+   "tts": "Hediyen Evim'e gitti.",
+   "sec": 1.78,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "0927928ca4aee4e9",
+   "text": "Hediyelerin Evim'e gitti.",
+   "role": "anlatici",
+   "src": "tr:levelup.home_n.say",
+   "who": "narrator",
+   "tts": "Hediyelerin Evim'e gitti.",
+   "sec": 1.82,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "d6072e97d75a1dfe",
+   "text": "Rutin tamam!",
+   "role": "anlatici",
+   "src": "tr:routine.done_toast.say",
+   "who": "narrator",
+   "tts": "Rutin tamam!",
+   "sec": 1.18,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "5b7ea7c0be3c9906",
+   "text": "Bekleyen bir isteğin var. Ailen bakınca yenisini isteyebilirsin.",
+   "role": "anlatici",
+   "src": "tr:rewards.one_at_a_time.say",
+   "who": "narrator",
+   "tts": "Bekleyen bir isteğin var. Ailen bakınca yenisini isteyebilirsin.",
+   "sec": 4.23,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "379b29907f60c6a7",
+   "text": "Biraz daha Güneş Taşı lazım.",
+   "role": "anlatici",
+   "src": "tr:rewards.left.say",
+   "who": "narrator",
+   "tts": "Biraz daha Güneş Taşı lazım.",
+   "sec": 2.23,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "208046dd2eb2b0b1",
+   "text": "Ödülün hazır!",
+   "role": "anlatici",
+   "src": "tr:notice.reward_given.say",
+   "who": "narrator",
+   "tts": "Ödülün hazır!",
+   "sec": 1.35,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "1ec9448e262dfcc9",
+   "text": "Bu istek şimdilik olmadı. Başka zaman yine isteyebilirsin.",
+   "role": "anlatici",
+   "src": "tr:notice.reward_waits.say",
+   "who": "narrator",
+   "tts": "Bu istek şimdilik olmadı. Başka zaman yine isteyebilirsin.",
+   "sec": 4.19,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "5204b4d4a18832c3",
+   "text": "Ailen Güneş Taşı düştü.",
+   "role": "anlatici",
+   "src": "tr:notice.stones_deducted.say",
+   "who": "narrator",
+   "tts": "Ailen Güneş Taşı düştü.",
+   "sec": 2.0,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "4296f23867da3ecc",
+   "text": "Aferin! Görevin onaylandı.",
+   "role": "anlatici",
+   "src": "tr:notice.approved_one.say",
+   "who": "narrator",
+   "tts": "Aferin! Görevin onaylandı.",
+   "sec": 2.42,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "c8b3197ada5fe44d",
+   "text": "Ailen bir görevini bir daha denemeni istiyor.",
+   "role": "anlatici",
+   "src": "tr:notice.retry_one.say",
+   "who": "narrator",
+   "tts": "Ailen bir görevini bir daha denemeni istiyor.",
+   "sec": 2.95,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "82210c47f473e456",
+   "text": "Ailen bazı görevleri bir daha denemeni istiyor.",
+   "role": "anlatici",
+   "src": "tr:notice.retry_many.say",
+   "who": "narrator",
+   "tts": "Ailen bazı görevleri bir daha denemeni istiyor.",
+   "sec": 3.3,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "26617ea974e9d6fa",
+   "text": "Sana bir hediye geldi! Posta kutuna bak.",
+   "role": "anlatici",
+   "src": "tr:notice.gift_one.say",
+   "who": "narrator",
+   "tts": "Sana bir hediye geldi! Posta kutuna bak.",
+   "sec": 2.98,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "f283d97e410052f3",
+   "text": "Hediyeler geldi! Posta kutuna bak.",
+   "role": "anlatici",
+   "src": "tr:notice.gift_many.say",
+   "who": "narrator",
+   "tts": "Hediyeler geldi! Posta kutuna bak.",
+   "sec": 2.68,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "54e1595d0f763d6b",
+   "text": "Aferin! Görevlerin onaylandı.",
+   "role": "anlatici",
+   "src": "tr:notice.approved_many.say",
+   "who": "narrator",
+   "tts": "Aferin! Görevlerin onaylandı.",
+   "sec": 2.74,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "b5b90d2c5c74fee4",
+   "text": "Ev Görevleri panosunda yeni görevler var.",
+   "role": "anlatici",
+   "src": "tr:notice.new_task_many.say",
+   "who": "narrator",
+   "tts": "Ev Görevleri panosunda yeni görevler var.",
+   "sec": 3.19,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "e289574e7a279994",
+   "text": "Ailenden yeni görevler var! Yapınca Güneş Taşı kazanırsın.",
+   "role": "adali",
+   "src": "tr:mavi.news_many.say",
+   "who": "mavi",
+   "tts": "Ailenden yeni görevler var! Yapınca Güneş Taşı kazanırsın.",
+   "sec": 4.54,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "36a20a1a88c98d67",
+   "text": "Ailenden bir not getirdim! Bir görevini bir daha dener misin?",
+   "role": "adali",
+   "src": "tr:mavi.retry_one.say",
+   "who": "mavi",
+   "tts": "Ailenden bir not getirdim! Bir görevini bir daha dener misin?",
+   "sec": 4.56,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "9e868f0ab64ea503",
+   "text": "Ailenden not getirdim! Bazı görevleri bir daha dener misin?",
+   "role": "adali",
+   "src": "tr:mavi.retry_many.say",
+   "who": "mavi",
+   "tts": "Ailenden not getirdim! Bazı görevleri bir daha dener misin?",
+   "sec": 4.57,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "c7009212ef88d21d",
+   "text": "Sana bir paket getirdim! Posta kutusunda seni bekliyor.",
+   "role": "adali",
+   "src": "tr:mavi.gift_one.say",
+   "who": "mavi",
+   "tts": "Sana bir paket getirdim! Posta kutusunda seni bekliyor.",
+   "sec": 4.06,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "1b6577b69c0e8cad",
+   "text": "Sana paketler getirdim! Posta kutusunda seni bekliyor.",
+   "role": "adali",
+   "src": "tr:mavi.gift_many.say",
+   "who": "mavi",
+   "tts": "Sana paketler getirdim! Posta kutusunda seni bekliyor.",
+   "sec": 4.11,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "c39c6f89879418a7",
+   "text": "Bu sefer olmadı, sorun değil.",
+   "role": "anlatici",
+   "src": "tr:notice.try_again_one.say",
+   "who": "narrator",
+   "tts": "Bu sefer olmadı, sorun değil.",
+   "sec": 2.57,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "92e9b666b3a57895",
+   "text": "Kulübe için biraz daha malzeme lazım.",
+   "role": "anlatici",
+   "src": "tr:gather.need.say",
+   "who": "narrator",
+   "tts": "Kulübe için biraz daha malzeme lazım.",
+   "sec": 2.62,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "4f1160f017f65852",
+   "text": "Bu eşya daha sonraki bir seviyede açılır.",
+   "role": "anlatici",
+   "src": "tr:wardrobe.locked.say",
+   "who": "narrator",
+   "tts": "Bu eşya daha sonraki bir seviyede açılır.",
+   "sec": 3.16,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "6059dbe1abfdaadd",
+   "text": "Sandıktan bir hediye çıktı!",
+   "role": "anlatici",
+   "src": "tr:chest.got.say",
+   "who": "narrator",
+   "tts": "Sandıktan bir hediye çıktı!",
+   "sec": 2.11,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "640acc24ea68d9a5",
+   "text": "Sandıktan hediyeler çıktı!",
+   "role": "anlatici",
+   "src": "tr:chest.got_n.say",
+   "who": "narrator",
+   "tts": "Sandıktan hediyeler çıktı!",
+   "sec": 2.17,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "8779ff52c1dd5f85",
+   "text": "Haftalık hedef tamam! Güneş Taşı ve yıldızlar kazandın!",
+   "role": "anlatici",
+   "src": "tr:goal.done_toast.say",
+   "who": "narrator",
+   "tts": "Haftalık hedef tamam! Güneş Taşı ve yıldızlar kazandın!",
+   "sec": 3.89,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "76093ad953b12336",
+   "text": "Yeni rozet kazandın! Kartına dokun, gör.",
+   "role": "anlatici",
+   "src": "tr:badge.earned.say",
+   "who": "narrator",
+   "tts": "Yeni rozet kazandın! Kartına dokun, gör.",
+   "sec": 3.51,
+   "seed": "marketing",
+   "cer": 0.027
+  },
+  {
+   "key": "32ec9f82300c4ac8",
+   "text": "Fener bekçisinin günlüğünden yeni bir sayfa buldun! Defter'de.",
+   "role": "anlatici",
+   "src": "tr:lore.found.say",
+   "who": "narrator",
+   "tts": "Fener bekçisinin günlüğünden yeni bir sayfa buldun! Defter'de.",
+   "sec": 4.34,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "5a710bae6573b999",
+   "text": "Posta kutunda yeni mektup var!",
+   "role": "anlatici",
+   "src": "tr:mail.new.say",
+   "who": "narrator",
+   "tts": "Posta kutunda yeni mektup var!",
+   "sec": 2.18,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "47dab07cac33ef6a",
+   "text": "Teşekkürler, çok iyi geldi!",
+   "role": "adali",
+   "src": "tr:resident.thanks.say",
+   "who": "resident",
+   "tts": "Teşekkürler, çok iyi geldi!",
+   "sec": 2.14,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "9ca486015a2b90f2",
+   "text": "Teşekkürler! Sana bir hediyem var.",
+   "role": "adali",
+   "src": "tr:resident.thanks_item.say",
+   "who": "resident",
+   "tts": "Teşekkürler! Sana bir hediyem var.",
+   "sec": 2.84,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "dba8b0add57d60dd",
+   "text": "Kıskaç'tan hoş geldin hediyesi! İlk aksesuarını alabilirsin.",
+   "role": "anlatici",
+   "src": "tr:welcome.coins.say",
+   "who": "narrator",
+   "tts": "Kıskaç'tan hoş geldin hediyesi! İlk aksesuarını alabilirsin.",
+   "sec": 4.7,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "9a624a77a668a721",
+   "text": "Gerçek ödüller birkaç seviye sonra açılır!",
+   "role": "anlatici",
+   "src": "tr:rewards.locked.say",
+   "who": "narrator",
+   "tts": "Gerçek ödüller birkaç seviye sonra açılır!",
+   "sec": 3.09,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "d33c855685d33a6b",
+   "text": "Ateş için odun getir!",
+   "role": "anlatici",
+   "src": "tr:fire.need_wood.say",
+   "who": "narrator",
+   "tts": "Ateş için odun getir!",
+   "sec": 1.95,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "9f997bc2d968a951",
+   "text": "Ateş harlandı!",
+   "role": "anlatici",
+   "src": "tr:fire.stoked.say",
+   "who": "narrator",
+   "tts": "Ateş harlandı!",
+   "sec": 1.6,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "870b98222d7a0e42",
+   "text": "Bir daha vur!",
+   "role": "anlatici",
+   "src": "tr:gather.big_hit.say",
+   "who": "narrator",
+   "tts": "Bir daha vur!",
+   "sec": 1.4,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "8ed77d6df36d7a7f",
+   "text": "Sis orada. Oklar yolu gösteriyor!",
+   "role": "anlatici",
+   "src": "tr:map.fog_here.say",
+   "who": "narrator",
+   "tts": "Sis orada. Oklar yolu gösteriyor!",
+   "sec": 2.87,
+   "seed": "marketing",
+   "cer": 0.0323
+  },
+  {
+   "key": "7dce231c67d71446",
+   "text": "Tertemizim, teşekkürler!",
+   "role": "okti",
+   "src": "tr:care.clean",
+   "who": "okti",
+   "tts": "Tertemizim, teşekkürler!",
+   "sec": 2.0,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "f6d32fe112c5ca3e",
+   "text": "Mmm, çok lezzetli!",
+   "role": "okti",
+   "src": "tr:care.ok.feed",
+   "who": "okti",
+   "tts": "Mmm, çok lezzetli!",
+   "sec": 1.92,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "6a6acc6b281eba61",
+   "text": "Mis gibi oldum!",
+   "role": "okti",
+   "src": "tr:care.ok.wash",
+   "who": "okti",
+   "tts": "Mis gibi oldum!",
+   "sec": 1.37,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "2522d6bd6199093c",
+   "text": "Yaşasın, oyun!",
+   "role": "okti",
+   "src": "tr:care.ok.play",
+   "who": "okti",
+   "tts": "Yaşasın, oyun!",
+   "sec": 1.55,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "d6d207c0389f4a68",
+   "text": "Evimiz pırıl pırıl oldu!",
+   "role": "okti",
+   "src": "tr:care.ok.tidy",
+   "who": "okti",
+   "tts": "Evimiz pırıl pırıl oldu!",
+   "sec": 1.98,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "503b3c4ba4b51e36",
+   "text": "Karnım tok, teşekkürler!",
+   "role": "okti",
+   "src": "tr:care.full",
+   "who": "okti",
+   "tts": "Karnım tok, teşekkürler!",
+   "sec": 2.08,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "140538ed2cad61df",
+   "text": "Dolapta kalmamış. Dükkana bakalım mı?",
+   "role": "okti",
+   "src": "tr:care.no_item",
+   "who": "okti",
+   "tts": "Dolapta kalmamış. Dükkana bakalım mı?",
+   "sec": 3.13,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "2c335ee87264fd10",
+   "text": "Karnım biraz acıktı...",
+   "role": "okti",
+   "src": "tr:care.sad.fullness",
+   "who": "okti",
+   "tts": "Karnım biraz acıktı...",
+   "sec": 1.59,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "b31125884ca340c3",
+   "text": "Biraz yıkansam iyi olur.",
+   "role": "okti",
+   "src": "tr:care.sad.cleanliness",
+   "who": "okti",
+   "tts": "Biraz yıkansam iyi olur.",
+   "sec": 2.1,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "f8889c1ad8c01d5f",
+   "text": "Benimle oynar mısın?",
+   "role": "okti",
+   "src": "tr:care.sad.happiness",
+   "who": "okti",
+   "tts": "Benimle oynar mısın?",
+   "sec": 1.71,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "c55dd239eb4e7b52",
+   "text": "Evimizi biraz düzenleyelim mi?",
+   "role": "okti",
+   "src": "tr:care.sad.home",
+   "who": "okti",
+   "tts": "Evimizi biraz düzenleyelim mi?",
+   "sec": 2.28,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "6f4f0bdbbb306421",
+   "text": "Şşş... Okti uyuyor. Sabah görüşürüz!",
+   "role": "okti",
+   "src": "tr:care.sleeping",
+   "who": "okti",
+   "tts": "Şşş... Okti uyuyor. Sabah görüşürüz!",
+   "sec": 2.78,
+   "seed": "marketing",
+   "cer": 0.0323
+  },
+  {
+   "key": "9b684fde3db6161c",
+   "text": "Merhaba, ben Okti! Hadi adayı keşfedelim.",
+   "role": "okti",
+   "src": "tr:pet.welcome",
+   "who": "okti",
+   "tts": "Merhaba, ben Okti! Hadi adayı keşfedelim.",
+   "sec": 3.7,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "d70ad867fa2ce083",
+   "text": "Çok yakıştı!",
+   "role": "okti",
+   "src": "tr:wardrobe.looks_good",
+   "who": "okti",
+   "tts": "Çok yakıştı!",
+   "sec": 1.32,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "135539ec9a1d9270",
+   "text": "Biraz soluklanayım...",
+   "role": "okti",
+   "src": "tr:runner.out_bubble",
+   "who": "okti",
+   "tts": "Biraz soluklanayım...",
+   "sec": 1.42,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "0bf5c1f4a1b37465",
+   "text": "Ay! Dikkat!",
+   "role": "okti",
+   "src": "tr:runner.oops",
+   "who": "okti",
+   "tts": "Ay! Dikkat!",
+   "sec": 1.26,
+   "seed": "marketing",
+   "cer": 0.1111
+  },
+  {
+   "key": "5e465532576ffa7f",
+   "text": "Okti biraz soluklanıyor. Birazdan yine oynarız!",
+   "role": "okti",
+   "src": "tr:care.resting",
+   "who": "okti",
+   "tts": "Okti biraz soluklanıyor. Birazdan yine oynarız!",
+   "sec": 3.7,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "f8a30038bdcbafd8",
+   "text": "Ayy, ne güzel sevdin!",
+   "role": "okti",
+   "src": "tr:care.petted",
+   "who": "okti",
+   "tts": "Ayy, ne güzel sevdin!",
+   "sec": 1.87,
+   "seed": "marketing",
+   "cer": 0.0526
+  },
+  {
+   "key": "f5a8ba579920e9c6",
+   "text": "Ailenden yeni bir görev var! Yapınca Güneş Taşı kazanırsın.",
+   "role": "adali",
+   "src": "tr:mavi.news_one",
+   "who": "mavi",
+   "tts": "Ailenden yeni bir görev var! Yapınca Güneş Taşı kazanırsın.",
+   "sec": 4.6,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "f31f54d52f6d2a6c",
+   "text": "Bu Yıldız Kapısı! İçinden geçince Ay'da koşarsın. Hazır mısın?",
+   "role": "adali",
+   "src": "tr:mavi.stargate",
+   "who": "mavi",
+   "tts": "Bu Yıldız Kapısı! İçinden geçince Ay'da koşarsın. Hazır mısın?",
+   "sec": 5.07,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "424a097946aee840",
+   "text": "Okti şu an tok. Acıkınca yine besle, görevin seni bekliyor!",
+   "role": "anlatici",
+   "src": "tr:care.full_quest",
+   "who": "narrator",
+   "tts": "Okti şu an tok. Acıkınca yine besle, görevin seni bekliyor!",
+   "sec": 4.41,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "bf02fabcfabfe673",
+   "text": "Okti şu an tertemiz. Biraz oynayınca yine yıka, görevin seni bekliyor!",
+   "role": "anlatici",
+   "src": "tr:care.clean_quest",
+   "who": "narrator",
+   "tts": "Okti şu an tertemiz. Biraz oynayınca yine yıka, görevin seni bekliyor!",
+   "sec": 4.91,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "e2e0d46008012fe4",
+   "text": "Ayakkabıya dokun: yürümeye dön!",
+   "role": "anlatici",
+   "src": "tr:map.exit_tip",
+   "who": "narrator",
+   "tts": "Ayakkabıya dokun: yürümeye dön!",
+   "sec": 2.51,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "c9fe20d1ef84fd99",
+   "text": "Görevini bitirdin! Görevlerin hep burada.",
+   "role": "anlatici",
+   "src": "tr:quest.where",
+   "who": "narrator",
+   "tts": "Görevini bitirdin! Görevlerin hep burada.",
+   "sec": 3.09,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "bffe19655ffb5d2e",
+   "text": "Ev Görevleri panosunda yeni bir görev var",
+   "role": "anlatici",
+   "src": "tr:notice.new_task_one",
+   "who": "narrator",
+   "tts": "Ev Görevleri panosunda yeni bir görev var",
+   "sec": 3.03,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "b52658dc11fb2c41",
+   "text": "Bazı görevler bu sefer olmadı, sorun değil",
+   "role": "anlatici",
+   "src": "tr:notice.try_again_many",
+   "who": "narrator",
+   "tts": "Bazı görevler bu sefer olmadı, sorun değil",
+   "sec": 3.26,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "81cfc7563f07e4fc",
+   "text": "Çıkardık.",
+   "role": "anlatici",
+   "src": "tr:wardrobe.removed",
+   "who": "narrator",
+   "tts": "Çıkardık.",
+   "sec": 1.16,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "e5bf42e2783fb6ad",
+   "text": "Bu bölümde eşyan yok. Dükkâna bakalım mı?",
+   "role": "anlatici",
+   "src": "tr:wardrobe.empty",
+   "who": "narrator",
+   "tts": "Bu bölümde eşyan yok. Dükkâna bakalım mı?",
+   "sec": 3.24,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "18730b10e807c146",
+   "text": "Kuyrukluyıldızın peşinden, Dünya'ya doğru!",
+   "role": "anlatici",
+   "src": "tr:runner.first",
+   "who": "narrator",
+   "tts": "Kuyrukluyıldızın peşinden, Dünya'ya doğru!",
+   "sec": 3.32,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "64c5455b8d7e1ffe",
+   "text": "Gezegen kartı buldun!",
+   "role": "anlatici",
+   "src": "tr:runner.card",
+   "who": "narrator",
+   "tts": "Gezegen kartı buldun!",
+   "sec": 1.72,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "c2c927fd1dadd622",
+   "text": "Ups! Çarptın.",
+   "role": "anlatici",
+   "src": "tr:mg.lane.crash",
+   "who": "narrator",
+   "tts": "Ups! Çarptın.",
+   "sec": 1.74,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "da25e07092f78761",
+   "text": "Zirvedesin!",
+   "role": "anlatici",
+   "src": "tr:mg.hike.summit",
+   "who": "narrator",
+   "tts": "Zirvedesin!",
+   "sec": 1.16,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "f1e759af244eec72",
+   "text": "Ilık...",
+   "role": "anlatici",
+   "src": "tr:mg.help_pet.warm",
+   "who": "narrator",
+   "tts": "Ilık...",
+   "sec": 0.64,
+   "seed": "marketing",
+   "cer": 0.25
+  },
+  {
+   "key": "adcc449cfb29a07f",
+   "text": "Çok sıcak!",
+   "role": "anlatici",
+   "src": "tr:mg.help_pet.hot",
+   "who": "narrator",
+   "tts": "Çok sıcak!",
+   "sec": 1.28,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "9e6aef1d4b2da8d7",
+   "text": "Buldun! Teşekkürler!",
+   "role": "anlatici",
+   "src": "tr:mg.help_pet.found",
+   "who": "narrator",
+   "tts": "Buldun! Teşekkürler!",
+   "sec": 1.55,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "ce1ce2727f991a7c",
+   "text": "Soğuk.",
+   "role": "anlatici",
+   "src": "tr:mg.help_pet.cold",
+   "who": "narrator",
+   "tts": "Soğuk.",
+   "sec": 0.91,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "b475541b1a4dee24",
+   "text": "Bekle...",
+   "role": "anlatici",
+   "src": "tr:mg.fishing.wait",
+   "who": "narrator",
+   "tts": "Bekle...",
+   "sec": 0.71,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "b98727d10bdf425e",
+   "text": "Geç kaldın, balık kaçtı.",
+   "role": "anlatici",
+   "src": "tr:mg.fishing.late",
+   "who": "narrator",
+   "tts": "Geç kaldın, balık kaçtı.",
+   "sec": 2.25,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "052dc531e1986336",
+   "text": "Önce kulübe yerindeki sisi dağıt!",
+   "role": "anlatici",
+   "src": "tr:map.site_fog",
+   "who": "narrator",
+   "tts": "Önce kulübe yerindeki sisi dağıt!",
+   "sec": 2.44,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "ef97bfe0c4b6b825",
+   "text": "Oklar yolu gösteriyor. Takip et!",
+   "role": "anlatici",
+   "src": "tr:map.pin_go",
+   "who": "narrator",
+   "tts": "Oklar yolu gösteriyor. Takip et!",
+   "sec": 2.88,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "2d6b85d4b46c99cc",
+   "text": "Bir yere dokun, oraya yürüyelim!",
+   "role": "anlatici",
+   "src": "tr:map.hint_walk",
+   "who": "narrator",
+   "tts": "Bir yere dokun, oraya yürüyelim!",
+   "sec": 2.01,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "7954f4d2e75ae8f0",
+   "text": "Adanın tamamı burada! Gitmek için Yürü'ye bas.",
+   "role": "anlatici",
+   "src": "tr:map.hint_overview",
+   "who": "narrator",
+   "tts": "Adanın tamamı burada! Gitmek için Yürü'ye bas.",
+   "sec": 3.7,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "9b17a04cb04876bf",
+   "text": "Güneş Taşı!",
+   "role": "anlatici",
+   "src": "tr:gift.reveal",
+   "who": "narrator",
+   "tts": "Güneş Taşı!",
+   "sec": 1.36,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "e1a32797acc13e37",
+   "text": "Kulüben burada!",
+   "role": "anlatici",
+   "src": "tr:gather.built_already",
+   "who": "narrator",
+   "tts": "Kulüben burada!",
+   "sec": 1.32,
+   "seed": "marketing",
+   "cer": 0.0714
+  },
+  {
+   "key": "9accb8f6f733dff0",
+   "text": "Kulüben hazır! Harika iş!",
+   "role": "anlatici",
+   "src": "tr:gather.built",
+   "who": "narrator",
+   "tts": "Kulüben hazır! Harika iş!",
+   "sec": 2.62,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "f0a9bfe5b26fdddb",
+   "text": "Sulandı! Büyümesini bekle.",
+   "role": "anlatici",
+   "src": "tr:garden.watered",
+   "who": "narrator",
+   "tts": "Sulandı! Büyümesini bekle.",
+   "sec": 2.38,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "63e7b5bb91feaa37",
+   "text": "Ekildi! Şimdi sula.",
+   "role": "anlatici",
+   "src": "tr:garden.planted",
+   "who": "narrator",
+   "tts": "Ekildi! Şimdi sula.",
+   "sec": 2.05,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "f6a6f4503d59e349",
+   "text": "Tohumun yok. Dükkandan alabilirsin.",
+   "role": "anlatici",
+   "src": "tr:garden.no_seed",
+   "who": "narrator",
+   "tts": "Tohumun yok. Dükkandan alabilirsin.",
+   "sec": 2.76,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "4a7646be8e32d08e",
+   "text": "Ateş bugün harıl harıl yanıyor! Yarın yine gel.",
+   "role": "anlatici",
+   "src": "tr:fire.done_today",
+   "who": "narrator",
+   "tts": "Ateş bugün harıl harıl yanıyor! Yarın yine gel.",
+   "sec": 3.95,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "cdbd063b22e24165",
+   "text": "Adanın en yüksek yeri! Merdivenlere dokunarak tepeye çık.",
+   "role": "anlatici",
+   "src": "tr:event.lighthouse.howto",
+   "who": "narrator",
+   "tts": "Adanın en yüksek yeri! Merdivenlere dokunarak tepeye çık.",
+   "sec": 4.34,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "1d4927cff9985193",
+   "text": "Fenerin ışığı bütün adayı aydınlatıyor.",
+   "role": "anlatici",
+   "src": "tr:event.lighthouse.again",
+   "who": "narrator",
+   "tts": "Fenerin ışığı bütün adayı aydınlatıyor.",
+   "sec": 2.63,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "87f182272c5438fc",
+   "text": "Önce alttan bir eşya seç.",
+   "role": "anlatici",
+   "src": "tr:decor.pick_first",
+   "who": "narrator",
+   "tts": "Önce alttan bir eşya seç.",
+   "sec": 2.08,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "176f802556d2669f",
+   "text": "Orası dolu.",
+   "role": "anlatici",
+   "src": "tr:decor.occupied",
+   "who": "narrator",
+   "tts": "Orası dolu.",
+   "sec": 1.13,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "8163db2aa253497a",
+   "text": "Alttan bir eşya seç, sonra boş bir kareye dokun.",
+   "role": "anlatici",
+   "src": "tr:decor.hint",
+   "who": "narrator",
+   "tts": "Alttan bir eşya seç, sonra boş bir kareye dokun.",
+   "sec": 3.7,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "2ab944c5eac09fdd",
+   "text": "Çantan boş. Kütük, çalı ve taş topla!",
+   "role": "anlatici",
+   "src": "tr:bag.empty",
+   "who": "narrator",
+   "tts": "Çantan boş. Kütük, çalı ve taş topla!",
+   "sec": 3.66,
+   "seed": "marketing",
+   "cer": 0.0294
+  },
+  {
+   "key": "0f67ca4ede9a0391",
+   "text": "Sesli okuma açık",
+   "role": "anlatici",
+   "src": "tr:voice.on",
+   "who": "narrator",
+   "tts": "Sesli okuma açık",
+   "sec": 1.67,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "de2b10afd0d70845",
+   "text": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin inci ve Güneş Taşı kazandırmaya devam ediyor!",
+   "role": "anlatici",
+   "src": "tr:tasks.xp_goal",
+   "who": "narrator",
+   "tts": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin inci ve Güneş Taşı kazandırmaya devam ediyor!",
+   "sec": 6.81,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "ce7070c40dac3958",
+   "text": "Hatırlatmadan yaptın! Kendi kendine, ekstra yıldız!",
+   "role": "anlatici",
+   "src": "tr:tasks.self_started",
+   "who": "narrator",
+   "tts": "Hatırlatmadan yaptın! Kendi kendine, ekstra yıldız!",
+   "sec": 4.03,
+   "seed": "marketing",
+   "cer": 0.0417
+  },
+  {
+   "key": "3305781fa4b7f9af",
+   "text": "Günlük sandık hazır! Görev'e dokun, aç.",
+   "role": "anlatici",
+   "src": "tr:chest.ready",
+   "who": "narrator",
+   "tts": "Günlük sandık hazır! Görev'e dokun, aç.",
+   "sec": 3.39,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "6e0f07cb10c38430",
+   "text": "Bütün ada onarıldı!",
+   "role": "anlatici",
+   "src": "tr:stones.all_done",
+   "who": "narrator",
+   "tts": "Bütün ada onarıldı!",
+   "sec": 1.73,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "42a2cb578343a579",
+   "text": "Parlayan bir bloğa dokun ve çek. Dikkat, kule devrilmesin!",
+   "role": "anlatici",
+   "src": "tr:cards.tower_hint",
+   "who": "narrator",
+   "tts": "Parlayan bir bloğa dokun ve çek. Dikkat, kule devrilmesin!",
+   "sec": 4.28,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "8aec26f9c3acb4a3",
+   "text": "Okti biraz yoruldu. Yarın devam edelim!",
+   "role": "anlatici",
+   "src": "tr:xp.rest",
+   "who": "narrator",
+   "tts": "Okti biraz yoruldu. Yarın devam edelim!",
+   "sec": 2.98,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "913ee6cee59e0353",
+   "text": "Kuyrukluyıldızın peşinden koş, kristalleri topla!",
+   "role": "anlatici",
+   "src": "tr:mg.runner.howto",
+   "who": "narrator",
+   "tts": "Kuyrukluyıldızın peşinden koş, kristalleri topla!",
+   "sec": 3.82,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "26b65b399dbd4b1c",
+   "text": "Jüpiter Güneş Sistemi'nin en büyük gezegeni; içine 1.300'den fazla Dünya sığar!",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact1",
+   "who": "narrator",
+   "tts": "Jüpiter Güneş Sistemi'nin en büyük gezegeni; içine 1.300'den fazla Dünya sığar!",
+   "sec": 6.05,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "562f412f7e97fa03",
+   "text": "Satürn'ün halkaları buz ve kaya parçalarından oluşur.",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact2",
+   "who": "narrator",
+   "tts": "Satürn'ün halkaları buz ve kaya parçalarından oluşur.",
+   "sec": 3.64,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "18b4077348341643",
+   "text": "Mars'a Kızıl Gezegen denir; toprağındaki demir pası ona kırmızı rengini verir.",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact3",
+   "who": "narrator",
+   "tts": "Mars'a Kızıl Gezegen denir; toprağındaki demir pası ona kırmızı rengini verir.",
+   "sec": 5.2,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "633bb63e54235da2",
+   "text": "Venüs, Güneş'e daha yakın olan Merkür'den bile sıcaktır. Güneş Sistemi'nin en sıcak gezegeni odur.",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact4",
+   "who": "narrator",
+   "tts": "Venüs, Güneş'e daha yakın olan Merkür'den bile sıcaktır. Güneş Sistemi'nin en sıcak gezegeni odur.",
+   "sec": 6.88,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "fcfc1b6266fb7335",
+   "text": "Ay'da rüzgâr olmadığı için astronotların ayak izleri çok uzun yıllar silinmeden kalabilir.",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact5",
+   "who": "narrator",
+   "tts": "Ay'da rüzgâr olmadığı için astronotların ayak izleri çok uzun yıllar silinmeden kalabilir.",
+   "sec": 5.96,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "70a2897d2125917b",
+   "text": "Güneş'ten çıkan ışık Dünya'ya yaklaşık 8 dakikada ulaşır.",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact6",
+   "who": "narrator",
+   "tts": "Güneş'ten çıkan ışık Dünya'ya yaklaşık 8 dakikada ulaşır.",
+   "sec": 4.38,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "349bbd3cc4e4801b",
+   "text": "Güneş Sistemi'nin en hızlı rüzgârları Neptün'de eser.",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact7",
+   "who": "narrator",
+   "tts": "Güneş Sistemi'nin en hızlı rüzgârları Neptün'de eser.",
+   "sec": 3.74,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "fbc4f064aeeda589",
+   "text": "Merkür, Güneş'e en yakın ve en küçük gezegendir.",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact8",
+   "who": "narrator",
+   "tts": "Merkür, Güneş'e en yakın ve en küçük gezegendir.",
+   "sec": 3.56,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "a147a3581b047e33",
+   "text": "Ay'da yerçekimi Dünya'dakinin altıda biri kadardır; orada çok daha yükseğe zıplarsın!",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact9",
+   "who": "narrator",
+   "tts": "Ay'da yerçekimi Dünya'dakinin altıda biri kadardır; orada çok daha yükseğe zıplarsın!",
+   "sec": 5.85,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "6218a58a682670e3",
+   "text": "Uranüs yan yatmış hâlde döner, sanki uzayda yuvarlanıyormuş gibi.",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact10",
+   "who": "narrator",
+   "tts": "Uranüs yan yatmış hâlde döner, sanki uzayda yuvarlanıyormuş gibi.",
+   "sec": 4.25,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "16828f3868c6d025",
+   "text": "Dünya, üzerinde su ve canlı olduğunu bildiğimiz tek gezegendir.",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact11",
+   "who": "narrator",
+   "tts": "Dünya, üzerinde su ve canlı olduğunu bildiğimiz tek gezegendir.",
+   "sec": 4.5,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "4ea334698ab46aea",
+   "text": "Mars'taki Olympus Dağı, Everest'ten yaklaşık 2,5 kat daha yüksek bir yanardağdır.",
+   "role": "anlatici",
+   "src": "tr:runner.space.fact12",
+   "who": "narrator",
+   "tts": "Mars'taki Olympus Dağı, Everest'ten yaklaşık 2,5 kat daha yüksek bir yanardağdır.",
+   "sec": 5.6,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "7b34fdc01a38cb54",
+   "text": "Giza'daki Büyük Piramit 4.500 yıldan daha yaşlı!",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact1",
+   "who": "narrator",
+   "tts": "Giza'daki Büyük Piramit 4.500 yıldan daha yaşlı!",
+   "sec": 4.16,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "b02746cee7c0c391",
+   "text": "Büyük Piramit yaklaşık 2 milyon 300 bin taş bloktan yapıldı.",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact2",
+   "who": "narrator",
+   "tts": "Büyük Piramit yaklaşık 2 milyon 300 bin taş bloktan yapıldı.",
+   "sec": 4.42,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "71b9cd8b46664880",
+   "text": "Eski Mısırlılar papirüs bitkisinden kâğıt yaptı.",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact3",
+   "who": "narrator",
+   "tts": "Eski Mısırlılar papirüs bitkisinden kâğıt yaptı.",
+   "sec": 3.7,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "d86508ce75999b97",
+   "text": "Hiyeroglif yazısında 700'den fazla resimli işaret var.",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact4",
+   "who": "narrator",
+   "tts": "Hiyeroglif yazısında 700'den fazla resimli işaret var.",
+   "sec": 3.76,
+   "seed": "marketing",
+   "cer": 0.0351
+  },
+  {
+   "key": "3b89fae4ca6df2c6",
+   "text": "Skarabe böceği eski Mısır'da güneşin ve yeni bir günün simgesiydi.",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact5",
+   "who": "narrator",
+   "tts": "Skarabe böceği eski Mısır'da güneşin ve yeni bir günün simgesiydi.",
+   "sec": 4.59,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "742ebc27940185e0",
+   "text": "Nil Nehri her yıl taşar, tarlalara bereketli çamur getirirdi.",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact6",
+   "who": "narrator",
+   "tts": "Nil Nehri her yıl taşar, tarlalara bereketli çamur getirirdi.",
+   "sec": 4.43,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "b1d80672f00a38fa",
+   "text": "Büyük Sfenks'in gövdesi aslan, başı insan biçimindedir.",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact7",
+   "who": "narrator",
+   "tts": "Büyük Sfenks'in gövdesi aslan, başı insan biçimindedir.",
+   "sec": 4.3,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "3f04e0b283c621af",
+   "text": "Eski Mısırlı çocuklar topla, topaçla ve tahta oyuncaklarla oynardı.",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact8",
+   "who": "narrator",
+   "tts": "Eski Mısırlı çocuklar topla, topaçla ve tahta oyuncaklarla oynardı.",
+   "sec": 4.87,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "77441accef0a99e0",
+   "text": "Firavunlar eski Mısır'ın krallarıydı. Tutankamon tahta çıktığında yalnızca 9 yaşındaydı!",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact9",
+   "who": "narrator",
+   "tts": "Firavunlar eski Mısır'ın krallarıydı. Tutankamon tahta çıktığında yalnızca 9 yaşındaydı!",
+   "sec": 6.46,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "cde14b46d1ce1c70",
+   "text": "Büyük Piramit'in dört yüzü neredeyse tam olarak kuzeye, güneye, doğuya ve batıya bakar.",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact10",
+   "who": "narrator",
+   "tts": "Büyük Piramit'in dört yüzü neredeyse tam olarak kuzeye, güneye, doğuya ve batıya bakar.",
+   "sec": 5.98,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "1baa83a0b1dee5c9",
+   "text": "Rosetta Taşı sayesinde hiyeroglifler yeniden okunabildi.",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact11",
+   "who": "narrator",
+   "tts": "Rosetta Taşı sayesinde hiyeroglifler yeniden okunabildi.",
+   "sec": 3.92,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "431d30f44c937bb0",
+   "text": "Eski Mısırlılar yılı 365 güne bölen bir takvim kullandı.",
+   "role": "anlatici",
+   "src": "tr:runner.egypt.fact12",
+   "who": "narrator",
+   "tts": "Eski Mısırlılar yılı 365 güne bölen bir takvim kullandı.",
+   "sec": 4.68,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "53933d075cb4c564",
+   "text": "Eylem tuşu. Sağ alttaki tuş yerine göre değişir: Gir, Topla, Oyna, Taşı koy.",
+   "role": "anlatici",
+   "src": "tr:howto.action",
+   "who": "narrator",
+   "tts": "Eylem tuşu. Sağ alttaki tuş yerine göre değişir: Gir, Topla, Oyna, Taşı koy.",
+   "sec": 6.15,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "42b2f7c03c1e4d6a",
+   "text": "Besle, yıka, oyna. Okti'ye dokun: Besle, Yıka, Giydir, Oyna çıkar. Parmağını Okti'nin üstünde gezdir: onu seversin.",
+   "role": "anlatici",
+   "src": "tr:howto.care",
+   "who": "narrator",
+   "tts": "Besle, yıka, oyna. Okti'ye dokun: Besle, Yıka, Giydir, Oyna çıkar. Parmağını Okti'nin üstünde gezdir: onu seversin.",
+   "sec": 9.27,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "24a7804a3aba8a58",
+   "text": "Ev Görevleri. Ailenin verdiği görevi yapınca Yaptım'a bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.",
+   "role": "anlatici",
+   "src": "tr:howto.home_tasks",
+   "who": "narrator",
+   "tts": "Ev Görevleri. Ailenin verdiği görevi yapınca Yaptıma bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.",
+   "sec": 7.74,
+   "seed": "marketing",
+   "cer": 0.0194
+  },
+  {
+   "key": "b9926d574f55c32b",
+   "text": "Posta kutusu. Ailenden gelen mektupları ve hediyeleri postacı Mavi getirir.",
+   "role": "anlatici",
+   "src": "tr:howto.mail",
+   "who": "narrator",
+   "tts": "Posta kutusu. Ailenden gelen mektupları ve hediyeleri postacı Mavi getirir.",
+   "sec": 5.3,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "beff92a5f38eef14",
+   "text": "Harita. Harita'yı aç, sarı ime dokun: oklar seni oraya götürür.",
+   "role": "anlatici",
+   "src": "tr:howto.map",
+   "who": "narrator",
+   "tts": "Harita. Harita'yı aç, sarı ime dokun: oklar seni oraya götürür.",
+   "sec": 5.2,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "de0815726faa17e5",
+   "text": "Görevler. Sağ üstteki Görev'de oyun görevlerin var. Biten görevde Al'a dokun. Bitmemiş göreve dokunursan Okti yolu gösterir.",
+   "role": "anlatici",
+   "src": "tr:howto.quests",
+   "who": "narrator",
+   "tts": "Görevler. Sağ üstteki Görev'de oyun görevlerin var. Biten görevde Al'a dokun. Bitmemiş göreve dokunursan Okti yolu gösterir.",
+   "sec": 8.72,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "32f2c33c435ca089",
+   "text": "Dükkân. İncilerinle Okti'ye kıyafet, evine eşya alabilirsin.",
+   "role": "anlatici",
+   "src": "tr:howto.shop",
+   "who": "narrator",
+   "tts": "Dükkân. İncilerinle Okti'ye kıyafet, evine eşya alabilirsin.",
+   "sec": 4.78,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "8106abcfe29054b3",
+   "text": "Güneş Taşı. Taşı sisli bir yere götür ve Taşı koy'a bas: sis kalkar, yeni yerler açılır.",
+   "role": "anlatici",
+   "src": "tr:howto.stones",
+   "who": "narrator",
+   "tts": "Güneş Taşı. Taşı sisli bir yere götür ve Taşı koy'a bas: sis kalkar, yeni yerler açılır.",
+   "sec": 6.53,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "421cbafedd3cd3a1",
+   "text": "Yürü. Parmağını ekranda kaydır, Okti o yöne yürür. Bir yere dokunursan oraya gider.",
+   "role": "anlatici",
+   "src": "tr:howto.walk",
+   "who": "narrator",
+   "tts": "Yürü. Parmağını ekranda kaydır, Okti o yöne yürür. Bir yere dokunursan oraya gider.",
+   "sec": 6.17,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "50e0beaac3972457",
+   "text": "İpuçları kapansın mı? Defter'deki Nasıl oynanır'dan yeniden açabilirsin.",
+   "role": "anlatici",
+   "src": "tr:coach.skip_ask",
+   "who": "narrator",
+   "tts": "İpuçları kapansın mı? Defter'deki Nasıl oynanır'dan yeniden açabilirsin.",
+   "sec": 4.98,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "3587f97a8548f83d",
+   "text": "İpuçları kapandı. Defter › Nasıl oynanır'dan yeniden açabilirsin.",
+   "role": "anlatici",
+   "src": "tr:coach.skip_done",
+   "who": "narrator",
+   "tts": "İpuçları kapandı. Defter › Nasıl oynanır'dan yeniden açabilirsin.",
+   "sec": 4.76,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "597738c3d3e64b6e",
+   "text": "İpuçları açıldı. Adada yine yol göstereceğim!",
+   "role": "anlatici",
+   "src": "tr:howto.replayed",
+   "who": "narrator",
+   "tts": "İpuçları açıldı. Adada yine yol göstereceğim!",
+   "sec": 3.5,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "c217ebaa6e8d077c",
+   "text": "İpuçları açık: el, yazı ve oklar yol gösteriyor.",
+   "role": "anlatici",
+   "src": "tr:howto.hints_on",
+   "who": "narrator",
+   "tts": "İpuçları açık: el, yazı ve oklar yol gösteriyor.",
+   "sec": 4.3,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "728d8216f29a0aa4",
+   "text": "İpuçları kapalı. Açarsan el ve oklar yeniden yol gösterir.",
+   "role": "anlatici",
+   "src": "tr:howto.hints_off",
+   "who": "narrator",
+   "tts": "İpuçları kapalı. Açarsan el ve oklar yeniden yol gösterir.",
+   "sec": 4.84,
+   "seed": "marketing",
+   "cer": 0.0
+  },
+  {
+   "key": "1d73feb42dde7acf",
+   "text": "Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin görevinin ödülü.",
+   "role": "anlatici",
+   "src": "tr:gift.reveal",
+   "who": "narrator",
+   "tts": "Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin görevinin ödülü.",
+   "sec": 5.27,
+   "seed": "marketing",
+   "cer": 0.0
   },
   {
    "key": "8d4c5d1cb1a05d97",
@@ -3057,9 +4828,9 @@
    "src": "tr:rewards.intro",
    "who": "narrator",
    "tts": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
-   "sec": 6.88,
-   "seed": 7,
-   "cer": 0.009
+   "sec": 9.04,
+   "seed": "marketing",
+   "cer": 0.0085
   },
   {
    "key": "11eee713d3d2d797",
@@ -3068,8 +4839,8 @@
    "src": "tr:gift.card",
    "who": "narrator",
    "tts": "Hoş geldin görevini yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
-   "sec": 8.37,
-   "seed": 101,
+   "sec": 9.45,
+   "seed": "marketing",
    "cer": 0.0
   }
  ]
