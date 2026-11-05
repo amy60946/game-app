@@ -1,0 +1,342 @@
+[
+ {
+  "key": "905fca5b92c99933",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:0:text",
+  "text": "Bu pano çok önemli. Evdeki büyüklerin buraya macera bırakır.",
+  "tts": "Bu pano çok önemli. Evdeki büyüklerin buraya macera bırakır.",
+  "kaydi_var": false
+ },
+ {
+  "key": "5577acf2a1a065b4",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:0:a",
+  "text": "Evdeki büyüklerin buraya macera bırakır.",
+  "tts": "Evdeki büyüklerin buraya macera bırakır.",
+  "kaydi_var": false
+ },
+ {
+  "key": "801d911650b59eae",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:1:text",
+  "text": "Macerayı yapınca ışıklı bir taş gelir: Güneş Taşı!",
+  "tts": "Macerayı yapınca ışıklı bir taş gelir: Güneş Taşı!",
+  "kaydi_var": false
+ },
+ {
+  "key": "126f2ad290775e96",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:1:a",
+  "text": "Macerayı yapınca Güneş Taşı gelir!",
+  "tts": "Macerayı yapınca Güneş Taşı gelir!",
+  "kaydi_var": false
+ },
+ {
+  "key": "559af045fd5d3541",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_board:2:text",
+  "text": "Mavi de bana bir macera bırakmış!",
+  "tts": "Mavi de bana bir macera bırakmış!",
+  "kaydi_var": false
+ },
+ {
+  "key": "5786baca6fd1448d",
+  "role": "okti",
+  "who": "okti",
+  "kalip": "hikaye_okti",
+  "src": "story:ch1_board:2:a",
+  "text": "Mavi'nin macerası burada!",
+  "tts": "Mavi'nin macerası burada!",
+  "kaydi_var": false
+ },
+ {
+  "key": "c7fe6f11a3682bcb",
+  "role": "adali",
+  "who": "kiskac",
+  "kalip": "hikaye_adali",
+  "src": "story:ch1_board:3:text",
+  "text": "Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin verdiği sorumluluklardan gelir.",
+  "tts": "Hadi, Yaptıma bas: ilk taşın senin! Sonrakiler ailenin verdiği sorumluluklardan gelir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "06a44c51d9e3756d",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_open:4:text",
+  "text": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin macerası bıraktım!",
+  "tts": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin macerası bıraktım!",
+  "kaydi_var": false
+ },
+ {
+  "key": "6cbe79c571672842",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "hikaye_mavi",
+  "src": "story:ch2_open:4:a",
+  "text": "Panoya sana bir macera bıraktım!",
+  "tts": "Panoya sana bir macera bıraktım!",
+  "kaydi_var": false
+ },
+ {
+  "key": "c7a0865e17400985",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.board",
+  "text": "Maceralar panosuna git!",
+  "tts": "Maceralar panosuna git!",
+  "kaydi_var": false
+ },
+ {
+  "key": "f2833786660bee53",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.board",
+  "text": "Maceralar panosuna git: yeni taşlar burada!",
+  "tts": "Maceralar panosuna git: yeni taşlar burada!",
+  "kaydi_var": false
+ },
+ {
+  "key": "21e4e3a1f6bf231f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.stone",
+  "text": "Maceradan kazandığın taşı koydaki sise götür!",
+  "tts": "Maceradan kazandığın taşı koydaki sise götür!",
+  "kaydi_var": false
+ },
+ {
+  "key": "ab8033af8ee445fc",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.mark",
+  "text": "Sorumluluğunu yapınca Yaptım'a bas!",
+  "tts": "Sorumluluğunu yapınca Yaptıma bas!",
+  "kaydi_var": false
+ },
+ {
+  "key": "681a93e2f3ea820a",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "ipucu",
+  "src": "tr:tip.tasks_home",
+  "text": "Ailenden gelen maceralar burada. Yapınca Güneş Taşı kazanırsın!",
+  "tts": "Ailenden gelen maceralar burada. Yapınca Güneş Taşı kazanırsın!",
+  "kaydi_var": false
+ },
+ {
+  "key": "1f1175a1af23e87e",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "rehber",
+  "src": "tr:guide.gift",
+  "text": "Mavi panoya sana bir macera bıraktı: panoya git!",
+  "tts": "Mavi panoya sana bir macera bıraktı: panoya git!",
+  "kaydi_var": false
+ },
+ {
+  "key": "8fc8679cd084dfec",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:welcome_task.tip",
+  "text": "Mavi'nin macerasını yaptın! Yaptım'a bas.",
+  "tts": "Mavi'nin macerasını yaptın! Yaptıma bas.",
+  "kaydi_var": false
+ },
+ {
+  "key": "87f7d10baf8a9c42",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:info.child",
+  "text": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği sorumlulukları. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
+  "tts": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği sorumlulukları. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
+  "kaydi_var": false
+ },
+ {
+  "key": "afa56a1b87440779",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:coin.info",
+  "text": "İnciler adanın hazinesidir. Sorumluluklarını tamamlayınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+  "tts": "İnciler adanın hazinesidir. Sorumluluklarını tamamlayınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+  "kaydi_var": false
+ },
+ {
+  "key": "7668e731046495eb",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.approved_one.say",
+  "text": "Aferin! Maceran onaylandı.",
+  "tts": "Aferin! Maceran onaylandı.",
+  "kaydi_var": false
+ },
+ {
+  "key": "fc4f61af4f0458aa",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.retry_one.say",
+  "text": "Ailen bir maceranı bir daha denemeni istiyor.",
+  "tts": "Ailen bir maceranı bir daha denemeni istiyor.",
+  "kaydi_var": false
+ },
+ {
+  "key": "bea69d5a158c3ddc",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.retry_many.say",
+  "text": "Ailen bazı maceraları bir daha denemeni istiyor.",
+  "tts": "Ailen bazı maceraları bir daha denemeni istiyor.",
+  "kaydi_var": false
+ },
+ {
+  "key": "9925d5f50d27ac93",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.approved_many.say",
+  "text": "Aferin! Maceraların onaylandı.",
+  "tts": "Aferin! Maceraların onaylandı.",
+  "kaydi_var": false
+ },
+ {
+  "key": "4464d43cc83d3b0a",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "genel_es",
+  "src": "tr:notice.new_task_many.say",
+  "text": "Maceralar panosunda yeni maceralar var.",
+  "tts": "Maceralar panosunda yeni maceralar var.",
+  "kaydi_var": false
+ },
+ {
+  "key": "5ba64b1940fe3f7e",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.news_many.say",
+  "text": "Ailenden yeni maceralar var! Yapınca Güneş Taşı kazanırsın.",
+  "tts": "Ailenden yeni maceralar var! Yapınca Güneş Taşı kazanırsın.",
+  "kaydi_var": false
+ },
+ {
+  "key": "32ff8fb2a998aaba",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.retry_one.say",
+  "text": "Ailenden bir not getirdim! Bir maceranı bir daha dener misin?",
+  "tts": "Ailenden bir not getirdim! Bir maceranı bir daha dener misin?",
+  "kaydi_var": false
+ },
+ {
+  "key": "4ed40128b67bbdf9",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.retry_many.say",
+  "text": "Ailenden not getirdim! Bazı maceraları bir daha dener misin?",
+  "tts": "Ailenden not getirdim! Bazı maceraları bir daha dener misin?",
+  "kaydi_var": false
+ },
+ {
+  "key": "bd17168e4eba9a5c",
+  "role": "adali",
+  "who": "mavi",
+  "kalip": "mavi_haber",
+  "src": "tr:mavi.news_one",
+  "text": "Ailenden yeni bir macera var! Yapınca Güneş Taşı kazanırsın.",
+  "tts": "Ailenden yeni bir macera var! Yapınca Güneş Taşı kazanırsın.",
+  "kaydi_var": false
+ },
+ {
+  "key": "a660f085ed78ff58",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:notice.new_task_one",
+  "text": "Maceralar panosunda yeni bir macera var",
+  "tts": "Maceralar panosunda yeni bir macera var",
+  "kaydi_var": false
+ },
+ {
+  "key": "fd1c780716cc8bcb",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:notice.try_again_many",
+  "text": "Bazı maceralar bu sefer olmadı, sorun değil",
+  "tts": "Bazı maceralar bu sefer olmadı, sorun değil",
+  "kaydi_var": false
+ },
+ {
+  "key": "454aaa43fd875791",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "haber",
+  "src": "tr:tasks.xp_goal",
+  "text": "Harika! Bugünkü yıldız hedefine ulaştın. Sorumlulukların inci ve Güneş Taşı kazandırmaya devam ediyor!",
+  "tts": "Harika! Bugünkü yıldız hedefine ulaştın. Sorumlulukların inci ve Güneş Taşı kazandırmaya devam ediyor!",
+  "kaydi_var": false
+ },
+ {
+  "key": "b0aeaa1e81c8761c",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "nasil_oynanir",
+  "src": "tr:howto.home_tasks",
+  "text": "Maceralar. Ailenin verdiği sorumluluğu yapınca Yaptım'a bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.",
+  "tts": "Maceralar. Ailenin verdiği sorumluluğu yapınca Yaptıma bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.",
+  "kaydi_var": false
+ },
+ {
+  "key": "5144eff835da68c2",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:gift.reveal",
+  "text": "Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin macerasının ödülü.",
+  "tts": "Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin macerasının ödülü.",
+  "kaydi_var": false
+ },
+ {
+  "key": "e3afbe6e299cf668",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:rewards.intro",
+  "text": "Maceralarını yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
+  "tts": "Maceralarını yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
+  "kaydi_var": false
+ },
+ {
+  "key": "d6107c6af4d9843f",
+  "role": "anlatici",
+  "who": "narrator",
+  "kalip": "tanitim_karti",
+  "src": "tr:gift.card",
+  "text": "Hoş geldin maceranı yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki sorumluluklarını yapınca kazanırsın.",
+  "tts": "Hoş geldin maceranı yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki sorumluluklarını yapınca kazanırsın.",
+  "kaydi_var": false
+ }
+]

@@ -34,14 +34,14 @@
   "aciklama": "Hikâye sahnesi, Okti konuşuyor (çocuksu, neşeli)",
   "karakter": "Okti (C)",
   "satir_sayisi": 39,
-  "sessiz": 0,
+  "sessiz": 2,
   "ornek": {
-   "key": "b4aee0a9cb2bbe7f",
+   "key": "559af045fd5d3541",
    "role": "okti",
    "who": "okti",
-   "src": "story:ch1_coconut:3:text",
-   "text": "Tabii! Nerede bulurum?",
-   "tts": "Tabii! Nerede bulurum?"
+   "src": "story:ch1_board:2:text",
+   "text": "Mavi de bana bir macera bırakmış!",
+   "tts": "Mavi de bana bir macera bırakmış!"
   }
  },
  {
@@ -49,7 +49,7 @@
   "aciklama": "Hikâye sahnesi, adalı konuşuyor (Kıskaç, Tosbi, Pıtır, Hışır, Nur, Pus)",
   "karakter": "Adalılar (H)",
   "satir_sayisi": 69,
-  "sessiz": 0,
+  "sessiz": 5,
   "ornek": {
    "key": "bf6e9ed34a3e61a2",
    "role": "adali",
@@ -66,12 +66,12 @@
   "satir_sayisi": 19,
   "sessiz": 2,
   "ornek": {
-   "key": "0acf178e6c9bfff9",
+   "key": "06a44c51d9e3756d",
    "role": "adali",
    "who": "mavi",
-   "src": "story:ch2_close:3:text",
-   "text": "Akşamları kamp ateşinin başında toplanırız. Ateş için biraz odun lazım, kütüklerden toplayalım mı?",
-   "tts": "Akşamları kamp ateşinin başında toplanırız. Ateş için biraz odun lazım, kütüklerden toplayalım mı?"
+   "src": "story:ch2_open:4:text",
+   "text": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin macerası bıraktım!",
+   "tts": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin macerası bıraktım!"
   }
  },
  {
@@ -79,7 +79,7 @@
   "aciklama": "Rehber adımı: kısa yönerge + neden (\"Okti'ye dokun, elmayı seç: karnı doysun!\")",
   "karakter": "Anlatıcı (B)",
   "satir_sayisi": 47,
-  "sessiz": 5,
+  "sessiz": 3,
   "ornek": {
    "key": "ee0eff24158bcc01",
    "role": "anlatici",
@@ -94,14 +94,14 @@
   "aciklama": "Tanıtım ipucu: el ekranda gösterirken okunan kısa cümle",
   "karakter": "Anlatıcı (B)",
   "satir_sayisi": 36,
-  "sessiz": 2,
+  "sessiz": 3,
   "ornek": {
-   "key": "eb450c5e12b192d5",
+   "key": "ab8033af8ee445fc",
    "role": "anlatici",
    "who": "narrator",
-   "src": "tr:tip.look",
-   "text": "Bir yere dokun: Okti oraya yürüsün!",
-   "tts": "Bir yere dokun: Okti oraya yürüsün!"
+   "src": "tr:tip.mark",
+   "text": "Sorumluluğunu yapınca Yaptım'a bas!",
+   "tts": "Sorumluluğunu yapınca Yaptıma bas!"
   }
  },
  {
@@ -109,7 +109,7 @@
   "aciklama": "Okti'nin tek cümlelik tepkisi (bakım, soluklanma, sevilme)",
   "karakter": "Okti (C)",
   "satir_sayisi": 19,
-  "sessiz": 18,
+  "sessiz": 0,
   "ornek": {
    "key": "5e465532576ffa7f",
    "role": "okti",
@@ -124,7 +124,7 @@
   "aciklama": "Mavi'nin haberi (posta, görev, Yıldız Kapısı)",
   "karakter": "Adalılar (H)",
   "satir_sayisi": 7,
-  "sessiz": 7,
+  "sessiz": 4,
   "ornek": {
    "key": "f31f54d52f6d2a6c",
    "role": "adali",
@@ -139,14 +139,14 @@
   "aciklama": "Adalı selamı ve isteği",
   "karakter": "Adalılar (H)",
   "satir_sayisi": 15,
-  "sessiz": 4,
+  "sessiz": 0,
   "ornek": {
-   "key": "af1e2f5da1cfdea7",
+   "key": "9905c2d26bee0297",
    "role": "adali",
    "who": "mavi",
-   "src": "tr:res.hi_mavi_mail",
-   "text": "Sana mektup getirdim! Evinin önündeki posta kutusuna bak.",
-   "tts": "Sana mektup getirdim! Evinin önündeki posta kutusuna bak."
+   "src": "request:req_mavi_branch",
+   "text": "Posta çantamı onarmak için 2 dal lazım.",
+   "tts": "Posta çantamı onarmak için 2 dal lazım."
   }
  },
  {
@@ -154,7 +154,7 @@
   "aciklama": "Değişen bilgili cümlenin genel eşi (ekranda görev/ad yazar, ses genel cümleyi okur)",
   "karakter": "Anlatıcı (B)",
   "satir_sayisi": 44,
-  "sessiz": 44,
+  "sessiz": 5,
   "ornek": {
    "key": "bd5c3e4d200f10e8",
    "role": "anlatici",
@@ -169,7 +169,7 @@
   "aciklama": "Kısa haber / geri bildirim (sandık, görev, bildirim, çanta, hedef)",
   "karakter": "Anlatıcı (B)",
   "satir_sayisi": 17,
-  "sessiz": 16,
+  "sessiz": 4,
   "ornek": {
    "key": "3305781fa4b7f9af",
    "role": "anlatici",
@@ -184,14 +184,14 @@
   "aciklama": "Çok cümleli tanıtım/bilgi kartı (hediye taş, gerçek ödüller, Boncuk nedir, çocuğa not)",
   "karakter": "Anlatıcı (B)",
   "satir_sayisi": 9,
-  "sessiz": 3,
+  "sessiz": 5,
   "ornek": {
-   "key": "520d41051196d163",
+   "key": "afa56a1b87440779",
    "role": "anlatici",
    "who": "narrator",
    "src": "tr:coin.info",
-   "text": "İnciler adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
-   "tts": "İnciler adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir."
+   "text": "İnciler adanın hazinesidir. Sorumluluklarını tamamlayınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+   "tts": "İnciler adanın hazinesidir. Sorumluluklarını tamamlayınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir."
   }
  },
  {
@@ -199,7 +199,7 @@
   "aciklama": "Gezegen Koşusu bilgi kartı (Ay, uzay, Mısır gerçekleri)",
   "karakter": "Anlatıcı (B)",
   "satir_sayisi": 26,
-  "sessiz": 26,
+  "sessiz": 0,
   "ornek": {
    "key": "26b65b399dbd4b1c",
    "role": "anlatici",
@@ -214,14 +214,14 @@
   "aciklama": "Mini oyun ve ada eylemi yönergesi (bahçe, ateş, harita, dekor)",
   "karakter": "Anlatıcı (B)",
   "satir_sayisi": 28,
-  "sessiz": 25,
+  "sessiz": 0,
   "ornek": {
-   "key": "87f182272c5438fc",
+   "key": "d0d374892a320aeb",
    "role": "anlatici",
    "who": "narrator",
-   "src": "tr:decor.pick_first",
-   "text": "Önce alttan bir eşya seç.",
-   "tts": "Önce alttan bir eşya seç."
+   "src": "tr:gather.coconut_got",
+   "text": "Bir hindistan cevizi buldun!",
+   "tts": "Bir hindistan cevizi buldun!"
   }
  },
  {
@@ -229,7 +229,7 @@
   "aciklama": "Defter › Nasıl oynanır kartı (başlık + açıklama, tek kayıt)",
   "karakter": "Anlatıcı (B)",
   "satir_sayisi": 14,
-  "sessiz": 14,
+  "sessiz": 1,
   "ornek": {
    "key": "42b2f7c03c1e4d6a",
    "role": "anlatici",
@@ -244,7 +244,7 @@
   "aciklama": "Soru cümlesi: sonu yükselen ezgi (hikâye, haber, istek; \"geldin mi?\", \"Hazır mısın?\")",
   "karakter": "Adalılar (H)",
   "satir_sayisi": 30,
-  "sessiz": 10,
+  "sessiz": 2,
   "ornek": {
    "key": "897ff18add3ba246",
    "role": "adali",

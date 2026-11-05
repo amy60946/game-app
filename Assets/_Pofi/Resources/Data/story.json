@@ -204,27 +204,27 @@
    "chapter": 1,
    "trigger": "event",
    "arg": "board_guided",
-   "summary": "Ev Görevleri panosu: Mavi'nin hoş geldin görevi burada; yaptığın her görev bir Güneş Taşı getirir.",
+   "summary": "Maceralar panosu: Mavi'nin hoş geldin macerası burada; yaptığın her macera bir Güneş Taşı getirir.",
    "lines": [
     {
      "who": "kiskac",
-     "text": "Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.",
-     "a": "Evdeki büyüklerin buraya görev bırakır."
+     "text": "Bu pano çok önemli. Evdeki büyüklerin buraya macera bırakır.",
+     "a": "Evdeki büyüklerin buraya macera bırakır."
     },
     {
      "who": "kiskac",
-     "text": "Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!",
-     "a": "Görevi yapınca Güneş Taşı gelir!"
+     "text": "Macerayı yapınca ışıklı bir taş gelir: Güneş Taşı!",
+     "a": "Macerayı yapınca Güneş Taşı gelir!"
     },
     {
      "who": "okti",
-     "text": "Mavi de bana bir görev bırakmış!",
-     "a": "Mavi'nin görevi burada!",
+     "text": "Mavi de bana bir macera bırakmış!",
+     "a": "Mavi'nin macerası burada!",
      "mood": "happy"
     },
     {
      "who": "kiskac",
-     "text": "Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
+     "text": "Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin verdiği sorumluluklardan gelir.",
      "a": "Yaptım'a bas, taş senin!",
      "mood": "happy"
     }
@@ -296,8 +296,8 @@
     },
     {
      "who": "mavi",
-     "text": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!",
-     "a": "Panoya sana bir görev bıraktım!",
+     "text": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin macerası bıraktım!",
+     "a": "Panoya sana bir macera bıraktım!",
      "mood": "happy"
     },
     {

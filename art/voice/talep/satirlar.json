@@ -380,74 +380,74 @@
   "kaydi_var": true
  },
  {
-  "key": "4214ec568063e929",
+  "key": "905fca5b92c99933",
   "role": "adali",
   "who": "kiskac",
   "kalip": "hikaye_adali",
   "src": "story:ch1_board:0:text",
-  "text": "Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.",
-  "tts": "Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.",
-  "kaydi_var": true
+  "text": "Bu pano çok önemli. Evdeki büyüklerin buraya macera bırakır.",
+  "tts": "Bu pano çok önemli. Evdeki büyüklerin buraya macera bırakır.",
+  "kaydi_var": false
  },
  {
-  "key": "afb1b8b7229e055e",
+  "key": "5577acf2a1a065b4",
   "role": "adali",
   "who": "kiskac",
   "kalip": "hikaye_adali",
   "src": "story:ch1_board:0:a",
-  "text": "Evdeki büyüklerin buraya görev bırakır.",
-  "tts": "Evdeki büyüklerin buraya görev bırakır.",
-  "kaydi_var": true
+  "text": "Evdeki büyüklerin buraya macera bırakır.",
+  "tts": "Evdeki büyüklerin buraya macera bırakır.",
+  "kaydi_var": false
  },
  {
-  "key": "72fcc3ff8aa6bbf3",
+  "key": "801d911650b59eae",
   "role": "adali",
   "who": "kiskac",
   "kalip": "hikaye_adali",
   "src": "story:ch1_board:1:text",
-  "text": "Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!",
-  "tts": "Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!",
-  "kaydi_var": true
+  "text": "Macerayı yapınca ışıklı bir taş gelir: Güneş Taşı!",
+  "tts": "Macerayı yapınca ışıklı bir taş gelir: Güneş Taşı!",
+  "kaydi_var": false
  },
  {
-  "key": "a44c382dccc586d1",
+  "key": "126f2ad290775e96",
   "role": "adali",
   "who": "kiskac",
   "kalip": "hikaye_adali",
   "src": "story:ch1_board:1:a",
-  "text": "Görevi yapınca Güneş Taşı gelir!",
-  "tts": "Görevi yapınca Güneş Taşı gelir!",
-  "kaydi_var": true
+  "text": "Macerayı yapınca Güneş Taşı gelir!",
+  "tts": "Macerayı yapınca Güneş Taşı gelir!",
+  "kaydi_var": false
  },
  {
-  "key": "1e84605228bee57f",
+  "key": "559af045fd5d3541",
   "role": "okti",
   "who": "okti",
   "kalip": "hikaye_okti",
   "src": "story:ch1_board:2:text",
-  "text": "Mavi de bana bir görev bırakmış!",
-  "tts": "Mavi de bana bir görev bırakmış!",
-  "kaydi_var": true
+  "text": "Mavi de bana bir macera bırakmış!",
+  "tts": "Mavi de bana bir macera bırakmış!",
+  "kaydi_var": false
  },
  {
-  "key": "7deecc6a2a733882",
+  "key": "5786baca6fd1448d",
   "role": "okti",
   "who": "okti",
   "kalip": "hikaye_okti",
   "src": "story:ch1_board:2:a",
-  "text": "Mavi'nin görevi burada!",
-  "tts": "Mavi'nin görevi burada!",
-  "kaydi_var": true
+  "text": "Mavi'nin macerası burada!",
+  "tts": "Mavi'nin macerası burada!",
+  "kaydi_var": false
  },
  {
-  "key": "fdf32fb1a7effde2",
+  "key": "c7fe6f11a3682bcb",
   "role": "adali",
   "who": "kiskac",
   "kalip": "hikaye_adali",
   "src": "story:ch1_board:3:text",
-  "text": "Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
-  "tts": "Hadi, Yaptıma bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.",
-  "kaydi_var": true
+  "text": "Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin verdiği sorumluluklardan gelir.",
+  "tts": "Hadi, Yaptıma bas: ilk taşın senin! Sonrakiler ailenin verdiği sorumluluklardan gelir.",
+  "kaydi_var": false
  },
  {
   "key": "58dfcf8d3c038cae",
@@ -610,24 +610,24 @@
   "kaydi_var": true
  },
  {
-  "key": "75dda12e5285d87e",
+  "key": "06a44c51d9e3756d",
   "role": "adali",
   "who": "mavi",
   "kalip": "hikaye_mavi",
   "src": "story:ch2_open:4:text",
-  "text": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!",
-  "tts": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!",
-  "kaydi_var": true
+  "text": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin macerası bıraktım!",
+  "tts": "Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin macerası bıraktım!",
+  "kaydi_var": false
  },
  {
-  "key": "c6b667c7985a4e6c",
+  "key": "6cbe79c571672842",
   "role": "adali",
   "who": "mavi",
   "kalip": "hikaye_mavi",
   "src": "story:ch2_open:4:a",
-  "text": "Panoya sana bir görev bıraktım!",
-  "tts": "Panoya sana bir görev bıraktım!",
-  "kaydi_var": true
+  "text": "Panoya sana bir macera bıraktım!",
+  "tts": "Panoya sana bir macera bıraktım!",
+  "kaydi_var": false
  },
  {
   "key": "8ec655319b977d84",
@@ -757,7 +757,7 @@
   "src": "story:ch2_close:3:text",
   "text": "Akşamları kamp ateşinin başında toplanırız. Ateş için biraz odun lazım, kütüklerden toplayalım mı?",
   "tts": "Akşamları kamp ateşinin başında toplanırız. Ateş için biraz odun lazım, kütüklerden toplayalım mı?",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "c34ff635145e46dc",
@@ -767,7 +767,7 @@
   "src": "story:ch2_close:3:a",
   "text": "Ateş için odun toplayalım mı?",
   "tts": "Ateş için odun toplayalım mı?",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "edc7686b691ac879",
@@ -1847,7 +1847,7 @@
   "src": "tr:tip.walk",
   "text": "Parmağını kaydır: Okti yürüsün!",
   "tts": "Parmağını kaydır: Okti yürüsün!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "eb450c5e12b192d5",
@@ -1857,7 +1857,7 @@
   "src": "tr:tip.look",
   "text": "Bir yere dokun: Okti oraya yürüsün!",
   "tts": "Bir yere dokun: Okti oraya yürüsün!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "8bc1266c6462a624",
@@ -1917,7 +1917,7 @@
   "src": "tr:res.hi_mavi",
   "text": "Ben postacı Mavi! Ailen sana mektup yazınca, evinin önündeki kutuya ben getiririm.",
   "tts": "Ben postacı Mavi! Ailen sana mektup yazınca, evinin önündeki kutuya ben getiririm.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "af1e2f5da1cfdea7",
@@ -1927,7 +1927,7 @@
   "src": "tr:res.hi_mavi_mail",
   "text": "Sana mektup getirdim! Evinin önündeki posta kutusuna bak.",
   "tts": "Sana mektup getirdim! Evinin önündeki posta kutusuna bak.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "40c323cd16b976c4",
@@ -2080,14 +2080,14 @@
   "kaydi_var": true
  },
  {
-  "key": "404b379f29660f61",
+  "key": "c7a0865e17400985",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "ipucu",
   "src": "tr:tip.board",
-  "text": "Ev Görevleri panosuna git!",
-  "tts": "Ev Görevleri panosuna git!",
-  "kaydi_var": true
+  "text": "Maceralar panosuna git!",
+  "tts": "Maceralar panosuna git!",
+  "kaydi_var": false
  },
  {
   "key": "c1e92621bc4aa7b7",
@@ -2140,14 +2140,14 @@
   "kaydi_var": true
  },
  {
-  "key": "5a5dff4822093ac7",
+  "key": "f2833786660bee53",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "rehber",
   "src": "tr:guide.board",
-  "text": "Ev Görevleri panosuna git: yeni taşlar burada!",
-  "tts": "Ev Görevleri panosuna git: yeni taşlar burada!",
-  "kaydi_var": true
+  "text": "Maceralar panosuna git: yeni taşlar burada!",
+  "tts": "Maceralar panosuna git: yeni taşlar burada!",
+  "kaydi_var": false
  },
  {
   "key": "384353bbc381e0a8",
@@ -2190,14 +2190,14 @@
   "kaydi_var": true
  },
  {
-  "key": "21bd65f3eb97c215",
+  "key": "21e4e3a1f6bf231f",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "rehber",
   "src": "tr:guide.stone",
-  "text": "Görevle kazandığın taşı koydaki sise götür!",
-  "tts": "Görevle kazandığın taşı koydaki sise götür!",
-  "kaydi_var": true
+  "text": "Maceradan kazandığın taşı koydaki sise götür!",
+  "tts": "Maceradan kazandığın taşı koydaki sise götür!",
+  "kaydi_var": false
  },
  {
   "key": "3e42622012a522ba",
@@ -2297,7 +2297,7 @@
   "src": "tr:guide.pick_play",
   "text": "Topa dokun: birlikte oynayın!",
   "tts": "Topa dokun: birlikte oynayın!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "3b3e42fa4fc91e5b",
@@ -2307,7 +2307,7 @@
   "src": "tr:guide.play_pet",
   "text": "Okti'ye dokun, birlikte top oynayın!",
   "tts": "Okti'ye dokun, birlikte top oynayın!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "c25956b78f1ca27f",
@@ -2457,17 +2457,17 @@
   "src": "tr:guide.done.say",
   "text": "Rehber görevi tamam!",
   "tts": "Rehber görevi tamam!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
-  "key": "e6660ad2dc4dfa59",
+  "key": "ab8033af8ee445fc",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "ipucu",
   "src": "tr:tip.mark",
-  "text": "Görevi yapınca Yaptım'a bas!",
-  "tts": "Görevi yapınca Yaptıma bas!",
-  "kaydi_var": true
+  "text": "Sorumluluğunu yapınca Yaptım'a bas!",
+  "tts": "Sorumluluğunu yapınca Yaptıma bas!",
+  "kaydi_var": false
  },
  {
   "key": "970acf480b821ac6",
@@ -2490,14 +2490,14 @@
   "kaydi_var": true
  },
  {
-  "key": "a402e79cabb0ac68",
+  "key": "681a93e2f3ea820a",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "ipucu",
   "src": "tr:tip.tasks_home",
-  "text": "Ailenden gelen görevler burada. Yapınca Güneş Taşı kazanırsın!",
-  "tts": "Ailenden gelen görevler burada. Yapınca Güneş Taşı kazanırsın!",
-  "kaydi_var": true
+  "text": "Ailenden gelen maceralar burada. Yapınca Güneş Taşı kazanırsın!",
+  "tts": "Ailenden gelen maceralar burada. Yapınca Güneş Taşı kazanırsın!",
+  "kaydi_var": false
  },
  {
   "key": "40b82e9dfbd24345",
@@ -2597,7 +2597,7 @@
   "src": "tr:guide.quests",
   "text": "Bir görevin bitti! Yıldıza dokun, ödülünü al.",
   "tts": "Bir görevin bitti! Yıldıza dokun, ödülünü al.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "65706546816c49e2",
@@ -2607,7 +2607,7 @@
   "src": "tr:guide.quests_claim",
   "text": "Bu görevi bitirdin! Al'a dokun, ödülün senin.",
   "tts": "Bu görevi bitirdin! Al'a dokun, ödülün senin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "9539ce0707d58e71",
@@ -2657,7 +2657,7 @@
   "src": "tr:welcome.coins",
   "text": "Kıskaç'tan hoş geldin hediyesi: 20 tane inci! İlk aksesuarını alabilirsin.",
   "tts": "Kıskaç'tan hoş geldin hediyesi: 20 tane inci! İlk aksesuarını alabilirsin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "d0d374892a320aeb",
@@ -2790,14 +2790,14 @@
   "kaydi_var": true
  },
  {
-  "key": "5fa2b5914c88bf64",
+  "key": "1f1175a1af23e87e",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "rehber",
   "src": "tr:guide.gift",
-  "text": "Mavi panoya sana bir görev bıraktı: panoya git!",
-  "tts": "Mavi panoya sana bir görev bıraktı: panoya git!",
-  "kaydi_var": true
+  "text": "Mavi panoya sana bir macera bıraktı: panoya git!",
+  "tts": "Mavi panoya sana bir macera bıraktı: panoya git!",
+  "kaydi_var": false
  },
  {
   "key": "33b4de6a39fafe56",
@@ -2820,33 +2820,33 @@
   "kaydi_var": true
  },
  {
-  "key": "475b309b96a69b31",
+  "key": "8fc8679cd084dfec",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "haber",
   "src": "tr:welcome_task.tip",
-  "text": "Mavi'nin görevini yaptın! Yaptım'a bas.",
-  "tts": "Mavi'nin görevini yaptın! Yaptıma bas.",
-  "kaydi_var": true
+  "text": "Mavi'nin macerasını yaptın! Yaptım'a bas.",
+  "tts": "Mavi'nin macerasını yaptın! Yaptıma bas.",
+  "kaydi_var": false
  },
  {
-  "key": "c5d5ef365e37f1fc",
+  "key": "87f7d10baf8a9c42",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "tanitim_karti",
   "src": "tr:info.child",
-  "text": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği görevleri. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
-  "tts": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği görevleri. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
-  "kaydi_var": true
+  "text": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği sorumlulukları. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
+  "tts": "Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği sorumlulukları. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.",
+  "kaydi_var": false
  },
  {
-  "key": "520d41051196d163",
+  "key": "afa56a1b87440779",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "tanitim_karti",
   "src": "tr:coin.info",
-  "text": "İnciler adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
-  "tts": "İnciler adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+  "text": "İnciler adanın hazinesidir. Sorumluluklarını tamamlayınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
+  "tts": "İnciler adanın hazinesidir. Sorumluluklarını tamamlayınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.",
   "kaydi_var": false
  },
  {
@@ -2857,7 +2857,7 @@
   "src": "tr:shop.locked.say",
   "text": "Bu, daha sonraki bir seviyede açılır.",
   "tts": "Bu, daha sonraki bir seviyede açılır.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "219ebf3e07ac395b",
@@ -2867,7 +2867,7 @@
   "src": "tr:map.sparkle_new.say",
   "text": "Yeni bir şey buldun! Deftere eklendi.",
   "tts": "Yeni bir şey buldun! Deftere eklendi.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "22f31ac3004295b5",
@@ -2877,7 +2877,7 @@
   "src": "tr:map.sparkle_again.say",
   "text": "Bunu yine buldun!",
   "tts": "Bunu yine buldun!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "c39f739e6e8e005d",
@@ -2887,7 +2887,7 @@
   "src": "tr:garden.harvested.say",
   "text": "Hasat ettin!",
   "tts": "Hasat ettin!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "d3a9e1a6938f6cae",
@@ -2897,7 +2897,7 @@
   "src": "tr:map.locked.say",
   "text": "Burası daha sonraki bir seviyede açılır.",
   "tts": "Burası daha sonraki bir seviyede açılır.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "ced62f7dae5e9fcb",
@@ -2907,7 +2907,7 @@
   "src": "tr:map.soon.say",
   "text": "Burası yakında açılacak!",
   "tts": "Burası yakında açılacak!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "627b64b471f96068",
@@ -2917,7 +2917,7 @@
   "src": "tr:bag.seed_tip.say",
   "text": "Tohumlar bahçede ekilir.",
   "tts": "Tohumlar bahçede ekilir.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "bfd662d174e70c01",
@@ -2927,7 +2927,7 @@
   "src": "tr:bag.mat_tip.say",
   "text": "Malzemeler kulübe ve istekler için.",
   "tts": "Malzemeler kulübe ve istekler için.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "eee419e79d821ec7",
@@ -2937,7 +2937,7 @@
   "src": "tr:stones.placed_more.say",
   "text": "Taş yerleşti! Biraz daha taş lazım.",
   "tts": "Taş yerleşti! Biraz daha taş lazım.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "f51824699625d286",
@@ -2947,7 +2947,7 @@
   "src": "tr:stones.not_next.say",
   "text": "Önce sıradaki yeri onarmalıyız.",
   "tts": "Önce sıradaki yeri onarmalıyız.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "5120fa4aebae1055",
@@ -2957,7 +2957,7 @@
   "src": "tr:stones.earned.say",
   "text": "Güneş Taşı kazandın!",
   "tts": "Güneş Taşı kazandın!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "2bfc8414e07691dd",
@@ -2967,7 +2967,7 @@
   "src": "tr:map.locked_stones.say",
   "text": "Burayı açmak için Güneş Taşı gerekiyor.",
   "tts": "Burayı açmak için Güneş Taşı gerekiyor.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "bd5c3e4d200f10e8",
@@ -2977,7 +2977,7 @@
   "src": "tr:quest.ready.say",
   "text": "Görevin tamam! Ödülün Görev'de seni bekliyor.",
   "tts": "Görevin tamam! Ödülün Görev'de seni bekliyor.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "4d4058d8b3d088a3",
@@ -2987,7 +2987,7 @@
   "src": "tr:map.overview_walk.say",
   "text": "Oraya yürüyerek gidebilirsin.",
   "tts": "Oraya yürüyerek gidebilirsin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "6b4c7ee8a31aa917",
@@ -2997,7 +2997,7 @@
   "src": "tr:levelup.home.say",
   "text": "Hediyen Evim'e gitti.",
   "tts": "Hediyen Evim'e gitti.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "0927928ca4aee4e9",
@@ -3007,7 +3007,7 @@
   "src": "tr:levelup.home_n.say",
   "text": "Hediyelerin Evim'e gitti.",
   "tts": "Hediyelerin Evim'e gitti.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "d6072e97d75a1dfe",
@@ -3017,7 +3017,7 @@
   "src": "tr:routine.done_toast.say",
   "text": "Rutin tamam!",
   "tts": "Rutin tamam!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "5b7ea7c0be3c9906",
@@ -3027,7 +3027,7 @@
   "src": "tr:rewards.one_at_a_time.say",
   "text": "Bekleyen bir isteğin var. Ailen bakınca yenisini isteyebilirsin.",
   "tts": "Bekleyen bir isteğin var. Ailen bakınca yenisini isteyebilirsin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "379b29907f60c6a7",
@@ -3037,7 +3037,7 @@
   "src": "tr:rewards.left.say",
   "text": "Biraz daha Güneş Taşı lazım.",
   "tts": "Biraz daha Güneş Taşı lazım.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "208046dd2eb2b0b1",
@@ -3047,7 +3047,7 @@
   "src": "tr:notice.reward_given.say",
   "text": "Ödülün hazır!",
   "tts": "Ödülün hazır!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "1ec9448e262dfcc9",
@@ -3057,7 +3057,7 @@
   "src": "tr:notice.reward_waits.say",
   "text": "Bu istek şimdilik olmadı. Başka zaman yine isteyebilirsin.",
   "tts": "Bu istek şimdilik olmadı. Başka zaman yine isteyebilirsin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "5204b4d4a18832c3",
@@ -3067,36 +3067,36 @@
   "src": "tr:notice.stones_deducted.say",
   "text": "Ailen Güneş Taşı düştü.",
   "tts": "Ailen Güneş Taşı düştü.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
-  "key": "4296f23867da3ecc",
+  "key": "7668e731046495eb",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "genel_es",
   "src": "tr:notice.approved_one.say",
-  "text": "Aferin! Görevin onaylandı.",
-  "tts": "Aferin! Görevin onaylandı.",
+  "text": "Aferin! Maceran onaylandı.",
+  "tts": "Aferin! Maceran onaylandı.",
   "kaydi_var": false
  },
  {
-  "key": "c8b3197ada5fe44d",
+  "key": "fc4f61af4f0458aa",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "genel_es",
   "src": "tr:notice.retry_one.say",
-  "text": "Ailen bir görevini bir daha denemeni istiyor.",
-  "tts": "Ailen bir görevini bir daha denemeni istiyor.",
+  "text": "Ailen bir maceranı bir daha denemeni istiyor.",
+  "tts": "Ailen bir maceranı bir daha denemeni istiyor.",
   "kaydi_var": false
  },
  {
-  "key": "82210c47f473e456",
+  "key": "bea69d5a158c3ddc",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "genel_es",
   "src": "tr:notice.retry_many.say",
-  "text": "Ailen bazı görevleri bir daha denemeni istiyor.",
-  "tts": "Ailen bazı görevleri bir daha denemeni istiyor.",
+  "text": "Ailen bazı maceraları bir daha denemeni istiyor.",
+  "tts": "Ailen bazı maceraları bir daha denemeni istiyor.",
   "kaydi_var": false
  },
  {
@@ -3107,7 +3107,7 @@
   "src": "tr:notice.gift_one.say",
   "text": "Sana bir hediye geldi! Posta kutuna bak.",
   "tts": "Sana bir hediye geldi! Posta kutuna bak.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "f283d97e410052f3",
@@ -3117,56 +3117,56 @@
   "src": "tr:notice.gift_many.say",
   "text": "Hediyeler geldi! Posta kutuna bak.",
   "tts": "Hediyeler geldi! Posta kutuna bak.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
-  "key": "54e1595d0f763d6b",
+  "key": "9925d5f50d27ac93",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "genel_es",
   "src": "tr:notice.approved_many.say",
-  "text": "Aferin! Görevlerin onaylandı.",
-  "tts": "Aferin! Görevlerin onaylandı.",
+  "text": "Aferin! Maceraların onaylandı.",
+  "tts": "Aferin! Maceraların onaylandı.",
   "kaydi_var": false
  },
  {
-  "key": "b5b90d2c5c74fee4",
+  "key": "4464d43cc83d3b0a",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "genel_es",
   "src": "tr:notice.new_task_many.say",
-  "text": "Ev Görevleri panosunda yeni görevler var.",
-  "tts": "Ev Görevleri panosunda yeni görevler var.",
+  "text": "Maceralar panosunda yeni maceralar var.",
+  "tts": "Maceralar panosunda yeni maceralar var.",
   "kaydi_var": false
  },
  {
-  "key": "e289574e7a279994",
+  "key": "5ba64b1940fe3f7e",
   "role": "adali",
   "who": "mavi",
   "kalip": "mavi_haber",
   "src": "tr:mavi.news_many.say",
-  "text": "Ailenden yeni görevler var! Yapınca Güneş Taşı kazanırsın.",
-  "tts": "Ailenden yeni görevler var! Yapınca Güneş Taşı kazanırsın.",
+  "text": "Ailenden yeni maceralar var! Yapınca Güneş Taşı kazanırsın.",
+  "tts": "Ailenden yeni maceralar var! Yapınca Güneş Taşı kazanırsın.",
   "kaydi_var": false
  },
  {
-  "key": "36a20a1a88c98d67",
+  "key": "32ff8fb2a998aaba",
   "role": "adali",
   "who": "mavi",
   "kalip": "mavi_haber",
   "src": "tr:mavi.retry_one.say",
-  "text": "Ailenden bir not getirdim! Bir görevini bir daha dener misin?",
-  "tts": "Ailenden bir not getirdim! Bir görevini bir daha dener misin?",
+  "text": "Ailenden bir not getirdim! Bir maceranı bir daha dener misin?",
+  "tts": "Ailenden bir not getirdim! Bir maceranı bir daha dener misin?",
   "kaydi_var": false
  },
  {
-  "key": "9e868f0ab64ea503",
+  "key": "4ed40128b67bbdf9",
   "role": "adali",
   "who": "mavi",
   "kalip": "mavi_haber",
   "src": "tr:mavi.retry_many.say",
-  "text": "Ailenden not getirdim! Bazı görevleri bir daha dener misin?",
-  "tts": "Ailenden not getirdim! Bazı görevleri bir daha dener misin?",
+  "text": "Ailenden not getirdim! Bazı maceraları bir daha dener misin?",
+  "tts": "Ailenden not getirdim! Bazı maceraları bir daha dener misin?",
   "kaydi_var": false
  },
  {
@@ -3177,7 +3177,7 @@
   "src": "tr:mavi.gift_one.say",
   "text": "Sana bir paket getirdim! Posta kutusunda seni bekliyor.",
   "tts": "Sana bir paket getirdim! Posta kutusunda seni bekliyor.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "1b6577b69c0e8cad",
@@ -3187,7 +3187,7 @@
   "src": "tr:mavi.gift_many.say",
   "text": "Sana paketler getirdim! Posta kutusunda seni bekliyor.",
   "tts": "Sana paketler getirdim! Posta kutusunda seni bekliyor.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "c39c6f89879418a7",
@@ -3197,7 +3197,7 @@
   "src": "tr:notice.try_again_one.say",
   "text": "Bu sefer olmadı, sorun değil.",
   "tts": "Bu sefer olmadı, sorun değil.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "92e9b666b3a57895",
@@ -3207,7 +3207,7 @@
   "src": "tr:gather.need.say",
   "text": "Kulübe için biraz daha malzeme lazım.",
   "tts": "Kulübe için biraz daha malzeme lazım.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "4f1160f017f65852",
@@ -3217,7 +3217,7 @@
   "src": "tr:wardrobe.locked.say",
   "text": "Bu eşya daha sonraki bir seviyede açılır.",
   "tts": "Bu eşya daha sonraki bir seviyede açılır.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "6059dbe1abfdaadd",
@@ -3227,7 +3227,7 @@
   "src": "tr:chest.got.say",
   "text": "Sandıktan bir hediye çıktı!",
   "tts": "Sandıktan bir hediye çıktı!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "640acc24ea68d9a5",
@@ -3237,7 +3237,7 @@
   "src": "tr:chest.got_n.say",
   "text": "Sandıktan hediyeler çıktı!",
   "tts": "Sandıktan hediyeler çıktı!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "8779ff52c1dd5f85",
@@ -3247,7 +3247,7 @@
   "src": "tr:goal.done_toast.say",
   "text": "Haftalık hedef tamam! Güneş Taşı ve yıldızlar kazandın!",
   "tts": "Haftalık hedef tamam! Güneş Taşı ve yıldızlar kazandın!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "76093ad953b12336",
@@ -3257,7 +3257,7 @@
   "src": "tr:badge.earned.say",
   "text": "Yeni rozet kazandın! Kartına dokun, gör.",
   "tts": "Yeni rozet kazandın! Kartına dokun, gör.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "32ec9f82300c4ac8",
@@ -3267,7 +3267,7 @@
   "src": "tr:lore.found.say",
   "text": "Fener bekçisinin günlüğünden yeni bir sayfa buldun! Defter'de.",
   "tts": "Fener bekçisinin günlüğünden yeni bir sayfa buldun! Defter'de.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "5a710bae6573b999",
@@ -3277,7 +3277,7 @@
   "src": "tr:mail.new.say",
   "text": "Posta kutunda yeni mektup var!",
   "tts": "Posta kutunda yeni mektup var!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "47dab07cac33ef6a",
@@ -3287,7 +3287,7 @@
   "src": "tr:resident.thanks.say",
   "text": "Teşekkürler, çok iyi geldi!",
   "tts": "Teşekkürler, çok iyi geldi!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "9ca486015a2b90f2",
@@ -3297,7 +3297,7 @@
   "src": "tr:resident.thanks_item.say",
   "text": "Teşekkürler! Sana bir hediyem var.",
   "tts": "Teşekkürler! Sana bir hediyem var.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "dba8b0add57d60dd",
@@ -3307,7 +3307,7 @@
   "src": "tr:welcome.coins.say",
   "text": "Kıskaç'tan hoş geldin hediyesi! İlk aksesuarını alabilirsin.",
   "tts": "Kıskaç'tan hoş geldin hediyesi! İlk aksesuarını alabilirsin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "9a624a77a668a721",
@@ -3317,7 +3317,7 @@
   "src": "tr:rewards.locked.say",
   "text": "Gerçek ödüller birkaç seviye sonra açılır!",
   "tts": "Gerçek ödüller birkaç seviye sonra açılır!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "d33c855685d33a6b",
@@ -3327,7 +3327,7 @@
   "src": "tr:fire.need_wood.say",
   "text": "Ateş için odun getir!",
   "tts": "Ateş için odun getir!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "9f997bc2d968a951",
@@ -3337,7 +3337,7 @@
   "src": "tr:fire.stoked.say",
   "text": "Ateş harlandı!",
   "tts": "Ateş harlandı!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "870b98222d7a0e42",
@@ -3347,7 +3347,7 @@
   "src": "tr:gather.big_hit.say",
   "text": "Bir daha vur!",
   "tts": "Bir daha vur!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "8ed77d6df36d7a7f",
@@ -3357,7 +3357,7 @@
   "src": "tr:map.fog_here.say",
   "text": "Sis orada. Oklar yolu gösteriyor!",
   "tts": "Sis orada. Oklar yolu gösteriyor!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "7dce231c67d71446",
@@ -3367,7 +3367,7 @@
   "src": "tr:care.clean",
   "text": "Tertemizim, teşekkürler!",
   "tts": "Tertemizim, teşekkürler!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "f6d32fe112c5ca3e",
@@ -3377,7 +3377,7 @@
   "src": "tr:care.ok.feed",
   "text": "Mmm, çok lezzetli!",
   "tts": "Mmm, çok lezzetli!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "6a6acc6b281eba61",
@@ -3387,7 +3387,7 @@
   "src": "tr:care.ok.wash",
   "text": "Mis gibi oldum!",
   "tts": "Mis gibi oldum!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "2522d6bd6199093c",
@@ -3397,7 +3397,7 @@
   "src": "tr:care.ok.play",
   "text": "Yaşasın, oyun!",
   "tts": "Yaşasın, oyun!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "d6d207c0389f4a68",
@@ -3407,7 +3407,7 @@
   "src": "tr:care.ok.tidy",
   "text": "Evimiz pırıl pırıl oldu!",
   "tts": "Evimiz pırıl pırıl oldu!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "503b3c4ba4b51e36",
@@ -3417,7 +3417,7 @@
   "src": "tr:care.full",
   "text": "Karnım tok, teşekkürler!",
   "tts": "Karnım tok, teşekkürler!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "140538ed2cad61df",
@@ -3427,7 +3427,7 @@
   "src": "tr:care.no_item",
   "text": "Dolapta kalmamış. Dükkana bakalım mı?",
   "tts": "Dolapta kalmamış. Dükkana bakalım mı?",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "2c335ee87264fd10",
@@ -3437,7 +3437,7 @@
   "src": "tr:care.sad.fullness",
   "text": "Karnım biraz acıktı...",
   "tts": "Karnım biraz acıktı...",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "b31125884ca340c3",
@@ -3447,7 +3447,7 @@
   "src": "tr:care.sad.cleanliness",
   "text": "Biraz yıkansam iyi olur.",
   "tts": "Biraz yıkansam iyi olur.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "f8889c1ad8c01d5f",
@@ -3457,7 +3457,7 @@
   "src": "tr:care.sad.happiness",
   "text": "Benimle oynar mısın?",
   "tts": "Benimle oynar mısın?",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "c55dd239eb4e7b52",
@@ -3467,7 +3467,7 @@
   "src": "tr:care.sad.home",
   "text": "Evimizi biraz düzenleyelim mi?",
   "tts": "Evimizi biraz düzenleyelim mi?",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "6f4f0bdbbb306421",
@@ -3477,7 +3477,7 @@
   "src": "tr:care.sleeping",
   "text": "Şşş... Okti uyuyor. Sabah görüşürüz!",
   "tts": "Şşş... Okti uyuyor. Sabah görüşürüz!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "9b684fde3db6161c",
@@ -3487,7 +3487,7 @@
   "src": "tr:pet.welcome",
   "text": "Merhaba, ben Okti! Hadi adayı keşfedelim.",
   "tts": "Merhaba, ben Okti! Hadi adayı keşfedelim.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "d70ad867fa2ce083",
@@ -3497,7 +3497,7 @@
   "src": "tr:wardrobe.looks_good",
   "text": "Çok yakıştı!",
   "tts": "Çok yakıştı!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "135539ec9a1d9270",
@@ -3507,7 +3507,7 @@
   "src": "tr:runner.out_bubble",
   "text": "Biraz soluklanayım...",
   "tts": "Biraz soluklanayım...",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "0bf5c1f4a1b37465",
@@ -3517,7 +3517,7 @@
   "src": "tr:runner.oops",
   "text": "Ay! Dikkat!",
   "tts": "Ay! Dikkat!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "5e465532576ffa7f",
@@ -3527,7 +3527,7 @@
   "src": "tr:care.resting",
   "text": "Okti biraz soluklanıyor. Birazdan yine oynarız!",
   "tts": "Okti biraz soluklanıyor. Birazdan yine oynarız!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "f8a30038bdcbafd8",
@@ -3537,16 +3537,16 @@
   "src": "tr:care.petted",
   "text": "Ayy, ne güzel sevdin!",
   "tts": "Ayy, ne güzel sevdin!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
-  "key": "f5a8ba579920e9c6",
+  "key": "bd17168e4eba9a5c",
   "role": "adali",
   "who": "mavi",
   "kalip": "mavi_haber",
   "src": "tr:mavi.news_one",
-  "text": "Ailenden yeni bir görev var! Yapınca Güneş Taşı kazanırsın.",
-  "tts": "Ailenden yeni bir görev var! Yapınca Güneş Taşı kazanırsın.",
+  "text": "Ailenden yeni bir macera var! Yapınca Güneş Taşı kazanırsın.",
+  "tts": "Ailenden yeni bir macera var! Yapınca Güneş Taşı kazanırsın.",
   "kaydi_var": false
  },
  {
@@ -3557,7 +3557,7 @@
   "src": "tr:mavi.stargate",
   "text": "Bu Yıldız Kapısı! İçinden geçince Ay'da koşarsın. Hazır mısın?",
   "tts": "Bu Yıldız Kapısı! İçinden geçince Ay'da koşarsın. Hazır mısın?",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "424a097946aee840",
@@ -3567,7 +3567,7 @@
   "src": "tr:care.full_quest",
   "text": "Okti şu an tok. Acıkınca yine besle, görevin seni bekliyor!",
   "tts": "Okti şu an tok. Acıkınca yine besle, görevin seni bekliyor!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "bf02fabcfabfe673",
@@ -3577,7 +3577,7 @@
   "src": "tr:care.clean_quest",
   "text": "Okti şu an tertemiz. Biraz oynayınca yine yıka, görevin seni bekliyor!",
   "tts": "Okti şu an tertemiz. Biraz oynayınca yine yıka, görevin seni bekliyor!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "e2e0d46008012fe4",
@@ -3587,7 +3587,7 @@
   "src": "tr:map.exit_tip",
   "text": "Ayakkabıya dokun: yürümeye dön!",
   "tts": "Ayakkabıya dokun: yürümeye dön!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "c9fe20d1ef84fd99",
@@ -3597,26 +3597,26 @@
   "src": "tr:quest.where",
   "text": "Görevini bitirdin! Görevlerin hep burada.",
   "tts": "Görevini bitirdin! Görevlerin hep burada.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
-  "key": "bffe19655ffb5d2e",
+  "key": "a660f085ed78ff58",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "haber",
   "src": "tr:notice.new_task_one",
-  "text": "Ev Görevleri panosunda yeni bir görev var",
-  "tts": "Ev Görevleri panosunda yeni bir görev var",
+  "text": "Maceralar panosunda yeni bir macera var",
+  "tts": "Maceralar panosunda yeni bir macera var",
   "kaydi_var": false
  },
  {
-  "key": "b52658dc11fb2c41",
+  "key": "fd1c780716cc8bcb",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "haber",
   "src": "tr:notice.try_again_many",
-  "text": "Bazı görevler bu sefer olmadı, sorun değil",
-  "tts": "Bazı görevler bu sefer olmadı, sorun değil",
+  "text": "Bazı maceralar bu sefer olmadı, sorun değil",
+  "tts": "Bazı maceralar bu sefer olmadı, sorun değil",
   "kaydi_var": false
  },
  {
@@ -3627,7 +3627,7 @@
   "src": "tr:wardrobe.removed",
   "text": "Çıkardık.",
   "tts": "Çıkardık.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "e5bf42e2783fb6ad",
@@ -3637,7 +3637,7 @@
   "src": "tr:wardrobe.empty",
   "text": "Bu bölümde eşyan yok. Dükkâna bakalım mı?",
   "tts": "Bu bölümde eşyan yok. Dükkâna bakalım mı?",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "18730b10e807c146",
@@ -3647,7 +3647,7 @@
   "src": "tr:runner.first",
   "text": "Kuyrukluyıldızın peşinden, Dünya'ya doğru!",
   "tts": "Kuyrukluyıldızın peşinden, Dünya'ya doğru!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "64c5455b8d7e1ffe",
@@ -3657,7 +3657,7 @@
   "src": "tr:runner.card",
   "text": "Gezegen kartı buldun!",
   "tts": "Gezegen kartı buldun!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "c2c927fd1dadd622",
@@ -3667,7 +3667,7 @@
   "src": "tr:mg.lane.crash",
   "text": "Ups! Çarptın.",
   "tts": "Ups! Çarptın.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "da25e07092f78761",
@@ -3677,7 +3677,7 @@
   "src": "tr:mg.hike.summit",
   "text": "Zirvedesin!",
   "tts": "Zirvedesin!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "f1e759af244eec72",
@@ -3687,7 +3687,7 @@
   "src": "tr:mg.help_pet.warm",
   "text": "Ilık...",
   "tts": "Ilık...",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "adcc449cfb29a07f",
@@ -3697,7 +3697,7 @@
   "src": "tr:mg.help_pet.hot",
   "text": "Çok sıcak!",
   "tts": "Çok sıcak!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "9e6aef1d4b2da8d7",
@@ -3707,7 +3707,7 @@
   "src": "tr:mg.help_pet.found",
   "text": "Buldun! Teşekkürler!",
   "tts": "Buldun! Teşekkürler!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "ce1ce2727f991a7c",
@@ -3717,7 +3717,7 @@
   "src": "tr:mg.help_pet.cold",
   "text": "Soğuk.",
   "tts": "Soğuk.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "b475541b1a4dee24",
@@ -3727,7 +3727,7 @@
   "src": "tr:mg.fishing.wait",
   "text": "Bekle...",
   "tts": "Bekle...",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "b98727d10bdf425e",
@@ -3737,7 +3737,7 @@
   "src": "tr:mg.fishing.late",
   "text": "Geç kaldın, balık kaçtı.",
   "tts": "Geç kaldın, balık kaçtı.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "052dc531e1986336",
@@ -3747,7 +3747,7 @@
   "src": "tr:map.site_fog",
   "text": "Önce kulübe yerindeki sisi dağıt!",
   "tts": "Önce kulübe yerindeki sisi dağıt!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "ef97bfe0c4b6b825",
@@ -3757,7 +3757,7 @@
   "src": "tr:map.pin_go",
   "text": "Oklar yolu gösteriyor. Takip et!",
   "tts": "Oklar yolu gösteriyor. Takip et!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "2d6b85d4b46c99cc",
@@ -3767,7 +3767,7 @@
   "src": "tr:map.hint_walk",
   "text": "Bir yere dokun, oraya yürüyelim!",
   "tts": "Bir yere dokun, oraya yürüyelim!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "7954f4d2e75ae8f0",
@@ -3777,7 +3777,7 @@
   "src": "tr:map.hint_overview",
   "text": "Adanın tamamı burada! Gitmek için Yürü'ye bas.",
   "tts": "Adanın tamamı burada! Gitmek için Yürü'ye bas.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "9b17a04cb04876bf",
@@ -3787,7 +3787,7 @@
   "src": "tr:gift.reveal",
   "text": "Güneş Taşı!",
   "tts": "Güneş Taşı!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "e1a32797acc13e37",
@@ -3797,7 +3797,7 @@
   "src": "tr:gather.built_already",
   "text": "Kulüben burada!",
   "tts": "Kulüben burada!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "9accb8f6f733dff0",
@@ -3807,7 +3807,7 @@
   "src": "tr:gather.built",
   "text": "Kulüben hazır! Harika iş!",
   "tts": "Kulüben hazır! Harika iş!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "f0a9bfe5b26fdddb",
@@ -3817,7 +3817,7 @@
   "src": "tr:garden.watered",
   "text": "Sulandı! Büyümesini bekle.",
   "tts": "Sulandı! Büyümesini bekle.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "63e7b5bb91feaa37",
@@ -3827,7 +3827,7 @@
   "src": "tr:garden.planted",
   "text": "Ekildi! Şimdi sula.",
   "tts": "Ekildi! Şimdi sula.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "f6a6f4503d59e349",
@@ -3837,7 +3837,7 @@
   "src": "tr:garden.no_seed",
   "text": "Tohumun yok. Dükkandan alabilirsin.",
   "tts": "Tohumun yok. Dükkandan alabilirsin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "4a7646be8e32d08e",
@@ -3847,7 +3847,7 @@
   "src": "tr:fire.done_today",
   "text": "Ateş bugün harıl harıl yanıyor! Yarın yine gel.",
   "tts": "Ateş bugün harıl harıl yanıyor! Yarın yine gel.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "cdbd063b22e24165",
@@ -3857,7 +3857,7 @@
   "src": "tr:event.lighthouse.howto",
   "text": "Adanın en yüksek yeri! Merdivenlere dokunarak tepeye çık.",
   "tts": "Adanın en yüksek yeri! Merdivenlere dokunarak tepeye çık.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "1d4927cff9985193",
@@ -3867,7 +3867,7 @@
   "src": "tr:event.lighthouse.again",
   "text": "Fenerin ışığı bütün adayı aydınlatıyor.",
   "tts": "Fenerin ışığı bütün adayı aydınlatıyor.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "87f182272c5438fc",
@@ -3877,7 +3877,7 @@
   "src": "tr:decor.pick_first",
   "text": "Önce alttan bir eşya seç.",
   "tts": "Önce alttan bir eşya seç.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "176f802556d2669f",
@@ -3887,7 +3887,7 @@
   "src": "tr:decor.occupied",
   "text": "Orası dolu.",
   "tts": "Orası dolu.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "8163db2aa253497a",
@@ -3897,7 +3897,7 @@
   "src": "tr:decor.hint",
   "text": "Alttan bir eşya seç, sonra boş bir kareye dokun.",
   "tts": "Alttan bir eşya seç, sonra boş bir kareye dokun.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "2ab944c5eac09fdd",
@@ -3907,7 +3907,7 @@
   "src": "tr:bag.empty",
   "text": "Çantan boş. Kütük, çalı ve taş topla!",
   "tts": "Çantan boş. Kütük, çalı ve taş topla!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "0f67ca4ede9a0391",
@@ -3917,16 +3917,16 @@
   "src": "tr:voice.on",
   "text": "Sesli okuma açık",
   "tts": "Sesli okuma açık",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
-  "key": "de2b10afd0d70845",
+  "key": "454aaa43fd875791",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "haber",
   "src": "tr:tasks.xp_goal",
-  "text": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin inci ve Güneş Taşı kazandırmaya devam ediyor!",
-  "tts": "Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin inci ve Güneş Taşı kazandırmaya devam ediyor!",
+  "text": "Harika! Bugünkü yıldız hedefine ulaştın. Sorumlulukların inci ve Güneş Taşı kazandırmaya devam ediyor!",
+  "tts": "Harika! Bugünkü yıldız hedefine ulaştın. Sorumlulukların inci ve Güneş Taşı kazandırmaya devam ediyor!",
   "kaydi_var": false
  },
  {
@@ -3937,7 +3937,7 @@
   "src": "tr:tasks.self_started",
   "text": "Hatırlatmadan yaptın! Kendi kendine, ekstra yıldız!",
   "tts": "Hatırlatmadan yaptın! Kendi kendine, ekstra yıldız!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "3305781fa4b7f9af",
@@ -3947,7 +3947,7 @@
   "src": "tr:chest.ready",
   "text": "Günlük sandık hazır! Görev'e dokun, aç.",
   "tts": "Günlük sandık hazır! Görev'e dokun, aç.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "6e0f07cb10c38430",
@@ -3957,7 +3957,7 @@
   "src": "tr:stones.all_done",
   "text": "Bütün ada onarıldı!",
   "tts": "Bütün ada onarıldı!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "42a2cb578343a579",
@@ -3967,7 +3967,7 @@
   "src": "tr:cards.tower_hint",
   "text": "Parlayan bir bloğa dokun ve çek. Dikkat, kule devrilmesin!",
   "tts": "Parlayan bir bloğa dokun ve çek. Dikkat, kule devrilmesin!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "8aec26f9c3acb4a3",
@@ -3977,7 +3977,7 @@
   "src": "tr:xp.rest",
   "text": "Okti biraz yoruldu. Yarın devam edelim!",
   "tts": "Okti biraz yoruldu. Yarın devam edelim!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "913ee6cee59e0353",
@@ -3987,7 +3987,7 @@
   "src": "tr:mg.runner.howto",
   "text": "Kuyrukluyıldızın peşinden koş, kristalleri topla!",
   "tts": "Kuyrukluyıldızın peşinden koş, kristalleri topla!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "26b65b399dbd4b1c",
@@ -3997,7 +3997,7 @@
   "src": "tr:runner.space.fact1",
   "text": "Jüpiter Güneş Sistemi'nin en büyük gezegeni; içine 1.300'den fazla Dünya sığar!",
   "tts": "Jüpiter Güneş Sistemi'nin en büyük gezegeni; içine 1.300'den fazla Dünya sığar!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "562f412f7e97fa03",
@@ -4007,7 +4007,7 @@
   "src": "tr:runner.space.fact2",
   "text": "Satürn'ün halkaları buz ve kaya parçalarından oluşur.",
   "tts": "Satürn'ün halkaları buz ve kaya parçalarından oluşur.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "18b4077348341643",
@@ -4017,7 +4017,7 @@
   "src": "tr:runner.space.fact3",
   "text": "Mars'a Kızıl Gezegen denir; toprağındaki demir pası ona kırmızı rengini verir.",
   "tts": "Mars'a Kızıl Gezegen denir; toprağındaki demir pası ona kırmızı rengini verir.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "633bb63e54235da2",
@@ -4027,7 +4027,7 @@
   "src": "tr:runner.space.fact4",
   "text": "Venüs, Güneş'e daha yakın olan Merkür'den bile sıcaktır. Güneş Sistemi'nin en sıcak gezegeni odur.",
   "tts": "Venüs, Güneş'e daha yakın olan Merkür'den bile sıcaktır. Güneş Sistemi'nin en sıcak gezegeni odur.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "fcfc1b6266fb7335",
@@ -4037,7 +4037,7 @@
   "src": "tr:runner.space.fact5",
   "text": "Ay'da rüzgâr olmadığı için astronotların ayak izleri çok uzun yıllar silinmeden kalabilir.",
   "tts": "Ay'da rüzgâr olmadığı için astronotların ayak izleri çok uzun yıllar silinmeden kalabilir.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "70a2897d2125917b",
@@ -4047,7 +4047,7 @@
   "src": "tr:runner.space.fact6",
   "text": "Güneş'ten çıkan ışık Dünya'ya yaklaşık 8 dakikada ulaşır.",
   "tts": "Güneş'ten çıkan ışık Dünya'ya yaklaşık 8 dakikada ulaşır.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "349bbd3cc4e4801b",
@@ -4057,7 +4057,7 @@
   "src": "tr:runner.space.fact7",
   "text": "Güneş Sistemi'nin en hızlı rüzgârları Neptün'de eser.",
   "tts": "Güneş Sistemi'nin en hızlı rüzgârları Neptün'de eser.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "fbc4f064aeeda589",
@@ -4067,7 +4067,7 @@
   "src": "tr:runner.space.fact8",
   "text": "Merkür, Güneş'e en yakın ve en küçük gezegendir.",
   "tts": "Merkür, Güneş'e en yakın ve en küçük gezegendir.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "a147a3581b047e33",
@@ -4077,7 +4077,7 @@
   "src": "tr:runner.space.fact9",
   "text": "Ay'da yerçekimi Dünya'dakinin altıda biri kadardır; orada çok daha yükseğe zıplarsın!",
   "tts": "Ay'da yerçekimi Dünya'dakinin altıda biri kadardır; orada çok daha yükseğe zıplarsın!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "6218a58a682670e3",
@@ -4087,7 +4087,7 @@
   "src": "tr:runner.space.fact10",
   "text": "Uranüs yan yatmış hâlde döner, sanki uzayda yuvarlanıyormuş gibi.",
   "tts": "Uranüs yan yatmış hâlde döner, sanki uzayda yuvarlanıyormuş gibi.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "16828f3868c6d025",
@@ -4097,7 +4097,7 @@
   "src": "tr:runner.space.fact11",
   "text": "Dünya, üzerinde su ve canlı olduğunu bildiğimiz tek gezegendir.",
   "tts": "Dünya, üzerinde su ve canlı olduğunu bildiğimiz tek gezegendir.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "4ea334698ab46aea",
@@ -4107,7 +4107,7 @@
   "src": "tr:runner.space.fact12",
   "text": "Mars'taki Olympus Dağı, Everest'ten yaklaşık 2,5 kat daha yüksek bir yanardağdır.",
   "tts": "Mars'taki Olympus Dağı, Everest'ten yaklaşık 2,5 kat daha yüksek bir yanardağdır.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "7b34fdc01a38cb54",
@@ -4117,7 +4117,7 @@
   "src": "tr:runner.egypt.fact1",
   "text": "Giza'daki Büyük Piramit 4.500 yıldan daha yaşlı!",
   "tts": "Giza'daki Büyük Piramit 4.500 yıldan daha yaşlı!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "b02746cee7c0c391",
@@ -4127,7 +4127,7 @@
   "src": "tr:runner.egypt.fact2",
   "text": "Büyük Piramit yaklaşık 2 milyon 300 bin taş bloktan yapıldı.",
   "tts": "Büyük Piramit yaklaşık 2 milyon 300 bin taş bloktan yapıldı.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "71b9cd8b46664880",
@@ -4137,7 +4137,7 @@
   "src": "tr:runner.egypt.fact3",
   "text": "Eski Mısırlılar papirüs bitkisinden kâğıt yaptı.",
   "tts": "Eski Mısırlılar papirüs bitkisinden kâğıt yaptı.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "d86508ce75999b97",
@@ -4147,7 +4147,7 @@
   "src": "tr:runner.egypt.fact4",
   "text": "Hiyeroglif yazısında 700'den fazla resimli işaret var.",
   "tts": "Hiyeroglif yazısında 700'den fazla resimli işaret var.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "3b89fae4ca6df2c6",
@@ -4157,7 +4157,7 @@
   "src": "tr:runner.egypt.fact5",
   "text": "Skarabe böceği eski Mısır'da güneşin ve yeni bir günün simgesiydi.",
   "tts": "Skarabe böceği eski Mısır'da güneşin ve yeni bir günün simgesiydi.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "742ebc27940185e0",
@@ -4167,7 +4167,7 @@
   "src": "tr:runner.egypt.fact6",
   "text": "Nil Nehri her yıl taşar, tarlalara bereketli çamur getirirdi.",
   "tts": "Nil Nehri her yıl taşar, tarlalara bereketli çamur getirirdi.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "b1d80672f00a38fa",
@@ -4177,7 +4177,7 @@
   "src": "tr:runner.egypt.fact7",
   "text": "Büyük Sfenks'in gövdesi aslan, başı insan biçimindedir.",
   "tts": "Büyük Sfenks'in gövdesi aslan, başı insan biçimindedir.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "3f04e0b283c621af",
@@ -4187,7 +4187,7 @@
   "src": "tr:runner.egypt.fact8",
   "text": "Eski Mısırlı çocuklar topla, topaçla ve tahta oyuncaklarla oynardı.",
   "tts": "Eski Mısırlı çocuklar topla, topaçla ve tahta oyuncaklarla oynardı.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "77441accef0a99e0",
@@ -4197,7 +4197,7 @@
   "src": "tr:runner.egypt.fact9",
   "text": "Firavunlar eski Mısır'ın krallarıydı. Tutankamon tahta çıktığında yalnızca 9 yaşındaydı!",
   "tts": "Firavunlar eski Mısır'ın krallarıydı. Tutankamon tahta çıktığında yalnızca 9 yaşındaydı!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "cde14b46d1ce1c70",
@@ -4207,7 +4207,7 @@
   "src": "tr:runner.egypt.fact10",
   "text": "Büyük Piramit'in dört yüzü neredeyse tam olarak kuzeye, güneye, doğuya ve batıya bakar.",
   "tts": "Büyük Piramit'in dört yüzü neredeyse tam olarak kuzeye, güneye, doğuya ve batıya bakar.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "1baa83a0b1dee5c9",
@@ -4217,7 +4217,7 @@
   "src": "tr:runner.egypt.fact11",
   "text": "Rosetta Taşı sayesinde hiyeroglifler yeniden okunabildi.",
   "tts": "Rosetta Taşı sayesinde hiyeroglifler yeniden okunabildi.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "431d30f44c937bb0",
@@ -4227,7 +4227,7 @@
   "src": "tr:runner.egypt.fact12",
   "text": "Eski Mısırlılar yılı 365 güne bölen bir takvim kullandı.",
   "tts": "Eski Mısırlılar yılı 365 güne bölen bir takvim kullandı.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "53933d075cb4c564",
@@ -4237,7 +4237,7 @@
   "src": "tr:howto.action",
   "text": "Eylem tuşu. Sağ alttaki tuş yerine göre değişir: Gir, Topla, Oyna, Taşı koy.",
   "tts": "Eylem tuşu. Sağ alttaki tuş yerine göre değişir: Gir, Topla, Oyna, Taşı koy.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "42b2f7c03c1e4d6a",
@@ -4247,16 +4247,16 @@
   "src": "tr:howto.care",
   "text": "Besle, yıka, oyna. Okti'ye dokun: Besle, Yıka, Giydir, Oyna çıkar. Parmağını Okti'nin üstünde gezdir: onu seversin.",
   "tts": "Besle, yıka, oyna. Okti'ye dokun: Besle, Yıka, Giydir, Oyna çıkar. Parmağını Okti'nin üstünde gezdir: onu seversin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
-  "key": "24a7804a3aba8a58",
+  "key": "b0aeaa1e81c8761c",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "nasil_oynanir",
   "src": "tr:howto.home_tasks",
-  "text": "Ev Görevleri. Ailenin verdiği görevi yapınca Yaptım'a bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.",
-  "tts": "Ev Görevleri. Ailenin verdiği görevi yapınca Yaptıma bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.",
+  "text": "Maceralar. Ailenin verdiği sorumluluğu yapınca Yaptım'a bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.",
+  "tts": "Maceralar. Ailenin verdiği sorumluluğu yapınca Yaptıma bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.",
   "kaydi_var": false
  },
  {
@@ -4267,7 +4267,7 @@
   "src": "tr:howto.mail",
   "text": "Posta kutusu. Ailenden gelen mektupları ve hediyeleri postacı Mavi getirir.",
   "tts": "Posta kutusu. Ailenden gelen mektupları ve hediyeleri postacı Mavi getirir.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "beff92a5f38eef14",
@@ -4277,7 +4277,7 @@
   "src": "tr:howto.map",
   "text": "Harita. Harita'yı aç, sarı ime dokun: oklar seni oraya götürür.",
   "tts": "Harita. Harita'yı aç, sarı ime dokun: oklar seni oraya götürür.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "de0815726faa17e5",
@@ -4287,7 +4287,7 @@
   "src": "tr:howto.quests",
   "text": "Görevler. Sağ üstteki Görev'de oyun görevlerin var. Biten görevde Al'a dokun. Bitmemiş göreve dokunursan Okti yolu gösterir.",
   "tts": "Görevler. Sağ üstteki Görev'de oyun görevlerin var. Biten görevde Al'a dokun. Bitmemiş göreve dokunursan Okti yolu gösterir.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "32f2c33c435ca089",
@@ -4297,7 +4297,7 @@
   "src": "tr:howto.shop",
   "text": "Dükkân. İncilerinle Okti'ye kıyafet, evine eşya alabilirsin.",
   "tts": "Dükkân. İncilerinle Okti'ye kıyafet, evine eşya alabilirsin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "8106abcfe29054b3",
@@ -4307,7 +4307,7 @@
   "src": "tr:howto.stones",
   "text": "Güneş Taşı. Taşı sisli bir yere götür ve Taşı koy'a bas: sis kalkar, yeni yerler açılır.",
   "tts": "Güneş Taşı. Taşı sisli bir yere götür ve Taşı koy'a bas: sis kalkar, yeni yerler açılır.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "421cbafedd3cd3a1",
@@ -4317,7 +4317,7 @@
   "src": "tr:howto.walk",
   "text": "Yürü. Parmağını ekranda kaydır, Okti o yöne yürür. Bir yere dokunursan oraya gider.",
   "tts": "Yürü. Parmağını ekranda kaydır, Okti o yöne yürür. Bir yere dokunursan oraya gider.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "50e0beaac3972457",
@@ -4327,7 +4327,7 @@
   "src": "tr:coach.skip_ask",
   "text": "İpuçları kapansın mı? Defter'deki Nasıl oynanır'dan yeniden açabilirsin.",
   "tts": "İpuçları kapansın mı? Defter'deki Nasıl oynanır'dan yeniden açabilirsin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "3587f97a8548f83d",
@@ -4337,7 +4337,7 @@
   "src": "tr:coach.skip_done",
   "text": "İpuçları kapandı. Defter › Nasıl oynanır'dan yeniden açabilirsin.",
   "tts": "İpuçları kapandı. Defter › Nasıl oynanır'dan yeniden açabilirsin.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "597738c3d3e64b6e",
@@ -4347,7 +4347,7 @@
   "src": "tr:howto.replayed",
   "text": "İpuçları açıldı. Adada yine yol göstereceğim!",
   "tts": "İpuçları açıldı. Adada yine yol göstereceğim!",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "c217ebaa6e8d077c",
@@ -4357,7 +4357,7 @@
   "src": "tr:howto.hints_on",
   "text": "İpuçları açık: el, yazı ve oklar yol gösteriyor.",
   "tts": "İpuçları açık: el, yazı ve oklar yol gösteriyor.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
   "key": "728d8216f29a0aa4",
@@ -4367,36 +4367,36 @@
   "src": "tr:howto.hints_off",
   "text": "İpuçları kapalı. Açarsan el ve oklar yeniden yol gösterir.",
   "tts": "İpuçları kapalı. Açarsan el ve oklar yeniden yol gösterir.",
-  "kaydi_var": false
+  "kaydi_var": true
  },
  {
-  "key": "1d73feb42dde7acf",
+  "key": "5144eff835da68c2",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "tanitim_karti",
   "src": "tr:gift.reveal",
-  "text": "Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin görevinin ödülü.",
-  "tts": "Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin görevinin ödülü.",
+  "text": "Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin macerasının ödülü.",
+  "tts": "Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin macerasının ödülü.",
   "kaydi_var": false
  },
  {
-  "key": "8d4c5d1cb1a05d97",
+  "key": "e3afbe6e299cf668",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "tanitim_karti",
   "src": "tr:rewards.intro",
-  "text": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
-  "tts": "Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
-  "kaydi_var": true
+  "text": "Maceralarını yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
+  "tts": "Maceralarını yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.",
+  "kaydi_var": false
  },
  {
-  "key": "11eee713d3d2d797",
+  "key": "d6107c6af4d9843f",
   "role": "anlatici",
   "who": "narrator",
   "kalip": "tanitim_karti",
   "src": "tr:gift.card",
-  "text": "Hoş geldin görevini yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
-  "tts": "Hoş geldin görevini yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.",
-  "kaydi_var": true
+  "text": "Hoş geldin maceranı yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki sorumluluklarını yapınca kazanırsın.",
+  "tts": "Hoş geldin maceranı yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki sorumluluklarını yapınca kazanırsın.",
+  "kaydi_var": false
  }
 ]

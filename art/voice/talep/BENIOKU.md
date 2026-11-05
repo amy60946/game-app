@@ -32,3 +32,10 @@ sesler üretilsin. Hepsini yapmadan önce, game'deki kalıpları birer örnekle 
 - `{0}` gibi değişen bilgi taşıyan cümlelerin sesi `.say` genel eşidir (kalıp `genel_es`); ekranda tam metin durur.
 - "Nasıl oynanır" kartlarında başlık + metin tek kayıt ("Besle, yıka, oyna. Okti'ye dokun: …").
 - Satır listesi yeniden üretmek için (GameApp deposunda): `python3 -I art/voice/marketing_talep.py`.
+
+## Ek talep: Macera adı (5 Kasım 2026)
+
+Kullanıcı kararı (ortak `sozlesme/durumlar.md` 5B): ebeveynin verdiği görevler oyunda **macera** (pano "Maceralar"; ekran adı, düğme,
+sayaç, kart), açıklama cümlelerinde **sorumluluk**. Sağ üstteki oyun içi "Görev" aynen kalır. Bu yüzden 34 satırın metni değişti ve sesi
+yok: `ek_macera_5kasim.json` (alanlar `satirlar.json` ile aynı). Aynı zincir, aynı ton referansları (`ref/`, değişmedi), aynı teslim
+biçimi (`teslim.json` + `ses/<key>.wav`; yalnız bu 34 satır yeterli). Diğer 406 satır yerinde kalır.
