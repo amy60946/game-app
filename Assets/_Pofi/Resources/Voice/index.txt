@@ -36,13 +36,13 @@ b5e05e98ebd8f7a9	adali	Harika! Tezgâhım yine şenlendi.
 41755806d2f4c910	okti	Çok güzeldi!
 3aacfe7c508ca87f	adali	Hadi şimdi adayı biraz dolaş, bakalım kimlerle karşılaşacaksın!
 44ce6d9d664a98ce	adali	Hadi, adayı biraz dolaş!
-4214ec568063e929	adali	Bu pano çok önemli. Evdeki büyüklerin buraya görev bırakır.
-afb1b8b7229e055e	adali	Evdeki büyüklerin buraya görev bırakır.
-72fcc3ff8aa6bbf3	adali	Görevi yapınca ışıklı bir taş gelir: Güneş Taşı!
-a44c382dccc586d1	adali	Görevi yapınca Güneş Taşı gelir!
-1e84605228bee57f	okti	Mavi de bana bir görev bırakmış!
-7deecc6a2a733882	okti	Mavi'nin görevi burada!
-fdf32fb1a7effde2	adali	Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin görevlerinden gelir.
+905fca5b92c99933	adali	Bu pano çok önemli. Evdeki büyüklerin buraya macera bırakır.
+5577acf2a1a065b4	adali	Evdeki büyüklerin buraya macera bırakır.
+801d911650b59eae	adali	Macerayı yapınca ışıklı bir taş gelir: Güneş Taşı!
+126f2ad290775e96	adali	Macerayı yapınca Güneş Taşı gelir!
+559af045fd5d3541	okti	Mavi de bana bir macera bırakmış!
+5786baca6fd1448d	okti	Mavi'nin macerası burada!
+c7fe6f11a3682bcb	adali	Hadi, Yaptım'a bas: ilk taşın senin! Sonrakiler ailenin verdiği sorumluluklardan gelir.
 58dfcf8d3c038cae	adali	Yaptım'a bas, taş senin!
 89322a00f0a4b63b	anlatici	Taştan bir ışık halkası yayıldı, sis geri çekildi.
 1ae19a171149155d	anlatici	Işık yayıldı, sis kalktı!
@@ -59,8 +59,8 @@ d891c4d4459471ea	adali	Ben Mavi, postacıyım!
 53d552d4cd2aef90	adali	Mektuplar nerede kalacak?
 5eab34e9fa002b2c	okti	Sana yeni bir kulübe yaparız! Odun, dal ve taş toplarım.
 381de71d99f97652	okti	Sana kulübe yaparım!
-75dda12e5285d87e	adali	Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin görevi bıraktım!
-c6b667c7985a4e6c	adali	Panoya sana bir görev bıraktım!
+06a44c51d9e3756d	adali	Kulübemin yeri sisin altında kaldı. Panoya sana bir hoş geldin macerası bıraktım!
+6cbe79c571672842	adali	Panoya sana bir macera bıraktım!
 8ec655319b977d84	okti	Hemen panoya gidiyorum!
 693a90667b306925	okti	Panoya gidiyorum!
 31fe7b02ee1e8a6b	anlatici	Taştan bir ışık yayıldı, sis yavaşça çekildi.
@@ -206,18 +206,18 @@ cbffecd0e3bea7e3	anlatici	Görev yap, yıldız kazan!
 c583cadde22634ac	anlatici	Noktaya dokun, giydir!
 f66c3550451f9bc6	anlatici	Topla'ya bas, ev toplansın!
 6e6f2e4eb5114c20	anlatici	Fırtınadan sonra ada sisle kaplandı. Gel, birlikte canlandıralım!
-404b379f29660f61	anlatici	Ev Görevleri panosuna git!
+c7a0865e17400985	anlatici	Maceralar panosuna git!
 c1e92621bc4aa7b7	anlatici	Okti'ye dokun, elmayı seç: karnı doysun!
 add097760df22d24	anlatici	Okti'ye dokun, sabunu seç: tertemiz olsun!
 462a9ecdeef7023d	anlatici	Evim'e yürü ve içeri gir.
 985796ff433f654f	anlatici	Topla'ya dokun: ev toplansın!
 bf34ad2751ded534	anlatici	Okti'nin üstüne dokun, aksesuarını tak.
-5a5dff4822093ac7	anlatici	Ev Görevleri panosuna git: yeni taşlar burada!
+f2833786660bee53	anlatici	Maceralar panosuna git: yeni taşlar burada!
 384353bbc381e0a8	anlatici	Kulübe için odun, dal ve taş topla.
 943286e24c75987c	anlatici	Kulübenin oraya ilerle ve yapımına başla.
 19cc35099b517b5b	anlatici	2 hindistan cevizi bul: kumsalda ara ya da bahçede oyna.
 9c50bb1715dc8ca3	anlatici	Dükkâna git: ilk aksesuarını al!
-21bd65f3eb97c215	anlatici	Görevle kazandığın taşı koydaki sise götür!
+21e4e3a1f6bf231f	anlatici	Maceradan kazandığın taşı koydaki sise götür!
 3e42622012a522ba	anlatici	Sağ alttaki Gir tuşuna bas!
 0d499b48cbad5f33	anlatici	Sağ alttaki Oyna tuşuna bas!
 ae63c206a5650a60	anlatici	Sağ alttaki Topla tuşuna bas!
@@ -244,10 +244,10 @@ a71d6dafd2d65bb3	anlatici	Arma (sırt yaması): dokun, tak!
 76f359df57cf1ad1	anlatici	Bayrakçık: dokun, tak!
 fd1d46ca86e25f39	anlatici	Kova şapka: dokun, tak!
 32660ae98d9ff104	anlatici	Rehber görevi tamam!
-e6660ad2dc4dfa59	anlatici	Görevi yapınca Yaptım'a bas!
+ab8033af8ee445fc	anlatici	Sorumluluğunu yapınca Yaptım'a bas!
 970acf480b821ac6	anlatici	Güneş Taşını yerleştir, sis kalksın!
 9095eb9334346648	anlatici	Sisli yere git, taşı koy!
-a402e79cabb0ac68	anlatici	Ailenden gelen görevler burada. Yapınca Güneş Taşı kazanırsın!
+681a93e2f3ea820a	anlatici	Ailenden gelen maceralar burada. Yapınca Güneş Taşı kazanırsın!
 40b82e9dfbd24345	anlatici	Yaptın mı? Yaptım'a bas, Mavi ailene götürsün.
 4bd33d627fcc39b5	anlatici	Oyun görevleri yıldız verir. Hepsini bitir, sandığı aç!
 b65baf7ff2c9c9dd	anlatici	Baltayla kütüğü kes! Sağ alttaki tuşa bas.
@@ -277,12 +277,12 @@ a8110c0f5a27aa33	anlatici	Sarı im, gideceğin yeri gösterir. İme dokun, oklar
 d025870943186928	adali	Merhaba evlat. Acele etme, deniz hep bekler.
 f51a4cf15e01efd6	adali	Merhaba Okti! Bugün cevizlerimiz çok tatlı!
 9a657605eb7a798d	adali	Çok tatlı... Merhaba.
-5fa2b5914c88bf64	anlatici	Mavi panoya sana bir görev bıraktı: panoya git!
+1f1175a1af23e87e	anlatici	Mavi panoya sana bir macera bıraktı: panoya git!
 33b4de6a39fafe56	anlatici	Hediye Güneş Taşı'nı kullanarak sisi dağıt, kulübe açığa çıksın!
 78719aeee332a8e4	okti	Ben meraklı ve şakacı bir ahtapotum. Seninle adayı keşfetmek istiyorum.
-475b309b96a69b31	anlatici	Mavi'nin görevini yaptın! Yaptım'a bas.
-c5d5ef365e37f1fc	anlatici	Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği görevleri. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.
-520d41051196d163	anlatici	İnciler adanın hazinesidir. Görevlerini yapınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.
+8fc8679cd084dfec	anlatici	Mavi'nin macerasını yaptın! Yaptım'a bas.
+87f7d10baf8a9c42	anlatici	Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği sorumlulukları. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.
+afa56a1b87440779	anlatici	İnciler adanın hazinesidir. Sorumluluklarını tamamlayınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.
 3a1c2b938a577e99	anlatici	Bu, daha sonraki bir seviyede açılır.
 219ebf3e07ac395b	anlatici	Yeni bir şey buldun! Deftere eklendi.
 22f31ac3004295b5	anlatici	Bunu yine buldun!
@@ -305,16 +305,16 @@ d6072e97d75a1dfe	anlatici	Rutin tamam!
 208046dd2eb2b0b1	anlatici	Ödülün hazır!
 1ec9448e262dfcc9	anlatici	Bu istek şimdilik olmadı. Başka zaman yine isteyebilirsin.
 5204b4d4a18832c3	anlatici	Ailen Güneş Taşı düştü.
-4296f23867da3ecc	anlatici	Aferin! Görevin onaylandı.
-c8b3197ada5fe44d	anlatici	Ailen bir görevini bir daha denemeni istiyor.
-82210c47f473e456	anlatici	Ailen bazı görevleri bir daha denemeni istiyor.
+7668e731046495eb	anlatici	Aferin! Maceran onaylandı.
+fc4f61af4f0458aa	anlatici	Ailen bir maceranı bir daha denemeni istiyor.
+bea69d5a158c3ddc	anlatici	Ailen bazı maceraları bir daha denemeni istiyor.
 26617ea974e9d6fa	anlatici	Sana bir hediye geldi! Posta kutuna bak.
 f283d97e410052f3	anlatici	Hediyeler geldi! Posta kutuna bak.
-54e1595d0f763d6b	anlatici	Aferin! Görevlerin onaylandı.
-b5b90d2c5c74fee4	anlatici	Ev Görevleri panosunda yeni görevler var.
-e289574e7a279994	adali	Ailenden yeni görevler var! Yapınca Güneş Taşı kazanırsın.
-36a20a1a88c98d67	adali	Ailenden bir not getirdim! Bir görevini bir daha dener misin?
-9e868f0ab64ea503	adali	Ailenden not getirdim! Bazı görevleri bir daha dener misin?
+9925d5f50d27ac93	anlatici	Aferin! Maceraların onaylandı.
+4464d43cc83d3b0a	anlatici	Maceralar panosunda yeni maceralar var.
+5ba64b1940fe3f7e	adali	Ailenden yeni maceralar var! Yapınca Güneş Taşı kazanırsın.
+32ff8fb2a998aaba	adali	Ailenden bir not getirdim! Bir maceranı bir daha dener misin?
+4ed40128b67bbdf9	adali	Ailenden not getirdim! Bazı maceraları bir daha dener misin?
 c7009212ef88d21d	adali	Sana bir paket getirdim! Posta kutusunda seni bekliyor.
 1b6577b69c0e8cad	adali	Sana paketler getirdim! Posta kutusunda seni bekliyor.
 c39c6f89879418a7	anlatici	Bu sefer olmadı, sorun değil.
@@ -352,14 +352,14 @@ d70ad867fa2ce083	okti	Çok yakıştı!
 0bf5c1f4a1b37465	okti	Ay! Dikkat!
 5e465532576ffa7f	okti	Okti biraz soluklanıyor. Birazdan yine oynarız!
 f8a30038bdcbafd8	okti	Ayy, ne güzel sevdin!
-f5a8ba579920e9c6	adali	Ailenden yeni bir görev var! Yapınca Güneş Taşı kazanırsın.
+bd17168e4eba9a5c	adali	Ailenden yeni bir macera var! Yapınca Güneş Taşı kazanırsın.
 f31f54d52f6d2a6c	adali	Bu Yıldız Kapısı! İçinden geçince Ay'da koşarsın. Hazır mısın?
 424a097946aee840	anlatici	Okti şu an tok. Acıkınca yine besle, görevin seni bekliyor!
 bf02fabcfabfe673	anlatici	Okti şu an tertemiz. Biraz oynayınca yine yıka, görevin seni bekliyor!
 e2e0d46008012fe4	anlatici	Ayakkabıya dokun: yürümeye dön!
 c9fe20d1ef84fd99	anlatici	Görevini bitirdin! Görevlerin hep burada.
-bffe19655ffb5d2e	anlatici	Ev Görevleri panosunda yeni bir görev var
-b52658dc11fb2c41	anlatici	Bazı görevler bu sefer olmadı, sorun değil
+a660f085ed78ff58	anlatici	Maceralar panosunda yeni bir macera var
+fd1c780716cc8bcb	anlatici	Bazı maceralar bu sefer olmadı, sorun değil
 81cfc7563f07e4fc	anlatici	Çıkardık.
 e5bf42e2783fb6ad	anlatici	Bu bölümde eşyan yok. Dükkâna bakalım mı?
 18730b10e807c146	anlatici	Kuyrukluyıldızın peşinden, Dünya'ya doğru!
@@ -390,7 +390,7 @@ cdbd063b22e24165	anlatici	Adanın en yüksek yeri! Merdivenlere dokunarak tepeye
 8163db2aa253497a	anlatici	Alttan bir eşya seç, sonra boş bir kareye dokun.
 2ab944c5eac09fdd	anlatici	Çantan boş. Kütük, çalı ve taş topla!
 0f67ca4ede9a0391	anlatici	Sesli okuma açık
-de2b10afd0d70845	anlatici	Harika! Bugünkü yıldız hedefine ulaştın. Görevlerin inci ve Güneş Taşı kazandırmaya devam ediyor!
+454aaa43fd875791	anlatici	Harika! Bugünkü yıldız hedefine ulaştın. Sorumlulukların inci ve Güneş Taşı kazandırmaya devam ediyor!
 ce7070c40dac3958	anlatici	Hatırlatmadan yaptın! Kendi kendine, ekstra yıldız!
 3305781fa4b7f9af	anlatici	Günlük sandık hazır! Görev'e dokun, aç.
 6e0f07cb10c38430	anlatici	Bütün ada onarıldı!
@@ -423,7 +423,7 @@ cde14b46d1ce1c70	anlatici	Büyük Piramit'in dört yüzü neredeyse tam olarak k
 431d30f44c937bb0	anlatici	Eski Mısırlılar yılı 365 güne bölen bir takvim kullandı.
 53933d075cb4c564	anlatici	Eylem tuşu. Sağ alttaki tuş yerine göre değişir: Gir, Topla, Oyna, Taşı koy.
 42b2f7c03c1e4d6a	anlatici	Besle, yıka, oyna. Okti'ye dokun: Besle, Yıka, Giydir, Oyna çıkar. Parmağını Okti'nin üstünde gezdir: onu seversin.
-24a7804a3aba8a58	anlatici	Ev Görevleri. Ailenin verdiği görevi yapınca Yaptım'a bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.
+b0aeaa1e81c8761c	anlatici	Maceralar. Ailenin verdiği sorumluluğu yapınca Yaptım'a bas. Ailen onaylayınca inci ve Güneş Taşı kazanırsın.
 b9926d574f55c32b	anlatici	Posta kutusu. Ailenden gelen mektupları ve hediyeleri postacı Mavi getirir.
 beff92a5f38eef14	anlatici	Harita. Harita'yı aç, sarı ime dokun: oklar seni oraya götürür.
 de0815726faa17e5	anlatici	Görevler. Sağ üstteki Görev'de oyun görevlerin var. Biten görevde Al'a dokun. Bitmemiş göreve dokunursan Okti yolu gösterir.
@@ -435,6 +435,6 @@ de0815726faa17e5	anlatici	Görevler. Sağ üstteki Görev'de oyun görevlerin va
 597738c3d3e64b6e	anlatici	İpuçları açıldı. Adada yine yol göstereceğim!
 c217ebaa6e8d077c	anlatici	İpuçları açık: el, yazı ve oklar yol gösteriyor.
 728d8216f29a0aa4	anlatici	İpuçları kapalı. Açarsan el ve oklar yeniden yol gösterir.
-1d73feb42dde7acf	anlatici	Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin görevinin ödülü.
-8d4c5d1cb1a05d97	anlatici	Ev görevlerini yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.
-11eee713d3d2d797	anlatici	Hoş geldin görevini yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki gerçek görevleri yapınca kazanırsın.
+5144eff835da68c2	anlatici	Güneş Taşı! Sisleri dağıtan ışıklı taş: hoş geldin macerasının ödülü.
+e3afbe6e299cf668	anlatici	Maceralarını yap: Güneş Taşı kazan. Ailenin koyduğu bir ödülü seç. İste'ye bas: ailene haber gider. Onaylayınca taş düşer.
+d6107c6af4d9843f	anlatici	Hoş geldin maceranı yaptın: ilk Güneş Taşı senin! Taşı kulübe yerine götür: sis dağılsın. Yeni taşları evdeki sorumluluklarını yapınca kazanırsın.
