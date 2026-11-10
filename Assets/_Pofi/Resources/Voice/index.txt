@@ -281,7 +281,7 @@ f51a4cf15e01efd6	adali	Merhaba Okti! Bugün cevizlerimiz çok tatlı!
 33b4de6a39fafe56	anlatici	Hediye Güneş Taşı'nı kullanarak sisi dağıt, kulübe açığa çıksın!
 78719aeee332a8e4	okti	Ben meraklı ve şakacı bir ahtapotum. Seninle adayı keşfetmek istiyorum.
 8fc8679cd084dfec	anlatici	Mavi'nin macerasını yaptın! Yaptım'a bas.
-87f7d10baf8a9c42	anlatici	Merhaba! Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği sorumlulukları. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.
+ba2703246bdf0646	anlatici	Merhaba! Moyo Pofi Adası'nda oynarken oyun bazı şeyleri hatırlar: seviyeni, eşyalarını ve ailenin verdiği sorumlulukları. Bunları sadece oyun çalışsın diye saklarız; kimseye satmayız. Bu oyunda sadece ailen seninle konuşabilir; başka kimse sana yazamaz. Oyunda reklam yok ve oyun senden hiç para istemez. Kamerayı sadece ailenin gösterdiği kodu okutmak için açarız; fotoğrafını çekmeyiz. Merak ettiğin ya da canını sıkan bir şey olursa ailene söyle.
 afa56a1b87440779	anlatici	İnciler adanın hazinesidir. Sorumluluklarını tamamlayınca kazanırsın, adadaki eşyalara harcarsın. Gerçek para değildir. Güneş Taşları ailenin ödülleri içindir. Taşın yetince ödül isteyebilirsin. Kararı ailen verir.
 3a1c2b938a577e99	anlatici	Bu, daha sonraki bir seviyede açılır.
 219ebf3e07ac395b	anlatici	Yeni bir şey buldun! Deftere eklendi.
