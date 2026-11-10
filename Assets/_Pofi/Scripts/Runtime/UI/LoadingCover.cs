@@ -32,7 +32,7 @@ namespace Pofi.UI
                 fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent; fit.aspectRatio = art.rect.width / art.rect.height;
             }
             Shade(root, true); Shade(root, false);
-            Candy.Caption(root, "Pofi Adası", 96, new Vector2(0.5f, 0.9f), new Vector2(1200f, 130f), Vector2.zero, Candy.Deep(Candy.Orange));
+            Candy.Caption(root, "Moyo Pofi Adası", 96, new Vector2(0.5f, 0.9f), new Vector2(1200f, 130f), Vector2.zero, Candy.Deep(Candy.Orange));
             Candy.Caption(root, "Işık Adası'nın hikâyesi", 40, new Vector2(0.5f, 0.82f), new Vector2(1000f, 60f));
             // ince ilerleme çubuğu (açılış süresince dolar)
             var bar = Ui.Rect(root, "Bar", new Vector2(0.5f, 0.76f), new Vector2(560f, 22f));

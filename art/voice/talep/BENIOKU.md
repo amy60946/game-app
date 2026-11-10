@@ -39,3 +39,9 @@ Kullanıcı kararı (ortak `sozlesme/durumlar.md` 5B): ebeveynin verdiği görev
 sayaç, kart), açıklama cümlelerinde **sorumluluk**. Sağ üstteki oyun içi "Görev" aynen kalır. Bu yüzden 34 satırın metni değişti ve sesi
 yok: `ek_macera_5kasim.json` (alanlar `satirlar.json` ile aynı). Aynı zincir, aynı ton referansları (`ref/`, değişmedi), aynı teslim
 biçimi (`teslim.json` + `ses/<key>.wav`; yalnız bu 34 satır yeterli). Diğer 406 satır yerinde kalır.
+
+## Ek talep: oyunun adı "Moyo Pofi Adası" (10 Kasım 2026)
+
+Kullanıcı kararı (ortak `sozlesme/durumlar.md` 5B): oyunun görünen adı **Moyo Pofi Adası**, ebeveyn uygulaması **Moyo**. Okunan satırlardan
+yalnız çocuğa bilgi notu (`info.child`, tanıtım kartı, anlatıcı) değişti: `ek_moyo_10kasim.json`. Aynı zincir, aynı ton referansı, aynı
+teslim biçimi. "Moyo" iki hecedir: Mo-yo.

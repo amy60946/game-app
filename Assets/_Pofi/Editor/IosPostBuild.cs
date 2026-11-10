@@ -21,7 +21,7 @@ namespace Pofi.EditorTools
             plist.ReadFromFile(plistPath);
             var root = plist.root;
             root.SetBoolean("ITSAppUsesNonExemptEncryption", false);
-            root.SetString("CFBundleDisplayName", "Pofi Adası");
+            root.SetString("CFBundleDisplayName", "Moyo Pofi Adası");   // kullanıcı kararı 10 Kasım 2026 (productName aynı kaldı: WebGL kayıt yolu ona bağlı)
             root.SetBoolean("UIRequiresFullScreen", true);
             // QR okuma (PofiNative.mm PofiQrScan): kamera izni metni (yalnız giriş ekranında, görüntü kaydedilmez)
             root.SetString("NSCameraUsageDescription", "ParentApp'te gösterilen QR kodu okumak için kamerayı kullanırız. Görüntü kaydedilmez, gönderilmez.");

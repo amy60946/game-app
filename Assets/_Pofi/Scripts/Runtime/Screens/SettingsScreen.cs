@@ -81,6 +81,9 @@ namespace Pofi.Screens
         private string LegalUrl(string doc) =>
             App.Server != null && App.Server.IsConfigured ? App.Server.Url.TrimEnd('/') + "/functions/v1/legal?doc=" + doc : null;
 
+        /// <summary>Destek sayfası (moyoapp.com.tr/destek, herkese açık; 10 Kasım 2026). Form oradan ekibin Destek kuyruğuna gider.</summary>
+        private const string SupportUrl = "https://moyoapp.com.tr/destek";
+
         private static readonly (string doc, string key)[] LegalDocs =
         {
             ("gizlilik", "info.link.gizlilik"), ("kosullar-gameapp", "info.link.kosullar"),
@@ -132,6 +135,13 @@ namespace Pofi.Screens
                     Ui.Button(linkRow, Th, T(d.key), new Vector2((i + 0.5f) / LegalDocs.Length, 0.5f), new Vector2(w / LegalDocs.Length - 20f, 110f),
                         () => OpenLegal(LegalUrl(d.doc)), false, default, 26, false);
                 }
+
+            // yardım ve iletişim: herkese açık destek sayfası (sunucusuz sürümde de çalışır; ortak admin.md "Destek")
+            var helpRow = Ui.Row(list, "Help", 130f);
+            Ui.Label(helpRow, T("info.help"), Th.Font(30), Theme.Hex("#3A2508"), new Vector2(0.34f, 0.5f), new Vector2(w * 0.64f, 110f),
+                FontStyle.Normal, TextAnchor.MiddleLeft);
+            Ui.Button(helpRow, Th, T("info.link.help"), new Vector2(0.84f, 0.5f), new Vector2(360f, 110f),
+                () => OpenLegal(SupportUrl), false, default, 28, false);
             Ui.Label(Ui.Row(list, "Version", 60f), T("info.version", App.BuildLabel), Th.Font(26), Th.SubtleText, new Vector2(0.5f, 0.5f), new Vector2(w, 56f));
         }
 
