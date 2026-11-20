@@ -45,3 +45,10 @@ biçimi (`teslim.json` + `ses/<key>.wav`; yalnız bu 34 satır yeterli). Diğer 
 Kullanıcı kararı (ortak `sozlesme/durumlar.md` 5B): oyunun görünen adı **Moyo Pofi Adası**, ebeveyn uygulaması **Moyo**. Okunan satırlardan
 yalnız çocuğa bilgi notu (`info.child`, tanıtım kartı, anlatıcı) değişti: `ek_moyo_10kasim.json`. Aynı zincir, aynı ton referansı, aynı
 teslim biçimi. "Moyo" iki hecedir: Mo-yo.
+
+## Ek talep: oyunun adı "Moyo Oyun" (20 Kasım 2026)
+
+Kullanıcı kararı (ortak `sozlesme/durumlar.md` 5B): telefondaki ad ve oyun içindeki ad **Moyo Oyun**, App Store adı
+**Moyo Oyun: Pofi Adası**. Okunan satırlardan yine yalnız çocuğa bilgi notu (`info.child`, tanıtım kartı, anlatıcı) değişti:
+`ek_moyooyun_20kasim.json` (anahtar `a59765c7ae4619ff`; 10 Kasım'daki `ba2703246bdf0646` kaydının yerine geçer). Aynı zincir,
+aynı ton referansı, aynı teslim biçimi. Okunuş: "Mo-yo O-yun'da".
