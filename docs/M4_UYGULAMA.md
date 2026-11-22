@@ -1,5 +1,7 @@
 # M4 – Sunucuyu açma rehberi (adım adım)
 
+> ⚠️ **Kaldırıldı (22 Kasım 2026, güvenlik denetimi):** `.github/workflows/supabase-m4.yml` iş akışı silindi; eski SQL kopyasını canlı veritabanına uygulayabiliyordu. SQL artık yalnız ortak deponun `supabase/proposed/` dosyalarıyla, kullanıcı tarafından SQL Editor'de uygulanır. GitHub › game-app › Settings › Secrets › `SUPABASE_DB_URL` silinmeli. Bu belge yalnız tarihçe.
+
 Bu rehber, oyun ile ParentApp'i aynı sunucuya bağlayan eklemeyi (`supabase/proposed/20261015000000_pofi_game.sql`) Supabase'e uygulamak içindir. Yaklaşık 10 dakika sürer.
 
 > **Önemli:** Şifreyi, bağlantı adresini ya da anahtarları **sohbete asla yapıştırma.** Hepsi yalnızca GitHub'daki "Secrets" bölümüne yazılır. Orada kimse (Claude dahil) değerini göremez.

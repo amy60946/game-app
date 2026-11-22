@@ -58,6 +58,8 @@ namespace Pofi.Tests.Logic
             Assert.IsTrue(ok.IsConfigured);
             Assert.AreEqual("https://p.supabase.co", ok.Url);
             Assert.IsTrue(ok.DemoCodes, "deneme kodları varsayılan açık");
+            Assert.IsFalse(ServerConfig.Parse("{\"url\":\"https://p.supabase.co\",\"publishableKey\":\"sb_publishable_abc\",\"demoCodes\":false}").DemoCodes,
+                "mağaza derlemesi (tools/ci/server-config.sh STORE_BUILD) deneme kodlarını kapatır");
         }
 
         [Test]
@@ -151,6 +153,35 @@ namespace Pofi.Tests.Logic
             Assert.IsNull(store.Get(RoutedAuthService.ModeKey));
             Assert.IsNull(store.Get(SupabaseAuthService.RefreshKey));
             Assert.IsNull(await router.RestoreAsync());
+        }
+
+        [Test]
+        public async Task Sign_out_also_ends_the_server_session()
+        {
+            var store = new MemorySecureStore();
+            var http = ServerOk();
+            var auth = new SupabaseAuthService("https://p.supabase.co", "K", http, store, () => _now);
+            await auth.SignInWithCodeAsync("XK7P2Q");
+            await auth.SignOutAsync();
+            Assert.IsTrue(http.Urls.Any(u => u.EndsWith("/auth/v1/logout")), "sunucudaki oturum da kapatıldı (yenileme anahtarı geçersiz)");
+            Assert.IsNull(store.Get(SupabaseAuthService.RefreshKey));
+            Assert.IsNull(auth.Current);
+        }
+
+        [Test]
+        public async Task Sign_out_without_network_still_forgets_the_device_session()
+        {
+            var store = new MemorySecureStore();
+            var http = ServerOk();
+            var now = _now;
+            var auth = new SupabaseAuthService("https://p.supabase.co", "K", http, store, () => now);
+            await auth.SignInWithCodeAsync("XK7P2Q");
+            http.Handler = u => new HttpReply { Status = 0 };      // ağ yok
+            now = now.AddHours(2);                                 // erişim anahtarı eskidi: yenileme de düşer
+            await auth.SignOutAsync();
+            Assert.IsNull(store.Get(SupabaseAuthService.RefreshKey));
+            Assert.IsNull(store.Get(SupabaseAuthService.ChildKey));
+            Assert.IsNull(auth.AccessToken);
         }
 
         // ------------------------------------------------------------ anahtar yenileme / bağlantı kaldırma

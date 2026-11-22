@@ -11,6 +11,10 @@ on:
         type: choice
         options: [auto, arm, intel]
         default: auto
+      store:
+        description: "Mağaza derlemesi: deneme kodları ve deneme paneli kapalı (App Store'a gönderilecek sürüm için işaretle)"
+        type: boolean
+        default: false
   push:
     branches: [claude/zen-noether-nlt3wm, main]
 
@@ -49,6 +53,7 @@ jobs:
       - name: Sunucu ayarını yaz (SUPABASE_PUBLISHABLE_KEY varsa gerçek sunucu açılır)
         env:
           SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          STORE_BUILD: ${{ inputs.store && 'true' || 'false' }}
         run: bash tools/ci/server-config.sh
       - name: Bundle ID
         id: bid

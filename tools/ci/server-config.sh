@@ -5,7 +5,11 @@
 set -euo pipefail
 f=Assets/_Pofi/Resources/Data/server.json
 key="${SUPABASE_PUBLISHABLE_KEY:-}"
+store="${STORE_BUILD:-false}"   # mağaza derlemesi (ios.yml store): deneme kodları ve deneme paneli kapalı
 if [ -z "$key" ]; then
+  if [ "$store" = "true" ]; then
+    echo "::error::Mağaza derlemesi gerçek sunucu ister: SUPABASE_PUBLISHABLE_KEY secret'ı yok."; exit 1
+  fi
   echo "SUPABASE_PUBLISHABLE_KEY yok: oyun sahte arka uçla derlenir (deneme kodları)."
   exit 0
 fi
@@ -20,6 +24,12 @@ case "$key" in
       echo "::error::SUPABASE_PUBLISHABLE_KEY anon anahtarı değil (rol: ${role:-okunamadı}). Publishable/anon anahtarı yaz."; exit 1
     fi ;;
 esac
-jq --arg k "$key" '.publishableKey = $k' "$f" > "$f.tmp"
-mv "$f.tmp" "$f"
-echo "Gerçek sunucu açık: $(jq -r .url "$f") (deneme kodları sahte arka uçta kalır)."
+if [ "$store" = "true" ]; then
+  jq --arg k "$key" '.publishableKey = $k | .demoCodes = false' "$f" > "$f.tmp"
+  mv "$f.tmp" "$f"
+  echo "Gerçek sunucu açık: $(jq -r .url "$f"); MAĞAZA derlemesi: deneme kodları ve deneme paneli kapalı."
+else
+  jq --arg k "$key" '.publishableKey = $k' "$f" > "$f.tmp"
+  mv "$f.tmp" "$f"
+  echo "Gerçek sunucu açık: $(jq -r .url "$f") (deneme kodları sahte arka uçta kalır)."
+fi

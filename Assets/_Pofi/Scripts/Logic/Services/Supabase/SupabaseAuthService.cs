@@ -156,12 +156,27 @@ namespace Pofi.Logic.Services.Supabase
             return JArray.Parse(r.Body).Count == 0 ? AuthErrorKind.Revoked : AuthErrorKind.None;
         }
 
-        public Task SignOutAsync(CancellationToken ct = default)
+        /// <summary>
+        /// Çıkış sunucuda da yapılır (güvenlik denetimi, 22 Kasım 2026): GoTrue <c>/auth/v1/logout</c> bu kullanıcının yenileme
+        /// anahtarlarını geçersiz kılar. Erişim anahtarı eskidiyse önce yenilenir. Ağ yoksa, sunucu yanıt vermezse ya da süre
+        /// dolarsa (en çok 6 sn) cihazdaki oturum yine silinir: çıkış hiçbir zaman takılmaz.
+        /// </summary>
+        public async Task SignOutAsync(CancellationToken ct = default)
         {
+            try
+            {
+                using (var cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
+                {
+                    cts.CancelAfter(TimeSpan.FromSeconds(6));
+                    if (Current != null && await EnsureFreshAsync(cts.Token) && AccessToken != null)
+                        await _http.SendAsync("POST", _url + "/auth/v1/logout", Headers(), "{}", cts.Token);
+                }
+            }
+            catch (Exception) { /* ağ hatası ya da süre doldu: yerel çıkış yine yapılır */ }
             AccessToken = null; UserId = null; Current = null; AccessExpiresUtc = DateTime.MinValue;
             _store.Delete(RefreshKey);
             _store.Delete(ChildKey);
-            return Task.CompletedTask; // oyun kaydı silinmez (FR-AUTH-4)
+            // oyun kaydı silinmez (FR-AUTH-4)
         }
 
         /// <summary>Sunucunun bugünkü yaş grubu (child_me) değiştiyse saklanan oturum da güncellenir: uygulama yeniden açılınca eski grupla başlamasın.</summary>
