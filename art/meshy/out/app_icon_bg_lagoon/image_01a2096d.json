@@ -1,0 +1,16 @@
+{
+ "id": "01a2096d-69de-71ca-950d-b22b8e5b41ec",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Background plate only for a mobile game app icon, square full bleed, NO characters, NO animals, NO fish, NO creatures, NO people, NO text, NO border, NO frame. Painterly soft 3D stylized look like a premium cozy island game: a sunlit shallow tropical lagoon seen underwater, bright aqua water near the top fading to deeper teal blue at the bottom, soft god rays of sunlight shining down from the top centre, gentle caustic light ripples, a few small bubbles near the sides, a hint of pale sand and a little coral at the very bottom corners. Calm, bright and friendly, not dark. The centre area must stay simple and empty for a character to be placed later.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795454495425,
+ "started_at": 1795454495439,
+ "finished_at": 1795454510561,
+ "expires_at": 1795713710561,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a2096d-69de-71ca-950d-b22b8e5b41ec_0.png?Expires=1795713710&Signature=jmRLmtjPAn322-vJlJ4l7a5X~WBkKf4CVCORGhD-MKjq8UNCYIs7umvllpMnTr5Ksw-J66zwDIN4iHWPUN~mrk1eH-29N6~K3MLZnojQbtweidGNmnTjkzh5qvYNCu4HAxRMrFTPsqufRxtGEZ6e1UV1vERuqbdoGT7z0Rqn7TZhxh8puMTgAYqxfFjQ4js4-GxokTHk9CZHf8OmatOjYGt7HZL1ZeNc3HiBvUQxPGSCc-73P86Q6yL-RkVSwnVWCzz2fWVlM7bkfb~oBUSY02g7QkKUVKPRmb73Dxorl38-1flHSSEL8hcjNb4Yh9eReA57bg~Fj-2ZRBJI0RqnrA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

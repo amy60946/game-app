@@ -1,0 +1,16 @@
+{
+ "id": "01a2096d-689d-74d7-9588-6830f0057fca",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Background plate only for a mobile game app icon, square full bleed, NO characters, NO animals, NO creatures, NO people, NO text, NO border, NO frame. Painterly soft 3D stylized look like a premium cozy island game: a warm golden sunrise over a calm turquoise tropical sea, the big glowing sun sits low in the exact horizontal centre with soft light rays radiating evenly and symmetrically, horizon in the lower fifth, gentle sparkles on the water and a soft sun reflection path in the middle, two small leaning palm trees framing the far left and far right edges, a few soft pastel clouds. Bright cheerful but balanced colours, not washed out. The centre area must stay simple and empty for a character to be placed later.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795454495231,
+ "started_at": 1795454495246,
+ "finished_at": 1795454509764,
+ "expires_at": 1795713709764,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a2096d-689d-74d7-9588-6830f0057fca_0.png?Expires=1795713709&Signature=ejJvOZNow~YJ0ELmdaEvnpztES9z0fD5r8AtL0BwotSbYKGBgoYdLorR41IgJkDvHSNWhXgua8pS4cnl-6rk8gqzmKjAxnpTjCSBxZZqO7IHLlFEgJqkaSmq8HS98bzkpczyzn04n9UNpohMpKwRmLov5TnsPWerWDwK3U5l8SzImXFXZh4pPkMJ0uMxH3DJLUhxYUTTWv6O1fIAiQihcQqWScDMztzmajbuEHk1rJlpKr96ySWUyHo1Mn-u57XSJSB18tnec2I42N3CZoVeyi~qxlsliWGIidFYLMglUK0HOGZ0RE2eh2XKltrNCiHjnBWeloc~p~qZOn9pWV-ANg__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
