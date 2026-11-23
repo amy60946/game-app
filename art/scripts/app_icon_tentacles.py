@@ -27,7 +27,8 @@ S = 1024
 PATHS = {
     # 2. tur (alt ajan ölçüsü): uç bacağın kendi genişliğinde başlar (~100 px), hızla incelir (~24 px); sol uç 25 px sağa,
     # 15 px aşağı (sol kol vantuzlarından ve iOS köşesinden uzak); sağ uç tişört kenarının altında kalır.
-    "A": ([(318, 1120), (300, 1050), (272, 1005), (236, 978), (198, 968), (168, 976), (156, 998), (166, 1016), (186, 1018), (196, 1004), (190, 992)], 50, 11),
+    # 3. tur: sol kıvrım 40 px sağa ve sıkı (en alt nokta y ≤ 1000; iOS köşesi kesmesin)
+    "A": ([(348, 1120), (334, 1050), (310, 1000), (276, 970), (240, 958), (212, 962), (198, 978), (204, 994), (222, 998), (232, 986), (227, 975)], 50, 11),
     "C": ([(585, 1120), (590, 1042), (608, 1004), (634, 987), (657, 990), (668, 1006), (660, 1020), (645, 1018), (641, 1006)], 48, 10),
     "B": ([(432, 1120), (420, 1045), (394, 1008), (364, 995), (343, 1004), (344, 1018), (358, 1021), (364, 1010)], 42, 9),
 }
@@ -106,7 +107,7 @@ def tube(name, pts, r0, r1, mat):
             ph = 2 * math.pi * k / ring
             vs.append(bm.verts.new(c + r * (math.cos(ph) * nrm + math.sin(ph) * zv)))
         rings.append(vs)
-        info.append((c, nrm * sgn, r, t))
+        info.append((c, nrm * sgn, r, t, i))
     for i in range(n - 1):
         for k in range(ring):
             bm.faces.new((rings[i][k], rings[i][(k + 1) % ring], rings[i + 1][(k + 1) % ring], rings[i + 1][k]))
@@ -188,10 +189,10 @@ def main():
     w = bpy.data.worlds.new("w")
     w.use_nodes = True
     w.node_tree.nodes["Background"].inputs[0].default_value = srgb((120, 160, 205))
-    w.node_tree.nodes["Background"].inputs[1].default_value = 0.42
+    w.node_tree.nodes["Background"].inputs[1].default_value = 0.5
     sc.world = w
 
-    skin = material("deri", (64, 126, 190), 0.5, coat=0.18)
+    skin = material("deri", (74, 146, 202), 0.5, coat=0.18)
     ring_rgb = (247, 196, 208) if SUCKER == "pembe" else (150, 215, 245)
     hole_rgb = (214, 140, 160) if SUCKER == "pembe" else (60, 95, 150)
     ring_m = material("vantuz", ring_rgb, 0.4, coat=0.3)
@@ -200,11 +201,19 @@ def main():
     for key in ORDER:
         pts, r0, r1 = PATHS[key]
         info = tube("kol_" + key, pts, r0, r1, skin)
-        # vantuzlar: uç başına 4 tane, kıvrımın iç yüzünde eşit aralıkla; çap 24 → 14 px
-        want = [0.50, 0.62, 0.74, 0.86]
-        for j, tw in enumerate(want):
-            c, inward, r, t = min(info, key=lambda e: abs(e[3] - tw))
-            sucker(c, inward, r, ring_m, hole_m, size=(12.0 - 5.0 * j / 3.0))
+        # vantuzlar: uca doğru son ~120 px boyunca, çap 22 → 12 px, aralarında en az 6 px (3. tur, alt ajan ölçüsü)
+        arc = [0.0]
+        for k in range(len(info) - 1, 0, -1):          # uçtan geriye yay uzunluğu
+            arc.append(arc[-1] + (info[k][0] - info[k - 1][0]).length)
+        arc = list(reversed(arc))                       # arc[i] = i. noktanın uca uzaklığı
+        d, s_at = 12.0, 14.0
+        while s_at <= 125.0:
+            k = min(range(len(info)), key=lambda q: abs(arc[q] - s_at))
+            c, inward, r, t, _ = info[k]
+            sucker(c, inward, r, ring_m, hole_m, size=d / 2.0)
+            nd = min(22.0, d + 2.6)
+            s_at += d / 2.0 + 6.0 + nd / 2.0
+            d = nd
 
     sc.render.filepath = os.path.join(OUT, "tentacles.png")
     sc.render.image_settings.file_format = "PNG"
