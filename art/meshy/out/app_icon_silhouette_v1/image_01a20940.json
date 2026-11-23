@@ -1,0 +1,16 @@
+{
+ "id": "01a20940-b6c2-7114-a933-dafa12581740",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid sheet of nine different square mobile game app icon concepts, each a separate rounded-square tile, evenly spaced on a plain light grey background. The hero in every tile is the same cute baby octopus as in the reference image: glossy light-blue jelly body (sky blue, like #8FD6F2, never pink), big shiny dark eyes with white highlights, small eyebrows, rosy cheeks, a small coral-pink round snout and a friendly smile. Goal: the octopus silhouette must be instantly recognizable even at 60 pixels: a big rounded head dome plus six to eight clearly separated, chubby, curled tentacles with pale suckers, the whole octopus large in the frame (about 70 percent of the tile), one single focal point, on a simple, uncluttered, high-contrast background. Variations: 1 front view waving one tentacle, tentacles splayed like a star on warm yellow; 2 peeking up from turquoise water, curled tentacles at both sides; 3 sitting on a small sandy island with one palm, tentacles curled; 4 hugging a glowing white pearl; 5 jumping happily with tentacles fanned below, sunny sky; 6 big head close-up framed by two curled tentacles; 7 dark silhouette edge against a big warm sunset sun disc; 8 on a solid deep-teal background with a soft rim light; 9 wearing a small yellow t-shirt with the tentacles below clearly visible. Keep the bottom-right corner of every tile simple and empty because a small badge will be placed there. Soft glossy vinyl-toy 3D style, vibrant balanced colours, crisp clean edges. No text, no letters, no logos, no border.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795451566194,
+ "started_at": 1795451566234,
+ "finished_at": 1795451585715,
+ "expires_at": 1795710785715,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a20940-b6c2-7114-a933-dafa12581740_0.png?Expires=1795710785&Signature=WWAKJf4kOdpGpfo93eND4KIXfQQZqN1bjad1qru8k9l7fHDqUTdDPxccZ-ikTf2XSM7LiG8Y7-IlN2Sc3d1LjNZwSuHciLVqa9mZjpYRXiTyJBnEbXUmjAExz3iJrV8QUGKI3I1uUvMcf6dYIUXyc559rAbDwP6RfpNv5Go7KxxmE9mRHQmEw3ao5Przdn5gRCDr~pBVT2FFFL80taJcSUtrWxi8DkBtmKM4pkwvD9CkSI2EAOgaOiv0M-c8dDImBSY8YHLQEK~fAuda3cNshe3d-JrczFuTd4QxpG3outQTr5D7JbEHC4i8NaT-7iImgemYRvKCjK2xW03cpiT4ow__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
