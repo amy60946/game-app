@@ -23,9 +23,19 @@ rng = np.random.default_rng(3)
 
 # ---------------------------------------------------------------- 1) eski adacığı sil, kum2'nin fenerini koy
 y0, y1, x0 = 296, 394, 892
-ref = img[y0:y1, 856:890].mean(axis=1)                          # her satırda adacığın solundaki gök/deniz
-img[y0:y1, x0:] = ref[:, None, :] + rng.normal(0, 1.2, (y1 - y0, S - x0, 3))
-img[y0 - 4:y1 + 4, x0 - 6:x0 + 6] = cv2.GaussianBlur(img, (0, 0), 2)[y0 - 4:y1 + 4, x0 - 6:x0 + 6]
+# her sütun, dokunulmamış bir sütunun (x 880–888) düşey gök geçişiyle dolar; üstte (y 294) ve altta (y 396, deniz) o sütunun kendi
+# rengine oturacak kadar kaydırılır (satır kopyalamak güneş ışımasını yana taşıyordu: açık renkli kutu)
+col = M1[:, 880:889].mean(axis=1)
+top = M1[y0 - 2, x0:] - col[y0 - 2]; bot = M1[y1 + 2, x0:] - col[y1 + 2]
+t = ((np.arange(y0, y1) - (y0 - 2)) / ((y1 + 2) - (y0 - 2)))[:, None, None]
+fill = col[y0:y1, None, :] + top[None] * (1 - t) + bot[None] * t + rng.normal(0, 1.0, (y1 - y0, S - x0, 3))
+img[y0:y1, x0:] = fill
+# üst ve sol kenarda 15 px yumuşak geçiş (özgün gökle)
+wm = np.ones((y1 - y0, S - x0), np.float32)
+wm *= np.clip((np.arange(y0, y1) - y0) / 15.0, 0, 1)[:, None]
+wm *= np.clip((np.arange(x0, S) - x0) / 15.0, 0, 1)[None, :]
+img[y0:y1, x0:] = M1[y0:y1, x0:] * (1 - wm[..., None]) + img[y0:y1, x0:] * wm[..., None]
+# geçiş bandında eski adacık kalmasın: kenar 15 px'te adacık pikselleri yoktu (adacık x ≥ 898, y ≥ 301) → sol/üst bant zaten gök
 
 def grabcut_cut(im, box, pad=10):
     bx0, by0, bx1, by1 = box
@@ -110,8 +120,7 @@ items = [
     ("deniz yıldızı", K2, (308, 840, 428, 920), (425, 945), 0.75, -8),
     ("külah kabuk", K2, (180, 912, 280, 960), (605, 962), 0.85, 6),
     ("çakıl", K2, (696, 751, 756, 781), (40, 655), 0.7, 0),
-    ("pembe kabuk", K1, (790, 640, 843, 672), (982, 652), 0.8, 0),
-    ("küçük çakıl", K2, (190, 830, 244, 860), (655, 930), 0.5, 20),
+    ("küçük tarak", K2, (36, 788, 96, 832), (984, 652), 0.7, 0),
     ("beyaz kabuk", K2, (468, 860, 508, 890), (348, 975), 0.8, -15),
 ]
 for name, s, box, cen, scl, rot in items:
@@ -128,6 +137,11 @@ sandm = cv2.GaussianBlur(sandm.astype(np.float32), (0, 0), 6)
 noise = cv2.GaussianBlur(rng.normal(0, 1, (S, S)).astype(np.float32), (0, 0), 0.7) * 3.0
 warp = cv2.GaussianBlur(rng.normal(0, 1, (S, S)).astype(np.float32), (0, 0), 40) * 260
 ripple = np.sin((yy * 0.11 + xx * 0.018 + warp * 0.02)) * 2.6 * np.clip((yy - 640) / 200, 0, 1)
+open_m = np.zeros((S, S), np.float32)
+for bx0, by0, bx1, by1 in [(322, 885, 525, 1005), (545, 918, 690, 1008), (5, 560, 70, 780)]:
+    open_m[by0:by1, bx0:bx1] = 1
+open_m = cv2.GaussianBlur(open_m, (0, 0), 12)
+ripple = ripple * (1 + 1.6 * open_m)                              # açık kum alanlarında dalgacık daha belirgin (±%3–4)
 img = img + (noise + ripple)[..., None] * sandm[..., None] * np.array([1.0, 0.92, 0.75], np.float32)
 
 cv2.imwrite(OUT, cv2.cvtColor(np.clip(img, 0, 255).round().astype(np.uint8), cv2.COLOR_RGB2BGR))
