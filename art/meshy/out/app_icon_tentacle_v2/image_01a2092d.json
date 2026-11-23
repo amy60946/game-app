@@ -1,0 +1,16 @@
+{
+ "id": "01a2092d-9b9a-779e-89ac-65b496abe133",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Edit the reference image and output the same single square app icon at full resolution, not a grid. Keep everything identical to the reference: the light-blue octopus character, its face, big glossy eyes, smile, eyebrows, cheeks, coral-pink snout, the yellow t-shirt, the orange sunrise rays, the sky, the palm tree on the left, the lighthouse, the water and the lighting, in exactly the same positions and colours. The only change: below the hem of the yellow t-shirt, add three short, chubby, curled tentacle tips in exactly the same light blue as the head, with large round pale-pink suckers on their undersides, peeking out on the left side and in the center just above the water. Add nothing in the bottom-right corner. Same soft glossy vinyl-toy 3D style, crisp and sharp. No text, no letters, no border.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795450314437,
+ "started_at": 1795450314448,
+ "finished_at": 1795450347724,
+ "expires_at": 1795709547724,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a2092d-9b9a-779e-89ac-65b496abe133_0.png?Expires=1795709547&Signature=AoZRN~Hm8qk~M0Q-GXvtF7w8QtxdU7WkpaumvD~qBQvOiX0LjPGtf3f-cAGhHbbnnGYov7P8aHalB3NHymwur6r9SumDQQ1PZZI0kPfc0EbHMOmuhBctsUcQO7QBb0mMBOSUGEnGb2BDmscaibf~72e0hkwJVaVyX2wnuNfKT2Of~e2Ig1W9bOCkdvMkJwoJIuMkWPjbrzoE6wo0UVjrmpKs3tbRGJl2C8YJhdOXo7B3R9lpWa1x3V8KU332u6B0EPtjQhM7zGWmvbROJkbx0ViJhtxqdCuQ3598LR24pRBf6P5qB6ZRUdpR7r7-uK2cHxNKCqeTsf678SWKMJ62Ew__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
