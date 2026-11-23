@@ -76,6 +76,8 @@ def tentacle(name, pts, r0, r1, skin, suck_m, cup_m, centre=None, suck_from=0.42
     L = arc[-1]
     rad = [r1 + (r0 - r1) * (1 - a / L) ** 1.1 for a in arc]
     kit.tube(name, [tuple(p) for p in dense], rad, skin, res=6)
+    tip = dense[-1] + (dense[-1] - dense[-2]).normalized() * rad[-1] * 0.2
+    kit.blob(name + "_uc", tuple(tip), (rad[-1] * 1.08,) * 3, skin, seg=16)    # yuvarlak uç (düz kesik olmasın)
     # vantuzlar: uçtan geriye küçükten büyüğe; kumdaki kısımda kolun alt-ön kenarında, kıvrımda içe ve kameraya yarı dönük
     s = L - 0.035
     while s > L * suck_from:
@@ -101,22 +103,27 @@ def tentacle(name, pts, r0, r1, skin, suck_m, cup_m, centre=None, suck_from=0.42
 
 
 def body(skin):
-    """Baş + etek tek dönel gövde (ek yeri yok). Ön −Y, hafif geriye yatık."""
-    prof = [(0.20, 0.0), (0.21, 0.26), (0.30, 0.43), (0.42, 0.47), (0.55, 0.47), (0.72, 0.54), (0.95, 0.585), (1.18, 0.55),
-            (1.38, 0.44), (1.52, 0.27), (1.585, 0.10), (1.60, 0.0)]
-    zs = [a for a, _ in prof]; rs = [b for _, b in prof]
-    def rad_at(t):
-        z = zs[0] + (zs[-1] - zs[0]) * t
-        for i in range(len(zs) - 1):
-            if zs[i] <= z <= zs[i + 1]:
-                u = (z - zs[i]) / (zs[i + 1] - zs[i]); u = u * u * (3 - 2 * u)
-                return rs[i] + (rs[i + 1] - rs[i]) * u
-        return 0.0
-    path = lambda t: (0.0, 0.06 * t * t, zs[0] + (zs[-1] - zs[0]) * t)
+    """Baş (yumurta) + etek tek dönel gövde: iki elipsin yumuşak birleşimi, hafif bel, basamaksız. Ön −Y, hafif geriye yatık."""
+    ZH, A, BU, BL = 1.0, 0.585, 0.585, 0.66      # baş: merkez, yatay yarıçap, üst/alt düşey yarıçap
+    ZS, AS, BS = 0.44, 0.55, 0.44                  # etek (kuma değer; bel başın %91i)
+    Z0, Z1 = ZS - BS + 0.004, ZH + BU
+    def ell(z, zc, a, bu, bl):
+        b = bu if z >= zc else bl
+        q = 1 - ((z - zc) / b) ** 2
+        return a * math.sqrt(q) if q > 0 else 0.0
+    def smax(a, b, k=0.18):
+        h = max(k - abs(a - b), 0.0) / k
+        return max(a, b) + h * h * k * 0.25
+    def r_of(z):
+        return smax(ell(z, ZH, A, BU, BL), ell(z, ZS, AS, BS, BS))
+    zt = lambda t: Z0 + (Z1 - Z0) * (0.5 - 0.5 * math.cos(math.pi * t))   # uçlarda sık satır: tepe sivrilmez
+    path = lambda t: (0.0, 0.05 * ((zt(t) - Z0) / (Z1 - Z0)) ** 2, zt(t))
     def rad(t, a):
         k = 1.0 / math.sqrt((math.cos(a) / 0.9) ** 2 + math.sin(a) ** 2)
-        return max(rad_at(t), 0.001) * k
-    o, _, _ = R.lathe("govde", path, rad, 64, 64, skin, cap_bottom=True, cap_top=True, sub=1)
+        return max(r_of(zt(t)), 0.0015) * k
+    o, _, _ = R.lathe("govde", path, rad, 110, 72, skin, cap_bottom=True, cap_top=True, sub=1)
+    waist = min(r_of(z / 100) for z in range(50, 80))
+    print("gövde: baş", round(r_of(ZH), 3), "bel", round(waist, 3), "oran", round(waist / r_of(ZH), 3))
     return o
 
 
@@ -176,16 +183,15 @@ def _shell_nodes(nt, b):
 
 def pearl_material():
     def b(nt, bsdf):
-        bsdf.inputs["Base Color"].default_value = kit.srgb("#fbf0f2")
-        bsdf.inputs["Roughness"].default_value = 0.08
+        bsdf.inputs["Base Color"].default_value = kit.srgb("#ead9d4")
+        bsdf.inputs["Roughness"].default_value = 0.2
         bsdf.inputs["Coat Weight"].default_value = 1.0
         bsdf.inputs["Coat Roughness"].default_value = 0.04
         if "Sheen Weight" in bsdf.inputs:
-            bsdf.inputs["Sheen Weight"].default_value = 0.7; bsdf.inputs["Sheen Tint"].default_value = kit.srgb("#ffc9e0")
+            bsdf.inputs["Sheen Weight"].default_value = 0.5; bsdf.inputs["Sheen Tint"].default_value = kit.srgb("#ffc9e0")
         if "Thin Film Thickness" in bsdf.inputs:
-            bsdf.inputs["Thin Film Thickness"].default_value = 380.0
-        bsdf.inputs["Emission Color"].default_value = kit.srgb("#fff3ea"); bsdf.inputs["Emission Strength"].default_value = 0.08
-    return kit.nodes_mat("inci", b)
+            bsdf.inputs["Thin Film Thickness"].default_value = 300.0
+            return kit.nodes_mat("inci", b)
 
 
 def sand_material():
@@ -312,7 +318,7 @@ def okti(skin, suck_m, cup_m, pearl_m):
     g = body(skin)
     surf = R.Surf([g])
     c = V((0, 0.05, 1.0))
-    eye_m = kit.mat("goz", "#0f1222", rough=0.22, coat=0.6)
+    eye_m = kit.mat("goz", "#161c3e", rough=0.3, coat=0.3)
     for sx in (-1, 1):
         forms, dets, _ = R.bead_eye("g%d" % sx, surf, c, V((sx * 0.36, -1, -0.25)), 0.112, 0.142, 0.05, glint_at=(0.30 * sx, 0.36))
         for o in forms:
@@ -322,14 +328,14 @@ def okti(skin, suck_m, cup_m, pearl_m):
     blush = kit.mat("yanak", "#f48aa5", rough=0.6, coat=0.0)
     for sx in (-1, 1):
         R.decal("yanak%d" % sx, surf, c, V((sx * 0.46, -1, -0.50)), (0.105, 0.068, 0.008), blush, lift=0.003)
-    B = lambda ang, rr=0.27, z=0.3: (math.sin(math.radians(ang)) * rr, -math.cos(math.radians(ang)) * rr, z)
+    B = lambda ang, rr=0.2, z=0.14: (math.sin(math.radians(ang)) * rr, -math.cos(math.radians(ang)) * rr, z)
     specs = [
         # (taban açısı, gidiş, kumdaki boy, bükülme, kıvrım yarıçapı, tur, kıvrım yönü, r0, r1)
         (-75, -84, 0.56, -10, 0.19, 1.0, 180, 0.15, 0.03),     # sol: uzun, büyük kıvrım (sol kenardan içeride)
         (-34, -40, 0.50, -24, 0.14, 0.95, 180, 0.15, 0.03),    # ön sol
         (6, 2, 0.36, 22, 0.12, 0.9, 0, 0.145, 0.028),           # ön orta: kısa
-        (36, 44, 0.22, 30, 0.105, 0.85, 0, 0.14, 0.028),        # ön sağ: çok kısa (rozetin solunda kalır)
-        (100, 122, 0.58, 16, 0.14, 0.95, 0, 0.14, 0.03),        # sağ arka: ucu rozetin üstünde kıvrılır
+        (36, 44, 0.22, 30, 0.105, 0.85, 180, 0.14, 0.028),      # ön sağ: çok kısa, sola kıvrılır (rozetten uzak)
+        (118, 145, 0.62, 10, 0.15, 0.95, 0, 0.14, 0.03),        # sağ arka: gövdenin arkasından, ucu rozetin üstünde kıvrılır
         (-128, -134, 0.40, -14, 0.12, 0.9, 180, 0.13, 0.028),   # arka sol: başın yanında kıvrık uç
         (152, 156, 0.30, 10, 0.10, 0.8, 0, 0.12, 0.026),        # arka sağ: kısa
     ]
@@ -340,13 +346,13 @@ def okti(skin, suck_m, cup_m, pearl_m):
     P = V((0.80, -0.46, 0.86)); pr = 0.10
     kit.blob("inci", tuple(P), (pr, pr, pr), pearl_m, seg=40)
     wrap = []
-    a0, a1 = math.radians(-62), math.radians(238)
-    for i in range(14):
-        f = i / 13; a = a0 + (a1 - a0) * f
+    a0, a1 = math.radians(-62), math.radians(262)
+    for i in range(16):
+        f = i / 15; a = a0 + (a1 - a0) * f
         rr = pr + 0.045 - 0.012 * f
-        dy = 0.075 if f < 0.62 else 0.075 - (f - 0.62) / 0.38 * 0.17
+        dy = 0.075 if f < 0.55 else 0.075 - (f - 0.55) / 0.45 * 0.2
         wrap.append(V((P.x + math.cos(a) * rr, P.y + dy, P.z + math.sin(a) * rr)))
-    arm = [V(B(84, 0.3, 0.42)), V((0.6, -0.14, 0.36)), V((0.84, -0.26, 0.44)), V((0.93, -0.36, 0.60))] + wrap
+    arm = [V(B(84, 0.24, 0.3)), V((0.6, -0.14, 0.36)), V((0.84, -0.26, 0.44)), V((0.93, -0.36, 0.60))] + wrap
     tentacle("kol_inci", arm, 0.13, 0.03, skin, suck_m, cup_m, centre=P, suck_from=0.6)
     return g
 
@@ -365,23 +371,23 @@ def main():
     suck_m = kit.mat("vantuz", SUCK, rough=0.45, coat=0.25)
     cup_m = kit.mat("vantuz_ic", SUCK_IN, rough=0.55, coat=0.0)
     pearl_m = pearl_material()
-    sun_dir = V((0.0, 1.0, 0.075)).normalized()
+    sun_dir = V((0.075, 1.0, 0.075)).normalized()
     sky_world(sun_dir)
     ground_and_sea(sand_material(), sea_material())
     okti(skin, suck_m, cup_m, pearl_m)
     contact_shadow((0, 0.02, 0.006), 0.78, 0.66, 0.55)
     scallop((-0.68, -0.62, 0.01), -18, 0.17)
     try:
-        palm, _, _ = R.load_game("palm", height=3.6)
-        palm.location = (-1.95, 2.1, 0.0); palm.rotation_euler = (0, math.radians(-7), math.radians(35))
+        palm, _, _ = R.load_game("palm", height=3.3)
+        palm.location = (-1.44, 3.6, 0.0); palm.rotation_euler = (0, 0, 0)
         pm = palm.data.materials[0]; nt = pm.node_tree
         tex = next(x for x in nt.nodes if x.type == "TEX_IMAGE" and x.image and "basecolor" in x.image.name)
         hs = nt.nodes.new("ShaderNodeHueSaturation"); hs.inputs["Saturation"].default_value = 0.85; hs.inputs["Value"].default_value = 0.97
         nt.links.new(tex.outputs[0], hs.inputs["Color"]); nt.links.new(hs.outputs[0], nt.nodes["Principled BSDF"].inputs["Base Color"])
-        lh, _, _ = R.load_game("b_lighthouse", height=5.5)
-        lh.location = (-16.0, 72.0, 0.5)
-        kit.blob("adacik", (-16.0, 72.0, -0.4), (5.5, 3.6, 1.5), kit.mat("kaya", "#8c8a6a", rough=0.8, coat=0.0), seg=32)
-        kit.blob("adacik_cim", (-16.0, 72.0, 0.5), (4.2, 2.8, 0.45), kit.mat("cim", "#7fb35a", rough=0.8, coat=0.0), seg=32)
+        lh, _, _ = R.load_game("b_lighthouse", height=4.6)
+        lh.location = (22.2, 72.0, 0.45)
+        kit.blob("adacik", (22.2, 72.0, -0.4), (4.0, 2.8, 1.25), kit.mat("kaya", "#8c8a6a", rough=0.8, coat=0.0), seg=32)
+        kit.blob("adacik_cim", (22.2, 72.0, 0.45), (3.0, 2.0, 0.4), kit.mat("cim", "#7fb35a", rough=0.8, coat=0.0), seg=32)
     except Exception as e:
         print("varlık yüklenemedi:", e)
     key = bpy.data.lights.new("ana", "SUN"); key.energy = 3.0; key.angle = math.radians(8); key.color = (1.0, 0.95, 0.88)
@@ -390,6 +396,9 @@ def main():
     rim = bpy.data.lights.new("kenar", "SUN"); rim.energy = 3.2; rim.angle = math.radians(4); rim.color = (1.0, 0.76, 0.48)
     ro = bpy.data.objects.new("kenar", rim); sc.collection.objects.link(ro)
     ro.rotation_euler = V((0.0, -0.99, -0.11)).normalized().to_track_quat("-Z", "Y").to_euler()
+    fl = bpy.data.lights.new("dolgu", "SUN"); fl.energy = 1.1; fl.angle = math.radians(20); fl.color = (1.0, 0.86, 0.72)
+    fo = bpy.data.objects.new("dolgu", fl); sc.collection.objects.link(fo)
+    fo.rotation_euler = V((0.85, 0.42, -0.32)).normalized().to_track_quat("-Z", "Y").to_euler()
     R.cam_shot(sc, OUT, (0, 0, 0.8), 3.75, 0, 7.2, lens=50)
     print("yazıldı", OUT)
 
