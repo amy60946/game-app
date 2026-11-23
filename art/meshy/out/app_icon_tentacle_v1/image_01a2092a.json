@@ -1,0 +1,16 @@
+{
+ "id": "01a2092a-f50b-750a-a5c5-1d933d57fadd",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A 3x3 grid sheet showing nine variations of the same square mobile game app icon, evenly spaced on a plain light grey background, each icon a separate rounded-square tile. Base every tile on the reference image (the current app icon): keep the character's face, eyes, eyebrows, cheeks, coral-pink snout, head shape, colours, yellow t-shirt, sunrise sky, palm tree and lighting exactly the same. Change only one thing: make it unmistakable that the hero is a cute baby octopus. Show three or four short, chubby, curled tentacle tips peeking out below the hem of the yellow t-shirt on both sides, each with large round pale-pink suckers on the underside, and make the suckers on the waving arm larger and clearly visible. Keep the waving arm and every important detail away from the bottom-right quarter of the tile, which stays calm and simple because a small badge will be placed there later. Vary across the nine tiles: three or four visible tentacle tips, curl tightness, sucker size, and how high the tentacles sit above the water line. No text, no letters, no logo, no border, no frame. Same soft glossy vinyl-toy 3D style as the reference, vibrant but balanced colours, not washed out, crisp clean edges.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795450140495,
+ "started_at": 1795450140511,
+ "finished_at": 1795450158185,
+ "expires_at": 1795709358185,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a2092a-f50b-750a-a5c5-1d933d57fadd_0.png?Expires=1795709358&Signature=Ijqb7lWrgmc7swLNjM4djxnSZdrHlHYPnongO8yHTSo~-KBuc9xLOlE4KP6QCZEoznwYK3Bz34wwuUeznpeU7jpoSk24hW0TbVwhBXZ7kLvqps6e7ox-ikmvW5LOaaPlAoVTE7-SQtJ2x~9nwnj-B8yqD1~0Mjja2AU-mRgSvr52thE1wDN3JzgbpYW0rEcX7Di9akcIDIRYxdLOKyiiq~teUjsiSIAGy3FZAw~XPWTCqUC3FS5tE7iNkl36s4tomlGkxqA6vU3NJgNmrkjBMLE0S4VcucgFdfTAoryxEyPnF3p31FBd-0M-7fX3PfXUpR8zfuCu-0jicP-nkvDh6g__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
