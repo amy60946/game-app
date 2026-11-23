@@ -1,0 +1,16 @@
+{
+ "id": "01a20945-ee29-7495-b114-5df858a8e15e",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A single square mobile game app icon, full resolution, not a grid. Use the FIRST reference image for the composition: a cute baby octopus seen from the front on a solid deep-teal background with a soft rim light, eight chubby curled tentacles splayed symmetrically, each with pale suckers. Use the SECOND reference image for the face: big glossy dark eyes with large white highlights, small brown eyebrows, rosy cheeks, a small coral-pink round snout and a happy open smile; glossy light-blue jelly body (sky blue, never pink). The octopus stays the single focal point, large in the frame, shifted slightly up and to the left so the bottom-right quarter of the icon is simple and empty for a small badge. Soft glossy vinyl-toy 3D style, vibrant balanced colours, crisp sharp edges, no grey corners. No text, no letters, no logo, no border. Add both, kept small and simple: a low silhouette of a sandy island with one palm tree at the bottom-left in lighter teal tones behind the octopus, and an open scallop shell with one glowing white pearl held by two tentacles in front of the octopus, not covering the face.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795451907958,
+ "started_at": 1795451907970,
+ "finished_at": 1795451928409,
+ "expires_at": 1795711128409,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a20945-ee29-7495-b114-5df858a8e15e_0.png?Expires=1795711128&Signature=DgYPvg2ijME0rE~OW2Q9Sm6~ubXmRd7gHClWVDrPjMnQ~WOsGBzaUm2y~dJgZMiZ050mS~buf-EhhRvZxN4nnezmmO57VV7q3nU88myvCNEGIuFVRUC4FOKADpEAJ0MAGi3mHXZAdoGtsLdhGYJC8nY6n4~74G3AOkFRPR55Y0Q5oGJbH49GC2lrDqYKsgceB-w8cnQsmH-9N1W~pSLA-bhNQKkm47NnMbByM1CLrVU4VGkVO9k~5gEq9QeHQQbnnaWA8SzlNk2I6U~eZfNwcAg~yAtDZoamy2r9ltz2Ro7o-CAcAgRu1PY4HSjVNQQUOZw1gjGSuGhZnUP03D~CVA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
