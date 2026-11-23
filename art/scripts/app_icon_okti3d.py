@@ -379,12 +379,13 @@ def main():
     contact_shadow((0, 0.02, 0.006), 0.78, 0.66, 0.55)
     scallop((-0.68, -0.62, 0.01), -18, 0.17)
     try:
-        palm, _, _ = R.load_game("palm", height=3.3)
-        palm.name = "palmiye"; palm.location = (-2.84, 2.55, -0.12); palm.rotation_euler = (0, 0, math.radians(150))
+        palm, _, _ = R.load_game("palm", height=2.5)
+        palm.name = "palmiye"; palm.location = (-2.54, 2.6, -0.1); palm.rotation_euler = (0, 0, math.radians(180))   # gövde kumdan sola eğik çıkar, tepe sol kenarda
         pm = palm.data.materials[0]; nt = pm.node_tree
         tex = next(x for x in nt.nodes if x.type == "TEX_IMAGE" and x.image and "basecolor" in x.image.name)
         hs = nt.nodes.new("ShaderNodeHueSaturation"); hs.inputs["Saturation"].default_value = 0.85; hs.inputs["Value"].default_value = 0.97
         nt.links.new(tex.outputs[0], hs.inputs["Color"]); nt.links.new(hs.outputs[0], nt.nodes["Principled BSDF"].inputs["Base Color"])
+        nt.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.75; nt.nodes["Principled BSDF"].inputs["Coat Weight"].default_value = 0.0
         lh, _, _ = R.load_game("b_lighthouse", height=4.6)
         lh.name = "fener"; lh.location = (22.2, 72.0, 0.45)
         kit.blob("adacik", (22.2, 72.0, -0.4), (4.0, 2.8, 1.25), kit.mat("kaya", "#8c8a6a", rough=0.8, coat=0.0), seg=32)
