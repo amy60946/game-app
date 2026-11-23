@@ -1,0 +1,16 @@
+{
+ "id": "01a2094a-ed23-73cb-8d7e-2b636433c684",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Recreate the background scene of the reference image as a single square image, full resolution, with the octopus character completely removed: the same warm orange and golden sunrise rays radiating from the center, the same soft sky, the same palm tree on the left, the same red-and-white lighthouse and small green islet at the bottom right, and the same calm turquoise sea along the bottom, in exactly the same colours, positions and soft glossy illustrated style. Nothing in the center, no character, no text, no border.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795452235739,
+ "started_at": 1795452235951,
+ "finished_at": 1795452254378,
+ "expires_at": 1795711454378,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a2094a-ed23-73cb-8d7e-2b636433c684_0.png?Expires=1795711454&Signature=f~So0frEen3aqW8-s7TkkRakN8~CQh81qPDSv43iLOkliw-I2hva8JWaDV-RDwWx88NpZ9mT0BCWz4Ruxx3F06jtK5Ei2HJks67GzT6UjAyFSW84SiypTOnrtOZmLcFPCjdo7kaXLu~vSsPomQmBTYodQpP-FRDC751~uq~Dep4wGC14d1OhPnFCVucCN1yv394KYM-kV9Xgh~UpqKEeHOoWrGy2hH0eMJh8aFnKjnPVXfhyIkAoSGUZoXaLj6bG2VB547DJ4WQwQwO6~diLRw0oVE94E17BwEnjo6hgujpB3zPgxhcpQn1EkWTiaJUpI2HwlmayTVsXIKfvEn8M5Q__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

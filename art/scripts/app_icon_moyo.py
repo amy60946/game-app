@@ -11,6 +11,7 @@ Seçenekler (R1–R6, M1–M3) ve dinleme/önizleme sayfası yalnız sohbette g�
 
     python3 -I art/scripts/app_icon_moyo.py            # → Assets/_Pofi/Art/AppIcon.png
     python3 -I art/scripts/app_icon_moyo.py <çıktı.png>
+    python3 -I art/scripts/app_icon_moyo.py <çıktı.png> <oyun_görseli.png>   # başka bir oyun görseline aynı rozet
 """
 import os, sys
 from PIL import Image, ImageDraw, ImageFilter
@@ -19,6 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 SRC = os.path.join(ROOT, "art", "icons", "moyo_oyun")
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "Assets", "_Pofi", "Art", "AppIcon.png")
+BASE = sys.argv[2] if len(sys.argv) > 2 else os.path.join(SRC, "src_oyun.png")
 
 S = 1024
 U = S / 60          # 60 px ana ekran ızgarası
@@ -36,7 +38,7 @@ def rounded(size, rad):
 
 
 def main():
-    base = Image.open(os.path.join(SRC, "src_oyun.png")).convert("RGB").resize((S, S), Image.LANCZOS)
+    base = Image.open(BASE).convert("RGB").resize((S, S), Image.LANCZOS)
     b = round(BADGE_UNITS * U); x1 = round(S - INSET_UNITS * U); x0 = x1 - b
     mask = rounded(b, RAD)
     dx, dy, blur, alpha = SHADOW

@@ -1,0 +1,16 @@
+{
+ "id": "01a2094b-5c3b-7666-b9ef-20a64ad4ba03",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "A single square mobile game app icon at full resolution, not a grid. Composition from the FIRST reference image: a cute baby octopus seen from the front with eight chubby curled tentacles splayed symmetrically, each with pale suckers, holding an open scallop shell with one glowing white pearl in front of its body. Make it more eye-catching than the reference: the octopus fills about 80 percent of the frame, and the scallop shell with the pearl is about twice as big, the pearl large, round, shiny and softly glowing, held at the lower center. Background from the SECOND reference image: warm orange and golden sunrise rays, soft sky, the palm tree on the left and the calm turquoise sea along the bottom. Face from the SECOND reference image exactly: big glossy dark eyes with large white highlights, small brown eyebrows, rosy cheeks, a small round coral-pink snout and a happy open smile; no lipstick, no eyelashes; glossy light-blue jelly body, never pink. Keep the bottom-right quarter of the icon calm and simple because a small badge will be placed there; the octopus and the shell sit slightly up and to the left. Soft glossy vinyl-toy 3D style, vibrant balanced colours, crisp sharp edges. No text, no letters, no logo, no border.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795452263997,
+ "started_at": 1795452264013,
+ "finished_at": 1795452329804,
+ "expires_at": 1795711529804,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a2094b-5c3b-7666-b9ef-20a64ad4ba03_0.png?Expires=1795711529&Signature=Ii7syCEGdD0a~LOcvRPL8x8TXzOnuvUtDYn3cUImLEINQ7VWcjZ8DGIEvgyCVgwFd7u5xUkne1MOAIsyxFOAg2NaYSjQjXWYe8X5mKct-Fcaaqu-~wkCPadSociiXwfweMxF8GCpFJp~1xfkZQ8xndoUUK5zKJlIZjk1YQM3MUtVE48WYGYTENe3psxmoE9Tr2PKdcv2Jiz6n9htiizQob8psUENW1FavEpTQJkycn~sl~iN~UU0n0CNayNS8RQI5n0jU7D1Wi6bb~Hmf~oVik7bKgEmJ9FHSzdwm~Ak6mFs2INhiJAC9ik2g7znITPo7pArTFpcJn0ExXIZeNG0Dw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
