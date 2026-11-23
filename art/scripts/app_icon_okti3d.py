@@ -104,7 +104,7 @@ def tentacle(name, pts, r0, r1, skin, suck_m, cup_m, centre=None, suck_from=0.42
 
 def body(skin):
     """Baş (yumurta) + etek tek dönel gövde: iki elipsin yumuşak birleşimi, hafif bel, basamaksız. Ön −Y, hafif geriye yatık."""
-    ZH, A, BU, BL = 1.0, 0.585, 0.585, 0.66      # baş: merkez, yatay yarıçap, üst/alt düşey yarıçap
+    ZH, A, BU, BL = 1.0, 0.61, 0.50, 0.66        # baş: merkez, yatay yarıçap, üst/alt düşey yarıçap
     ZS, AS, BS = 0.44, 0.55, 0.44                  # etek (kuma değer; bel başın %91i)
     Z0, Z1 = ZS - BS + 0.004, ZH + BU
     def ell(z, zc, a, bu, bl):
@@ -183,15 +183,16 @@ def _shell_nodes(nt, b):
 
 def pearl_material():
     def b(nt, bsdf):
-        bsdf.inputs["Base Color"].default_value = kit.srgb("#ead9d4")
+        bsdf.inputs["Base Color"].default_value = kit.srgb("#e4d2cc")
         bsdf.inputs["Roughness"].default_value = 0.2
-        bsdf.inputs["Coat Weight"].default_value = 1.0
-        bsdf.inputs["Coat Roughness"].default_value = 0.04
+        bsdf.inputs["Coat Weight"].default_value = 0.55
+        bsdf.inputs["Coat Roughness"].default_value = 0.08
+        if "Specular IOR Level" in bsdf.inputs: bsdf.inputs["Specular IOR Level"].default_value = 0.3
         if "Sheen Weight" in bsdf.inputs:
-            bsdf.inputs["Sheen Weight"].default_value = 0.5; bsdf.inputs["Sheen Tint"].default_value = kit.srgb("#ffc9e0")
+            bsdf.inputs["Sheen Weight"].default_value = 0.3; bsdf.inputs["Sheen Tint"].default_value = kit.srgb("#ffc9e0")
         if "Thin Film Thickness" in bsdf.inputs:
             bsdf.inputs["Thin Film Thickness"].default_value = 300.0
-            return kit.nodes_mat("inci", b)
+    return kit.nodes_mat("inci", b)
 
 
 def sand_material():
@@ -334,8 +335,8 @@ def okti(skin, suck_m, cup_m, pearl_m):
         (-75, -84, 0.56, -10, 0.19, 1.0, 180, 0.15, 0.03),     # sol: uzun, büyük kıvrım (sol kenardan içeride)
         (-34, -40, 0.50, -24, 0.14, 0.95, 180, 0.15, 0.03),    # ön sol
         (6, 2, 0.36, 22, 0.12, 0.9, 0, 0.145, 0.028),           # ön orta: kısa
-        (36, 44, 0.22, 30, 0.105, 0.85, 180, 0.14, 0.028),      # ön sağ: çok kısa, sola kıvrılır (rozetten uzak)
-        (118, 145, 0.62, 10, 0.15, 0.95, 0, 0.14, 0.03),        # sağ arka: gövdenin arkasından, ucu rozetin üstünde kıvrılır
+        (40, 50, 0.30, 6, 0.07, 0.6, 0, 0.14, 0.026),           # ön sağ: kumda uzanır, ucu küçük kıvrık (rozetin solunda)
+        (118, 135, 0.90, 6, 0.15, 0.95, 0, 0.14, 0.03),         # sağ arka: gövdenin arkasından sağa, ucu rozetin üstünde kıvrılır
         (-128, -134, 0.40, -14, 0.12, 0.9, 180, 0.13, 0.028),   # arka sol: başın yanında kıvrık uç
         (152, 156, 0.30, 10, 0.10, 0.8, 0, 0.12, 0.026),        # arka sağ: kısa
     ]
@@ -371,7 +372,7 @@ def main():
     suck_m = kit.mat("vantuz", SUCK, rough=0.45, coat=0.25)
     cup_m = kit.mat("vantuz_ic", SUCK_IN, rough=0.55, coat=0.0)
     pearl_m = pearl_material()
-    sun_dir = V((0.075, 1.0, 0.075)).normalized()
+    sun_dir = V((0.158, 0.987, 0.031)).normalized()
     sky_world(sun_dir)
     ground_and_sea(sand_material(), sea_material())
     okti(skin, suck_m, cup_m, pearl_m)
@@ -379,13 +380,13 @@ def main():
     scallop((-0.68, -0.62, 0.01), -18, 0.17)
     try:
         palm, _, _ = R.load_game("palm", height=3.3)
-        palm.location = (-1.44, 3.6, 0.0); palm.rotation_euler = (0, 0, 0)
+        palm.name = "palmiye"; palm.location = (-2.84, 2.55, -0.12); palm.rotation_euler = (0, 0, math.radians(150))
         pm = palm.data.materials[0]; nt = pm.node_tree
         tex = next(x for x in nt.nodes if x.type == "TEX_IMAGE" and x.image and "basecolor" in x.image.name)
         hs = nt.nodes.new("ShaderNodeHueSaturation"); hs.inputs["Saturation"].default_value = 0.85; hs.inputs["Value"].default_value = 0.97
         nt.links.new(tex.outputs[0], hs.inputs["Color"]); nt.links.new(hs.outputs[0], nt.nodes["Principled BSDF"].inputs["Base Color"])
         lh, _, _ = R.load_game("b_lighthouse", height=4.6)
-        lh.location = (22.2, 72.0, 0.45)
+        lh.name = "fener"; lh.location = (22.2, 72.0, 0.45)
         kit.blob("adacik", (22.2, 72.0, -0.4), (4.0, 2.8, 1.25), kit.mat("kaya", "#8c8a6a", rough=0.8, coat=0.0), seg=32)
         kit.blob("adacik_cim", (22.2, 72.0, 0.45), (3.0, 2.0, 0.4), kit.mat("cim", "#7fb35a", rough=0.8, coat=0.0), seg=32)
     except Exception as e:
@@ -395,12 +396,42 @@ def main():
     ko.rotation_euler = V((-0.45, 0.72, -0.53)).normalized().to_track_quat("-Z", "Y").to_euler()
     rim = bpy.data.lights.new("kenar", "SUN"); rim.energy = 3.2; rim.angle = math.radians(4); rim.color = (1.0, 0.76, 0.48)
     ro = bpy.data.objects.new("kenar", rim); sc.collection.objects.link(ro)
-    ro.rotation_euler = V((0.0, -0.99, -0.11)).normalized().to_track_quat("-Z", "Y").to_euler()
+    ro.rotation_euler = V((-0.16, -0.98, -0.11)).normalized().to_track_quat("-Z", "Y").to_euler()
     fl = bpy.data.lights.new("dolgu", "SUN"); fl.energy = 1.1; fl.angle = math.radians(20); fl.color = (1.0, 0.86, 0.72)
     fo = bpy.data.objects.new("dolgu", fl); sc.collection.objects.link(fo)
     fo.rotation_euler = V((0.85, 0.42, -0.32)).normalized().to_track_quat("-Z", "Y").to_euler()
+    if os.environ.get("ICON_PROBE"):
+        probe(sc)
+        return
     R.cam_shot(sc, OUT, (0, 0, 0.8), 3.75, 0, 7.2, lens=50)
     print("yazıldı", OUT)
+
+
+def probe(sc):
+    """ICON_PROBE=1: her parçanın 1024'lük ekrandaki kutusunu yazar (render yok)."""
+    from bpy_extras.object_utils import world_to_camera_view
+    c = bpy.data.cameras.new("cam"); cam = bpy.data.objects.new("cam", c); sc.collection.objects.link(cam); sc.camera = cam
+    c.lens = 50; t = V((0, 0, 0.8)); p = math.radians(7.2)
+    cam.location = t + V((0, -math.cos(p), math.sin(p))) * 3.75
+    cam.rotation_euler = (t - cam.location).to_track_quat("-Z", "Y").to_euler()
+    bpy.context.view_layer.update()
+    dg = bpy.context.evaluated_depsgraph_get()
+    groups = {}
+    for o in sc.objects:
+        if o.type not in ("MESH", "CURVE"): continue
+        key = o.name.split("_")[0].split(".")[0]
+        if key in ("kum", "deniz", "temas"): continue
+        e = o.evaluated_get(dg)
+        try: me = e.to_mesh()
+        except Exception: continue
+        for v in list(me.vertices)[::7]:
+            q = world_to_camera_view(sc, cam, o.matrix_world @ v.co)
+            x, y = q.x * 1024, (1 - q.y) * 1024
+            g = groups.setdefault(key, [1e9, 1e9, -1e9, -1e9])
+            g[0] = min(g[0], x); g[1] = min(g[1], y); g[2] = max(g[2], x); g[3] = max(g[3], y)
+        e.to_mesh_clear()
+    for k in sorted(groups):
+        g = groups[k]; print("%-12s x %5d–%5d  y %5d–%5d" % (k, g[0], g[2], g[1], g[3]))
 
 
 main()
