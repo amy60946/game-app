@@ -34,6 +34,7 @@ img[y0:y1, x0:] = fill
 wm = np.ones((y1 - y0, S - x0), np.float32)
 wm *= np.clip((np.arange(y0, y1) - y0) / 15.0, 0, 1)[:, None]
 wm *= np.clip((np.arange(x0, S) - x0) / 15.0, 0, 1)[None, :]
+wm[299 - y0:, 896 - x0:] = 1.0      # eski adacık + fener çatısı (898–1024, 301–390) tamamen dolsun: geçiş bandında görünmesin
 img[y0:y1, x0:] = M1[y0:y1, x0:] * (1 - wm[..., None]) + img[y0:y1, x0:] * wm[..., None]
 # geçiş bandında eski adacık kalmasın: kenar 15 px'te adacık pikselleri yoktu (adacık x ≥ 898, y ≥ 301) → sol/üst bant zaten gök
 
@@ -120,7 +121,7 @@ items = [
     ("deniz yıldızı", K2, (308, 840, 428, 920), (425, 945), 0.75, -8),
     ("külah kabuk", K2, (180, 912, 280, 960), (605, 962), 0.85, 6),
     ("çakıl", K2, (696, 751, 756, 781), (40, 655), 0.7, 0),
-    ("küçük tarak", K2, (36, 788, 96, 832), (984, 652), 0.7, 0),
+    ("küçük tarak", K2, (36, 788, 96, 832), (984, 664), 0.7, 0),     # ıslak kum bandının altında
     ("beyaz kabuk", K2, (468, 860, 508, 890), (348, 975), 0.8, -15),
 ]
 for name, s, box, cen, scl, rot in items:
