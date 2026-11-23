@@ -1,0 +1,16 @@
+{
+ "id": "01a20952-c63d-7365-8611-e541223bbb8c",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Inpainting task. This is a finished mobile game app icon painting. Fill ONLY the flat magenta area so the painting continues naturally and seamlessly: warm orange-golden sunrise sky with soft sun rays radiating from a low sun near the horizon in the centre, light clouds, then the calm turquoise-blue tropical sea with gentle wave lines and sparkles in the lower part, matching the exact colours, lighting and painterly 3D style around the hole. Keep every pixel outside the magenta area exactly as it is: same palm tree, same lighthouse and islet, same composition. Empty scenery only: no character, no animal, no creature, no person, no new objects, no text, no border, no frame, full bleed square image.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795452749798,
+ "started_at": 1795452750316,
+ "finished_at": 1795452772241,
+ "expires_at": 1795711972241,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a20952-c63d-7365-8611-e541223bbb8c_0.png?Expires=1795711972&Signature=jJYrvM0~aSskIU6sBcgW-oOzYIGcuuyhLdftv2VprtkxQDDZf1oskltI0tbLJmzMi5e13~NEEvKm1KEZPmQKrCwbKkixOO1oDZYanuclPvfVKZDCB6oj0CWUS0UdsEqnPnSEks54Eb-FBZjv7wKnZEkMY9w5Voe4E-bXyJ-WNrrzOInwKeZBiQ99PNb1LMlqt7rRdFKJoYIk0zIYUj-N6LjJNo8t02hVz8Jv6lC7Vn2YOOQoqh1NEgvKhCJ8vwMLALRLD~A3qaPshgs9GoBN6-wKE4u1MARdvDxRMLjg~G~jPw8j1ZYrfJJhEjl9WweYytZAfk7AgWrvLfGb0GSXIQ__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
