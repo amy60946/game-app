@@ -1,11 +1,15 @@
-"""Moyo Oyun uygulama simgesi (kullanıcı seçimi R2, 20 Kasım 2026): oyun görseli + sağ altta küçük Moyo Ebeveyn simgesi.
+"""Moyo Oyun uygulama simgesi: oyun görseli + sağ altta küçük Moyo Ebeveyn simgesi (rozet ölçüleri R2, 20 Kasım 2026).
+
+Oyun görseli 23 Kasım 2026'dan beri "M1 + kum + fener" (kullanıcı: "M1 kum fener ok uygula"): src_okti_m1.png, üretici
+art/scripts/app_icon_m1_ekle.py (M1 = kodla çizilen K1'in ayrıntılı tarifinden Meshy, art/icons/okti_kod/meshy_tarif.txt; kum öğeleri ve
+fener Meshy denemesinden kesilip kodla eklenir, Okti pikselleri aynen). Önceki oyun görseli src_oyun.png (24 Ekim–23 Kasım) arşivde.
 
 Rozet: Moyo Ebeveyn'in güncel simgesi (18 Kasım seti: lacivert #16113A zemin, yeşil #0FD354 işaret 1E), beyaz çizgi YOK,
 yumuşak gölge; boyu 14/60 birim (%23,3), köşeden 4/60 birim (%6,7). Ölçüler 60 px ana ekran ızgarasına oturur (1 birim =
 1024/60 px), rozetin köşe yarıçapı iOS köşe oranıyla aynı (%22,37); telefonun yuvarlak köşesine köşegende ~17 px pay kalır.
 Simgede yazı yok (Apple önermez). Çıktı 1024 × 1024, saydamlıksız (App Store şartı).
 
-Girdiler art/icons/moyo_oyun/: src_oyun.png (özgün oyun görseli, 24 Ekim simgesi), moyo_ebeveyn_1024.png (parent-app
+Girdiler art/icons/moyo_oyun/: src_okti_m1.png (oyun görseli), moyo_ebeveyn_1024.png (parent-app
 assets/icon.png, 18 Kasım seti). Moyo Ebeveyn simgesi değişirse yeni dosyayı oraya kopyala ve betiği yeniden çalıştır.
 Seçenekler (R1–R6, M1–M3) ve dinleme/önizleme sayfası yalnız sohbette gösterildi; bu betik seçilen R2'yi üretir.
 
@@ -20,7 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 SRC = os.path.join(ROOT, "art", "icons", "moyo_oyun")
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "Assets", "_Pofi", "Art", "AppIcon.png")
-BASE = sys.argv[2] if len(sys.argv) > 2 else os.path.join(SRC, "src_oyun.png")
+BASE = sys.argv[2] if len(sys.argv) > 2 else os.path.join(SRC, "src_okti_m1.png")
 
 S = 1024
 U = S / 60          # 60 px ana ekran ızgarası
