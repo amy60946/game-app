@@ -23,3 +23,27 @@ VARIATION: a low heroic camera angle looking slightly up at Okti. A big glowing 
 
 === m6 EKİ ===
 VARIATION: Okti hugs an open oyster with two front tentacles. The oyster has a rough grey-brown outside and a pinkish pearly inside, and the big pearl inside it glows softly. The raised right tentacle waves hello. The scallop shell is not needed. Everything else is as described.
+
+=== M1 FON SEÇENEKLERİ (23 Kasım 2026, kullanıcı: "M1 tarif — arka fona alternatifler çıkart, gün batımına da alternatif çıkart") ===
+# Hepsi M1 görseli referans (--ref) + ortak koruma metni + fon eki. Çıktılar art/meshy/out/app_icon_m1_<kod>/.
+
+--- koruma ---
+Square mobile game app icon artwork, full bleed edge to edge, 1:1. No text, no letters, no logo, no border, no frame, no rounded-corner tile, no transparency, no checkerboard. Use the reference image as the exact base: keep the character Okti (a cute baby octopus with a big smooth round sky-blue head, two big glossy dark navy bead eyes with white highlights, a small happy closed smile, round pink blush cheeks, eight tapering tentacles with pink suckers and curled tips spread asymmetrically on the beach sand), its pose, its size and position in the frame, the raised right tentacle wrapping the cream-pink pearl at shoulder height, the coral scallop shell on the sand at the front left, the camera angle and the same soft premium 3D animated-film style exactly as in the reference. Okti has NO eyebrows (remove any eyebrows). Keep the bottom right corner calm, with plain sand only, because a badge will be placed there later, and keep every tentacle tip clear of that corner. Change ONLY the background, the sky and the time of day, as follows:
+
+--- a1 ---
+Bright sunny midday on a tropical island: a clear light blue sky with a few soft white fluffy clouds, a sparkling shallow turquoise lagoon with clear water, bright white-gold sand, the palm tree on the left and the small green islet with the red and white lighthouse on the right horizon. Make sure Okti stays clearly separated from the sky by a soft warm sunlit rim and a slightly deeper blue sky behind the head.
+
+--- a2 ---
+Soft pastel dawn: a gentle peach-pink and lavender sky, a pale rising sun low on the right with light morning mist over a calm pastel turquoise sea, soft dreamy light, the palm tree on the left and the small islet with the lighthouse on the right horizon, faded slightly in the haze.
+
+--- a3 ---
+Golden hour on a lush tropical island village: behind the beach, a green rolling island hill with several palm trees, a small cosy wooden beach hut with a straw roof and the red and white lighthouse on a rocky point at the right, warm golden late-afternoon light and a calm turquoise sea with gentle waves between the beach and the hill.
+
+--- g1 ---
+Classic tropical sunset: a big glowing orange sun half sunk into the sea horizon on the right, the sky grading from bright orange and gold near the horizon to deep coral red and warm purple at the top, a few long glowing pink-orange clouds, the sea reflecting a shimmering orange sun path, the palm tree on the left as a warm dark silhouette with glowing edges, and the small islet with the lighthouse silhouetted on the right horizon with its lamp shining. Okti keeps its bright blue colour with a warm orange rim light.
+
+--- g2 ---
+Pink and violet dusk just after sunset: a soft magenta, pink and violet sky with the last golden glow on the horizon, the first tiny twinkling stars and a thin crescent moon high on the left, gentle pink-lit clouds, a calm sea in violet-blue tones with pink reflections, the palm tree on the left in soft shadow, and the lighthouse on the right horizon with its warm lamp lit. Okti keeps its bright blue colour, lit by a soft pink-gold glow.
+
+--- g3 ---
+Dramatic golden sunset: a low sun just above the horizon on the right, big fluffy clouds lit from below in gold, peach and rose, glowing rays of light fanning across the sky, the sea shining gold and turquoise, the palm tree on the left with fronds glowing at the edges, and the small islet with the lighthouse on the right horizon. Okti keeps its bright blue colour with a golden rim light.

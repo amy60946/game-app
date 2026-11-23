@@ -1,0 +1,16 @@
+{
+ "id": "01a209a5-af2b-7133-bdd3-885bf6222ed7",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Square mobile game app icon artwork, full bleed edge to edge, 1:1. No text, no letters, no logo, no border, no frame, no rounded-corner tile, no transparency, no checkerboard. Use the reference image as the exact base: keep the character Okti (a cute baby octopus with a big smooth round sky-blue head, two big glossy dark navy bead eyes with white highlights, a small happy closed smile, round pink blush cheeks, eight tapering tentacles with pink suckers and curled tips spread asymmetrically on the beach sand), its pose, its size and position in the frame, the raised right tentacle wrapping the cream-pink pearl at shoulder height, the coral scallop shell on the sand at the front left, the camera angle and the same soft premium 3D animated-film style exactly as in the reference. Okti has NO eyebrows (remove any eyebrows). Keep the bottom right corner calm, with plain sand only, because a badge will be placed there later, and keep every tentacle tip clear of that corner. Change ONLY the background, the sky and the time of day, as follows: Dramatic golden sunset: a low sun just above the horizon on the right, big fluffy clouds lit from below in gold, peach and rose, glowing rays of light fanning across the sky, the sea shining gold and turquoise, the palm tree on the left with fronds glowing at the edges, and the small islet with the lighthouse on the right horizon. Okti keeps its bright blue colour with a golden rim light.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795458183357,
+ "started_at": 1795458184403,
+ "finished_at": 1795458224188,
+ "expires_at": 1795717424188,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a209a5-af2b-7133-bdd3-885bf6222ed7_0.png?Expires=1795717424&Signature=lBORVUcV2HW0V8bTNN3PtFtt~~W7JOmBS5v07aJbdl7uwCrh25q47MB3LAxgt5RbgJOdu8Zr0JVrHyRevo3wkfv~xd1I7P2gsS8iYUI5EoEylimfjUZZpKH2ZPxVbxIKTIqWxBmi0feCWlq-~AYbCLuMsMdkFQFDAfWCsDD39mHq9d80vj7YB6BJ6qkrl9PV8MhJLHlPFr~xMVC9Bfxu55hpR~CYK69SRH7FRH56R-iSShkUNln4BNTAyhp1DBzYOUBt6vsWLlK8dhOrel85GTlhpvy6qLPZiG1aiU0x8M8OhoPC5j58sqREYZwFfdmiQwjkkqavak1aVFdScdyX2w__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}

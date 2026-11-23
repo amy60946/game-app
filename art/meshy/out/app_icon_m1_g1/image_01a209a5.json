@@ -1,0 +1,16 @@
+{
+ "id": "01a209a5-ad70-7735-93d0-7cc0e9ef408d",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Square mobile game app icon artwork, full bleed edge to edge, 1:1. No text, no letters, no logo, no border, no frame, no rounded-corner tile, no transparency, no checkerboard. Use the reference image as the exact base: keep the character Okti (a cute baby octopus with a big smooth round sky-blue head, two big glossy dark navy bead eyes with white highlights, a small happy closed smile, round pink blush cheeks, eight tapering tentacles with pink suckers and curled tips spread asymmetrically on the beach sand), its pose, its size and position in the frame, the raised right tentacle wrapping the cream-pink pearl at shoulder height, the coral scallop shell on the sand at the front left, the camera angle and the same soft premium 3D animated-film style exactly as in the reference. Okti has NO eyebrows (remove any eyebrows). Keep the bottom right corner calm, with plain sand only, because a badge will be placed there later, and keep every tentacle tip clear of that corner. Change ONLY the background, the sky and the time of day, as follows: Classic tropical sunset: a big glowing orange sun half sunk into the sea horizon on the right, the sky grading from bright orange and gold near the horizon to deep coral red and warm purple at the top, a few long glowing pink-orange clouds, the sea reflecting a shimmering orange sun path, the palm tree on the left as a warm dark silhouette with glowing edges, and the small islet with the lighthouse silhouetted on the right horizon with its lamp shining. Okti keeps its bright blue colour with a warm orange rim light.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795458182943,
+ "started_at": 1795458183868,
+ "finished_at": 1795458202478,
+ "expires_at": 1795717402478,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a209a5-ad70-7735-93d0-7cc0e9ef408d_0.png?Expires=1795717402&Signature=WWWLZ~c~Vc~iXRQls0W3Z0aVHSbWILDcatTbRUr-8~lVU2fsXHbbhHArWuvqpsqiOYmvNzbH6VSz1x3XrsUgbaxvmYGvDIrYutxnUwLBEl6rNh2R5JNfQhBnwcY6uON3ytPRrtRNeIPlvJdpive3s7l2rqVcx4kotEMXrj9gPidgCbeNF84rGuMuEpaZpbvLk7oDmwN303-biXQOxqFYf2pGNNAr2XAOUFL5N1Q8AvZTBds~jwnfcGBfQu41uyGChh5Hm1AFQ3540hxri7MXkpN0qp6kmsHmYKO49zIS3r2gFe2oOzgjjYfgV-IxBBj7hhVKLYu9OhHtY7cV~LhdUw__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
