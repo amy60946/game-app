@@ -25,9 +25,11 @@ S = 1024
 # Yol noktaları (resim pikseli: x sağa, y aşağı), taban kalınlığı, uç kalınlığı. Ölçüler alt ajanın yerleşim ölçümünden:
 # A bacağı sol alta, C bacağı rozetin soluna (x < 694), B bacağı ortada. iOS köşe maskesi: y 1000'de x ≥ 130, y 1024'te x ≥ 229.
 PATHS = {
-    "A": ([(300, 1075), (268, 1010), (228, 968), (186, 948), (150, 950), (131, 968), (134, 990), (152, 999), (169, 989), (170, 973)], 33, 7),
-    "C": ([(567, 1075), (588, 1018), (614, 986), (642, 972), (665, 980), (670, 1001), (657, 1013), (641, 1007), (641, 994)], 30, 6),
-    "B": ([(432, 1075), (410, 1020), (380, 993), (350, 987), (333, 1000), (337, 1016), (352, 1020), (360, 1009)], 27, 6),
+    # 2. tur (alt ajan ölçüsü): uç bacağın kendi genişliğinde başlar (~100 px), hızla incelir (~24 px); sol uç 25 px sağa,
+    # 15 px aşağı (sol kol vantuzlarından ve iOS köşesinden uzak); sağ uç tişört kenarının altında kalır.
+    "A": ([(318, 1120), (300, 1050), (272, 1005), (236, 978), (198, 968), (168, 976), (156, 998), (166, 1016), (186, 1018), (196, 1004), (190, 992)], 50, 11),
+    "C": ([(585, 1120), (590, 1042), (608, 1004), (634, 987), (657, 990), (668, 1006), (660, 1020), (645, 1018), (641, 1006)], 48, 10),
+    "B": ([(432, 1120), (420, 1045), (394, 1008), (364, 995), (343, 1004), (344, 1018), (358, 1021), (364, 1010)], 42, 9),
 }
 ORDER = ["A", "C", "B"][:TIPS]
 
@@ -70,7 +72,7 @@ def material(name, rgb, rough, coat=0.0, emit=None):
     b.inputs["Roughness"].default_value = rough
     if "Coat Weight" in b.inputs:
         b.inputs["Coat Weight"].default_value = coat
-        b.inputs["Coat Roughness"].default_value = 0.08
+        b.inputs["Coat Roughness"].default_value = 0.3
     return m
 
 
@@ -95,7 +97,7 @@ def tube(name, pts, r0, r1, mat):
         cross = (x - a2[0]) * (b2[1] - y) - (y - a2[1]) * (b2[0] - x)
         sgn = 1.0 if cross > 0 else -1.0
         t = i / (n - 1)
-        r = r0 + (r1 - r0) * (t ** 1.15)
+        r = r0 + (r1 - r0) * (t ** 0.62)   # hızlı incelme: bacaktan uca
         nrm = Vector((nx, -ny, 0.0))         # dünya koordinatında (y ters)
         zv = Vector((0, 0, 1))
         c = world(x, y)
@@ -122,11 +124,11 @@ def tube(name, pts, r0, r1, mat):
     return info
 
 
-def sucker(c, inward, r, ring_mat, hole_mat):
+def sucker(c, inward, r, ring_mat, hole_mat, size=None):
     """Tüp yüzeyinde, kıvrımın içine ve kameraya yarı dönük vantuz (halka + çukur)."""
     d = (inward.normalized() * math.cos(math.radians(48)) + Vector((0, 0, 1)) * math.sin(math.radians(48))).normalized()
     pos = c + d * (r * 0.93)
-    rad = r * 0.46
+    rad = size if size else r * 0.46
     bpy.ops.mesh.primitive_torus_add(major_radius=rad, minor_radius=rad * 0.34, major_segments=24, minor_segments=10,
                                      location=pos)
     tor = bpy.context.active_object
@@ -169,7 +171,7 @@ def main():
 
     # ışık: güneş sağ üstten ve önden, sıcak; ortam serin (simgenin ışığı)
     sun = bpy.data.lights.new("sun", "SUN")
-    sun.energy = 3.4
+    sun.energy = 3.0
     sun.color = (1.0, 0.94, 0.84)
     sun.angle = math.radians(18)
     so = bpy.data.objects.new("sun", sun)
@@ -185,25 +187,24 @@ def main():
     sc.collection.objects.link(ro)
     w = bpy.data.worlds.new("w")
     w.use_nodes = True
-    w.node_tree.nodes["Background"].inputs[0].default_value = srgb((150, 185, 215))
-    w.node_tree.nodes["Background"].inputs[1].default_value = 0.75
+    w.node_tree.nodes["Background"].inputs[0].default_value = srgb((120, 160, 205))
+    w.node_tree.nodes["Background"].inputs[1].default_value = 0.42
     sc.world = w
 
-    skin = material("deri", (78, 152, 204), 0.33, coat=0.45)
-    ring_rgb = (247, 196, 208) if SUCKER == "pembe" else (205, 232, 248)
-    hole_rgb = (214, 140, 160) if SUCKER == "pembe" else (120, 170, 214)
+    skin = material("deri", (64, 126, 190), 0.5, coat=0.18)
+    ring_rgb = (247, 196, 208) if SUCKER == "pembe" else (150, 215, 245)
+    hole_rgb = (214, 140, 160) if SUCKER == "pembe" else (60, 95, 150)
     ring_m = material("vantuz", ring_rgb, 0.4, coat=0.3)
     hole_m = material("cukur", hole_rgb, 0.55)
 
     for key in ORDER:
         pts, r0, r1 = PATHS[key]
         info = tube("kol_" + key, pts, r0, r1, skin)
-        # vantuzlar: yolun görünen son %55'inde, aralık yerel kalınlığa göre
-        t_next = 0.42
-        for c, inward, r, t in info:
-            if t >= t_next and t < 0.94 and c.y > -1020:
-                sucker(c, inward, r, ring_m, hole_m)
-                t_next = t + max(0.07, (r / 30.0) * 0.13)
+        # vantuzlar: uç başına 4 tane, kıvrımın iç yüzünde eşit aralıkla; çap 24 → 14 px
+        want = [0.50, 0.62, 0.74, 0.86]
+        for j, tw in enumerate(want):
+            c, inward, r, t = min(info, key=lambda e: abs(e[3] - tw))
+            sucker(c, inward, r, ring_m, hole_m, size=(12.0 - 5.0 * j / 3.0))
 
     sc.render.filepath = os.path.join(OUT, "tentacles.png")
     sc.render.image_settings.file_format = "PNG"
