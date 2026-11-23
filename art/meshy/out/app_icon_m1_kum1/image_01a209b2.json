@@ -1,0 +1,16 @@
+{
+ "id": "01a209b2-79ca-7357-95e4-9f96ac90b631",
+ "type": "text-to-image",
+ "ai_model": "nano-banana-pro",
+ "prompt": "Square mobile game app icon artwork, full bleed edge to edge, 1:1. No text, no letters, no logo, no border, no frame, no rounded-corner tile, no transparency, no checkerboard. The FIRST reference image is the base: keep it exactly as it is, with the same character Okti (the cute blue baby octopus, its face, eyes, smile, cheeks, tentacles, suckers and the pearl held by the raised right tentacle), the same pose, size and position, the same scallop shell, the same sunrise sky, sun glow, sea, palm tree, camera angle, colours and soft premium 3D animated-film style. Make only two additions. (1) Add small, natural beach details on the free sand areas like in the SECOND reference image: a few smooth rounded pebbles in soft grey and beige, two or three tiny seashells and a small pink starfish, a few scattered small green tropical leaves, and gentle wind ripples in the sand. Place them around the front-left scallop, in the left foreground and along the bottom-centre sand. Keep them small and subtle, never touching Okti's face, and keep the bottom right corner plain sand because a badge goes there later. (2) Make the lighthouse more visible, like in the THIRD reference image: on the right side of the horizon, a clearly visible red and white striped lighthouse with a little lantern room on top, standing on a small green islet with grey rocks, about twice as big as in the first image, still far away on the sea, warmly lit by the sunrise and not overlapping the pearl or Okti.",
+ "status": "SUCCEEDED",
+ "progress": 100,
+ "created_at": 1795459021808,
+ "started_at": 1795459021874,
+ "finished_at": 1795459038698,
+ "expires_at": 1795718238698,
+ "image_urls": [
+  "https://assets.meshy.ai/096998ae-d4e4-45fb-a7d8-2d90990b18c6/uploads/image_01a209b2-79ca-7357-95e4-9f96ac90b631_0.png?Expires=1795718238&Signature=HziUTnkotH2~gTmfq53NFZUj2Nkncnsd0KgTGimt0EdezYDEwv7wGc5ZD~knoCn-C7RRnIxpkg-c26FHoq7YpTmXc0zXEN5-qBpdP8j~8pRMo4qxDXjHjS7gFzxgHWHbqRoAnhW0M4CW05FGzZ7Zj8JoCAWgFPmLVkbJgDJBRXwXjxj4igSoEIoqyjGPhs77rBsL95D0C46MwLjsGgDy5gxfHjqTtQaegpPy1gIIS7Y-k5kJp89lAtBXcb2M5igc3hDtEKiPxz-NBHQxVQIR7rk6dOLbbhfan43YJtZpTT8rHmCqo4D4CS0dcSSzbblpu3C0hFS8D1~EGK2TAWptKA__&Key-Pair-Id=K1VGYTHIYLM9UM"
+ ],
+ "consumed_credits": 9
+}
